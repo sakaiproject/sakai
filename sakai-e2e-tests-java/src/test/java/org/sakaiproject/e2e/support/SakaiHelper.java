@@ -286,13 +286,21 @@ public class SakaiHelper {
 
     public void typeCkEditor(String editorId, String html) {
         if (editorId == null || editorId.isBlank()) {
-            return;
+            throw new IllegalArgumentException("editorId is required");
         }
+
+        String desiredHtml = html == null ? "" : html;
+        String expectedPlainText = desiredHtml.replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ").trim();
+        boolean populated = false;
 
         try {
             page.waitForFunction(
-                "(id) => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id])",
-                editorId
+                "(id) => {" +
+                    "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
+                    "return Boolean(inst && (inst.status === 'ready' || inst.status === 'loaded' || inst.document));" +
+                    "}",
+                editorId,
+                new Page.WaitForFunctionOptions().setTimeout(15_000)
             );
             page.evaluate(
                 "(args) => {" +
@@ -300,12 +308,114 @@ public class SakaiHelper {
                     "const html = args[1];" +
                     "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
                     "if (!inst) { return false; }" +
-                    "return new Promise((resolve) => inst.setData(html, { callback: () => resolve(true) }));" +
+                    "return new Promise((resolve) => inst.setData(html, { callback: () => {" +
+                        "try { inst.updateElement(); } catch (e) {}" +
+                        "resolve(true);" +
+                    "} }));" +
                     "}",
-                Arrays.asList(editorId, html)
+                Arrays.asList(editorId, desiredHtml)
+            );
+            populated = Boolean.TRUE.equals(page.evaluate(
+                "(args) => {" +
+                    "const id = args[0];" +
+                    "const expected = args[1];" +
+                    "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
+                    "if (inst) {" +
+                        "try { inst.updateElement(); } catch (e) {}" +
+                        "const data = (inst.getData() || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
+                        "if (expected.length === 0 || data.length > 0) { return true; }" +
+                    "}" +
+                    "const el = document.getElementById(id);" +
+                    "if (!el) { return false; }" +
+                    "const value = ('value' in el ? el.value : el.textContent) || '';" +
+                    "const normalized = value.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
+                    "return expected.length === 0 ? true : normalized.length > 0;" +
+                    "}",
+                Arrays.asList(editorId, expectedPlainText)
+            ));
+        } catch (RuntimeException ignored) {
+            populated = false;
+        }
+
+        if (populated) {
+            return;
+        }
+
+        Boolean wroteBackingElement = Boolean.TRUE.equals(page.evaluate(
+            "(args) => {" +
+                "const id = args[0];" +
+                "const html = args[1];" +
+                "const expected = args[2];" +
+                "const element = document.getElementById(id);" +
+                "if (!element || !('value' in element)) { return false; }" +
+                "element.value = html;" +
+                "element.dispatchEvent(new Event('input', { bubbles: true }));" +
+                "element.dispatchEvent(new Event('change', { bubbles: true }));" +
+                "element.dispatchEvent(new Event('blur', { bubbles: true }));" +
+                "const normalized = (element.value || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
+                "return expected.length === 0 ? true : normalized.length > 0;" +
+                "}",
+            Arrays.asList(editorId, desiredHtml, expectedPlainText)
+        ));
+        if (wroteBackingElement) {
+            return;
+        }
+
+        Locator visibleFallback = page.locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible").first();
+        if (visibleFallback.count() > 0 && visibleFallback.isVisible()) {
+            visibleFallback.fill(expectedPlainText);
+            visibleFallback.dispatchEvent("input");
+            visibleFallback.dispatchEvent("change");
+            visibleFallback.dispatchEvent("blur");
+            return;
+        }
+
+        throw new IllegalStateException("Unable to populate CKEditor content for editor id: " + editorId);
+    }
+
+    public boolean typeCkEditorIfPresent(String editorId, String html) {
+        if (editorId == null || editorId.isBlank()) {
+            return false;
+        }
+
+        try {
+            page.waitForFunction(
+                "(id) => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id])",
+                editorId,
+                new Page.WaitForFunctionOptions().setTimeout(8_000)
             );
         } catch (RuntimeException ignored) {
-            // Some tools may not fully initialize CKEditor; callers should provide textarea fallback.
+            return false;
+        }
+
+        typeCkEditor(editorId, html);
+        return true;
+    }
+
+    public boolean typeFirstCkEditorIfPresent(String html) {
+        String editorId = findFirstCkEditorId();
+        if (editorId == null || editorId.isBlank()) {
+            return false;
+        }
+
+        typeCkEditor(editorId, html);
+        return true;
+    }
+
+    public String findFirstCkEditorId() {
+        try {
+            page.waitForFunction(
+                "() => Boolean(window.CKEDITOR && window.CKEDITOR.instances && Object.keys(window.CKEDITOR.instances).length)",
+                null,
+                new Page.WaitForFunctionOptions().setTimeout(8_000)
+            );
+            Object value = page.evaluate("() => Object.keys((window.CKEDITOR && window.CKEDITOR.instances) || {})[0] || null");
+            if (value instanceof String) {
+                return (String) value;
+            }
+            return null;
+        } catch (RuntimeException ignored) {
+            return null;
         }
     }
 

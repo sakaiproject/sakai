@@ -283,10 +283,7 @@ class AssignmentTest extends SakaiUiTestBase {
     }
 
     private void fillAssignmentInstructions(String html) {
-        boolean hasCkEditor = Boolean.TRUE.equals(page.evaluate("() => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.new_assignment_instructions)"));
-        if (hasCkEditor) {
-            sakai.typeCkEditor("new_assignment_instructions", html);
-        } else {
+        if (!sakai.typeCkEditorIfPresent("new_assignment_instructions", html)) {
             Locator fallback = page.locator("textarea#new_assignment_instructions, textarea:visible, [contenteditable=\"true\"]:visible").first();
             if (fallback.count() > 0) {
                 fallback.fill(html.replaceAll("<[^>]+>", ""));

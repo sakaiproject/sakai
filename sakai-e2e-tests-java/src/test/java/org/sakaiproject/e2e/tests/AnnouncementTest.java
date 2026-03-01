@@ -117,7 +117,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     private void fillAnnouncementBody(String html) {
         String plainText = html.replaceAll("<[^>]+>", "").trim();
 
-        if (tryFillBodyWithCkEditor(html)) {
+        if (sakai.typeCkEditorIfPresent("body", html)) {
             return;
         }
 
@@ -164,23 +164,6 @@ class AnnouncementTest extends SakaiUiTestBase {
             }
         } catch (PlaywrightException ignored) {
             // Not all Announcements contexts expose the same view filter controls.
-        }
-    }
-
-    private boolean tryFillBodyWithCkEditor(String html) {
-        try {
-            page.waitForFunction(
-                "() => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body && window.CKEDITOR.instances.body.status === 'ready')"
-            );
-            sakai.typeCkEditor("body", html);
-            page.evaluate("() => {"
-                + "const editor = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body;"
-                + "if (editor) { editor.updateElement(); }"
-                + "}");
-            assertBodyPopulated();
-            return true;
-        } catch (PlaywrightException ignored) {
-            return false;
         }
     }
 

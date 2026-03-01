@@ -46,11 +46,7 @@ class SiteStatsTest extends SakaiUiTestBase {
 
         page.locator("#content, main, .portletBody").first().locator("input[type=\"text\"]:visible").first().fill(REPORT_TITLE);
 
-        boolean hasCkEditor = Boolean.TRUE.equals(page.evaluate("() => Boolean(window.CKEDITOR && Object.keys(window.CKEDITOR.instances || {}).length)"));
-        if (hasCkEditor) {
-            String editorId = (String) page.evaluate("() => Object.keys(window.CKEDITOR.instances || {})[0]");
-            sakai.typeCkEditor(editorId, "<p>" + REPORT_DESC + "</p>");
-        } else {
+        if (!sakai.typeFirstCkEditorIfPresent("<p>" + REPORT_DESC + "</p>")) {
             page.locator("#content, main, .portletBody").first()
                 .locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible")
                 .first()

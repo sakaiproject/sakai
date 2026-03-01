@@ -49,11 +49,7 @@ class MailtoolTest extends SakaiUiTestBase {
 
         page.locator("form input[type=\"text\"]:visible").first().fill(SUBJECT);
 
-        boolean hasCkEditor = Boolean.TRUE.equals(page.evaluate("() => Boolean(window.CKEDITOR && Object.keys(window.CKEDITOR.instances || {}).length)"));
-        if (hasCkEditor) {
-            String editorId = (String) page.evaluate("() => Object.keys(window.CKEDITOR.instances || {})[0]");
-            sakai.typeCkEditor(editorId, "<p>" + BODY + "</p>");
-        } else {
+        if (!sakai.typeFirstCkEditorIfPresent("<p>" + BODY + "</p>")) {
             page.locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible").first().fill(BODY);
         }
 

@@ -71,11 +71,7 @@ class ConversationsTest extends SakaiUiTestBase {
 
         titleInput.fill(TOPIC_TITLE);
 
-        boolean hasCkEditor = Boolean.TRUE.equals(page.evaluate("() => Boolean(window.CKEDITOR && Object.keys(window.CKEDITOR.instances || {}).length)"));
-        if (hasCkEditor) {
-            String editorId = (String) page.evaluate("() => Object.keys(window.CKEDITOR.instances || {})[0]");
-            sakai.typeCkEditor(editorId, "<p>" + TOPIC_BODY + "</p>");
-        } else {
+        if (!sakai.typeFirstCkEditorIfPresent("<p>" + TOPIC_BODY + "</p>")) {
             Locator editorTextbox = page.getByRole(AriaRole.TEXTBOX,
                 new Page.GetByRoleOptions().setName(Pattern.compile("Editor", Pattern.CASE_INSENSITIVE))).first();
             if (editorTextbox.count() > 0) {
