@@ -44,7 +44,7 @@ jobs:
       - name: Resolve Playwright Java version
         id: playwright-version
         run: |
-          PLAYWRIGHT_VERSION=$(mvn -q -f sakai-e2e-tests-java/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
+          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -f sakai-e2e-tests-java/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
           echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build with Maven
@@ -68,7 +68,7 @@ jobs:
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..
-          mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
 
@@ -110,7 +110,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p sakai-e2e-tests-java/target
-          mvn --batch-mode -f sakai-e2e-tests-java/pom.xml \
+          mvn -B -ntp -V -f sakai-e2e-tests-java/pom.xml \
             -Djunit.jupiter.execution.parallel.enabled=true \
             -Djunit.jupiter.execution.parallel.mode.default=same_thread \
             -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \
