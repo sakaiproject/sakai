@@ -29,9 +29,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-playwright-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-m2-
+            ${{ runner.os }}-playwright-m2-
 
       - name: Maven cache status
         run: echo "Maven cache hit = ${{ steps.cache-maven-restore.outputs.cache-hit }}"
@@ -73,7 +73,7 @@ jobs:
           bin/catalina.sh start
 
       - name: Save Maven local repository cache
-        if: always()
+        if: always() && steps.cache-maven-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: ~/.m2/repository
