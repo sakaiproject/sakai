@@ -11,10 +11,10 @@ describe("sakai-tasks tests", () => {
       .get(data.i18nUrl, data.i18n)
       .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n)
       .get(data.tasksUrl, data.tasks)
-      .post(data.tasksUrl, ({ url, options }) => {
+      .post(data.tasksUrl, ({ options }) => {
 
         return Object.assign({
-          id: "" + (Math.floor(Math.random() * 20) + 1),
+          id: String(Math.floor(Math.random() * 20) + 1),
           creator: "adrian",
           created: Date.now(),
           creatorDisplayName: "Adrian Fish",
