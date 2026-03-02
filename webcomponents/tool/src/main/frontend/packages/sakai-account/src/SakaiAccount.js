@@ -5,9 +5,9 @@ import "@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import isEmail from "validator/es/lib/isEmail.js";
 const SOCIAL_HOSTS = {
-  facebook: ["facebook.com"],
-  instagram: ["instagram.com"],
-  linkedin: ["linkedin.com"],
+  facebook: [ "facebook.com" ],
+  instagram: [ "instagram.com" ],
+  linkedin: [ "linkedin.com" ],
 };
 
 export class SakaiAccount extends SakaiElement {
@@ -240,7 +240,7 @@ export class SakaiAccount extends SakaiElement {
     try {
       const normalized = /^(https?:)?\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
       url = new URL(normalized);
-    } catch (e) {
+    } catch {
       return false;
     }
 
