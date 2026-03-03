@@ -21,7 +21,6 @@
 
 package org.sakaiproject.assignment.impl;
 
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -74,14 +73,6 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
 
     public void init() {
         searchIndexBuilder.registerEntityContentProducer(this);
-    }
-
-    public boolean isContentFromReader(String reference) {
-        return false;
-    }
-
-    public Reader getContentReader(String reference) {
-        return null;
     }
 
     private Optional<Assignment> getAssignment(AssignmentReferenceReckoner.AssignmentReference ref) {

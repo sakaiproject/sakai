@@ -21,8 +21,6 @@
 
 package org.sakaiproject.search.component.adapter.site;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -319,17 +317,7 @@ public class SiteContentProducer implements EntityContentProducer
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getContentReader(java.lang.String)
-	 */
-	public Reader getContentReader(String reference)
-	{
-		return new StringReader(getContent(reference));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getCustomProperties(java.lang.String)
 	 */
 	public Map getCustomProperties(String ref)
@@ -484,17 +472,7 @@ public class SiteContentProducer implements EntityContentProducer
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#isContentFromReader(java.lang.String)
-	 */
-	public boolean isContentFromReader(String reference)
-	{
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.search.api.EntityContentProducer#isForIndex(java.lang.String)
 	 */
 	public boolean isForIndex(String ref)

@@ -16,8 +16,6 @@
 
 package org.sakaiproject.samigo.search;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -188,13 +186,6 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
     /**
      * {@inheritDoc}
      */
-    public Reader getContentReader(String reference) {
-        return new StringReader(getContent(reference));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Map getCustomProperties(String eventResource) {
         Map<String, List> customProperties = new HashMap<>();
 
@@ -354,13 +345,6 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
      */
     public String getUrl(String reference) {
         return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isContentFromReader(String reference) {
-        return false;
     }
 
     /**

@@ -16,8 +16,6 @@
 
 package org.sakaiproject.chat2.model.impl;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -253,11 +251,6 @@ protected void init() throws Exception {
    }
 
    @Override
-   public Reader getContentReader(String reference) {
-      return new StringReader(getContent(reference));
-   }
-
-   @Override
    public Map<String, ?> getCustomProperties(String ref) {
       return null;
    }
@@ -412,11 +405,6 @@ protected void init() throws Exception {
    public String getUrl(String reference) {
       Reference ref = getReference(reference);
       return ref.getUrl();
-   }
-
-   @Override
-   public boolean isContentFromReader(String reference) {
-      return false;
    }
 
    @Override

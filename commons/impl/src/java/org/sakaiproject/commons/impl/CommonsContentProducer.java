@@ -21,7 +21,6 @@
 
 package org.sakaiproject.commons.impl;
 
-import java.io.Reader;
 import java.util.*;
 
 import org.sakaiproject.commons.api.CommonsConstants;
@@ -82,16 +81,6 @@ public class CommonsContentProducer implements EntityContentProducer {
             removingEvents.forEach(e -> searchService.registerFunction(e));
             searchIndexBuilder.registerEntityContentProducer(this);
         }
-    }
-
-    @Override
-    public boolean isContentFromReader(String reference) {
-        return false;
-    }
-
-    @Override
-    public Reader getContentReader(String reference) {
-        return null;
     }
 
     @Override

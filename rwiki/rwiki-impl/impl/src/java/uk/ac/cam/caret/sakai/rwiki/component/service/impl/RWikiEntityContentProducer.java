@@ -20,7 +20,6 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -97,16 +96,6 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 			log.error("Cant find Spring component named " + name);
 		}
 		return o;
-	}
-
-	public boolean isContentFromReader(String cr)
-	{
-		return false;
-	}
-
-	public Reader getContentReader(String reference)
-	{
-		return null;
 	}
 
 	public String getContent(String reference)

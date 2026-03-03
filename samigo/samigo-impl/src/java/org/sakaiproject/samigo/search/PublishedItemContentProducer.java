@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.samigo.search;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -154,13 +152,6 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
         } catch (Exception e) {
             throw new RuntimeException(" Failed to get item content ", e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Reader getContentReader(String reference) {
-        return new StringReader(getContent(reference));
     }
 
     /**
@@ -319,13 +310,6 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
      */
     public String getUrl(String reference) {
         return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isContentFromReader(String reference) {
-        return false;
     }
 
     /**
