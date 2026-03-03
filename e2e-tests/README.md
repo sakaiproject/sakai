@@ -7,7 +7,7 @@ Java/JUnit Playwright tests for Sakai UI flows.
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
-mvn -f sakai-e2e-tests-java/pom.xml test
+mvn -f e2e-tests/pom.xml test
 ```
 
 Run headed (watch browser):
@@ -16,19 +16,19 @@ Run headed (watch browser):
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 export PLAYWRIGHT_HEADLESS=false
-mvn -f sakai-e2e-tests-java/pom.xml test
+mvn -f e2e-tests/pom.xml test
 ```
 
 Run a single class:
 
 ```bash
-mvn -f sakai-e2e-tests-java/pom.xml -Dtest=AssignmentTest test
+mvn -f e2e-tests/pom.xml -Dtest=AssignmentTest test
 ```
 
 Run a single test method:
 
 ```bash
-mvn -f sakai-e2e-tests-java/pom.xml -Dtest=AssignmentTest#canCreatePointsAssignment test
+mvn -f e2e-tests/pom.xml -Dtest=AssignmentTest#canCreatePointsAssignment test
 ```
 
 Optional browser override:
@@ -45,7 +45,7 @@ Use `3` workers when demo instructors are available (`instructor,instructor1,ins
 
 ```bash
 export PLAYWRIGHT_INSTRUCTOR_POOL=instructor,instructor1,instructor2
-mvn -f sakai-e2e-tests-java/pom.xml \
+mvn -f e2e-tests/pom.xml \
   -Djunit.jupiter.execution.parallel.enabled=true \
   -Djunit.jupiter.execution.parallel.mode.default=same_thread \
   -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \

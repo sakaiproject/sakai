@@ -44,7 +44,7 @@ jobs:
       - name: Resolve Playwright Java version
         id: playwright-version
         run: |
-          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -f sakai-e2e-tests-java/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
+          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -f e2e-tests/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
           echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build with Maven
@@ -120,9 +120,9 @@ jobs:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:8080
         run: |
           set -o pipefail
-          mkdir -p sakai-e2e-tests-java/target
-          mvn -B -ntp -V -f sakai-e2e-tests-java/pom.xml \
-            test 2>&1 | tee sakai-e2e-tests-java/target/playwright-java-run.log
+          mkdir -p e2e-tests/target
+          mvn -B -ntp -V -f e2e-tests/pom.xml \
+            test 2>&1 | tee e2e-tests/target/playwright-java-run.log
 
       - name: Check number of MySQL statements
         if: always()
@@ -142,21 +142,21 @@ jobs:
         if: always()
         run: |
           mkdir -p playwright-java-artifacts
-          if [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
+          if [ -d e2e-tests/target/playwright-artifacts ]; then
             mkdir -p playwright-java-artifacts/playwright-artifacts
             rsync -a --prune-empty-dirs --exclude 'video/' \
-              sakai-e2e-tests-java/target/playwright-artifacts/ \
+              e2e-tests/target/playwright-artifacts/ \
               playwright-java-artifacts/playwright-artifacts/
           fi
-          if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
-            cp -R sakai-e2e-tests-java/target/surefire-reports playwright-java-artifacts/
+          if [ -d e2e-tests/target/surefire-reports ]; then
+            cp -R e2e-tests/target/surefire-reports playwright-java-artifacts/
           fi
-          if [ -f sakai-e2e-tests-java/target/playwright-java-run.log ]; then
-            cp sakai-e2e-tests-java/target/playwright-java-run.log playwright-java-artifacts/
+          if [ -f e2e-tests/target/playwright-java-run.log ]; then
+            cp e2e-tests/target/playwright-java-run.log playwright-java-artifacts/
           fi
 
           FAILED_KEYS=""
-          if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
+          if [ -d e2e-tests/target/surefire-reports ]; then
             FAILED_KEYS=$(awk '
               /<testcase / {
                 current = "";
@@ -178,20 +178,20 @@ jobs:
                   print current;
                 }
               }
-            ' sakai-e2e-tests-java/target/surefire-reports/TEST-*.xml | sort -u)
+            ' e2e-tests/target/surefire-reports/TEST-*.xml | sort -u)
           fi
 
-          if [ -n "$FAILED_KEYS" ] && [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
+          if [ -n "$FAILED_KEYS" ] && [ -d e2e-tests/target/playwright-artifacts ]; then
             while IFS= read -r key; do
               [ -z "$key" ] && continue
               while IFS= read -r test_dir; do
                 [ -z "$test_dir" ] && continue
                 if [ -d "$test_dir/video" ]; then
-                  rel_dir=${test_dir#sakai-e2e-tests-java/target/playwright-artifacts/}
+                  rel_dir=${test_dir#e2e-tests/target/playwright-artifacts/}
                   mkdir -p "playwright-java-artifacts/playwright-artifacts/$rel_dir"
                   cp -R "$test_dir/video" "playwright-java-artifacts/playwright-artifacts/$rel_dir/"
                 fi
-              done < <(find sakai-e2e-tests-java/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null)
+              done < <(find e2e-tests/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null)
             done <<< "$FAILED_KEYS"
           fi
 
