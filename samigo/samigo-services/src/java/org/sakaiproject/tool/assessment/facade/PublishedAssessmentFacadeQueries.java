@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -1352,7 +1353,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId";
 		}
 
-		if (title != null && !title.trim().isEmpty()) {
+		final String normalizedTitle = title == null ? null : title.trim().toLowerCase(Locale.ROOT);
+		final boolean hasTitleFilter = normalizedTitle != null && !normalizedTitle.isEmpty();
+
+		if (hasTitleFilter) {
 			query += " and lower(p.title) like :title";
 		}
 
@@ -1381,8 +1385,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
             }
             q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
 
-			if (title != null && !title.trim().isEmpty()) {
-				q.setParameter("title", "%" + title.toLowerCase() + "%");
+			if (hasTitleFilter) {
+				q.setParameter("title", "%" + normalizedTitle + "%");
 			}
 
             return q.list();
