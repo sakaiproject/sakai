@@ -3,6 +3,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -83,6 +84,8 @@ class SignupTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Publish\"], .act button:has-text(\"Publish\"), .act input[value*=\"Publish\"]").first().click(new Locator.ClickOptions().setForce(true));
 
         sakai.toolClick("Sign-up");
-        assertThat(page.locator("#items\\:meetinglist")).containsText(TITLE);
+        Locator meetingsTable = page.locator("[id=\"items:meetinglist\"], [id=\"meetinglist\"], [id$=\":meetinglist\"]").first();
+        meetingsTable.waitFor(new Locator.WaitForOptions().setTimeout(15_000));
+        assertThat(meetingsTable).containsText(TITLE, new LocatorAssertions.ContainsTextOptions().setTimeout(15_000));
     }
 }

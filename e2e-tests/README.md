@@ -39,28 +39,13 @@ export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit
 
 Artifacts (trace/video/final screenshot) are written to `target/playwright-artifacts/`.
 
-## Parallel runs (class-level)
-
-Use `3` workers when demo instructors are available (`instructor,instructor1,instructor2`):
-
-```bash
-export PLAYWRIGHT_INSTRUCTOR_POOL=instructor,instructor1,instructor2
-mvn -f e2e-tests/pom.xml \
-  -Djunit.jupiter.execution.parallel.enabled=true \
-  -Djunit.jupiter.execution.parallel.mode.default=same_thread \
-  -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \
-  -Djunit.jupiter.execution.parallel.config.strategy=fixed \
-  -Djunit.jupiter.execution.parallel.config.fixed.parallelism=3 \
-  test
-```
-
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 
 - `SakaiUiTestBase`: browser/context lifecycle + trace/video/screenshot artifacts.
 - `SakaiHelper`: login/navigation/tool actions/site creation/date selection.
-- `SakaiEnvironment`: base URL, browser/headless flags, instructor isolation.
+- `SakaiEnvironment`: base URL, browser/headless flags.
 
 ## Adding tests
 

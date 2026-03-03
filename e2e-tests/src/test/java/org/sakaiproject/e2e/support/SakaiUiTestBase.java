@@ -18,12 +18,13 @@ import org.junit.jupiter.api.TestInfo;
 
 public abstract class SakaiUiTestBase {
 
-    private static final ThreadLocal<Playwright> PLAYWRIGHT_BY_THREAD = new ThreadLocal<>();
-    private static final ThreadLocal<Browser> BROWSER_BY_THREAD = new ThreadLocal<>();
+    private static Playwright playwright;
+    private static Browser browser;
 
     protected BrowserContext context;
     protected Page page;
     protected SakaiHelper sakai;
+    private String artifactSlug;
 
     protected static final Path ARTIFACT_ROOT = Path.of("target", "playwright-artifacts");
 
@@ -31,42 +32,37 @@ public abstract class SakaiUiTestBase {
     static void launchBrowser() throws Exception {
         Files.createDirectories(ARTIFACT_ROOT);
 
-        if (PLAYWRIGHT_BY_THREAD.get() == null || BROWSER_BY_THREAD.get() == null) {
-            Playwright playwright = Playwright.create();
+        if (playwright == null || browser == null) {
+            playwright = Playwright.create();
             BrowserType browserType = browserType(playwright, SakaiEnvironment.browserName());
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                 .setHeadless(SakaiEnvironment.headless());
-            Browser browser = browserType.launch(launchOptions);
-
-            PLAYWRIGHT_BY_THREAD.set(playwright);
-            BROWSER_BY_THREAD.set(browser);
+            browser = browserType.launch(launchOptions);
         }
     }
 
     @AfterAll
     static void closeBrowser() {
-        Browser browser = BROWSER_BY_THREAD.get();
         if (browser != null) {
             browser.close();
-            BROWSER_BY_THREAD.remove();
+            browser = null;
         }
 
-        Playwright playwright = PLAYWRIGHT_BY_THREAD.get();
         if (playwright != null) {
             playwright.close();
-            PLAYWRIGHT_BY_THREAD.remove();
+            playwright = null;
         }
     }
 
     @BeforeEach
     void createContext(TestInfo testInfo) throws Exception {
-        String slug = slug(testInfo);
-        Path testDir = ARTIFACT_ROOT.resolve(slug);
+        artifactSlug = slug(testInfo);
+        Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
         Files.createDirectories(testDir);
 
-        Browser browser = BROWSER_BY_THREAD.get();
-        if (browser == null) {
-            throw new IllegalStateException("Browser is not initialized for this test thread");
+        Browser activeBrowser = browser;
+        if (activeBrowser == null) {
+            throw new IllegalStateException("Browser is not initialized");
         }
 
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
@@ -74,7 +70,7 @@ public abstract class SakaiUiTestBase {
             .setBaseURL(SakaiEnvironment.baseUrl())
             .setRecordVideoDir(testDir.resolve("video"));
 
-        context = browser.newContext(contextOptions);
+        context = activeBrowser.newContext(contextOptions);
         context.setDefaultTimeout(30_000);
         context.setDefaultNavigationTimeout(120_000);
 
@@ -84,14 +80,15 @@ public abstract class SakaiUiTestBase {
             .setSources(true));
 
         page = context.newPage();
-        String isolationKey = testInfo.getTestClass().map(Class::getName).orElse("default");
-        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl(), isolationKey);
+        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl());
     }
 
     @AfterEach
     void tearDown(TestInfo testInfo) {
-        String slug = slug(testInfo);
-        Path testDir = ARTIFACT_ROOT.resolve(slug);
+        if (artifactSlug == null) {
+            artifactSlug = slug(testInfo);
+        }
+        Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
 
         try {
             if (page != null) {
@@ -112,6 +109,7 @@ public abstract class SakaiUiTestBase {
         if (context != null) {
             context.close();
         }
+        artifactSlug = null;
     }
 
     private static BrowserType browserType(Playwright playwrightInstance, String browserName) {

@@ -15,7 +15,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +27,14 @@ public class SakaiHelper {
         "^(\\d{1,2})/(\\d{1,2})/(\\d{4})\\s+(\\d{1,2}):(\\d{2})\\s*(am|pm)$",
         Pattern.CASE_INSENSITIVE
     );
-    private static final Map<String, String> COURSE_URL_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, String> COURSE_URL_CACHE = new HashMap<>();
 
     private final Page page;
     private final String baseUrl;
-    private final String isolationKey;
 
-    public SakaiHelper(Page page, String baseUrl, String isolationKey) {
+    public SakaiHelper(Page page, String baseUrl) {
         this.page = page;
         this.baseUrl = baseUrl;
-        this.isolationKey = (isolationKey == null || isolationKey.isBlank()) ? "default" : isolationKey;
     }
 
     public String randomId() {
@@ -624,7 +621,7 @@ public class SakaiHelper {
     }
 
     private String resolveUser(String username) {
-        return SakaiEnvironment.resolveUser(username, isolationKey);
+        return SakaiEnvironment.resolveUser(username);
     }
 
     private String courseCacheKey(String username, List<String> toolIds) {
@@ -636,7 +633,7 @@ public class SakaiHelper {
         }
         Collections.sort(normalizedToolIds);
         String toolKey = String.join(",", normalizedToolIds);
-        return isolationKey + "|" + username + "|" + toolKey;
+        return username + "|" + toolKey;
     }
 
     private String toDateTimeLocal(String value) {
