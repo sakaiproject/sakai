@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -200,7 +201,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 					allCourseUsers, pvtMsg);
 		} catch (UserNotDefinedException e) {
 			log.warn(e.getMessage(), e);
-			return returnSet;
+			return Collections.EMPTY_MAP;
 		}
 		List<MembershipItem> members = convertMemberMapToList(courseMemberMap);
 		SelectedLists selectedLists = populateDraftRecipients(pvtMsg.getId(), messageManager, members, members);
