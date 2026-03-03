@@ -26,25 +26,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.services.question.QuestionSearchResult;
-import org.sakaiproject.tool.assessment.services.question.QuestionSearchService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.question.QuestionSearchResult;
+import org.sakaiproject.tool.assessment.services.question.QuestionSearchService;
 
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
@@ -60,10 +56,8 @@ public class SearchQuestionBean implements Serializable {
     private static final TagService tagService = (TagService) ComponentManager.get(TagService.class);
     private static final QuestionSearchService questionSearchService = (QuestionSearchService) ComponentManager.get(QuestionSearchService.class);
     private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-    private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
 
-    private QuestionPoolService questionPoolService = new QuestionPoolService();
-    private AssessmentService assessmentService = new AssessmentService();
+    private final ItemService itemService = new ItemService();
 
     private String selectedSection;
     private String selectedQuestionPool;
@@ -71,8 +65,7 @@ public class SearchQuestionBean implements Serializable {
     private String outcome;
     // Selected question IDs from search results to be copied to a pool or assessment
     private String[] destItems = {};
-    private HashMap<String, QuestionSearchResult> results;
-    private int resultsSize;
+    private Map<String, QuestionSearchResult> results;
     private boolean showTags;
     private String tagDisabled;
     private String textToSearch;
@@ -84,7 +77,6 @@ public class SearchQuestionBean implements Serializable {
 
     public SearchQuestionBean() {
         results = new HashMap<>();
-        resultsSize = 0;
         textToSearch = "";
         tagToSearch = null;
         tagToSearchLabel = "";
@@ -96,7 +88,6 @@ public class SearchQuestionBean implements Serializable {
         questionsIOwn.clear();
         titleCache.clear();
         results = new HashMap<>();
-        resultsSize = 0;
 
         List<String> tagLabelsForSearch = new ArrayList<>();
         StringBuilder tagsLabelsDisplay = new StringBuilder();
@@ -104,8 +95,9 @@ public class SearchQuestionBean implements Serializable {
         if (tagList != null) {
             boolean first = true;
             for (String tagId : tagList) {
-                if (tagService.getTags().getForId(tagId).isPresent()) {
-                    Tag tag = tagService.getTags().getForId(tagId).get();
+                Optional<Tag> tagOpt = tagService.getTags().getForId(tagId);
+                if (tagOpt.isPresent()) {
+                    Tag tag = tagOpt.get();
                     String fullLabel = tag.getTagLabel() + "(" + tag.getCollectionName() + ")";
                     tagLabelsForSearch.add(fullLabel);
                     if (!first) {
@@ -123,7 +115,6 @@ public class SearchQuestionBean implements Serializable {
         for (QuestionSearchResult qsr : searchResults) {
             results.put(qsr.getId(), qsr);
         }
-        resultsSize = results.size();
         textToSearch = "";
     }
 
@@ -131,7 +122,6 @@ public class SearchQuestionBean implements Serializable {
         questionsIOwn.clear();
         titleCache.clear();
         results = new HashMap<>();
-        resultsSize = 0;
 
         Source parseSearchTerms = new Source(textToSearch);
         textToSearch = parseSearchTerms.getTextExtractor().toString();
@@ -140,18 +130,12 @@ public class SearchQuestionBean implements Serializable {
         for (QuestionSearchResult qsr : searchResults) {
             results.put(qsr.getId(), qsr);
         }
-        resultsSize = results.size();
         tagToSearch = null;
         tagToSearchLabel = "";
     }
 
     public boolean userOwns(String questionId) {
-        if (questionsIOwn.containsKey(questionId)) {
-            return questionsIOwn.get(questionId);
-        }
-        boolean owns = questionSearchService.userOwnsQuestion(questionId);
-        questionsIOwn.put(questionId, owns);
-        return owns;
+        return questionsIOwn.computeIfAbsent(questionId, questionSearchService::userOwnsQuestion);
     }
 
     public List<String> originFull(String hash) {
@@ -159,65 +143,15 @@ public class SearchQuestionBean implements Serializable {
     }
 
     public String getOriginDisplay(QuestionSearchResult result) {
-        if (result == null) {
-            return "";
-        }
-
-        try {
-            if (result.isFromQuestionPool()) {
-                String cacheKey = "qp:" + result.getQuestionPoolId();
-                if (titleCache.containsKey(cacheKey)) {
-                    return titleCache.get(cacheKey);
-                }
-                QuestionPoolFacade pool = questionPoolService.getPool(
-                    Long.parseLong(result.getQuestionPoolId()), AgentFacade.getAgentString());
-                if (pool == null) {
-                    return "";
-                }
-                String title = pool.getTitle();
-                titleCache.put(cacheKey, title);
-                return title;
-            }
-
-            if (result.isFromAssessment()) {
-                String siteCacheKey = "site:" + result.getSiteId();
-                String assessmentCacheKey = "assessment:" + result.getAssessmentId();
-
-                String siteTitle;
-                if (titleCache.containsKey(siteCacheKey)) {
-                    siteTitle = titleCache.get(siteCacheKey);
-                } else {
-                    siteTitle = siteService.getSite(result.getSiteId()).getTitle();
-                    titleCache.put(siteCacheKey, siteTitle);
-                }
-
-                String assessmentTitle;
-                if (titleCache.containsKey(assessmentCacheKey)) {
-                    assessmentTitle = titleCache.get(assessmentCacheKey);
-                } else {
-                    AssessmentFacade assessment = assessmentService.getAssessment(result.getAssessmentId());
-                    if (assessment == null) {
-                        return "";
-                    }
-                    assessmentTitle = assessment.getTitle();
-                    titleCache.put(assessmentCacheKey, assessmentTitle);
-                }
-
-                return siteTitle + " : " + assessmentTitle;
-            }
-        } catch (Exception ex) {
-            log.debug("Could not resolve origin for question {}: {}", result.getId(), ex.getMessage());
-        }
-
-        return "";
+        return questionSearchService.getOriginDisplay(result, titleCache);
     }
 
     public ItemFacade getItem(String itemId) {
-        return new ItemService().getItem(itemId);
+        return itemService.getItem(itemId);
     }
 
     public ItemDataIfc getData(String itemId) {
-        ItemFacade item = new ItemService().getItem(itemId);
+        ItemFacade item = itemService.getItem(itemId);
         if (item == null) {
             return null;
         }
@@ -233,11 +167,10 @@ public class SearchQuestionBean implements Serializable {
     public String getOutcome() { return outcome; }
     public void setOutcome(String param) { outcome = param; }
 
-    public HashMap<String, QuestionSearchResult> getResults() { return results; }
-    public void setResults(HashMap<String, QuestionSearchResult> list) { results = list; }
+    public Map<String, QuestionSearchResult> getResults() { return results; }
+    public void setResults(Map<String, QuestionSearchResult> list) { results = list; }
 
-    public int getResultsSize() { return resultsSize; }
-    public void setResultsSize(int resultSize) { resultsSize = resultSize; }
+    public int getResultsSize() { return results.size(); }
 
     public boolean getShowTags() { return showTags; }
     public void setShowTags(boolean showTags) { this.showTags = showTags; }
@@ -271,7 +204,6 @@ public class SearchQuestionBean implements Serializable {
         results = new HashMap<>();
         titleCache.clear();
         questionsIOwn.clear();
-        resultsSize = 0;
         textToSearch = "";
         tagToSearch = null;
         tagToSearchLabel = "";
