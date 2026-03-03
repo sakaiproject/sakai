@@ -91,6 +91,7 @@
     <sakai.jdk.version>17</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+    <sakai.skip.webcomponents.tests>false</sakai.skip.webcomponents.tests>
 
     <!-- Reproducible builds: UTC ISO-8601 timestamp or use SOURCE_DATE_EPOCH -->
     <project.build.outputTimestamp>${maven.build.timestamp}</project.build.outputTimestamp>
