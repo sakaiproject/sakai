@@ -21,10 +21,22 @@ class PaSystemTest extends SakaiUiTestBase {
 
         sakai.toolClick("PA System");
 
-        Locator createBanner = page.getByRole(AriaRole.LINK,
+        Locator createBannerButton = page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Create Banner$", Pattern.CASE_INSENSITIVE))).first();
-        assertThat(createBanner).isVisible();
-        createBanner.click();
+        boolean openedCreateBanner = false;
+        try {
+            assertThat(createBannerButton).isVisible();
+            createBannerButton.click();
+            openedCreateBanner = true;
+        } catch (AssertionError ignored) {
+            // Fall through to link selector used in alternate DOM structures.
+        }
+
+        if (!openedCreateBanner) {
+            Locator createBannerLink = page.locator("a[href*=\"/banners/new\"]").first();
+            assertThat(createBannerLink).isVisible();
+            createBannerLink.click();
+        }
 
         Locator messageInput = page.locator("form input#message").first();
         assertThat(messageInput).isVisible();

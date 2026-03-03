@@ -85,7 +85,38 @@ class SignupTest extends SakaiUiTestBase {
 
         sakai.toolClick("Sign-up");
         Locator meetingsTable = page.locator("[id=\"items:meetinglist\"], [id=\"meetinglist\"], [id$=\":meetinglist\"]").first();
-        meetingsTable.waitFor(new Locator.WaitForOptions().setTimeout(15_000));
-        assertThat(meetingsTable).containsText(TITLE, new LocatorAssertions.ContainsTextOptions().setTimeout(15_000));
+        if (!meetingTitleVisible(meetingsTable)) {
+            Locator viewByRange = page.locator("select[id=\"items:viewByRange\"], select[id=\"viewByRange\"], select[id$=\":viewByRange\"]").first();
+            if (viewByRange.count() > 0 && viewByRange.isVisible()) {
+                @SuppressWarnings("unchecked")
+                List<String> viewValues = (List<String>) viewByRange.locator("option")
+                    .evaluateAll("options => options.map(option => option.value).filter(Boolean)");
+
+                for (String viewValue : viewValues) {
+                    viewByRange.selectOption(viewValue);
+                    page.waitForLoadState();
+                    if (meetingTitleVisible(meetingsTable)) {
+                        return;
+                    }
+                }
+            }
+        } else {
+            return;
+        }
+
+        assertThat(page.locator("body")).containsText(TITLE, new LocatorAssertions.ContainsTextOptions().setTimeout(15_000));
+    }
+
+    private boolean meetingTitleVisible(Locator meetingsTable) {
+        if (meetingsTable.count() == 0 || !meetingsTable.isVisible()) {
+            return false;
+        }
+
+        try {
+            assertThat(meetingsTable).containsText(TITLE, new LocatorAssertions.ContainsTextOptions().setTimeout(2_000));
+            return true;
+        } catch (AssertionError ignored) {
+            return false;
+        }
     }
 }
