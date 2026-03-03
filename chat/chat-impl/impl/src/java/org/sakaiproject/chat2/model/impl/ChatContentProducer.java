@@ -223,14 +223,6 @@ protected void init() throws Exception {
             sb.append(getMessageFromBundle("chat_body")); //$NON-NLS-1$
             SearchUtils.appendCleanString(m.getBody(), sb);
 
-            //Chat messages do not contain html so this should be ignored...chmaurer
-            /*
-            for ( HTMLParser hp = new HTMLParser(mBody); hp.hasNext(); ) {
-               SearchUtils.appendCleanString(hp.next(), sb);
-               sb.append(" ");
-            }
-            */
-
             sb.append("\n"); //$NON-NLS-1$
             log.debug("Message Content for {} is {}", ref.getReference(), //$NON-NLS-1$ //$NON-NLS-2$
                     sb.toString());

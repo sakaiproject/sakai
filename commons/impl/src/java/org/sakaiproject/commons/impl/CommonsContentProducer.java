@@ -90,13 +90,13 @@ public class CommonsContentProducer implements EntityContentProducer {
 
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
             return commonsManager.getComment(r.getCommentId())
-                    .map(c -> c.getContent())
+                    .map(Comment::getContent)
                     .orElse("");
         }
 
         if (CommonsConstants.PostType.POST == r.getType()) {
             return commonsManager.getPost(r.getPostId(), false)
-                    .map(p -> p.getContent())
+                    .map(Post::getContent)
                     .orElse("");
         }
 

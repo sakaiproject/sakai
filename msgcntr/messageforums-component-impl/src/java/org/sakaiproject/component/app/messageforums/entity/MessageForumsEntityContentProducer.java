@@ -149,11 +149,14 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public String getContent(String reference) {
-		log.debug("getting content for " + reference);
+		log.debug("getting content for {}", reference);
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		if (m != null) {
-			return m.getAuthor() + " " + m.getTitle() + " " + m.getBody();
+			String author = m.getAuthor() == null ? "" : m.getAuthor().toString();
+			String title = m.getTitle() == null ? "" : m.getTitle();
+			String body = m.getBody() == null ? "" : m.getBody();
+			return (author + " " + title + " " + body).trim();
 		}
 		return "";
 	}

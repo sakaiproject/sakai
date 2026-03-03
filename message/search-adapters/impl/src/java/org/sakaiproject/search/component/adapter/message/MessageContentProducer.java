@@ -196,7 +196,7 @@ public class MessageContentProducer implements EntityContentProducer
 				SearchUtils.appendCleanString(displayName, sb);
 				sb.append("\n"); //$NON-NLS-1$
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
-				sb.append(m.getBody());
+				sb.append(m.getBody() != null ? m.getBody() : "");
 				sb.append("\n"); //$NON-NLS-1$
 				return sb.toString();
 			}
