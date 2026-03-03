@@ -2,15 +2,23 @@ import "../sakai-rubric-student-preview-button.js";
 import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
-  .get(data.associationUrl, data.association, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-rubric-student-preview-button tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("rubric student preview button renders correctly", async () => {
 

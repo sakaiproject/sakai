@@ -2,16 +2,28 @@ import "../sakai-grading-item-association.js";
 import { aTimeout, elementUpdated, expect, fixture, fixtureCleanup, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-grading-item-association tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    setRoutes(data.gradingItemDataWithoutCategories);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle };
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.gradingItemDataUrl, data.gradingItemDataWithoutCategories, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  const setRoutes = (itemData) => {
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.gradingItemDataUrl, itemData)
+      .get("*", 500);
+  };
 
   it ("displays with no current grading item and no categories", async () => {
 
@@ -65,7 +77,7 @@ describe("sakai-grading-item-association tests", () => {
 
   it ("displays with no current grading item but with categories", async () => {
 
-    fetchMock.get(data.gradingItemDataUrl, data.gradingItemDataWithCategories, { overwriteRoutes: true });
+    setRoutes(data.gradingItemDataWithCategories);
 
     const el = await fixture(html`<sakai-grading-item-association site-id="${data.siteId}" gradable-type="${data.gradableType}"></sakai-grading-item-association>`);
 

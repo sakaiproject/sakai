@@ -2,19 +2,25 @@ import "../sakai-submission-messager.js";
 import * as data from "./data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-submission-messager tests", () => {
 
-  window.top.portal = { siteId: data.siteId };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(groupPickerData.i18nUrl, groupPickerData.i18n)
+      .get(groupPickerData.groupsUrl, groupPickerData.groups)
+      .post("/direct/gbng/listMessageRecipients.json", data.recipients)
+      .post("/direct/gbng/messageStudents.json", data.recipients)
+      .get("*", 500);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(groupPickerData.i18nUrl, groupPickerData.i18n, { overwriteRoutes: true })
-    .get(groupPickerData.groupsUrl, groupPickerData.groups, { overwriteRoutes: true })
-    .post("/direct/gbng/listMessageRecipients.json", data.recipients, { overwriteRoutes: true })
-    .post("/direct/gbng/messageStudents.json", data.recipients, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  window.top.portal = { siteId: data.siteId };
 
   it ("renders correctly", async () => {
 

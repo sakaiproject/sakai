@@ -7,11 +7,7 @@ import "../sakai-rubric-criteria-readonly.js";
 import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 window.sakai = window.sakai || {
   editor: {
@@ -20,6 +16,18 @@ window.sakai = window.sakai || {
 };
 
 describe("sakai-rubric-readonly tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("renders a readonly rubric", async () => {
 

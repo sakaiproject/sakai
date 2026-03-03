@@ -1,13 +1,19 @@
 import { SakaiElement } from '../src/SakaiElement.js';
 import { elementUpdated, expect, fixture, html, waitUntil } from '@open-wc/testing';
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-element tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   /*
   it ("is subclassed and renders correctly", async () => {

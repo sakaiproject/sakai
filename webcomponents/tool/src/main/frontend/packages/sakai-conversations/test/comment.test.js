@@ -1,12 +1,11 @@
 import "../sakai-comment.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-comment tests", () => {
 
   beforeEach(() => {
-
+    fetchMock.mockGlobal();
 		fetchMock.get(data.i18nUrl, data.i18n);
 
     data.comment.canEdit = false;
@@ -14,7 +13,7 @@ describe("sakai-comment tests", () => {
   });
 
 	afterEach(() => {
-		fetchMock.restore();
+		fetchMock.hardReset();
 	});
 
   it ("does not render if no comment is supplied", async () => {

@@ -1,16 +1,23 @@
 import "../sakai-picture-changer.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-picture-changer tests", () => {
 
-  window.top.portal = { locale: "en_GB" };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(/\/api\/users\/me\/profile\/image\/details/, { status: "SUCCESS", url: "/packages/sakai-picture-changer/test/images/orville.jpeg" })
+      .get("*", 500);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, {overwriteRoutes: true})
-    .get(/\/api\/users\/me\/profile\/image\/details/, { status: "SUCCESS", url: "/packages/sakai-picture-changer/test/images/orville.jpeg" }, { overwriteRoutes: true })
-    .get("*", 500, {overwriteRoutes: true});
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+
+  window.top.portal = { locale: "en_GB" };
 
   it ("renders correctly", async () => {
 

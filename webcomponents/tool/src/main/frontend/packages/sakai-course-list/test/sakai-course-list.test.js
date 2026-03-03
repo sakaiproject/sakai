@@ -2,18 +2,26 @@ import "../sakai-course-list.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as courseCardData from "../../sakai-course-card/test/data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-course-list tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.courseListUrl, data.courseList)
+      .get(courseCardData.i18nUrl, courseCardData.i18n)
+      .get(courseCardData.toolnameMappingsUrl, courseCardData.toolnameMappings)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   window.top.portal = { locale: "en_GB", siteId: data.siteId };
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.courseListUrl, data.courseList, { overwriteRoutes: true })
-    .get(courseCardData.i18nUrl, courseCardData.i18n, { overwriteRoutes: true })
-    .get(courseCardData.toolnameMappingsUrl, courseCardData.toolnameMappings, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
 
   it ("renders correctly", async () => {
  

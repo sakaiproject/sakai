@@ -2,14 +2,20 @@ import '../sakai-site-picker.js';
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { SakaiSitePicker } from "../src/SakaiSitePicker.js"
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-site-picker tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.sitesUrl, { sites: data.sites }, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.sitesUrl, {sites: data.sites})
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders with sites", async () => {
 

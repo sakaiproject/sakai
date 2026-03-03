@@ -4,29 +4,36 @@ import * as dialogContentData from "../../sakai-dialog-content/test/data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
 import { SITE } from "../src/assignation-types.js";
 import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-tasks-create-task tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n)
+      .get(groupPickerData.i18nUrl, groupPickerData.i18n)
+      .get(groupPickerData.groupsUrl, groupPickerData.groups)
+      .get(data.tasksUrl, data.tasks)
+      .post(data.tasksPostUrl, ({ url, options }) => {
+
+        return Object.assign({
+          id: "" + Math.floor(Math.random() * 20) + 1,
+          creator: "adrian",
+          created: Date.now(),
+          creatorDisplayName: "Adrian Fish",
+        }, JSON.parse(options.body));
+      })
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   const minusFiveHours = -5 * 60 * 60 * 1000;
   window.top.portal = { user: { offsetFromServerMillis: minusFiveHours, timezone: "America/New_York" } };
-
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n, { overwriteRoutes: true })
-    .get(groupPickerData.i18nUrl, groupPickerData.i18n, { overwriteRoutes: true })
-    .get(groupPickerData.groupsUrl, groupPickerData.groups, { overwriteRoutes: true })
-    .get(data.tasksUrl, data.tasks, { overwriteRoutes: true })
-    .post(data.tasksPostUrl, (url, opts) => {
-
-      return Object.assign({
-        id: "" + Math.floor(Math.random() * 20) + 1,
-        creator: "adrian",
-        created: Date.now(),
-        creatorDisplayName: "Adrian Fish",
-      }, JSON.parse(opts.body));
-    }, {overwriteRoutes: true})
-    .get("*", 500, {overwriteRoutes: true});
 
   it ("renders in user mode correctly", async () => {
 

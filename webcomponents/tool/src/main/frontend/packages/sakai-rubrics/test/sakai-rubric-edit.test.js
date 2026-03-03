@@ -2,17 +2,22 @@ import "../sakai-rubric-edit.js";
 import * as data from "./data.js";
 import "../sakai-rubrics-utils.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-rubric-edit tests", () => {
 
   beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
     delete data.rubric1.new;
   });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("tests that a rubric edit component renders correctly, opening and closing bootstrap modals", async () => {
 

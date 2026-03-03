@@ -3,13 +3,14 @@ import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@ope
 import * as data from "./data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
 import * as sinon from "sinon";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-permissions tests", () => {
 
   window.top.portal = { siteId: data.siteId };
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
+
 
     fetchMock
       .get(data.i18nUrl, data.i18n)
@@ -18,7 +19,7 @@ describe("sakai-permissions tests", () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("renders correctly", async () => {
@@ -213,8 +214,8 @@ describe("sakai-permissions tests", () => {
     await oneEvent(el, "permissions-complete");
 
     // Verify the POST request was made with the correct parameters
-    expect(fetchMock.called(saveUrl)).to.be.true;
-    const params = fetchMock.lastCall(saveUrl)[1].body;
+    expect(fetchMock.callHistory.called(saveUrl)).to.be.true;
+    const params = fetchMock.callHistory.lastCall(saveUrl).options.body;
     expect(params.get("ref")).to.equal(`/site/${data.siteId}`);
     expect(params.get("maintain:tool.create")).to.equal("true");
     expect(params.get("maintain:tool.read")).to.equal("true");

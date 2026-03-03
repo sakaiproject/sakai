@@ -1,16 +1,22 @@
 import "../sakai-course-card.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-course-card tests", () => {
 
-  window.top.portal = { siteId: data.siteId };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.toolnameMappingsUrl, data.toolnameMappings)
+      .get("*", 500);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.toolnameMappingsUrl, data.toolnameMappings, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  window.top.portal = { siteId: data.siteId };
 
   it ("renders correctly", async () => {
 
