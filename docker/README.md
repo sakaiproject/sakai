@@ -98,8 +98,6 @@ Here's a sample to startup MySQL from Docker
 	    -d mariadb:10 --lower-case-table-names=1 || docker start "sakai-mariadb"
 ```
 
-```
-
 ```powershell
 	# May want to include an opt for docker rm sakai-mariadb
 	# Start it if we've already created it, unless we want to re-create
@@ -110,7 +108,7 @@ Here's a sample to startup MySQL from Docker
 ```
 
 
-## Starting up Sakai and linking to Maria start the tage you built above
+## Starting up Sakai and linking to Maria 
     `docker run --rm -p 8080:8080 --name sakai-tomcat --link sakai-mariadb sakai`
 
     `docker run --rm -p 8080:8080 --name sakai-tomcat --link sakai-mariadb sak-52129`

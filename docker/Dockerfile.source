@@ -11,7 +11,7 @@ RUN mkdir /deploy
 WORKDIR /deploy
 
 RUN echo "GIT_CACHEBUST=$GIT_CACHEBUST" >/dev/null
-RUN git clone -b ${release} --depth=1 ${repository}
+RUN git clone -b ${release} --depth=1 ${repository} sakai
 WORKDIR /deploy/sakai
 RUN mvn clean install --no-transfer-progress -T 1C sakai:deploy-exploded -Dmaven.test.skip=true -Dsakai.skip.webcomponents.tests=true 
 RUN mvn clean && rm -rf /root/.m2/repository 
