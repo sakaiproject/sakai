@@ -21,8 +21,6 @@
 
 package org.sakaiproject.component.app.syllabus;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -162,11 +160,6 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
  	}
 
 	@Override
-	public Reader getContentReader(String reference) {
-		return new StringReader(getContent(reference));
-	}
-
-	@Override
 	public String getId(String ref) {
 		try {
 			Reference reference = getReference(ref);
@@ -270,11 +263,6 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 		
 		// Fallback to regular site URL
 		return serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/sakai.syllabus";
-	}
-
-	@Override
-	public boolean isContentFromReader(String reference) {
-		return false;
 	}
 
 	@Override

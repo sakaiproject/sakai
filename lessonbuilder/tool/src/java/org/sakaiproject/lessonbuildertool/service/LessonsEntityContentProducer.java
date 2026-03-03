@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -141,19 +140,9 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		return o;
 	}
 
-	public boolean isContentFromReader(String cr)
-	{
-		return false;
-	}
-
-	public Reader getContentReader(String reference)
-	{
-		return null;
-	}
-
 	public String getContent(String reference)
 	{
-		
+
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);

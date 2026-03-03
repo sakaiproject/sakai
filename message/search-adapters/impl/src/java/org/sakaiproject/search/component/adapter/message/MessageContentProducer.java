@@ -21,8 +21,6 @@
 
 package org.sakaiproject.search.component.adapter.message;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -119,18 +117,6 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 		
 		contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
-	}
-
-	@Override
-	public boolean isContentFromReader(String reference)
-	{
-		return false;
-	}
-
-	@Override
-	public Reader getContentReader(String reference)
-	{
-		return new StringReader(getContent(reference));
 	}
 
 	protected Reference getReference(String reference)

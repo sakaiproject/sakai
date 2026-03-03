@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,10 +158,6 @@ public class MessageForumsEntityContentProducer implements
 		return "";
 	}
 
-	public Reader getContentReader(String reference) {
-		return new StringReader(getContent(reference));
-	}
-
 	public Map getCustomProperties(String ref) {
 		// TODO Auto-generated method stub
 		return null;
@@ -271,10 +265,6 @@ public class MessageForumsEntityContentProducer implements
 			}
 		}
 		return url;
-	}
-
-	public boolean isContentFromReader(String reference) {
-		return false;
 	}
 
 	public boolean isForIndex(String reference) {
