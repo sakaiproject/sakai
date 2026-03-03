@@ -186,6 +186,9 @@ public class OptionController {
     public String batchOption(@RequestParam("pollId") String pollId,
                               Model model) {
         Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (poll.isEmpty()) {
+            return "redirect:/votePolls";
+        }
         OptionBatchForm form = new OptionBatchForm();
         form.setPollId(pollId);
         model.addAttribute("poll", poll.get());

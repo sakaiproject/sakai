@@ -208,7 +208,7 @@ public class PollEditorController {
                 new DisplayOption("afterClosing", "new_poll_afterClosing"),
                 new DisplayOption("never", "new_poll_never")
         ));
-        model.addAttribute("isNew", pollForm.getPollId() == null);
+        model.addAttribute("isNew", StringUtils.isBlank(pollForm.getPollId()));
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
