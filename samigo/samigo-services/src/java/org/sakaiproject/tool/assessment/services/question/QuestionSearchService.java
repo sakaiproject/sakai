@@ -29,4 +29,6 @@ public interface QuestionSearchService {
     boolean userOwnsQuestion(String questionId);
 
     List<String> getQuestionOrigins(String hash, Map<String, String> titleCache);
+
+    String getOriginDisplay(QuestionSearchResult result, Map<String, String> titleCache);
 }
