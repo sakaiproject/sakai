@@ -162,8 +162,43 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
+				MessageHeader mh = m.getHeader();
+				StringBuilder sb = new StringBuilder();
+				Class c = mh.getClass();
+				try
+				{
+					Method getSubject = c.getMethod("getSubject", new Class[] {}); //$NON-NLS-1$
+					Object o = getSubject.invoke(mh, new Object[] {});
+					sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.5"));
+					SearchUtils.appendCleanString(o.toString(), sb);
+					sb.append("\n"); //$NON-NLS-1$
+				}
+				catch (Exception ex)
+				{
+					log.debug("Didnt get Subject from {}", mh, ex); //$NON-NLS-1$
+				}
 
-				return m.getBody();
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.3")); //$NON-NLS-1$
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.4"));
+				String displayName = null;
+				if (contextualUserDisplayService != null)
+				{
+					Reference ref1 = entityManager.newReference(m.getReference());
+					String context = siteService.siteReference(ref1.getContext());
+					displayName = contextualUserDisplayService.getUserDisplayName(mh.getFrom(), context);
+					if (displayName == null)
+						displayName = mh.getFrom().getDisplayName();
+				}
+				else
+				{
+					displayName = mh.getFrom().getDisplayName();
+				}
+				SearchUtils.appendCleanString(displayName, sb);
+				sb.append("\n"); //$NON-NLS-1$
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
+				sb.append(m.getBody());
+				sb.append("\n"); //$NON-NLS-1$
+				return sb.toString();
 			}
 			catch (IdUnusedException e)
 			{

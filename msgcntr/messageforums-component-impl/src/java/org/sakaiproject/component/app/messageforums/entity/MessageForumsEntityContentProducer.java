@@ -153,7 +153,7 @@ public class MessageForumsEntityContentProducer implements
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		if (m != null) {
-			return m.getAuthor() + " " + m.getBody();
+			return m.getAuthor() + " " + m.getTitle() + " " + m.getBody();
 		}
 		return "";
 	}
