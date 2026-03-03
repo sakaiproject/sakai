@@ -1357,21 +1357,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 
 		query += " order by ";
+		String sortColumn;
 
 		switch (orderBy) {
-			case DUE:
-				query += " c." + DUE;
-				break;
-			case TIME_LIMIT:
-				query += " c." + TIME_LIMIT;
-				break;
-			case TITLE:
-				query += " p." + TITLE;
-				break;
-			default:
-				query += " p." + orderBy;
-				break;
+			case DUE -> sortColumn = "c." + DUE;
+			case TIME_LIMIT -> sortColumn = "c." + TIME_LIMIT;
+			case TITLE -> sortColumn = "p." + TITLE;
+			default -> sortColumn = "p." + TITLE;
 		}
+
+		query += sortColumn;
 
 		query += (ascending ? " asc" : " desc");
 

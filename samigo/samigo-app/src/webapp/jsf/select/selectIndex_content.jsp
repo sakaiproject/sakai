@@ -188,10 +188,24 @@
                                         messagesHtml += '<span class="validate">' + assessmentUpdatedText + '</span>';
                                     }
 
-                                    var titleInner = '<span class="spanValue">' + item.assessmentTitle + '</span>';
+                                    var titleInner =
+                                        '<span class="spanValue">' +
+                                        escapeHtml(item.assessmentTitle) +
+                                        '</span>';
+
+                                    const safeUrl = sanitizeHttpUrl(item.alternativeDeliveryUrl);
+
+
                                     const titleHtml = item.alternativeDeliveryUrl
-                                        ? '<a href="' + item.alternativeDeliveryUrl + '" title="Proctored Assessment Link">' + '<span class="fa fa-user-circle-o" title="Proctored Assessment Link"></span> ' + titleInner + '</a>' + messagesHtml
-                                        : '<a href="#" onclick="submitBeginAssessment(\'' + encodeURIComponent(item.assessmentId) + '\'); return false;">' + titleInner + '</a>' + messagesHtml;
+                                        ? '<a href="' + safeUrl + '" title="Proctored Assessment Link">' +
+                                                '<span class="fa fa-user-circle-o"></span> ' +
+                                                titleInner +
+                                            '</a>' + messagesHtml
+                                        : '<a href="#" onclick="submitBeginAssessment(\'' +
+                                                encodeURIComponent(item.assessmentId) +
+                                            '\'); return false;">' +
+                                                titleInner +
+                                            '</a>' + messagesHtml;
 
                                     let timeStr = '';
                                     if (item.timeLimit_hour || item.timeLimit_minute) {
@@ -204,7 +218,13 @@
                                     }
 
                                     const dueRaw = item.dueDate || item.due || item.dueDateString || '';
-                                    const dueHtml = dueRaw ? "<b>" + window.formatServerDate(dueRaw) + "</b>" : '<span>n/a</span>';
+                                    let dueHtml;
+                                    if (dueRaw) {
+                                        const formattedDue = escapeHtml(window.formatServerDate(dueRaw));
+                                        dueHtml = '<b>' + formattedDue + '</b>';
+                                    } else {
+                                        dueHtml = '<span>n/a</span>';
+                                    }
 
                                     return [titleHtml, timeStr, dueHtml];
                                 });
@@ -216,8 +236,8 @@
                                 try {
                                     const hasRows = rows && rows.length > 0;
                                     const infoP = document.querySelector('.submission-container > .info-text');
-                                    const takeNotesSpan = document.getElementById('takeNotesText');
-                                    const takeNotAvailableSpan = document.getElementById('takeNotAvailableText');
+                                    const takeNotesSpan = document.getElementById('take-notes-text');
+                                    const takeNotAvailableSpan = document.getElementById('take-not-available-text');
                                     const tableEl = document.getElementById('selectIndexForm:selectTable');
                                     const wrapper = tableEl ? tableEl.closest('.dataTables_wrapper') : null;
                                     if (infoP) {
@@ -251,19 +271,20 @@
                                     data: rows
                                 });
 
-                                // On first successful load, reveal headers/controls hidden earlier
-                                try {
-                                    var wrapper = $("#selectIndexForm\\:selectTable").closest('.dataTables_wrapper');
-                                    if (wrapper.length && wrapper.hasClass('dt-waiting')) {
-                                        wrapper.removeClass('dt-waiting');
-                                        try { table.columns.adjust(); } catch(e) {}
-                                    }
-                                    try { $("#selectIndexForm\\:selectTable").removeClass('dt-waiting'); } catch(e) {}
-                                    try { $("#selectIndexForm\\:selectTable").css('visibility','visible'); } catch(e) {}
-                                } catch (e) { /* ignore */ }
+                                const clearWaitingState = function() {
+                                    try {
+                                        var wrapper = $("#selectIndexForm\\:selectTable").closest('.dataTables_wrapper');
+                                        if (wrapper.length) wrapper.removeClass('dt-waiting').show();
+                                        $("#selectIndexForm\\:selectTable").removeClass('dt-waiting').css('visibility', 'visible');
+                                    } catch (e) { /* ignore */ }
+                                };
+
+                                clearWaitingState();
+                                try { table.columns.adjust(); } catch(e) {}
                             })
                             .catch(err => {
                                 callback({draw: dtRequest.draw, recordsTotal:0, recordsFiltered:0, data: []});
+                                clearWaitingState();
                             });
                     },
                     language: {
@@ -553,10 +574,28 @@
             }
         });
 
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function sanitizeHttpUrl(rawUrl) {
+            try {
+                var parsed = new URL(rawUrl, window.location.origin);
+                return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : '#';
+            } catch (e) {
+                return '#';
+            }
+        }
+
         // API bridge for fetching paged takeable assessments. Returns backend JSON.
         // Accepts DataTables pagination/search/order and maps to API query params.
         function fetchTakeablePage({page = 1, size = 5, search = '', order = null} = {}) {
             const siteId = window.portal.siteId;
+            const encodedSiteId = encodeURIComponent(siteId || '');
             // determine sort and ascending from front-end `order` if provided
             const sortDefault = 'title';
             let sort = sortDefault;
@@ -582,7 +621,7 @@
                 console.warn('Error parsing order param, falling back to defaults', e);
             }
 
-            const url = "/api/samigo/select/takeable?siteId=" + siteId
+            const url = "/api/samigo/select/takeable?siteId=" + encodedSiteId
                         + "&ascending=" + (ascending ? 'true' : 'false')
                         + "&sort=" + encodeURIComponent(sort)
                         + "&page=" + page
@@ -643,7 +682,7 @@
                 </h2>
 
                 <p class="info-text">
-                    <span id="takeAvailabilityMessage"></span>
+                    <span id="take-availability-message"></span>
                     <noscript>
                         <h:outputText value="#{selectIndexMessages.take_assessment_notAvailable}" />
                     </noscript>
@@ -654,9 +693,9 @@
                     <table id="selectIndexForm:selectTable" class="table table-hover table-striped table-bordered table-assessments" data-summary="" style="visibility:hidden;">
                         <thead>
                             <tr>
-                                <th class="assessmentTitleHeader"><div class="tablesorter-header-inner"><h:outputText value="#{selectIndexMessages.title}" /></div></th>
-                                <th class="assessmentTimeLimitHeader"><h:outputText value="#{selectIndexMessages.t_time_limit}" /></th>
-                                <th class="assessmentDueDateHeader"><h:outputText value="#{selectIndexMessages.date_due}" /></th>
+                                <th class="assessment-title-header"><div class="tablesorter-header-inner"><h:outputText value="#{selectIndexMessages.title}" /></div></th>
+                                <th class="assessment-time-limit-header"><h:outputText value="#{selectIndexMessages.t_time_limit}" /></th>
+                                <th class="assessment-due-date-header"><h:outputText value="#{selectIndexMessages.date_due}" /></th>
                             </tr>
                         </thead>
                         <tfoot class="d-none"><tr><td colspan="3"><h:outputText value="#{selectIndexMessages.sum_availableAssessment}" /></td></tr></tfoot>
@@ -702,9 +741,9 @@
 			    <%@ include file="./selectIndex_review_table.jsp"%>
 
                 </t:div>
-                    <!-- Hidden localized messages for client-side toggle (moved inside form) -->
-                    <span id="takeNotesText" style="display:none"><h:outputText value="#{selectIndexMessages.take_assessment_notes}" /></span>
-                    <span id="takeNotAvailableText" style="display:none"><h:outputText value="#{selectIndexMessages.take_assessment_notAvailable}" /></span>
+                <!-- Hidden localized messages for client-side toggle (moved inside form) -->
+                <span id="take-notes-text" style="display:none"><h:outputText value="#{selectIndexMessages.take_assessment_notes}" /></span>
+                <span id="take-not-available-text" style="display:none"><h:outputText value="#{selectIndexMessages.take_assessment_notAvailable}" /></span>
         </h:form>
     </div>
     <!-- end content -->
