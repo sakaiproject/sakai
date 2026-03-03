@@ -37,9 +37,8 @@ jobs:
       - name: Run tests with US locale
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
-        run: mvn --show-version --batch-mode -PskipBrokenTests test
+        run: mvn -V -B -ntp -PskipBrokenTests test
       - name: Run tests with ES locale
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
-        run: mvn -Duser.language=es -Duser.country=ES --show-version --batch-mode -PskipBrokenTests test
-
+        run: mvn -Duser.language=es -Duser.country=ES -V -B -ntp -PskipBrokenTests test
