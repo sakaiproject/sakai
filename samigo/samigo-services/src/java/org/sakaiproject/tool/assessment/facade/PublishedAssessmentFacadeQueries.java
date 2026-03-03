@@ -1363,7 +1363,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		query += " order by ";
 		String sortColumn;
 
-		switch (orderBy) {
+		String safeOrderBy = orderBy == null ? TITLE : orderBy;
+		switch (safeOrderBy) {
 			case DUE -> sortColumn = "c." + DUE;
 			case TIME_LIMIT -> sortColumn = "c." + TIME_LIMIT;
 			case TITLE -> sortColumn = "p." + TITLE;
