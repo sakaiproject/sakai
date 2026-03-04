@@ -72,6 +72,8 @@ public class RequestFilter implements Filter
 	public static final String ATTR_SET_COOKIE = "sakai.set.cookie";
 	/** Request attribute storing Tomcat request parameter parse failure reason. */
 	public static final String ATTR_PARAMETER_PARSE_FAILED_REASON = "sakai.request.parameterParseFailedReason";
+	/** Request attribute flag indicating Tomcat parse failure has already been reported for this request. */
+	public static final String ATTR_PARAMETER_PARSE_FAILED_REPORTED = "sakai.request.parameterParseFailedReported";
 	/** The request attribute name (and value) used to indicated that the request has been filtered. */
 	public static final String ATTR_FILTERED = "sakai.filtered";
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
@@ -606,6 +608,11 @@ public class RequestFilter implements Filter
 
 	protected void surfaceTomcatParameterParseFailure(HttpServletRequest req, Session s)
 	{
+		if (req.getAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED) != null)
+		{
+			return;
+		}
+
 		Object parseFailed = req.getAttribute(TOMCAT_ATTR_PARAMETER_PARSE_FAILED);
 		if (!isTomcatParseFailure(parseFailed))
 		{
@@ -618,6 +625,7 @@ public class RequestFilter implements Filter
 		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REASON, reason);
 		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}, query={}, remoteAddr={}",
 				reason, req.getMethod(), req.getRequestURI(), req.getQueryString(), req.getRemoteAddr());
+		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED, Boolean.TRUE);
 
 		if (s == null)
 		{
