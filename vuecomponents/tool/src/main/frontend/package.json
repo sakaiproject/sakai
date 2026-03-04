@@ -4,8 +4,9 @@
   "description": "Sakai Vue Components",
   "author": "",
   "scripts": {
-    "build": "cross-env vue-cli-service build --target wc --inline-vue --name sakai --dest ./target/js './src/components/*'",
+    "build": "cross-env GENERATE_STATS=1 vue-cli-service build --target wc --inline-vue --name sakai --dest ./target/js './src/components/*'",
     "build-dev": "node build-dev.mjs",
+    "deps:report": "node deployed-deps.mjs",
     "test": "cross-env vue-cli-service test:unit --passWithNoTests"
   },
   "main": "js/sakai-element.js",
@@ -15,8 +16,6 @@
     "bootstrap-vue": "^2.23.1",
     "cross-env": "^7.0.3",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.1",
-    "node-fetch-polyfill": "^2.0.6",
     "vue": "^2.7.16",
     "vue-loader": "^17.0.1",
     "vue-multiselect": "^2.1.9"
