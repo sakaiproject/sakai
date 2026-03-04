@@ -6,6 +6,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,10 @@ class ForumsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Discussion");
 
-        page.locator(".navIntraTool a, .navIntraTool button")
-            .filter(new Locator.FilterOptions().setHasText("New"))
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+                .setName(Pattern.compile("^New Forum$", Pattern.CASE_INSENSITIVE)))
             .first()
-            .click(new Locator.ClickOptions().setForce(true));
+            .click();
 
         page.locator("form input[type=\"text\"]:visible").first().fill(FORUM_TITLE);
         page.locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Create\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Create\"], .act button:has-text(\"Save\"), .act button:has-text(\"Create\"), .act input[value*=\"Save\"], .act input[value*=\"Create\"]")
@@ -45,10 +46,10 @@ class ForumsTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(FORUM_TITLE)).first().click(new Locator.ClickOptions().setForce(true));
 
-        page.locator(".navIntraTool a, .navIntraTool button")
-            .filter(new Locator.FilterOptions().setHasText("New"))
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+                .setName(Pattern.compile("^New Topic$", Pattern.CASE_INSENSITIVE)))
             .first()
-            .click(new Locator.ClickOptions().setForce(true));
+            .click();
 
         page.locator("form input[type=\"text\"]:visible").first().fill(TOPIC_TITLE);
         page.locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Create\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Create\"], .act button:has-text(\"Save\"), .act button:has-text(\"Create\"), .act input[value*=\"Save\"], .act input[value*=\"Create\"]")
