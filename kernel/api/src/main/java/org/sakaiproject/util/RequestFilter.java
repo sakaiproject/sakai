@@ -518,11 +518,13 @@ public class RequestFilter implements Filter
 
 							// post-process response
 							postProcessResponse(s, req, resp);
-						} catch (Exception e) {
-							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}, query={}",
-									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), req.getQueryString(), e);
-							if (log.isDebugEnabled()) throw e;
-						}
+							} catch (Exception e) {
+								log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
+										log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
+								log.debug("Unhandled exception request diagnostics: hasQuery={}",
+										req.getQueryString() != null && !req.getQueryString().isEmpty());
+								if (log.isDebugEnabled()) throw e;
+							}
 					}
 					// Tomcat may only set these attributes once form parameters are parsed downstream.
 					surfaceTomcatParameterParseFailure(req, s);
@@ -623,8 +625,11 @@ public class RequestFilter implements Filter
 		String reason = reasonObj == null ? "UNKNOWN" : reasonObj.toString();
 
 		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REASON, reason);
-		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}, query={}, remoteAddr={}",
-				reason, req.getMethod(), req.getRequestURI(), req.getQueryString(), req.getRemoteAddr());
+		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}",
+				reason, req.getMethod(), req.getRequestURI());
+		log.debug("Tomcat parse-failure diagnostics: hasQuery={}, hasRemoteAddr={}",
+				req.getQueryString() != null && !req.getQueryString().isEmpty(),
+				req.getRemoteAddr() != null && !req.getRemoteAddr().isEmpty());
 		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED, Boolean.TRUE);
 
 		if (s == null)
