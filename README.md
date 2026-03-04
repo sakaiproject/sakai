@@ -37,6 +37,35 @@ cd /path/to/your/tomcat/bin
 ./startup.sh && tail -f ../logs/catalina.out
 ```
 
+### Tomcat Request Parsing Limits (Important)
+
+Recent Tomcat 9 releases tightened request parsing defaults. Large JSF forms can silently lose submitted fields when these limits are exceeded.
+
+- `maxParameterCount` default was reduced from `10000` to `1000` in Tomcat 9.0.74.
+- `maxPartCount` was introduced in Tomcat 9.0.106 (default `10`) and raised to `50` in Tomcat 9.0.107.
+
+If Tomcat rejects request parsing, it can set request attributes like:
+
+- `org.apache.catalina.parameter_parse_failed`
+- `org.apache.catalina.parameter_parse_failed_reason`
+
+These failures are often container-level parse rejections and may not appear as normal application exceptions in Sakai logs.
+
+Sakai now surfaces this as a critical user warning, but you should still size Tomcat for your expected form traffic (Samigo delivery and other upload-heavy tools can exceed defaults).
+
+Example connector tuning:
+
+```xml
+<Connector
+  port="8080"
+  protocol="org.apache.coyote.http11.Http11NioProtocol"
+  maxHttpRequestHeaderSize="32768"
+  maxParameterCount="10000"
+  maxPartCount="2000" />
+```
+
+Tune values to your environment and review Tomcat release notes when upgrading.
+
 Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal
 
 ## Licensing
@@ -140,5 +169,3 @@ Other languages have been declared legacy in Sakai 19 and have been moved to [Sa
 
 ## Community (contrib) tools
 A number of institutions have written additional tools for Sakai that they use in their local installations, but are not yet in an official release of Sakai. These are being collected at https://github.com/sakaicontrib where you will find information about each one. You might find just the thing you are after!
-
-

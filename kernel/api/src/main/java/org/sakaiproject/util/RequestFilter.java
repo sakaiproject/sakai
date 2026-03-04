@@ -70,6 +70,8 @@ public class RequestFilter implements Filter
 	/** The request attribute name used to ask the RequestFilter to output
 	 * a client cookie at the end of the request cycle. */
 	public static final String ATTR_SET_COOKIE = "sakai.set.cookie";
+	/** Request attribute storing Tomcat request parameter parse failure reason. */
+	public static final String ATTR_PARAMETER_PARSE_FAILED_REASON = "sakai.request.parameterParseFailedReason";
 	/** The request attribute name (and value) used to indicated that the request has been filtered. */
 	public static final String ATTR_FILTERED = "sakai.filtered";
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
@@ -201,6 +203,17 @@ public class RequestFilter implements Filter
 
 	/** The name of the Sakai property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
+	/** Tomcat request attribute indicating request parameter parsing failed. */
+	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED = "org.apache.catalina.parameter_parse_failed";
+	/** Tomcat request attribute indicating reason request parameter parsing failed. */
+	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED_REASON = "org.apache.catalina.parameter_parse_failed_reason";
+	/** Session attribute consumed by portal notifications service. */
+	protected static final String SAKAI_ATTR_USER_WARNING = "userWarning";
+	/** User-facing critical warning when Tomcat rejects request parameter parsing. */
+	protected static final String PARAMETER_PARSE_FAILURE_WARNING =
+		"CRITICAL: Your request exceeded server parsing limits and may have lost form data. "
+		+ "Your submission may not have been saved correctly. "
+		+ "Please contact support and include the page URL, time, and your browser details.";
 
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
@@ -466,6 +479,7 @@ public class RequestFilter implements Filter
 
 					// make sure we have a session
 					Session s = assureSession(req, resp);
+					surfaceTomcatParameterParseFailure(req, s);
 
 					// pre-process request
 					req = preProcessRequest(s, req);
@@ -503,9 +517,13 @@ public class RequestFilter implements Filter
 							// post-process response
 							postProcessResponse(s, req, resp);
 						} catch (Exception e) {
+							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}, query={}",
+									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), req.getQueryString(), e);
 							if (log.isDebugEnabled()) throw e;
 						}
 					}
+					// Tomcat may only set these attributes once form parameters are parsed downstream.
+					surfaceTomcatParameterParseFailure(req, s);
 
 					// Output client cookie if requested to do so
 					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
@@ -584,6 +602,53 @@ public class RequestFilter implements Filter
 				log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
+	}
+
+	protected void surfaceTomcatParameterParseFailure(HttpServletRequest req, Session s)
+	{
+		Object parseFailed = req.getAttribute(TOMCAT_ATTR_PARAMETER_PARSE_FAILED);
+		if (!isTomcatParseFailure(parseFailed))
+		{
+			return;
+		}
+
+		Object reasonObj = req.getAttribute(TOMCAT_ATTR_PARAMETER_PARSE_FAILED_REASON);
+		String reason = reasonObj == null ? "UNKNOWN" : reasonObj.toString();
+
+		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REASON, reason);
+		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}, query={}, remoteAddr={}",
+				reason, req.getMethod(), req.getRequestURI(), req.getQueryString(), req.getRemoteAddr());
+
+		if (s == null)
+		{
+			return;
+		}
+
+		String existingWarning = (String) s.getAttribute(SAKAI_ATTR_USER_WARNING);
+		if (existingWarning == null || existingWarning.isEmpty())
+		{
+			s.setAttribute(SAKAI_ATTR_USER_WARNING, PARAMETER_PARSE_FAILURE_WARNING + " (Reason: " + reason + ")");
+			return;
+		}
+
+		if (!existingWarning.contains(PARAMETER_PARSE_FAILURE_WARNING))
+		{
+			s.setAttribute(SAKAI_ATTR_USER_WARNING,
+					existingWarning + " " + PARAMETER_PARSE_FAILURE_WARNING + " (Reason: " + reason + ")");
+		}
+	}
+
+	protected boolean isTomcatParseFailure(Object parseFailed)
+	{
+		if (parseFailed == null)
+		{
+			return false;
+		}
+		if (parseFailed instanceof Boolean)
+		{
+			return (Boolean) parseFailed;
+		}
+		return "true".equalsIgnoreCase(parseFailed.toString());
 	}
 
 	/**
@@ -936,21 +1001,6 @@ public class RequestFilter implements Filter
 		// set the max upload size
 		long uploadMax = -1;
 		if (m_uploadMaxSize > 0) uploadMax = m_uploadMaxSize;
-
-		// check for request-scoped override to upload.max (value in megs)
-		String override = req.getParameter(CONFIG_UPLOAD_MAX);
-		if (override != null)
-		{
-			try
-			{
-				// get the max in bytes
-				uploadMax = Long.parseLong(override) * 1024L * 1024L;
-			}
-			catch (NumberFormatException e)
-			{
-				log.warn(CONFIG_UPLOAD_MAX + " set to non-numeric: " + override);
-			}
-		}
 
 		// limit to the ceiling
 		if (uploadMax > m_uploadCeiling)
