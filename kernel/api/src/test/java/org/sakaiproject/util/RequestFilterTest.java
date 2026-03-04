@@ -36,6 +36,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(MockitoJUnitRunner.class)
 public class RequestFilterTest {
 
@@ -164,6 +167,50 @@ public class RequestFilterTest {
         Mockito.when(sessionManager.startSession()).thenThrow(new ClosingException());
         filter.assureSession(request, response);
 
+    }
+
+    @Test
+    public void testIsTomcatParseFailure() {
+        assertFalse(filter.isTomcatParseFailure(null));
+        assertFalse(filter.isTomcatParseFailure(false));
+        assertFalse(filter.isTomcatParseFailure("false"));
+        assertTrue(filter.isTomcatParseFailure(true));
+        assertTrue(filter.isTomcatParseFailure("true"));
+        assertTrue(filter.isTomcatParseFailure("TRUE"));
+    }
+
+    @Test
+    public void testSurfaceTomcatParameterParseFailure() {
+        Mockito.when(request.getAttribute("org.apache.catalina.parameter_parse_failed")).thenReturn(true);
+        Mockito.when(request.getAttribute("org.apache.catalina.parameter_parse_failed_reason")).thenReturn("TOO_MANY_PARTS");
+        Mockito.when(request.getMethod()).thenReturn("POST");
+        Mockito.when(request.getRequestURI()).thenReturn("/samigo-app/jsf/delivery/deliverAssessment.faces");
+        Mockito.when(request.getQueryString()).thenReturn(null);
+        Mockito.when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        filter.surfaceTomcatParameterParseFailure(request, session);
+
+        Mockito.verify(request).setAttribute(RequestFilter.ATTR_PARAMETER_PARSE_FAILED_REASON, "TOO_MANY_PARTS");
+        Mockito.verify(session).setAttribute(Mockito.eq("userWarning"), Mockito.contains("CRITICAL:"));
+        Mockito.verify(session).setAttribute(Mockito.eq("userWarning"), Mockito.contains("Reason: TOO_MANY_PARTS"));
+    }
+
+    @Test
+    public void testSurfaceTomcatParameterParseFailureAppendsWarning() {
+        Mockito.when(request.getAttribute("org.apache.catalina.parameter_parse_failed")).thenReturn("true");
+        Mockito.when(request.getAttribute("org.apache.catalina.parameter_parse_failed_reason")).thenReturn("TOO_MANY_PARAMETERS");
+        Mockito.when(request.getMethod()).thenReturn("POST");
+        Mockito.when(request.getRequestURI()).thenReturn("/samigo-app/jsf/delivery/deliverAssessment.faces");
+        Mockito.when(request.getQueryString()).thenReturn("id=123");
+        Mockito.when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        Mockito.when(session.getAttribute("userWarning")).thenReturn("Existing warning");
+
+        filter.surfaceTomcatParameterParseFailure(request, session);
+
+        Mockito.verify(session).setAttribute(Mockito.eq("userWarning"),
+            Mockito.contains("Existing warning"));
+        Mockito.verify(session).setAttribute(Mockito.eq("userWarning"),
+            Mockito.contains("Reason: TOO_MANY_PARAMETERS"));
     }
 
     private void setupCookieSession() {
