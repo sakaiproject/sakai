@@ -39,19 +39,14 @@ cd /path/to/your/tomcat/bin
 
 ### Tomcat Request Parsing Limits (Important)
 
-Recent Tomcat 9 releases tightened request parsing defaults. Large JSF forms can silently lose submitted fields when these limits are exceeded.
+Large multipart/JSF submissions can exceed Tomcat request parsing limits (`maxParameterCount`, `maxPartCount`).
 
-- `maxParameterCount` default was reduced from `10000` to `1000` in Tomcat 9.0.74.
-- `maxPartCount` was introduced in Tomcat 9.0.106 (default `10`) and raised to `50` in Tomcat 9.0.107.
+Sakai's `RequestFilter` now surfaces Tomcat parse-failure attributes (`org.apache.catalina.parameter_parse_failed*`) as a critical user warning, but request behavior can still differ by path:
 
-If Tomcat rejects request parsing, it can set request attributes like:
+- some requests are parsed by Tomcat directly
+- some requests are handled through Sakai `RequestFilter` multipart handling (Commons FileUpload)
 
-- `org.apache.catalina.parameter_parse_failed`
-- `org.apache.catalina.parameter_parse_failed_reason`
-
-These failures are often container-level parse rejections and may not appear as normal application exceptions in Sakai logs.
-
-Sakai now surfaces this as a critical user warning, but you should still size Tomcat for your expected form traffic (Samigo delivery and other upload-heavy tools can exceed defaults).
+Because of this, tune Tomcat limits for your workload and do not rely on defaults for production.
 
 Example connector tuning:
 
@@ -64,7 +59,7 @@ Example connector tuning:
   maxPartCount="2000" />
 ```
 
-Tune values to your environment and review Tomcat release notes when upgrading.
+To fail fast on rejected request parsing (instead of partial/ambiguous behavior), enable Tomcat's `FailedRequestFilter` in `conf/web.xml`.
 
 Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal
 
