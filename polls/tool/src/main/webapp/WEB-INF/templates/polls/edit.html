@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <div class="mt-4" th:if="${pollForm.pollId != null}">
+      <div class="mt-4" th:if="${!isNew}">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h3 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
         </div>
