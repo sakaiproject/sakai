@@ -640,15 +640,7 @@ public class RequestFilter implements Filter
 
 	protected boolean isTomcatParseFailure(Object parseFailed)
 	{
-		if (parseFailed == null)
-		{
-			return false;
-		}
-		if (parseFailed instanceof Boolean)
-		{
-			return (Boolean) parseFailed;
-		}
-		return "true".equalsIgnoreCase(parseFailed.toString());
+		return Boolean.parseBoolean(String.valueOf(parseFailed));
 	}
 
 	/**
