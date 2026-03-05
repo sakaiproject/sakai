@@ -3,6 +3,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
@@ -81,16 +82,17 @@ class SignupTest extends SakaiUiTestBase {
         }
 
         page.locator("button:has-text(\"Next\"), input[type=\"submit\"][value*=\"Next\"], .act button:has-text(\"Next\"), .act input[value*=\"Next\"]").first().click(new Locator.ClickOptions().setForce(true));
-        page.locator("button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Publish\"], .act button:has-text(\"Publish\"), .act input[value*=\"Publish\"]").first().click(new Locator.ClickOptions().setForce(true));
+        page.locator("form#meeting input#meeting\\:goNextPage[value=\"Publish\"]").first().click();
+        page.waitForURL(Pattern.compile(".*/signupMeetings(?:\\?.*)?$"), new Page.WaitForURLOptions().setTimeout(30_000));
 
         sakai.toolClick("Sign-up");
         Locator meetingsTable = page.locator("[id=\"items:meetinglist\"], [id=\"meetinglist\"], [id$=\":meetinglist\"]").first();
         if (!meetingTitleVisible(meetingsTable)) {
             Locator viewByRange = page.locator("select[id=\"items:viewByRange\"], select[id=\"viewByRange\"], select[id$=\":viewByRange\"]").first();
-            if (viewByRange.count() > 0 && viewByRange.isVisible()) {
+            if (viewByRange.count() > 0 && viewByRange.isVisible() && viewByRange.isEnabled()) {
                 @SuppressWarnings("unchecked")
                 List<String> viewValues = (List<String>) viewByRange.locator("option")
-                    .evaluateAll("options => options.map(option => option.value).filter(Boolean)");
+                    .evaluateAll("options => options.filter(option => option.value && !option.disabled).map(option => option.value)");
 
                 for (String viewValue : viewValues) {
                     viewByRange.selectOption(viewValue);
