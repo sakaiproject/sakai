@@ -67,6 +67,7 @@ public class AgentResults
   private String agentDisplayId;
   private String firstName;
   private String lastName;
+  private String displayName;
   private String lastInitial;
   private String email;
   private String idString;
@@ -169,6 +170,14 @@ public class AgentResults
 
   public void setLastName(String name) {
     lastName = name;
+  }
+
+  public String getDisplayName() {
+    return Validator.check(displayName, "");
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
   }
 
   public String getLastInitial() {
