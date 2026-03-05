@@ -7,13 +7,13 @@
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool actionToolBar">
-	  <form action="?#" method="get" class="rwiki_searchForm">
+	  <div class="rwiki_searchForm">
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
-	  </form>
+	  </div>
 	 </div>
 		
 	 <div id="rwiki_content" class="nosidebar" >
