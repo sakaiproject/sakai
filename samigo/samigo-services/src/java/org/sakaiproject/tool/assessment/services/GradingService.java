@@ -3903,8 +3903,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return name;
   }
   
-  public List getUpdatedAssessmentList(String agentId, String siteId) {
-	  List list = null;
+  public List<List<Long>> getUpdatedAssessmentList(String agentId, String siteId) {
+	  List<List<Long>> list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getUpdatedAssessmentList(agentId, siteId);

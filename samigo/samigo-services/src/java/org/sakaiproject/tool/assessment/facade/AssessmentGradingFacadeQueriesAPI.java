@@ -258,7 +258,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public String getFilename(Long itemGradingId, String agentId, String filename);
 
-  public List getUpdatedAssessmentList(String agentId, String siteId);
+  public List<List<Long>> getUpdatedAssessmentList(String agentId, String siteId);
   
   public List getSiteNeedResubmitList(String siteId);
   

@@ -29,10 +29,12 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.webapi.beans.AssessmentDeliveryRestBean;
 import org.sakaiproject.webapi.beans.PageResponseRest;
 import org.sakaiproject.webapi.beans.TimerBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -124,12 +126,18 @@ public class SamigoController extends AbstractSakaiApiController {
 			ascending, search, siteId);
 
 		GradingService gradingService = new GradingService();
-		List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), siteId);
-		List updatedAssessmentNeedResubmitList = new ArrayList();
-		List updatedAssessmentList = new ArrayList();
+		// It contains two lists:
+		// The first one is the list of assessment that are updated and need resubmit
+		// The second one is the list of assessment that are updated but do not need resubmit
+		List<List<Long>> list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), siteId);
+
+		List<Long> updatedAssessmentNeedResubmitList = new ArrayList<>();
+		List<Long> updatedAssessmentList = new ArrayList<>();
+
+		// separate the two lists
 		if (list != null && list.size() == 2) {
-			updatedAssessmentNeedResubmitList = (List) list.get(0);
-			updatedAssessmentList = (List) list.get(1);
+			updatedAssessmentNeedResubmitList = list.get(0);
+			updatedAssessmentList = list.get(1);
 		}
 
 		// filter out the one that the given user do not have right to access
@@ -163,7 +171,6 @@ public class SamigoController extends AbstractSakaiApiController {
 
 			/* We need to make the alternative delivery URL available in webapi
 				try {
-					SecureDeliveryServiceAPI secureDelivery = (SecureDeliveryServiceAPI) ComponentManager.get(SecureDeliveryServiceAPI.class);
 					if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
 						final String moduleId = f.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 						if (moduleId != null) {
@@ -180,7 +187,6 @@ public class SamigoController extends AbstractSakaiApiController {
 			*/
 
 			takeablePublishedList.add(delivery);
-			System.out.println(delivery.toString());
 		}
 
 		int totalElements = takeablePublishedList.size();
@@ -214,7 +220,10 @@ public class SamigoController extends AbstractSakaiApiController {
 			delivery.setTimeLimit_minute(0);
 		}
 	}
-
+	// go through the pub list retrieved from DB and check if
+	// agent is authorizaed and filter out the one that does not meet the
+	// takeable criteria.
+	// SAK-1464: we also want to filter out assessment released To Anonymous Users
 	private List<PublishedAssessmentFacade> getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
 		List<PublishedAssessmentFacade> takeableList = new ArrayList<>();
 		GradingService gradingService = new GradingService();

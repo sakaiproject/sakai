@@ -3040,12 +3040,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
     }
 
-    public List getUpdatedAssessmentList(String agentId, String siteId) {
-        List finalList = new ArrayList();
-        List updatedAssessmentList = new ArrayList();
-        List updatedAssessmentNeedResubmitListList = new ArrayList();
+    // This method returns a list of two lists.
+    // The first list contains the assessment ids with status ASSESSMENT_UPDATED_NEED_RESUBMIT
+    // The second list contains the assessment ids with status ASSESSMENT_UPDATED.
+    public List<List<Long>> getUpdatedAssessmentList(String agentId, String siteId) {
+        List<Long> updatedAssessmentList = new ArrayList();
+        List<Long> updatedAssessmentNeedResubmitList = new ArrayList();
 
-        List list = getHibernateTemplate()
+        List<Object[]> results = (List<Object[]>) getHibernateTemplate()
                 .findByNamedParam(
                         "select a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
                                 " where a.agentId = :agent and az.agentIdString = :site and az.functionId = :fid " +
@@ -3053,21 +3055,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                 " order by a.status",
                         new String[]{"agent", "site", "fid", "forgrade", "status1", "status2"},
                         new Object[]{agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingData.ASSESSMENT_UPDATED, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT});
-        if (list.isEmpty()) {
-            return updatedAssessmentList;
-        }
 
-        Iterator iter = list.iterator();
-        while (iter.hasNext()) {
-            Object o[] = (Object[]) iter.next();
-            if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
-                updatedAssessmentNeedResubmitListList.add(o[0]);
-            } else {
-                updatedAssessmentList.add(o[0]);
+        if (results != null) {
+            for (Object[] row : results) {
+                Long assessmentId = (Long) row[0];
+                Integer status = (Integer) row[1];
+
+                if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(status)) {
+                    updatedAssessmentNeedResubmitList.add(assessmentId);
+                } else {
+                    updatedAssessmentList.add(assessmentId);
+                }
             }
         }
-        finalList.add(updatedAssessmentNeedResubmitListList);
+
+        List<List<Long>> finalList = new ArrayList<>(2);
+        finalList.add(updatedAssessmentNeedResubmitList);
         finalList.add(updatedAssessmentList);
+
         return finalList;
     }
 

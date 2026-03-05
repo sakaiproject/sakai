@@ -134,18 +134,6 @@ public class SelectActionListener implements ActionListener {
         AgentFacade.getAgentString(), this.getTakeableOrderBy(select),
         select.isTakeableAscending(), siteId);
 
-    GradingService gradingService = new GradingService();
-    List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), siteId);
-    List updatedAssessmentNeedResubmitList = new ArrayList();
-    List updatedAssessmentList = new ArrayList();
-    if (list != null && list.size() == 2) {
-    	updatedAssessmentNeedResubmitList = (List) list.get(0);
-    	updatedAssessmentList = (List) list.get(1);
-    }
-
-    // filter out the one that the given user do not have right to access
-    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
-
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 
     if (secureDelivery.isSecureDeliveryAvaliable()) {
@@ -511,128 +499,6 @@ public class SelectActionListener implements ActionListener {
 
   }
 
-  // 3. go through the pub list retrieved from DB and check if
-  // agent is authorizaed and filter out the one that does not meet the
-  // takeable criteria.
-  // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private List<PublishedAssessmentFacade> getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
-    List<PublishedAssessmentFacade> takeableList = new ArrayList<>();
-    GradingService gradingService = new GradingService();
-    Map<Long, StudentGradingSummaryData> numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
-    Map<Long, Integer> actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
-    ExtendedTimeDeliveryService extendedTimeDeliveryService;
-    for (int i = 0; i < assessmentList.size(); i++) {
-      PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
-			// Handle extended time info
-			extendedTimeDeliveryService = new ExtendedTimeDeliveryService(f);
-			if (extendedTimeDeliveryService.hasExtendedTime()) {
-				f.setStartDate(extendedTimeDeliveryService.getStartDate());
-				f.setDueDate(extendedTimeDeliveryService.getDueDate());
-				//Override late handling here, availability check done later
-				if (extendedTimeDeliveryService.getRetractDate() != null) {
-					f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
-					f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
-				}
-				f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
-			}
-      if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
-          && !f.getReleaseTo().contains("Anonymous Users") ) {
-        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
-          takeableList.add(f);
-        }
-      }
-    }
-    return takeableList;
-  }
-
-  public boolean isAvailable(PublishedAssessmentFacade f, Map <Long, Integer> h, Map<Long, StudentGradingSummaryData> numberRetakeHash, Map <Long, Integer> actualNumberRetakeHash, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
-    boolean returnValue = false;
-    //1. prepare our significant parameters
-    Integer status = f.getStatus();
-    Date currentDate = new Date();
-    Date startDate = f.getStartDate();
-    Date dueDate = f.getDueDate();
-    Date retractDate = f.getRetractDate();
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
-
-    if (dueDate == null && (retractDate != null && acceptLateSubmission)) {
-        dueDate = retractDate;
-    }
-
-    if (!Integer.valueOf(1).equals(status)) {
-    	return false;
-    }
-    
-    if (startDate != null && startDate.after(currentDate)) {
-    	return false;
-    }
-
-    int totalSubmitted = 0;
-
-    //boolean notSubmitted = false;
-    if (h.get(f.getPublishedAssessmentId()) != null){
-      totalSubmitted = ((Integer) h.get(f.getPublishedAssessmentId()));
-    }
-    
-    if (acceptLateSubmission && (dueDate != null && dueDate.before(currentDate)) && retractDate == null && totalSubmitted == 0) {
-      return true;
-    }
-    
-    if (acceptLateSubmission
-            && (dueDate != null && dueDate.before(currentDate))
-            && (retractDate == null || retractDate.before(currentDate))) {
-    	return false;
-    }
-    
-    if (updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId()) || updatedAssessmentList.contains(f.getPublishedAssessmentId())) {
-    	return true;
-    }
-    
-    int maxSubmissionsAllowed = 9999;
-    if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
-      maxSubmissionsAllowed = f.getSubmissionsAllowed();
-    }
-
-    int numberRetake = 0;
-    if (numberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-    	numberRetake = (((StudentGradingSummaryData) numberRetakeHash.get(f.getPublishedAssessmentId())).getNumberRetake());
-    }
-    
-      //2. time to go through all the criteria
-    // Tests if dueDate has passed
-    if (dueDate != null && dueDate.before(currentDate)) {
-    	// DUE DATE HAS PASSED
-    	if (acceptLateSubmission) {
-    		// LATE SUBMISSION ARE HANDLED: The assessment is available in these situations:
-    		//    * Is the first submission
-    		//    * A retake has been granted 
-    		// (if late submission are handled, a previous test implies that retract date has not yet passed)
-			if (totalSubmitted == 0) {
-				returnValue = true;
-			} else {
-				int actualNumberRetake = 0;
-				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = (actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
-				}
-				if (actualNumberRetake < numberRetake) {
-					returnValue = true;
-				} else {
-					returnValue = false;
-				}
-			}
-    	} else {
-	    	returnValue = false;
-    	}
-	}
-	else {
-		if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
-			returnValue = true;
-		}
-	}
-    
-    return returnValue;
-  }
-
   /** submitted list = pub assessment that either has immediate feedback or that
    * the feedback date has past. If users has submitted to any of these assessment
    * we also want to show their submitted date. If they have not submitted to
@@ -817,27 +683,5 @@ public class SelectActionListener implements ActionListener {
       h.put(p.getPublishedAssessmentId(), p);
     }
     return h;
-  }
-  
-  private void setTimedAssessment(DeliveryBeanie delivery, PublishedAssessmentFacade pubAssessment){
-	  if (pubAssessment.getTimeLimit() != null) {
-		  int seconds = pubAssessment.getTimeLimit();
-		  int hour = 0;
-		  int minute = 0;
-		  if (seconds>=3600) {
-			  hour = Math.abs(seconds/3600);
-			  minute =Math.abs((seconds-hour*3600)/60);
-		  }
-		  else {
-			  minute = Math.abs(seconds/60);
-		  }
-		  delivery.setTimeLimit_hour(hour);
-		  delivery.setTimeLimit_minute(minute);
-	  }
-
-	  else{
-		  delivery.setTimeLimit_hour(0);
-		  delivery.setTimeLimit_minute(0);
-	  }
   }
 }
