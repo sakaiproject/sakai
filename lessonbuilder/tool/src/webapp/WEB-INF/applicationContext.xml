@@ -60,6 +60,7 @@ simplePageBean.addPageLayout,
 simplePageBean.addPages,
 simplePageBean.addStudentContentSection,
 simplePageBean.addQuiz,
+simplePageBean.addScorm,
 simplePageBean.alt,
 simplePageBean.anonymous,
 simplePageBean.assigntool,
@@ -172,6 +173,7 @@ simplePageBean.selectedEntities,
 simplePageBean.selectedEntity,
 simplePageBean.selectedGroups,
 simplePageBean.selectedQuiz,
+simplePageBean.selectedScorm,
 simplePageBean.studentSelectedGroups,
 simplePageBean.submit,
 simplePageBean.subpageBulkEditJson,
@@ -280,6 +282,13 @@ simplePageBean.addForumSummary,
 	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.ScormEntity"
+	class="org.sakaiproject.lessonbuildertool.service.ScormEntity"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+
   <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"
 	class="org.sakaiproject.lessonbuildertool.service.BltiEntity"
 	lazy-init="true"
@@ -306,6 +315,7 @@ simplePageBean.addForumSummary,
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+    <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
