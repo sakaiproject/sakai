@@ -261,10 +261,14 @@ public class GradesController extends AbstractSakaiApiController {
 
         if (studentIdSet.isEmpty() && gradingService.currentUserHasGradeAllPerm(siteId)) {
             try {
-                AuthzGroup siteRealm = authzGroupService.getAuthzGroup(site.getReference());
-                studentIdSet.addAll(getGradableUsers(siteRealm));
+                String gradebookRealmReference = resolveGradebookRealmReference(site, resolvedGradebookUid);
+                if (gradebookRealmReference != null) {
+                    AuthzGroup gradebookRealm = authzGroupService.getAuthzGroup(gradebookRealmReference);
+                    studentIdSet.addAll(getGradableUsers(gradebookRealm));
+                }
             } catch (Exception e) {
-                log.warn("Unable to resolve gradable users for site {} while exporting gradebook matrix", siteId, e);
+                log.warn("Unable to resolve gradable users for site {} and gradebook {} while exporting gradebook matrix",
+                        siteId, resolvedGradebookUid, e);
             }
         }
 
@@ -451,6 +455,15 @@ public class GradesController extends AbstractSakaiApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "No gradebook for uid " + gradebookUid + " in site " + site.getId());
         }
+    }
+
+    private String resolveGradebookRealmReference(Site site, String gradebookUid) {
+        if (site.getId().equals(gradebookUid)) {
+            return site.getReference();
+        }
+
+        Group gradebookGroup = site.getGroup(gradebookUid);
+        return gradebookGroup != null ? gradebookGroup.getReference() : null;
     }
 
     private List<GradebookMatrixRestBean.GradebookMatrixStudentRestBean> buildStudentRows(
