@@ -23,8 +23,8 @@
 							#set($templateDescription = $formattedText.stripHtmlFromText($!templateSite.description, true))
 							<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
 								<label class="d-flex align-items-start gap-2 mb-0 w-100">
-									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
-									<span class="d-block w-100">
+									<input class="form-check-input mt-1 flex-shrink-0" type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
+									<span class="d-block flex-grow-1" style="min-width: 0;">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
 										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($templateSite.getId())</span>
 										#if("$!templateDescription" != "")
@@ -46,8 +46,8 @@
 							#set($siteDescription = $formattedText.stripHtmlFromText($!site.description, true))
 							<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
 								<label class="d-flex align-items-start gap-2 mb-0 w-100">
-									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
-									<span class="d-block w-100">
+									<input class="form-check-input mt-1 flex-shrink-0" type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
+									<span class="d-block flex-grow-1" style="min-width: 0;">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
 										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($site.getId())</span>
 										#if("$!siteDescription" != "")
@@ -70,8 +70,8 @@
 									#set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
 									<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
 										<label class="d-flex align-items-start gap-2 mb-0 w-100">
-											<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-											<span class="d-block w-100">
+											<input class="form-check-input mt-1 flex-shrink-0" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+											<span class="d-block flex-grow-1" style="min-width: 0;">
 												<span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
 												<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($hiddenSite.getId())</span>
 												#if("$!hiddenSiteDescription" != "")
