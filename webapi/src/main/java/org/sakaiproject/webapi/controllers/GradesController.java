@@ -25,9 +25,11 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -39,14 +41,18 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
+import org.sakaiproject.webapi.beans.GradebookMatrixRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -224,6 +230,77 @@ public class GradesController extends AbstractSakaiApiController {
         return Map.<String, List>of("categories", gradingService.getCategoryDefinitions(siteId, siteId), "items", gradingService.getAssignments(siteId, siteId, SortType.SORT_BY_NONE));
     }
 
+    @GetMapping(value = {"/sites/{siteId}/grading/full-gradebook", "/sites/{siteId}/grading/full-gradebook/{gradebookUid}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public GradebookMatrixRestBean getSiteGradebookMatrix(
+            @PathVariable String siteId,
+            @PathVariable Optional<String> gradebookUid,
+            @RequestParam(defaultValue = "false") boolean includeComments) {
+
+        Session session = checkSakaiSession();
+        Site site = checkSite(siteId);
+
+        String resolvedGradebookUid = gradebookUid.orElse(siteId);
+        validateGradebookUidForSite(site, resolvedGradebookUid);
+
+        if (!gradingService.currentUserHasGradingPerm(siteId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to export gradebook for this site");
+        }
+
+        List<Assignment> assignments = gradingService.getAssignments(resolvedGradebookUid, siteId, SortType.SORT_BY_SORTING);
+        List<CategoryDefinition> categories = gradingService.getCategoryDefinitions(resolvedGradebookUid, siteId);
+        GradebookInformation gradebookInformation = gradingService.getGradebookInformation(resolvedGradebookUid, siteId);
+
+        Set<String> studentIdSet = new LinkedHashSet<>();
+        for (Assignment assignment : assignments) {
+            Map<String, String> viewableStudentsForAssignment =
+                    gradingService.getViewableStudentsForItemForUser(session.getUserId(), resolvedGradebookUid, siteId, assignment.getId());
+            if (viewableStudentsForAssignment != null) {
+                studentIdSet.addAll(viewableStudentsForAssignment.keySet());
+            }
+        }
+
+        if (studentIdSet.isEmpty() && gradingService.currentUserHasGradeAllPerm(siteId)) {
+            try {
+                AuthzGroup siteRealm = authzGroupService.getAuthzGroup(site.getReference());
+                studentIdSet.addAll(getGradableUsers(siteRealm));
+            } catch (Exception e) {
+                log.warn("Unable to resolve gradable users for site {} while exporting gradebook matrix", siteId, e);
+            }
+        }
+
+        List<String> studentIds = new ArrayList<>(studentIdSet);
+        Collections.sort(studentIds);
+
+        Map<Long, List<GradeDefinition>> assignmentToGradeDefinitions = Collections.emptyMap();
+        if (!assignments.isEmpty() && !studentIds.isEmpty()) {
+            List<Long> assignmentIds = assignments.stream().map(Assignment::getId).collect(Collectors.toList());
+            assignmentToGradeDefinitions = includeComments
+                    ? gradingService.getGradesWithCommentsForStudentsForItems(resolvedGradebookUid, siteId, assignmentIds, studentIds)
+                    : gradingService.getGradesWithoutCommentsForStudentsForItems(resolvedGradebookUid, siteId, assignmentIds, studentIds);
+        }
+
+        Map<String, CourseGradeTransferBean> courseGrades = studentIds.isEmpty()
+                ? Collections.emptyMap()
+                : gradingService.getCourseGradeForStudents(resolvedGradebookUid, siteId, studentIds);
+
+        Map<Long, Map<String, GradeDefinition>> assignmentStudentGradeIndex = buildAssignmentStudentGradeIndex(assignmentToGradeDefinitions);
+
+        GradebookMatrixRestBean matrix = new GradebookMatrixRestBean();
+        matrix.setSiteId(siteId);
+        matrix.setGradebookUid(resolvedGradebookUid);
+        matrix.setExportedAt(System.currentTimeMillis());
+        matrix.setSettings(new GradebookMatrixRestBean.GradebookMatrixSettingsRestBean(gradebookInformation));
+        matrix.setCategories(categories.stream()
+                .map(GradebookMatrixRestBean.GradebookMatrixCategoryRestBean::new)
+                .collect(Collectors.toList()));
+        matrix.setColumns(assignments.stream()
+                .map(GradebookMatrixRestBean.GradebookMatrixColumnRestBean::new)
+                .collect(Collectors.toList()));
+        matrix.setStudents(buildStudentRows(studentIds, assignments, assignmentStudentGradeIndex, courseGrades, includeComments));
+
+        return matrix;
+    }
+
     @PostMapping(value = "/sites/{siteId}/grades/{gradingItemId}/{userId}")
     public void submitGrade(@PathVariable String siteId, @PathVariable Long gradingItemId, @PathVariable String userId, @RequestBody Map<String, String> body) {
 
@@ -363,6 +440,82 @@ public class GradesController extends AbstractSakaiApiController {
             log.error("Error while trying to get gradebooks for site {} : {}", siteId, e.getMessage());
             return new HashMap<>();
         }
+    }
+
+    private void validateGradebookUidForSite(Site site, String gradebookUid) {
+        if (site.getId().equals(gradebookUid)) {
+            return;
+        }
+
+        if (site.getGroup(gradebookUid) == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No gradebook for uid " + gradebookUid + " in site " + site.getId());
+        }
+    }
+
+    private List<GradebookMatrixRestBean.GradebookMatrixStudentRestBean> buildStudentRows(
+            List<String> studentIds,
+            List<Assignment> assignments,
+            Map<Long, Map<String, GradeDefinition>> assignmentStudentGradeIndex,
+            Map<String, CourseGradeTransferBean> courseGrades,
+            boolean includeComments) {
+
+        List<GradebookMatrixRestBean.GradebookMatrixStudentRestBean> rows = new ArrayList<>();
+
+        for (String studentId : studentIds) {
+            GradebookMatrixRestBean.GradebookMatrixStudentRestBean studentRow = buildStudentRow(studentId);
+
+            CourseGradeTransferBean courseGradeTransferBean = courseGrades.get(studentId);
+            if (courseGradeTransferBean != null) {
+                studentRow.setCourseGrade(new GradebookMatrixRestBean.GradebookMatrixCourseGradeRestBean(courseGradeTransferBean));
+            }
+
+            Map<String, GradebookMatrixRestBean.GradebookMatrixStudentGradeRestBean> gradesByAssignment = new LinkedHashMap<>();
+            for (Assignment assignment : assignments) {
+                GradeDefinition gradeDefinition = assignmentStudentGradeIndex
+                        .getOrDefault(assignment.getId(), Collections.emptyMap())
+                        .get(studentId);
+                if (gradeDefinition != null) {
+                    gradesByAssignment.put(String.valueOf(assignment.getId()),
+                            new GradebookMatrixRestBean.GradebookMatrixStudentGradeRestBean(gradeDefinition, includeComments));
+                }
+            }
+            studentRow.setGrades(gradesByAssignment);
+
+            rows.add(studentRow);
+        }
+
+        return rows;
+    }
+
+    private GradebookMatrixRestBean.GradebookMatrixStudentRestBean buildStudentRow(String studentId) {
+        try {
+            return new GradebookMatrixRestBean.GradebookMatrixStudentRestBean(userDirectoryService.getUser(studentId));
+        } catch (UserNotDefinedException e) {
+            log.warn("User {} missing from UserDirectoryService while exporting gradebook matrix", studentId);
+
+            GradebookMatrixRestBean.GradebookMatrixStudentRestBean fallback =
+                    new GradebookMatrixRestBean.GradebookMatrixStudentRestBean();
+            fallback.setUserId(studentId);
+            fallback.setUserEid(studentId);
+            fallback.setUserDisplayId(studentId);
+            fallback.setUserDisplayName(studentId);
+            return fallback;
+        }
+    }
+
+    private Map<Long, Map<String, GradeDefinition>> buildAssignmentStudentGradeIndex(
+            Map<Long, List<GradeDefinition>> assignmentToGradeDefinitions) {
+
+        Map<Long, Map<String, GradeDefinition>> index = new HashMap<>();
+        for (Map.Entry<Long, List<GradeDefinition>> entry : assignmentToGradeDefinitions.entrySet()) {
+            Map<String, GradeDefinition> studentToGradeDefinition = new HashMap<>();
+            for (GradeDefinition gradeDefinition : entry.getValue()) {
+                studentToGradeDefinition.put(gradeDefinition.getStudentUid(), gradeDefinition);
+            }
+            index.put(entry.getKey(), studentToGradeDefinition);
+        }
+        return index;
     }
 
 }
