@@ -142,6 +142,7 @@ import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
+import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -795,6 +796,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_LTITOOL_EXISTING_SELECTED_LIST = "state_ltitool_existing_selected_list";
 	// state variable for selected lti tools during tool modification
 	private static final String STATE_LTITOOL_SELECTED_LIST = "state_ltitool_selected_list";
+	// state variable for stranded lti tools (deployed in site but no longer available)
+	private static final String STATE_LTITOOL_STRANDED_LIST = "state_tool_stranded_lti_tool_list";
 	// special prefix String for basiclti tool ids
 	private static final String LTITOOL_ID_PREFIX = "lti_";
 	
@@ -4219,6 +4222,15 @@ public class SiteAction extends PagedResourceActionII {
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
 		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
+
+		// Determine if course navigation placement is required
+		boolean requireCourseNavPlacement = serverConfigurationService.getBoolean("site-manage.requireCourseNavPlacement", true);
+
+		// Get stranded LTI tools (deployed in site but no longer available)
+		List<MyTool> strandedTools = getStrandedLTITools(site, requireCourseNavPlacement);
+		state.setAttribute(STATE_LTITOOL_STRANDED_LIST, strandedTools);
+		context.put("strandedLtiTools", strandedTools);
+
 		// get the list of launchable tools - visible and including stealthed
 		visibleTools = ltiService.getToolsLaunch(siteId, true);
 		if (site == null) {
@@ -4256,7 +4268,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 			}
-         
+
          // First search list of visibleTools for those not selected (excluding stealthed tools)
 			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
@@ -4269,7 +4281,7 @@ public class SiteAction extends PagedResourceActionII {
 					ltiTools.put(ltiToolId, toolMap);
 				}
 			}
-         
+
          // Second search list of allTools for those already selected (including stealthed)
 			for (Map<String, Object> toolMap : allTools ) {
 				String ltiToolId = toolMap.get("id").toString();
@@ -4280,8 +4292,7 @@ public class SiteAction extends PagedResourceActionII {
                ltiTools.put(ltiToolId, toolMap);
             }
 			}
-         
-         
+
 			state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
 			state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
 			context.put("ltiTools", ltiTools);
@@ -6851,7 +6862,88 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		return ungroupedTools;		
 	}
-	
+
+	/**
+	 * Get list of LTI tools that are deployed in a site but no longer appear in the available tools list
+	 * (stranded tools). This can happen when tools are stealthed, deleted, or have restrictions changed
+	 * after being deployed to sites.
+	 *
+	 * @param site The site to check for stranded tools
+	 * @param requireCourseNavPlacement Limit tools to those that have Course Navigation placement indicated
+	 * @return List of MyTool objects representing stranded tools
+	 */
+	private List<MyTool> getStrandedLTITools(Site site, boolean requireCourseNavPlacement) {
+		List<MyTool> strandedTools = new ArrayList<>();
+		if (site == null) {
+			return strandedTools;
+		}
+
+		String siteId = site.getId();
+		List<String> ltiSelectedTools = selectedLTITools(site);
+
+		// Get the list of currently available LTI tools
+		List<Map<String, Object>> allTools;
+		if (requireCourseNavPlacement) {
+			allTools = ltiService.getToolsLaunchCourseNav(siteId, false);
+		} else {
+			allTools = ltiService.getToolsLaunch(siteId, true);
+		}
+
+		// Build a set of all available tool IDs for efficient lookup
+		Set<String> allToolIds = new HashSet<>();
+		if (allTools != null) {
+			for (Map<String, Object> tool : allTools) {
+				String toolIdString = ObjectUtils.toString(tool.get(LTIService.LTI_ID));
+				allToolIds.add(toolIdString);
+			}
+		}
+
+		// Find tools that are selected but not in the allTools list
+		List<String> missingToolIds = new ArrayList<>();
+		for (String selectedToolId : ltiSelectedTools) {
+			if (!allToolIds.contains(selectedToolId)) {
+				missingToolIds.add(selectedToolId);
+			}
+		}
+
+		// Build MyTool objects for each stranded tool
+		if (!missingToolIds.isEmpty()) {
+			log.debug("Found {} stranded LTI tools in site {} not in available tools list: {}",
+				missingToolIds.size(), siteId, missingToolIds);
+
+			for (String missingToolId : missingToolIds) {
+				try {
+					Map<String, Object> toolInfo = ltiService.getToolDao(Long.valueOf(missingToolId), siteId);
+					if (toolInfo != null) {
+						String title = ObjectUtils.toString(toolInfo.get("title"), "Unknown");
+						String visible = ObjectUtils.toString(toolInfo.get(LTIService.LTI_VISIBLE), "0");
+						String description = ObjectUtils.toString(toolInfo.get("description"), "");
+
+						log.debug("Stranded tool ID {}: title='{}', visible='{}', site_id='{}'",
+							missingToolId, title, visible, siteId);
+
+						// Create a MyTool for this stranded tool
+						MyTool strandedTool = new MyTool();
+						strandedTool.title = title;
+						strandedTool.id = LTITOOL_ID_PREFIX + missingToolId;
+						strandedTool.description = description;
+						strandedTool.selected = true; // It's in the site
+						strandedTool.required = false;
+						strandedTools.add(strandedTool);
+					} else {
+						log.debug("Stranded tool ID {}: Unable to retrieve tool information (tool may have been deleted)",
+							missingToolId);
+					}
+				} catch (Exception e) {
+					log.debug("Stranded tool ID {}: Error retrieving tool information: {}",
+						missingToolId, e.getMessage());
+				}
+			}
+		}
+
+		return strandedTools;
+	}
+
 	/* SAK 16600  Create  list of ltitools to add to toolgroups; set selected for those
 	// tools already added to a sites with properties read to add to toolsByGroup list
 	 * @param	groupName		name of the current group
@@ -12274,8 +12366,107 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 		}
 
+		// Commit the site to save all tool/page changes made above
 		commitSite(site);
 		
+		// Remove stranded LTI tools (tools deployed in site but no longer available)
+		// This is done AFTER committing the site so that:
+		// 1. All changes above are safely saved first
+		// 2. deleteContent() will save its own changes (removing pages)
+		// 3. We can then refresh to pick up those deletions without losing other changes
+		List<MyTool> strandedLtiTools = (List<MyTool>) state.getAttribute(STATE_LTITOOL_STRANDED_LIST);
+		if (strandedLtiTools != null && !strandedLtiTools.isEmpty()) {
+			String siteId = site.getId();
+			int totalStrandedTools = strandedLtiTools.size();
+			int successfulDeletions = 0;
+			int failedDeletions = 0;
+			int totalContentItemsFound = 0;
+
+			log.debug("saveFeatures: Starting cleanup of {} stranded LTI tools in site {}", totalStrandedTools, siteId);
+
+			for (MyTool stranded : strandedLtiTools) {
+				try {
+					String originalToolIdString = stranded.id;
+					String toolIdString = originalToolIdString;
+
+					log.debug("saveFeatures: Processing stranded tool - id='{}', title='{}', description='{}'",
+						originalToolIdString, stranded.title, stranded.description);
+
+					// Strip the prefix if present
+					if (toolIdString != null && toolIdString.startsWith(LTITOOL_ID_PREFIX)) {
+						toolIdString = toolIdString.substring(LTITOOL_ID_PREFIX.length());
+						log.debug("saveFeatures: Stripped prefix, numeric tool ID: {}", toolIdString);
+					}
+
+					Long toolId = Long.valueOf(toolIdString);
+
+					// Find all content items for this tool in this site and delete them
+					String searchClause = "lti_content.tool_id = " + toolId;
+					log.debug("saveFeatures: Searching for content items with query: {}", searchClause);
+
+					List<Map<String, Object>> contents = ltiService.getContentsDao(searchClause, null, 0, 5000, siteId, ltiService.isAdmin(siteId));
+					int contentCount = contents != null ? contents.size() : 0;
+					totalContentItemsFound += contentCount;
+
+					log.debug("saveFeatures: Found {} content item(s) for stranded tool {} in site {}",
+						contentCount, toolId, siteId);
+
+					if (contents != null) {
+						for (Map<String, Object> content : contents) {
+							Object contentIdObj = content.get(LTIService.LTI_ID);
+							if (contentIdObj != null) {
+								Long contentId = Long.valueOf(contentIdObj.toString());
+								String contentTitle = content.get(LTIService.LTI_TITLE) != null ?
+									content.get(LTIService.LTI_TITLE).toString() : "Untitled";
+								String placementId = content.get(LTIService.LTI_PLACEMENT) != null ?
+									content.get(LTIService.LTI_PLACEMENT).toString() : "null";
+
+								log.debug("saveFeatures: Attempting to delete content - id={}, title='{}', placement={}, toolId={}, siteId={}",
+									contentId, contentTitle, placementId, toolId, siteId);
+
+								boolean deleted = ltiService.deleteContent(contentId, siteId);
+
+								if (deleted) {
+									successfulDeletions++;
+									log.debug("saveFeatures: Successfully deleted stranded LTI content {} ('{}') for tool {} in site {}",
+										contentId, contentTitle, toolId, siteId);
+								} else {
+									failedDeletions++;
+									log.warn("saveFeatures: FAILED to delete stranded LTI content {} ('{}') for tool {} in site {} - deleteContent returned false",
+										contentId, contentTitle, toolId, siteId);
+								}
+							} else {
+								log.warn("saveFeatures: Content item missing LTI_ID field, cannot delete. Content map keys: {}",
+									content.keySet());
+							}
+						}
+					}
+				} catch (NumberFormatException e) {
+					failedDeletions++;
+					log.error("saveFeatures: NumberFormatException processing stranded LTI tool '{}' in site {}: {}",
+						stranded.id, site.getId(), e.getMessage(), e);
+				} catch (Exception e) {
+					failedDeletions++;
+					log.error("saveFeatures: Exception processing stranded LTI tool '{}' ('{}') in site {}: {}",
+						stranded.id, stranded.title, site.getId(), e.getMessage(), e);
+				}
+			}
+
+			// Clear after processing so we don't process again on subsequent saves
+			state.removeAttribute(STATE_LTITOOL_STRANDED_LIST);
+
+			// Log summary
+			log.debug("saveFeatures: Stranded LTI tool cleanup complete for site {} - {} tools processed, {} content items found, {} successful deletions, {} failed deletions",
+				siteId, totalStrandedTools, totalContentItemsFound, successfulDeletions, failedDeletions);
+
+			// Refresh the site object to pick up the page deletions made by deleteContent()
+			// The deleteContent() call internally saved the site, so we just need to reload our object
+			site = refreshSiteObject(site);
+			log.debug("saveFeatures: Site object refreshed after stranded LTI tool cleanup for site {}", siteId);
+		} else {
+			log.debug("saveFeatures: No stranded LTI tools found in state for site {}", site.getId());
+		}
+
 		Map<String, Map<String, List<String>>> toolOptions = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
 		Map<String, Map<String, List<String>>> toolItemMap = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 
