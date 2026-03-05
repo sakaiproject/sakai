@@ -22,6 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -59,7 +60,7 @@ public class QuickEntryPage extends BasePage {
     public void onInitialize() {
         super.onInitialize();
 
-        Integer gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
+        GradeType gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
 
         SortType sortBy = SortType.SORT_BY_NAME;
         final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
@@ -210,8 +211,8 @@ public class QuickEntryPage extends BasePage {
                 }
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
-            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
-            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
+            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints(), gradeType);
+            String itemdetails = " - " + (gradeType == GradeType.PERCENTAGE ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
@@ -245,7 +246,7 @@ public class QuickEntryPage extends BasePage {
                     rowNow.setOriginalComment(null);
                 }
                 String gradeNow = this.businessService.getGradeForStudentForItem(gradebookUid, siteId, uid, this.assignmentNow.getId()).getGrade();
-                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow);
+                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow, gradeType);
                 rowNow.setGrade(StringUtils.defaultIfBlank(localeGrade, null));
                 rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(gradebookUid, this.assignmentNow.getId(),uid), "0"));
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
