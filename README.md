@@ -37,30 +37,6 @@ cd /path/to/your/tomcat/bin
 ./startup.sh && tail -f ../logs/catalina.out
 ```
 
-### Tomcat Request Parsing Limits (Important)
-
-Large multipart/JSF submissions can exceed Tomcat request parsing limits (`maxParameterCount`, `maxPartCount`).
-
-Sakai's `RequestFilter` now surfaces Tomcat parse-failure attributes (`org.apache.catalina.parameter_parse_failed*`) as a critical user warning, but request behavior can still differ by path:
-
-- some requests are parsed by Tomcat directly
-- some requests are handled through Sakai `RequestFilter` multipart handling (Commons FileUpload)
-
-Because of this, tune Tomcat limits for your workload and do not rely on defaults for production.
-
-Example connector tuning:
-
-```xml
-<Connector
-  port="8080"
-  protocol="org.apache.coyote.http11.Http11NioProtocol"
-  maxHttpRequestHeaderSize="32768"
-  maxParameterCount="10000"
-  maxPartCount="2000" />
-```
-
-To fail fast on rejected request parsing (instead of partial/ambiguous behavior), enable Tomcat's `FailedRequestFilter` in `conf/web.xml`.
-
 Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal
 
 ## Licensing
