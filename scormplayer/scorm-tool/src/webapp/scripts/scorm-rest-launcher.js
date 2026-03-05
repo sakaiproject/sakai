@@ -395,9 +395,8 @@
             try {
                 xhr.send(request.body);
             } catch (err) {
-                console.error('[SCORM REST] runtime network exception (XHR)', err);
-                showMessage('Unable to reach SCORM service.');
-                return null;
+                // Sync XHR blocked during page dismissal (e.g. iframe torn down by Lessons)
+                return { aborted: false, data: {}, request, bestEffort: true };
             }
 
             if (xhr.status === 0) {
@@ -470,6 +469,11 @@
             if (result.aborted) {
                 showMessage('SCORM service did not respond. Please check your connection.');
                 return 'false';
+            }
+
+            if (result.bestEffort) {
+                return method === 'GetLastError' ? '0'
+                    : (method === 'SetValue' || method === 'Commit' || method === 'Initialize') ? 'true' : '';
             }
 
             const response = result.data || {};
