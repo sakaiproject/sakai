@@ -83,6 +83,13 @@ $(document).ready(function() {
         <h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
         <h:panelGrid columns="1" styleClass="forumHeader"  border="0">
         <h:panelGroup>
+                <h:panelGroup rendered="#{ForumTool.showBulkActions && forum.changeSettings}" styleClass="float-end" layout="block">
+                    <h:selectBooleanCheckbox value="#{forum.selected}"
+                        styleClass="bulk-select"
+                        id="bulkSelectForum"
+                        onclick="updateBulkButtons()" />
+                    <h:outputLabel for="bulkSelectForum" styleClass="sr-only" value="#{msgs.cdfm_bulk_select_forum}" />
+                </h:panelGroup>
                 <%-- link to forum and decorations --%>
                 <h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
                 <h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
@@ -236,6 +243,13 @@ $(document).ready(function() {
                         <h:panelGroup layout="block" rendered="#{! topic.nonePermission}">
                     <h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
                 <h:panelGroup>
+                            <h:panelGroup rendered="#{ForumTool.showBulkActions && topic.changeSettings}" styleClass="float-end" layout="block">
+                                <h:selectBooleanCheckbox value="#{topic.selected}"
+                                    styleClass="bulk-select"
+                                    id="bulkSelectTopic"
+                                    onclick="updateBulkButtons()" />
+                                <h:outputLabel for="bulkSelectTopic" styleClass="sr-only" value="#{msgs.cdfm_bulk_select_topic}" />
+                            </h:panelGroup>
                             
                             <%-- Show warning icon for topics in draft forums instead of regular folder icon --%>
                             <h:panelGroup rendered="#{forum.forum.draft == 'true'}">
@@ -434,3 +448,26 @@ $(document).ready(function() {
       </h:column>
   </h:dataTable>
 </div>
+<h:panelGroup rendered="#{ForumTool.showBulkActions}" layout="block" styleClass="navPanel nav_table">
+    <h:commandButton value="#{msgs.cdfm_bulk_remove}"
+        action="#{ForumTool.processActionBulkRemove}"
+        styleClass="btn btn-primary bulk-action me-2" />
+    <h:commandButton value="#{msgs.cdfm_bulk_publish}"
+        action="#{ForumTool.processActionBulkPublish}"
+        styleClass="btn btn-primary bulk-action me-2" />
+    <h:commandButton value="#{msgs.cdfm_bulk_unpublish}"
+        action="#{ForumTool.processActionBulkUnpublish}"
+        styleClass="btn btn-primary bulk-action" />
+</h:panelGroup>
+<script>
+function updateBulkButtons() {
+    var anyChecked = document.querySelectorAll('.bulk-select:checked').length > 0;
+    var bulkButtons = document.querySelectorAll('.bulk-action');
+    for (var i = 0; i < bulkButtons.length; i++) {
+        bulkButtons[i].disabled = !anyChecked;
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    updateBulkButtons();
+});
+</script>
