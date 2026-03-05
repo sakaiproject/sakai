@@ -22,11 +22,15 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -62,6 +66,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -75,10 +83,17 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -91,6 +106,8 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -124,10 +141,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Autowired private AssignmentEventObserver assignmentEventObserver;
     @Autowired private AssignmentService assignmentService;
+    @Resource(name = "org.sakaiproject.assignment.api.AssignmentService")
+    private EntityTransferrer assignmentEntityTransferrer;
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EntityManager entityManager;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
+    @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
+    private AnnouncementService announcementService;
+    @Resource(name = "org.sakaiproject.calendar.api.CalendarService")
+    private CalendarService calendarService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
@@ -135,6 +158,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private TaskService taskService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
+    @Resource(name = "org.sakaiproject.time.api.TimeService")
+    private TimeService timeService;
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
@@ -156,8 +181,21 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
         when(resourceLoader.getString("listsub.nosub")).thenReturn("No Submission");
         when(resourceLoader.getString("gen.notsta")).thenReturn("Not Started");
-        ((AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService)).setResourceLoader(resourceLoader);
+        when(resourceLoader.getString("gen.due")).thenReturn("Due");
+        when(resourceLoader.getFormattedMessage(eq("assig6"), any())).thenReturn("Open Assignment");
+        when(resourceLoader.getFormattedMessage(eq("opedat"), any(), any())).thenReturn("Open Date Body");
+        when(resourceLoader.getFormattedMessage(eq("assign_due_event_desc"), any(), any())).thenReturn("Due Date Body");
+        when(formattedText.convertPlaintextToFormattedText(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        AssignmentServiceImpl assignmentServiceImpl = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
+        assignmentServiceImpl.setResourceLoader(resourceLoader);
+        assignmentServiceImpl.setTimeService(timeService);
+        TimeRange dueRange = mock(TimeRange.class);
+        when(timeService.newTimeRange(anyLong(), anyLong())).thenReturn(dueRange);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
+        when(securityService.unlockUsers(anyString(), anyString())).thenReturn(Collections.emptyList());
+        User currentUser = mock(User.class);
+        when(currentUser.getId()).thenReturn("test-user-id");
+        when(userDirectoryService.getCurrentUser()).thenReturn(currentUser);
     }
 
     @Test
@@ -1610,6 +1648,235 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void transferCopyEntitiesImportPublishedRecreatesCalendarAndAnnouncement() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        allowTransferCopyPermissions(fromContext, toContext);
+        when(userTimeService.dateTimeFormat(any(), any(), any())).thenReturn("formatted-date-time");
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setTitle("Import Source Assignment");
+        sourceAssignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
+        sourceAssignment.setDueDate(Instant.now().plus(Period.ofDays(2)));
+        sourceAssignment.setDraft(true);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        alignCurrentUserWithAssignmentAuthor(sourceAssignment);
+        allowUpdateAssignment(sourceAssignment);
+        assignmentService.updateAssignment(sourceAssignment);
+
+        Calendar toCalendar = mock(Calendar.class);
+        CalendarEvent toEvent = mock(CalendarEvent.class);
+        String toCalendarId = "/calendar/" + toContext;
+        when(calendarService.calendarReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toCalendarId);
+        when(calendarService.getCalendar(toCalendarId)).thenReturn(toCalendar);
+        when(toCalendar.addEvent(any(), anyString(), anyString(), anyString(), anyString(), any(), any(), any())).thenReturn(toEvent);
+        when(toEvent.getId()).thenReturn("imported-calendar-event-id");
+
+        AnnouncementChannel toChannel = mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit announcementMessage = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit announcementProperties = mock(ResourcePropertiesEdit.class);
+        String toChannelId = "/announcement/" + toContext;
+        when(announcementService.channelReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toChannelId);
+        when(announcementService.getAnnouncementChannel(toChannelId)).thenReturn(toChannel);
+        when(toChannel.addAnnouncementMessage()).thenReturn(announcementMessage);
+        when(announcementMessage.getAnnouncementHeaderEdit()).thenReturn(header);
+        when(announcementMessage.getPropertiesEdit()).thenReturn(announcementProperties);
+        when(announcementMessage.getId()).thenReturn("imported-announcement-id");
+
+        transferCopyEntities(fromContext, toContext, List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertFalse(importedAssignment.getDraft());
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertEquals("imported-announcement-id", importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED));
+        Assert.assertEquals("imported-calendar-event-id", importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
+
+        verify(toCalendar).addEvent(any(), anyString(), anyString(), anyString(), anyString(), any(), any(), any());
+        verify(toChannel).commitMessage(eq(announcementMessage), eq(NotificationService.NOTI_NONE), anyString());
+    }
+
+    @Test
+    public void transferCopyEntitiesImportAsDraftSkipsCalendarAndAnnouncement() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        allowTransferCopyPermissions(fromContext, toContext);
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
+        sourceAssignment.setDueDate(Instant.now().plus(Period.ofDays(2)));
+        sourceAssignment.setDraft(true);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        alignCurrentUserWithAssignmentAuthor(sourceAssignment);
+        allowUpdateAssignment(sourceAssignment);
+        assignmentService.updateAssignment(sourceAssignment);
+
+        Calendar toCalendar = mock(Calendar.class);
+        String toCalendarId = "/calendar/" + toContext;
+        when(calendarService.calendarReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toCalendarId);
+        when(calendarService.getCalendar(toCalendarId)).thenReturn(toCalendar);
+
+        AnnouncementChannel toChannel = mock(AnnouncementChannel.class);
+        String toChannelId = "/announcement/" + toContext;
+        when(announcementService.channelReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toChannelId);
+        when(announcementService.getAnnouncementChannel(toChannelId)).thenReturn(toChannel);
+
+        transferCopyEntities(fromContext, toContext, Collections.emptyList());
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertTrue(importedAssignment.getDraft());
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED));
+        Assert.assertNull(importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertNull(importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+
+        verify(toCalendar, never()).addEvent(any(), anyString(), anyString(), anyString(), anyString(), any(), any(), any());
+        verify(toChannel, never()).addAnnouncementMessage();
+    }
+
+    @Test
+    public void transferCopyEntitiesImportPublishedCopiesSourceDueDateCalendarEvent() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        allowTransferCopyPermissions(fromContext, toContext);
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setTitle("Import Source Assignment");
+        sourceAssignment.setDueDate(Instant.now().plus(Period.ofDays(2)));
+        sourceAssignment.setDraft(true);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, "source-calendar-event-id");
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        alignCurrentUserWithAssignmentAuthor(sourceAssignment);
+        allowUpdateAssignment(sourceAssignment);
+        assignmentService.updateAssignment(sourceAssignment);
+
+        Calendar fromCalendar = mock(Calendar.class);
+        CalendarEvent fromEvent = mock(CalendarEvent.class);
+        TimeRange fromRange = mock(TimeRange.class);
+        String fromCalendarId = "/calendar/" + fromContext;
+        when(calendarService.calendarReference(fromContext, SiteService.MAIN_CONTAINER)).thenReturn(fromCalendarId);
+        when(calendarService.getCalendar(fromCalendarId)).thenReturn(fromCalendar);
+        when(fromCalendar.getEvent("source-calendar-event-id")).thenReturn(fromEvent);
+        when(fromEvent.getRange()).thenReturn(fromRange);
+        when(fromEvent.getDisplayName()).thenReturn("Due Import Source Assignment");
+        when(fromEvent.getDescription()).thenReturn("Due date event");
+        when(fromEvent.getType()).thenReturn("Deadline");
+        when(fromEvent.getLocation()).thenReturn("");
+        when(fromEvent.getAccess()).thenReturn(CalendarEvent.EventAccess.SITE);
+        when(fromEvent.getGroups()).thenReturn(Collections.emptyList());
+        when(fromEvent.getAttachments()).thenReturn(Collections.emptyList());
+
+        Calendar toCalendar = mock(Calendar.class);
+        CalendarEvent toEvent = mock(CalendarEvent.class);
+        String toCalendarId = "/calendar/" + toContext;
+        when(calendarService.calendarReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toCalendarId);
+        when(calendarService.getCalendar(toCalendarId)).thenReturn(toCalendar);
+        when(toCalendar.addEvent(any(), anyString(), anyString(), anyString(), anyString(), any(), any(), any())).thenReturn(toEvent);
+        when(toEvent.getId()).thenReturn("copied-calendar-event-id");
+
+        transferCopyEntities(fromContext, toContext, List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertFalse(importedAssignment.getDraft());
+        Assert.assertEquals("copied-calendar-event-id", importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED));
+
+        verify(fromCalendar).getEvent("source-calendar-event-id");
+        verify(toCalendar).addEvent(eq(fromRange), eq("Due Import Source Assignment"), eq("Due date event"), eq("Deadline"),
+            eq(""), eq(CalendarEvent.EventAccess.SITE), any(), any());
+    }
+
+    @Test
+    public void transferCopyEntitiesImportPublishedSkipsAnnouncementWhenAutoAnnounceDisabled() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        allowTransferCopyPermissions(fromContext, toContext);
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setTitle("Import Source Assignment");
+        sourceAssignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
+        sourceAssignment.setDraft(true);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        alignCurrentUserWithAssignmentAuthor(sourceAssignment);
+        allowUpdateAssignment(sourceAssignment);
+        assignmentService.updateAssignment(sourceAssignment);
+
+        AnnouncementChannel toChannel = mock(AnnouncementChannel.class);
+        String toChannelId = "/announcement/" + toContext;
+        when(announcementService.channelReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toChannelId);
+        when(announcementService.getAnnouncementChannel(toChannelId)).thenReturn(toChannel);
+
+        transferCopyEntities(fromContext, toContext, List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertFalse(importedAssignment.getDraft());
+        Assert.assertEquals(Boolean.FALSE.toString(), importedAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertNull(importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+
+        verify(toChannel, never()).addAnnouncementMessage();
+    }
+
+    @Test
+    public void transferCopyEntitiesImportPublishedSkipsAnnouncementWhenOpenDateIsMissing() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        allowTransferCopyPermissions(fromContext, toContext);
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setTitle("Import Source Assignment");
+        sourceAssignment.setOpenDate(null);
+        sourceAssignment.setDraft(true);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        alignCurrentUserWithAssignmentAuthor(sourceAssignment);
+        allowUpdateAssignment(sourceAssignment);
+        assignmentService.updateAssignment(sourceAssignment);
+
+        AnnouncementChannel toChannel = mock(AnnouncementChannel.class);
+        String toChannelId = "/announcement/" + toContext;
+        when(announcementService.channelReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toChannelId);
+        when(announcementService.getAnnouncementChannel(toChannelId)).thenReturn(toChannel);
+
+        transferCopyEntities(fromContext, toContext, List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        Assert.assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertFalse(importedAssignment.getDraft());
+        Assert.assertEquals(Boolean.TRUE.toString(), importedAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertNull(importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+
+        verify(toChannel, never()).addAnnouncementMessage();
+    }
+
+    @Test
     public void createsTasksForNewlyAddedUser() {
 
         String siteId = "xyz";
@@ -1646,6 +1913,38 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         // Verify that createUserTask is called on our taskService mock, with the correct arguments
         verify(taskService).createUserTask(task, userTaskBean);
+    }
+
+    private void allowTransferCopyPermissions(String fromContext, String toContext) {
+        String fromContextReference = AssignmentReferenceReckoner.reckoner().context(fromContext).reckon().getReference();
+        String toContextReference = AssignmentReferenceReckoner.reckoner().context(toContext).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, fromContextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, fromContextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, toContextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, toContextReference)).thenReturn(true);
+        when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT), anyString())).thenReturn(true);
+    }
+
+    private void allowUpdateAssignment(Assignment assignment) {
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+    }
+
+    private void alignCurrentUserWithAssignmentAuthor(Assignment assignment) {
+        User currentUser = mock(User.class);
+        when(currentUser.getId()).thenReturn(assignment.getAuthor());
+        when(userDirectoryService.getCurrentUser()).thenReturn(currentUser);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(assignment.getAuthor());
+    }
+
+    private void transferCopyEntities(String fromContext, String toContext, List<String> transferOptions) {
+        try {
+            assignmentEntityTransferrer.transferCopyEntities(fromContext, toContext, null, transferOptions);
+        } catch (Exception e) {
+            Assert.fail("transferCopyEntities failed\n" + e);
+        }
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {

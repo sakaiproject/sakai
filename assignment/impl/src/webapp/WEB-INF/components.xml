@@ -53,6 +53,7 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="timeSheetService" ref="org.sakaiproject.timesheet.api.TimeSheetService"/>
         <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
         <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
