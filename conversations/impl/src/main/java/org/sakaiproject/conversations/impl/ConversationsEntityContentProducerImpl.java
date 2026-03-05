@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.conversations.api.ConversationsEvents;
+import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import static org.sakaiproject.conversations.api.ConversationsReferenceReckoner.ConversationsReference;
 import org.sakaiproject.conversations.api.ConversationsService;
@@ -70,15 +70,15 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     public void init() {
 
         if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            addingEvents.add(ConversationsEvents.TOPIC_CREATED.label);
-            addingEvents.add(ConversationsEvents.TOPIC_UPDATED.label);
-            addingEvents.add(ConversationsEvents.POST_CREATED.label);
-            addingEvents.add(ConversationsEvents.POST_UPDATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_CREATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_UPDATED.label);
-            deletingEvents.add(ConversationsEvents.TOPIC_DELETED.label);
-            deletingEvents.add(ConversationsEvents.POST_DELETED.label);
-            deletingEvents.add(ConversationsEvents.COMMENT_DELETED.label);
+            addingEvents.add(ConversationsEvent.TOPIC_CREATED.label);
+            addingEvents.add(ConversationsEvent.TOPIC_UPDATED.label);
+            addingEvents.add(ConversationsEvent.POST_CREATED.label);
+            addingEvents.add(ConversationsEvent.POST_UPDATED.label);
+            addingEvents.add(ConversationsEvent.COMMENT_CREATED.label);
+            addingEvents.add(ConversationsEvent.COMMENT_UPDATED.label);
+            deletingEvents.add(ConversationsEvent.TOPIC_DELETED.label);
+            deletingEvents.add(ConversationsEvent.POST_DELETED.label);
+            deletingEvents.add(ConversationsEvent.COMMENT_DELETED.label);
             addingEvents.forEach(searchService::registerFunction);
             deletingEvents.forEach(searchService::registerFunction);
 

@@ -539,7 +539,15 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             notification.siteTitle = notification.siteId;
         }
 
-        if (StringUtils.isNotBlank(notification.title)) {
+        UserNotificationHandler handler = notificationHandlers.get(notification.event);
+        if (handler != null) {
+            String handlerTitle = handler.getTitle(notification.event, notification.ref);
+            if (StringUtils.isNotBlank(handlerTitle)) {
+                notification.title = formattedText.convertFormattedTextToPlaintext(handlerTitle);
+            } else {
+                notification.title = formattedText.convertFormattedTextToPlaintext(notification.title);
+            }
+        } else if (StringUtils.isNotBlank(notification.title)) {
             notification.title = formattedText.convertFormattedTextToPlaintext(notification.title);
         }
 
