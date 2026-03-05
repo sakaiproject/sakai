@@ -49,19 +49,23 @@
 				</t:div>
 				<t:div styleClass="sakai-table-searchFilter">
 					<h:outputLabel for="inputSearchBox" value="#{msgs.bar_input_search_title}"/>
-					<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}" styleClass="sakai-table-searchFilter-searchField form-control"
-						valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
-						size="20" title="#{msgs.bar_input_search_title}"
-						onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"
-					/>
-					<t:div styleClass="act">
-						<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
-							onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
-							styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
-						<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
-							rendered="#{UserListBean.renderClearSearch}"
-							onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
-							onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<t:div styleClass="sakai-table-searchFilterControls">
+						<t:div styleClass="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center flex-grow-1">
+							<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}" styleClass="sakai-table-searchFilter-searchField form-control w-100"
+								valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
+								size="20" title="#{msgs.bar_input_search_title}"
+								onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"
+							/>
+						</t:div>
+						<t:div styleClass="act">
+							<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
+								onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
+								styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+							<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
+								rendered="#{UserListBean.renderClearSearch}"
+								onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
+								onclick="SPNR.disableControlsAndSpin( this, null );" />
+						</t:div>
 					</t:div>
 				</t:div>
 			</t:div>
