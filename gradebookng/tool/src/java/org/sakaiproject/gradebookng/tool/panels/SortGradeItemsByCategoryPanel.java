@@ -67,7 +67,7 @@ public class SortGradeItemsByCategoryPanel extends BasePanel {
 
 				categoryItem.add(new AttributeModifier("style",
 						String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
-				categoryItem.add(new Label("name", category.getName()));
+				categoryItem.add(new Label("name", category.getName()).setEscapeModelStrings(false));
 				categoryItem.add(new HiddenField<>("category_id",
 						Model.of(category.getId())).add(
 								new AttributeModifier("name", String.format("category_id", category.getId()))));
@@ -82,7 +82,7 @@ public class SortGradeItemsByCategoryPanel extends BasePanel {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
-						assignmentItem.add(new Label("name", assignment.getName()));
+						assignmentItem.add(new Label("name", assignment.getName()).setEscapeModelStrings(false));
 						assignmentItem.add(new HiddenField<>("id",
 								Model.of(assignment.getId())).add(
 										new AttributeModifier("name",
