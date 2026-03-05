@@ -52,6 +52,14 @@ export class SakaiConversations extends SakaiElement {
     this.loadTranslations("conversations");
   }
 
+  _tagUpdatedOrDeleted() { this._fetchConversationsData(); }
+
+  _tagsCreated() {
+
+    this._fetchConversationsData();
+    this._resetState();
+  }
+
   _fetchConversationsData() {
 
     this._loadingData = true;
@@ -72,6 +80,7 @@ export class SakaiConversations extends SakaiElement {
         this.wipTopicKey = `${this._data.userId}-wipTopic`;
         const wipTopicJson = sessionStorage.getItem(this.wipTopicKey);
         wipTopicJson && (this.wipTopic = JSON.parse(wipTopicJson));
+        //this._resetState();
       })
       .catch(error => console.error(error))
       .finally(() => this._loadingData = false);
@@ -164,7 +173,9 @@ export class SakaiConversations extends SakaiElement {
     sessionStorage.setItem(this.wipTopicKey, JSON.stringify(e.detail.topic));
   }
 
-  _topicSaved(e) {
+  async _topicSaved(e) {
+
+    await import("../sakai-topic.js");
 
     this.wipTopic = null;
     this._topicBeingEdited = null;
@@ -182,8 +193,6 @@ export class SakaiConversations extends SakaiElement {
       this._data.topics.forEach(t => t.selected = false);
       this._data.topics.unshift(e.detail.topic);
     }
-
-    window.scrollTo(0, 0);
 
     this._currentTopic = e.detail.topic;
     this._currentTopic.beingEdited = false;
@@ -376,7 +385,9 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_STATISTICS;
   }
 
-  _setStateNothingSelected() { this._state = STATE_NOTHING_SELECTED; }
+  _setStateNothingSelected() {
+    this._state = STATE_NOTHING_SELECTED;
+  }
 
   _handleSearch() {
     setupSearch({ site: this.siteId, tool: "sakai.conversations" });
@@ -399,20 +410,20 @@ export class SakaiConversations extends SakaiElement {
     `;
   }
 
-  _renderTopbar(renderBackButton, mobile) {
+  _renderTopbar() {
 
     return html`
       <div class="conv-topbar d-flex align-items-center">
 
-        ${renderBackButton ? html`
         <div id="conv-back-button-block">
           <div>
-            <a href="javascript:;" @click=${this._setStateNothingSelected} aria-label="${this._i18n.back}">
-              <div><sakai-icon type="left"></sakai-icon></div>
-            </a>
+            <button type="button"
+                @click=${this._setStateNothingSelected}
+                class="btn btn-secondary">
+              Topics
+            </button>
           </div>
         </div>
-        ` : nothing }
 
         <div class="conv-settings-and-create d-flex align-items-center">
 
@@ -438,10 +449,9 @@ export class SakaiConversations extends SakaiElement {
           ` : nothing }
 
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
-            ${mobile ? html`
               <div>
-                <div class="dropdown">
-                  <button type="button" class="btn btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown conv-settings-link">
+                  <button type="button" class="btn btn-secondary" data-bs-toggle="dropdown" aria-expanded="false">
                     ${this._i18n.settings}
                   </button>
                   <ul class="dropdown-menu">
@@ -449,18 +459,12 @@ export class SakaiConversations extends SakaiElement {
                   </ul>
                 </div>
               </div>
-            ` : html`
-            <div class="conv-settings-link me-3">
-              <button type="button" class="btn btn-secondary" @click=${this._setStateSettings}>
-                ${this._i18n.settings}
-              </button>
-            </div>
-            `}
           ` : nothing }
 
           ${this._data.canCreateTopic ? html`
-          <button type="button" class="btn btn-primary conv-add-topic" @click=${this._addTopic}>
-            ${this._i18n.create_new}
+          <button id="conv-add-topic" type="button" class="btn btn-primary ms-3" @click=${this._addTopic}>
+            <span>${this._i18n.create_new}</span>
+            <i class="si si-add"></i>
           </button>
           ` : nothing }
         </div>
@@ -484,9 +488,11 @@ export class SakaiConversations extends SakaiElement {
       <sakai-conversations-tag-manager
           .tags="${this._data.tags}"
           site-id="${this.siteId}"
-          @tags-created=${this._fetchConversationsData}
-          @tag-updated=${this._fetchConversationsData}
-          @tag-deleted=${this._fetchConversationsData}
+          ?editing-topic=${this.wasAddingTopic}
+          @tags-created=${this._tagsCreated}
+          @tag-updated=${this._tagUpdatedOrDeleted}
+          @tag-deleted=${this._tagUpdatedOrDeleted}
+          @continue=${this._resetState}
       >
       </sakai-conversations-tag-manager>
     `;
@@ -564,6 +570,9 @@ export class SakaiConversations extends SakaiElement {
             id="conv-topic-list"
             site-id="${this._data.siteId}"
             .data="${this._data}"
+            @edit-topic=${this._editTopic}
+            @topic-deleted=${this._topicDeleted}
+            @topic-updated=${this._topicUpdated}
             @topic-selected=${this._topicSelected}>
         </sakai-topic-list>
       </div>
@@ -583,73 +592,30 @@ export class SakaiConversations extends SakaiElement {
       `;
     }
 
-    return html`
+    if (this._data.showGuidelines) {
 
-      ${this._data.showGuidelines ? html`
+      return html`
         <sakai-conversations-guidelines
             guidelines="${this._data.settings.guidelines || this._i18n.community_guidelines_sample}">
         </sakai-conversations-guidelines>
         <div class="act">
           <input type="button" class="active" @click=${this._agreeToGuidelines} value="${this._i18n.agree}">
         </div>
-      `
-      : html`
-        <div id="overlay"></div>
-        <div id="conv-desktop">
-          ${(this._showingSettings || this._state === STATE_STATISTICS) && (this._data.canUpdatePermissions || this._data.isInstructor) ? html`
-          <div>
-            <div id="conv-back-button-block">
-              <a href="javascript:;" @click=${this._resetState}>
-                <div><sakai-icon type="left-arrow"></sakai-icon></div>
-                <div>${this._i18n.back}</div>
-              </a>
-            </div>
-            ${this._state === STATE_STATISTICS ? nothing : html`
-              <div id="conv-settings">
-                <ul>
-                ${this._renderSettingsMenu()}
-                </ul>
-              </div>
-            `}
-          </div>
-          ` : this._renderTopicList()}
+      `;
+    }
 
-          <div id="conv-topbar-and-content">
+    return html`
+      <div id="overlay"></div>
 
-            ${this._renderTopbar()}
-
-            <div id="conv-content">
-              ${this._state === STATE_PERMISSIONS ? this._renderPermissions() : nothing }
-              ${this._state === STATE_MANAGING_TAGS ? this._renderTagManager() : nothing }
-              ${this._state === STATE_STATISTICS ? this._renderStatistics() : nothing }
-              ${this._state === STATE_SETTINGS ? this._renderGeneralSettings() : nothing }
-              ${this._state === STATE_ADDING_TOPIC ? this._renderAddTopic() : nothing }
-              ${this._state === STATE_DISPLAYING_TOPIC ? this._renderCurrentTopic() : nothing }
-              ${this._state === STATE_NOTHING_SELECTED ? html`
-                <div id="conv-nothing-selected">
-                  ${this._data.canCreateDiscussion || this._data.canCreateQuestion ? html`
-                    <div>${this._i18n.nothing_selected}</div>
-                  ` : html`
-                    <div>${this._i18n.nothing_selected_no_create}</div>
-                  `}
-                </div>
-              ` : nothing }
-            </div>
-
-          </div>
-
-        </div>
-      `}
-
-      <div id="conv-mobile">
-        ${this._renderTopbar(this._state !== STATE_NOTHING_SELECTED, true)}
+      <div id="conv-topbar-and-content">
+        ${this._renderTopbar()}
         ${this._state === STATE_NOTHING_SELECTED ? this._renderTopicList() : nothing }
-        ${this._state === STATE_DISPLAYING_TOPIC ? this._renderCurrentTopic() : nothing }
         ${this._state === STATE_ADDING_TOPIC ? this._renderAddTopic() : nothing }
+        ${this._state === STATE_DISPLAYING_TOPIC ? this._renderCurrentTopic() : nothing }
         ${this._state === STATE_SETTINGS ? this._renderGeneralSettings() : nothing }
         ${this._state === STATE_PERMISSIONS ? this._renderPermissions() : nothing }
-        ${this._state === STATE_STATISTICS ? this._renderStatistics() : nothing }
         ${this._state === STATE_MANAGING_TAGS ? this._renderTagManager() : nothing }
+        ${this._state === STATE_STATISTICS ? this._renderStatistics() : nothing }
       </div>
     `;
   }
