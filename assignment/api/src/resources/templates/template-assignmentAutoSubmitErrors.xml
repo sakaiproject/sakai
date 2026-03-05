@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+    <emailTemplate>
+        <subject>Assignment AutoSubmit Job Failure Notice</subject>
+        <message>The Assignment AutoSubmit job encountered errors during processing and had to skip ${failureCount} submissions. The remaining submissions were processed successfully.
+
+Manual intervention may be required to correct these issues. For further details, see the logs.
+        </message>
+        <messagehtml>&lt;p&gt;The Assignment AutoSubmit job encountered errors during processing and had to skip ${failureCount} submissions. The remaining submissions were processed successfully.&lt;/p&gt;
+
+&lt;p&gt;Manual intervention may be required to correct these issues. For further details, see the logs.&lt;/p&gt;
+        </messagehtml>
+        <version>1</version>
+        <owner>admin</owner>
+        <key>asn.assignmentAutoSubmitErrors</key>
+        <locale></locale>
+        <localeLangTag></localeLangTag>
+    </emailTemplate>
+</emailTemplates>

@@ -40,7 +40,14 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.persister.collection.CollectionPropertyNames;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.model.*;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -377,5 +384,63 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             log.error("error hardDelete of assignment: {}", assignmentId, e);
         }
 
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Assignment> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now) {
+        List<Assignment> assignments = startCriteriaQuery()
+                .add(Restrictions.eq("context", siteId))
+                .add(Restrictions.eq("deleted", Boolean.FALSE))
+                .add(Restrictions.eq("draft", Boolean.FALSE))
+                .add(Restrictions.le("closeDate", now))
+                .list();
+        return assignments.stream()
+                .filter(a -> {
+                    String autoSubmit = a.getProperties().get(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED);
+                    return "true".equals(autoSubmit);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<AssignmentSubmission> findDraftSubmissionsForAssignment(String assignmentId) {
+        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .list();
+        return submissions.stream()
+                .filter(s -> !Boolean.TRUE.equals(s.getSubmitted()) &&
+                        ((s.getSubmittedText() != null && !s.getSubmittedText().isEmpty()) ||
+                         (s.getAttachments() != null && !s.getAttachments().isEmpty())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<AssignmentSubmission> findAllEligibleDraftSubmissions(int limit, int offset) {
+        java.time.Instant now = java.time.Instant.now();
+
+        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
+                .createAlias("assignment", "a")
+                .createAlias("a.properties", "prop")
+                .add(Restrictions.eq("submitted", Boolean.FALSE)) // Draft submissions only
+                .add(Restrictions.eq("a.draft", Boolean.FALSE)) // Published assignments only
+                .add(Restrictions.eq("a.deleted", Boolean.FALSE)) // Non-deleted assignments only
+                .add(Restrictions.le("a.closeDate", now)) // Past close date
+                .add(Restrictions.eq("prop." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED))
+                .add(Restrictions.eq("prop." + CollectionPropertyNames.COLLECTION_ELEMENTS, "true"))
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .list();
+
+        return submissions.stream()
+                .filter(s -> {
+                    // Filter for submissions with content (text or attachments)
+                    boolean hasText = s.getSubmittedText() != null && !s.getSubmittedText().trim().isEmpty();
+                    boolean hasAttachments = s.getAttachments() != null && !s.getAttachments().isEmpty();
+                    return hasText || hasAttachments;
+                })
+                .collect(Collectors.toList());
     }
 }

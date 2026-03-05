@@ -45,10 +45,13 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.elfinder.SakaiFsService;
 import org.sakaiproject.email.api.DigestService;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.lti.api.LTIService;
@@ -340,5 +343,20 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.lti.api.LTIService")
     public LTIService ltiService() {
         return mock(LTIService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.email.api.EmailService")
+    public EmailService emailService() {
+        return mock(EmailService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.emailtemplateservice.api.EmailTemplateService")
+    public EmailTemplateService emailTemplateService() {
+        return mock(EmailTemplateService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.event.api.UsageSessionService")
+    public UsageSessionService usageSessionService() {
+        return mock(UsageSessionService.class);
     }
 }

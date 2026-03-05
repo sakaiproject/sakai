@@ -169,6 +169,14 @@ public final class AssignmentConstants {
     public static final String ASSN_SUBMISSION_TYPE_VIDEO_PROP = "video";
 
     /**
+     * Auto submit related properties
+     */
+    public static final String ASSIGNMENT_AUTO_SUBMIT_ENABLED = "auto_submit_enabled";
+    public static final String EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS = "asn.assignmentAutoSubmitErrors";
+    public static final String EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME = "template-assignmentAutoSubmitErrors.xml";
+    public static final String PROP_SUBMISSION_AUTO_SUBMITTED = "auto_submitted";
+
+    /**
      * Ungraded grade type string
      */
     public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
@@ -387,6 +395,28 @@ public final class AssignmentConstants {
 	 */
 	public static final String SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM = "assignment.allowLinkToExistingGBItem";
 	public static final boolean SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT = true;
+
+    /*
+     * Sakai property for enabling/disabling the auto-submit feature
+     */
+    public static final String SAK_PROP_AUTO_SUBMIT_ENABLED = "assignment.autoSubmit.enabled";
+    public static final boolean SAK_PROP_AUTO_SUBMIT_ENABLED_DFLT = false;
+
+    /*
+     * Sakai property for enabling/disabling email notifications for auto-submit errors
+     */
+    public static final String SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED = "assignment.email.autoSubmit.errorNotification.enabled";
+    public static final boolean SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED_DFLT = false;
+
+    /*
+     * Sakai property for the email address to send auto-submit error notifications
+     */
+    public static final String SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS = "assignment.email.autoSubmit.errorNotification.toAddress";
+
+    /*
+     * Sakai property for the support email address
+     */
+    public static final String SAK_PROP_SUPPORT_EMAIL_ADDRESS = "mail.support";
 
     public static final String SAK_PROP_NON_SUBMITTER_PERMISSIONS = "assignment.submitter.remove.permission";
     public static final List<String> SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT = List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT);
