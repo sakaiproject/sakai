@@ -6142,16 +6142,26 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the instructor view to download/upload information from archive file
      */
     private String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        context.put("download", MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE)));
-        context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
-        context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
-        context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
-        context.put("gradeFileFormat", StringUtils.defaultString((String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT), "csv"));
-        context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
-        context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
-        context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
-        context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
-        context.put("withoutFolders", state.getAttribute(UPLOAD_ALL_WITHOUT_FOLDERS));
+        boolean downloadMode = MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE));
+        boolean hasSubmissionText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_TEXT, true);
+        boolean hasSubmissionAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, true);
+        boolean hasGradeFile = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_GRADEFILE, true);
+        boolean hasComments = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_COMMENTS, true);
+        boolean hasFeedbackText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_TEXT, true);
+        boolean hasFeedbackAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, true);
+        boolean withoutFolders = resolveDownloadUploadSelection(state, UPLOAD_ALL_WITHOUT_FOLDERS, false);
+
+        context.put("download", downloadMode);
+        context.put("hasSubmissionText", hasSubmissionText);
+        context.put("hasSubmissionAttachment", hasSubmissionAttachment);
+        context.put("hasGradeFile", hasGradeFile);
+        String gradeFileFormat = resolveDownloadUploadSelection(state, UPLOAD_ALL_GRADEFILE_FORMAT, "csv");
+        context.put("gradeFileFormat", gradeFileFormat);
+        context.put("hasComments", hasComments);
+        context.put("hasFeedbackText", hasFeedbackText);
+        context.put("hasFeedbackAttachment", hasFeedbackAttachment);
+        context.put("releaseGrades", Boolean.TRUE.equals(state.getAttribute(UPLOAD_ALL_RELEASE_GRADES)));
+        context.put("withoutFolders", withoutFolders);
         context.put("enableFlatDownload", serverConfigurationService.getBoolean("assignment.download.flat", false));
         context.put("contextString", state.getAttribute(STATE_CONTEXT_STRING));
 
@@ -6163,22 +6173,39 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (a != null) {
             Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
-            context.put("hasRubric", optAssociation.isPresent() && optAssociation.get().getRubricId() != null);
+            boolean hasRubric = optAssociation.isPresent() && optAssociation.get().getRubricId() != null;
+            boolean includeRubrics = downloadMode && hasRubric;
+            context.put("hasRubric", hasRubric);
+            context.put("includeRubrics", includeRubrics);
 
             context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
             Assignment.SubmissionType submissionType = a.getTypeOfSubmission();
             // if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
-            context.put("includeSubmissionText", Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType);
+            boolean includeSubmissionText = Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType;
+            context.put("includeSubmissionText", includeSubmissionText);
 
             // if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
-            context.put("includeSubmissionAttachment", Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType);
+            boolean includeSubmissionAttachment = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType;
+            context.put("includeSubmissionAttachment", includeSubmissionAttachment);
 
-            context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) != null ? state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) : "");
+            String viewString = StringUtils.defaultIfBlank((String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION), AssignmentConstants.ALL);
+            context.put("viewString", viewString);
 
             context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
             context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+            Collection<Group> groups = getCurrentUserGroupsInSite(a.getContext());
+            context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
+
+            // true when every applicable download option is checked; drives the "Select all" toggle state.
+            boolean allDataSelected = hasGradeFile
+                    && hasComments
+                    && hasFeedbackAttachment
+                    && (!includeSubmissionText || (hasSubmissionText && hasFeedbackText))
+                    && (!includeSubmissionAttachment || hasSubmissionAttachment)
+                    && (!downloadMode || !hasRubric || includeRubrics);
+            context.put("allDataSelected", allDataSelected);
 
             if (a.getContentReview())
             {
@@ -6192,6 +6219,22 @@ public class AssignmentAction extends PagedResourceActionII {
         String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
     } // build_instructor_upload_all
+
+    private boolean resolveDownloadUploadSelection(SessionState state, String key, boolean defaultValue) {
+        Object value = state.getAttribute(key);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        return defaultValue;
+    }
+
+    private String resolveDownloadUploadSelection(SessionState state, String key, String defaultValue) {
+        Object value = state.getAttribute(key);
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return defaultValue;
+    }
 
     public void doSearchTags(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
@@ -15607,7 +15650,7 @@ public class AssignmentAction extends PagedResourceActionII {
     public void doPrep_download_all(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
-        String view = params.getString("view");
+        String view = StringUtils.defaultIfBlank(params.getString("view"), AssignmentConstants.ALL);
         state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
         state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 
