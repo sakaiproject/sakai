@@ -1063,4 +1063,33 @@ public class PublishedAssessmentService extends AssessmentService{
 		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().restorePublishedAssessment(publishedAssessmentId);
 	}
 
+  /**
+    * Get the list of updated assessments for a given agent and site.
+    * @param agentId the agent id
+    * @param siteId the site id
+    * @return a map contains two sets:
+      * The first set is the list of assessment that are updated and need resubmit
+      * The second set is the list of assessment that are updated but do not need resubmit.
+  */
+  public Map<String, Set<Long>> getUpdatedAssessmentLists(String agentId, String siteId) {
+        GradingService gradingService = new GradingService();
+        // It contains two lists:
+        // The first one is the list of assessment that are updated and need resubmit
+        // The second one is the list of assessment that are updated but do not need resubmit
+        List<Set<Long>> updatedAssessmentList = gradingService.getUpdatedAssessmentList(agentId, siteId);
+
+        Set<Long> needResubmit = new LinkedHashSet<>();
+        Set<Long> updated = new LinkedHashSet<>();
+        if (updatedAssessmentList != null && updatedAssessmentList.size() == 2) {
+            needResubmit = updatedAssessmentList.get(0);
+            updated = updatedAssessmentList.get(1);
+        }
+
+        // Return the two sets in a map
+        Map<String, Set<Long>> map = new HashMap<>();
+        map.put("needResubmit", needResubmit);
+        map.put("updated", updated);
+        return map;
+  }
+
 }
