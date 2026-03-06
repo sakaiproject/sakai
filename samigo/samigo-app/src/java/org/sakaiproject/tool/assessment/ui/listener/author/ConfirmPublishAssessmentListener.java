@@ -54,7 +54,6 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
@@ -532,16 +531,6 @@ public class ConfirmPublishAssessmentListener
       }
     }
    
-    //#4 - before going to confirm publishing, check if the title is unique
-    PublishedAssessmentService publishedService = new PublishedAssessmentService();
-    if ( !publishedService.publishedAssessmentTitleIsUnique(assessmentId,assessmentName)){
-      String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
-      context.addMessage(null,new FacesMessage(err));
-      assessmentSettings.setOutcomePublish("editAssessmentSettings");
-      author.setIsErrorInSettings(true);
-      return;
-    }
-
     currentToolSession.removeAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED);
 
     //#4 - regenerate the core assessment list in autor bean again
