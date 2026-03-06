@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,9 +94,8 @@ public class SelectActionListener implements ActionListener {
    */
   public void processAction(ActionEvent ae) throws
       AbortProcessingException {
-
     //#0 - permission checking before proceeding - daisyf
-    // if it is anonymos login, let it pass 'cos there is no site and authz is 
+    // if it is anonymos login, let it pass 'cos there is no site and authz is
     // about permission in a site
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
@@ -113,14 +113,25 @@ public class SelectActionListener implements ActionListener {
         PublishedAssessmentService();
 
     select.setHasHighestMultipleSubmission(false);  // reset property
+    select.setHasAverageMultipleSubmissions(false);
     select.setHasAnyAssessmentBeenModified(false);
-    
+
     // look for some sort information passed as parameters
     processSortInfo(select);
 
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    if (secureDelivery.isSecureDeliveryAvaliable()) {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
+    } else {
+      // If secure delivery modules are installed, then insert their html fragments
+      select.setSecureDeliveryHTMLFragments( "" );
+    }
+
     // ----------------- prepare Takeable assessment list -------------
     // 1a. get total no. of submission (for grade) per assessment by the given agent in current site
-    Map h = publishedAssessmentService.getTotalSubmissionPerAssessment(
+    Map<Long, Integer> h = publishedAssessmentService.getTotalSubmissionPerAssessment(
                 AgentFacade.getAgentString(), siteId);
     // store it in personBean 'cos we would be using it to check if the total submisison
     // allowed is met later - extra protection to avoid students being too enterprising
@@ -133,57 +144,58 @@ public class SelectActionListener implements ActionListener {
         publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
         AgentFacade.getAgentString(), this.getTakeableOrderBy(select),
         select.isTakeableAscending(), siteId);
-    
-    GradingService gradingService = new GradingService();
-    List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), siteId);
-    List updatedAssessmentNeedResubmitList = new ArrayList();
-    List updatedAssessmentList = new ArrayList();
-    if (list != null && list.size() == 2) {
-    	updatedAssessmentNeedResubmitList = (List) list.get(0);
-    	updatedAssessmentList = (List) list.get(1);
-    }
-    
-    // filter out the one that the given user do not have right to access
+
+    Map<String, Set<Long>> updatedAssessmentLists = publishedAssessmentService.getUpdatedAssessmentLists(AgentFacade.getAgentString(), siteId);
+
+		Set<Long> updatedAssessmentNeedResubmitList = updatedAssessmentLists.getOrDefault("needResubmit", Collections.emptySet());
+		Set<Long> updatedAssessmentList = updatedAssessmentLists.getOrDefault("updated", Collections.emptySet());
+
+		// filter out the one that the given user do not have right to access
     List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h,
-            updatedAssessmentNeedResubmitList, updatedAssessmentList, siteId);
-    
-    // 1c. prepare delivery bean
-    List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
-    for (int i = 0; i < takeableList.size(); i++) {
-      // note that this object is PublishedAssessmentFacade(assessmentBaseId,
-      // title, releaseTo, startDate, dueDate, retractDate,lateHandling,
-      // unlimitedSubmissions, submissionsAllowed). It
-      // carries the min. info to create an index list. - daisyf
-      PublishedAssessmentFacade f = (PublishedAssessmentFacade)
-          takeableList.get(i);
-      DeliveryBeanie delivery = new DeliveryBeanie();
-      delivery.setAssessmentId(f.getPublishedAssessmentId().toString());
-      delivery.setAssessmentTitle(f.getTitle());
-      delivery.setDueDate(f.getDueDate());
-      delivery.setTimeRunning(false);// set to true in BeginDeliveryActionListener
-      setTimedAssessment(delivery, f);
-      // check pastDue
-      if (f.getDueDate()!=null && (new Date()).after(f.getDueDate()))
-        delivery.setPastDue(true);
-      else
-        delivery.setPastDue(false);
-      
-      if (updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId())) {
-    	  delivery.setAssessmentUpdatedNeedResubmit(true);
-      }
-      else {
-    	  delivery.setAssessmentUpdatedNeedResubmit(false);
-      }
-      
-      if (updatedAssessmentList.contains(f.getPublishedAssessmentId())) {
-    	  delivery.setAssessmentUpdated(true);
-      }
-      else {
-    	  delivery.setAssessmentUpdated(false);
-      }
-    	  
-      takeablePublishedList.add(delivery);
-    }
+                updatedAssessmentNeedResubmitList, updatedAssessmentList, siteId);
+		// 1c. prepare delivery bean
+		List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
+		for (PublishedAssessmentFacade f : takeableList) {
+			// note that this object is PublishedAssessmentFacade(assessmentBaseId,
+			// title, releaseTo, startDate, dueDate, retractDate,lateHandling,
+			// unlimitedSubmissions, submissionsAllowed). It
+			// carries the min. info to create an index list. - daisyf
+			DeliveryBeanie delivery = new DeliveryBeanie();
+			delivery.setAssessmentId(f.getPublishedAssessmentId().toString());
+			delivery.setAssessmentTitle(f.getTitle());
+			delivery.setDueDate(f.getDueDate());
+			delivery.setTimeRunning(false);// set to true in BeginDeliveryActionListener
+
+			setTimedAssessment(delivery, f);
+
+			// check pastDue
+			delivery.setPastDue(f.getDueDate() != null && new Date().after(f.getDueDate()));
+
+			delivery.setAssessmentUpdatedNeedResubmit(
+				updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId())
+			);
+
+			delivery.setAssessmentUpdated(
+				updatedAssessmentList.contains(f.getPublishedAssessmentId())
+			);
+
+			try {
+				if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
+					final String moduleId = f.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+					if (moduleId != null) {
+						delivery.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(
+								moduleId,
+								Long.valueOf(delivery.getAssessmentId()),
+								AgentFacade.getAgentString()
+						).orElse("") );
+					}
+				}
+			} catch (Exception e) {
+				log.debug("SecureDelivery lookup failed for assessment {}", delivery.getAssessmentId(), e);
+			}
+
+			takeablePublishedList.add(delivery);
+		}
 
     // --------------- prepare Submitted assessment grading list --------------
     // 1. get the most recent submission of a user
@@ -194,230 +206,197 @@ public class SelectActionListener implements ActionListener {
         Boolean.getBoolean( (String) ContextUtil.lookupParam("reviewAscending")));
         */
     processDisplayInfo(select);
-    
+
     // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
-    List recentSubmittedList =
+    List<AssessmentGradingData> recentSubmittedList =
     	publishedAssessmentService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption( AgentFacade.getAgentString(), siteId, !"1".equals(select.getDisplayAllAssessments()));
-   
+
     Map<Long, PublishedAssessmentFacade> publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     List<DeliveryBeanie> submittedAssessmentGradingList = new ArrayList();
 
     boolean hasHighest;
     boolean hasMultipleSubmission;
     Map feedbackHash = publishedAssessmentService.getFeedbackHash(siteId);
-    Set<Long> recentSubmittedIds = new HashSet<>();
     select.setHasAnyAssessmentRetractForEdit(false);
-    for (int k = 0; k < recentSubmittedList.size(); k++) {
-    	AssessmentGradingData g = (AssessmentGradingData)
-    	recentSubmittedList.get(k);
-    	recentSubmittedIds.add(g.getPublishedAssessmentId());
-    }
 
-    List containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds(recentSubmittedIds);
+    Set<Long> recentSubmittedIds = recentSubmittedList.stream()
+      .map(AssessmentGradingData::getPublishedAssessmentId)
+      .collect(Collectors.toSet());
 
-    for (int k = 0; k < recentSubmittedList.size(); k++) {
+    List<Long> containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds(recentSubmittedIds);
+
+    for (AssessmentGradingData g : recentSubmittedList) {
     	hasHighest = false;
-    	hasMultipleSubmission = false;
 
-    	AssessmentGradingData g = (AssessmentGradingData)
-    	recentSubmittedList.get(k);
+      DeliveryBeanie delivery = new DeliveryBeanie();
+      delivery.setAssessmentGradingId(g.getAssessmentGradingId());
+      delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
 
-        DeliveryBeanie delivery = new DeliveryBeanie();
-        delivery.setAssessmentGradingId(g.getAssessmentGradingId());
-        delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
-        
-        Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
-        if (submissionAllowed == -1) {
-        	log.debug("submissionAllowed == -1");
-        	continue;
-        }
-        if (submissionAllowed == 0) { // unlimited submissions
-          delivery.setMultipleSubmissions(true);
-      	  hasMultipleSubmission=true;
-        }
-        else if (submissionAllowed == 1) {
-       		delivery.setMultipleSubmissions(false);
-       		hasMultipleSubmission=false;
-       	}
-        else if (submissionAllowed > 1) {
-       		delivery.setMultipleSubmissions(true);
-       		hasMultipleSubmission=true;
-       	}
-        
-        delivery.setScoringOption(getScoringType(g.getPublishedAssessmentId(), publishedAssessmentHash));
-        
-        if ((EvaluationModelIfc.HIGHEST_SCORE.toString()).equals(delivery.getScoringOption())){
-        	hasHighest=true;
-        }
-        if (hasHighest && hasMultipleSubmission){
-        	select.setHasHighestMultipleSubmission(true);
-        }
-        
-        if(hasMultipleSubmission && ((EvaluationModelIfc.AVERAGE_SCORE.toString()).equals(delivery.getScoringOption()))){
-        	select.setHasAverageMultipleSubmissions(true);
-        }
-        delivery.setAssessmentTitle(g.getPublishedAssessmentTitle());
-        delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        delivery.setFeedbackComponentOption(getFeedbackComponentOption(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        delivery.setFeedbackEndDate(getFeedbackEndDate(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        delivery.setFeedbackScoreThreshold(getFeedbackScoreThreshold(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        if (g.getFinalScore() != null) {
-          delivery.setFinalScore(g.getFinalScore().toString());	
-          delivery.setGrade(g.getFinalScore().toString());
-          delivery.setRawScore(g.getFinalScore().toString()); // Bug 318 fix. It seems raw score should also be based on final score.
-          delivery.setRaw(g.getFinalScore().longValue());
-        }
+      Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
+      if (submissionAllowed == -1) {
+        log.debug("submissionAllowed == -1");
+        continue;
+      }
 
-        delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
-        delivery.setSubmissionDate(g.getSubmittedDate());
-        delivery.setHasAssessmentBeenModified(getHasAssessmentBeenModified(select, g, publishedAssessmentHash));
+      hasMultipleSubmission = (submissionAllowed == 0 || submissionAllowed > 1);
+      delivery.setMultipleSubmissions(hasMultipleSubmission);
 
-        delivery.setSubmitted(true); // records are all submitted for grade
-        PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.get(g.getPublishedAssessmentId());
-        // check is feedback is available
-        String hasFeedback = hasFeedback(p, g.getFinalScore());
-        delivery.setFeedback(hasFeedback);
-        boolean isAssessmentRetractForEdit = isAssessmentRetractForEdit(p);
-        delivery.setIsAssessmentRetractForEdit(isAssessmentRetractForEdit);
-        if (isAssessmentRetractForEdit) {
-        	select.setHasAnyAssessmentRetractForEdit(true);
-        }
-        if (containRandomPartAssessmentIds.contains(g.getPublishedAssessmentId())) {
-        	delivery.setHasRandomDrawPart(true);
-        }
-        else {
-        	delivery.setHasRandomDrawPart(false);
-        }
-        // check if score is available
-        //HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
-        delivery.setShowScore(showScore(g, hasFeedback, feedbackHash));
+      String scoringOption = getScoringType(g.getPublishedAssessmentId(), publishedAssessmentHash);
+      delivery.setScoringOption(scoringOption);
 
-        String hasStats = hasStats(g, feedbackHash);
-        delivery.setStatistics(hasStats);
+      hasHighest = EvaluationModelIfc.HIGHEST_SCORE.toString().equals(scoringOption);
 
-        delivery.setIsRecordedAssessment(g.getIsRecorded());
-        
-        // to do: set statistics and time for delivery here.
-        submittedAssessmentGradingList.add(delivery);
+      if (hasHighest && hasMultipleSubmission) {
+        select.setHasHighestMultipleSubmission(true);
+      }
+
+      if (hasMultipleSubmission && ((EvaluationModelIfc.AVERAGE_SCORE.toString()).equals(delivery.getScoringOption()))) {
+        select.setHasAverageMultipleSubmissions(true);
+      }
+
+      delivery.setAssessmentTitle(g.getPublishedAssessmentTitle());
+      delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(), publishedAssessmentHash));
+      delivery.setFeedbackComponentOption(getFeedbackComponentOption(g.getPublishedAssessmentId(), publishedAssessmentHash));
+      delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(), publishedAssessmentHash));
+      delivery.setFeedbackEndDate(getFeedbackEndDate(g.getPublishedAssessmentId(), publishedAssessmentHash));
+      delivery.setFeedbackScoreThreshold(getFeedbackScoreThreshold(g.getPublishedAssessmentId(), publishedAssessmentHash));
+
+      if (g.getFinalScore() != null) {
+        String scoreStr = g.getFinalScore().toString();
+
+        delivery.setFinalScore(scoreStr);
+        delivery.setGrade(scoreStr);
+        delivery.setRawScore(scoreStr); // Bug 318 fix. It seems raw score should also be based on final score.
+        delivery.setRaw(g.getFinalScore().longValue());
+      }
+
+      delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
+      delivery.setSubmissionDate(g.getSubmittedDate());
+      delivery.setHasAssessmentBeenModified(getHasAssessmentBeenModified(select, g, publishedAssessmentHash));
+      delivery.setSubmitted(true); // records are all submitted for grade
+
+      PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.get(g.getPublishedAssessmentId());
+      // check is feedback is available
+      String hasFeedback = hasFeedback(p, g.getFinalScore());
+      delivery.setFeedback(hasFeedback);
+
+      boolean isAssessmentRetractForEdit = isAssessmentRetractForEdit(p);
+      delivery.setIsAssessmentRetractForEdit(isAssessmentRetractForEdit);
+      if (isAssessmentRetractForEdit) {
+        select.setHasAnyAssessmentRetractForEdit(true);
+      }
+
+      delivery.setHasRandomDrawPart(containRandomPartAssessmentIds.contains(g.getPublishedAssessmentId()));
+
+      // check if score is available
+      //HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
+      delivery.setShowScore(showScore(g, hasFeedback, feedbackHash));
+      delivery.setStatistics(hasStats(g, feedbackHash));
+
+      delivery.setIsRecordedAssessment(g.getIsRecorded());
+
+      // to do: set statistics and time for delivery here.
+      submittedAssessmentGradingList.add(delivery);
     }
-    
+
     BeanSort bs = new BeanSort(submittedAssessmentGradingList, "assessmentTitle");
     bs.toStringSort();
     bs.sort();
-    
-    Iterator iter = submittedAssessmentGradingList.iterator();
-    List averageScoreAssessmentGradingList = new ArrayList();
-    
-    while (iter.hasNext())
-    {
-      DeliveryBeanie db = (DeliveryBeanie) iter.next();
-      if (db.getScoringOption().equals(EvaluationModelIfc.AVERAGE_SCORE.toString()))
-    	  averageScoreAssessmentGradingList.add(db);
+
+    List<DeliveryBeanie> averageScoreAssessmentGradingList = submittedAssessmentGradingList.stream()
+        .filter(db -> EvaluationModelIfc.AVERAGE_SCORE.toString().equals(db.getScoringOption()))
+        .collect(Collectors.toList());
+
+    String lastPublishedAssessmentId = null;
+    Map<String, Double> averageScoreMap = new HashMap<>();
+    double totalScores = 0d;
+    int totalSubmissions = 0;
+
+    for (DeliveryBeanie db : averageScoreAssessmentGradingList) {
+      String currentId = db.getAssessmentId();
+      double score = Double.parseDouble(db.getFinalScore());
+
+      if (currentId.equals(lastPublishedAssessmentId)) {
+        totalScores += score;
+        totalSubmissions++;
+      } else {
+        if (lastPublishedAssessmentId != null) {
+            double averageScore = totalScores / totalSubmissions;
+            averageScoreMap.put(lastPublishedAssessmentId, averageScore);
+        }
+
+        lastPublishedAssessmentId = currentId;
+        totalScores = score;
+        totalSubmissions = 1;
+      }
     }
-    
-    String lastPublishedAssessmentId = "";
-    Map averageScoreMap = new HashMap();
-    double totalScores= 0d;
-	int totalSubmissions= 0;
-	double averageScore = 0d;
-    
-	for (int i = 0; i < averageScoreAssessmentGradingList.size(); i++)
-	{
-		DeliveryBeanie db = (DeliveryBeanie) averageScoreAssessmentGradingList.get(i);
-		if ((lastPublishedAssessmentId != null && lastPublishedAssessmentId.equals(db.getAssessmentId())) || averageScoreAssessmentGradingList.size() == 1) {
-			totalScores += Double.parseDouble(db.getFinalScore());
-			totalSubmissions++;
-			if (i == averageScoreAssessmentGradingList.size() - 1) {
-				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), averageScore);
-			}
-		}
-		else {
-			if (i > 0) {
-				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(lastPublishedAssessmentId, averageScore);
-			}
-			lastPublishedAssessmentId = db.getAssessmentId(); 
-			totalScores = Double.parseDouble(db.getFinalScore());
-			totalSubmissions = 1;
-			
-			if (i == averageScoreAssessmentGradingList.size() - 1) {
-				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), averageScore);
-			}
-		}
-	}
-    
+
+    if (lastPublishedAssessmentId != null) {
+      double averageScore = totalScores / totalSubmissions;
+      averageScoreMap.put(lastPublishedAssessmentId, averageScore);
+    }
+
     /// --mustansar
     List<DeliveryBeanie> reviewableList = new ArrayList();
     List<DeliveryBeanie> recordedList=new ArrayList<>();
-    Iterator it=submittedAssessmentGradingList.iterator();
     String assessmentIdNew="";
-    while(it.hasNext()){
-    	DeliveryBeanie beanie=(DeliveryBeanie)it.next();
-    	String assessmentIdOld= beanie.getAssessmentId();
 
+    for (DeliveryBeanie beanie : submittedAssessmentGradingList) {
+    	String assessmentIdOld= beanie.getAssessmentId();
     	String scoring = beanie.getScoringOption();
+
     	boolean processRecordedAvg = AVG_SCORE.equals(scoring) && !assessmentIdNew.equals(assessmentIdOld);
     	boolean processRecordedHighestOrLast = (HIGH_SCORE.equals(scoring) || LAST_SCORE.equals(scoring)) && beanie.getIsRecordedAssessment();
 
-    	if (processRecordedAvg || processRecordedHighestOrLast)
-    	{
-    		beanie.setIsRecordedAssessment(false);
-    		DeliveryBeanie recorded=new DeliveryBeanie();
-    		recorded.setStatistics(beanie.getStatistics());
-    		recorded.setHasRandomDrawPart(beanie.getHasRandomDrawPart());
-    		recorded.setDueDate(beanie.getDueDate());
-    		recorded.setHasAssessmentBeenModified(beanie.getHasAssessmentBeenModified());
-    		recorded.setIsAssessmentRetractForEdit(beanie.getIsAssessmentRetractForEdit());
-    		recorded.setPastDue(beanie.getPastDue());
-    		recorded.setShowScore(beanie.getShowScore());
-    		recorded.setSubTime(beanie.getSubTime());
-    		recorded.setAssessmentGradingId(beanie.getAssessmentGradingId());
-    		recorded.setAssessmentTitle(beanie.getAssessmentTitle());
-    		recorded.setAssessmentId(beanie.getAssessmentId());
-    		recorded.setFeedback(beanie.getFeedback());
-    		recorded.setFeedbackDate(beanie.getFeedbackDate());
-    		recorded.setFeedbackEndDate(beanie.getFeedbackEndDate());
-    		recorded.setFeedbackScoreThreshold(beanie.getFeedbackScoreThreshold());
-    		recorded.setFeedbackDelivery(beanie.getFeedbackDelivery());
-    		recorded.setFeedbackComponentOption(beanie.getFeedbackComponentOption());
-    		recorded.setIsRecordedAssessment(true);
-    		recorded.setScoringOption(beanie.getScoringOption());
+      if (processRecordedAvg || processRecordedHighestOrLast) {
+        beanie.setIsRecordedAssessment(false);
 
-    		// check if assessment allows multiple submissions or if this user has been allowed to submit multiple times
-    		Long assessId = NumberUtils.toLong(beanie.getAssessmentId(), -1L);
-    		int numSubmissions = (Integer) ObjectUtils.defaultIfNull(h.get(assessId), 0);
-    		boolean multiple = beanie.isMultipleSubmissions() || numSubmissions > 1;
-    		recorded.setMultipleSubmissions(multiple);
-    		
-    		if (processRecordedAvg)
-    		{
-    			assessmentIdNew = beanie.getAssessmentId();
-    			recorded.setFinalScore(averageScoreMap.get(assessmentIdNew).toString());
-    			recorded.setGrade(averageScoreMap.get(assessmentIdNew).toString());
-    			recorded.setRawScore(averageScoreMap.get(assessmentIdNew).toString());
-    		}
-    		else  // highest or last
-    		{
-    			recorded.setFinalScore(beanie.getFinalScore());
-    			recorded.setGrade(beanie.getGrade());
-    			recorded.setRawScore(beanie.getRawScore());
-    		}
+        DeliveryBeanie recorded = new DeliveryBeanie();
+        recorded.setIsRecordedAssessment(true);
+        recorded.setScoringOption(beanie.getScoringOption());
 
-    		recordedList.add(recorded);
-    		reviewableList.add(recorded);
-    		reviewableList.add(beanie);  
-    	}
-    	else if (StringUtils.equalsAny(select.getDisplayAllAssessments(), "2", "3")) { 
-    		reviewableList.add(beanie);
-    	}  
+        recorded.setStatistics(beanie.getStatistics());
+        recorded.setHasRandomDrawPart(beanie.getHasRandomDrawPart());
+        recorded.setDueDate(beanie.getDueDate());
+        recorded.setHasAssessmentBeenModified(beanie.getHasAssessmentBeenModified());
+        recorded.setIsAssessmentRetractForEdit(beanie.getIsAssessmentRetractForEdit());
+        recorded.setPastDue(beanie.getPastDue());
+        recorded.setShowScore(beanie.getShowScore());
+        recorded.setSubTime(beanie.getSubTime());
+        recorded.setAssessmentGradingId(beanie.getAssessmentGradingId());
+        recorded.setAssessmentTitle(beanie.getAssessmentTitle());
+        recorded.setAssessmentId(beanie.getAssessmentId());
+        recorded.setFeedback(beanie.getFeedback());
+        recorded.setFeedbackDate(beanie.getFeedbackDate());
+        recorded.setFeedbackEndDate(beanie.getFeedbackEndDate());
+        recorded.setFeedbackScoreThreshold(beanie.getFeedbackScoreThreshold());
+        recorded.setFeedbackDelivery(beanie.getFeedbackDelivery());
+        recorded.setFeedbackComponentOption(beanie.getFeedbackComponentOption());
+
+        // check if assessment allows multiple submissions or if this user has been allowed to submit multiple times
+        Long assessId = NumberUtils.toLong(beanie.getAssessmentId(), -1L);
+        int numSubmissions = (Integer) ObjectUtils.defaultIfNull(h.get(assessId), 0);
+        recorded.setMultipleSubmissions(beanie.isMultipleSubmissions() || numSubmissions > 1);
+
+        if (processRecordedAvg) {
+          assessmentIdNew = beanie.getAssessmentId();
+          String avgScoreStr = averageScoreMap.get(assessmentIdNew).toString();
+
+          recorded.setFinalScore(avgScoreStr);
+          recorded.setGrade(avgScoreStr);
+          recorded.setRawScore(avgScoreStr);
+        } else {  // highest or last
+          recorded.setFinalScore(beanie.getFinalScore());
+          recorded.setGrade(beanie.getGrade());
+          recorded.setRawScore(beanie.getRawScore());
+        }
+
+        recordedList.add(recorded);
+        reviewableList.add(recorded);
+        reviewableList.add(beanie);
+      } else if (StringUtils.equalsAny(select.getDisplayAllAssessments(), "2", "3")) {
+        reviewableList.add(beanie);
+      }
     }
 
     // display warning legend if any quizzes have been marked as modified in the review section
@@ -443,21 +422,8 @@ public class SelectActionListener implements ActionListener {
         break;
     }
 
-    if (!select.isReviewableAscending())
-    {
-    	Collections.reverse(submittedAssessmentGradingList);
-    }
-
-    // If secure delivery modules are installed, then insert their html fragments      
-    select.setSecureDeliveryHTMLFragments( "" );
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-    if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-        Map<Long, String> secureDeliveryModuleIdsByAssessment = getSecureDeliveryModuleIdsByAssessment(
-                takeablePublishedList, publishedAssessmentService);
-        applySecureDeliveryUrls(takeablePublishedList, secureDeliveryModuleIdsByAssessment, secureDelivery,
-                AgentFacade.getAgentString());
+    if (!select.isReviewableAscending()) {
+      Collections.reverse(submittedAssessmentGradingList);
     }
 
     // set the managed beanlist properties that we need
@@ -467,7 +433,6 @@ public class SelectActionListener implements ActionListener {
     if ("3".equals(select.getDisplayAllAssessments()) && !submittedAssessmentGradingList.isEmpty()) {
       select.setReviewAssessmentTitle(submittedAssessmentGradingList.get(0).getAssessmentTitle());
     }
-
   }
 
   /**
@@ -592,9 +557,7 @@ public class SelectActionListener implements ActionListener {
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private List<PublishedAssessmentFacade> getTakeableList(List<PublishedAssessmentFacade> assessmentList, Map <Long,Integer> h,
-                                                          List updatedAssessmentNeedResubmitList, List updatedAssessmentList,
-                                                          String siteId) {
+  private List<PublishedAssessmentFacade> getTakeableList(List<PublishedAssessmentFacade> assessmentList, Map <Long,Integer> h, Set<Long> updatedAssessmentNeedResubmitList, Set<Long> updatedAssessmentList, String siteId) {
     List<PublishedAssessmentFacade> takeableList = new ArrayList<>();
     GradingService gradingService = new GradingService();
     Map<Long, StudentGradingSummaryData> numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
@@ -625,7 +588,7 @@ public class SelectActionListener implements ActionListener {
     return takeableList;
   }
 
-  public boolean isAvailable(PublishedAssessmentFacade f, Map <Long, Integer> h, Map<Long, StudentGradingSummaryData> numberRetakeHash, Map <Long, Integer> actualNumberRetakeHash, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
+  public boolean isAvailable(PublishedAssessmentFacade f, Map <Long, Integer> h, Map<Long, StudentGradingSummaryData> numberRetakeHash, Map <Long, Integer> actualNumberRetakeHash, Set<Long> updatedAssessmentNeedResubmitList, Set<Long> updatedAssessmentList) {
     boolean returnValue = false;
     //1. prepare our significant parameters
     Integer status = f.getStatus();
