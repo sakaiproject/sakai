@@ -21,7 +21,6 @@
 
 package org.sakaiproject.assignment.impl;
 
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +39,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -77,14 +75,6 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
         searchIndexBuilder.registerEntityContentProducer(this);
     }
 
-    public boolean isContentFromReader(String reference) {
-        return false;
-    }
-
-    public Reader getContentReader(String reference) {
-        return null;
-    }
-
     private Optional<Assignment> getAssignment(AssignmentReferenceReckoner.AssignmentReference ref) {
 
         String id = ref.getId();
@@ -100,23 +90,16 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
 
     public String getContent(String ref) {
 
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
-        if (opAssignment.isPresent()) {
-            StringBuilder sb = new StringBuilder();
-            SearchUtils.appendCleanString(opAssignment.get().getTitle(), sb);
-            sb.append(" ");
-            SearchUtils.appendCleanString(opAssignment.get().getInstructions(), sb);
-            sb.append(" ");
-            return sb.toString();
-        } else {
-            return "";
-        }
+        return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
+                .map(a -> a.getTitle() + " " + a.getInstructions())
+                .orElse("");
     }
 
     public String getTitle(String ref) {
 
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
-        return (opAssignment.isPresent()) ? opAssignment.get().getTitle() : "";
+        return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
+                .map(Assignment::getTitle)
+                .orElse("");
     }
 
     public String getUrl(String ref) {
