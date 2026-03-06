@@ -165,7 +165,15 @@ public class ExtendedTimeDeliveryService {
 			return Collections.emptyMap();
 		}
 
-		for (ExtendedTime extendedTime : extendedTimes) {
+		List<ExtendedTime> orderedExtendedTimes = new ArrayList<>(extendedTimes);
+		orderedExtendedTimes.sort(
+				Comparator.comparing(ExtendedTime::getPubAssessmentId, Comparator.nullsFirst(Long::compareTo))
+						.thenComparing(e -> e.getUser() == null ? 0 : 1)
+						.thenComparing(ExtendedTime::getGroup, Comparator.nullsFirst(String::compareTo))
+						.thenComparing(ExtendedTime::getUser, Comparator.nullsFirst(String::compareTo))
+						.thenComparing(ExtendedTime::getId, Comparator.nullsFirst(Long::compareTo)));
+
+		for (ExtendedTime extendedTime : orderedExtendedTimes) {
 			Long pubAssessmentId = extendedTime.getPubAssessmentId();
 			if (pubAssessmentId == null) {
 				continue;

@@ -28,15 +28,18 @@ public class ExtendedTimeDeliveryServiceTest {
     }
 
     @Test
-    public void testResolveEntriesUsesLastMatchingGroupEntry() {
+    public void testResolveEntriesDeterministicallyResolvesMatchingGroupEntry() {
         ExtendedTime firstGroupEntry = buildExtendedTime("group-a", null, 100L);
         ExtendedTime secondGroupEntry = buildExtendedTime("group-b", null, 100L);
         Set<String> siteGroupIds = new HashSet<>(Arrays.asList("group-a", "group-b"));
 
         Map<Long, ExtendedTime> resolvedEntries = ExtendedTimeDeliveryService.resolveEntriesByPublishedAssessment(
                 Arrays.asList(firstGroupEntry, secondGroupEntry), "student1", siteGroupIds);
+        Map<Long, ExtendedTime> reversedResolvedEntries = ExtendedTimeDeliveryService.resolveEntriesByPublishedAssessment(
+                Arrays.asList(secondGroupEntry, firstGroupEntry), "student1", siteGroupIds);
 
         Assert.assertSame(secondGroupEntry, resolvedEntries.get(100L));
+        Assert.assertSame(secondGroupEntry, reversedResolvedEntries.get(100L));
     }
 
     @Test
