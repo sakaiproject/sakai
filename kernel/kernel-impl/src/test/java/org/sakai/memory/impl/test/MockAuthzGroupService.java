@@ -82,6 +82,10 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		return null;
 	}
 
+	public Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> azGroups) {
+		return null;
+	}
+
 	public AuthzGroup getAuthzGroup(String id) throws GroupNotDefinedException {
 		// TODO Auto-generated method stub
 		return null;

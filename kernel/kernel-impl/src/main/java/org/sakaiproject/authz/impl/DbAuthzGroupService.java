@@ -2470,6 +2470,90 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			return rv;
 		}
 
+		@Override
+		public Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> realms)
+		{
+			Map<String, Map<String, Set<String>>> roleFunctionsByRealm = new LinkedHashMap<>();
+			if (realms == null || realms.isEmpty()) {
+				return roleFunctionsByRealm;
+			}
+
+			List<String> missingRealmIds = new ArrayList<>();
+			for (String realmId : realms) {
+				if (StringUtils.isBlank(realmId)) {
+					continue;
+				}
+
+				Map<String, Set<String>> cachedRoleFunctions = getCachedRoleFunctions(realmId);
+				if (cachedRoleFunctions != null) {
+					roleFunctionsByRealm.put(realmId, cachedRoleFunctions);
+				} else {
+					missingRealmIds.add(realmId);
+				}
+			}
+
+			if (!missingRealmIds.isEmpty()) {
+				String sql = dbAuthzGroupSql.getSelectRealmRoleFunctionsSql(orInClause(missingRealmIds.size(), "SR.REALM_ID"));
+				Object[] fields = missingRealmIds.toArray();
+
+				m_sql.dbRead(sql, fields, new SqlReader()
+				{
+					public Object readSqlResultRecord(ResultSet result)
+					{
+						try
+						{
+							String realmId = result.getString(1);
+							String roleName = result.getString(2);
+							String functionName = result.getString(3);
+
+							Map<String, Set<String>> roleFunctions = roleFunctionsByRealm.computeIfAbsent(realmId, key -> new HashMap<>());
+							roleFunctions.computeIfAbsent(roleName, key -> new HashSet<>()).add(functionName);
+
+							return null;
+						}
+						catch (SQLException ignore)
+						{
+							return null;
+						}
+					}
+				});
+			}
+
+			for (String realmId : realms) {
+				if (StringUtils.isNotBlank(realmId)) {
+					roleFunctionsByRealm.putIfAbsent(realmId, new HashMap<>());
+				}
+			}
+
+			return roleFunctionsByRealm;
+		}
+
+		private Map<String, Set<String>> getCachedRoleFunctions(String realmId)
+		{
+			Map<String, Map> realmRoleGrantCache = (Map<String, Map>) m_realmRoleGRCache.get(realmId);
+			if (realmRoleGrantCache == null) {
+				return null;
+			}
+
+			Map<String, SimpleRole> roleProperties = realmRoleGrantCache.get(REALM_ROLES_CACHE);
+			if (roleProperties == null) {
+				return null;
+			}
+
+			Map<String, Set<String>> cachedRoleFunctions = new HashMap<>();
+			for (Map.Entry<String, SimpleRole> roleEntry : roleProperties.entrySet()) {
+				Set<String> functions = new HashSet<>();
+				if (roleEntry.getValue().getLocks() != null) {
+					for (Object function : roleEntry.getValue().getLocks()) {
+						functions.add((String) function);
+					}
+				}
+				cachedRoleFunctions.put(roleEntry.getKey(), functions);
+			}
+
+			return cachedRoleFunctions;
+		}
+
 		/**
 		 * {@inheritDoc}
 		 */
