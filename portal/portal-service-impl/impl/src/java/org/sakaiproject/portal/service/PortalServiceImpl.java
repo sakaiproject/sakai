@@ -1069,7 +1069,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-				null, SiteService.SortType.CREATED_ON_DESC, null, userId);
+				null, SiteService.SortType.NONE, null, userId);
 		combinedSiteIds.addAll(userSiteIds);
 
 		// all the possible sites the user has access to have been collected into combinedSiteIds

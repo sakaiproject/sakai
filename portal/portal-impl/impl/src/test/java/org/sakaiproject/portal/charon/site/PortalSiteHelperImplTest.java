@@ -121,6 +121,75 @@ public class PortalSiteHelperImplTest extends TestCase {
 		}
 	}
 
+	public void testGetContextSitesWithPagesSkipsMissingHiddenCurrentSite() throws Exception {
+
+		AuthzGroupService authzGroupService = mock(AuthzGroupService.class);
+		SecurityService securityService = mock(SecurityService.class);
+		ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
+		PortalService portalService = mock(PortalService.class);
+		PreferencesService preferencesService = mock(PreferencesService.class);
+		SessionManager sessionManager = mock(SessionManager.class);
+		SiteNeighbourhoodService siteNeighbourhoodService = mock(SiteNeighbourhoodService.class);
+		SiteService siteService = mock(SiteService.class);
+		UserDirectoryService userDirectoryService = mock(UserDirectoryService.class);
+		ResourceProperties siteNavProperties = mock(ResourceProperties.class);
+		Preferences preferences = mock(Preferences.class);
+		User user = mock(User.class);
+
+		String hiddenCurrentSiteId = "site-missing";
+		String homeSiteRef = "/site/~student1";
+		Site homeSite = mockSite("~student1", "Home");
+		List<String> siteRefs = List.of(homeSiteRef);
+
+		when(securityService.isSuperUser()).thenReturn(false);
+		when(securityService.isUserRoleSwapped()).thenReturn(false);
+		when(sessionManager.getCurrentSessionUserId()).thenReturn("student1");
+		when(siteService.getUserSiteId("student1")).thenReturn("~student1");
+		when(siteService.getSite("~student1")).thenReturn(homeSite);
+		when(siteService.getSite(hiddenCurrentSiteId)).thenReturn(null);
+		when(siteService.isUserSite(anyString())).thenReturn(false);
+		when(siteNeighbourhoodService.parseSiteAlias(anyString())).thenReturn(null);
+		when(preferencesService.getPreferences("student1")).thenReturn(preferences);
+		when(preferences.getProperties(PreferencesService.SITENAV_PREFS_KEY)).thenReturn(siteNavProperties);
+		when(siteNavProperties.getPropertyList("exclude")).thenReturn(List.of(hiddenCurrentSiteId));
+		when(portalService.getPinnedSites("student1")).thenReturn(Collections.emptyList());
+		when(portalService.getRecentSites("student1")).thenReturn(Collections.emptyList());
+		when(serverConfigurationService.getString("portal.includesubsites", "false")).thenReturn("false");
+		when(authzGroupService.getAuthzGroupsIsAllowed("student1", SiteService.SECURE_UPDATE_SITE, siteRefs))
+			.thenReturn(Collections.emptySet());
+		when(authzGroupService.getAuthzGroupsIsAllowed("student1", "section.role.instructor", siteRefs))
+			.thenReturn(Collections.emptySet());
+		when(authzGroupService.getRoleFunctions(siteRefs)).thenReturn(Collections.emptyMap());
+		when(userDirectoryService.getCurrentUser()).thenReturn(user);
+		when(user.getId()).thenReturn("student1");
+
+		try (MockedStatic<ComponentManager> componentManager = mockStatic(ComponentManager.class)) {
+			componentManager.when(ComponentManager::isTestingMode).thenReturn(true);
+			componentManager.when(() -> ComponentManager.get(AliasService.class)).thenReturn(mock(AliasService.class));
+			componentManager.when(() -> ComponentManager.get(AuthzGroupService.class)).thenReturn(authzGroupService);
+			componentManager.when(() -> ComponentManager.get(EntityManager.class)).thenReturn(mock(EntityManager.class));
+			componentManager.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(mock(FormattedText.class));
+			componentManager.when(() -> ComponentManager.get(PortalService.class)).thenReturn(portalService);
+			componentManager.when(() -> ComponentManager.get(PreferencesService.class)).thenReturn(preferencesService);
+			componentManager.when(() -> ComponentManager.get(SecurityService.class)).thenReturn(securityService);
+			componentManager.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
+			componentManager.when(() -> ComponentManager.get(SessionManager.class)).thenReturn(sessionManager);
+			componentManager.when(() -> ComponentManager.get(SiteNeighbourhoodService.class)).thenReturn(siteNeighbourhoodService);
+			componentManager.when(() -> ComponentManager.get(SiteService.class)).thenReturn(siteService);
+			componentManager.when(() -> ComponentManager.get(ThreadLocalManager.class)).thenReturn(mock(ThreadLocalManager.class));
+			componentManager.when(() -> ComponentManager.get(ToolManager.class)).thenReturn(mock(ToolManager.class));
+			componentManager.when(() -> ComponentManager.get(UserDirectoryService.class)).thenReturn(userDirectoryService);
+
+			PortalSiteHelperImpl helper = new PortalSiteHelperImpl(mock(Portal.class), false);
+			Map<String, Object> contextSites = helper.getContextSitesWithPages(mock(HttpServletRequest.class), hiddenCurrentSiteId,
+				null, true);
+
+			assertNotNull(contextSites.get("homeSite"));
+			assertTrue(((List<Map<String, Object>>) contextSites.get("recentSites")).isEmpty());
+			verify(authzGroupService).getRoleFunctions(siteRefs);
+		}
+	}
+
 	public void testGetContextSitesWithPagesBulkLoadsNonMaintainerRoleFunctions() throws Exception {
 
 		AuthzGroupService authzGroupService = mock(AuthzGroupService.class);

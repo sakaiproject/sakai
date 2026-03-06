@@ -873,19 +873,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				log.debug("realmRoleGRCache: found {} in cache? {}", realm.getId(), (realmRoleGRCache != null));
 			}
 
-			if (realmRoleGRCache != null) {
+			Map<String, SimpleRole> cachedRoleProperties = realmRoleGRCache == null ? null : realmRoleGRCache.get(REALM_ROLES_CACHE);
+			Map<String, MemberWithRoleId> cachedUserGrantsWithRoleIdMap = realmRoleGRCache == null
+					? null
+					: (Map<String, MemberWithRoleId>) realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
+
+			if (cachedRoleProperties != null && cachedUserGrantsWithRoleIdMap != null) {
 				// KNL-1037 read the cached role and membership information
 				Map<String, Role> roles = new HashMap<String, Role>();
 				
 				// dehydrate to SimpleRoles, which can be stored in a distributed Terracotta cache
-				Map<String, SimpleRole> roleProperties = realmRoleGRCache.get(REALM_ROLES_CACHE);
-				for (java.util.Map.Entry<String, SimpleRole> mapEntry : roleProperties.entrySet()) {
+				for (java.util.Map.Entry<String, SimpleRole> mapEntry : cachedRoleProperties.entrySet()) {
 					roles.put(mapEntry.getKey(), new BaseRole(mapEntry.getValue()));
 				}
 				Map<String, Member> userGrants = new HashMap<String, Member>();
 				
-				Map<String, MemberWithRoleId> userGrantsWithRoleIdMap = (Map<String, MemberWithRoleId>) realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
-				userGrants.putAll(getMemberMap(userGrantsWithRoleIdMap, roles));
+				userGrants.putAll(getMemberMap(cachedUserGrantsWithRoleIdMap, roles));
 				
 				realm.m_roles = roles;
 				realm.m_userGrants = userGrants;
@@ -2516,7 +2519,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 							return null;
 						}
 					}
-				});
+					});
 			}
 
 			for (String realmId : realms) {
@@ -2525,7 +2528,30 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 			}
 
+			for (String realmId : missingRealmIds) {
+				if (StringUtils.isNotBlank(realmId)) {
+					cacheRoleFunctions(realmId, roleFunctionsByRealm.getOrDefault(realmId, Collections.emptyMap()));
+				}
+			}
+
 			return roleFunctionsByRealm;
+		}
+
+		private void cacheRoleFunctions(String realmId, Map<String, Set<String>> roleFunctions)
+		{
+			Map<String, Map> payLoad = new HashMap<String, Map>();
+			Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
+
+			for (Map.Entry<String, Set<String>> roleEntry : roleFunctions.entrySet()) {
+				BaseRole role = new BaseRole(roleEntry.getKey());
+				for (String functionName : roleEntry.getValue()) {
+					role.allowFunction(functionName);
+				}
+				roleProperties.put(roleEntry.getKey(), role.exportToSimpleRole());
+			}
+
+			payLoad.put(REALM_ROLES_CACHE, roleProperties);
+			m_realmRoleGRCache.put(realmId, payLoad);
 		}
 
 		private Map<String, Set<String>> getCachedRoleFunctions(String realmId)
