@@ -34,8 +34,6 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.cover.ToolManager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -248,21 +246,12 @@ public class AuthorizationBean implements Serializable {
   
   private boolean initializedPerm =  false;
   /**
-   * This will initialize the user permissions and related assessment's list 
+   * Initialize cached permissions for the current site.
    */
   private void initializePermission(){
-	  //this is moved from original roleCheckStaticInclude.jsp page, which is not working for JSF 1.2 up.
+	  // Keep privilege initialization side-effect free. The landing page decides
+	  // which action listener to invoke for the current request.
 	  addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
-	  if (!adminPrivilege)
-	  {
-	          SelectActionListener listener = new SelectActionListener();
-	          listener.processAction(null);
-	  }    
-	  else
-	  {
-	     AuthorActionListener authorlistener = new AuthorActionListener();
-	     authorlistener.processAction(null);
-	  }
   }
 
   public void addAdminPrivilege(boolean privilege, String functionName, String siteId){
