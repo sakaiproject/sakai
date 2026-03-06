@@ -2540,6 +2540,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		private void cacheRoleFunctions(String realmId, Map<String, Set<String>> roleFunctions)
 		{
 			Map<String, Map> existingPayload = (Map<String, Map>) m_realmRoleGRCache.get(realmId);
+			if (existingPayload != null && (existingPayload.containsKey(REALM_ROLES_CACHE)
+					|| existingPayload.containsKey(REALM_USER_GRANTS_CACHE))) {
+				return;
+			}
+
 			Map<String, Map> payLoad = existingPayload == null ? new HashMap<String, Map>() : new HashMap<String, Map>(existingPayload);
 			Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
 
