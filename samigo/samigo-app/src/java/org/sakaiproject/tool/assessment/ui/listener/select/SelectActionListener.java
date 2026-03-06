@@ -125,7 +125,7 @@ public class SelectActionListener implements ActionListener {
       HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
       select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
     } else {
-      // If secure delivery modules are installed, then insert their html fragments
+      // If secure delivery modules are not available, set an empty html fragment string
       select.setSecureDeliveryHTMLFragments( "" );
     }
 
