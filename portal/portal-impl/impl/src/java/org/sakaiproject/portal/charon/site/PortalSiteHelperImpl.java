@@ -682,7 +682,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			sitesToMap.add(homeSite);
 			sitesToMap.addAll(pinnedSites);
 			sitesToMap.addAll(recentSites);
-			sitesToMap.add(hiddenCurrentSite);
+			if (hiddenCurrentSite != null) {
+				sitesToMap.add(hiddenCurrentSite);
+			}
 			SitePermissionLookup sitePermissionLookup = buildPageLockSitePermissionLookup(sitesToMap);
 			contextSites.put("homeSite", getSiteMap(homeSite, currentSiteId, userId, false, false, true, null,
 					sitePermissionLookup));
@@ -693,7 +695,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                     sitePermissionLookup);
 
 			// If the current site is excluded it should appear in recent as hidden
-			if (excludedSiteIds.contains(currentSiteId)) {
+			if (hiddenCurrentSite != null) {
 				recentSitesMaps.add(getSiteMap(hiddenCurrentSite, currentSiteId, userId, false, true, true, null,
 						sitePermissionLookup));
 			}

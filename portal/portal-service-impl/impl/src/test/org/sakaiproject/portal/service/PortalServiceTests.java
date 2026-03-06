@@ -414,7 +414,7 @@ public class PortalServiceTests extends SakaiTests {
         });
 
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
                 null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
 
@@ -502,7 +502,7 @@ public class PortalServiceTests extends SakaiTests {
 
         List<String> userSiteIds = List.of(site1Id);
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
                 null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
 
@@ -548,7 +548,7 @@ public class PortalServiceTests extends SakaiTests {
 
         List<String> userSiteIds = List.of(site1Id, site2Id);
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
                 null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
 
@@ -608,7 +608,7 @@ public class PortalServiceTests extends SakaiTests {
         });
 
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
                 null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
         when(securityService.isSuperUser(user1)).thenReturn(false);
