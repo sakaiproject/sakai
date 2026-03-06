@@ -179,17 +179,20 @@ public class SelectActionListener implements ActionListener {
 				updatedAssessmentList.contains(f.getPublishedAssessmentId())
 			);
 
-			try {
-				if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
-					final String moduleId = f.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-					if (moduleId != null) {
-						delivery.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(
-								moduleId,
-								Long.valueOf(delivery.getAssessmentId()),
-								AgentFacade.getAgentString()
-						).orElse("") );
-					}
-				}
+      try {
+        // If secure delivery modules are installed, then insert their html fragments
+        if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
+          PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessmentQuick(f.getAssessmentId().toString());
+          final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+          if (moduleId != null) {
+            delivery.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(
+                moduleId,
+                Long.valueOf(delivery.getAssessmentId()),
+                AgentFacade.getAgentString()
+            ).orElse("") );
+          }
+        }
 			} catch (Exception e) {
 				log.debug("SecureDelivery lookup failed for assessment {}", delivery.getAssessmentId(), e);
 			}
