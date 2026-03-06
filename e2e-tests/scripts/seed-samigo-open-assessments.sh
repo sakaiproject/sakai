@@ -110,6 +110,6 @@ export SAMIGO_USERNAME="$USERNAME"
 export SAMIGO_EXPECTED_COUNT="$COUNT"
 
 echo "Publishing drafts with availability and due dates via Playwright"
-mvn -f e2e-tests/pom.xml -Dtest=SamigoBulkPublishTest#publishDraftAssessmentsMatchingPrefix test
+mvn -f e2e-tests/pom.xml -Dtest=SamigoBulkPublishManual#publishDraftAssessmentsMatchingPrefix test
 
 echo "Completed. Published $COUNT assessments in $SITE_URL with prefix $PREFIX"

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
-class SamigoBulkPublishTest extends SakaiUiTestBase {
+class SamigoBulkPublishManual extends SakaiUiTestBase {
 
     @Test
     void publishDraftAssessmentsMatchingPrefix() {

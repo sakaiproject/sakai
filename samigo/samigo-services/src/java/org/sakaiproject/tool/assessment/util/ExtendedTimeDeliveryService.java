@@ -191,8 +191,9 @@ public class ExtendedTimeDeliveryService {
 	private void applyExtendedTime(PublishedAssessmentFacade publishedAssessment, ExtendedTime extendedTime) {
 		this.hasExtendedTime = extendedTime != null;
 		if (this.hasExtendedTime) {
-			this.timeLimit = extendedTime.getTimeHours() * MINS_IN_HOUR * SECONDS_IN_MIN
-					+ extendedTime.getTimeMinutes() * SECONDS_IN_MIN;
+			int hours = extendedTime.getTimeHours() == null ? 0 : extendedTime.getTimeHours();
+			int minutes = extendedTime.getTimeMinutes() == null ? 0 : extendedTime.getTimeMinutes();
+			this.timeLimit = hours * MINS_IN_HOUR * SECONDS_IN_MIN + minutes * SECONDS_IN_MIN;
 			this.startDate = extendedTime.getStartDate();
 			this.dueDate = extendedTime.getDueDate();
 			this.retractDate = extendedTime.getRetractDate();
