@@ -103,6 +103,8 @@ public interface DbAuthzGroupSql
 
 	String getSelectRealmFunctionFunctionNameSql(String inClause);
 
+	String getSelectRealmRoleFunctionsSql(String inClause);
+
 	String getSelectRealmIdSql();
 
 	String getSelectRealmIdSql(Collection azGroups);

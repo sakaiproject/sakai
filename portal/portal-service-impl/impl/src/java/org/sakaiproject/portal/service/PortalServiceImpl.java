@@ -1068,13 +1068,16 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
-		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);
+		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
+				SiteService.SortType.CREATED_ON_DESC, null, false, userId);
 		combinedSiteIds.addAll(userSiteIds);
 
 		// all the possible sites the user has access to have been collected into combinedSiteIds
-		// next test each site to see if the user can access them sorting them into 2 sets
+		// next sort them into the accessible and inaccessible sets using one bulk access lookup
+		Set<String> accessibleSiteIds = new HashSet<>(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
+				SiteService.SortType.NONE, null, false, userId));
 		for (String id : combinedSiteIds) {
-			if (canAccessSite(id, userId)) sitesToPin.add(id);
+			if (accessibleSiteIds.contains(id)) sitesToPin.add(id);
 			else sitesToRemove.add(id);
 		}
 
@@ -1094,29 +1097,6 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		removeSitesfromPinnedAndRecent(userId, new ArrayList<>(sitesToRemove));
 	}
-
-	/**
-	 * Check that the user can access the site
-	 *
-	 * @param siteId the id of the site
-	 * @param userId the id of the user
-	 * @return true if access is allowed to the site, otherwise false
-	 */
-	private boolean canAccessSite(String siteId, String userId) {
-		boolean access = false;
-		try {
-			// use getSiteVisit as it performs proper access checks
-			Site site = siteService.getSiteVisit(siteId);
-			if (site != null) {
-				Member member = site.getMember(userId);
-				access = (member != null && member.isActive()) || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
-			}
-		} catch (IdUnusedException | PermissionException e) {
-			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
-		}
-		return access;
-	}
-
 	private void removeFavoriteSiteData(String userId) {
 		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
