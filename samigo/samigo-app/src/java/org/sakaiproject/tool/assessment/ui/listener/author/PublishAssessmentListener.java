@@ -182,6 +182,7 @@ public class PublishAssessmentListener
                 // This is a single publishing operation
                 AssessmentFacade singleAssessment = assessmentService.getAssessment(
                     assessmentSettings.getAssessmentId().toString());
+                singleAssessment = assessmentService.ensureUniquePublishedTitleForPublish(singleAssessment);
 
                 publishOne(author, singleAssessment, assessmentSettings, assessmentService, authorization, repeatedPublish);
 
@@ -202,6 +203,7 @@ public class PublishAssessmentListener
 
                     if (((AssessmentFacade) assessment).isSelected()) {
                         assessmentList.remove(assessmentFacade);
+                        assessmentFacade = assessmentService.ensureUniquePublishedTitleForPublish(assessmentFacade);
                         assessmentSettings.setAssessment(assessmentFacade);
                         publishOne(author, assessmentFacade, assessmentSettings, assessmentService, authorization, repeatedPublish);
                     }
@@ -289,7 +291,7 @@ public class PublishAssessmentListener
       // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       sendEmailNotification = publishRepublishNotification.isSendNotification();
-      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
+      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessment.getTitle(), assessmentSettings.getReleaseTo(),
                                                             assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
                                                             assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(),
