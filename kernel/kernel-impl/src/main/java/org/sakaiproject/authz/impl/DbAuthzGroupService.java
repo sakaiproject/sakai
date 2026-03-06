@@ -2520,7 +2520,8 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 		private void cacheRoleFunctions(String realmId, Map<String, Set<String>> roleFunctions)
 		{
-			Map<String, Map> payLoad = new HashMap<String, Map>();
+			Map<String, Map> existingPayload = (Map<String, Map>) m_realmRoleGRCache.get(realmId);
+			Map<String, Map> payLoad = existingPayload == null ? new HashMap<String, Map>() : new HashMap<String, Map>(existingPayload);
 			Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
 
 			for (Map.Entry<String, Set<String>> roleEntry : roleFunctions.entrySet()) {
