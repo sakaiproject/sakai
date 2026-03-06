@@ -696,15 +696,18 @@ public abstract class ToolComponent implements ToolManager
 							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
 							|| ((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()) == null){
 						//a delegated access admin would have this map and site (even if it was set to null), if its null, that means the user is just has access to a different site and not this one
-						if(site.getMember(session.getUserId()) == null && 
-								(site.getProperties().get("shopping-period-public-tools") != null || site.getProperties().get("shopping-period-auth-tools") != null)){
+						Object shoppingPeriodPublicTools = site.getProperties().get("shopping-period-public-tools");
+						Object shoppingPeriodAuthTools = site.getProperties().get("shopping-period-auth-tools");
+						if((shoppingPeriodPublicTools != null || shoppingPeriodAuthTools != null)
+								&& site.getMember(session.getUserId()) == null){
 							//this is .anon or .auth role in a site that needs to restrict the tools:
-							boolean anonAccess = site.getProperties().get("shopping-period-public-tools") != null 
-									&& arrayContains(((String) site.getProperties().get("shopping-period-public-tools")).split(";"), placement.getToolId());
+							boolean anonAccess = shoppingPeriodPublicTools != null
+									&& arrayContains(((String) shoppingPeriodPublicTools).split(";"), placement.getToolId());
 							if(session.getUserId() == null){
 								return anonAccess;
 							}else{
-								return anonAccess || (site.getProperties().get("shopping-period-auth-tools") != null && arrayContains(((String) site.getProperties().get("shopping-period-auth-tools")).split(";"), placement.getToolId()));
+								return anonAccess || (shoppingPeriodAuthTools != null
+										&& arrayContains(((String) shoppingPeriodAuthTools).split(";"), placement.getToolId()));
 							}
 						}
 					}

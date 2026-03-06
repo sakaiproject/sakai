@@ -156,6 +156,40 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private boolean lookForPageAliases;
 	private Portal portal;
 
+	private static final class SitePermissionLookup {
+		private final Set<String> siteUpdaterRefs;
+		private final Set<String> instructorRefs;
+		private final boolean useBulkLookup;
+
+		private SitePermissionLookup(Set<String> siteUpdaterRefs, Set<String> instructorRefs, boolean useBulkLookup) {
+			this.siteUpdaterRefs = siteUpdaterRefs;
+			this.instructorRefs = instructorRefs;
+			this.useBulkLookup = useBulkLookup;
+		}
+
+		private static SitePermissionLookup bulk(Set<String> siteUpdaterRefs, Set<String> instructorRefs) {
+			return new SitePermissionLookup(siteUpdaterRefs, instructorRefs, true);
+		}
+
+		private static SitePermissionLookup directSecurityChecks() {
+			return new SitePermissionLookup(Collections.emptySet(), Collections.emptySet(), false);
+		}
+
+		private boolean canUpdate(Site site, SecurityService securityService) {
+			return useBulkLookup ? siteUpdaterRefs.contains(site.getReference())
+				: securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+		}
+
+		private boolean isInstructor(Site site, SecurityService securityService) {
+			return useBulkLookup ? instructorRefs.contains(site.getReference())
+				: securityService.unlock("section.role.instructor", site.getReference());
+		}
+	}
+
+	private static final SitePermissionLookup DIRECT_SECURITY_CHECKS = SitePermissionLookup.directSecurityChecks();
+	private static final SitePermissionLookup EMPTY_SITE_PERMISSION_LOOKUP =
+		SitePermissionLookup.bulk(Collections.emptySet(), Collections.emptySet());
+
 	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases) {
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
@@ -305,7 +339,52 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				.collect(Collectors.joining());
     }
 
-	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages, Map<String, List<Map<String, String>>> parentToChildSites) {
+	private SitePermissionLookup buildSitePermissionLookup(Collection<Site> sites) {
+
+		if (sites == null || sites.isEmpty()) {
+			return EMPTY_SITE_PERMISSION_LOOKUP;
+		}
+
+		List<String> siteRefs = sites.stream()
+			.filter(Objects::nonNull)
+			.map(Site::getReference)
+			.distinct()
+			.collect(Collectors.toList());
+
+		if (siteRefs.isEmpty()) {
+			return EMPTY_SITE_PERMISSION_LOOKUP;
+		}
+
+		if (securityService.isSuperUser()) {
+			Set<String> refs = new HashSet<>(siteRefs);
+			return SitePermissionLookup.bulk(refs, refs);
+		}
+
+		if (securityService.isUserRoleSwapped()) {
+			return DIRECT_SECURITY_CHECKS;
+		}
+
+		String userId = sessionManager.getCurrentSessionUserId();
+		if (StringUtils.isBlank(userId)) {
+			return EMPTY_SITE_PERMISSION_LOOKUP;
+		}
+
+		return SitePermissionLookup.bulk(
+			authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SECURE_UPDATE_SITE, siteRefs),
+			authzGroupService.getAuthzGroupsIsAllowed(userId, "section.role.instructor", siteRefs));
+	}
+
+	private boolean canUpdateSite(Site site, SitePermissionLookup sitePermissionLookup) {
+		return sitePermissionLookup.canUpdate(site, securityService);
+	}
+
+	private boolean isInstructor(Site site, SitePermissionLookup sitePermissionLookup) {
+		return sitePermissionLookup.isInstructor(site, securityService);
+	}
+
+	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden,
+			boolean includePages, Map<String, List<Map<String, String>>> parentToChildSites,
+			SitePermissionLookup sitePermissionLookup) {
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
@@ -330,8 +409,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		siteMap.put("isHidden", hidden);
 		siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
-			List<SitePage> pageList = getPermittedPagesInOrder(site);
-			siteMap.put("pages", getPageMaps(pageList, site));
+			List<SitePage> pageList = getPermittedPagesInOrder(site, sitePermissionLookup);
+			siteMap.put("pages", getPageMaps(pageList, site, sitePermissionLookup));
 
 			if (Boolean.parseBoolean(site.getProperties().getProperty("subpagenav")) && !pageList.isEmpty()) {
 				siteMap.put("subPages", getSubPages(userId, site.getId(), pageList));
@@ -346,6 +425,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
+		return getSiteMaps(sites, currentSiteId, userId, pinned, hidden, includePages,
+				includePages ? buildSitePermissionLookup(sites) : DIRECT_SECURITY_CHECKS);
+	}
+
+	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, String userId, boolean pinned,
+			boolean hidden, boolean includePages, SitePermissionLookup sitePermissionLookup) {
 
 		// Precompute a mapping from parent site IDs to child site IDs.
 		Map<String, List<Map<String, String>>> parentToChildSites;
@@ -362,7 +447,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		return sites.stream()
-			.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites))
+			.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites,
+					sitePermissionLookup))
 			.collect(Collectors.toList());
 	}
 
@@ -452,9 +538,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return pageMap;
 	}
 
-	private List<Map<String, Object>> getPageMaps(Collection<SitePage> pages, Site site) {
+	private List<Map<String, Object>> getPageMaps(Collection<SitePage> pages, Site site, SitePermissionLookup sitePermissionLookup) {
 
-		final boolean siteUpdater = securityService.unlock("site.upd", site.getReference());
+		final boolean siteUpdater = canUpdateSite(site, sitePermissionLookup);
 
 		boolean includeSubPage = Boolean.parseBoolean(site.getProperties().getProperty("subpagenav"));
 		return pages.stream().map(p -> getPageMap(p, includeSubPage))
@@ -467,7 +553,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (loggedIn) {
             // Put Home site in context
 			String userId = sessionManager.getCurrentSessionUserId();
-			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true, null));
+			Site homeSite = getSite(siteService.getUserSiteId(userId));
 
 			List<String> excludedSiteIds = getExcludedSiteIds(userId);
 			// Get pinned sites, excluded sites never appear in the pinned list including current site
@@ -477,8 +563,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					.map(this::getSite)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
-            List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, userId,true, false, true);
-            contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			// Get most recent sites
 			Collection<String> recentSiteIds = portalService.getRecentSites(userId);
@@ -501,11 +585,25 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					.map(this::getSite)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
-            List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, userId, false, false, true);
+			Site hiddenCurrentSite = excludedSiteIds.contains(currentSiteId) ? getSite(currentSiteId) : null;
+			List<Site> sitesToMap = new ArrayList<>();
+			sitesToMap.add(homeSite);
+			sitesToMap.addAll(pinnedSites);
+			sitesToMap.addAll(recentSites);
+			sitesToMap.add(hiddenCurrentSite);
+			SitePermissionLookup sitePermissionLookup = buildSitePermissionLookup(sitesToMap);
+			contextSites.put("homeSite", getSiteMap(homeSite, currentSiteId, userId, false, false, true, null,
+					sitePermissionLookup));
+            List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, userId, true, false, true,
+                    sitePermissionLookup);
+            contextSites.put("pinnedSites", pinnedSiteMaps);
+            List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, userId, false, false, true,
+                    sitePermissionLookup);
 
 			// If the current site is excluded it should appear in recent as hidden
 			if (excludedSiteIds.contains(currentSiteId)) {
-				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true, null));
+				recentSitesMaps.add(getSiteMap(hiddenCurrentSite, currentSiteId, userId, false, true, true, null,
+						sitePermissionLookup));
 			}
             contextSites.put("recentSites", recentSitesMaps);
 
@@ -519,7 +617,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			//Get gateway site
 			Site gatewaySite = getSite(currentSiteId);
 			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true, null));
+				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null, false, false, true, null,
+						DIRECT_SECURITY_CHECKS));
 			}
 		}
 		return contextSites;
@@ -543,6 +642,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		boolean computeDepth = true;
 
 		List<String> pinned = portalService.getPinnedSites();
+		SitePermissionLookup sitePermissionLookup = expandSite ? buildSitePermissionLookup(mySites) : DIRECT_SECURITY_CHECKS;
 
 		// Determine the depths of the child sites if needed
 		Map<String, List<String>> realmProviderMap = getProviderIDsForSites(mySites);
@@ -570,7 +670,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			Map<String, Object> m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary,
-					expandSite, resetTools, doPages, toolContextPath, loggedIn, realmProviderMap.get(s.getReference()));
+					expandSite, resetTools, doPages, toolContextPath, loggedIn, realmProviderMap.get(s.getReference()),
+					sitePermissionLookup);
 
 			// Add the Depth of the site
 			m.put("depth", cDepth);
@@ -662,6 +763,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 												String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 												boolean expandSite, boolean resetTools, boolean doPages,
 												String toolContextPath, boolean loggedIn, List<String> siteProviders) {
+		return convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary, expandSite, resetTools,
+				doPages, toolContextPath, loggedIn, siteProviders, DIRECT_SECURITY_CHECKS);
+	}
+
+	private Map<String, Object> convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+												String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+												boolean expandSite, boolean resetTools, boolean doPages,
+												String toolContextPath, boolean loggedIn, List<String> siteProviders,
+												SitePermissionLookup sitePermissionLookup) {
 		if (s == null) return null;
 		Map<String, Object> m = new HashMap<>();
 
@@ -714,7 +824,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		if (expandSite)
 		{
-			Map<String, Object> pageMap = pageListToMap(req, loggedIn, s, null, toolContextPath, prefix, doPages, resetTools, includeSummary);
+			Map<String, Object> pageMap = pageListToMap(req, loggedIn, s, null, toolContextPath, prefix, doPages,
+					resetTools, includeSummary, sitePermissionLookup);
 			m.put("sitePages", pageMap);
 		}
 
@@ -804,7 +915,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	@Override
 	public Map<String, Object> pageListToMap(HttpServletRequest req, boolean loggedIn, Site site, SitePage page, String toolContextPath,
 											 String portalPrefix, boolean doPages, boolean resetTools, boolean includeSummary) {
+		return pageListToMap(req, loggedIn, site, page, toolContextPath, portalPrefix, doPages, resetTools,
+				includeSummary, DIRECT_SECURITY_CHECKS);
+	}
 
+	private Map<String, Object> pageListToMap(HttpServletRequest req, boolean loggedIn, Site site, SitePage page,
+			String toolContextPath, String portalPrefix, boolean doPages, boolean resetTools, boolean includeSummary,
+			SitePermissionLookup sitePermissionLookup) {
 		Map<String, Object> theMap = new HashMap<>();
 
 		String effectiveSiteId = getSiteEffectiveId(site);
@@ -849,7 +966,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String htmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
 		if (htmlInclude != null) theMap.put("siteHTMLInclude", htmlInclude);
 
-		boolean canUpdateSite = securityService.unlock("site.upd", site.getReference());
+		boolean canUpdateSite = canUpdateSite(site, sitePermissionLookup);
 
 		List<Map<String, Object>> l = new ArrayList<>();
 
@@ -857,7 +974,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String manageOverviewUrl = null;
 		String manageOverviewUrlInHome = null;
 
-		List<SitePage> sitePages = getPermittedPagesInOrder(site);
+		List<SitePage> sitePages = getPermittedPagesInOrder(site, sitePermissionLookup);
 		for (SitePage p : sitePages) {
 			// check if current user has permission to see page
 			// one tool on the page
@@ -1369,9 +1486,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	protected List<SitePage> getPermittedPagesInOrder(Site site)
 	{
+		return getPermittedPagesInOrder(site, DIRECT_SECURITY_CHECKS);
+	}
+
+	protected List<SitePage> getPermittedPagesInOrder(Site site, SitePermissionLookup sitePermissionLookup)
+	{
 		// Get all of the pages
 		List<SitePage> pages = site.getOrderedPages();
-		boolean siteUpdate = securityService.unlock("site.upd", site.getReference());
+		boolean siteUpdate = canUpdateSite(site, sitePermissionLookup);
 
 		List<SitePage> newPages = new ArrayList<>();
 
@@ -1382,7 +1504,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			for (ToolConfiguration tc : p.getTools()) {
 				boolean thisTool = allowTool(site, tc);
 				boolean unHidden = siteUpdate || ! isHidden(tc);
-				boolean checkGradebookVisibility = checkGradebookVisibility(tc, site);
+				boolean checkGradebookVisibility = checkGradebookVisibility(tc, site, sitePermissionLookup);
 				allowPage = thisTool && unHidden && checkGradebookVisibility;
 			}
 			if (allowPage) newPages.add(p);
@@ -1416,8 +1538,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	@Override
 	public boolean checkGradebookVisibility(ToolConfiguration tc, Site site) {
+		return checkGradebookVisibility(tc, site, DIRECT_SECURITY_CHECKS);
+	}
+
+	private boolean checkGradebookVisibility(ToolConfiguration tc, Site site, SitePermissionLookup sitePermissionLookup) {
 		//1 if tool is not gb or has no property or user is instructor
-		if (!GRADEBOOK_TOOL_ID.equals(tc.getToolId()) || tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY) == null || securityService.unlock("section.role.instructor", site.getReference())) {
+		if (!GRADEBOOK_TOOL_ID.equals(tc.getToolId()) || tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY) == null
+				|| isInstructor(site, sitePermissionLookup)) {
 			return true;
 		}
 		//2 check user groups match
