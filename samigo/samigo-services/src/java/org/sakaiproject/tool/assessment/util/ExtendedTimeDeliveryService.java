@@ -106,9 +106,21 @@ public class ExtendedTimeDeliveryService {
 	}
 
 	ExtendedTimeDeliveryService(PublishedAssessmentFacade publishedAssessment, String agentId, ExtendedTime resolvedExtendedTime) {
+		if (!assessmentInitialized(publishedAssessment)) {
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			publishedAssessment = publishedAssessmentService
+					.getPublishedAssessmentQuick(publishedAssessment.getPublishedAssessmentId().toString());
+		}
+
 		this.publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
 		this.agentId = agentId;
 		applyExtendedTime(publishedAssessment, resolvedExtendedTime);
+	}
+
+	ExtendedTimeDeliveryService(Long publishedAssessmentId, String agentId, ExtendedTime resolvedExtendedTime) {
+		this.publishedAssessmentId = publishedAssessmentId;
+		this.agentId = agentId;
+		applyExtendedTime(null, resolvedExtendedTime);
 	}
 
 	public static Map<Long, ExtendedTimeDeliveryService> buildForStudentSiteList(List<PublishedAssessmentFacade> publishedAssessments,
@@ -136,9 +148,11 @@ public class ExtendedTimeDeliveryService {
 			if (publishedAssessmentId == null) {
 				continue;
 			}
-			extendedTimeByAssessment.put(publishedAssessmentId,
-					new ExtendedTimeDeliveryService(publishedAssessment, agentId,
-							resolvedEntries.get(publishedAssessmentId)));
+			ExtendedTime resolvedExtendedTime = resolvedEntries.get(publishedAssessmentId);
+			if (resolvedExtendedTime != null) {
+				extendedTimeByAssessment.put(publishedAssessmentId,
+						new ExtendedTimeDeliveryService(publishedAssessmentId, agentId, resolvedExtendedTime));
+			}
 		}
 		return extendedTimeByAssessment;
 	}
@@ -160,7 +174,7 @@ public class ExtendedTimeDeliveryService {
 			if (agentId != null && agentId.equals(extendedTime.getUser())) {
 				userEntries.put(pubAssessmentId, extendedTime);
 			} else if (extendedTime.getGroup() != null && siteGroupIds.contains(extendedTime.getGroup())) {
-				groupEntries.putIfAbsent(pubAssessmentId, extendedTime);
+				groupEntries.put(pubAssessmentId, extendedTime);
 			}
 		}
 

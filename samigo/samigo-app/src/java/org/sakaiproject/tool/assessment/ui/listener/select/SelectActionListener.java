@@ -603,18 +603,18 @@ public class SelectActionListener implements ActionListener {
             ExtendedTimeDeliveryService.buildForStudentSiteList(assessmentList, AgentFacade.getAgentString(), siteId);
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = assessmentList.get(i);
-			// Handle extended time info
-			ExtendedTimeDeliveryService extendedTimeDeliveryService = extendedTimeByAssessment.get(f.getPublishedAssessmentId());
-			if (extendedTimeDeliveryService.hasExtendedTime()) {
-				f.setStartDate(extendedTimeDeliveryService.getStartDate());
-				f.setDueDate(extendedTimeDeliveryService.getDueDate());
-				//Override late handling here, availability check done later
-				if (extendedTimeDeliveryService.getRetractDate() != null) {
-					f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
-					f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
-				}
-				f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
-			}
+      // Handle extended time info
+      ExtendedTimeDeliveryService extendedTimeDeliveryService = extendedTimeByAssessment.get(f.getPublishedAssessmentId());
+      if (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) {
+        f.setStartDate(extendedTimeDeliveryService.getStartDate());
+        f.setDueDate(extendedTimeDeliveryService.getDueDate());
+        //Override late handling here, availability check done later
+        if (extendedTimeDeliveryService.getRetractDate() != null) {
+          f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
+          f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+        }
+        f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
+      }
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && !f.getReleaseTo().contains("Anonymous Users") ) {
         if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
