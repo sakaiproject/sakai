@@ -132,9 +132,13 @@ public class ExtendedTimeDeliveryService {
 
 		Map<Long, ExtendedTimeDeliveryService> extendedTimeByAssessment = new HashMap<>();
 		for (PublishedAssessmentFacade publishedAssessment : publishedAssessments) {
-			extendedTimeByAssessment.put(publishedAssessment.getPublishedAssessmentId(),
+			Long publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
+			if (publishedAssessmentId == null) {
+				continue;
+			}
+			extendedTimeByAssessment.put(publishedAssessmentId,
 					new ExtendedTimeDeliveryService(publishedAssessment, agentId,
-							resolvedEntries.get(publishedAssessment.getPublishedAssessmentId())));
+							resolvedEntries.get(publishedAssessmentId)));
 		}
 		return extendedTimeByAssessment;
 	}
