@@ -41,71 +41,69 @@ public class ExcelExportUtil {
 
 
     public static String assessmentReportToXslx(AssessmentReport report) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Workbook workbook = new XSSFWorkbook();
-        CellStyle boldCellStyle = createBoldCellStyle(workbook);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             Workbook workbook = new XSSFWorkbook()) {
+            CellStyle boldCellStyle = createBoldCellStyle(workbook);
 
-        List<AssessmentReportSection> sections = report.getSections();
-        List<Sheet> sheets = sections.stream()
-                .map(AssessmentReportSection::getTitle)
-                .flatMap(Optional::stream)
-                .map(workbook::createSheet)
-                .collect(Collectors.toList());
+            List<AssessmentReportSection> sections = report.getSections();
+            List<AssessmentReportSection> titledSections = sections.stream()
+                    .filter(section -> section.getTitle().isPresent())
+                    .collect(Collectors.toList());
 
-        if (sheets.size() < sections.size()) {
-            log.warn("Sections without titles are ignored");
-        }
-
-        for (int i = 0; i < sheets.size(); i++) {
-            AssessmentReportSection section = sections.get(i);
-            List<List<AssessmentReportCell>> table = section.getCellTable();
-            Sheet sheet = sheets.get(i);
-
-            // Create title row
-            report.getTitle().ifPresent(title -> {
-                int rowIndex = 0;
-                log.debug("Adding row at {} (title)", rowIndex);
-                sheet.createRow(0).createCell(0).setCellValue(title);
-            });
-
-            // Create subject row
-            report.getSubject().ifPresent(subject -> {
-                int rowIndex = nextRowIndex(sheet);
-                log.debug("Adding row at {} (subject)", rowIndex);
-                sheet.createRow(rowIndex).createCell(0).setCellValue(subject);
-            });
-
-            // Create empty row if there is a title or subject
-            if (report.getTitle().isPresent() || report.getSubject().isPresent()) {
-                int rowIndex = nextRowIndex(sheet);
-                log.debug("Adding row at {} (empty)", rowIndex);
-                sheet.createRow(rowIndex);
+            if (titledSections.size() < sections.size()) {
+                log.warn("Sections without titles are ignored");
             }
 
-            // Add all the section data
-            int rowOffset = nextRowIndex(sheet);
-            for (int j = 0; j < table.size(); j++) {
-                int rowIndex = j + rowOffset;
-                log.debug("Adding row at {} (data)", rowIndex);
-                Row row = sheet.createRow(rowIndex);
-                List<AssessmentReportCell> rowData = table.get(j);
+            for (int i = 0; i < titledSections.size(); i++) {
+                AssessmentReportSection section = titledSections.get(i);
+                List<List<AssessmentReportCell>> table = section.getCellTable();
+                Sheet sheet = workbook.createSheet(section.getTitle().orElseThrow());
 
-                for (int k = 0; k < rowData.size(); k++) {
-                    Cell cell = row.createCell(k);
-                    AssessmentReportCell cellData = rowData.get(k);
-                    cell.setCellValue(cellData.getValue());
-                    if (cellData.isBold()) {
-                        cell.setCellStyle(boldCellStyle);
+                // Create title row
+                report.getTitle().ifPresent(title -> {
+                    int rowIndex = 0;
+                    log.debug("Adding row at {} (title)", rowIndex);
+                    sheet.createRow(0).createCell(0).setCellValue(title);
+                });
+
+                // Create subject row
+                report.getSubject().ifPresent(subject -> {
+                    int rowIndex = nextRowIndex(sheet);
+                    log.debug("Adding row at {} (subject)", rowIndex);
+                    sheet.createRow(rowIndex).createCell(0).setCellValue(subject);
+                });
+
+                // Create empty row if there is a title or subject
+                if (report.getTitle().isPresent() || report.getSubject().isPresent()) {
+                    int rowIndex = nextRowIndex(sheet);
+                    log.debug("Adding row at {} (empty)", rowIndex);
+                    sheet.createRow(rowIndex);
+                }
+
+                // Add all the section data
+                int rowOffset = nextRowIndex(sheet);
+                for (int j = 0; j < table.size(); j++) {
+                    int rowIndex = j + rowOffset;
+                    log.debug("Adding row at {} (data)", rowIndex);
+                    Row row = sheet.createRow(rowIndex);
+                    List<AssessmentReportCell> rowData = table.get(j);
+
+                    for (int k = 0; k < rowData.size(); k++) {
+                        Cell cell = row.createCell(k);
+                        AssessmentReportCell cellData = rowData.get(k);
+                        cell.setCellValue(cellData.getValue());
+                        if (cellData.isBold()) {
+                            cell.setCellStyle(boldCellStyle);
+                        }
                     }
                 }
             }
+
+            // This block could throw an IOException
+            workbook.write(out);
+
+            return out.toString(StandardCharsets.ISO_8859_1);
         }
-
-        // This block could throw an IOException
-        workbook.write(out);
-        workbook.close();
-
-        return out.toString(StandardCharsets.ISO_8859_1);
     }
 
     private static int nextRowIndex(Sheet sheet) {

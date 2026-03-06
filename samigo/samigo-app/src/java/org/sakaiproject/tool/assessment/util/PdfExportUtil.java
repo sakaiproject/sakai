@@ -102,23 +102,35 @@ public class PdfExportUtil {
                     document.add(new Paragraph());
                 }
 
-                // Create table and add section data
-                PdfPTable table = createTable(tableData.get(0).size());
-                for (int j = 0; j < tableData.size(); j++) {
-                    List<AssessmentReportCell> rowData = tableData.get(j);
+                int columnCount = tableData.stream()
+                        .filter(row -> row != null)
+                        .mapToInt(List::size)
+                        .max()
+                        .orElse(0);
 
-                    for (int k = 0; k < rowData.size(); k++) {
-                        table.addCell(createCell(rowData.get(k)));
-                    }
-                    if (rowData.size() < tableData.get(0).size()) {
-                        for (int l = 0; l < tableData.get(0).size() - rowData.size(); l++) {
-                            table.addCell(createCell(AssessmentReportCell.text("")));
+                // Create table and add section data
+                if (columnCount > 0) {
+                    PdfPTable table = createTable(columnCount);
+                    for (int j = 0; j < tableData.size(); j++) {
+                        List<AssessmentReportCell> rowData = tableData.get(j);
+                        List<AssessmentReportCell> safeRowData = rowData == null ? List.of() : rowData;
+
+                        for (int k = 0; k < safeRowData.size(); k++) {
+                            AssessmentReportCell cellData = safeRowData.get(k);
+                            table.addCell(createCell(cellData != null ? cellData : AssessmentReportCell.text("")));
+                        }
+                        if (safeRowData.size() < columnCount) {
+                            for (int l = 0; l < columnCount - safeRowData.size(); l++) {
+                                table.addCell(createCell(AssessmentReportCell.text("")));
+                            }
                         }
                     }
-                }
 
-                // Add created table to document
-                document.add(table);
+                    // Add created table to document
+                    document.add(table);
+                } else {
+                    log.warn("Skipping empty section table at index {}", i);
+                }
 
                 // Add page break after section
                 document.newPage();
