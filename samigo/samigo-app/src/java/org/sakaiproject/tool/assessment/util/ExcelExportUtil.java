@@ -81,10 +81,17 @@ public class ExcelExportUtil {
                     log.debug("Adding row at {} (data)", rowIndex);
                     Row row = sheet.createRow(rowIndex);
                     List<AssessmentReportCell> rowData = table.get(j);
+                    if (rowData == null) {
+                        continue;
+                    }
 
                     for (int k = 0; k < rowData.size(); k++) {
-                        Cell cell = row.createCell(k);
                         AssessmentReportCell cellData = rowData.get(k);
+                        Cell cell = row.createCell(k);
+                        if (cellData == null) {
+                            cell.setCellValue("");
+                            continue;
+                        }
                         cell.setCellValue(cellData.getValue());
                         if (cellData.isBold()) {
                             cell.setCellStyle(boldCellStyle);

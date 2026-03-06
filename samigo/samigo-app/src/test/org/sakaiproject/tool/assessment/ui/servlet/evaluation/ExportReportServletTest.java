@@ -16,6 +16,8 @@
 package org.sakaiproject.tool.assessment.ui.servlet.evaluation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -51,6 +53,7 @@ public class ExportReportServletTest {
         answeredRow.setNumberOfStudentsWithZeroAnswers(0);
         HistogramBarBean answerA = new HistogramBarBean();
         answerA.setNumStudents(1);
+        answerA.setIsCorrect(true);
         answeredRow.setHistogramBars(new HistogramBarBean[] {answerA});
 
         scoresBean.setDetailedStatistics(Arrays.asList(surveyRow, answeredRow));
@@ -71,7 +74,9 @@ public class ExportReportServletTest {
         assertEquals("", firstRow.get(8).getValue()); // B
 
         assertEquals("1", secondRow.get(7).getValue()); // A
+        assertTrue(secondRow.get(7).isBold()); // A should be bold when correct
         assertEquals("", secondRow.get(8).getValue()); // B padded
+        assertFalse(secondRow.get(8).isBold()); // B padded cell should not be bold
     }
 
     @SuppressWarnings("unchecked")
