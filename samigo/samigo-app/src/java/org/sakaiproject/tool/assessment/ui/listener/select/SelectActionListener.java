@@ -121,7 +121,7 @@ public class SelectActionListener implements ActionListener {
 
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 
-    if (secureDelivery.isSecureDeliveryAvaliable()) {
+    if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
       HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
       select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
     } else {
