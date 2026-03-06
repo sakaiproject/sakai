@@ -40,11 +40,6 @@ public class LearningResourceStoreServiceTest extends AbstractTransactionalJUnit
 	
     @Before
     public void setUp() {
-    	when(serverConfigurationService.getServerName()).thenReturn("localhost");
-    	when(serverConfigurationService.getServerId()).thenReturn("localhost");
-    	when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost:8080/");
-    	when(serverConfigurationService.getPortalUrl()).thenReturn("http://localhost:8080/portal");
-    	AopTestUtils.getTargetObject(lrss);
     }
 	
     @Test
@@ -54,11 +49,10 @@ public class LearningResourceStoreServiceTest extends AbstractTransactionalJUnit
 
     @Test
     public void LearningResourceStoreService() {
-    	try {
-    		eventTrackingService.post(eventTrackingService.newEvent("user.login", null, true));
-    		Assert.assertTrue(Boolean.TRUE);
-    	}catch (Exception e){
-    		Assert.assertTrue(Boolean.FALSE);
-    	}
+		try {
+			eventTrackingService.post(eventTrackingService.newEvent("user.login", null, true));
+		} catch (Exception e) {
+			Assert.assertTrue(Boolean.FALSE);
+		}
     }
 }

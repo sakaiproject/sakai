@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
@@ -42,35 +44,61 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 
 /**
+ * Base implementation of the EventTracking service that provides core functionality for event tracking,
+ * posting, and observer notification in the system.
  * <p>
- * BaseEventTrackingService is the base implmentation for the EventTracking service.
+ * This abstract class serves as the foundation for event tracking implementations by providing:
+ * </p>
+ * <ul>
+ *   <li>Event creation and posting mechanisms</li>
+ *   <li>Observer pattern implementation with support for priority, regular, and local observers</li>
+ *   <li>Event delay and scheduling capabilities</li>
+ *   <li>Integration with security, session management, and persistence services</li>
+ *   <li>Notification handling for both local and distributed events</li>
+ * </ul>
+ * <p>
+ * Subclasses must implement the abstract postEvent method to define how events are persisted
+ * or otherwise processed. The class manages three types of observers:
+ * </p>
+ * <ul>
+ *   <li>Priority observers: notified first, before regular observers</li>
+ *   <li>Regular observers: notified for all events</li>
+ *   <li>Local observers: notified only for events generated on the current application server</li>
+ * </ul>
+ * <p>
+ * Events can be posted immediately or scheduled for delayed execution. The service supports
+ * both transient and persistent events, and can associate events with LRS (Learning Record Store)
+ * statements for xAPI integration.
+ * </p>
+ * <p>
+ * Thread safety and observer notification are handled through observable helpers that manage
+ * the observer collections and coordinate notification delivery.
  * </p>
  */
 @Slf4j
-public abstract class BaseEventTrackingService implements EventTrackingService
-{
-	/** An observable object helper. */
-	protected MyObservable m_observableHelper = new MyObservable();
-
-	/** An observable object helper for see-it-first priority observers. */
-	protected MyObservable m_priorityObservableHelper = new MyObservable();
-
-	/** An observable object helper for see-only-local-events observers. */
-	protected MyObservable m_localObservableHelper = new MyObservable();
-
+public abstract class BaseEventTrackingService implements EventTrackingService {
+	protected MyObservable m_observableHelper = new MyObservable(); // An observable object helper
+	protected MyObservable m_priorityObservableHelper = new MyObservable(); // An observable object helper for see-it-first priority observers
+	protected MyObservable m_localObservableHelper = new MyObservable(); // An observable object helper for see-only-local-events observers
 	protected EventDelayHandler delayHandler;
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Observable implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	@Setter protected EntityManager entityManager;
+	@Setter protected MemoryService memoryService;
+	@Setter protected SchedulingService schedulingService;
+	@Setter protected SecurityService securityService;
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected SessionManager sessionManager;
+	@Setter protected SqlService sqlService;
+	@Setter protected ToolManager toolManager;
+	@Setter protected UsageSessionService usageSessionService;
 
 	/**
 	 * Cause this new event to get to wherever it has to go for persistence, etc.
@@ -112,64 +140,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			m_localObservableHelper.setChanged();
 			m_localObservableHelper.notifyObservers(event);
 		}
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Observer notification
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * @return the UsageSessionService collaborator.
-	 */
-	protected abstract UsageSessionService usageSessionService();
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the ToolManager collaborator.
-	 */
-	protected abstract ToolManager toolManager();
-
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
-	public void init()
-	{
-		log.info(this + ".init()");
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Final cleanup.
-	 */
-	public void destroy()
-	{
-		log.info(this + ".destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -272,7 +242,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		BaseEvent be = ensureBaseEvent(event);
 		// get the session id or user id
-		String id = usageSessionService().getSessionId();
+		String id = usageSessionService.getSessionId();
 		if (id != null)
 		{
 			be.setSessionId(id);
@@ -281,7 +251,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		// post for the session "thread" user
 		else
 		{
-			id = sessionManager().getCurrentSessionUserId();
+			id = sessionManager.getCurrentSessionUserId();
 			if (id == null)
 			{
 				id = UNKNOWN_USER;
@@ -334,14 +304,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		if (be.getUserId() != null)
 		{
 			useAdvisor = true;
-			securityService().pushAdvisor(newResourceAdvisor(be.getUserId()));
+			securityService.pushAdvisor(newResourceAdvisor(be.getUserId()));
 		}
 
 		postEvent(be);
 
 		// if an advisor was used, pop it off.
 		if (useAdvisor)
-			securityService().popAdvisor();
+			securityService.popAdvisor();
 	}
 
 	@Override
@@ -362,7 +332,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 				if (id == null)
 				{
-					id = sessionManager().getCurrentSessionUserId();
+					id = sessionManager.getCurrentSessionUserId();
 				}
 
 				if (id == null)
@@ -586,7 +556,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 			// Find the context using the reference (let the service that it belongs to parse it)
 			if (StringUtils.isNotBlank(resource)) {
-				Reference ref = entityManager().newReference(resource);
+				Reference ref = entityManager.newReference(resource);
 				if (ref != null) {
 					this.context = ref.getContext();
 				}
@@ -594,14 +564,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 			// If we still need to find the context, try the tool placement
 			if (this.context == null) {
-				Placement placement = toolManager().getCurrentPlacement();
+				Placement placement = toolManager.getCurrentPlacement();
 				if (placement != null) {
 					this.context = placement.getContext();
 				}
 			}
 
 			// KNL-997
-			String uId = sessionManager().getCurrentSessionUserId();
+			String uId = sessionManager.getCurrentSessionUserId();
 			if (uId == null)
 			{
 				uId = UNKNOWN_USER;

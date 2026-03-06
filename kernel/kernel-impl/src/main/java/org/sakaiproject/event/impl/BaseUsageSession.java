@@ -192,7 +192,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	{
 		try
 		{
-			return this.usageSessionServiceAdaptor.userDirectoryService().getUserEid(m_user);
+			return this.usageSessionServiceAdaptor.userDirectoryService.getUserEid(m_user);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -207,7 +207,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	{
 		try
 		{
-			User user = this.usageSessionServiceAdaptor.userDirectoryService().getUser(m_user);
+			User user = this.usageSessionServiceAdaptor.userDirectoryService.getUser(m_user);
 			return user.getDisplayId();
 		}
 		catch (UserNotDefinedException e)
@@ -277,7 +277,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	 */
 	public Time getStart()
 	{
-		return this.usageSessionServiceAdaptor.timeService().newTime(m_start.toEpochMilli());
+		return this.usageSessionServiceAdaptor.timeService.newTime(m_start.toEpochMilli());
 	}
 
 	/**
@@ -285,7 +285,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	 */
 	public Time getEnd()
 	{
-		return this.usageSessionServiceAdaptor.timeService().newTime(m_end.toEpochMilli());
+		return this.usageSessionServiceAdaptor.timeService.newTime(m_end.toEpochMilli());
 	}
 
 	@Override

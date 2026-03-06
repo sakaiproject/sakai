@@ -42,25 +42,25 @@ import org.sakaiproject.memory.api.MemoryService;
  */
 @Slf4j
 public class ActivityServiceImpl implements ActivityService, Observer {
+	public static final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
+
 	private Cache<String, Long> userActivityCache = null;
-	private final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
-		
-	/**
- 	 * {@inheritDoc}
- 	 */
+
+	@Setter private EventTrackingService eventTrackingService;
+	@Setter private MemoryService memoryService;
+	@Setter private UsageSessionService usageSessionService;
+
+	@Override
 	public boolean isUserActive(String userId) {
 		if(userActivityCache.containsKey(userId)){
 			return true;
 		}
 		return false;
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
+	@Override
 	public List<String> getActiveUsers(List<String> userIds) {
-		
-		List<String> activeUsers = new ArrayList<String>();
+		List<String> activeUsers = new ArrayList<>();
 		for(String userId: userIds) {
 			if(isUserActive(userId)){
 				activeUsers.add(userId);
@@ -69,16 +69,12 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 		return activeUsers;
 	}
 
-	/**
- 	 * {@inheritDoc}
- 	 */
+	@Override
 	public Long getLastEventTimeForUser(String userId) {
 		return (Long)userActivityCache.get(userId);
 	}
 
-	/**
- 	 * {@inheritDoc}
- 	 */
+	@Override
 	public Map<String, Long> getLastEventTimeForUsers(List<String> userIds) {
 		
 		 Map<String, Long> times = new HashMap<String, Long>();
@@ -90,10 +86,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 		 return times;
 	}
 
-	
-	/**
-	 * Update the cache with the observed Event
-	 */
+	@Override
 	public void update(Observable obs, Object o) {
 		if(o instanceof Event){
 			Event e = (Event) o;
@@ -130,24 +123,15 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 	
 	
 	public void init() {
-		
 		//add event observer
 		eventTrackingService.addPriorityObserver(this);
 		
 		//setup cache
-		userActivityCache = memoryService.newCache(USER_ACTIVITY_CACHE_NAME);
+		userActivityCache = memoryService.getCache(USER_ACTIVITY_CACHE_NAME);
 	}
 	
 	public void destroy() {
 		eventTrackingService.deleteObserver(this);
 	}
 
-	@Setter
-    private MemoryService memoryService;
-
-    @Setter
-    private EventTrackingService eventTrackingService;
-
-    @Setter
-    private UsageSessionService usageSessionService;
 }
