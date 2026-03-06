@@ -69,8 +69,6 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -528,17 +526,17 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							continue;
 						}
 
-						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates,
 								"inst", itemContentCache, entrySet, transversalMap, mcx, ItemData::getInstruction, ItemData::setInstruction);
 
-						boolean descriptionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+						boolean descriptionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates,
 								"desc", itemContentCache, entrySet, transversalMap, mcx, ItemData::getDescription, ItemData::setDescription);
 
 						boolean itemTextsChanged = false;
 						List<ItemTextIfc> itemTexts = item.getItemTextArray();
 						if (itemTexts != null) {
 							for (ItemTextIfc itemText : itemTexts) {
-								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
+								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates,
 										"it-" + itemText.getSequence(), itemContentCache, entrySet, transversalMap,
 										mcx, ItemTextIfc::getText, ItemTextIfc::setText);
 
@@ -546,7 +544,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								List<AnswerIfc> answers =  itemText.getAnswerArray();
 								if (answers != null) {
 									for (AnswerIfc answer : answers) {
-										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
+										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates,
 												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, transversalMap,
 												mcx, AnswerIfc::getText, AnswerIfc::setText);
 
@@ -554,14 +552,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 									}
 								}
 
-								itemTextsChanged = itemTextsChanged || itemTextChanged || answersChanged;							
+								itemTextsChanged = itemTextsChanged || itemTextChanged || answersChanged;
 							}
 						}
 
 						boolean itemFeedbacksChanged = false;
 						if ( item.getItemFeedbackSet() != null && !item.getItemFeedbackSet().isEmpty() ) {
 							for (ItemFeedbackIfc itemFeedback : item.getItemFeedbackSet()) {
-								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates, true,
+								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates,
 										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap,
 										mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
 
@@ -880,11 +878,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     }
 	
 	private <T> boolean migrateText(AssessmentService assessmentService, String toContext, T item, String itemHash,
-			boolean hasCaches,boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
+			boolean hasCaches,boolean hasDuplicates, String cacheCode, Map<String, String> textCache,
 			Set<Entry<String, String>> entrySet, Map<String, String> transversalMap, MergeConfig mcx,
 			Function<T, String> getter, BiConsumer<T, String> setter) {
 
-		log.debug("migrateText: {} {}", itemHash, copyAttachments);
+		log.debug("migrateText: {}", itemHash);
 		String cacheKey = itemHash + "-" + cacheCode;
 
 		if (hasCaches && textCache.containsKey(cacheKey)) {
@@ -900,11 +898,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				migratedText = ltiService.fixLtiLaunchUrls(itemText, toContext, mcx);
 				migratedText = linkMigrationHelper.migrateLinksInMergedRTE(toContext, mcx, migratedText);
 			} else {
-				if (copyAttachments) {
-					migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
-				} else {
-					migratedText = itemText;
-				}
+				migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
 				migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
 				migratedText = ltiService.fixLtiLaunchUrls(migratedText, null, toContext, transversalMap);
 			}
