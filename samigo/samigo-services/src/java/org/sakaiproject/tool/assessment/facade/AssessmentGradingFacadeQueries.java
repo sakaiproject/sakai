@@ -3048,8 +3048,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     // The first list contains the assessment ids with status ASSESSMENT_UPDATED_NEED_RESUBMIT
     // The second list contains the assessment ids with status ASSESSMENT_UPDATED.
     public List<Set<Long>> getUpdatedAssessmentList(String agentId, String siteId) {
-        Set<Long> updatedAssessmentIds = new LinkedHashSet();
-        Set<Long> needResubmitAssessmentIds = new LinkedHashSet();
+        Set<Long> updatedAssessmentIds = new LinkedHashSet<>();
+        Set<Long> needResubmitAssessmentIds = new LinkedHashSet<>();
 
         List<Object[]> results = (List<Object[]>) getHibernateTemplate()
                 .findByNamedParam(
