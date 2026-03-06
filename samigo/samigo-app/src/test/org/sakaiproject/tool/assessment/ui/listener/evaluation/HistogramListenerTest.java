@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -342,6 +343,32 @@ public class HistogramListenerTest {
         assertTrue(bars[0].getIsCorrect());
     }
 
+    @Test
+    public void testGetImageMapQuestionScoresUsesAuthoredCorrectnessEvenWhenNoHits() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        PublishedItemText correctRegion = itemText(110L, 1L, "Correct region");
+        correctRegion.setAnswerSet(new HashSet<>(Collections.singletonList(answer(210L, true))));
+        PublishedItemText incorrectRegion = itemText(111L, 2L, "Incorrect region");
+        incorrectRegion.setAnswerSet(new HashSet<>(Collections.singletonList(answer(211L, false))));
+
+        Map<Long, PublishedItemText> publishedItemTextHash = new HashMap<>();
+        publishedItemTextHash.put(correctRegion.getId(), correctRegion);
+        publishedItemTextHash.put(incorrectRegion.getId(), incorrectRegion);
+
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+
+        invokeGetImageMapQuestionScores(listener, publishedItemTextHash, new HashMap<>(),
+                Collections.emptyList(), qbean, Arrays.asList(correctRegion, incorrectRegion));
+
+        HistogramBarBean[] bars = qbean.getHistogramBars();
+        assertEquals(2, bars.length);
+        assertTrue(bars[0].getIsCorrect());
+        assertFalse(bars[1].getIsCorrect());
+        assertEquals(0, bars[0].getNumStudents());
+        assertEquals(0, bars[1].getNumStudents());
+    }
+
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
         MemoryService memoryService = mock(MemoryService.class);
@@ -389,6 +416,15 @@ public class HistogramListenerTest {
             Map<Long, AnswerIfc> publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean,
             List<PublishedItemText> labels) throws Exception {
         Method method = HistogramListener.class.getDeclaredMethod("getMatchingScores",
+                Map.class, Map.class, List.class, HistogramQuestionScoresBean.class, List.class);
+        method.setAccessible(true);
+        method.invoke(listener, publishedItemTextHash, publishedAnswerHash, scores, qbean, labels);
+    }
+
+    private void invokeGetImageMapQuestionScores(HistogramListener listener, Map<Long, PublishedItemText> publishedItemTextHash,
+            Map<Long, AnswerIfc> publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean,
+            List<PublishedItemText> labels) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("getImageMapQuestionScores",
                 Map.class, Map.class, List.class, HistogramQuestionScoresBean.class, List.class);
         method.setAccessible(true);
         method.invoke(listener, publishedItemTextHash, publishedAnswerHash, scores, qbean, labels);

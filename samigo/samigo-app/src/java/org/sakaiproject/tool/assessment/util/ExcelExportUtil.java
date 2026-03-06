@@ -20,8 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -46,18 +44,14 @@ public class ExcelExportUtil {
             CellStyle boldCellStyle = createBoldCellStyle(workbook);
 
             List<AssessmentReportSection> sections = report.getSections();
-            List<AssessmentReportSection> titledSections = sections.stream()
-                    .filter(section -> section.getTitle().isPresent())
-                    .collect(Collectors.toList());
-
-            if (titledSections.size() < sections.size()) {
-                log.warn("Sections without titles are ignored");
-            }
-
-            for (int i = 0; i < titledSections.size(); i++) {
-                AssessmentReportSection section = titledSections.get(i);
+            for (int i = 0; i < sections.size(); i++) {
+                AssessmentReportSection section = sections.get(i);
                 List<List<AssessmentReportCell>> table = section.getCellTable();
-                Sheet sheet = workbook.createSheet(section.getTitle().orElseThrow());
+                String sheetName = section.getTitle().orElse("Section " + (i + 1));
+                if (section.getTitle().isEmpty()) {
+                    log.info("Using fallback sheet title [{}] for untitled section at index {}", sheetName, i);
+                }
+                Sheet sheet = workbook.createSheet(sheetName);
 
                 // Create title row
                 report.getTitle().ifPresent(title -> {

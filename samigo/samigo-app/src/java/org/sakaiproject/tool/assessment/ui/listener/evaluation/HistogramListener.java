@@ -2193,7 +2193,7 @@ public class HistogramListener
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
-	      bars[i].setIsCorrect(results.get(textId) >= 1);
+	      bars[i].setIsCorrect(isAuthoredCorrectItemText(text));
 	      bars[i].setNumStudents(num);
 	      bars[i].setNumStudentsText(String.valueOf(num));
 
@@ -2216,8 +2216,27 @@ public class HistogramListener
 	    }
 	  }
 
+	  private boolean isAuthoredCorrectItemText(ItemTextIfc itemText) {
+	    if (itemText == null) {
+	      return false;
+	    }
+
+	    List<AnswerIfc> answers = itemText.getAnswerArraySorted();
+	    if (answers == null) {
+	      return false;
+	    }
+
+	    for (AnswerIfc answer : answers) {
+	      if (answer != null && Boolean.TRUE.equals(answer.getIsCorrect())) {
+	        return true;
+	      }
+	    }
+
+	    return false;
+	  }
+
 	  private void getMatchingScores(Map<Long, ItemTextIfc> publishedItemTextHash, Map<Long, AnswerIfc> publishedAnswerHash,
-			  List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, List<ItemTextIfc> labels)
+	                  List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, List<ItemTextIfc> labels)
 	  {
 	    Map<Long, ItemTextIfc> texts = new HashMap<>();
 	    Map<Long, Integer> results = new HashMap<>();
