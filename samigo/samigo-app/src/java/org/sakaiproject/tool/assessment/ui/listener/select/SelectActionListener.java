@@ -129,7 +129,7 @@ public class SelectActionListener implements ActionListener {
 
     // 1b. get all the published assessmnet available in the site
     // note that agentId is not really used
-    List publishedAssessmentList =
+    List<PublishedAssessmentFacade> publishedAssessmentList =
         publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
         AgentFacade.getAgentString(), this.getTakeableOrderBy(select),
         select.isTakeableAscending(), siteId);
@@ -144,7 +144,8 @@ public class SelectActionListener implements ActionListener {
     }
     
     // filter out the one that the given user do not have right to access
-    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
+    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h,
+            updatedAssessmentNeedResubmitList, updatedAssessmentList, siteId);
     
     // 1c. prepare delivery bean
     List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
@@ -453,14 +454,10 @@ public class SelectActionListener implements ActionListener {
     if ( secureDelivery.isSecureDeliveryAvaliable() ) {
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-
-        for (DeliveryBeanie db : takeablePublishedList) {
-            // We have to refetch the published assessment because the hash above doesn't have the metadata
-            PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessmentQuick(db.getAssessmentId());
-            final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-
-            db.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()).orElse(""));
-        }
+        Map<Long, String> secureDeliveryModuleIdsByAssessment = getSecureDeliveryModuleIdsByAssessment(
+                takeablePublishedList, publishedAssessmentService);
+        applySecureDeliveryUrls(takeablePublishedList, secureDeliveryModuleIdsByAssessment, secureDelivery,
+                AgentFacade.getAgentString());
     }
 
     // set the managed beanlist properties that we need
@@ -595,26 +592,29 @@ public class SelectActionListener implements ActionListener {
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private List<PublishedAssessmentFacade> getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
+  private List<PublishedAssessmentFacade> getTakeableList(List<PublishedAssessmentFacade> assessmentList, Map <Long,Integer> h,
+                                                          List updatedAssessmentNeedResubmitList, List updatedAssessmentList,
+                                                          String siteId) {
     List<PublishedAssessmentFacade> takeableList = new ArrayList<>();
     GradingService gradingService = new GradingService();
     Map<Long, StudentGradingSummaryData> numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
     Map<Long, Integer> actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
-    ExtendedTimeDeliveryService extendedTimeDeliveryService;
+    Map<Long, ExtendedTimeDeliveryService> extendedTimeByAssessment =
+            ExtendedTimeDeliveryService.buildForStudentSiteList(assessmentList, AgentFacade.getAgentString(), siteId);
     for (int i = 0; i < assessmentList.size(); i++) {
-      PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
-			// Handle extended time info
-			extendedTimeDeliveryService = new ExtendedTimeDeliveryService(f);
-			if (extendedTimeDeliveryService.hasExtendedTime()) {
-				f.setStartDate(extendedTimeDeliveryService.getStartDate());
-				f.setDueDate(extendedTimeDeliveryService.getDueDate());
-				//Override late handling here, availability check done later
-				if (extendedTimeDeliveryService.getRetractDate() != null) {
-					f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
-					f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
-				}
-				f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
-			}
+      PublishedAssessmentFacade f = assessmentList.get(i);
+      // Handle extended time info
+      ExtendedTimeDeliveryService extendedTimeDeliveryService = extendedTimeByAssessment.get(f.getPublishedAssessmentId());
+      if (extendedTimeDeliveryService != null && extendedTimeDeliveryService.hasExtendedTime()) {
+        f.setStartDate(extendedTimeDeliveryService.getStartDate());
+        f.setDueDate(extendedTimeDeliveryService.getDueDate());
+        //Override late handling here, availability check done later
+        if (extendedTimeDeliveryService.getRetractDate() != null) {
+          f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
+          f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+        }
+        f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
+      }
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && !f.getReleaseTo().contains("Anonymous Users") ) {
         if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
@@ -919,5 +919,39 @@ public class SelectActionListener implements ActionListener {
 		  delivery.setTimeLimit_hour(0);
 		  delivery.setTimeLimit_minute(0);
 	  }
+  }
+
+  Map<Long, String> getSecureDeliveryModuleIdsByAssessment(List<DeliveryBeanie> takeablePublishedList,
+                                                           PublishedAssessmentService publishedAssessmentService) {
+      List<Long> publishedAssessmentIds = takeablePublishedList.stream()
+              .map(DeliveryBeanie::getAssessmentId)
+              .filter(NumberUtils::isCreatable)
+              .map(Long::valueOf)
+              .collect(Collectors.toList());
+
+      return publishedAssessmentService.getAssessmentMetaDataEntriesByLabel(
+              publishedAssessmentIds, SecureDeliveryServiceAPI.MODULE_KEY);
+  }
+
+  void applySecureDeliveryUrls(List<DeliveryBeanie> takeablePublishedList,
+                               Map<Long, String> secureDeliveryModuleIdsByAssessment,
+                               SecureDeliveryServiceAPI secureDelivery,
+                               String userId) {
+      for (DeliveryBeanie deliveryBeanie : takeablePublishedList) {
+          if (!NumberUtils.isCreatable(deliveryBeanie.getAssessmentId())) {
+              deliveryBeanie.setAlternativeDeliveryUrl("");
+              continue;
+          }
+
+          Long publishedAssessmentId = Long.valueOf(deliveryBeanie.getAssessmentId());
+          String moduleId = StringUtils.trimToNull(secureDeliveryModuleIdsByAssessment.get(publishedAssessmentId));
+          if (moduleId == null || SecureDeliveryServiceAPI.NONE_ID.equals(moduleId)) {
+              deliveryBeanie.setAlternativeDeliveryUrl("");
+              continue;
+          }
+
+          deliveryBeanie.setAlternativeDeliveryUrl(
+                  secureDelivery.getAlternativeDeliveryUrl(moduleId, publishedAssessmentId, userId).orElse(""));
+      }
   }
 }

@@ -174,6 +174,19 @@ public class PublishedAssessmentService extends AssessmentService{
 		}
 	}
 
+	public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label) {
+		if (publishedAssessmentIds == null || publishedAssessmentIds.isEmpty() || StringUtils.isBlank(label)) {
+			return Collections.emptyMap();
+		}
+		try {
+			return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+					.getAssessmentMetaDataEntriesByLabel(publishedAssessmentIds, label);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId, boolean withGroupsInfo) {
 	    try {
 	      return PersistenceService.getInstance().
