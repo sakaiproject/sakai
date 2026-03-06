@@ -105,13 +105,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		session.setUserId("admin");
 	}
 	
-	private void endSession() {
-		if ( session != null ) session.invalidate();
-	}
-	
 	@After
 	public void tearDown() throws Exception {
-		endSession();
+		if ( session != null ) session.invalidate();
 	}
 	
 }
