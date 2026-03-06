@@ -414,9 +414,9 @@ public class PortalServiceTests extends SakaiTests {
         });
 
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                SiteService.SortType.CREATED_ON_DESC, null, false, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(siteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
 
         // simulate a login
         ((Observer) portalService).update(null, event);
@@ -502,9 +502,9 @@ public class PortalServiceTests extends SakaiTests {
 
         List<String> userSiteIds = List.of(site1Id);
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                SiteService.SortType.CREATED_ON_DESC, null, false, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(userSiteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
 
         Assert.assertTrue(portalService.getPinnedSites(user1).isEmpty());
 
@@ -548,9 +548,9 @@ public class PortalServiceTests extends SakaiTests {
 
         List<String> userSiteIds = List.of(site1Id, site2Id);
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                SiteService.SortType.CREATED_ON_DESC, null, false, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(userSiteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1)).thenReturn(userSiteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(userSiteIds);
 
         Assert.assertFalse(preferences.getProperties(PreferencesService.SITENAV_PREFS_KEY).getPropertyList(PortalService.FAVORITES_PROPERTY).isEmpty());
         Assert.assertTrue(portalService.getRecentSites(user1).isEmpty());
@@ -608,9 +608,9 @@ public class PortalServiceTests extends SakaiTests {
         });
 
         when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-                SiteService.SortType.CREATED_ON_DESC, null, false, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.CREATED_ON_DESC, null, user1)).thenReturn(siteIds);
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1)).thenReturn(siteIds);
+                null, SiteService.SortType.NONE, null, user1)).thenReturn(siteIds);
         when(securityService.isSuperUser(user1)).thenReturn(false);
 
         Event event = createMockEvent("user.login", user1, sessionId, null);
@@ -618,7 +618,7 @@ public class PortalServiceTests extends SakaiTests {
         // simulate a login
         ((Observer) portalService).update(null, event);
         Mockito.verify(siteService).getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1);
+                null, SiteService.SortType.NONE, null, user1);
         Mockito.verify(siteService, Mockito.never()).getSiteVisit(Mockito.anyString());
 
         // after a login old favorites data should be removed
@@ -656,7 +656,7 @@ public class PortalServiceTests extends SakaiTests {
 
         // now lets make site2 inaccessible, but not update pinned table
         when(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-                SiteService.SortType.NONE, null, false, user1))
+                null, SiteService.SortType.NONE, null, user1))
                 .thenReturn(List.of("site1", "site3", "site4", "site5", "site6"));
 
         // check pinned sites havn't changed since making site2 inaccessible

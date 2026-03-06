@@ -1069,13 +1069,13 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-				SiteService.SortType.CREATED_ON_DESC, null, false, userId);
+				null, SiteService.SortType.CREATED_ON_DESC, null, userId);
 		combinedSiteIds.addAll(userSiteIds);
 
 		// all the possible sites the user has access to have been collected into combinedSiteIds
 		// next sort them into the accessible and inaccessible sets using one bulk access lookup
 		Set<String> accessibleSiteIds = new HashSet<>(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-				SiteService.SortType.NONE, null, false, userId));
+				null, SiteService.SortType.NONE, null, userId));
 		for (String id : combinedSiteIds) {
 			if (accessibleSiteIds.contains(id)) sitesToPin.add(id);
 			else sitesToRemove.add(id);
