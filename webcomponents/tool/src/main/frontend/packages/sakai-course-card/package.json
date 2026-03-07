@@ -35,6 +35,7 @@
   },
   "exports": {
     ".": "./index.js",
-    "./sakai-course-card.js": "./sakai-course-card.js"
+    "./sakai-course-card.js": "./sakai-course-card.js",
+    "./course-card-settings.js": "./course-card-settings.js"
   }
 }

@@ -7,6 +7,7 @@ import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-notifications/sakai-notifications.js";
 import "@sakai-ui/sakai-calendar/sakai-calendar.js";
+import "@sakai-ui/sakai-course-card/sakai-course-card.js";
 
 import imagesLoaded from "imagesloaded";
 globalThis.imagesLoaded = imagesLoaded;

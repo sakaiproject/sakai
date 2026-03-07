@@ -1190,7 +1190,8 @@ public interface ContentHostingService extends EntityProducer
 			TypeException, InUseException, OverQuotaException, ServerOverloadException;
 
 	/**
-	 * Access the resource with this resource id, locked for update. For non-collection resources only. Must commitEdit() to make official, or cancelEdit() when done! The resource content and properties are accessible from the returned Resource object.
+	 * Access the resource with this resource id, locked for update. For non-collection resources only. Must commitEdit()
+	 * to make official, or cancelResource() when done! The resource content and properties are accessible from the returned Resource object.
 	 * 
 	 * @param id
 	 *        The id of the resource.
