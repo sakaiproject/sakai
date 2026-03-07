@@ -133,7 +133,7 @@ public class DelegatedAccessConstants {
 	public static final String PROP_TOOLSLIST_UI_ENABLED = "delegatedaccess.toolslist.UI.enabled";
 	public static final boolean PROP_TOOLSLIST_UI_ENABLED_DEFAULT = true;
 	public static final String PROP_SHOPPING_UI_ENABLED = "delegatedaccess.shopping.UI.enabled";
-	public static final boolean PROP_SHOPPING_UI_ENABLED_DEFAULT = true;
+	public static final boolean PROP_SHOPPING_UI_ENABLED_DEFAULT = false;
 	public static final String[] DEFAULT_HIERARCHY = new String[]{SCHOOL_PROPERTY, DEPEARTMENT_PROPERTY, SUBJECT_PROPERTY};
 	public static final String SHOPPING_PERIOD_AUTH_OPTION_ANY = "any";
 	public static final String PROPERTIES_SUBADMIN_REALM_ROLE_ORDER = "delegatedaccess.subadmin.realmrole.order";

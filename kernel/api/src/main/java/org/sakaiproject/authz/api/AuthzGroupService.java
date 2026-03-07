@@ -425,6 +425,15 @@ public interface AuthzGroupService extends EntityProducer
 	Set<String> getAllowedFunctions(String role, Collection<String> azGroups);
 
 	/**
+	 * Get the allowed functions for every role in the supplied AuthzGroups.
+	 *
+	 * @param azGroups
+	 *        A collection of AuthzGroup ids to consult.
+	 * @return A Map keyed by AuthzGroup id, then role name, then allowed functions.
+	 */
+	Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> azGroups);
+
+	/**
 	 * Get the role name for this user in this AuthzGroup, if the user has membership (the membership gives the user a single role).
 	 * 
 	 * @param userId

@@ -52,6 +52,7 @@ import org.w3c.dom.NodeList;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -87,6 +88,9 @@ public abstract class ToolComponent implements ToolManager
 	/** tool ids to be hidden - their catagories don't matter, they don't show up on any catagorized listing. */
 	protected String[] m_toolIdsToHide = null;
 
+	protected static final String PROP_SHOPPING_UI_ENABLED = "delegatedaccess.shopping.UI.enabled";
+	protected static final boolean PROP_SHOPPING_UI_ENABLED_DEFAULT = false;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -105,6 +109,11 @@ public abstract class ToolComponent implements ToolManager
 	 * @return the SiteService collaborator.
 	 */
 	protected abstract SiteService siteService();
+
+	/**
+	 * @return the ServerConfigurationService collaborator.
+	 */
+	protected abstract ServerConfigurationService serverConfigurationService();
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -680,41 +689,64 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	public boolean allowTool(Site site, Placement placement)
 	{
-		if(allowToolHelper(site, placement)){
-			if(!securityService().isSuperUser()){
-				try{
-					//delegated access sets a session attribute that determines if the user can't view a tool in a site
-					//delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
-					//if this tool shows up, return false, otherwise return true
-
-					Session session = SessionManager.getCurrentSession();
-					if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
-							&& arrayContains(((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()), placement.getToolId())){
-						return false;
-					}
-					if(session.getAttribute("delegatedaccess.deniedToolsMap") == null ||
-							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
-							|| ((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()) == null){
-						//a delegated access admin would have this map and site (even if it was set to null), if its null, that means the user is just has access to a different site and not this one
-						if(site.getMember(session.getUserId()) == null && 
-								(site.getProperties().get("shopping-period-public-tools") != null || site.getProperties().get("shopping-period-auth-tools") != null)){
-							//this is .anon or .auth role in a site that needs to restrict the tools:
-							boolean anonAccess = site.getProperties().get("shopping-period-public-tools") != null 
-									&& arrayContains(((String) site.getProperties().get("shopping-period-public-tools")).split(";"), placement.getToolId());
-							if(session.getUserId() == null){
-								return anonAccess;
-							}else{
-								return anonAccess || (site.getProperties().get("shopping-period-auth-tools") != null && arrayContains(((String) site.getProperties().get("shopping-period-auth-tools")).split(";"), placement.getToolId()));
-							}
-						}
-					}
-				}catch (Exception e) {
-				}
-			}
-			return true;
-		}else{
+		if (!allowToolHelper(site, placement))
+		{
 			return false;
 		}
+
+		if ((site == null) || (placement == null) || securityService().isSuperUser())
+		{
+			return true;
+		}
+
+		try
+		{
+			// delegated access sets a session attribute that determines if the user can't view a tool in a site.
+			// delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
+			// if this tool shows up, return false, otherwise return true.
+			Session session = SessionManager.getCurrentSession();
+			Map<String, String[]> deniedToolsMap = (Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap");
+			if ((deniedToolsMap != null) && deniedToolsMap.containsKey(site.getReference())
+					&& arrayContains(deniedToolsMap.get(site.getReference()), placement.getToolId()))
+			{
+				return false;
+			}
+
+			if ((deniedToolsMap == null) || !deniedToolsMap.containsKey(site.getReference())
+					|| (deniedToolsMap.get(site.getReference()) == null))
+			{
+				boolean shoppingUiEnabled = serverConfigurationService().getBoolean(PROP_SHOPPING_UI_ENABLED, PROP_SHOPPING_UI_ENABLED_DEFAULT);
+				if (shoppingUiEnabled)
+				{
+					// a delegated access admin would have this map and site (even if it was set to null).
+					// if it's null, the user has delegated access to a different site and not this one.
+					Object shoppingPeriodPublicTools = site.getProperties().get("shopping-period-public-tools");
+					Object shoppingPeriodAuthTools = site.getProperties().get("shopping-period-auth-tools");
+					if ((shoppingPeriodPublicTools != null) || (shoppingPeriodAuthTools != null))
+					{
+						String sessionUserId = session.getUserId();
+						boolean anonAccess = (shoppingPeriodPublicTools != null)
+								&& arrayContains(((String) shoppingPeriodPublicTools).split(";"), placement.getToolId());
+						if (sessionUserId == null)
+						{
+							return anonAccess;
+						}
+						if (site.getMember(sessionUserId) == null)
+						{
+							return anonAccess || ((shoppingPeriodAuthTools != null)
+									&& arrayContains(((String) shoppingPeriodAuthTools).split(";"), placement.getToolId()));
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			log.warn("allowTool: could not evaluate delegated access/shopping period restrictions for site [{}] and tool [{}]. "
+					+ "Allowing access by default.", site.getReference(), placement.getToolId(), e);
+		}
+
+		return true;
 	}
 
 	/**

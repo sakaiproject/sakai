@@ -1067,6 +1067,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> azGroups)
+	{
+		return m_storage.getRoleFunctions(azGroups);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Set getAuthzGroupsIsAllowed(String userId, String function, Collection azGroups)
 	{
 		return m_storage.getAuthzGroupsIsAllowed(userId, function, azGroups);
@@ -1528,6 +1536,15 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 * @return the Set (String) of functions that users with this role in these AuthzGroups are allowed to perform
 		 */
 		Set getAllowedFunctions(String role, Collection azGroups);
+
+		/**
+		 * Get the allowed functions for every role in the supplied AuthzGroups.
+		 *
+		 * @param azGroups
+		 *        A collection of AuthzGroup ids to consult.
+		 * @return A Map keyed by AuthzGroup id, then role name, then allowed functions.
+		 */
+		Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> azGroups);
 
 		/**
 		 * Get the set of AuthzGroup ids in which this user is allowed to perform this function.
