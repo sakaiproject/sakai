@@ -204,7 +204,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         if (props == null) {
             bean.setWidgetLayout(defaultHomeLayout);
-            bean.setTemplate(1);
         } else {
             try {
                 String widgetLayoutJson = props.getProperty("widgetLayout");
@@ -224,20 +223,10 @@ public class DashboardController extends AbstractSakaiApiController implements E
                         bean.setWidgetLayout(widgetLayout);
                     }
                 }
-                try {
-                    int template = (int) props.getLongProperty("template");
-                    bean.setTemplate(template);
-                } catch (Exception e) {
-                    bean.setTemplate(1);
-                }
             } catch (Exception e) {
                 log.warn("Failed to deserialise user dashboard config: {}", e.toString());
             }
         }
-
-        bean.setHomeTemplate1ThumbnailUrl("/webcomponents/images/home_template1.png");
-        bean.setHomeTemplate2ThumbnailUrl("/webcomponents/images/home_template2.png");
-        bean.setHomeTemplate3ThumbnailUrl("/webcomponents/images/home_template3.png");
 
         return bean;
     }
@@ -256,9 +245,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
             try {
                 String widgetLayoutJson = (new ObjectMapper()).writeValueAsString(bean.getWidgetLayout());
                 props.addProperty("widgetLayout", widgetLayoutJson);
-                props.addProperty("template", Integer.toString(bean.getTemplate()));
-                // Remove the legacy layout property
+
+                // Remove the legacy template property and layout properties
+                props.removeProperty("template");
                 props.removeProperty("layout");
+
             } catch (JsonProcessingException jpe) {
                 log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
