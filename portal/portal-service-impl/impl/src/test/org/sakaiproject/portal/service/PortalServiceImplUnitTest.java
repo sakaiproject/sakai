@@ -73,7 +73,8 @@ public class PortalServiceImplUnitTest {
 		secondPinnedSite.setPosition(1);
 		secondPinnedSite.setHasBeenUnpinned(false);
 
-		when(pinnedSiteRepository.findByUserId(USER_ID)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
+		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, false)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
+		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, true)).thenReturn(Collections.<PinnedSite>emptyList());
 
 		portalService.savePinnedSites(USER_ID, List.of("site-1", "site-2"));
 
