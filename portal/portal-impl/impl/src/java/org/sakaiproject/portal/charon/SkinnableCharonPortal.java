@@ -985,6 +985,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         rcontext.put("loggedOutUrl", portalLogOutUrl);
         rcontext.put("portalPath", portalPath);
+        rcontext.put("unviewedNotificationsCount", 0L);
         rcontext.put("timeoutDialogEnabled", Boolean.valueOf(timeoutDialogEnabled));
         rcontext.put("timeoutDialogWarningSeconds", Integer.valueOf(timeoutDialogWarningSeconds));
 

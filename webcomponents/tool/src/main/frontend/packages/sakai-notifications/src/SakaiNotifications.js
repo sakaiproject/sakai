@@ -12,6 +12,7 @@ export class SakaiNotifications extends SakaiElement {
   static properties = {
 
     url: { type: String },
+    notifications: { type: Array },
     chromeInfoUrl: { attribute: "chrome-info-url", type: String },
     firefoxInfoUrl: { attribute: "firefox-info-url", type: String },
     safariInfoUrl: { attribute: "safari-info-url", type: String },
