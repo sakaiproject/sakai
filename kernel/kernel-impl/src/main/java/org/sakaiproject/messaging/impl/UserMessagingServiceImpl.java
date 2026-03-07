@@ -504,6 +504,15 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         return beans;
     }
 
+    public long getUnviewedNotificationsCount() {
+
+        String userId = getCurrentUserId();
+        if (userId == null) return 0L;
+
+        return userNotificationRepository.countUnviewedByToUser(userId)
+                + userNotificationRepository.countActiveUnviewedBroadcastNotifications();
+    }
+
     @Transactional
     public boolean clearAllNotifications() {
 

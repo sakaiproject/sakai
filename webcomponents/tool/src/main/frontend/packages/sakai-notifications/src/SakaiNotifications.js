@@ -56,8 +56,10 @@ export class SakaiNotifications extends SakaiElement {
 
     window.addEventListener("online", () => this._online = true );
 
+    this.notifications = [];
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this._pushRegistered = false;
     this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
@@ -76,15 +78,17 @@ export class SakaiNotifications extends SakaiElement {
     } else if (this.safariInfoUrl && navigator.userAgent.includes("Edg")) {
       this._browserInfoUrl = this.edgeInfoUrl;
     }
+  }
 
-    this._i18nLoaded.then(() => this._loadInitialNotifications());
+  loadNotifications() {
+    return this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
   _loadInitialNotifications(register = true) {
 
     console.debug("_loadInitialNotifications");
 
-    fetch(this.url, {
+    return fetch(this.url, {
       cache: "no-cache",
       headers: { "Content-Type": "application/json" },
     })
@@ -114,7 +118,9 @@ export class SakaiNotifications extends SakaiElement {
 
       this._pushEnabled = true;
 
-      if (Notification.permission !== "granted") return;
+      if (Notification.permission !== "granted" || this._pushRegistered) return;
+
+      this._pushRegistered = true;
 
       registerPushCallback("notifications", message => {
 
@@ -342,7 +348,7 @@ export class SakaiNotifications extends SakaiElement {
           this._state = PUSH_DENIED_INFO;
           break;
         case "granted":
-          this._loadInitialNotifications(true);
+          this.loadNotifications();
           this._highlightTestButton = true;
           break;
       }
@@ -550,7 +556,7 @@ export class SakaiNotifications extends SakaiElement {
 
             ${Notification.permission !== "granted" && this._online ? html`
               <button class="btn btn-secondary btn-sm me-2"
-                  @click=${this._loadInitialNotifications}>
+                  @click=${this.loadNotifications}>
                 ${this._i18n.update}
               </button>
             ` : nothing}

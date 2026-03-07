@@ -1516,6 +1516,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("bottomNavSakaiVersion", sakaiVersion);
             rcontext.put("bottomNavServer", serverId);
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
+            long unviewedNotificationsCount = 0L;
+            String currentUserId = sessionManager.getCurrentSessionUserId();
+            if (useBullhornAlerts && currentUserId != null) {
+                try {
+                    unviewedNotificationsCount = userMessagingService.getUnviewedNotificationsCount();
+                } catch (Exception e) {
+                    log.debug("Unable to determine notification state for user {}", currentUserId, e);
+                }
+            }
+            rcontext.put("unviewedNotificationsCount", unviewedNotificationsCount);
             rcontext.put("chromeInfoUrl", serverConfigurationService.getString("notifications.chrome.info.url", ""));
             rcontext.put("firefoxInfoUrl", serverConfigurationService.getString("notifications.firefox.info.url", ""));
             rcontext.put("safariInfoUrl", serverConfigurationService.getString("notifications.safari.info.url", ""));
