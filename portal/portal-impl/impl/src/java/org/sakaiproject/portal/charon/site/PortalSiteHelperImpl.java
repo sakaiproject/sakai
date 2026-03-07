@@ -59,6 +59,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -147,6 +149,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private final SecurityService securityService;
 	private final ServerConfigurationService serverConfigurationService;
 	private final SessionManager sessionManager;
+	private final SimplePageToolDao simplePageToolDao;
 	private final SiteNeighbourhoodService siteNeighbourhoodService;
 	private final SiteService siteService;
 	private final ThreadLocalManager threadLocalManager;
@@ -248,6 +251,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		securityService = ComponentManager.get(SecurityService.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
+		simplePageToolDao = ComponentManager.get(SimplePageToolDao.class);
 		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
 		siteService = ComponentManager.get(SiteService.class);
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
@@ -544,7 +548,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	private Map<String, Object> getPageMap(Site site, SitePage page, boolean includeSubPage,
-			SitePermissionLookup sitePermissionLookup) {
+			SitePermissionLookup sitePermissionLookup, LessonBuilderPageVisibility lessonBuilderPageVisibility) {
 
 		Map<String, Object> pageMap = new HashMap<>();
 		List<ToolConfiguration> toolList = page.getTools();
@@ -612,17 +616,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			pageMap.put("wellKnownToolId", firstTool.getToolId());
 
 			if ("sakai.lessonbuildertool".equals(firstTool.getToolId())) {
-				try {
-					Site pageSite = siteService.getSite(page.getSiteId());
-					boolean lessonbuilderUpdater = securityService.unlock("lessonbuilder.upd", pageSite.getReference());
-					boolean lbHidden = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
-					boolean hideFromNavEffective = !lessonbuilderUpdater && lbHidden;
-					pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
-					if (lbHidden) {
-						pageMap.put("hidden", Boolean.TRUE);
-					}
-				} catch (IdUnusedException e) {
-					pageMap.put("isHiddenFromNavigation", Boolean.FALSE);
+				boolean lbHidden = lessonBuilderPageVisibility.hiddenFromNavigationByPageId
+						.getOrDefault(page.getId(), Boolean.FALSE);
+				boolean hideFromNavEffective = !lessonBuilderPageVisibility.lessonbuilderUpdater && lbHidden;
+				pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
+				if (lbHidden) {
+					pageMap.put("hidden", Boolean.TRUE);
 				}
 			}
 		}
@@ -633,9 +632,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private List<Map<String, Object>> getPageMaps(Collection<SitePage> pages, Site site, SitePermissionLookup sitePermissionLookup) {
 
 		final boolean siteUpdater = canUpdateSite(site, sitePermissionLookup);
+		final LessonBuilderPageVisibility lessonBuilderPageVisibility = getLessonBuilderPageVisibility(site, pages);
 
 		boolean includeSubPage = Boolean.parseBoolean(site.getProperties().getProperty("subpagenav"));
-		return pages.stream().map(p -> getPageMap(site, p, includeSubPage, sitePermissionLookup))
+		return pages.stream().map(p -> getPageMap(site, p, includeSubPage, sitePermissionLookup, lessonBuilderPageVisibility))
 			.filter(m -> !((Boolean) m.get("hidden")) || siteUpdater).collect(Collectors.toList());
 	}
 
@@ -1788,26 +1788,44 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
-	 * Check if a LessonBuilder page is marked as hidden from navigation.
+	 * Preload LessonBuilder page visibility once per site so page mapping stays in-memory.
 	 */
-	private boolean isLessonBuilderPageHiddenFromNavigation(String pageId, String siteId) {
-		try {
-			Object simplePageToolDao = ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+	private LessonBuilderPageVisibility getLessonBuilderPageVisibility(Site site, Collection<SitePage> pages) {
 
-			if (simplePageToolDao != null) {
-				java.lang.reflect.Method findPageMethod = simplePageToolDao.getClass().getMethod("findSimplePageBySitePageId", String.class);
-				Object simplePage = findPageMethod.invoke(simplePageToolDao, pageId);
-
-				if (simplePage != null) {
-					java.lang.reflect.Method isHiddenMethod = simplePage.getClass().getMethod("isHiddenFromNavigation");
-					Boolean isHiddenFromNavigation = (Boolean) isHiddenMethod.invoke(simplePage);
-					return Boolean.TRUE.equals(isHiddenFromNavigation);
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Error checking hiddenFromNavigation for LessonBuilder pageId={} siteId={}", pageId, siteId, e);
+		if (pages == null || pages.isEmpty()) {
+			return LessonBuilderPageVisibility.EMPTY;
 		}
-		return Boolean.FALSE;
+
+		boolean hasLessonBuilderPage = pages.stream()
+				.map(SitePage::getTools)
+				.filter(Objects::nonNull)
+				.anyMatch(toolList -> !toolList.isEmpty() && "sakai.lessonbuildertool".equals(toolList.get(0).getToolId()));
+
+		if (!hasLessonBuilderPage) {
+			return LessonBuilderPageVisibility.EMPTY;
+		}
+
+		Map<String, Boolean> hiddenFromNavigationByPageId = Optional.ofNullable(simplePageToolDao)
+				.map(dao -> dao.getSitePages(site.getId()))
+				.orElseGet(Collections::emptyList)
+				.stream()
+				.collect(Collectors.toMap(SimplePage::getToolId, SimplePage::isHiddenFromNavigation, (left, right) -> left));
+
+		boolean lessonbuilderUpdater = securityService.unlock("lessonbuilder.upd", site.getReference());
+		return new LessonBuilderPageVisibility(hiddenFromNavigationByPageId, lessonbuilderUpdater);
+	}
+
+	private static final class LessonBuilderPageVisibility {
+
+		private static final LessonBuilderPageVisibility EMPTY = new LessonBuilderPageVisibility(Collections.emptyMap(), false);
+
+		private final Map<String, Boolean> hiddenFromNavigationByPageId;
+		private final boolean lessonbuilderUpdater;
+
+		private LessonBuilderPageVisibility(Map<String, Boolean> hiddenFromNavigationByPageId, boolean lessonbuilderUpdater) {
+			this.hiddenFromNavigationByPageId = hiddenFromNavigationByPageId;
+			this.lessonbuilderUpdater = lessonbuilderUpdater;
+		}
 	}
 
 }
