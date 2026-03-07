@@ -18,7 +18,9 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -26,6 +28,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReportCell;
@@ -43,13 +46,15 @@ public class ExcelExportUtil {
             CellStyle boldCellStyle = createBoldCellStyle(workbook);
 
             List<AssessmentReportSection> sections = report.getSections();
+            Set<String> usedSheetNames = new HashSet<>();
             for (int i = 0; i < sections.size(); i++) {
                 AssessmentReportSection section = sections.get(i);
                 List<List<AssessmentReportCell>> table = section.getCellTable();
-                String sheetName = section.getTitle().orElse("Section " + (i + 1));
+                String rawName = section.getTitle().orElse("Section " + (i + 1));
                 if (section.getTitle().isEmpty()) {
-                    log.info("Using fallback sheet title [{}] for untitled section at index {}", sheetName, i);
+                    log.info("Using fallback sheet title [{}] for untitled section at index {}", rawName, i);
                 }
+                String sheetName = uniqueSafeSheetName(rawName, usedSheetNames);
                 Sheet sheet = workbook.createSheet(sheetName);
 
                 // Create title row
@@ -112,6 +117,28 @@ public class ExcelExportUtil {
             return 0;
         }
         return sheet.getLastRowNum() + 1;
+    }
+
+    private static String uniqueSafeSheetName(String rawName, Set<String> usedSheetNames) {
+        String safeBaseName = WorkbookUtil.createSafeSheetName(rawName);
+        if (safeBaseName == null || safeBaseName.isBlank()) {
+            safeBaseName = "Sheet";
+        }
+
+        String candidate = safeBaseName;
+        int suffix = 2;
+        while (usedSheetNames.contains(candidate)) {
+            String suffixText = " (" + suffix + ")";
+            int maxBaseLength = 31 - suffixText.length();
+            String truncatedBaseName = safeBaseName.length() > maxBaseLength
+                    ? safeBaseName.substring(0, maxBaseLength)
+                    : safeBaseName;
+            candidate = truncatedBaseName + suffixText;
+            suffix++;
+        }
+
+        usedSheetNames.add(candidate);
+        return candidate;
     }
 
     private static CellStyle createBoldCellStyle(Workbook workbook) {

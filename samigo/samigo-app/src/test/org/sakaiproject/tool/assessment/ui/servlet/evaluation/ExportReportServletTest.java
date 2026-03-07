@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -79,11 +80,32 @@ public class ExportReportServletTest {
         assertFalse(secondRow.get(8).isBold()); // B padded cell should not be bold
     }
 
+    @Test
+    public void testItemAnalysisHeaderCellsAreBold() throws Exception {
+        ExportReportServlet servlet = allocateServletWithoutConstructor();
+        HistogramScoresBean scoresBean = new HistogramScoresBean();
+        scoresBean.setMaxNumberOfAnswers(2);
+        scoresBean.setDetailedStatistics(Arrays.asList(new HistogramQuestionScoresBean()));
+
+        List<AssessmentReportCell> headerCells = invokeItemAnalysisHeaderCells(servlet, scoresBean);
+        assertFalse(headerCells.isEmpty());
+        assertEquals(
+                headerCells.size(),
+                headerCells.stream().filter(AssessmentReportCell::isBold).collect(Collectors.toList()).size());
+    }
+
     @SuppressWarnings("unchecked")
     private List<List<AssessmentReportCell>> invokeItemAnalysisDataCells(ExportReportServlet servlet, HistogramScoresBean scoresBean) throws Exception {
         Method method = ExportReportServlet.class.getDeclaredMethod("itemAnalysisDataCells", HistogramScoresBean.class);
         method.setAccessible(true);
         return (List<List<AssessmentReportCell>>) method.invoke(servlet, scoresBean);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<AssessmentReportCell> invokeItemAnalysisHeaderCells(ExportReportServlet servlet, HistogramScoresBean scoresBean) throws Exception {
+        Method method = ExportReportServlet.class.getDeclaredMethod("itemAnalysisHeaderCells", HistogramScoresBean.class);
+        method.setAccessible(true);
+        return (List<AssessmentReportCell>) method.invoke(servlet, scoresBean);
     }
 
     private ExportReportServlet allocateServletWithoutConstructor() throws Exception {

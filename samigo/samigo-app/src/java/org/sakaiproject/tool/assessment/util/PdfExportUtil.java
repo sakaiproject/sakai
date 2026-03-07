@@ -18,7 +18,6 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +54,7 @@ public class PdfExportUtil {
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
 
 
-    public static String assessmentReportToPdf(AssessmentReport report) throws IOException {
+    public static byte[] assessmentReportToPdf(AssessmentReport report) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Optional<String> reportTitle = report.getTitle();
         Optional<String> reportSubject = report.getSubject();
@@ -141,7 +140,7 @@ public class PdfExportUtil {
             throw new IOException(e);
         }
 
-        return out.toString(StandardCharsets.ISO_8859_1);
+        return out.toByteArray();
     }
 
     private static PdfPTable createTable(int columnCount) {

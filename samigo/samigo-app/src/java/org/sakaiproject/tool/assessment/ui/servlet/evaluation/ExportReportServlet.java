@@ -17,7 +17,6 @@
 package org.sakaiproject.tool.assessment.ui.servlet.evaluation;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -165,7 +164,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 fileExtension = FILE_EXT_XLSX;
                 break;
             case EXPORT_FORMAT_PDF:
-                contentBytes = PdfExportUtil.assessmentReportToPdf(report).getBytes(StandardCharsets.ISO_8859_1);
+                contentBytes = PdfExportUtil.assessmentReportToPdf(report);
                 contentType = CONTENT_TYPE_PDF;
                 fileExtension = FILE_EXT_PDF;
                 break;
@@ -310,40 +309,38 @@ public class ExportReportServlet extends SamigoBaseServlet {
         return value == null ? "" : String.valueOf(value);
     }
 
-    private List<String> itemAnalysisHeader(HistogramScoresBean histogramScoresBean) {
+    private List<AssessmentReportCell> itemAnalysisHeader(HistogramScoresBean histogramScoresBean) {
         int itemCount = histogramScoresBean.getDetailedStatistics().size();
-        List<String> header = new ArrayList<>();
+        List<AssessmentReportCell> header = new ArrayList<>();
 
-        header.add(EVALUATION_BUNDLE.getFormattedMessage("question"));
-        header.add(histogramScoresBean.isRandomType() ? "N(" + itemCount + ")" : "N");
-        header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("whole_group"));
+        header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("question")));
+        header.add(AssessmentReportCell.bold(histogramScoresBean.isRandomType() ? "N(" + itemCount + ")" : "N"));
+        header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("whole_group")));
         if (histogramScoresBean.getShowDiscriminationColumn()) {
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("upper_pct"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("lower_pct"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("discrim_abbrev"));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("upper_pct")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("lower_pct")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("discrim_abbrev")));
         }
         if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("difficulty"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("total_correct"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("total_incorrect"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("no_answer"));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("difficulty")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("total_correct")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("total_incorrect")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("no_answer")));
         }
         if (histogramScoresBean.getShowObjectivesColumn()) {
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("obj"));
-            header.add(EVALUATION_BUNDLE.getFormattedMessage("keywords"));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("obj")));
+            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("keywords")));
         }
 
         for (int i = 0; i < histogramScoresBean.getMaxNumberOfAnswers(); i++) {
-            header.add(String.valueOf(answerLabel(i)));
+            header.add(AssessmentReportCell.bold(String.valueOf(answerLabel(i))));
         }
 
         return header;
     }
 
     private List<AssessmentReportCell> itemAnalysisHeaderCells(HistogramScoresBean histogramScoresBean) {
-        return itemAnalysisHeader(histogramScoresBean).stream()
-                .map(AssessmentReportCell::text)
-                .collect(Collectors.toList());
+        return itemAnalysisHeader(histogramScoresBean);
     }
 
     private AssessmentReport statisticsReport(String title, String subject, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
