@@ -1006,11 +1006,11 @@ public class PortalServiceImpl implements PortalService, Observer
 			return;
 		}
 
-		pinnedSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 		PortalNavState portalNavState = loadPortalNavState(userId);
 		portalNavState.pinnedSiteIds.remove(siteId);
 		portalNavState.unpinnedSiteIds.remove(siteId);
 		portalNavState.pinnedSitesBySiteId.remove(siteId);
+		pinnedSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 		persistPinnedSiteOrder(userId, new ArrayList<>(portalNavState.pinnedSiteIds), portalNavState);
 	}
 

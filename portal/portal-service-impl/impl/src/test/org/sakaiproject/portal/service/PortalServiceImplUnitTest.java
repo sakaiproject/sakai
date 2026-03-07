@@ -143,4 +143,14 @@ public class PortalServiceImplUnitTest {
 		verify(pinnedSiteRepository).save(argThat(pinnedSite -> "site-2".equals(pinnedSite.getSiteId())));
 		verify(pinnedSiteRepository, never()).save(argThat(pinnedSite -> "site-1".equals(pinnedSite.getSiteId())));
 	}
+
+	@Test
+	public void savePinnedSitesRespectsMaxPinnedSitesLimitWhenOrderReversed() {
+		when(serverConfigurationService.getInt("portal.max.pinned.sites", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(1);
+
+		portalService.savePinnedSites(USER_ID, List.of("site-2", "site-1"));
+
+		verify(pinnedSiteRepository).save(argThat(pinnedSite -> "site-1".equals(pinnedSite.getSiteId())));
+		verify(pinnedSiteRepository, never()).save(argThat(pinnedSite -> "site-2".equals(pinnedSite.getSiteId())));
+	}
 }
