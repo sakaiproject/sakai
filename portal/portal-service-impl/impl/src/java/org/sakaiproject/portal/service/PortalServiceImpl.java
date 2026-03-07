@@ -874,9 +874,15 @@ public class PortalServiceImpl implements PortalService, Observer
 		for (int i = 0; i < pinnedSiteIds.size(); i++) {
 			String siteId = pinnedSiteIds.get(i);
 			PinnedSite pinnedSite = getOrCreatePinnedSite(userId, siteId, portalNavState);
-			pinnedSite.setPosition(i);
-			pinnedSite.setHasBeenUnpinned(false);
-			pinnedSiteRepository.save(pinnedSite);
+			boolean positionChanged = pinnedSite.getPosition() != i;
+			boolean pinStateChanged = Boolean.TRUE.equals(pinnedSite.getHasBeenUnpinned());
+			boolean isNewPinnedSite = pinnedSite.getId() == null;
+
+			if (isNewPinnedSite || positionChanged || pinStateChanged) {
+				pinnedSite.setPosition(i);
+				pinnedSite.setHasBeenUnpinned(false);
+				pinnedSiteRepository.save(pinnedSite);
+			}
 			portalNavState.unpinnedSiteIds.remove(siteId);
 		}
 
