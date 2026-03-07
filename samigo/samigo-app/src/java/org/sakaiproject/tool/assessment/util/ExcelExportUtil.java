@@ -18,7 +18,6 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -38,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ExcelExportUtil {
 
 
-    public static String assessmentReportToXslx(AssessmentReport report) throws IOException {
+    public static byte[] assessmentReportToXslx(AssessmentReport report) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              Workbook workbook = new XSSFWorkbook()) {
             CellStyle boldCellStyle = createBoldCellStyle(workbook);
@@ -92,7 +91,8 @@ public class ExcelExportUtil {
                             cell.setCellValue("");
                             continue;
                         }
-                        cell.setCellValue(cellData.getValue());
+                        String cellValue = cellData.getValue();
+                        cell.setCellValue(cellValue != null ? cellValue : "");
                         if (cellData.isBold()) {
                             cell.setCellStyle(boldCellStyle);
                         }
@@ -103,7 +103,7 @@ public class ExcelExportUtil {
             // This block could throw an IOException
             workbook.write(out);
 
-            return out.toString(StandardCharsets.ISO_8859_1);
+            return out.toByteArray();
         }
     }
 

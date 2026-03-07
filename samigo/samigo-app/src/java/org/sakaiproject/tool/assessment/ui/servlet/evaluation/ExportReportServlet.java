@@ -17,7 +17,7 @@
 package org.sakaiproject.tool.assessment.ui.servlet.evaluation;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -154,17 +155,17 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 return;
         }
 
-        String content;
+        byte[] contentBytes;
         String contentType;
         String fileExtension;
         switch(format) {
             case EXPORT_FORMAT_XLSX:
-                content = ExcelExportUtil.assessmentReportToXslx(report);
+                contentBytes = ExcelExportUtil.assessmentReportToXslx(report);
                 contentType = CONTENT_TYPE_XLSX;
                 fileExtension = FILE_EXT_XLSX;
                 break;
             case EXPORT_FORMAT_PDF:
-                content = PdfExportUtil.assessmentReportToPdf(report);
+                contentBytes = PdfExportUtil.assessmentReportToPdf(report).getBytes(StandardCharsets.ISO_8859_1);
                 contentType = CONTENT_TYPE_PDF;
                 fileExtension = FILE_EXT_PDF;
                 break;
@@ -180,9 +181,10 @@ public class ExportReportServlet extends SamigoBaseServlet {
         String assessmentName = cleanAssessmentTitle(assessmentData);
         String filename = cleanFilename(typeLabel + " " + assessmentName + fileExtension);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString());
+        response.setContentLength(contentBytes.length);
 
-        PrintWriter out = response.getWriter();
-        out.write(content);
+        ServletOutputStream out = response.getOutputStream();
+        out.write(contentBytes);
         out.flush();
         out.close();
     }
