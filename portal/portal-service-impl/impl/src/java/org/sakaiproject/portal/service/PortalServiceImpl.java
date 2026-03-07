@@ -98,6 +98,16 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Default portal service implementation.
+ *
+ * All pinned/recent site mutations must go through this service so per-user
+ * locking in {@link #withPortalNavLock(String, Runnable)} is consistently
+ * applied before calling repository mutators such as
+ * {@link PinnedSiteRepository#deleteByUserId(String)},
+ * {@link PinnedSiteRepository#deleteBySiteId(String)} and mutating methods on
+ * {@link RecentSiteRepository}.
+ */
 @Slf4j
 public class PortalServiceImpl implements PortalService, Observer
 {
@@ -838,6 +848,9 @@ public class PortalServiceImpl implements PortalService, Observer
 			action.run();
 		} finally {
 			lock.unlock();
+			if (!lock.hasQueuedThreads()) {
+				portalNavLocks.remove(userId, lock);
+			}
 		}
 	}
 
@@ -1044,33 +1057,27 @@ public class PortalServiceImpl implements PortalService, Observer
 		if (StringUtils.isBlank(userId)) return;
 
 		withPortalNavLock(userId, () -> {
-			if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
-				pinnedSiteRepository.deleteByUserId(userId);
-
-				for (int i = 0; i < siteIds.size(); i++) {
-
-					PinnedSite pin = new PinnedSite();
-					pin.setUserId(userId);
-					pin.setSiteId(siteIds.get(i));
-					pin.setPosition(i);
-					pinnedSiteRepository.save(pin);
-				}
-			} else {
+			List<String> siteIdsToPersist = siteIds;
+			if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
 				List<String> reversedSiteIds = new ArrayList<>(siteIds);
 				Collections.reverse(reversedSiteIds);
-
-				pinnedSiteRepository.deleteByUserId(userId);
-
-				for (int i = 0; i < reversedSiteIds.size(); i++) {
-
-					PinnedSite pin = new PinnedSite();
-					pin.setUserId(userId);
-					pin.setSiteId(reversedSiteIds.get(i));
-					pin.setPosition(i);
-					pinnedSiteRepository.save(pin);
-				}
+				siteIdsToPersist = reversedSiteIds;
 			}
+			savePinnedSitesForUser(userId, siteIdsToPersist);
 		});
+	}
+
+	private void savePinnedSitesForUser(String userId, List<String> siteIds) {
+		pinnedSiteRepository.deleteByUserId(userId);
+
+		for (int i = 0; i < siteIds.size(); i++) {
+
+			PinnedSite pin = new PinnedSite();
+			pin.setUserId(userId);
+			pin.setSiteId(siteIds.get(i));
+			pin.setPosition(i);
+			pinnedSiteRepository.save(pin);
+		}
 	}
 
 	@Override
