@@ -76,6 +76,8 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
         ServerConfigurationService mock = mock(ServerConfigurationService.class);
         when(mock.getInt("portal.max.recent.sites", PortalServiceImpl.DEFAULT_MAX_RECENT_SITES))
             .thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
+        when(mock.getInt("portal.max.pinned.sites", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
+            .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
         return mock;
     }
 }

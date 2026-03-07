@@ -125,6 +125,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
+	public static final int DEFAULT_MAX_PINNED_SITES = 100;
 
 	public void init() {
 		try {
@@ -845,6 +846,13 @@ public class PortalServiceImpl implements PortalService, Observer
 			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
 		}
 
+		if (maxRecentSites <= 0) {
+			if (portalNavState != null) {
+				portalNavState.recentSiteIds.remove(siteId);
+			}
+			return;
+		}
+
 		RecentSite recentSite = new RecentSite();
 		recentSite.setUserId(userId);
 		recentSite.setSiteId(siteId);
@@ -892,19 +900,16 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void addPinnedSite(String userId, String siteId, boolean isPinned, PortalNavState portalNavState) {
-
-		if (StringUtils.isAnyBlank(userId, siteId) || siteService.isUserSite(siteId)) return;
-
 		List<String> pinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
-		PinnedSite pinnedSite = getOrCreatePinnedSite(userId, siteId, portalNavState);
 
 		if (isPinned) {
 			pinnedSiteIds.remove(siteId);
 			pinnedSiteIds.add(siteId);
-			persistPinnedSiteOrder(userId, pinnedSiteIds, portalNavState);
+			savePinnedSites(userId, pinnedSiteIds, portalNavState);
 			return;
 		}
 
+		PinnedSite pinnedSite = getOrCreatePinnedSite(userId, siteId, portalNavState);
 		pinnedSite.setPosition(PinnedSite.UNPINNED_POSITION);
 		pinnedSite.setHasBeenUnpinned(true);
 		pinnedSiteRepository.save(pinnedSite);
@@ -918,10 +923,17 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void savePinnedSites(String userId, List<String> siteIds, PortalNavState portalNavState) {
-		if (StringUtils.isBlank(userId)) return;
-
 		List<String> desiredPinnedSiteIds = new ArrayList<>(siteIds);
-		desiredPinnedSiteIds.removeIf(siteService::isSpecialSite);
+		desiredPinnedSiteIds.removeIf(siteId -> StringUtils.isBlank(siteId)
+				|| siteService.isSpecialSite(siteId)
+				|| siteService.isUserSite(siteId));
+
+		int maxPinnedSites = serverConfigurationService.getInt("portal.max.pinned.sites", DEFAULT_MAX_PINNED_SITES);
+		if (maxPinnedSites <= 0) {
+			desiredPinnedSiteIds.clear();
+		} else if (desiredPinnedSiteIds.size() > maxPinnedSites) {
+			desiredPinnedSiteIds = new ArrayList<>(desiredPinnedSiteIds.subList(desiredPinnedSiteIds.size() - maxPinnedSites, desiredPinnedSiteIds.size()));
+		}
 
 		List<String> currentPinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
 		List<String> sitesToUnpin = currentPinnedSiteIds.stream()
@@ -966,9 +978,15 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
+	private boolean isValidPinnedSiteRequest(String userId, String siteId) {
+		return StringUtils.isNoneBlank(userId, siteId) && !siteService.isUserSite(siteId);
+	}
+
 	@Transactional
 	@Override
 	public void addPinnedSite(final String userId, final String siteId, final boolean isPinned) {
+		if (!isValidPinnedSiteRequest(userId, siteId)) return;
+
 		addPinnedSite(userId, siteId, isPinned, loadPortalNavState(userId));
 	}
 
@@ -999,6 +1017,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Transactional
 	@Override
 	public void savePinnedSites(String userId, List<String> siteIds) {
+		if (StringUtils.isBlank(userId) || siteIds == null) return;
+
 		savePinnedSites(userId, siteIds, loadPortalNavState(userId));
 	}
 
@@ -1170,7 +1190,9 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// unpin sites not already unpinned
 		sitesToUnpin.removeAll(unPinnedSites);
-		sitesToUnpin.forEach(id -> addPinnedSite(userId, id, false, portalNavState));
+		sitesToUnpin.stream()
+				.filter(id -> isValidPinnedSiteRequest(userId, id))
+				.forEach(id -> addPinnedSite(userId, id, false, portalNavState));
 
 		// Remove any special sites from pinned or recent
 		combinedSiteIds.stream()
@@ -1179,6 +1201,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		removeSitesfromPinnedAndRecent(userId, new ArrayList<>(sitesToRemove));
 	}
+
 	private void removeFavoriteSiteData(String userId) {
 		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
