@@ -33,6 +33,7 @@
   "dependencies": {
     "@sakai-ui/sakai-announcements": "file:../sakai-announcements",
     "@sakai-ui/sakai-calendar": "file:../sakai-calendar",
+    "@sakai-ui/sakai-course-list": "file:../sakai-course-list",
     "@sakai-ui/sakai-forums": "file:../sakai-forums",
     "@sakai-ui/sakai-grades": "file:../sakai-grades",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",

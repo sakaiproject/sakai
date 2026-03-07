@@ -16,6 +16,7 @@
 package org.sakaiproject.webapi.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,10 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
@@ -57,6 +62,12 @@ public class DashboardControllerTests {
     private SecurityService securityService;
 
     @Mock
+    private ServerConfigurationService serverConfigurationService;
+
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
     private SessionManager sessionManager;
 
     @Mock
@@ -77,6 +88,8 @@ public class DashboardControllerTests {
         ReflectionTestUtils.setField(dashboardController, "preferencesService", preferencesService);
         ReflectionTestUtils.setField(dashboardController, "sakaiPersonManager", sakaiPersonManager);
         ReflectionTestUtils.setField(dashboardController, "securityService", securityService);
+        ReflectionTestUtils.setField(dashboardController, "serverConfigurationService", serverConfigurationService);
+        ReflectionTestUtils.setField(dashboardController, "entityManager", entityManager);
         ReflectionTestUtils.setField(dashboardController, "userDirectoryService", userDirectoryService);
         ReflectionTestUtils.setField(dashboardController, "defaultHomeLayout", List.of());
         ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of());
@@ -147,5 +160,74 @@ public class DashboardControllerTests {
 
         assertEquals("", bean.getMotd());
         verify(announcementService).getVisibleMessagesOfTheDay(null, -1, false);
+    }
+
+    @Test
+    public void testGetUserDashboardReturnsSavedLayoutUnchangedWhenConfiguredWidgetsExcludeCourses() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("admin-user");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(securityService.isSuperUser()).thenReturn(false);
+
+        Type userMutableType = mock(Type.class);
+        when(sakaiPersonManager.getUserMutableType()).thenReturn(userMutableType);
+        when(sakaiPersonManager.getSakaiPerson("admin-user", userMutableType)).thenReturn(Optional.empty());
+        when(userDirectoryService.getOptionalUser("admin-user")).thenReturn(Optional.empty());
+
+        Preferences preferences = mock(Preferences.class);
+        ResourceProperties props = mock(ResourceProperties.class);
+        when(preferencesService.getPreferences("admin-user")).thenReturn(preferences);
+        when(preferences.getProperties("dashboard-config")).thenReturn(props);
+        when(props.getProperty("widgetLayout")).thenReturn("[\"announcements\",\"calendar\"]");
+        when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of());
+
+        ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of("announcements", "calendar"));
+
+        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
+
+        assertEquals(List.of("announcements", "calendar"), bean.getWidgets());
+        assertFalse(bean.getWidgetLayout().contains("courses"));
+        assertEquals("announcements", bean.getWidgetLayout().get(0));
+    }
+
+    @Test
+    public void testGetUserDashboardWithNoSavedLayoutUsesDefaultHomeLayout() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("admin-user");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(securityService.isSuperUser()).thenReturn(false);
+
+        Type userMutableType = mock(Type.class);
+        when(sakaiPersonManager.getUserMutableType()).thenReturn(userMutableType);
+        when(sakaiPersonManager.getSakaiPerson("admin-user", userMutableType)).thenReturn(Optional.empty());
+        when(userDirectoryService.getOptionalUser("admin-user")).thenReturn(Optional.empty());
+
+        Preferences preferences = mock(Preferences.class);
+        when(preferencesService.getPreferences("admin-user")).thenReturn(preferences);
+        when(preferences.getProperties("dashboard-config")).thenReturn(null);
+        when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of());
+
+        when(serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)).thenReturn(false);
+        when(serverConfigurationService.getStringList("dashboard.course.widgets", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.home.widgets", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout2", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null)).thenReturn(List.of());
+        when(serverConfigurationService.getInt("dashboard.home.motd.display", 1)).thenReturn(5);
+
+        dashboardController.init();
+
+        List<String> homeWidgets = (List<String>) ReflectionTestUtils.getField(dashboardController, "homeWidgets");
+        List<String> defaultHomeLayout = (List<String>) ReflectionTestUtils.getField(dashboardController, "defaultHomeLayout");
+
+        assertEquals("courses", homeWidgets.get(0));
+        assertEquals("courses", defaultHomeLayout.get(0));
+
+        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
+
+        assertEquals(List.of("courses", "announcements", "calendar", "grades", "forums"), bean.getWidgetLayout());
+        assertEquals("courses", bean.getWidgetLayout().get(0));
     }
 }
