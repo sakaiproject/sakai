@@ -57,7 +57,7 @@ public class ExcelExportUtil {
                 report.getTitle().ifPresent(title -> {
                     int rowIndex = 0;
                     log.debug("Adding row at {} (title)", rowIndex);
-                    sheet.createRow(0).createCell(0).setCellValue(title);
+                    sheet.createRow(rowIndex).createCell(0).setCellValue(title);
                 });
 
                 // Create subject row
@@ -108,6 +108,9 @@ public class ExcelExportUtil {
     }
 
     private static int nextRowIndex(Sheet sheet) {
+        if (sheet.getPhysicalNumberOfRows() == 0) {
+            return 0;
+        }
         return sheet.getLastRowNum() + 1;
     }
 
