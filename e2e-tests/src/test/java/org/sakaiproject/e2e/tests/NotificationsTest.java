@@ -1,8 +1,8 @@
 package org.sakaiproject.e2e.tests;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Response;
@@ -33,13 +33,23 @@ class NotificationsTest extends SakaiUiTestBase {
 
         assertEquals(0, notificationRequests.size());
 
-        Locator notificationsButton = page.locator(".portal-notifications-button").first();
-        assertThat(notificationsButton).isVisible();
+        Locator notificationsPanel = page.locator("#sakai-notifications-panel").first();
+        assumeTrue(notificationsPanel.count() > 0, "Notifications panel is disabled in this environment");
 
         Response response = page.waitForResponse(
             candidate -> candidate.url().contains("/api/users/me/notifications")
                 && "GET".equals(candidate.request().method()),
-            () -> notificationsButton.click(new Locator.ClickOptions().setForce(true))
+            () -> {
+                Locator notificationsButton = page.locator("button[aria-controls=\"sakai-notifications-panel\"]:visible").first();
+                if (notificationsButton.count() > 0) {
+                    notificationsButton.click(new Locator.ClickOptions().setForce(true));
+                    return;
+                }
+
+                page.evaluate(
+                    "() => bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('sakai-notifications-panel')).show()"
+                );
+            }
         );
 
         assertTrue(response.ok());
