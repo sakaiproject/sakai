@@ -62,6 +62,8 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
   firstUpdated() {
 
+    super.firstUpdated();
+
     const container = this.shadowRoot.getElementById("container");
     // The picker is temporary and easy to miss in the grid, so we add a strong border to signal "selection mode".
     container?.classList.add("border", "border-2", "border-primary", "shadow-sm");

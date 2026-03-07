@@ -17,7 +17,7 @@ export class SakaiCoursesWidget extends SakaiDashboardWidget {
     return html`
       <div class="mb-3">
         <sakai-course-list
-          user-id="${ifDefined(this.userId ? this.userId : undefined)}">
+          user-id="${ifDefined(this.userId)}">
         </sakai-course-list>
       </div>
     `;

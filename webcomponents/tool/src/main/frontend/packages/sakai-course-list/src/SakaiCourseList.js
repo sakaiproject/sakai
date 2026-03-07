@@ -39,7 +39,13 @@ export class SakaiCourseList extends SakaiElement {
 
   _loadData() {
 
-    const url = `/api/users/${this.userId}/sites?pinned=true`;
+    const userId = this.userId && this.userId !== "undefined" ? this.userId : window?.top?.portal?.user?.id;
+    if (!userId) {
+      console.error("No user id available for SakaiCourseList");
+      return;
+    }
+
+    const url = `/api/users/${userId}/sites?pinned=true`;
     fetch(url, { credentials: "include" })
       .then(r => {
 

@@ -35,7 +35,9 @@ import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
@@ -63,6 +65,9 @@ public class DashboardControllerTests {
     private ServerConfigurationService serverConfigurationService;
 
     @Mock
+    private EntityManager entityManager;
+
+    @Mock
     private SessionManager sessionManager;
 
     @Mock
@@ -84,6 +89,7 @@ public class DashboardControllerTests {
         ReflectionTestUtils.setField(dashboardController, "sakaiPersonManager", sakaiPersonManager);
         ReflectionTestUtils.setField(dashboardController, "securityService", securityService);
         ReflectionTestUtils.setField(dashboardController, "serverConfigurationService", serverConfigurationService);
+        ReflectionTestUtils.setField(dashboardController, "entityManager", entityManager);
         ReflectionTestUtils.setField(dashboardController, "userDirectoryService", userDirectoryService);
         ReflectionTestUtils.setField(dashboardController, "defaultHomeLayout", List.of());
         ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of());
@@ -174,7 +180,6 @@ public class DashboardControllerTests {
         when(preferencesService.getPreferences("admin-user")).thenReturn(preferences);
         when(preferences.getProperties("dashboard-config")).thenReturn(props);
         when(props.getProperty("widgetLayout")).thenReturn("[\"announcements\",\"calendar\"]");
-        when(props.getLongProperty("template")).thenReturn(1L);
         when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of());
 
         ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of("announcements", "calendar"));
@@ -204,12 +209,25 @@ public class DashboardControllerTests {
         when(preferences.getProperties("dashboard-config")).thenReturn(null);
         when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of());
 
-        ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of("courses", "announcements", "calendar"));
-        ReflectionTestUtils.setField(dashboardController, "defaultHomeLayout", List.of("courses", "announcements", "calendar"));
+        when(serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)).thenReturn(false);
+        when(serverConfigurationService.getStringList("dashboard.course.widgets", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.home.widgets", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout2", null)).thenReturn(List.of());
+        when(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null)).thenReturn(List.of());
+        when(serverConfigurationService.getInt("dashboard.home.motd.display", 1)).thenReturn(5);
+
+        dashboardController.init();
+
+        List<String> homeWidgets = (List<String>) ReflectionTestUtils.getField(dashboardController, "homeWidgets");
+        List<String> defaultHomeLayout = (List<String>) ReflectionTestUtils.getField(dashboardController, "defaultHomeLayout");
+
+        assertEquals("courses", homeWidgets.get(0));
+        assertEquals("courses", defaultHomeLayout.get(0));
 
         DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
 
-        assertEquals(List.of("courses", "announcements", "calendar"), bean.getWidgetLayout());
+        assertEquals(List.of("courses", "announcements", "calendar", "grades", "forums"), bean.getWidgetLayout());
         assertEquals("courses", bean.getWidgetLayout().get(0));
     }
 }

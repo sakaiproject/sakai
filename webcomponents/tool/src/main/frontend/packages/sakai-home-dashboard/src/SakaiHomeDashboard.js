@@ -175,7 +175,7 @@ export class SakaiHomeDashboard extends SakaiElement {
                   </a>
                 </div>
               </div>
-              <div class="mt-4 ps-4 fs-6" style="display: ${this._showMotd ? "block" : "none"}">${unsafeHTML(this._data.motd)}</div>
+              <div class="mt-4 ps-4 fs-6 ${this._showMotd ? "" : "d-none"}">${unsafeHTML(this._data.motd)}</div>
             </div>
           ` : nothing}
 
