@@ -1123,7 +1123,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Override
 	public void removeSitesfromPinnedAndRecent(String userId, List<String> siteIds) {
 
-		if (StringUtils.isBlank(userId) || siteIds.isEmpty()) return;
+		if (StringUtils.isBlank(userId) || siteIds == null || siteIds.isEmpty()) return;
 
 		withPortalNavLock(userId, () -> {
 			pinnedSiteRepository.deleteByUserIdAndSiteIds(userId, siteIds);
