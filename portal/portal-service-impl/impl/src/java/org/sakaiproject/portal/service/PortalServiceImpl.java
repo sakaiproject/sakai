@@ -924,6 +924,23 @@ public class PortalServiceImpl implements PortalService, Observer
 		portalNavState.pinnedSiteIds.addAll(pinnedSiteIds);
 	}
 
+	private void markSitesUnpinned(String userId, List<String> desiredPinnedSiteIds, PortalNavState portalNavState) {
+
+		List<String> sitesToUnpin = new ArrayList<>(portalNavState.pinnedSiteIds);
+		sitesToUnpin.removeIf(desiredPinnedSiteIds::contains);
+
+		for (String siteId : sitesToUnpin) {
+			PinnedSite pinnedSite = getOrCreatePinnedSite(userId, siteId, portalNavState);
+			pinnedSite.setPosition(PinnedSite.UNPINNED_POSITION);
+			pinnedSite.setHasBeenUnpinned(true);
+			pinnedSiteRepository.save(pinnedSite);
+			if (!portalNavState.unpinnedSiteIds.contains(siteId)) {
+				portalNavState.unpinnedSiteIds.add(siteId);
+			}
+			addRecentSite(userId, siteId, portalNavState);
+		}
+	}
+
 	private void addPinnedSite(String userId, String siteId, boolean isPinned, PortalNavState portalNavState) {
 		List<String> pinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
 
@@ -961,10 +978,6 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		List<String> currentPinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
-		List<String> sitesToUnpin = currentPinnedSiteIds.stream()
-				.filter(Predicate.not(desiredPinnedSiteIds::contains))
-				.collect(Collectors.toList());
-
 		List<String> finalPinnedSiteIds = currentPinnedSiteIds.stream()
 				.filter(desiredPinnedSiteIds::contains)
 				.collect(Collectors.toCollection(ArrayList::new));
@@ -973,17 +986,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				.filter(Predicate.not(finalPinnedSiteIds::contains))
 				.forEach(finalPinnedSiteIds::add);
 
-		for (String siteId : sitesToUnpin) {
-			PinnedSite pinnedSite = getOrCreatePinnedSite(userId, siteId, portalNavState);
-			pinnedSite.setPosition(PinnedSite.UNPINNED_POSITION);
-			pinnedSite.setHasBeenUnpinned(true);
-			pinnedSiteRepository.save(pinnedSite);
-			if (!portalNavState.unpinnedSiteIds.contains(siteId)) {
-				portalNavState.unpinnedSiteIds.add(siteId);
-			}
-			addRecentSite(userId, siteId, portalNavState);
-		}
-
+		markSitesUnpinned(userId, desiredPinnedSiteIds, portalNavState);
 		persistPinnedSiteOrder(userId, finalPinnedSiteIds, portalNavState);
 	}
 
@@ -1055,27 +1058,20 @@ public class PortalServiceImpl implements PortalService, Observer
 		if (StringUtils.isBlank(userId)) return;
 
 		withPortalNavLock(userId, () -> {
+			PortalNavState portalNavState = loadPortalNavState(userId);
 			List<String> siteIdsToPersist = siteIds;
 			if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
 				List<String> reversedSiteIds = new ArrayList<>(siteIds);
 				Collections.reverse(reversedSiteIds);
 				siteIdsToPersist = reversedSiteIds;
 			}
-			savePinnedSitesForUser(userId, siteIdsToPersist);
+			savePinnedSitesForUser(userId, siteIdsToPersist, portalNavState);
 		});
 	}
 
-	private void savePinnedSitesForUser(String userId, List<String> siteIds) {
-		pinnedSiteRepository.deleteByUserId(userId);
-
-		for (int i = 0; i < siteIds.size(); i++) {
-
-			PinnedSite pin = new PinnedSite();
-			pin.setUserId(userId);
-			pin.setSiteId(siteIds.get(i));
-			pin.setPosition(i);
-			pinnedSiteRepository.save(pin);
-		}
+	private void savePinnedSitesForUser(String userId, List<String> siteIds, PortalNavState portalNavState) {
+		markSitesUnpinned(userId, siteIds, portalNavState);
+		persistPinnedSiteOrder(userId, siteIds, portalNavState);
 	}
 
 	@Override

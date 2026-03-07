@@ -153,4 +153,35 @@ public class PortalServiceImplUnitTest {
 		verify(pinnedSiteRepository).save(argThat(pinnedSite -> "site-1".equals(pinnedSite.getSiteId())));
 		verify(pinnedSiteRepository, never()).save(argThat(pinnedSite -> "site-2".equals(pinnedSite.getSiteId())));
 	}
+
+	@Test
+	public void reorderPinnedSitesUsesPortalNavStatePersistencePath() {
+
+		PinnedSite firstPinnedSite = new PinnedSite(USER_ID, "site-1");
+		firstPinnedSite.setId(1L);
+		firstPinnedSite.setPosition(0);
+		firstPinnedSite.setHasBeenUnpinned(false);
+
+		PinnedSite secondPinnedSite = new PinnedSite(USER_ID, "site-2");
+		secondPinnedSite.setId(2L);
+		secondPinnedSite.setPosition(1);
+		secondPinnedSite.setHasBeenUnpinned(false);
+
+		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, false)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
+		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, true)).thenReturn(Collections.<PinnedSite>emptyList());
+
+		portalService.reorderPinnedSites(USER_ID, List.of("site-2"));
+
+		verify(pinnedSiteRepository, never()).deleteByUserId(USER_ID);
+		verify(pinnedSiteRepository).save(argThat(pinnedSite -> Long.valueOf(1L).equals(pinnedSite.getId())
+				&& "site-1".equals(pinnedSite.getSiteId())
+				&& pinnedSite.getPosition() == PinnedSite.UNPINNED_POSITION
+				&& Boolean.TRUE.equals(pinnedSite.getHasBeenUnpinned())));
+		verify(pinnedSiteRepository).save(argThat(pinnedSite -> Long.valueOf(2L).equals(pinnedSite.getId())
+				&& "site-2".equals(pinnedSite.getSiteId())
+				&& pinnedSite.getPosition() == 0
+				&& Boolean.FALSE.equals(pinnedSite.getHasBeenUnpinned())));
+		verify(recentSiteRepository).save(argThat(recentSite -> USER_ID.equals(recentSite.getUserId())
+				&& "site-1".equals(recentSite.getSiteId())));
+	}
 }
