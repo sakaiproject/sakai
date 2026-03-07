@@ -39,7 +39,7 @@ export class SakaiCourseList extends SakaiElement {
 
   _loadData() {
 
-    const userId = this.userId && this.userId !== "undefined" ? this.userId : window?.top?.portal?.user?.id;
+    const userId = this.userId && this.userId !== "undefined" ? this.userId : globalThis.portal?.user?.id;
     if (!userId) {
       console.error("No user id available for SakaiCourseList");
       return;
