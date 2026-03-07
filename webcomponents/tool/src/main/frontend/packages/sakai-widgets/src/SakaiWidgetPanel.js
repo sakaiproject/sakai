@@ -3,6 +3,7 @@ import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { repeat } from "lit/directives/repeat.js";
 import "../sakai-calendar-widget.js";
+import "../sakai-courses-widget.js";
 import "../sakai-tasks-widget.js";
 import "../sakai-grades-widget.js";
 import "../sakai-announcements-widget.js";
@@ -141,6 +142,15 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
   moveWidget(e) {
 
     const currentIndex = this.layout.findIndex(w => w === e.detail.widgetId);
+    if (currentIndex === -1) return;
+
+    const movingBack = e.detail.direction === "up" || e.detail.direction === "left";
+    const movingForward = e.detail.direction === "down" || e.detail.direction === "right";
+
+    if ((movingBack && currentIndex === 0) || (movingForward && currentIndex === this.layout.length - 1)) {
+      return;
+    }
+
     const tmpWidgetId = this.layout[currentIndex];
 
     switch (e.detail.direction) {
@@ -177,7 +187,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this._widgets.length - 1}
+              ?disable-right-and-down=${index === this.layout.length - 1}
               ?editing=${this.editing}>
             </sakai-tasks-widget>
           </div>
@@ -194,7 +204,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this._widgets.length - 1}
+              ?disable-right-and-down=${index === this.layout.length - 1}
               ?editing=${this.editing}>
             </sakai-grades-widget>
           </div>
@@ -211,7 +221,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this._widgets.length - 1}
+              ?disable-right-and-down=${index === this.layout.length - 1}
               ?editing=${this.editing}>
             </sakai-announcements-widget>
           </div>
@@ -228,9 +238,25 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this._widgets.length - 1}
+              ?disable-right-and-down=${index === this.layout.length - 1}
               ?editing=${this.editing}>
             </sakai-calendar-widget>
+          </div>
+        `;
+      case "courses":
+        return html`
+          <div class="${this.state === "add" ? "faded" : ""}">
+            <sakai-courses-widget
+              id="${r}"
+              user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+              class="widget"
+              state="${w.state}"
+              @remove=${this.removeWidget}
+              @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this.layout.length - 1}
+              ?editing=${this.editing}>
+            </sakai-courses-widget>
           </div>
         `;
       case "forums":
@@ -245,7 +271,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this._widgets.length - 1}
+              ?disable-right-and-down=${index === this.layout.length - 1}
               ?editing=${this.editing}>
             </sakai-forums-widget>
           </div>

@@ -33,7 +33,4 @@ public class DashboardRestBean {
     private String courseTemplate1ThumbnailUrl;
     private String courseTemplate2ThumbnailUrl;
     private String courseTemplate3ThumbnailUrl;
-    private String homeTemplate1ThumbnailUrl;
-    private String homeTemplate2ThumbnailUrl;
-    private String homeTemplate3ThumbnailUrl;
 }
