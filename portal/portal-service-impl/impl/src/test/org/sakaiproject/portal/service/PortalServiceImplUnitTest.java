@@ -16,7 +16,6 @@
 package org.sakaiproject.portal.service;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -70,7 +69,7 @@ public class PortalServiceImplUnitTest {
 				.thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
 		when(serverConfigurationService.getInt("portal.max.pinned.sites", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
 				.thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
-		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(anyString(), anyBoolean()))
+		when(pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(anyString()))
 				.thenReturn(Collections.<PinnedSite>emptyList());
 		when(recentSiteRepository.findByUserId(USER_ID)).thenReturn(Collections.<RecentSite>emptyList());
 	}
@@ -105,8 +104,7 @@ public class PortalServiceImplUnitTest {
 		secondPinnedSite.setPosition(1);
 		secondPinnedSite.setHasBeenUnpinned(false);
 
-		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, false)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
-		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, true)).thenReturn(Collections.<PinnedSite>emptyList());
+		when(pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(USER_ID)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
 
 		portalService.savePinnedSites(USER_ID, List.of("site-1", "site-2"));
 
@@ -167,8 +165,7 @@ public class PortalServiceImplUnitTest {
 		secondPinnedSite.setPosition(1);
 		secondPinnedSite.setHasBeenUnpinned(false);
 
-		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, false)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
-		when(pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(USER_ID, true)).thenReturn(Collections.<PinnedSite>emptyList());
+		when(pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(USER_ID)).thenReturn(List.of(firstPinnedSite, secondPinnedSite));
 
 		portalService.reorderPinnedSites(USER_ID, List.of("site-2"));
 
