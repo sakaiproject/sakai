@@ -21,6 +21,14 @@ import java.util.List;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
+/**
+ * Repository for recent site rows.
+ *
+ * Recent site mutations must be coordinated with portal navigation locking in
+ * {@code PortalServiceImpl}. External callers should use
+ * {@code PortalServiceImpl} for mutating operations to preserve lock-based
+ * consistency with in-memory portal navigation state.
+ */
 public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, Long> {
 
     /**
@@ -44,7 +52,10 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      *
      * @param userId the user whose recent sites will be deleted
      * @return the number of rows deleted
+     * @deprecated Internal portal navigation mutation. Use
+     * {@code PortalServiceImpl} methods so locking is applied.
      */
+    @Deprecated
     Integer deleteByUserId(String userId);
 
     /**
@@ -52,7 +63,10 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      *
      * @param siteId the site to be deleted
      * @return the number of rows deleted
+     * @deprecated Internal portal navigation mutation. Use
+     * {@code PortalServiceImpl} methods so locking is applied.
      */
+    @Deprecated
     Integer deleteBySiteId(String siteId);
 
     /**
@@ -61,7 +75,10 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @param userId the user to remove recent site from
      * @param siteId the recent site to remove
      * @return the number of rows deleted
+     * @deprecated Internal portal navigation mutation. Use
+     * {@code PortalServiceImpl} methods so locking is applied.
      */
+    @Deprecated
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
 
     /**
@@ -70,6 +87,9 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @param userId the user to remove recent sites from
      * @param siteIds a list of recent sites to remove
      * @return the number of rows deleted
+     * @deprecated Internal portal navigation mutation. Use
+     * {@code PortalServiceImpl} methods so locking is applied.
      */
+    @Deprecated
     Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }
