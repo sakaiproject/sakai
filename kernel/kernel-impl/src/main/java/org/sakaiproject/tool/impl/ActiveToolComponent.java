@@ -54,7 +54,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
@@ -82,7 +81,6 @@ public class ActiveToolComponent extends ToolComponent implements ActiveToolMana
 
 	@Setter protected SessionManager sessionManager;
 	@Setter protected FunctionManager functionManager;
-	@Setter protected ServerConfigurationService serverConfigurationService;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
