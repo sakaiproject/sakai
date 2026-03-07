@@ -848,9 +848,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			action.run();
 		} finally {
 			lock.unlock();
-			if (!lock.hasQueuedThreads()) {
-				portalNavLocks.remove(userId, lock);
-			}
+			// Intentionally retain per-user locks; removing here can race with concurrent owners/waiters.
 		}
 	}
 
