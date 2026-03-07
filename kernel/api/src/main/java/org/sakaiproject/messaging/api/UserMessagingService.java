@@ -65,6 +65,11 @@ public interface UserMessagingService {
     public List<UserNotificationTransferBean> getNotifications();
 
     /**
+     * @return the number of unviewed notifications for the current user
+     */
+    public long getUnviewedNotificationsCount();
+
+    /**
      * Register a handler for broadcast messages. The first registered handler that
      * handles a given event will receive it exclusively.
      *
