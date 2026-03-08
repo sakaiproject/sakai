@@ -2443,6 +2443,7 @@ public class SiteAction extends PagedResourceActionII {
 						
 				String locale_string = StringUtils.trimToEmpty(props.getProperty(PROP_SITE_LANGUAGE));
 				context.put("locale_string",locale_string);
+				context.put("siteId", site.getId());
 
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_SITE_INFO);

@@ -1,11 +1,14 @@
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import Cropper from "cropperjs";
 import { cropperStyles } from "./cropperStyles.js";
 
 export class SakaiImageEditor extends SakaiShadowElement {
 
-  static properties = { imageUrl: { attribute: "image-url", type: String } };
+  static properties = {
+    imageUrl: { attribute: "image-url", type: String },
+    _filePicked: { state: true },
+  };
 
   constructor() {
 
@@ -34,6 +37,7 @@ export class SakaiImageEditor extends SakaiShadowElement {
     if (e.target.files[0]) {
       this.cropper.clear();
       this.cropper.replace(URL.createObjectURL(e.target.files[0]));
+      this._filePicked = true;
     }
   }
 
@@ -66,38 +70,41 @@ export class SakaiImageEditor extends SakaiShadowElement {
   }
 
   shouldUpdate(changed) {
-    return this._i18n && this.imageUrl && super.shouldUpdate(changed);
+    return this._i18n && super.shouldUpdate(changed);
   }
 
   render() {
 
     return html`
+      <div class="sak-banner-info">${this._i18n.info}</div>
       <input type="file" accept="image/*" aria-label="${this._i18n.image_picker_label}" @change=${this.filePicked} />
       <div><img id="image" src="${this.imageUrl}" /></div>
-      <div id="controls">
-        <sakai-button @click=${this.zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
-          <sakai-icon type="add"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.zoomOut} type="small" title="${this._i18n.zoom_out}" arial-label="${this._i18n.zoom_out}">
-          <sakai-icon type="minus"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.up} type="small" title="${this._i18n.pan_up}" arial-label="${this._i18n.pan_up}">
-          <sakai-icon type="up"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.down} type="small" title="${this._i18n.pan_down}" arial-label="${this._i18n.pan_down}">
-          <sakai-icon type="down"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.left} type="small" title="${this._i18n.pan_left}" arial-label="${this._i18n.pan_left}">
-          <sakai-icon type="left"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.right} type="small" title="${this._i18n.pan_right}" arial-label="${this._i18n.pan_right}">
-          <sakai-icon type="right"></sakai-icon>
-        </sakai-button>
-        <sakai-button @click=${this.rotate} type="small" title="${this._i18n.rotate}" arial-label="${this._i18n.rotate}">
-          <sakai-icon type="refresh"></sakai-icon>
-        </sakai-button>
-      </div>
-      <button type="button" class="btn btn-primary mt-2" @click=${this.done} primary>${this._i18n.done}</button>
+      ${this.imageUrl || this._filePicked ? html`
+        <div id="controls">
+          <sakai-button @click=${this.zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
+            <sakai-icon type="add"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.zoomOut} type="small" title="${this._i18n.zoom_out}" arial-label="${this._i18n.zoom_out}">
+            <sakai-icon type="minus"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.up} type="small" title="${this._i18n.pan_up}" arial-label="${this._i18n.pan_up}">
+            <sakai-icon type="up"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.down} type="small" title="${this._i18n.pan_down}" arial-label="${this._i18n.pan_down}">
+            <sakai-icon type="down"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.left} type="small" title="${this._i18n.pan_left}" arial-label="${this._i18n.pan_left}">
+            <sakai-icon type="left"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.right} type="small" title="${this._i18n.pan_right}" arial-label="${this._i18n.pan_right}">
+            <sakai-icon type="right"></sakai-icon>
+          </sakai-button>
+          <sakai-button @click=${this.rotate} type="small" title="${this._i18n.rotate}" arial-label="${this._i18n.rotate}">
+            <sakai-icon type="refresh"></sakai-icon>
+          </sakai-button>
+        </div>
+        <button type="button" class="btn btn-primary mt-2" @click=${this.done} primary>${this._i18n.done}</button>
+      ` : nothing}
     `;
   }
 

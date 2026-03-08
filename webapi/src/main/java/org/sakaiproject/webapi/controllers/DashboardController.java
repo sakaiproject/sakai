@@ -49,8 +49,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -322,41 +320,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
             site.getProperties().addProperty("dashboard-config", configJson);
             siteService.save(site);
         } catch (Exception e) {
-        }
-    }
-
-    @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
-    public String saveSiteImage(HttpServletRequest req, @PathVariable String siteId) throws Exception {
-
-        try {
-            FileItem fi = (FileItem) req.getAttribute("siteImage");
-            String collectionId = contentHostingService.getSiteCollection(siteId);
-
-            // Ensure we have a collection for this site. If we've not added resources to the 
-            // site yet, there may be no collection.
-            try {
-                contentHostingService.checkCollection(collectionId);
-            } catch (IdUnusedException idue) {
-                contentHostingService.commitCollection(contentHostingService.addCollection(collectionId));
-            }
-
-            ContentResourceEdit edit;
-            try {
-                edit = contentHostingService.editResource(collectionId + COURSE_IMAGE_FILE);
-            } catch (IdUnusedException | PermissionException e) {
-                edit = contentHostingService.addResource(collectionId, COURSE_IMAGE, ".png", 1);
-            }
-            edit.setContent(fi.get());
-            edit.setContentLength(fi.getSize());
-            edit.setContentType(fi.getContentType());
-            contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-            Site site = siteService.getSite(siteId);
-            site.getProperties().addProperty(Site.PROP_COURSE_IMAGE_URL, edit.getUrl());
-            siteService.save(site);
-            return edit.getUrl();
-        } catch (Exception e) {
-            log.error("Failed to update image for site {}: {}", siteId, e.toString());
-            throw e;
         }
     }
 
