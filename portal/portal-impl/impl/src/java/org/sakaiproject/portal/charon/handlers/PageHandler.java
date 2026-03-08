@@ -246,21 +246,21 @@ public class PageHandler extends BasePortalHandler
 			boolean displayRole = ServerConfigurationService.getBoolean(PROP_PORTAL_DISPLAY_CURRENT_ROLE, false);
 			rcontext.put("currentRole", null);
 
-				if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
-					String roleId = null;
-					if (securityService.isSuperUser()) {
-						roleId = "admin";
-					} else {
-						String currentUserId = session.getUserId();
-						if (currentUserId != null) {
-							Member member = site.getMember(currentUserId);
-							if (member != null) {
-								roleId = member.getRole().getId();
-							}
+			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
+				String roleId = null;
+				if (securityService.isSuperUser()) {
+					roleId = "admin";
+				} else {
+					String currentUserId = session.getUserId();
+					if (currentUserId != null) {
+						Member member = site.getMember(currentUserId);
+						if (member != null) {
+							roleId = member.getRole().getId();
 						}
 					}
-					rcontext.put("currentRole", roleId);
 				}
+				rcontext.put("currentRole", roleId);
+			}
 			
 			rcontext.put("pageTwoColumn", Boolean
 					.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));

@@ -55,7 +55,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @deprecated Internal portal navigation mutation. Use
      * {@code PortalServiceImpl} methods so locking is applied.
      */
-    @Deprecated
     Integer deleteByUserId(String userId);
 
     /**
@@ -66,7 +65,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @deprecated Internal portal navigation mutation. Use
      * {@code PortalServiceImpl} methods so locking is applied.
      */
-    @Deprecated
     Integer deleteBySiteId(String siteId);
 
     /**
@@ -78,7 +76,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @deprecated Internal portal navigation mutation. Use
      * {@code PortalServiceImpl} methods so locking is applied.
      */
-    @Deprecated
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
 
     /**
@@ -90,6 +87,5 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @deprecated Internal portal navigation mutation. Use
      * {@code PortalServiceImpl} methods so locking is applied.
      */
-    @Deprecated
     Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }

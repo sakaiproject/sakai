@@ -2,6 +2,7 @@ package org.sakai.memory.impl.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +84,7 @@ public class MockAuthzGroupService implements AuthzGroupService {
 	}
 
 	public Map<String, Map<String, Set<String>>> getRoleFunctions(Collection<String> azGroups) {
-		return null;
+		return Collections.emptyMap();
 	}
 
 	public AuthzGroup getAuthzGroup(String id) throws GroupNotDefinedException {
