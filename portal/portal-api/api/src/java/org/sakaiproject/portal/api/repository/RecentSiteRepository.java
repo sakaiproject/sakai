@@ -52,8 +52,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      *
      * @param userId the user whose recent sites will be deleted
      * @return the number of rows deleted
-     * @deprecated Internal portal navigation mutation. Use
-     * {@code PortalServiceImpl} methods so locking is applied.
      */
     Integer deleteByUserId(String userId);
 
@@ -62,8 +60,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      *
      * @param siteId the site to be deleted
      * @return the number of rows deleted
-     * @deprecated Internal portal navigation mutation. Use
-     * {@code PortalServiceImpl} methods so locking is applied.
      */
     Integer deleteBySiteId(String siteId);
 
@@ -73,8 +69,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @param userId the user to remove recent site from
      * @param siteId the recent site to remove
      * @return the number of rows deleted
-     * @deprecated Internal portal navigation mutation. Use
-     * {@code PortalServiceImpl} methods so locking is applied.
      */
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
 
@@ -84,8 +78,6 @@ public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, L
      * @param userId the user to remove recent sites from
      * @param siteIds a list of recent sites to remove
      * @return the number of rows deleted
-     * @deprecated Internal portal navigation mutation. Use
-     * {@code PortalServiceImpl} methods so locking is applied.
      */
     Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }
