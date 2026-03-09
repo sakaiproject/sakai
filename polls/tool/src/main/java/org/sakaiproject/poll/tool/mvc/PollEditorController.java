@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.model.PollForm;
@@ -199,12 +200,6 @@ public class PollEditorController {
             return "redirect:/votePolls";
         }
 
-        if (poll.getVoteOpen() != null && poll.getVoteClose() != null && poll.getVoteOpen().isAfter(poll.getVoteClose())) {
-            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
-            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
-            return "polls/edit";
-        }
-
         Poll saved = pollsService.savePoll(poll);
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
@@ -246,7 +241,7 @@ public class PollEditorController {
             return new PollEditContext(List.of(), false);
         }
 
-        List options = pollsService.getVisibleOptionsForPoll(poll.get().getId());
+        List<Option> options = pollsService.getVisibleOptionsForPoll(poll.get().getId());
         boolean hasVotes = !pollsService.getAllVotesForPoll(poll.get().getId()).isEmpty();
         return new PollEditContext(options, hasVotes);
     }
@@ -367,5 +362,5 @@ public class PollEditorController {
         String labelKey;
     }
 
-    private record PollEditContext(List options, boolean hasVotes) { }
+    private record PollEditContext(List<Option> options, boolean hasVotes) { }
 }
