@@ -161,20 +161,11 @@ public class ResultsController {
     }
 
     private String decorateOptionText(Option option, Locale locale) {
-        String text = getOptionLabel(option, locale);
-        if (Boolean.TRUE.equals(option.getDeleted())) {
-            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
-        }
-        return text;
+        return getDecoratedOptionText(option, locale);
     }
 
     private String decorateOptionLabel(Option option, Locale locale) {
-        String text = getOptionLabel(option, locale);
-        if (Boolean.TRUE.equals(option.getDeleted())) {
-            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
-        }
-
-        return StringUtils.normalizeSpace(text
+        return StringUtils.normalizeSpace(getDecoratedOptionText(option, locale)
                 .replace("&nbsp;", " ")
                 .replaceAll("<[^>]+>", " "));
     }
@@ -183,6 +174,14 @@ public class ResultsController {
         String text = option.getText();
         if (StringUtils.isBlank(text)) {
             text = messageSource.getMessage("result_novote", null, locale);
+        }
+        return text;
+    }
+
+    private String getDecoratedOptionText(Option option, Locale locale) {
+        String text = getOptionLabel(option, locale);
+        if (Boolean.TRUE.equals(option.getDeleted())) {
+            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
         }
         return text;
     }
