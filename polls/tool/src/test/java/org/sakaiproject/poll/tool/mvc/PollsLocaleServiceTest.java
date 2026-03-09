@@ -33,7 +33,7 @@ public class PollsLocaleServiceTest {
         when(placement.getContext()).thenReturn("site-id");
         when(siteService.getSite("site-id")).thenReturn(site);
         when(site.getProperties()).thenReturn(properties);
-        when(properties.get("locale_string")).thenReturn("fr_FR");
+        when(properties.get(Site.PROP_SITE_LOCALE)).thenReturn("fr_FR");
         when(serverConfigurationService.getLocaleFromString("fr_FR")).thenReturn(Locale.FRANCE);
         when(sessionManager.getCurrentSessionUserId()).thenReturn("user1");
         when(preferencesService.getLocale("user1")).thenReturn(Locale.GERMANY);
@@ -59,7 +59,7 @@ public class PollsLocaleServiceTest {
         when(placement.getContext()).thenReturn("site-id");
         when(siteService.getSite("site-id")).thenReturn(site);
         when(site.getProperties()).thenReturn(properties);
-        when(properties.get("locale_string")).thenReturn(null);
+        when(properties.get(Site.PROP_SITE_LOCALE)).thenReturn(null);
         when(sessionManager.getCurrentSessionUserId()).thenReturn("user1");
         when(preferencesService.getLocale("user1")).thenReturn(Locale.GERMANY);
 

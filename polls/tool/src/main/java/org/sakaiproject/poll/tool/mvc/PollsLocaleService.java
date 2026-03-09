@@ -30,7 +30,7 @@ public class PollsLocaleService {
         Optional<Site> currentSite = getCurrentSite();
         if (currentSite.isPresent()) {
             ResourceProperties siteProperties = currentSite.get().getProperties();
-            String siteLocale = (String) siteProperties.get("locale_string");
+            String siteLocale = (String) siteProperties.get(Site.PROP_SITE_LOCALE);
             if (StringUtils.isNotBlank(siteLocale)) {
                 Locale locale = serverConfigurationService.getLocaleFromString(siteLocale);
                 if (locale != null) {
