@@ -146,14 +146,23 @@ public class PollEditorController {
                            Locale locale,
                            Model model,
                            @RequestParam(value = "redirect", required = false) String redirectTarget) {
+        boolean isNewPoll = StringUtils.isBlank(pollForm.getPollId());
+        if (isNewPoll) {
+            if (!isAllowedPollAdd()) {
+                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
+                populateModelForEdit(model, pollForm, List.of(), false);
+                return "polls/edit";
+            }
+        } else {
+            Optional<Poll> poll = pollsService.getPollById(pollForm.getPollId());
+            if (poll.isPresent() && !canEditPoll(poll.get())) {
+                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
+                populateModelForEdit(model, pollForm, List.of(), false);
+                return "polls/edit";
+            }
+        }
 
         PollEditContext pollEditContext = resolvePollEditContext(pollForm.getPollId());
-
-        if (!isAllowedPollAdd()) {
-            bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
-            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
-            return "polls/edit";
-        }
 
         // Validate form inputs
         if (StringUtils.isBlank(pollForm.getText())) {
