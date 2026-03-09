@@ -147,6 +147,7 @@ public class PollEditorController {
                            Model model,
                            @RequestParam(value = "redirect", required = false) String redirectTarget) {
         boolean isNewPoll = StringUtils.isBlank(pollForm.getPollId());
+        String currentSiteId = toolManager.getCurrentPlacement().getContext();
         if (isNewPoll) {
             if (!isAllowedPollAdd()) {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
@@ -155,7 +156,12 @@ public class PollEditorController {
             }
         } else {
             Optional<Poll> poll = pollsService.getPollById(pollForm.getPollId());
-            if (poll.isPresent() && !canEditPoll(poll.get())) {
+            if (poll.isEmpty() || !StringUtils.equals(poll.get().getSiteId(), currentSiteId)) {
+                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
+                populateModelForEdit(model, pollForm, List.of(), false);
+                return "polls/edit";
+            }
+            if (!canEditPoll(poll.get())) {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
                 populateModelForEdit(model, pollForm, List.of(), false);
                 return "polls/edit";
@@ -197,7 +203,7 @@ public class PollEditorController {
         }
 
         int optionCount = pollEditContext.options().size();
-        if (optionCount > 0 && (pollForm.getMinOptions() > optionCount || pollForm.getMaxOptions() > optionCount)) {
+        if (!isNewPoll && (pollForm.getMinOptions() > optionCount || pollForm.getMaxOptions() > optionCount)) {
             bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("invalid_poll_limits", null, locale)));
             populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
