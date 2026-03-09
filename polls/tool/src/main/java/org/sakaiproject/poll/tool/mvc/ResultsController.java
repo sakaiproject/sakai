@@ -100,9 +100,16 @@ public class ResultsController {
 
         for (int i = 0; i < displayOptions.size(); i++) {
             Option option = displayOptions.get(i);
-            long voteCount = votes.stream()
-                    .filter(v -> Objects.equals(option.getId(), v.getOption().getId()))
-                    .count();
+            long voteCount;
+            if (option.getId() == null) {
+                voteCount = votes.stream()
+                        .filter(v -> v.getOption() == null || v.getOption().getId() == null)
+                        .count();
+            } else {
+                voteCount = votes.stream()
+                        .filter(v -> v.getOption() != null && Objects.equals(option.getId(), v.getOption().getId()))
+                        .count();
+            }
 
             double percentage = calculatePercentage(currentPoll, voteCount, totalVotes, distinctVoters);
             rows.add(new ResultRow(
