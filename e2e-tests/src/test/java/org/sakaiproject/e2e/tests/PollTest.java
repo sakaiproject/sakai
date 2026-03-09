@@ -48,7 +48,8 @@ class PollTest extends SakaiUiTestBase {
         page.locator("form:visible input[type=\"text\"]").first().fill(POLL_TITLE);
 
         LocalDateTime now = LocalDateTime.now();
-        String openDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        // Keep poll open regardless of browser/server timezone differences in CI.
+        String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
 
         page.locator("input[name=\"openDate\"]").fill(openDateTime);
@@ -186,11 +187,12 @@ class PollTest extends SakaiUiTestBase {
         Locator pollRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(POLL_TITLE)).first();
         assertThat(pollRow).isVisible();
 
-        pollRow.locator("a[href*=\"/voteQuestion\"], a[href*=\"voteQuestion\"]").first()
+        pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(POLL_TITLE))
+            .first()
             .click(new Locator.ClickOptions().setForce(true));
 
         page.locator("input[name=\"selectedOptionIds\"]").first().check();
-        page.locator("input[type=\"submit\"][value=\"Vote\"], button:has-text(\"Vote\")").first()
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
             .click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("body")).containsText("Thank you for voting!");
@@ -202,8 +204,9 @@ class PollTest extends SakaiUiTestBase {
             .click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("#poll-results-chart")).isVisible();
-        assertThat(page.locator("table")).containsText("Yes");
-        assertThat(page.locator("table")).containsText("100%");
+        Locator resultsTable = page.locator(".table-responsive table").first();
+        assertThat(resultsTable).containsText("Yes");
+        assertThat(resultsTable).containsText("100%");
     }
 
     private Locator addOptionControl() {
