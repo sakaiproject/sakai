@@ -175,6 +175,35 @@ class PollTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(DEFAULT_DATES_POLL_TITLE);
     }
 
+    @Test
+    @Order(5)
+    void canVoteAndViewResultsChart() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("^" + Pattern.quote(POLL_TITLE) + "$"))).first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        page.locator("input[name=\"selectedOptionIds\"]").first().check();
+        page.locator("input[type=\"submit\"][value=\"Vote\"], button:has-text(\"Vote\")").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("body")).containsText("Thank you for voting!");
+
+        page.locator("input[type=\"button\"][value=\"Back\"], button:has-text(\"Back\")").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        Locator pollRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(POLL_TITLE)).first();
+        pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Results"))
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("#poll-results-chart")).isVisible();
+        assertThat(page.locator("table")).containsText("Yes");
+        assertThat(page.locator("table")).containsText("100%");
+    }
+
     private Locator addOptionControl() {
         return page.locator("input[type=\"button\"][value=\"Add option\"], input[type=\"button\"][value=\"Add Option\"], input[type=\"button\"][value*=\"Add option\"], input[type=\"button\"][value*=\"Add Option\"], button:has-text(\"Add option\"), button:has-text(\"Add Option\"), a:has-text(\"Add option\"), a:has-text(\"Add Option\")").first();
     }

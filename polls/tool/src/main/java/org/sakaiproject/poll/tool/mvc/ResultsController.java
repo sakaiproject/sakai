@@ -22,7 +22,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -65,22 +67,28 @@ public class ResultsController {
                               Locale locale,
                               RedirectAttributes redirectAttributes) {
         Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (poll.isEmpty()) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/votePolls";
+        }
+
+        Poll currentPoll = poll.get();
         String currentUserId = sessionManager.getCurrentSessionUserId();
-        if (!pollsService.isAllowedViewResults(poll.get(), currentUserId)) {
+        if (!pollsService.isAllowedViewResults(currentPoll, currentUserId)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll.noviewresult", null, locale));
             return "redirect:/votePolls";
         }
 
-        List<Option> options = poll.get().getOptions();
-        if (poll.get().getMinOptions() == 0) {
+        List<Option> options = currentPoll.getOptions();
+        if (currentPoll.getMinOptions() == 0) {
             Option noVote = new Option();
             noVote.setText(messageSource.getMessage("result_novote", null, locale));
-            poll.get().addOption(noVote);
+            currentPoll.addOption(noVote);
         }
 
-        List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
+        List<Vote> votes = pollsService.getAllVotesForPoll(currentPoll.getId());
         int totalVotes = votes.size();
-        int distinctVoters = pollsService.getDistinctVotersForPoll(poll.get());
+        int distinctVoters = pollsService.getDistinctVotersForPoll(currentPoll);
         String siteId = toolManager.getCurrentPlacement().getContext();
         int potentialVoters = pollsService.getNumberUsersCanVote(siteId);
 
@@ -91,13 +99,14 @@ public class ResultsController {
         for (int i = 0; i < options.size(); i++) {
             Option option = options.get(i);
             long voteCount = votes.stream()
-                    .filter(v -> option.getId().equals(v.getOption().getId()))
+                    .filter(v -> Objects.equals(option.getId(), v.getOption().getId()))
                     .count();
 
-            double percentage = calculatePercentage(poll.get(), voteCount, totalVotes, distinctVoters);
+            double percentage = calculatePercentage(currentPoll, voteCount, totalVotes, distinctVoters);
             rows.add(new ResultRow(
                     i + 1,
                     decorateOptionText(option, locale),
+                    decorateOptionLabel(option, locale),
                     voteCount,
                     percentFormat.format(percentage),
                     percentage
@@ -122,8 +131,11 @@ public class ResultsController {
         boolean canAdd = isAdmin || securityService.unlock(PERMISSION_ADD, siteRef);
         boolean isSiteOwner = isAdmin || securityService.unlock("site.upd", siteRef);
 
-        model.addAttribute("poll", poll.get());
+        model.addAttribute("poll", currentPoll);
         model.addAttribute("rows", rows);
+        model.addAttribute("chartLabels", rows.stream().map(ResultRow::getChartLabel).collect(Collectors.toList()));
+        model.addAttribute("chartVotes", rows.stream().map(ResultRow::getVotes).collect(Collectors.toList()));
+        model.addAttribute("chartPercentages", rows.stream().map(ResultRow::getPercentageLabel).collect(Collectors.toList()));
         model.addAttribute("totalVotes", totalVotes);
         model.addAttribute("distinctVoters", distinctVoters);
         model.addAttribute("voterPercent", voterPercent);
@@ -149,12 +161,28 @@ public class ResultsController {
     }
 
     private String decorateOptionText(Option option, Locale locale) {
+        String text = getOptionLabel(option, locale);
+        if (Boolean.TRUE.equals(option.getDeleted())) {
+            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
+        }
+        return text;
+    }
+
+    private String decorateOptionLabel(Option option, Locale locale) {
+        String text = getOptionLabel(option, locale);
+        if (Boolean.TRUE.equals(option.getDeleted())) {
+            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
+        }
+
+        return StringUtils.normalizeSpace(text
+                .replace("&nbsp;", " ")
+                .replaceAll("<[^>]+>", " "));
+    }
+
+    private String getOptionLabel(Option option, Locale locale) {
         String text = option.getText();
         if (StringUtils.isBlank(text)) {
             text = messageSource.getMessage("result_novote", null, locale);
-        }
-        if (Boolean.TRUE.equals(option.getDeleted())) {
-            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
         }
         return text;
     }
@@ -163,6 +191,7 @@ public class ResultsController {
     public static class ResultRow {
         int order;
         String text;
+        String chartLabel;
         long votes;
         String percentageLabel;
         double percentageValue;
