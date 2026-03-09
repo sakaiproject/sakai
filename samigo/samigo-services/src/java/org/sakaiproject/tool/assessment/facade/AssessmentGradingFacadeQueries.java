@@ -3066,6 +3066,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 Integer status = (Integer) row[1];
 
                 if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(status)) {
+                    updatedAssessmentIds.remove(assessmentId);
                     needResubmitAssessmentIds.add(assessmentId);
                 } else if (AssessmentGradingData.ASSESSMENT_UPDATED.equals(status)
                         && !needResubmitAssessmentIds.contains(assessmentId)){

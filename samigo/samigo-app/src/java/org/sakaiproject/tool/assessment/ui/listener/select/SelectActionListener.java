@@ -310,34 +310,12 @@ public class SelectActionListener implements ActionListener {
         .filter(db -> EvaluationModelIfc.AVERAGE_SCORE.toString().equals(db.getScoringOption()))
         .collect(Collectors.toList());
 
-    String lastPublishedAssessmentId = null;
-    Map<String, Double> averageScoreMap = new HashMap<>();
-    double totalScores = 0d;
-    int totalSubmissions = 0;
-
-    for (DeliveryBeanie db : averageScoreAssessmentGradingList) {
-      String currentId = db.getAssessmentId();
-      double score = Double.parseDouble(db.getFinalScore());
-
-      if (currentId.equals(lastPublishedAssessmentId)) {
-        totalScores += score;
-        totalSubmissions++;
-      } else {
-        if (lastPublishedAssessmentId != null) {
-            double averageScore = totalScores / totalSubmissions;
-            averageScoreMap.put(lastPublishedAssessmentId, averageScore);
-        }
-
-        lastPublishedAssessmentId = currentId;
-        totalScores = score;
-        totalSubmissions = 1;
-      }
-    }
-
-    if (lastPublishedAssessmentId != null) {
-      double averageScore = totalScores / totalSubmissions;
-      averageScoreMap.put(lastPublishedAssessmentId, averageScore);
-    }
+    Map<String, Double> averageScoreMap =
+    averageScoreAssessmentGradingList.stream()
+      .collect(Collectors.groupingBy(
+        DeliveryBeanie::getAssessmentId,
+        Collectors.averagingDouble(db -> Double.parseDouble(db.getFinalScore()))
+    ));
 
     /// --mustansar
     List<DeliveryBeanie> reviewableList = new ArrayList();
