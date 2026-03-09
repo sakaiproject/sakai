@@ -38,6 +38,7 @@ import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,6 +60,7 @@ public class ResultsController {
     private final SecurityService securityService;
     private final SiteService siteService;
     private final ToolManager toolManager;
+    private final FormattedText formattedText;
     private final MessageSource messageSource;
 
     @GetMapping("/voteResults")
@@ -165,9 +167,8 @@ public class ResultsController {
     }
 
     private String decorateOptionLabel(Option option, Locale locale) {
-        return StringUtils.normalizeSpace(getDecoratedOptionText(option, locale)
-                .replace("&nbsp;", " ")
-                .replaceAll("<[^>]+>", " "));
+        return StringUtils.normalizeSpace(formattedText.convertFormattedTextToPlaintext(
+                getEscapedDecoratedOptionText(option, locale)));
     }
 
     private String getOptionLabel(Option option, Locale locale) {
@@ -179,7 +180,14 @@ public class ResultsController {
     }
 
     private String getDecoratedOptionText(Option option, Locale locale) {
-        String text = getOptionLabel(option, locale);
+        return appendDeletedTag(getOptionLabel(option, locale), option, locale);
+    }
+
+    private String getEscapedDecoratedOptionText(Option option, Locale locale) {
+        return appendDeletedTag(formattedText.escapeHtml(getOptionLabel(option, locale)), option, locale);
+    }
+
+    private String appendDeletedTag(String text, Option option, Locale locale) {
         if (Boolean.TRUE.equals(option.getDeleted())) {
             text += messageSource.getMessage("deleted_option_tag_html", null, locale);
         }
