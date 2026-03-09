@@ -57,7 +57,6 @@ import static org.sakaiproject.poll.api.PollConstants.*;
 @RequestMapping
 @Slf4j
 public class PollEditorController {
-
     private final PollsService pollsService;
     private final SecurityService securityService;
     private final SiteService siteService;
@@ -147,34 +146,50 @@ public class PollEditorController {
                            Model model,
                            @RequestParam(value = "redirect", required = false) String redirectTarget) {
 
+        PollEditContext pollEditContext = resolvePollEditContext(pollForm.getPollId());
+
         if (!isAllowedPollAdd()) {
             bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
-            populateModelForEdit(model, pollForm, List.of(), false);
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
         // Validate form inputs
         if (StringUtils.isBlank(pollForm.getText())) {
             bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("error_no_text", null, locale)));
-            populateModelForEdit(model, pollForm, List.of(), false);
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
         if (pollForm.getOpenDate() == null || pollForm.getCloseDate() == null) {
-            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
-            populateModelForEdit(model, pollForm, List.of(), false);
+            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("poll_dates_required", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
-        if (pollForm.getOpenDate().isAfter(pollForm.getCloseDate())) {
+        if (pollForm.getOpenDate() != null && pollForm.getCloseDate() != null
+                && pollForm.getOpenDate().isAfter(pollForm.getCloseDate())) {
             bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
-            populateModelForEdit(model, pollForm, List.of(), false);
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+            return "polls/edit";
+        }
+
+        if (pollForm.getMinOptions() == null || pollForm.getMaxOptions() == null) {
+            bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("poll_limits_required", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
         if (pollForm.getMinOptions() > pollForm.getMaxOptions()) {
             bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("min_greater_than_max", null, locale)));
-            populateModelForEdit(model, pollForm, List.of(), false);
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+            return "polls/edit";
+        }
+
+        int optionCount = pollEditContext.options().size();
+        if (optionCount > 0 && (pollForm.getMinOptions() > optionCount || pollForm.getMaxOptions() > optionCount)) {
+            bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("invalid_poll_limits", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
@@ -182,6 +197,12 @@ public class PollEditorController {
         if (poll == null) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/votePolls";
+        }
+
+        if (poll.getVoteOpen() != null && poll.getVoteClose() != null && poll.getVoteOpen().isAfter(poll.getVoteClose())) {
+            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+            return "polls/edit";
         }
 
         Poll saved = pollsService.savePoll(poll);
@@ -213,6 +234,21 @@ public class PollEditorController {
         model.addAttribute("isSiteOwner", isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
+    }
+
+    private PollEditContext resolvePollEditContext(String pollId) {
+        if (StringUtils.isBlank(pollId)) {
+            return new PollEditContext(List.of(), false);
+        }
+
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (poll.isEmpty()) {
+            return new PollEditContext(List.of(), false);
+        }
+
+        List options = pollsService.getVisibleOptionsForPoll(poll.get().getId());
+        boolean hasVotes = !pollsService.getAllVotesForPoll(poll.get().getId()).isEmpty();
+        return new PollEditContext(options, hasVotes);
     }
 
     private Poll preparePollEntity(PollForm form) {
@@ -260,6 +296,7 @@ public class PollEditorController {
 
     private PollForm newPollForm() {
         PollForm form = new PollForm();
+        LocalDateTime defaultOpen = truncateToMinutes(LocalDateTime.now(getUserZoneId()));
         form.setPollId(null);
         form.setText("");
         form.setDetails("");
@@ -267,8 +304,8 @@ public class PollEditorController {
         form.setMinOptions(1);
         form.setMaxOptions(1);
         form.setDisplayResult("open");
-        form.setOpenDate(null);
-        form.setCloseDate(null);
+        form.setOpenDate(defaultOpen);
+        form.setCloseDate(defaultOpen.plusYears(1));
         return form;
     }
 
@@ -329,4 +366,6 @@ public class PollEditorController {
         String value;
         String labelKey;
     }
+
+    private record PollEditContext(List options, boolean hasVotes) { }
 }
