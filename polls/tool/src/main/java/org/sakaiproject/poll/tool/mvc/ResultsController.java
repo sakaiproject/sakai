@@ -115,6 +115,7 @@ public class ResultsController {
             rows.add(new ResultRow(
                     i + 1,
                     decorateOptionText(option, locale),
+                    Boolean.TRUE.equals(option.getDeleted()),
                     decorateOptionLabel(option, locale),
                     voteCount,
                     percentFormat.format(percentage),
@@ -170,7 +171,7 @@ public class ResultsController {
     }
 
     private String decorateOptionText(Option option, Locale locale) {
-        return getDecoratedOptionText(option, locale);
+        return getOptionLabel(option, locale);
     }
 
     private String decorateOptionLabel(Option option, Locale locale) {
@@ -184,10 +185,6 @@ public class ResultsController {
             text = messageSource.getMessage("result_novote", null, locale);
         }
         return text;
-    }
-
-    private String getDecoratedOptionText(Option option, Locale locale) {
-        return appendDeletedTag(getOptionLabel(option, locale), option, locale);
     }
 
     private String getEscapedDecoratedOptionText(Option option, Locale locale) {
@@ -205,6 +202,7 @@ public class ResultsController {
     public static class ResultRow {
         int order;
         String text;
+        boolean deleted;
         String chartLabel;
         long votes;
         String percentageLabel;

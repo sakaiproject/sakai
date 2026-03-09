@@ -34,7 +34,10 @@
         <tbody>
         <tr th:each="row : ${rows}">
           <td th:text="${row.order}">1</td>
-          <td th:utext="${row.text}">Option</td>
+          <td>
+            <span th:text="${row.text}">Option</span>
+            <span th:if="${row.deleted}" th:utext="#{deleted_option_tag_html}"></span>
+          </td>
           <td th:text="${row.votes}">0</td>
           <td th:text="${row.percentageLabel}">0%</td>
         </tr>
