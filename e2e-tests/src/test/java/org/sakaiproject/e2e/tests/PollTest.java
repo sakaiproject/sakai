@@ -183,7 +183,10 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("^" + Pattern.quote(POLL_TITLE) + "$"))).first()
+        Locator pollRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(POLL_TITLE)).first();
+        assertThat(pollRow).isVisible();
+
+        pollRow.locator("a[href*=\"/voteQuestion\"], a[href*=\"voteQuestion\"]").first()
             .click(new Locator.ClickOptions().setForce(true));
 
         page.locator("input[name=\"selectedOptionIds\"]").first().check();
@@ -195,7 +198,6 @@ class PollTest extends SakaiUiTestBase {
         page.locator("input[type=\"button\"][value=\"Back\"], button:has-text(\"Back\")").first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        Locator pollRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(POLL_TITLE)).first();
         pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Results"))
             .click(new Locator.ClickOptions().setForce(true));
 

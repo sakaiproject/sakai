@@ -81,11 +81,11 @@ public class ResultsController {
             return "redirect:/votePolls";
         }
 
-        List<Option> options = currentPoll.getOptions();
+        List<Option> displayOptions = new ArrayList<>(currentPoll.getOptions());
         if (currentPoll.getMinOptions() == 0) {
             Option noVote = new Option();
             noVote.setText(messageSource.getMessage("result_novote", null, locale));
-            currentPoll.addOption(noVote);
+            displayOptions.add(noVote);
         }
 
         List<Vote> votes = pollsService.getAllVotesForPoll(currentPoll.getId());
@@ -98,8 +98,8 @@ public class ResultsController {
         NumberFormat percentFormat = NumberFormat.getPercentInstance(locale);
         percentFormat.setMaximumFractionDigits(2);
 
-        for (int i = 0; i < options.size(); i++) {
-            Option option = options.get(i);
+        for (int i = 0; i < displayOptions.size(); i++) {
+            Option option = displayOptions.get(i);
             long voteCount = votes.stream()
                     .filter(v -> Objects.equals(option.getId(), v.getOption().getId()))
                     .count();
