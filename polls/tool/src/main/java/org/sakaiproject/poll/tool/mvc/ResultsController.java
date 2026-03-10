@@ -81,8 +81,9 @@ public class ResultsController {
             return "redirect:/votePolls";
         }
 
+        int minOptions = currentPoll.getMinOptions();
         List<Option> displayOptions = new ArrayList<>(currentPoll.getOptions());
-        if (currentPoll.getMinOptions() == 0) {
+        if (minOptions == 0) {
             Option noVote = new Option();
             noVote.setText(messageSource.getMessage("result_novote", null, locale));
             displayOptions.add(noVote);
@@ -101,10 +102,8 @@ public class ResultsController {
         for (int i = 0; i < displayOptions.size(); i++) {
             Option option = displayOptions.get(i);
             long voteCount;
-            if (option.getId() == null) {
-                voteCount = votes.stream()
-                        .filter(v -> v.getOption() == null || v.getOption().getId() == null)
-                        .count();
+            if (minOptions == 0 && option.getId() == null) {
+                voteCount = (long) potentialVoters - distinctVoters;
             } else {
                 voteCount = votes.stream()
                         .filter(v -> v.getOption() != null && Objects.equals(option.getId(), v.getOption().getId()))

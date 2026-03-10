@@ -1,6 +1,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -214,6 +215,21 @@ class PollTest extends SakaiUiTestBase {
             .click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("#poll-results-chart")).isVisible();
+        page.waitForFunction(
+            "() => { const canvas = document.querySelector('#poll-results-chart');"
+                + " if (!canvas) { return false; }"
+                + " const chart = window.Chart && typeof window.Chart.getChart === 'function'"
+                + " ? window.Chart.getChart(canvas) : null;"
+                + " return Boolean(chart || window.pollResultsChartData); }"
+        );
+        Boolean chartInitialized = (Boolean) page.evaluate(
+            "() => { const canvas = document.querySelector('#poll-results-chart');"
+                + " if (!canvas) { return false; }"
+                + " const chart = window.Chart && typeof window.Chart.getChart === 'function'"
+                + " ? window.Chart.getChart(canvas) : null;"
+                + " return Boolean(chart || window.pollResultsChartData); }"
+        );
+        assertTrue(chartInitialized);
         Locator resultsTable = page.locator(".table-responsive table").first();
         assertThat(resultsTable).containsText("Yes");
         assertThat(resultsTable).containsText("100%");
