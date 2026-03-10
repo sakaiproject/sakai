@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.sakaiproject.util.ResourceLoader;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
 
@@ -89,9 +88,7 @@ public class PollController {
         }
 
         List<Poll> polls = new ArrayList<>(pollsService.findAllPolls(siteId));
-        Locale resourceLocale = new ResourceLoader().getLocale();
-        Locale effectiveLocale = normaliseLocale(resourceLocale != null ? resourceLocale
-                : (locale != null ? locale : Locale.getDefault()));
+        Locale effectiveLocale = normaliseLocale(locale != null ? locale : Locale.getDefault());
 
         DateTimeFormatter sortFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 .withLocale(Locale.US)
