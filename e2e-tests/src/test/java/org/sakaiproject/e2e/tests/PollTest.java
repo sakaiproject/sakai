@@ -22,6 +22,7 @@ class PollTest extends SakaiUiTestBase {
     private static final String POLL_TITLE = "Playwright Poll " + System.currentTimeMillis();
     private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
     private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll " + System.currentTimeMillis();
+    private static boolean pollWithTwoOptionsCreated;
 
     @Test
     @Order(1)
@@ -36,6 +37,14 @@ class PollTest extends SakaiUiTestBase {
     @Test
     @Order(2)
     void canCreatePollWithTwoOptions() {
+        ensurePollWithTwoOptionsExists();
+    }
+
+    private void ensurePollWithTwoOptionsExists() {
+        if (pollWithTwoOptionsCreated) {
+            return;
+        }
+
         createsSiteWithPolls();
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -86,6 +95,7 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator(".sak-banner-success")).containsText("Poll saved successfully");
         assertThat(page.locator("body")).containsText(POLL_TITLE);
+        pollWithTwoOptionsCreated = true;
     }
 
     @Test
@@ -179,7 +189,7 @@ class PollTest extends SakaiUiTestBase {
     @Test
     @Order(5)
     void canVoteAndViewResultsChart() {
-        createsSiteWithPolls();
+        ensurePollWithTwoOptionsExists();
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
