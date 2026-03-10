@@ -112,6 +112,7 @@ import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -152,6 +153,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Resource private ServerConfigurationService serverConfigurationService;
     @Resource private SessionManager sessionManager;
     @Resource private SiteService siteService;
+    @Resource private LocaleService localeService;
 
     @Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
     private StatsManager statsManager;
@@ -225,8 +227,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Override
     public String getCurrentSiteLocale() {
 
-        String siteId = toolManager.getCurrentPlacement().getContext();
-        return siteService.getSiteLocale(siteId).map(Locale::toString).orElse(null);
+        return localeService.getLocaleForSiteAndUser(getCurrentSiteId(), getCurrentUserId()).toString();
     }
 
     @Override

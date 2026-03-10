@@ -88,6 +88,6 @@ public class LocaleServiceImpl implements LocaleService {
     }
 
     private Locale defaultLocale() {
-        return Optional.ofNullable(Locale.getDefault()).orElse(Locale.ENGLISH);
+        return Locale.getDefault();
     }
 }

@@ -48,7 +48,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -68,9 +67,6 @@ public class SakaiService  {
 
     @Inject
     private SiteService siteService;
-
-    @Inject
-    private PreferencesService preferencesService;
 
     @Inject
     private ServerConfigurationService serverConfigurationService;
@@ -124,9 +120,12 @@ public class SakaiService  {
         return localeService.getLocaleForSiteAndUser(siteId, getCurrentUserId());
     }
 
+    /**
+     * Returns Sakai's effective locale for the current context:
+     * site locale override first, then user preference, then JVM default.
+     */
     public Locale getCurrentUserLocale() {
-        String userId = sessionManager.getCurrentSessionUserId();
-        return StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        return getLocaleForCurrentSiteAndUser();
     }
 
     public String getCurrentUserId() {
