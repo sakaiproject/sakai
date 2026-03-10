@@ -22,18 +22,13 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
 
     const dialogTargetSite = dialogTarget + '_' + siteId;
 
-    const show = (content) => {
-      $('#' + CSS.escape(dialogTargetSite))
-        .html(content).attr('aria-hidden', 'true').attr('tabindex', '-1')
-        .attr('role', 'dialog').addClass('modal fade');
-      bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
-    };
+    const showModal = () => bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
 
-    // Lazy fetch — skip network call if already cached
-    if (_siteInfoCache[siteId]) { show(_siteInfoCache[siteId]); return; }
+    // Lazy fetch — content already in DOM from first open, just show
+    if (_siteInfoCache[siteId]) { showModal(); return; }
 
     $.getJSON(`/direct/site/${siteId}/info.json`, function(data) {
-      const desc = data.description ? $('<div>').text(data.description).html() : nold;
+      const desc = data.description ? data.description.escapeHTML() : nold;
       const shortdesc = data.shortDescription ? data.shortDescription.escapeHTML() : nosd;
 
       const content = (
@@ -50,8 +45,11 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
           '</div>' +
         '</div>'
       );
+      $('#' + CSS.escape(dialogTargetSite))
+        .html(content).attr({ 'aria-hidden': 'true', tabindex: '-1', role: 'dialog' })
+        .addClass('modal fade');
       _siteInfoCache[siteId] = content;
-      show(content);
+      showModal();
     });
   });
 };
@@ -168,7 +166,8 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
 
   const syncAllControl = () => {
     const $checkboxes = $list.find('td input:checkbox');
-    $allcontrol.toggle($checkboxes.length > 0).prop('checked', false);
+    const allChecked = $checkboxes.length > 0 && $checkboxes.filter(':checked').length === $checkboxes.length;
+    $allcontrol.toggle($checkboxes.length > 0).prop('checked', allChecked);
     utils.checkEnableUnjoin();
   };
 

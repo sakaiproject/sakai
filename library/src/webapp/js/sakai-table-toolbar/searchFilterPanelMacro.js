@@ -9,11 +9,13 @@
         field._ac?.abort();
         field._ac = new AbortController();
         try {
+            const resp = await fetch(url, { credentials: 'same-origin', signal: field._ac.signal });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const tmp = document.createElement('div');
-            tmp.innerHTML = await (await fetch(url, { credentials: 'same-origin', signal: field._ac.signal })).text();
+            tmp.innerHTML = await resp.text();
 
             const newTargets = tmp.querySelectorAll(sel);
-            targets.forEach((el, i) => { if (newTargets[i]) el.innerHTML = newTargets[i].innerHTML; });
+            targets.forEach((el, i) => { el.innerHTML = newTargets[i] ? newTargets[i].innerHTML : ''; });
 
             history.replaceState(null, '', url);
             document.dispatchEvent(new CustomEvent('sfp:updated'));
@@ -47,7 +49,7 @@
             clearTimeout(debounceTimer);
             field.value = '';
             updateClearBtn();
-            doFetch(field.dataset.clearUrl, field);
+            search();
         });
     });
 
