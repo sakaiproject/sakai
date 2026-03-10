@@ -19,6 +19,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -26,12 +28,10 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.LocaleService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
+@Setter
 public class LocaleServiceImpl implements LocaleService {
-
-    private static final Logger log = LoggerFactory.getLogger(LocaleServiceImpl.class);
 
     private SiteService siteService;
     private PreferencesService preferencesService;
@@ -43,22 +43,6 @@ public class LocaleServiceImpl implements LocaleService {
         Objects.requireNonNull(preferencesService);
         Objects.requireNonNull(toolManager);
         Objects.requireNonNull(sessionManager);
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public void setPreferencesService(PreferencesService preferencesService) {
-        this.preferencesService = preferencesService;
-    }
-
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
     @Override
