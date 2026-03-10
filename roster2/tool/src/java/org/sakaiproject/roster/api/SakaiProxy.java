@@ -81,9 +81,9 @@ public interface SakaiProxy {
 	public String getCurrentSiteId();
 
 	/**
-	 * Returns the locale_string property of the current site.
+	 * Returns the current site's configured locale, if present.
 	 * 
-	 * @return the locale_string property of the current site.
+	 * @return the current site's configured locale as a string, or null when unset.
 	 */
 	public String getCurrentSiteLocale();
 	

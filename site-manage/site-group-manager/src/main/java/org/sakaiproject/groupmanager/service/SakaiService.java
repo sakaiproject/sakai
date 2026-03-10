@@ -52,6 +52,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.LocaleService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,6 +80,9 @@ public class SakaiService  {
 
     @Inject
     private ToolManager toolManager;
+
+    @Inject
+    private LocaleService localeService;
 
     @Inject
     private UserDirectoryService userDirectoryService;
@@ -116,15 +120,8 @@ public class SakaiService  {
     }
 
     public Locale getLocaleForCurrentSiteAndUser() {
-        Optional<Site> currentSite = getCurrentSite();
-        if (currentSite.isPresent()) {
-            Optional<Locale> siteLocale = siteService.getSiteLocale(currentSite.get());
-            if (siteLocale.isPresent()) {
-                return siteLocale.get();
-            }
-        }
-
-        return getCurrentUserLocale();
+        String siteId = getCurrentSite().map(Site::getId).orElse(null);
+        return localeService.getLocaleForSiteAndUser(siteId, getCurrentUserId());
     }
 
     public Locale getCurrentUserLocale() {

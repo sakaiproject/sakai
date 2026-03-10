@@ -36,7 +36,6 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
@@ -59,7 +58,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 /**
  *
@@ -85,7 +84,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	private SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
 	private SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
 	private SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
-	private PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+	private LocaleService localeService = (LocaleService) ComponentManager.get(LocaleService.class);
 
 	private Site getCurrentSite(String id) {
 		Site site = null;
@@ -365,33 +364,9 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	}
 
   private String getFormattedScore(Double score, String siteId) {
-    String currentLocaleStr = null;
-    String userId = AgentFacade.getEid();
-
-    try {
-      Site site = siteService.getSite(siteId);
-      ResourceProperties siteProperties = site.getProperties();
-      currentLocaleStr = (String) siteProperties.get("locale_string");
-
-    } catch (IdUnusedException ex) {
-      log.warn("Unable to retrieve site properties for siteId {} : {}", siteId, ex.toString());
-    }
-
-    if (currentLocaleStr == null && userId != null) {
-      currentLocaleStr = preferencesService.getLocale(userId).toString();
-    }
-
-    if (currentLocaleStr == null) {
-      currentLocaleStr = Locale.ENGLISH.toString();
-    }
-
-    String[] localeParts = new String[]{"", ""};
-    List localePartsList = Arrays.asList(currentLocaleStr.split("_"));
-    for (int i = 0; i < localePartsList.size(); i++) {
-      localeParts[i] = localePartsList.get(i).toString();
-    }
-
-    NumberFormat nf = NumberFormat.getInstance(new Locale(localeParts[0], localeParts[1]));
+    String userId = AgentFacade.getAgentString();
+    Locale locale = localeService.getLocaleForSiteAndUser(siteId, userId);
+    NumberFormat nf = NumberFormat.getInstance(locale);
     return nf.format(score);
   }
 

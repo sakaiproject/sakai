@@ -76,6 +76,15 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
   </bean>
 
+  <bean id="org.sakaiproject.util.api.LocaleService"
+      class="org.sakaiproject.util.impl.LocaleServiceImpl"
+      init-method="init">
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+  </bean>
+
   <bean id="org.sakaiproject.util.api.PasswordFactory"
        class="org.sakaiproject.util.impl.PasswordFactoryImpl">
   </bean>

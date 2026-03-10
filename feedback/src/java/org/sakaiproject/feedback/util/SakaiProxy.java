@@ -50,6 +50,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 @Slf4j
 public class SakaiProxy {
@@ -78,6 +79,9 @@ public class SakaiProxy {
 
     @Setter
     private PrivacyManager privacyManager;
+
+    @Setter
+    private LocaleService localeService;
 
 
     public boolean getConfigBoolean(String name, boolean defaultValue) {
@@ -200,24 +204,7 @@ public class SakaiProxy {
             return;
         }
 
-        final String siteLocale = getSiteProperty(siteId, "locale_string");
-
-        Locale locale = null;
-
-        if (siteLocale != null ) {
-
-            String[] localeParts = siteLocale.split("_");
-
-            if (localeParts.length == 1) {
-                locale = new Locale(localeParts[0]);
-            } else if (localeParts.length == 2) {
-                locale = new Locale(localeParts[0], localeParts[1]);
-            } else {
-                locale = Locale.getDefault();
-            }
-        } else {
-            locale = Locale.getDefault();
-        }
+        rb.setContextLocale(localeService.getLocaleForSiteAndUser(siteId, fromUserId));
 
         String subjectTemplate = null;
 

@@ -34,7 +34,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,8 +47,7 @@ public class CommonsTool extends HttpServlet {
     private CommonsManager commonsManager;
     private SakaiProxy sakaiProxy;
     private ServerConfigurationService serverConfigurationService;
-
-    private static final ResourceLoader rl = new ResourceLoader("commons");
+    private LocaleService localeService;
 
     public void init(ServletConfig config) throws ServletException {
 
@@ -61,6 +60,7 @@ public class CommonsTool extends HttpServlet {
             sakaiProxy = (SakaiProxy) componentManager.get(SakaiProxy.class);
             commonsManager = (CommonsManager) componentManager.get(CommonsManager.class);
             serverConfigurationService = (ServerConfigurationService) componentManager.get(ServerConfigurationService.class);
+            localeService = (LocaleService) componentManager.get(LocaleService.class);
         } catch (Throwable t) {
             throw new ServletException("Failed to initialise CommonsTool servlet.", t);
         }
@@ -78,27 +78,7 @@ public class CommonsTool extends HttpServlet {
             throw new ServletException("Not logged in.");
         }
 
-        String siteLanguage = sakaiProxy.getCurrentSiteLocale();
-
-        Locale locale = null;
-
-        if (siteLanguage != null) {
-            String[] parts = siteLanguage.split("_");
-            if (parts.length == 1) {
-                locale = new Locale(parts[0]);
-            } else if (parts.length == 2) {
-                locale = new Locale(parts[0], parts[1]);
-            } else if (parts.length == 3) {
-                locale = new Locale(parts[0], parts[1], parts[2]);
-            }
-            rl.setContextLocale(locale);
-        } else {
-            locale = rl.getLocale();
-        }
-
-        if (locale == null || rl == null) {
-            log.error("Failed to load the site or user i18n bundle");
-        }
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
 
         String language = locale.getLanguage();
         String country = locale.getCountry();
