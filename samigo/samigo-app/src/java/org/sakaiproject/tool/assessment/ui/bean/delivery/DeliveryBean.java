@@ -2689,32 +2689,6 @@ public class DeliveryBean implements Serializable {
 		  return saveWork();
 	  }
 
-	  /**
-	   * Use multipart form encoding only when the rendered page contains upload question types.
-	   */
-	  public boolean isMultipartFormRequired() {
-		  if (pageContents == null || pageContents.getPartsContents() == null) {
-			  return false;
-		  }
-
-		  for (SectionContentsBean part : pageContents.getPartsContents()) {
-			  if (part == null || part.getItemContents() == null) {
-				  continue;
-			  }
-			  for (ItemContentsBean item : part.getItemContents()) {
-				  if (item == null || item.getItemData() == null || item.getItemData().getTypeId() == null) {
-					  continue;
-				  }
-				  Long typeId = item.getItemData().getTypeId();
-				  if (TypeIfc.FILE_UPLOAD.equals(typeId) || TypeIfc.AUDIO_RECORDING.equals(typeId)) {
-					  return true;
-				  }
-			  }
-		  }
-
-		  return false;
-	  }
-
 	  public int getAutoSaveRepeatMilliseconds() {
   	    return ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
 	  }

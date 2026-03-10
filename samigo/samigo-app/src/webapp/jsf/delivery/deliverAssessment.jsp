@@ -58,7 +58,7 @@
 <div>
 
 <!-- content... -->
-<h:form id="takeAssessmentForm" enctype="#{delivery.multipartFormRequired ? 'multipart/form-data' : 'application/x-www-form-urlencoded'}"
+<h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime(); serializeImagePoints();">
 
 <!-- JAVASCRIPT -->
