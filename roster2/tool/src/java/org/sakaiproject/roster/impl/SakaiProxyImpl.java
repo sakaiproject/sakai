@@ -45,6 +45,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
@@ -225,16 +226,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     public String getCurrentSiteLocale() {
 
         String siteId = toolManager.getCurrentPlacement().getContext();
-        Site currentSite = getSite(siteId);
-
-        if (currentSite != null) {
-            String locale = currentSite.getProperties().getProperty("locale_string");
-            if (locale != null) {
-                return locale;
-            }
-        }
-
-        return null;
+        return siteService.getSiteLocale(siteId).map(Locale::toString).orElse(null);
     }
 
     @Override

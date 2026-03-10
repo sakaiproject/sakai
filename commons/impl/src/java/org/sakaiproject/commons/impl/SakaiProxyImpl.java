@@ -18,6 +18,7 @@ package org.sakaiproject.commons.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -116,17 +117,7 @@ public class SakaiProxyImpl implements SakaiProxy {
     public String getCurrentSiteLocale() {
 
         String siteId = toolManager.getCurrentPlacement().getContext();
-
-        Site currentSite = getSiteOrNull(siteId);
-
-        if (currentSite != null) {
-            String locale = currentSite.getProperties().getProperty("locale_string");
-            if (locale != null) {
-                return locale;
-            }
-        }
-
-        return null;
+        return siteService.getSiteLocale(siteId).map(Locale::toString).orElse(null);
     }
 
     public Tool getCurrentTool() {

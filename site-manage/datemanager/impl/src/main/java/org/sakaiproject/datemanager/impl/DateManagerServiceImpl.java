@@ -234,24 +234,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	public Locale getLocaleForCurrentSiteAndUser() {
-		Locale locale = null;
-
-		// First try to get site locale
 		Optional<Site> currentSite = getCurrentSite();
 		if (currentSite.isPresent()) {
-			ResourceProperties siteProperties = currentSite.get().getProperties();
-			String siteLocale = (String) siteProperties.get("locale_string");
-			if (StringUtils.isNotBlank(siteLocale)) {
-				locale = serverConfigurationService.getLocaleFromString(siteLocale);
+			Optional<Locale> siteLocale = siteService.getSiteLocale(currentSite.get());
+			if (siteLocale.isPresent()) {
+				return siteLocale.get();
 			}
 		}
 
-		// If there is not site locale defined, get user default locale
-		if (locale == null) {
-			locale = getUserLocale();
-		}
-
-		return locale;
+		return getUserLocale();
 	}
 
 	@Override
