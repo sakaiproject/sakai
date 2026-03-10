@@ -245,7 +245,7 @@ public class GroupController {
         Site site = siteOptional.get();
 
         // Variable definition
-        Locale userLocale = sakaiService.getCurrentUserLocale();
+        Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
         String groupId = groupForm.getGroupId();
         String groupTitle = groupForm.getGroupTitle();
         String groupDescription = groupForm.getGroupDescription();

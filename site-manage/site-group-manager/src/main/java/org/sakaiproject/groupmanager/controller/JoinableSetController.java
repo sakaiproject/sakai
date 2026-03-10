@@ -147,7 +147,7 @@ public class JoinableSetController {
         Site site = siteOptional.get();
 
         // Variable definition
-        Locale userLocale = sakaiService.getCurrentUserLocale();
+        Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
         String joinableSetId = joinableSetForm.getJoinableSetId();
         String joinableSetTitle = joinableSetForm.getGroupTitle();
         boolean editingJoinableSet = StringUtils.isNotBlank(joinableSetId);

@@ -17,7 +17,6 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,15 +35,11 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
@@ -58,6 +53,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 /**
@@ -82,19 +78,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
 
 	private SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
-	private SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
-	private SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
 	private LocaleService localeService = (LocaleService) ComponentManager.get(LocaleService.class);
-
-	private Site getCurrentSite(String id) {
-		Site site = null;
-		try {
-			site = siteService.getSite(id);
-		} catch (IdUnusedException e) {
-			log.error(e.getMessage());
-		}
-		return site;
-	}
 	
    /**
     * Remove a published assessment from the gradebook.
@@ -366,8 +350,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   private String getFormattedScore(Double score, String siteId) {
     String userId = AgentFacade.getAgentString();
     Locale locale = localeService.getLocaleForSiteAndUser(siteId, userId);
-    NumberFormat nf = NumberFormat.getInstance(locale);
-    return nf.format(score);
+    return NumberUtil.normalizeLocaleDouble(score.toString(), locale);
   }
 
   public List<String> getGradebookList(boolean isGradebookGroupEnabled, String[] groupsAuthorized) {

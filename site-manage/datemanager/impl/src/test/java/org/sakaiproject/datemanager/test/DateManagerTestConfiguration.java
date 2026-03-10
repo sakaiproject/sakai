@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.datemanager.test;
 
-import java.util.Locale;
-
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -47,7 +45,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @Configuration
@@ -167,9 +164,6 @@ public class DateManagerTestConfiguration {
 
     @Bean(name = "org.sakaiproject.util.api.LocaleService")
     public LocaleService localeService() {
-        LocaleService localeService = Mockito.mock(LocaleService.class);
-        when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.ENGLISH);
-        when(localeService.getLocaleForSiteAndUser(any(), any())).thenReturn(Locale.ENGLISH);
-        return localeService;
+        return Mockito.mock(LocaleService.class);
     }
 }

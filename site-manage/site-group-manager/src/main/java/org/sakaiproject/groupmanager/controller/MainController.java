@@ -282,7 +282,7 @@ public class MainController {
         // If groups are being used in joinable sets, show error and return
         if (!groupsUsedInJoinableSets.isEmpty()) {
             String groups = String.join(", ", groupsUsedInJoinableSets.stream().map(g -> g.getTitle()).collect(Collectors.toList()));
-            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteGroupsUsedInJoinableSets", new Object[] {groups}, sakaiService.getCurrentUserLocale()));
+            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteGroupsUsedInJoinableSets", new Object[] {groups}, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showIndex(model, request, response);
         }
 
@@ -316,7 +316,7 @@ public class MainController {
         // If any groups selected to be deleted could not be due to locks, populate an error message indicating which groups and why
         if (!lockedGroups.isEmpty()) {
             String groups = String.join(", ", lockedGroups.stream().map(g -> g.getTitle()).collect(Collectors.toList()));
-            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteLockedGroup", new Object[] {groups}, sakaiService.getCurrentUserLocale()));
+            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteLockedGroup", new Object[] {groups}, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showIndex(model, request, response);
         }
 

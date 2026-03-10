@@ -112,7 +112,6 @@ import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -153,7 +152,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Resource private ServerConfigurationService serverConfigurationService;
     @Resource private SessionManager sessionManager;
     @Resource private SiteService siteService;
-    @Resource private LocaleService localeService;
 
     @Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
     private StatsManager statsManager;
@@ -222,12 +220,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Override
     public String getCurrentSiteId() {
         return toolManager.getCurrentPlacement().getContext();
-    }
-
-    @Override
-    public String getCurrentSiteLocale() {
-
-        return localeService.getLocaleForSiteAndUser(getCurrentSiteId(), getCurrentUserId()).toString();
     }
 
     @Override
@@ -385,20 +377,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             return null;
         }
-    }
-
-    @Override
-    public List<User> getSiteUsers(String siteId) {
-
-        Site site = null;
-        try {
-            site = siteService.getSite(siteId);
-        } catch (IdUnusedException e) {
-            log.warn("Site {} not found. Returning null ...", siteId);
-            return null;
-        }
-
-        return userDirectoryService.getUsers(site.getUsers());
     }
 
     @Override
@@ -1118,22 +1096,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             return false;
         } else {
             return isAllowed(userId, permission, site.getReference());
-        }
-    }
-
-    @Override
-    public Boolean hasUserGroupPermission(String userId, String permission,
-            String siteId, String groupId) {
-
-        Site site = getSite(siteId);
-        if (null == site) {
-            return false;
-        } else {
-            if (null == site.getGroup(groupId)) {
-                return false;
-            } else {
-                return isAllowed(userId, permission, site.getGroup(groupId).getReference());
-            }
         }
     }
 
