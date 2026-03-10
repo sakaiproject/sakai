@@ -2,36 +2,43 @@
 
 Java/JUnit Playwright tests for Sakai UI flows.
 
-## Run locally
+#### Run these commands from the repository root.
+
+### Developers can run tests with:
+```bash
+mvn -P e2e test
+```
+
+### Run tests against a running Sakai instance:
 
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
-mvn -f e2e-tests/pom.xml test
+mvn -P e2e test
 ```
 
-Run headed (watch browser):
+### Run headed (watch browser) against a running Sakai instance:
 
 ```bash
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 export PLAYWRIGHT_HEADLESS=false
-mvn -f e2e-tests/pom.xml test
+mvn -P e2e test
 ```
 
-Run a single class:
+### Run a single class:
 
 ```bash
-mvn -f e2e-tests/pom.xml -Dtest=AssignmentTest test
+mvn -P e2e -Dtest=AssignmentTest test
 ```
 
-Run a single test method:
+### Run a single test method:
 
 ```bash
-mvn -f e2e-tests/pom.xml -Dtest=AssignmentTest#canCreatePointsAssignment test
+mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 ```
 
-Optional browser override:
+### Optional browser override:
 
 ```bash
 export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit

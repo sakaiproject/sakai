@@ -233,20 +233,18 @@
                 <module>pack/pack-bin</module>
             </modules>
         </profile>
-        <!--
-        <profile>
-            <id>pack-demo</id>
-            <modules>
-                <module>master</module>
-                <module>pack/pack-demo</module>
-            </modules>
-        </profile>
-        -->
         <profile>
             <id>pack-src</id>
             <modules>
                 <module>master</module>
                 <module>pack/pack-src</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>e2e</id>
+            <modules>
+                <module>master</module>
+                <module>e2e-tests</module>
             </modules>
         </profile>
         <profile>

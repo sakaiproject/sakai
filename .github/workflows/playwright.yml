@@ -42,7 +42,7 @@ jobs:
       - name: Resolve Playwright Java version
         id: playwright-version
         run: |
-          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -f e2e-tests/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
+          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -Pe2e -pl e2e-tests help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
           echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build with Maven
@@ -119,8 +119,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p e2e-tests/target
-          mvn -B -ntp -V -f e2e-tests/pom.xml \
-            test 2>&1 | tee e2e-tests/target/playwright-java-run.log
+          mvn -B -ntp -V -Pe2e test 2>&1 | tee e2e-tests/target/playwright-java-run.log
 
       - name: Check number of MySQL statements
         if: always()
