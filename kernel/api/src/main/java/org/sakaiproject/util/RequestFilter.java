@@ -201,14 +201,6 @@ public class RequestFilter implements Filter
 	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED = "org.apache.catalina.parameter_parse_failed";
 	/** Tomcat request attribute indicating reason request parameter parsing failed. */
 	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED_REASON = "org.apache.catalina.parameter_parse_failed_reason";
-	/** Session attribute consumed by portal notifications service. */
-	protected static final String SAKAI_ATTR_USER_WARNING = "userWarning";
-	/** User-facing critical warning when Tomcat rejects request parameter parsing. */
-	protected static final String PARAMETER_PARSE_FAILURE_WARNING =
-		"CRITICAL: Your request exceeded server parsing limits and may have lost form data. "
-		+ "Your submission may not have been saved correctly. "
-		+ "Please contact support and include the page URL, time, and your browser details.";
-
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
 
@@ -497,19 +489,29 @@ public class RequestFilter implements Filter
 					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
 					if (TERRACOTTA_CLUSTER) {
 						synchronized(s) {
-							// Pass control on to the next filter or the servlet
-							chain.doFilter(req, resp);
+							try {
+								// Pass control on to the next filter or the servlet
+								chain.doFilter(req, resp);
 
-							// post-process response
-							postProcessResponse(s, req, resp);
+								// post-process response
+								postProcessResponse(s, req, resp);
+							} finally {
+								// Tomcat may only set these attributes once form parameters are parsed downstream.
+								surfaceTomcatParameterParseFailure(req, s);
+							}
 						}
 					} else {
 						// Pass control on to the next filter or the servlet
 						try {
-							chain.doFilter(req, resp);
+							try {
+								chain.doFilter(req, resp);
 
-							// post-process response
-							postProcessResponse(s, req, resp);
+								// post-process response
+								postProcessResponse(s, req, resp);
+							} finally {
+								// Tomcat may only set these attributes once form parameters are parsed downstream.
+								surfaceTomcatParameterParseFailure(req, s);
+							}
 						} catch (Exception e) {
 							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
 									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
@@ -518,8 +520,6 @@ public class RequestFilter implements Filter
 							if (log.isDebugEnabled()) throw e;
 						}
 					}
-					// Tomcat may only set these attributes once form parameters are parsed downstream.
-					surfaceTomcatParameterParseFailure(req, s);
 
 					// Output client cookie if requested to do so
 					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
@@ -617,30 +617,13 @@ public class RequestFilter implements Filter
 		String reason = reasonObj == null ? "UNKNOWN" : reasonObj.toString();
 
 		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REASON, reason);
-		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}",
+		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}. "
+				+ "Review Tomcat request parsing limits, especially maxPartCount for multipart submissions.",
 				reason, req.getMethod(), req.getRequestURI());
 		log.debug("Tomcat parse-failure diagnostics: hasQuery={}, hasRemoteAddr={}",
 				req.getQueryString() != null && !req.getQueryString().isEmpty(),
 				req.getRemoteAddr() != null && !req.getRemoteAddr().isEmpty());
 		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED, Boolean.TRUE);
-
-		if (s == null)
-		{
-			return;
-		}
-
-		String existingWarning = (String) s.getAttribute(SAKAI_ATTR_USER_WARNING);
-		if (existingWarning == null || existingWarning.isEmpty())
-		{
-			s.setAttribute(SAKAI_ATTR_USER_WARNING, PARAMETER_PARSE_FAILURE_WARNING + " (Reason: " + reason + ")");
-			return;
-		}
-
-		if (!existingWarning.contains(PARAMETER_PARSE_FAILURE_WARNING))
-		{
-			s.setAttribute(SAKAI_ATTR_USER_WARNING,
-					existingWarning + " " + PARAMETER_PARSE_FAILURE_WARNING + " (Reason: " + reason + ")");
-		}
 	}
 
 	protected boolean isTomcatParseFailure(Object parseFailed)
