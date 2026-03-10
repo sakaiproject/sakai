@@ -16,15 +16,22 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +42,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -43,6 +51,7 @@ import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramBarBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScoresBean;
 
 public class HistogramListenerTest {
@@ -264,6 +273,102 @@ public class HistogramListenerTest {
         assertEquals(33.333d, listener.resolveMetadataPercentCorrect(qbean, "objectives"), 0.001d);
     }
 
+    @Test
+    public void testGetMatchingScoresMarksNonDistractorsAsCorrectBars() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        GradingService gradingService = mock(GradingService.class);
+        setDelegate(listener, gradingService);
+
+        PublishedItemText matchingPrompt = itemText(100L, 1L, "Prompt");
+        PublishedItemText distractorPrompt = itemText(101L, 2L, "Distractor");
+        when(gradingService.isDistractor(matchingPrompt)).thenReturn(false);
+        when(gradingService.isDistractor(distractorPrompt)).thenReturn(true);
+
+        Map<Long, PublishedItemText> publishedItemTextHash = new HashMap<>();
+        publishedItemTextHash.put(matchingPrompt.getId(), matchingPrompt);
+        publishedItemTextHash.put(distractorPrompt.getId(), distractorPrompt);
+
+        PublishedAnswer correctAnswer = answer(200L, true);
+        Map<Long, AnswerIfc> publishedAnswerHash = new HashMap<>();
+        publishedAnswerHash.put(correctAnswer.getId(), correctAnswer);
+
+        ItemGradingData score = itemGrading(1L, correctAnswer.getId(), "student-1", 10L);
+        score.setPublishedItemTextId(matchingPrompt.getId());
+
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+
+        invokeGetMatchingScores(listener, publishedItemTextHash, publishedAnswerHash,
+                Collections.singletonList(score), qbean, Arrays.asList(matchingPrompt, distractorPrompt));
+
+        HistogramBarBean[] bars = qbean.getHistogramBars();
+        assertEquals(2, bars.length);
+        assertTrue(bars[0].getIsCorrect());
+        assertFalse(bars[1].getIsCorrect());
+    }
+
+    @Test
+    public void testGetFIBMCMCScoresMarksCorrectFillInBlankAnswersAsCorrectBars() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        GradingService gradingService = mock(GradingService.class);
+        setDelegate(listener, gradingService);
+
+        PublishedItemData itemData = new PublishedItemData();
+        itemData.setItemId(500L);
+        itemData.setTypeId(TypeIfc.FILL_IN_BLANK);
+
+        PublishedAnswer acceptedAnswer = answer(300L, true);
+        acceptedAnswer.setSequence(1L);
+        acceptedAnswer.setText("accepted");
+
+        Map<Long, AnswerIfc> publishedAnswerHash = new HashMap<>();
+        publishedAnswerHash.put(acceptedAnswer.getId(), acceptedAnswer);
+
+        ItemGradingData score = itemGrading(1L, acceptedAnswer.getId(), "student-1", 10L);
+        score.setAnswerText("accepted");
+        score.setPublishedItemId(itemData.getItemId());
+
+        when(gradingService.getFIBResult(any(ItemGradingData.class), anyMap(), eq(itemData), eq(publishedAnswerHash)))
+                .thenReturn(true);
+
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setQuestionType(TypeIfc.FILL_IN_BLANK.toString());
+        qbean.setNumResponses(1);
+
+        invokeGetFIBMCMCScores(listener, new HashMap<>(), publishedAnswerHash, Collections.singletonList(score), qbean,
+                Collections.singletonList(acceptedAnswer), itemData);
+
+        HistogramBarBean[] bars = qbean.getHistogramBars();
+        assertEquals(1, bars.length);
+        assertTrue(bars[0].getIsCorrect());
+    }
+
+    @Test
+    public void testGetImageMapQuestionScoresUsesAuthoredCorrectnessEvenWhenNoHits() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        PublishedItemText correctRegion = itemText(110L, 1L, "Correct region");
+        correctRegion.setAnswerSet(new HashSet<>(Collections.singletonList(answer(210L, true))));
+        PublishedItemText incorrectRegion = itemText(111L, 2L, "Incorrect region");
+        incorrectRegion.setAnswerSet(new HashSet<>(Collections.singletonList(answer(211L, false))));
+
+        Map<Long, PublishedItemText> publishedItemTextHash = new HashMap<>();
+        publishedItemTextHash.put(correctRegion.getId(), correctRegion);
+        publishedItemTextHash.put(incorrectRegion.getId(), incorrectRegion);
+
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+
+        invokeGetImageMapQuestionScores(listener, publishedItemTextHash, new HashMap<>(),
+                Collections.emptyList(), qbean, Arrays.asList(correctRegion, incorrectRegion));
+
+        HistogramBarBean[] bars = qbean.getHistogramBars();
+        assertEquals(2, bars.length);
+        assertTrue(bars[0].getIsCorrect());
+        assertFalse(bars[1].getIsCorrect());
+        assertEquals(0, bars[0].getNumStudents());
+        assertEquals(0, bars[1].getNumStudents());
+    }
+
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
         MemoryService memoryService = mock(MemoryService.class);
@@ -291,12 +396,53 @@ public class HistogramListenerTest {
         return answer;
     }
 
+    private PublishedItemText itemText(Long itemTextId, Long sequence, String text) {
+        PublishedItemText itemText = new PublishedItemText();
+        itemText.setId(itemTextId);
+        itemText.setSequence(sequence);
+        itemText.setText(text);
+        return itemText;
+    }
+
     private void invokeApplyCanonicalSubmissionTallies(HistogramListener listener, HistogramQuestionScoresBean qbean,
             ItemDataIfc item, List<ItemGradingData> scores, Map<Long, AnswerIfc> answersById) throws Exception {
         Method method = HistogramListener.class.getDeclaredMethod("applyCanonicalSubmissionTallies",
                 HistogramQuestionScoresBean.class, ItemDataIfc.class, List.class, Map.class);
         method.setAccessible(true);
         method.invoke(listener, qbean, item, scores, answersById);
+    }
+
+    private void invokeGetMatchingScores(HistogramListener listener, Map<Long, PublishedItemText> publishedItemTextHash,
+            Map<Long, AnswerIfc> publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean,
+            List<PublishedItemText> labels) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("getMatchingScores",
+                Map.class, Map.class, List.class, HistogramQuestionScoresBean.class, List.class);
+        method.setAccessible(true);
+        method.invoke(listener, publishedItemTextHash, publishedAnswerHash, scores, qbean, labels);
+    }
+
+    private void invokeGetImageMapQuestionScores(HistogramListener listener, Map<Long, PublishedItemText> publishedItemTextHash,
+            Map<Long, AnswerIfc> publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean,
+            List<PublishedItemText> labels) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("getImageMapQuestionScores",
+                Map.class, Map.class, List.class, HistogramQuestionScoresBean.class, List.class);
+        method.setAccessible(true);
+        method.invoke(listener, publishedItemTextHash, publishedAnswerHash, scores, qbean, labels);
+    }
+
+    private void invokeGetFIBMCMCScores(HistogramListener listener, Map<Long, PublishedItemData> publishedItemHash,
+            Map<Long, AnswerIfc> publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean,
+            List<AnswerIfc> answers, ItemDataIfc itemData) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("getFIBMCMCScores",
+                Map.class, Map.class, List.class, HistogramQuestionScoresBean.class, List.class, ItemDataIfc.class);
+        method.setAccessible(true);
+        method.invoke(listener, publishedItemHash, publishedAnswerHash, scores, qbean, answers, itemData);
+    }
+
+    private void setDelegate(HistogramListener listener, GradingService gradingService) throws Exception {
+        Field delegateField = HistogramListener.class.getDeclaredField("delegate");
+        delegateField.setAccessible(true);
+        delegateField.set(listener, gradingService);
     }
 
 }

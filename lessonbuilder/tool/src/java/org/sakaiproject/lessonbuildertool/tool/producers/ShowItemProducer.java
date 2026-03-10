@@ -395,7 +395,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 		if (isBlti) {
 			String rawHeight = item.getHeight();
-			String height = (rawHeight == null || rawHeight.isEmpty() || !rawHeight.matches("\\d+")) ? "1200" : rawHeight;
+			String height = StringUtils.isBlank(rawHeight) ? "1200" : StringEscapeUtils.escapeHtml4(rawHeight.trim());
 			String iframeHtml = "<sakai-lti-iframe launch-url=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"" + height + "\" allow-resize=\"yes\"></sakai-lti-iframe>";
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		} else {

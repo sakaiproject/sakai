@@ -16,7 +16,6 @@
 
 package org.sakaiproject.poll.tool.config;
 
-import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

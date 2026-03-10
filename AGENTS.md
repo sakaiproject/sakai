@@ -61,6 +61,9 @@
 - **Indentation**: Maintain consistent format (tabs/spaces) as in existing files
 - **kebab-case**: Prefer kebab-case for values of HTML class and id attributes
 - **Internationalization**: Ensure code supports different languages
+- **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
+- **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
+- **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the user's preferred timezone from account preferences.
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible
