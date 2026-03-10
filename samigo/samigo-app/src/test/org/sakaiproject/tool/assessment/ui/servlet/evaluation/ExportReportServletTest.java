@@ -16,16 +16,20 @@
 package org.sakaiproject.tool.assessment.ui.servlet.evaluation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramBarBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
+import org.sakaiproject.tool.assessment.ui.model.AssessmentReportCell;
 
 public class ExportReportServletTest {
 
@@ -50,34 +54,58 @@ public class ExportReportServletTest {
         answeredRow.setNumberOfStudentsWithZeroAnswers(0);
         HistogramBarBean answerA = new HistogramBarBean();
         answerA.setNumStudents(1);
+        answerA.setIsCorrect(true);
         answeredRow.setHistogramBars(new HistogramBarBean[] {answerA});
 
         scoresBean.setDetailedStatistics(Arrays.asList(surveyRow, answeredRow));
 
-        List<List<String>> rows = invokeItemAnalysisData(servlet, scoresBean);
+        List<List<AssessmentReportCell>> rows = invokeItemAnalysisDataCells(servlet, scoresBean);
         assertEquals(2, rows.size());
 
-        List<String> firstRow = rows.get(0);
-        List<String> secondRow = rows.get(1);
+        List<AssessmentReportCell> firstRow = rows.get(0);
+        List<AssessmentReportCell> secondRow = rows.get(1);
         assertEquals(9, firstRow.size());
         assertEquals(9, secondRow.size());
 
-        assertEquals("", firstRow.get(3)); // Difficulty
-        assertEquals("", firstRow.get(4)); // Total Correct
-        assertEquals("", firstRow.get(5)); // Total Incorrect
-        assertEquals("1", firstRow.get(6)); // No Answer
-        assertEquals("", firstRow.get(7)); // A
-        assertEquals("", firstRow.get(8)); // B
+        assertEquals("", firstRow.get(3).getValue()); // Difficulty
+        assertEquals("", firstRow.get(4).getValue()); // Total Correct
+        assertEquals("", firstRow.get(5).getValue()); // Total Incorrect
+        assertEquals("1", firstRow.get(6).getValue()); // No Answer
+        assertEquals("", firstRow.get(7).getValue()); // A
+        assertEquals("", firstRow.get(8).getValue()); // B
 
-        assertEquals("1", secondRow.get(7)); // A
-        assertEquals("", secondRow.get(8)); // B padded
+        assertEquals("1", secondRow.get(7).getValue()); // A
+        assertTrue(secondRow.get(7).isBold()); // A should be bold when correct
+        assertEquals("", secondRow.get(8).getValue()); // B padded
+        assertFalse(secondRow.get(8).isBold()); // B padded cell should not be bold
+    }
+
+    @Test
+    public void testItemAnalysisHeaderCellsAreBold() throws Exception {
+        ExportReportServlet servlet = allocateServletWithoutConstructor();
+        HistogramScoresBean scoresBean = new HistogramScoresBean();
+        scoresBean.setMaxNumberOfAnswers(2);
+        scoresBean.setDetailedStatistics(Arrays.asList(new HistogramQuestionScoresBean()));
+
+        List<AssessmentReportCell> headerCells = invokeItemAnalysisHeaderCells(servlet, scoresBean);
+        assertFalse(headerCells.isEmpty());
+        assertEquals(
+                headerCells.size(),
+                headerCells.stream().filter(AssessmentReportCell::isBold).collect(Collectors.toList()).size());
     }
 
     @SuppressWarnings("unchecked")
-    private List<List<String>> invokeItemAnalysisData(ExportReportServlet servlet, HistogramScoresBean scoresBean) throws Exception {
-        Method method = ExportReportServlet.class.getDeclaredMethod("itemAnalysisData", HistogramScoresBean.class);
+    private List<List<AssessmentReportCell>> invokeItemAnalysisDataCells(ExportReportServlet servlet, HistogramScoresBean scoresBean) throws Exception {
+        Method method = ExportReportServlet.class.getDeclaredMethod("itemAnalysisDataCells", HistogramScoresBean.class);
         method.setAccessible(true);
-        return (List<List<String>>) method.invoke(servlet, scoresBean);
+        return (List<List<AssessmentReportCell>>) method.invoke(servlet, scoresBean);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<AssessmentReportCell> invokeItemAnalysisHeaderCells(ExportReportServlet servlet, HistogramScoresBean scoresBean) throws Exception {
+        Method method = ExportReportServlet.class.getDeclaredMethod("itemAnalysisHeaderCells", HistogramScoresBean.class);
+        method.setAccessible(true);
+        return (List<AssessmentReportCell>) method.invoke(servlet, scoresBean);
     }
 
     private ExportReportServlet allocateServletWithoutConstructor() throws Exception {
