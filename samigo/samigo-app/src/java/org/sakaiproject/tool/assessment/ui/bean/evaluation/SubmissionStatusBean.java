@@ -689,34 +689,15 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
 
 	public List findMatchingAgents(final String pattern) {
 		List filteredList = new ArrayList();
-		// name1 example: John Doe
-		StringBuilder name1;
-		// name2 example: Doe, John
-		StringBuilder name2;
 		String normalizedPattern = normalizeSearchText(pattern);
-		
+
 		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
-			// name1 example: John Doe
-			name1 = new StringBuilder(result.getFirstName());
-			name1.append(" ");
-			name1.append(result.getLastName());
-			// name2 example: Doe, John
-			name2 = new StringBuilder(result.getLastName());
-			name2.append(", ");
-			name2.append(result.getFirstName());
-			
-			String normalizedFirstName = normalizeSearchText(result.getFirstName());
-			String normalizedLastName = normalizeSearchText(result.getLastName());
+			String normalizedDisplayName = normalizeSearchText(result.getDisplayName());
 			String normalizedAgentEid = normalizeSearchText(result.getAgentEid());
-			String normalizedName1 = normalizeSearchText(name1.toString());
-			String normalizedName2 = normalizeSearchText(name2.toString());
-			
-			if (normalizedFirstName.startsWith(normalizedPattern) ||
-				normalizedLastName.startsWith(normalizedPattern) ||
-				normalizedAgentEid.startsWith(normalizedPattern) ||
-				normalizedName1.startsWith(normalizedPattern) ||
-				normalizedName2.startsWith(normalizedPattern)) {
+
+			if (normalizedDisplayName.contains(normalizedPattern) ||
+				normalizedAgentEid.startsWith(normalizedPattern)) {
 				filteredList.add(result);
 			}
 		}
