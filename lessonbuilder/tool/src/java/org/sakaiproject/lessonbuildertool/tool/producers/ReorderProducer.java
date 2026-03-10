@@ -78,7 +78,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	public static final String VIEW_ID = "Reorder";
-	public static final List DISALLOWED_ITEM_TYPES_FROM_OTHER_SITES = Arrays.asList(SimplePageItem.ASSIGNMENT, SimplePageItem.ASSESSMENT, SimplePageItem.SCORM, SimplePageItem.FORUM, SimplePageItem.FORUM_SUMMARY, SimplePageItem.ANNOUNCEMENTS, SimplePageItem.BLTI, SimplePageItem.RESOURCE_FOLDER);
+	public static final List<Integer> DISALLOWED_ITEM_TYPES_FROM_OTHER_SITES = Arrays.asList(SimplePageItem.ASSIGNMENT, SimplePageItem.ASSESSMENT, SimplePageItem.SCORM, SimplePageItem.FORUM, SimplePageItem.FORUM_SUMMARY, SimplePageItem.ANNOUNCEMENTS, SimplePageItem.BLTI, SimplePageItem.RESOURCE_FOLDER);
 
 	@Setter
 	private Map<String,String> imageToMimeMap;

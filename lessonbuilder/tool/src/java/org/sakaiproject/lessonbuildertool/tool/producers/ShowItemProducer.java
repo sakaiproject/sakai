@@ -347,7 +347,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    source = createLinks.get(i).Url;
 		} else if (source.startsWith("CREATE/SCORM/")) {
 		    List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
-		    Integer i = new Integer(source.substring("CREATE/SCORM/".length()));
+		    int i = Integer.parseInt(source.substring("CREATE/SCORM/".length()));
 		    source = createLinks.get(i).Url;
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)

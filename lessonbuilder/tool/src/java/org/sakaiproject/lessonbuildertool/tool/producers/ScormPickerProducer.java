@@ -1,7 +1,4 @@
 /**********************************************************************************
- * $URL: $
- * $Id: $
- ***********************************************************************************
  *
  * Copyright (c) 2015 Rutgers, the State University of New Jersey
  *
@@ -86,6 +83,12 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 		return VIEW_ID;
 	}
 
+	private void showError(UIContainer tofill, String messageKey) {
+		UIOutput.make(tofill, "error-div");
+		UIOutput.make(tofill, "error", messageLocator.getMessage(messageKey));
+		UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	}
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 		if (((GeneralViewParameters) viewparams).getSendingPage() != -1) {
 		    try {
@@ -119,9 +122,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			if (scormEntity == null) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_scorm_tool"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    showError(tofill, "simplepage.no_scorm_tool");
 			    return;
 			}
 
@@ -142,16 +143,12 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			List<LessonEntity> plist = scormEntity.getEntitiesInSite(simplePageBean);
 
 			if (createLinks.size() == 0) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_scorm_tool"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    showError(tofill, "simplepage.no_scorm_tool");
 			    return;
 			}
 
 			if (plist == null || plist.size() < 1) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_scorm_packages"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    showError(tofill, "simplepage.no_scorm_packages");
 			    return;
 			}
 
@@ -204,7 +201,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 		return new GeneralViewParameters();
 	}
 
-	public List reportNavigationCases() {
+	public List<NavigationCase> reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<>();
 		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("failure", new SimpleViewParameters(ScormPickerProducer.VIEW_ID)));

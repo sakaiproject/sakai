@@ -4461,11 +4461,9 @@ public class SimplePageBean {
 				i = findItem(itemId);
 				// do getEntity/getreference to normalize, in case sakaiid is old format
 				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
-				String ref = null;
-				if (existing != null)
-				    ref = existing.getReference();
+				String ref = (existing != null) ? existing.getReference() : null;
 				// if same scorm package, nothing to do
-				if ((existing == null) || !ref.equals(selectedScorm)) {
+				if (existing == null || !ref.equals(selectedScorm)) {
 				    i.setSakaiId(selectedScorm);
 				    i.setName(selectedObject.getTitle());
 				    i.setDescription("");
@@ -5948,34 +5946,22 @@ public class SimplePageBean {
 			    }
 			}
 		} else if (item.getType() == SimplePageItem.SCORM) {
-			if (item.getSakaiId().equals(SimplePageItem.DUMMY)) {
-			    completeCache.put(itemId, false);
-			    return false;
+			boolean scormComplete = false;
+			if (!item.getSakaiId().equals(SimplePageItem.DUMMY)) {
+			    LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(), this);
+			    if (scorm != null) {
+				try {
+				    User user = userDirectoryService.getUser(getCurrentUserId());
+				    // SCORM only tracks whether the user attempted the package,
+				    // not grades, so completion = has any attempt
+				    scormComplete = scorm.getSubmission(user.getId()) != null;
+				} catch (Exception ignore) {
+				    // user not found — treat as incomplete
+				}
+			    }
 			}
-			LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(),this);
-			if (scorm == null) {
-			    completeCache.put(itemId, false);
-			    return false;
-			}
-			User user;
-			try {
-			    user = userDirectoryService.getUser(getCurrentUserId());
-			} catch (Exception ignore) {
-			    completeCache.put(itemId, false);
-			    return false;
-			}
-
-			// SCORM only tracks whether the user attempted the package,
-			// not grades, so completion = has any attempt
-			LessonSubmission submission = scorm.getSubmission(user.getId());
-
-			if (submission == null) {
-				completeCache.put(itemId, false);
-				return false;
-			} else {
-				completeCache.put(itemId, true);
-				return true;
-			}
+			completeCache.put(itemId, scormComplete);
+			return scormComplete;
 		} else if (item.getType() == SimplePageItem.COMMENTS) {
 			List<SimplePageComment>comments = simplePageToolDao.findCommentsOnItemByAuthor((long)itemId, getCurrentUserId());
 			boolean found = false;

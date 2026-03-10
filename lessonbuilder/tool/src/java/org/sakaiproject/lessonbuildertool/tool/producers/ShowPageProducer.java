@@ -1303,6 +1303,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.getType() != SimplePageItem.BREAK)
 				    anyItemVisible[0] = true;
 
+				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
+				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM)
+				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
+
 				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
 				// set class name showing what the type is, so people can do funky CSS
@@ -1597,7 +1601,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "type", "s");
 							UIOutput.make(tableRow, "item-format", i.getFormat() != null ? i.getFormat() : "");
 							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
-							LessonEntity scorm = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+							LessonEntity scorm = resolvedScormEntity;
 							if (scorm != null) {
 								String editUrl = scorm.editItemUrl(simplePageBean);
 								if (editUrl != null) {
@@ -1732,7 +1736,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								entityDeleted = true;
 							    break;
 							case SimplePageItem.SCORM:
-							    lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+							    lessonEntity = resolvedScormEntity;
 							    if (lessonEntity != null)
 								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
 							    if (lessonEntity != null && !lessonEntity.objectExists())
@@ -3817,7 +3821,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.SCORM) {
-			LessonEntity lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+			LessonEntity lessonEntity = resolvedScormEntity;
 			if ("inline".equals(i.getFormat())) {
 				// SCORM inline: embed iframe directly on the page
 				if (usable && lessonEntity != null) {
@@ -4038,21 +4042,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			switch (i.getType()) {
 				case SimplePageItem.ASSIGNMENT:
 					linkText = getLinkText(linkText, i.getSakaiId());
+					// fall through to ASSESSMENT to resolve entity and set review link
 				case SimplePageItem.ASSESSMENT:
 					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
-				case SimplePageItem.SCORM:
-					if (lessonEntity == null && i.getType() == SimplePageItem.SCORM)
-					    lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
-				default:
-					UIOutput.make(container, ID + "-text", linkText)
-						.decorate(new UIFreeAttributeDecorator("data-original-name", i.getName()));
-
-					if (lessonEntity != null && lessonEntity.showAdditionalLink()) {
-						UIOutput.make(container, ID + "-additional-text", linkAdditionalText)
-							.decorate(new UIFreeAttributeDecorator("data-original-name", linkAdditionalText));
-					}
 					break;
+				case SimplePageItem.SCORM:
+					lessonEntity = resolvedScormEntity;
+					break;
+				default:
+					break;
+			}
+			UIOutput.make(container, ID + "-text", linkText)
+				.decorate(new UIFreeAttributeDecorator("data-original-name", i.getName()));
+			if (lessonEntity != null && lessonEntity.showAdditionalLink()) {
+				UIOutput.make(container, ID + "-additional-text", linkAdditionalText)
+					.decorate(new UIFreeAttributeDecorator("data-original-name", linkAdditionalText));
 			}
 
 		}
