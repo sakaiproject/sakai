@@ -13,6 +13,7 @@ describe("sakai-calendar tests", () => {
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
     .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
     .get(data.userCalendarUrl, data.userCalendarEvents, { overwriteRoutes: true })
+    .get(data.siteCalendarUrl, { "events": data.userCalendarEvents.events })
     .get("*", 500, { overwriteRoutes: true });
 
   it ("renders in user mode correctly", async () => {
@@ -24,7 +25,13 @@ describe("sakai-calendar tests", () => {
 
     expect(el.shadowRoot.getElementById("container")).to.exist;
 
-    waitUntil(() => el.events);
+    await waitUntil(() => {
+      const calendarMessage = el.shadowRoot.querySelector(".calendar-msg");
+      return el._events && calendarMessage && calendarMessage.textContent.includes(data.pinnedSitesMessage);
+    });
+
+    expect(el.shadowRoot.querySelector(".calendar-msg")).to.exist;
+    expect(el.shadowRoot.querySelector(".calendar-msg").textContent).to.contain(data.pinnedSitesMessage);
 
     el.dispatchEvent(new CustomEvent("user-selected-date-changed", { detail: { selectedDate: data.selectedDate } }));
 
@@ -35,12 +42,16 @@ describe("sakai-calendar tests", () => {
     expect(el.shadowRoot.querySelectorAll("#days-events a span").item(1).innerHTML).to.contain(data.userCalendarEvents.events[0].siteTitle);
   });
 
-  it ("is accessible", async () => {
+  it ("does not render the pinned sites message in site mode", async () => {
 
-    let el = await fixture(html`
-      <sakai-calendar user-id="${data.userId}"></sakai-calendar>
+    const el = await fixture(html`
+      <sakai-calendar site-id="${data.siteId}"></sakai-calendar>
     `);
 
-    expect(el.shadowRoot).to.be.accessible();
+    await waitUntil(() => el._events && el._i18n && !el.shadowRoot.querySelector(".calendar-msg"));
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+
+    expect(el.shadowRoot.querySelector(".calendar-msg")).to.not.exist;
   });
 });
