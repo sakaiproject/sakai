@@ -129,6 +129,30 @@ public class SiteManageServiceImplImportToolContentTest {
     }
 
     @Test
+    public void importToolContentFallsBackToSiteIdReplacementWhenTransferReturnsBlank() throws Exception {
+
+        final String oldSiteId = "site-old";
+        final String newSiteId = "site-new";
+        final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
+        final String destinationSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
+        final String expectedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
+
+        Site sourceSite = mock(Site.class);
+        Site destinationSite = mock(Site.class);
+        mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
+
+        // Simulate transfer failure after resolving a resource.
+        doReturn("").when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+
+        siteManageService.importToolContent(oldSiteId, destinationSite, false);
+
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+        verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
+        verify(destinationSite, never()).setInfoUrl("");
+        verify(siteService).save(destinationSite);
+    }
+
+    @Test
     public void importToolsIntoSiteUpdatesSiteInfoUrlDuringOverviewImport() throws Exception {
 
         final String oldSiteId = "site-old";
@@ -171,6 +195,54 @@ public class SiteManageServiceImplImportToolContentTest {
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setDescription(sourceSiteDescription);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
+        verify(destinationSite, never()).setInfoUrl("");
+        verify(siteService, atLeastOnce()).save(destinationSite);
+    }
+
+    @Test
+    public void importToolsIntoSiteFallsBackToSiteIdReplacementWhenTransferReturnsBlank() throws Exception {
+
+        final String oldSiteId = "site-old";
+        final String newSiteId = "site-new";
+        final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
+        final String sourceSiteDescription = "Imported site description";
+        final String expectedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
+
+        Site sourceSite = mock(Site.class);
+        Site destinationSite = mock(Site.class);
+        ResourceProperties sourceSiteProperties = mock(ResourceProperties.class);
+        ResourcePropertiesEdit destinationSiteProperties = mock(ResourcePropertiesEdit.class);
+
+        when(sourceSite.getDescription()).thenReturn(sourceSiteDescription);
+        when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
+        when(sourceSite.getProperties()).thenReturn(sourceSiteProperties);
+        when(sourceSiteProperties.getProperty(LTICustomVars.CONTEXT_ID_HISTORY)).thenReturn(null);
+
+        when(destinationSite.getId()).thenReturn(newSiteId);
+        when(destinationSite.getPropertiesEdit()).thenReturn(destinationSiteProperties);
+
+        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
+        when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
+
+        // Simulate transfer failure after resolving a resource.
+        doReturn("").when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+
+        Map<String, List<String>> importTools = new HashMap<>();
+        importTools.put(SiteManageConstants.SITE_INFO_TOOL_ID, List.of(oldSiteId));
+
+        siteManageService.importToolsIntoSite(
+            destinationSite,
+            new ArrayList<>(List.of(SiteManageConstants.SITE_INFO_TOOL_ID)),
+            importTools,
+            Collections.emptyMap(),
+            Collections.emptyMap(),
+            false
+        );
+
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+        verify(destinationSite).setDescription(sourceSiteDescription);
+        verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
+        verify(destinationSite, never()).setInfoUrl("");
         verify(siteService, atLeastOnce()).save(destinationSite);
     }
 
