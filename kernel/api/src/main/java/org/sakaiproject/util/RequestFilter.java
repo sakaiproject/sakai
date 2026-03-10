@@ -465,7 +465,7 @@ public class RequestFilter implements Filter
 
 					// make sure we have a session
 					Session s = assureSession(req, resp);
-					surfaceTomcatParameterParseFailure(req, s);
+					surfaceTomcatParameterParseFailure(req);
 
 					// pre-process request
 					req = preProcessRequest(s, req);
@@ -497,7 +497,7 @@ public class RequestFilter implements Filter
 								postProcessResponse(s, req, resp);
 							} finally {
 								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req, s);
+								surfaceTomcatParameterParseFailure(req);
 							}
 						}
 					} else {
@@ -510,7 +510,7 @@ public class RequestFilter implements Filter
 								postProcessResponse(s, req, resp);
 							} finally {
 								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req, s);
+								surfaceTomcatParameterParseFailure(req);
 							}
 						} catch (Exception e) {
 							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
@@ -600,7 +600,7 @@ public class RequestFilter implements Filter
 		}
 	}
 
-	protected void surfaceTomcatParameterParseFailure(HttpServletRequest req, Session s)
+	protected void surfaceTomcatParameterParseFailure(HttpServletRequest req)
 	{
 		if (req.getAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED) != null)
 		{

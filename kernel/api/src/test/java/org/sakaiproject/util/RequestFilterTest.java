@@ -190,7 +190,7 @@ public class RequestFilterTest {
         Mockito.when(request.getQueryString()).thenReturn(null);
         Mockito.when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
-        filter.surfaceTomcatParameterParseFailure(request, session);
+        filter.surfaceTomcatParameterParseFailure(request);
 
         Mockito.verify(request).setAttribute(RequestFilter.ATTR_PARAMETER_PARSE_FAILED_REASON, "TOO_MANY_PARTS");
         Mockito.verify(request).setAttribute(RequestFilter.ATTR_PARAMETER_PARSE_FAILED_REPORTED, Boolean.TRUE);
@@ -206,7 +206,7 @@ public class RequestFilterTest {
         Mockito.doNothing().when(testFilter).handleCharacterEncoding(request, response);
         Mockito.doReturn(request).when(testFilter).handleFileUpload(Mockito.eq(request), Mockito.eq(response), Mockito.anyList());
         Mockito.doReturn(session).when(testFilter).assureSession(request, response);
-        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request, session);
+        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request);
         Mockito.doReturn(request).when(testFilter).preProcessRequest(session, request);
         Mockito.doReturn(null).when(testFilter).detectToolPlacement(session, request);
         Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
@@ -214,7 +214,7 @@ public class RequestFilterTest {
 
         testFilter.doFilter(request, response, chain);
 
-        Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request, session);
+        Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request);
     }
 
     @Test
@@ -227,7 +227,7 @@ public class RequestFilterTest {
         Mockito.doNothing().when(testFilter).handleCharacterEncoding(request, response);
         Mockito.doReturn(request).when(testFilter).handleFileUpload(Mockito.eq(request), Mockito.eq(response), Mockito.anyList());
         Mockito.doReturn(session).when(testFilter).assureSession(request, response);
-        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request, session);
+        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request);
         Mockito.doReturn(request).when(testFilter).preProcessRequest(session, request);
         Mockito.doReturn(null).when(testFilter).detectToolPlacement(session, request);
         Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
@@ -236,7 +236,7 @@ public class RequestFilterTest {
         try {
             testFilter.doFilter(request, response, chain);
         } catch (ServletException e) {
-            Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request, session);
+            Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request);
             return;
         }
 
