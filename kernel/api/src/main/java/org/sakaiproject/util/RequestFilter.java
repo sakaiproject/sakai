@@ -102,20 +102,12 @@ public class RequestFilter implements Filter
 	 */
 	public static final String CONFIG_UPLOAD_ENABLED = "upload.enabled";
 	/**
-	 * Config parameter to control the maximum allowed upload size (in MEGABYTES) from the browser.<br />
-	 * If defined on the filter, overrides the system property. Default is 1 (one megabyte).<br />
-	 * This is an aggregate limit on the sum of all files included in a single request.<br />
-	 * Also used as a per-request request parameter, encoded in the URL, to set the max for that particular request.
-	 */
-	public static final String CONFIG_UPLOAD_MAX = "upload.max";
-	/**
 	 * System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This
 	 * is an aggregate limit on the sum of all files included in a single request.
 	 */
 	public static final String SYSTEM_UPLOAD_MAX = "sakai.content.upload.max";
 	/**
-	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request
-	 * filter, or per-request.
+	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method.
 	 */
 	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
 	/**
@@ -518,13 +510,13 @@ public class RequestFilter implements Filter
 
 							// post-process response
 							postProcessResponse(s, req, resp);
-							} catch (Exception e) {
-								log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
-										log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
-								log.debug("Unhandled exception request diagnostics: hasQuery={}",
-										req.getQueryString() != null && !req.getQueryString().isEmpty());
-								if (log.isDebugEnabled()) throw e;
-							}
+						} catch (Exception e) {
+							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
+									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
+							log.debug("Unhandled exception request diagnostics: hasQuery={}",
+									req.getQueryString() != null && !req.getQueryString().isEmpty());
+							if (log.isDebugEnabled()) throw e;
+						}
 					}
 					// Tomcat may only set these attributes once form parameters are parsed downstream.
 					surfaceTomcatParameterParseFailure(req, s);
@@ -857,12 +849,6 @@ public class RequestFilter implements Filter
 		{
 			m_uploadMaxSize = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_MAX).trim()).longValue() * 1024L * 1024L;
 			m_uploadCeiling = m_uploadMaxSize;
-		}
-
-		// if the maximum allowed upload size is configured on the filter, it overrides the system property
-		if (filterConfig.getInitParameter(CONFIG_UPLOAD_MAX) != null)
-		{
-			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX).trim()).longValue() * 1024L * 1024L;
 		}
 
 		// get the upload max ceiling that limits any other upload max, if defined
