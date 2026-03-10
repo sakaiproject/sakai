@@ -91,7 +91,7 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
     public String getContent(String ref) {
 
         return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
-                .map(a -> a.getTitle() + " " + a.getInstructions())
+                .map(a -> ((a.getTitle() != null ? a.getTitle() : "") + " " + (a.getInstructions() != null ? a.getInstructions() : "")).trim())
                 .orElse("");
     }
 
