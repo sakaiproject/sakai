@@ -675,6 +675,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       AgentFacade agent = new AgentFacade(gdata.getAgentId());
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
+      results.setDisplayName(agent.getDisplayName());
       results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
     		  results.getLastName().length() > 0)
@@ -867,6 +868,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       AgentFacade agent = new AgentFacade(studentid);
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
+      results.setDisplayName(agent.getDisplayName());
       results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
         results.getLastName().length() > 0)
