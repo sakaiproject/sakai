@@ -1,6 +1,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -22,6 +23,7 @@ class PollTest extends SakaiUiTestBase {
     private static final String POLL_TITLE = "Playwright Poll " + System.currentTimeMillis();
     private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
     private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll " + System.currentTimeMillis();
+    private static boolean pollWithTwoOptionsCreated;
 
     @Test
     @Order(1)
@@ -36,6 +38,14 @@ class PollTest extends SakaiUiTestBase {
     @Test
     @Order(2)
     void canCreatePollWithTwoOptions() {
+        ensurePollWithTwoOptionsExists();
+    }
+
+    private void ensurePollWithTwoOptionsExists() {
+        if (pollWithTwoOptionsCreated) {
+            return;
+        }
+
         createsSiteWithPolls();
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -48,7 +58,8 @@ class PollTest extends SakaiUiTestBase {
         page.locator("form:visible input[type=\"text\"]").first().fill(POLL_TITLE);
 
         LocalDateTime now = LocalDateTime.now();
-        String openDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        // Keep poll open regardless of browser/server timezone differences in CI.
+        String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
 
         page.locator("input[name=\"openDate\"]").fill(openDateTime);
@@ -85,6 +96,7 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator(".sak-banner-success")).containsText("Poll saved successfully");
         assertThat(page.locator("body")).containsText(POLL_TITLE);
+        pollWithTwoOptionsCreated = true;
     }
 
     @Test
@@ -173,6 +185,54 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator("textarea")).isVisible();
         assertThat(page.locator("body")).containsText(DEFAULT_DATES_POLL_TITLE);
+    }
+
+    @Test
+    @Order(5)
+    void canVoteAndViewResultsChart() {
+        ensurePollWithTwoOptionsExists();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        Locator pollRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(POLL_TITLE)).first();
+        assertThat(pollRow).isVisible();
+
+        pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(POLL_TITLE))
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        page.locator("input[name=\"selectedOptionIds\"]").first().check();
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("body")).containsText("Thank you for voting!");
+
+        page.locator("input[type=\"button\"][value=\"Back\"], button:has-text(\"Back\")").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Results"))
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("#poll-results-chart")).isVisible();
+        page.waitForFunction(
+            "() => { const canvas = document.querySelector('#poll-results-chart');"
+                + " if (!canvas) { return false; }"
+                + " const chart = window.Chart && typeof window.Chart.getChart === 'function'"
+                + " ? window.Chart.getChart(canvas) : null;"
+                + " return Boolean(chart || window.pollResultsChartData); }"
+        );
+        Boolean chartInitialized = (Boolean) page.evaluate(
+            "() => { const canvas = document.querySelector('#poll-results-chart');"
+                + " if (!canvas) { return false; }"
+                + " const chart = window.Chart && typeof window.Chart.getChart === 'function'"
+                + " ? window.Chart.getChart(canvas) : null;"
+                + " return Boolean(chart || window.pollResultsChartData); }"
+        );
+        assertTrue(chartInitialized);
+        Locator resultsTable = page.locator(".table-responsive table").first();
+        assertThat(resultsTable).containsText("Yes");
+        assertThat(resultsTable).containsText("100%");
     }
 
     private Locator addOptionControl() {
