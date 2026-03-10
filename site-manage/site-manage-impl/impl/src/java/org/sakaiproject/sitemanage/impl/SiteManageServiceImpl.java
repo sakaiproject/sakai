@@ -403,7 +403,8 @@ public class SiteManageServiceImpl implements SiteManageService {
             Site fromSite = siteService.getSite(fromSiteId);
             toSite = siteService.getSite(toSiteId);
             toSite.setDescription(fromSite.getDescription());
-            toSite.setInfoUrl(fromSite.getInfoUrl());
+            String newSiteInfoUrl = resolveImportedSiteInfoUrl(fromSiteId, toSiteId, fromSite.getInfoUrl());
+            toSite.setInfoUrl(newSiteInfoUrl);
             saveSite(toSite);
         } catch (IdUnusedException iue) {
             log.warn("Site not found, {}", iue.toString());
