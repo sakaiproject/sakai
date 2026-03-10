@@ -20,6 +20,8 @@ class PollTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
     private static final String POLL_TITLE = "Playwright Poll " + System.currentTimeMillis();
+    private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
+    private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll " + System.currentTimeMillis();
 
     @Test
     @Order(1)
@@ -83,6 +85,94 @@ class PollTest extends SakaiUiTestBase {
 
         assertThat(page.locator(".sak-banner-success")).containsText("Poll saved successfully");
         assertThat(page.locator("body")).containsText(POLL_TITLE);
+    }
+
+    @Test
+    @Order(3)
+    void cannotSavePollWhenLimitsExceedAvailableOptions() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        page.locator("form:visible input[type=\"text\"]").first().fill(LIMITS_POLL_TITLE);
+        page.locator("#poll-details").fill("Poll limits regression test");
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+
+        page.locator("input[name=\"openDate\"]").fill(openDateTime);
+        page.locator("input[name=\"closeDate\"]").fill(closeDateTime);
+
+        page.locator("input[name=\"minOptions\"]").fill("6");
+        page.locator("input[name=\"maxOptions\"]").fill("6");
+
+        page.locator("form:visible").first().locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Add\"), button[type=\"submit\"]:has-text(\"Create\"), button[type=\"submit\"]:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Add\"], input[type=\"submit\"][value*=\"Create\"], input[type=\"submit\"][value*=\"Continue\"], .act button:has-text(\"Save\"), .act button:has-text(\"Add\"), .act button:has-text(\"Create\"), .act button:has-text(\"Continue\"), .act input[value*=\"Save\"], .act input[value*=\"Add\"], .act input[value*=\"Create\"], .act input[value*=\"Continue\"]")
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("textarea")).isVisible();
+
+        page.locator("textarea").fill("Option one");
+        page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator(".sak-banner-success")).isVisible();
+
+        Locator addOptionButton = addOptionControl();
+        if (!isVisible(addOptionButton, 5_000)) {
+            Locator pollLink = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("^" + Pattern.quote(LIMITS_POLL_TITLE) + "$"))).first();
+            if (isVisible(pollLink, 5_000)) {
+                pollLink.click(new Locator.ClickOptions().setForce(true));
+            }
+            addOptionButton = addOptionControl();
+        }
+
+        assertThat(addOptionButton).isVisible();
+        addOptionButton.click(new Locator.ClickOptions().setForce(true));
+
+        page.locator("textarea").fill("Option two");
+        page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator(".sak-banner-success")).isVisible();
+
+        page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
+        assertThat(page.locator("body")).containsText(Pattern.compile("add more answer options", Pattern.CASE_INSENSITIVE));
+    }
+
+    @Test
+    @Order(4)
+    void newPollFormPrefillsDatesAndAllowsSave() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        page.locator("form:visible input[type=\"text\"]").first().fill(DEFAULT_DATES_POLL_TITLE);
+
+        assertThat(page.locator("label[for=\"poll-text\"]")).hasClass(Pattern.compile(".*required.*"));
+        assertThat(page.locator("label[for=\"open-date\"]")).hasClass(Pattern.compile(".*required.*"));
+        assertThat(page.locator("label[for=\"close-date\"]")).hasClass(Pattern.compile(".*required.*"));
+        assertThat(page.locator("label[for=\"min-options\"]")).hasClass(Pattern.compile(".*required.*"));
+        assertThat(page.locator("label[for=\"max-options\"]")).hasClass(Pattern.compile(".*required.*"));
+
+        assertThat(page.locator("input[name=\"openDate\"]")).not().hasValue("");
+        assertThat(page.locator("input[name=\"closeDate\"]")).not().hasValue("");
+
+        page.locator("form:visible").first().locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Add\"), button[type=\"submit\"]:has-text(\"Create\"), button[type=\"submit\"]:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Add\"], input[type=\"submit\"][value*=\"Create\"], input[type=\"submit\"][value*=\"Continue\"], .act button:has-text(\"Save\"), .act button:has-text(\"Add\"), .act button:has-text(\"Create\"), .act button:has-text(\"Continue\"), .act input[value*=\"Save\"], .act input[value*=\"Add\"], .act input[value*=\"Create\"], .act input[value*=\"Continue\"]")
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("textarea")).isVisible();
+        assertThat(page.locator("body")).containsText(DEFAULT_DATES_POLL_TITLE);
     }
 
     private Locator addOptionControl() {
