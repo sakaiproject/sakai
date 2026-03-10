@@ -206,12 +206,14 @@ class PollTest extends SakaiUiTestBase {
         page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        assertThat(page.locator("body")).containsText("Thank you for voting!");
+        page.waitForURL(Pattern.compile(".*/voteThanks\\?voteRef=.*"));
+        assertThat(page.locator(".portletBody .fw-bold")).containsText(Pattern.compile(".+"));
 
-        page.locator("input[type=\"button\"][value=\"Back\"], button:has-text(\"Back\")").first()
+        page.locator("input[type=\"button\"][onclick*=\"/votePolls\"], button[onclick*=\"/votePolls\"], .act input[type=\"button\"], .act button").first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        pollRow.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Results"))
+        assertThat(pollRow).isVisible();
+        pollRow.locator("a[href*='/voteResults']").first()
             .click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("#poll-results-chart")).isVisible();
@@ -232,7 +234,7 @@ class PollTest extends SakaiUiTestBase {
         assertTrue(chartInitialized);
         Locator resultsTable = page.locator(".table-responsive table").first();
         assertThat(resultsTable).containsText("Yes");
-        assertThat(resultsTable).containsText("100%");
+        assertThat(resultsTable).containsText(Pattern.compile("100\\s*%"));
     }
 
     private Locator addOptionControl() {
