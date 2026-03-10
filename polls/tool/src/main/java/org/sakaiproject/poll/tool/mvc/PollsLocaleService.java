@@ -6,13 +6,11 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,21 +19,16 @@ import org.springframework.stereotype.Component;
 public class PollsLocaleService {
 
     private final PreferencesService preferencesService;
-    private final ServerConfigurationService serverConfigurationService;
     private final SiteService siteService;
     private final ToolManager toolManager;
     private final SessionManager sessionManager;
 
     public Locale getLocaleForCurrentSiteAndUser() {
-        Optional<Site> currentSite = getCurrentSite();
-        if (currentSite.isPresent()) {
-            ResourceProperties siteProperties = currentSite.get().getProperties();
-            String siteLocale = (String) siteProperties.get(Site.PROP_SITE_LOCALE);
-            if (StringUtils.isNotBlank(siteLocale)) {
-                Locale locale = serverConfigurationService.getLocaleFromString(siteLocale);
-                if (locale != null) {
-                    return locale;
-                }
+        Optional<String> currentSiteId = getCurrentSiteId();
+        if (currentSiteId.isPresent()) {
+            Optional<Locale> siteLocale = siteService.getSiteLocale(currentSiteId.get());
+            if (siteLocale.isPresent()) {
+                return siteLocale.get();
             }
         }
 
@@ -50,13 +43,14 @@ public class PollsLocaleService {
         return Locale.getDefault();
     }
 
-    private Optional<Site> getCurrentSite() {
+    private Optional<String> getCurrentSiteId() {
         try {
-            String siteId = toolManager.getCurrentPlacement().getContext();
+            Placement currentPlacement = toolManager.getCurrentPlacement();
+            String siteId = currentPlacement != null ? currentPlacement.getContext() : null;
             if (StringUtils.isBlank(siteId)) {
                 return Optional.empty();
             }
-            return Optional.of(siteService.getSite(siteId));
+            return Optional.of(siteId);
         } catch (Exception e) {
             log.debug("Unable to resolve current site for polls locale handling", e);
             return Optional.empty();
