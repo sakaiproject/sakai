@@ -144,7 +144,9 @@ export class SakaiCalendar extends LionCalendar {
       </div>
       ` : nothing}
 
+      ${!this.siteId ? html`
       <div class="calendar-msg">${this._i18n?.pinned_sites_message}</div>
+      ` : nothing}
 
       <div id="container">
         ${super.render()}
