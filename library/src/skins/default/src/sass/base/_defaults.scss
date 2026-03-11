@@ -145,7 +145,7 @@ input[type="submit"],input[type="button"],input[type="reset"] {
   @extend .button_color;
 }
 
-input[type="checkbox"], input[type="radio"]{
+input[type="checkbox"], input[type="radio"], input.form-check-input[type="checkbox"], input.form-check-input[type="radio"]{
   border: 1px solid var(--sakai-text-color-1);
   color: var(--sakai-text-color-1);
   display: inline-block;
@@ -175,7 +175,7 @@ label.disabled{
   color: var(--sakai-text-color-disabled);
 }
 
-input[type="checkbox"]{
+input[type="checkbox"], input.form-check-input[type="checkbox"]{
   @include border-radius(3px);
   &:checked{
     background-image: url(#{$skin-path}images/check.svg);
@@ -191,7 +191,7 @@ input[type="checkbox"]{
     }
   }
 }
-input[type="radio"]{
+input[type="radio"], input.form-check-input[type="radio"]{
   @include border-radius(24px);
   &:checked{
     background: var(--radio-button-background); // fallback support
