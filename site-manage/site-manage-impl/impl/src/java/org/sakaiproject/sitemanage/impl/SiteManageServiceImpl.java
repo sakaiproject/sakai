@@ -327,6 +327,11 @@ public class SiteManageServiceImpl implements SiteManageService {
     private String resolveImportedSiteInfoUrl(String oSiteId, String nSiteId, String sourceSiteInfoUrl) {
         String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, sourceSiteInfoUrl);
 
+        // A blank return indicates transfer failure after resolving a resource. Treat as unresolved.
+        if (StringUtils.isBlank(newSiteInfoUrl)) {
+            newSiteInfoUrl = sourceSiteInfoUrl;
+        }
+
         // The source URL is not always a content resource URL. Fall back to direct site-id replacement.
         if (StringUtils.equals(sourceSiteInfoUrl, newSiteInfoUrl) && StringUtils.contains(sourceSiteInfoUrl, oSiteId)) {
             newSiteInfoUrl = StringUtils.replace(sourceSiteInfoUrl, oSiteId, nSiteId);
@@ -403,7 +408,8 @@ public class SiteManageServiceImpl implements SiteManageService {
             Site fromSite = siteService.getSite(fromSiteId);
             toSite = siteService.getSite(toSiteId);
             toSite.setDescription(fromSite.getDescription());
-            toSite.setInfoUrl(fromSite.getInfoUrl());
+            String newSiteInfoUrl = resolveImportedSiteInfoUrl(fromSiteId, toSiteId, fromSite.getInfoUrl());
+            toSite.setInfoUrl(newSiteInfoUrl);
             saveSite(toSite);
         } catch (IdUnusedException iue) {
             log.warn("Site not found, {}", iue.toString());
