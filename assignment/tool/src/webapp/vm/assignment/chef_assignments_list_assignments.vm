@@ -112,7 +112,7 @@
 					<select id="filterByGroup" name="filterByGroup" onchange="SPNR.disableControlsAndSpin(this, null); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
 						<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
 						#foreach($group in $!filterGroupIterator)
-							<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
+							<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$formattedText.escapeHtml($group.getTitle())</option>
 						#end
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
