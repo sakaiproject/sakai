@@ -305,6 +305,8 @@ public class DiscussionForumTool {
   private static final String FAILED_REND_MESSAGE = "cdfm_failed_rend_message";
   private static final String VIEW_UNDER_CONSTRUCT = "cdfm_view_under_construct";
   private static final String LOST_ASSOCIATE = "cdfm_lost_association";
+  private static final String NO_MARKED_READ_MESSAGE = "cdfm_no_message_mark_read";
+  private static final String BULK_NONE_SELECTED = "cdfm_bulk_none_selected";
   private static final String NO_MARKED_NO_READ_MESSAGE = "cdfm_no_message_mark_no_read";
   private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
@@ -756,6 +758,66 @@ public class DiscussionForumTool {
     return forums;
   }
 
+  public boolean isShowBulkActions()
+  {
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return false;
+    }
+
+    for (DiscussionForumBean forum : forumsList) {
+      if (forum.isChangeSettings()) {
+        return true;
+      }
+      List<DiscussionTopicBean> topics = forum.getTopics();
+      if (topics != null) {
+        for (DiscussionTopicBean topic : topics) {
+          if (topic.isChangeSettings()) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private List<DiscussionForumBean> getSelectedForumBeans()
+  {
+    List<DiscussionForumBean> selected = new ArrayList<>();
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return selected;
+    }
+    for (DiscussionForumBean forum : forumsList) {
+      if (forum.isSelected()) {
+        selected.add(forum);
+      }
+    }
+    return selected;
+  }
+
+  private List<DiscussionTopicBean> getSelectedTopicBeans()
+  {
+    List<DiscussionTopicBean> selected = new ArrayList<>();
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return selected;
+    }
+    for (DiscussionForumBean forum : forumsList) {
+      List<DiscussionTopicBean> topics = forum.getTopics();
+      if (topics == null) {
+        continue;
+      }
+      for (DiscussionTopicBean topic : topics) {
+        if (topic.isSelected()) {
+          selected.add(topic);
+        }
+      }
+    }
+    return selected;
+  }
+
   public void setTopicGradeAssign(DiscussionTopicBean bean, String defaultGradeAssign) {
 
     if (StringUtils.isNotEmpty(bean.getTopic().getDefaultAssignName())) {
@@ -1087,7 +1149,6 @@ public class DiscussionForumTool {
     HashMap<String, Integer> beforeChangeHM = null; 
     DiscussionForum forum = selectedForum.getForum();
     Long forumId = forum.getId();
-    List topics = forum.getTopics();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
     forumManager.deleteForum(selectedForum.getForum());
@@ -1095,18 +1156,6 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-    
-    // Delete task (forum)
-    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId;
-    taskService.removeTaskByReference(reference);
-    // Delete task (topics)
-    for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
-        DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-        Long topicId = topic.getId();
-        reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
-        taskService.removeTaskByReference(reference);
-    }
-    
 
     reset();
     return gotoMain();
@@ -2260,10 +2309,214 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-    
-    // Delete task
-    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
-    taskService.removeTaskByReference(reference);
+
+    reset();
+    return gotoMain();
+  }
+
+  public String processActionBulkPublish()
+  {
+    return processBulkDraftChange(false);
+  }
+
+  public String processActionBulkUnpublish()
+  {
+    return processBulkDraftChange(true);
+  }
+
+  public String processActionBulkRemove()
+  {
+    List<DiscussionForumBean> selectedForums = getSelectedForumBeans();
+    List<DiscussionTopicBean> selectedTopics = getSelectedTopicBeans();
+
+    if (selectedForums.isEmpty() && selectedTopics.isEmpty()) {
+      setErrorMessage(getResourceBundleString(BULK_NONE_SELECTED));
+      return null;
+    }
+
+    Set<Long> deletedForumIds = new HashSet<>();
+
+    for (DiscussionForumBean forumBean : selectedForums) {
+      if (forumBean.getForum() == null || forumBean.getForum().getId() == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(forum)) {
+        continue;
+      }
+
+      HashMap<String, Integer> beforeChangeHM =
+          SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
+
+      forumManager.deleteForum(forum);
+      deletedForumIds.add(forum.getId());
+
+      if (beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+    }
+
+    for (DiscussionTopicBean topicBean : selectedTopics) {
+      if (topicBean.getTopic() == null || topicBean.getTopic().getId() == null) {
+        continue;
+      }
+      DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
+      if (topic == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (deletedForumIds.contains(forum.getId())) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(topic, forum)) {
+        continue;
+      }
+
+      HashMap<String, Integer> beforeChangeHM =
+          SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), topic.getId());
+
+      forumManager.deleteTopic(topic);
+
+      if (beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+    }
+
+    reset();
+    return gotoMain();
+  }
+
+  private String processBulkDraftChange(boolean draft)
+  {
+    List<DiscussionForumBean> selectedForums = getSelectedForumBeans();
+    List<DiscussionTopicBean> selectedTopics = getSelectedTopicBeans();
+
+    if (selectedForums.isEmpty() && selectedTopics.isEmpty()) {
+      setErrorMessage(getResourceBundleString(BULK_NONE_SELECTED));
+      return null;
+    }
+
+    for (DiscussionForumBean forumBean : selectedForums) {
+      if (forumBean.getForum() == null || forumBean.getForum().getId() == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(forum)) {
+        continue;
+      }
+      if (draft == forum.getDraft()) {
+        continue;
+      }
+
+      boolean updateCounts = needToUpdateSynopticOnForumSave(forum, draft);
+      HashMap<String, Integer> beforeChangeHM = null;
+      if (updateCounts) {
+        beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
+      }
+
+      forum = forumManager.saveForum(forum, draft, getSiteId(), true, getUserId());
+
+      if (updateCounts && beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      if (!isGradebookGroupEnabled()) {
+        String gradeAssign = forumBean.getGradeAssign();
+        gradeAssign = gradeAssign == null ? forum.getDefaultAssignName() : gradeAssign;
+
+        if (!draft && gradeAssign != null) {
+          GradingService gradingService = getGradingService();
+          String gradebookUid = toolManager.getCurrentPlacement().getContext();
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), forum.getTitle(), dueDate);
+          } else if (forumBean.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            this.createTask(reference, forum.getTitle(), dueDate);
+          }
+        }
+      }
+    }
+
+    for (DiscussionTopicBean topicBean : selectedTopics) {
+      if (topicBean.getTopic() == null || topicBean.getTopic().getId() == null) {
+        continue;
+      }
+      DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
+      if (topic == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(topic, forum)) {
+        continue;
+      }
+      if (draft == topic.getDraft()) {
+        continue;
+      }
+
+      boolean updateCounts = needToUpdateSynopticOnForumSave(topic, draft);
+      HashMap<String, Integer> beforeChangeHM = null;
+      if (updateCounts) {
+        beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(
+            getSiteId(), forum.getId(), topic.getId());
+      }
+
+      HashMap<String, Integer> beforeForumChangeHM = null;
+      if (!draft && forum.getDraft()) {
+        beforeForumChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(
+            getSiteId(), forum.getId(), null);
+      }
+
+      topic = forumManager.saveTopic(topic, draft);
+
+      if (updateCounts && beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      if (!draft && beforeForumChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeForumChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      if (!isGradebookGroupEnabled()) {
+        String gradeAssign = topicBean.getGradeAssign();
+        gradeAssign = gradeAssign == null ? topic.getDefaultAssignName() : gradeAssign;
+        if (!draft) {
+          Date dueDate = null;
+          if (StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            GradingService gradingService = getGradingService();
+            String gradebookUid = toolManager.getCurrentPlacement().getContext();
+            Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+            dueDate = assignment != null ? assignment.getDueDate() : null;
+          }
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topic.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), topic.getTitle(), dueDate);
+          } else if (topicBean.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            this.createTask(reference, topic.getTitle(), dueDate);
+          }
+        }
+      }
+    }
 
     reset();
     return gotoMain();
