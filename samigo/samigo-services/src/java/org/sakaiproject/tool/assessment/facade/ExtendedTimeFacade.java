@@ -53,6 +53,14 @@ public class ExtendedTimeFacade {
         return getEntriesForX(null, pub);
     }
 
+    public List<ExtendedTime> getEntriesForPublishedAssessments(List<Long> publishedAssessmentIds, String userId, List<String> groupIds) {
+        List<ExtendedTime> results = extendedTimeQueries.getEntriesForPublishedAssessments(publishedAssessmentIds, userId, groupIds);
+        if (results == null) {
+            results = new ArrayList<>(0);
+        }
+        return results;
+    }
+
     public ExtendedTime getEntryForPubAndUser(PublishedAssessmentIfc pub, String user) {
         return extendedTimeQueries.getEntryForPubAndUser(pub, user);
     }

@@ -617,6 +617,15 @@ public class SakaiHelper {
     }
 
     public String passwordFor(String username) {
+        String configuredPassword = System.getProperty("PLAYWRIGHT_PASSWORD");
+        if (configuredPassword == null || configuredPassword.isBlank()) {
+            configuredPassword = System.getenv("PLAYWRIGHT_PASSWORD");
+        }
+
+        if (configuredPassword != null && !configuredPassword.isBlank()) {
+            return configuredPassword;
+        }
+
         return "admin".equals(username) ? "admin" : "sakai";
     }
 
