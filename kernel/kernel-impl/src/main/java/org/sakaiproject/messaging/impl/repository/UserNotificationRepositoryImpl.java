@@ -62,6 +62,38 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         return session.createQuery(query).list();
     }
 
+    public long countUnviewedByToUser(String userId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<UserNotification> un = query.from(UserNotification.class);
+        query.select(cb.count(un)).where(cb.and(
+                cb.equal(un.get("deferred"), false),
+                cb.equal(un.get("toUser"), userId),
+                cb.or(cb.isNull(un.get("viewed")), cb.isFalse(un.get("viewed")))
+        ));
+        return session.createQuery(query).getSingleResult();
+    }
+
+    public long countActiveUnviewedBroadcastNotifications() {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Instant now = Instant.now();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<UserNotification> un = query.from(UserNotification.class);
+        query.select(cb.count(un)).where(cb.and(
+                cb.equal(un.get("broadcast"), true),
+                cb.greaterThan(un.get("endDate"), now),
+                cb.or(cb.isNull(un.get("viewed")), cb.isFalse(un.get("viewed")))
+        ));
+        return session.createQuery(query).getSingleResult();
+    }
+
     @Transactional
     public int deleteExpiredNotifications() {
 

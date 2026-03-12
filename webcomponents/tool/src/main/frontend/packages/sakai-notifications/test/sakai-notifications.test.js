@@ -39,6 +39,7 @@ describe("sakai-notifications tests", () => {
     `);
 
     await waitUntil(() => el._i18n);
+    await el.loadNotifications();
     await waitUntil(() => el.notifications?.length);
 
     await elementUpdated(el);
@@ -101,6 +102,7 @@ describe("sakai-notifications tests", () => {
     `);
 
     await waitUntil(() => el._i18n);
+    await el.loadNotifications();
     await waitUntil(() => el.notifications?.length);
     await waitUntil(() => el._filteredNotifications.get("asn")?.length);
 
