@@ -762,7 +762,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void groupSubmissionPostPreservesHistoricalSubmittersAndAddsCurrentGroupMembers() {
+    public void groupSubmissionPostReconcilesSubmittersToCurrentGroupMembers() {
         String context = UUID.randomUUID().toString();
         String groupId = "team-4";
         String currentUser = "student0011";
@@ -832,15 +832,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
 
-        Optional<AssignmentSubmissionSubmitter> removedSubmitter = submission.getSubmitters().stream()
-                .filter(s -> removedUser.equals(s.getSubmitter()))
-                .findFirst();
-        Assert.assertTrue(removedSubmitter.isPresent());
-        removedSubmitter.get().setGrade("92");
-        removedSubmitter.get().setFeedback("Historical feedback");
-        removedSubmitter.get().setTimeSpent("45");
-        Long removedSubmitterId = removedSubmitter.get().getId();
-
         String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
@@ -856,21 +847,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
                     .collect(Collectors.toSet());
 
-            Assert.assertEquals(new HashSet<>(Arrays.asList(currentUser, removedUser, addedUser)), submitterIds);
+            Assert.assertEquals(new HashSet<>(Arrays.asList(currentUser, addedUser)), submitterIds);
             Assert.assertEquals(1, reconciledSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
             Assert.assertTrue(reconciledSubmission.getSubmitters().stream()
                     .filter(AssignmentSubmissionSubmitter::getSubmittee)
                     .anyMatch(s -> currentUser.equals(s.getSubmitter())));
-
-            Optional<AssignmentSubmissionSubmitter> persistedRemovedSubmitter = reconciledSubmission.getSubmitters().stream()
-                    .filter(s -> removedUser.equals(s.getSubmitter()))
-                    .findFirst();
-            Assert.assertTrue(persistedRemovedSubmitter.isPresent());
-            Assert.assertEquals(removedSubmitterId, persistedRemovedSubmitter.get().getId());
-            Assert.assertEquals("92", persistedRemovedSubmitter.get().getGrade());
-            Assert.assertEquals("Historical feedback", persistedRemovedSubmitter.get().getFeedback());
-            Assert.assertEquals("45", persistedRemovedSubmitter.get().getTimeSpent());
-            Assert.assertFalse(persistedRemovedSubmitter.get().getSubmittee());
+            Assert.assertFalse(reconciledSubmission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
             Assert.assertTrue(reconciledSubmission.getSubmitters().stream().anyMatch(s -> addedUser.equals(s.getSubmitter())));
         } catch (Exception e) {
             Assert.fail("Could not reconcile group submitters on post\n" + e.toString());

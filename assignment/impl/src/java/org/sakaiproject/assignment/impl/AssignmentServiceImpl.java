@@ -55,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1804,44 +1803,29 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return;
             }
 
-            Map<String, AssignmentSubmissionSubmitter> existingSubmitters = submission.getSubmitters().stream()
-                    .collect(Collectors.toMap(AssignmentSubmissionSubmitter::getSubmitter, Function.identity(), (left, right) -> left));
-
-            Set<String> currentGroupSubmitterIds = new HashSet<>();
-            group.getMembers().stream()
+            List<String> submitterIds = group.getMembers().stream()
                     .filter(member -> (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
                             || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
                             && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
                             && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
-                    .forEach(member -> {
-                        String memberUserId = member.getUserId();
-                        currentGroupSubmitterIds.add(memberUserId);
+                    .map(Member::getUserId)
+                    .collect(Collectors.toList());
 
-                        AssignmentSubmissionSubmitter existingSubmitter = existingSubmitters.get(memberUserId);
-                        if (existingSubmitter == null) {
-                            existingSubmitter = new AssignmentSubmissionSubmitter();
-                            existingSubmitter.setSubmission(submission);
-                            existingSubmitter.setSubmitter(memberUserId);
-                            submission.getSubmitters().add(existingSubmitter);
-                            existingSubmitters.put(memberUserId, existingSubmitter);
-                        }
-                        existingSubmitter.setSubmittee(false);
-                    });
+            submission.getSubmitters().clear();
+            for (String submitterId : submitterIds) {
+                AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
+                submissionSubmitter.setSubmission(submission);
+                submissionSubmitter.setSubmitter(submitterId);
+                submissionSubmitter.setSubmittee(false);
+                if (StringUtils.equals(submitterId, sessionManager.getCurrentSessionUserId())) {
+                    submissionSubmitter.setSubmittee(true);
+                }
+                submission.getSubmitters().add(submissionSubmitter);
+            }
 
-            String currentUser = sessionManager.getCurrentSessionUserId();
-            submission.getSubmitters().stream()
-                    .filter(s -> !currentGroupSubmitterIds.contains(s.getSubmitter()))
-                    .forEach(s -> s.setSubmittee(false));
-
-            Optional<AssignmentSubmissionSubmitter> currentSubmitter = submission.getSubmitters().stream()
-                    .filter(s -> currentGroupSubmitterIds.contains(s.getSubmitter()))
-                    .filter(s -> StringUtils.equals(s.getSubmitter(), currentUser))
-                    .findFirst();
-
-            if (currentSubmitter.isPresent()) {
-                currentSubmitter.get().setSubmittee(true);
-            } else if (!allowGradeSubmission(assignmentReference)) {
-                throw new PermissionException(currentUser, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
+            if (submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
+                    && !allowGradeSubmission(assignmentReference)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
             }
         } catch (IdUnusedException iue) {
             log.warn("Cannot reconcile submitters for submission {} because site {} was not found", submission.getId(),
@@ -2085,7 +2069,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return Collections.emptyList();
         }
 
-        return assignmentRepository.findSubmissionsForGroups(assignment.getId(), matchingGroupIds);
+        List<AssignmentSubmission> matchingSubmissions = new ArrayList<>();
+        for (String matchingGroupId : matchingGroupIds) {
+            AssignmentSubmission submission = assignmentRepository.findSubmissionForGroup(assignment.getId(), matchingGroupId);
+            if (submission != null) {
+                matchingSubmissions.add(submission);
+            }
+        }
+        return matchingSubmissions;
     }
 
     private List<String> getMatchingAssignmentGroupIds(Assignment assignment, String userId) {
