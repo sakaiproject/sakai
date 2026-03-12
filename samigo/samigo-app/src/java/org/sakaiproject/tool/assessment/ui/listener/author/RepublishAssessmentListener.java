@@ -88,7 +88,6 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
-		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
@@ -103,6 +102,7 @@ public class RepublishAssessmentListener implements ActionListener {
         // Determine notification preference and emit availability events accordingly
         PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
         boolean sendNotification = publishRepublishNotification.isSendNotification();
+        eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId + ", sendNotification=" + sendNotification, true));
         emitAvailabilityEvents(assessment, publishedAssessmentSettings, sendNotification);
         // Keep gradebook update position unchanged
         publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
