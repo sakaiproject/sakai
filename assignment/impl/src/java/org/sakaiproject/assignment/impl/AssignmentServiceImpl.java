@@ -55,6 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1695,6 +1696,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
+
+        reconcileGroupSubmissionSubmittersOnPost(submission, assignmentReference, reference);
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
         assignmentRepository.updateSubmission(submission);
@@ -1778,6 +1781,83 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 taskService.completeUserTaskByReference(assignmentReference, submitterIds);
             }
         }
+    }
+
+    private void reconcileGroupSubmissionSubmittersOnPost(AssignmentSubmission submission, String assignmentReference,
+            String submissionReference) throws PermissionException {
+
+        if (!shouldReconcileGroupSubmissionSubmittersOnPost(submission)) {
+            return;
+        }
+
+        String groupId = StringUtils.trimToNull(submission.getGroupId());
+        if (groupId == null) {
+            log.warn("Cannot reconcile submitters for group submission {} without a group id", submission.getId());
+            return;
+        }
+
+        try {
+            Site site = siteService.getSite(submission.getAssignment().getContext());
+            Group group = site.getGroup(groupId);
+            if (group == null) {
+                log.warn("Cannot reconcile submitters for submission {} because group {} no longer exists", submission.getId(), groupId);
+                return;
+            }
+
+            Map<String, AssignmentSubmissionSubmitter> existingSubmitters = submission.getSubmitters().stream()
+                    .collect(Collectors.toMap(AssignmentSubmissionSubmitter::getSubmitter, Function.identity(), (left, right) -> left));
+
+            Set<AssignmentSubmissionSubmitter> reconciledSubmitters = new HashSet<>();
+            group.getMembers().stream()
+                    .filter(member -> (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                            || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                            && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                            && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                    .forEach(member -> {
+                        AssignmentSubmissionSubmitter reconciledSubmitter = new AssignmentSubmissionSubmitter();
+                        reconciledSubmitter.setSubmission(submission);
+                        reconciledSubmitter.setSubmitter(member.getUserId());
+
+                        AssignmentSubmissionSubmitter existingSubmitter = existingSubmitters.get(member.getUserId());
+                        if (existingSubmitter != null) {
+                            reconciledSubmitter.setGrade(existingSubmitter.getGrade());
+                            reconciledSubmitter.setFeedback(existingSubmitter.getFeedback());
+                            reconciledSubmitter.setTimeSpent(existingSubmitter.getTimeSpent());
+                        }
+
+                        reconciledSubmitters.add(reconciledSubmitter);
+                    });
+
+            String currentUser = sessionManager.getCurrentSessionUserId();
+            Optional<AssignmentSubmissionSubmitter> currentSubmitter = reconciledSubmitters.stream()
+                    .filter(s -> StringUtils.equals(s.getSubmitter(), currentUser))
+                    .findFirst();
+
+            if (currentSubmitter.isPresent()) {
+                currentSubmitter.get().setSubmittee(true);
+            } else if (!allowGradeSubmission(assignmentReference)) {
+                throw new PermissionException(currentUser, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
+            }
+
+            if (!reconciledSubmitters.isEmpty()) {
+                submission.getSubmitters().clear();
+                submission.getSubmitters().addAll(reconciledSubmitters);
+            }
+        } catch (IdUnusedException iue) {
+            log.warn("Cannot reconcile submitters for submission {} because site {} was not found", submission.getId(),
+                    submission.getAssignment().getContext());
+        }
+    }
+
+    private boolean shouldReconcileGroupSubmissionSubmittersOnPost(AssignmentSubmission submission) {
+        if (submission == null || submission.getAssignment() == null || !submission.getAssignment().getIsGroup()
+                || !Boolean.TRUE.equals(submission.getSubmitted())) {
+            return false;
+        }
+
+        Instant dateSubmitted = submission.getDateSubmitted();
+        Instant dateModified = submission.getDateModified();
+        return dateSubmitted == null || dateModified == null || !dateSubmitted.isBefore(dateModified);
     }
 
     @Override

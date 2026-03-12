@@ -762,6 +762,103 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void groupSubmissionPostReconcilesSubmittersToCurrentGroupMembers() {
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-4";
+        String currentUser = "student0011";
+        String removedUser = "student0012";
+        String addedUser = "student0013";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> initialMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(currentUser),
+                buildGroupMember(removedUser)));
+        Set<Member> updatedMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(currentUser),
+                buildGroupMember(addedUser)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure submitter reconciliation mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(initialMembers, updatedMembers);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(currentUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(currentUser);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for submitter reconciliation test\n" + e.toString());
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission draft\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+        Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
+        Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        try {
+            assignmentService.updateSubmission(submission);
+            AssignmentSubmission reconciledSubmission = assignmentService.getSubmission(submission.getId());
+            Set<String> submitterIds = reconciledSubmission.getSubmitters().stream()
+                    .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .collect(Collectors.toSet());
+
+            Assert.assertEquals(new HashSet<>(Arrays.asList(currentUser, addedUser)), submitterIds);
+            Assert.assertFalse(submitterIds.contains(removedUser));
+            Assert.assertEquals(1, reconciledSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(reconciledSubmission.getSubmitters().stream()
+                    .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                    .anyMatch(s -> currentUser.equals(s.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not reconcile group submitters on post\n" + e.toString());
+        }
+    }
+
+    @Test
     public void getDeletedAssignmentsForContext() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
