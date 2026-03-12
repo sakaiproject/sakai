@@ -16,8 +16,6 @@
 
 package org.sakaiproject.chat2.model.impl;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -216,7 +214,7 @@ protected void init() throws Exception {
             //MessageHeader mh = m.getHeader();
             StringBuilder sb = new StringBuilder();
             //Class c = mh.getClass();
-            
+
             sb.append(getMessageFromBundle("chat_header")); //$NON-NLS-1$
             sb.append(getMessageFromBundle("chat_from"));
             String context = m.getChatChannel().getContext();
@@ -225,14 +223,6 @@ protected void init() throws Exception {
             sb.append(getMessageFromBundle("chat_body")); //$NON-NLS-1$
             SearchUtils.appendCleanString(m.getBody(), sb);
 
-            //Chat messages do not contain html so this should be ignored...chmaurer
-            /*
-            for ( HTMLParser hp = new HTMLParser(mBody); hp.hasNext(); ) {
-               SearchUtils.appendCleanString(hp.next(), sb);
-               sb.append(" ");
-            }
-            */
-            
             sb.append("\n"); //$NON-NLS-1$
             log.debug("Message Content for {} is {}", ref.getReference(), //$NON-NLS-1$ //$NON-NLS-2$
                     sb.toString());
@@ -247,15 +237,9 @@ protected void init() throws Exception {
          {
             throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
          }
-      } 
+      }
 
-      
-      throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$getAllContent
-   }
-
-   @Override
-   public Reader getContentReader(String reference) {
-      return new StringReader(getContent(reference));
+      throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
    }
 
    @Override
@@ -413,11 +397,6 @@ protected void init() throws Exception {
    public String getUrl(String reference) {
       Reference ref = getReference(reference);
       return ref.getUrl();
-   }
-
-   @Override
-   public boolean isContentFromReader(String reference) {
-      return false;
    }
 
    @Override

@@ -54,6 +54,10 @@
       <artifactId>opensearch</artifactId>
       <version>${sakai.opensearch.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
 <!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
   </dependencies>
 </project>

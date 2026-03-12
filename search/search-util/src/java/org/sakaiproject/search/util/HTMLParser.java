@@ -84,6 +84,18 @@ public class HTMLParser implements Iterator<String>
 
 	private int last = 0;
 
+	public static String stripHtml(String html) {
+		if (html == null || html.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (HTMLParser hp = new HTMLParser(html); hp.hasNext();) {
+			sb.append(hp.next());
+			sb.append(" ");
+		}
+		return sb.toString().trim();
+	}
+
 	public HTMLParser(String content)
 	{
 		if (content == null)
