@@ -5942,14 +5942,7 @@ public class SimplePageBean {
 			if (!item.getSakaiId().equals(SimplePageItem.DUMMY)) {
 			    LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(), this);
 			    if (scorm != null) {
-				try {
-				    User user = userDirectoryService.getUser(getCurrentUserId());
-				    // SCORM only tracks whether the user attempted the package,
-				    // not grades, so completion = has any attempt
-				    scormComplete = scorm.getSubmission(user.getId()) != null;
-				} catch (Exception ignore) {
-				    // user not found — treat as incomplete
-				}
+				scormComplete = scorm.getSubmission(getCurrentUserId()) != null;
 			    }
 			}
 			completeCache.put(itemId, scormComplete);
@@ -6320,11 +6313,6 @@ public class SimplePageBean {
 			if (quiz == null)
 				return null;
 			return quiz.getTitle();
-		} else if (i.getType() == SimplePageItem.SCORM) {
-		    LessonEntity scorm = scormEntity.getEntity(i.getSakaiId(),this);
-			if (scorm == null)
-				return null;
-			return scorm.getTitle();
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    if (bltiEntity == null)
 			return null;

@@ -44,10 +44,8 @@ import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
-import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.User;
 
 /**
  * Interface to Scorm
@@ -82,15 +80,12 @@ public class ScormEntity implements LessonEntity {
 
 
     static ScormContentService scormContentService = null;
-    static ScormResourceService scormResourceService = null;
     static ScormResultService scormResultService = null;
 
     public void init () {
 	scormContentService = (ScormContentService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormContentService");
-	scormResourceService = (ScormResourceService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormResourceService");
 	scormResultService = (ScormResultService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormResultService");
-	// don't use scorm unless all three are up. Code will only check scormContentService
-	if (scormResourceService == null || scormResultService == null)
+	if (scormResultService == null)
 	    scormContentService = null;
 	log.info("init() {}", scormContentService);
     }
@@ -126,7 +121,7 @@ public class ScormEntity implements LessonEntity {
     }
 
     public String getToolId() {
-	return "sakai.scorm.helper";
+	return "sakai.scorm.tool";
     }
 
     // the underlying object, something Sakaiish
@@ -135,17 +130,17 @@ public class ScormEntity implements LessonEntity {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected ContentPackage assignment;
+    protected ContentPackage contentPackage;
 
     // ref looks like /scorm/id
-    public ContentPackage getAssignment(Long id) {
+    public ContentPackage getContentPackage(Long id) {
 	try {
-	    assignment = scormContentService.getContentPackage(id);
+	    contentPackage = scormContentService.getContentPackage(id);
 	} catch (Exception e) {
 	    log.warn("Unable to load SCORM content package {}: {}", id, e.getMessage());
-	    assignment = null;
+	    contentPackage = null;
 	}
-	return assignment;
+	return contentPackage;
     }
 
     // type of the underlying object
@@ -210,7 +205,7 @@ public class ScormEntity implements LessonEntity {
 	    if (contentPackage.isDeleted())
 		continue;
 	    ScormEntity entity = new ScormEntity(TYPE_SCORM, contentPackage.getContentPackageId(), 1);
-	    entity.assignment = contentPackage;
+	    entity.contentPackage = contentPackage;
 	    entity.simplePageBean = bean;
 	    lessons.add(entity);
 	}
@@ -242,17 +237,17 @@ public class ScormEntity implements LessonEntity {
 
     // properties of entities
     public String getTitle() {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
 	    return null;
-	return assignment.getTitle();
+	return contentPackage.getTitle();
     }
 
     public String getUrl() {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
 	    return null;
 
 	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/scormPlayerPage?contentPackageId=" + id;
@@ -263,16 +258,16 @@ public class ScormEntity implements LessonEntity {
     }
 
     public LessonSubmission getSubmission(String userId) {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
 	    return null;
-	Attempt latest = scormResultService.getNewstAttempt(assignment.getContentPackageId(), userId);
+	Attempt latest = scormResultService.getNewstAttempt(contentPackage.getContentPackageId(), userId);
 	if (latest == null)
 	    return null;
 	// Check actual cmi.completion_status / cmi.success_status across all SCOs in this attempt
 	List<ActivitySummary> summaries = scormResultService.getActivitySummaries(
-	    assignment.getContentPackageId(), userId, latest.getAttemptNumber());
+	    contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
 	for (ActivitySummary summary : summaries) {
 	    if ("completed".equals(summary.getCompletionStatus()) || "passed".equals(summary.getSuccessStatus()))
 		return new LessonSubmission(null);
@@ -283,11 +278,11 @@ public class ScormEntity implements LessonEntity {
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
 // I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.
     public int getSubmissionCount(String user) {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
 	    return 0;
-	return scormResultService.countAttempts(assignment.getContentPackageId(), user);
+	return scormResultService.countAttempts(contentPackage.getContentPackageId(), user);
     }
 
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
@@ -321,9 +316,9 @@ public class ScormEntity implements LessonEntity {
    public boolean objectExists() {
        if (scormContentService == null)
 	   return false;
-       if (assignment == null)
-	   assignment = getAssignment(id);
-       return assignment != null;
+       if (contentPackage == null)
+	   contentPackage = getContentPackage(id);
+       return contentPackage != null;
    }
 
     public boolean notPublished(String ref) {
@@ -332,9 +327,9 @@ public class ScormEntity implements LessonEntity {
 
     public boolean notPublished() {
 	if (scormContentService == null) return true;
-	if (assignment == null) assignment = getAssignment(id);
-	if (assignment == null) return true;
-	int status = scormContentService.getContentPackageStatus(assignment);
+	if (contentPackage == null) contentPackage = getContentPackage(id);
+	if (contentPackage == null) return true;
+	int status = scormContentService.getContentPackageStatus(contentPackage);
 	return status == ScormConstants.CONTENT_PACKAGE_STATUS_NOTYETOPEN
 	    || status == ScormConstants.CONTENT_PACKAGE_STATUS_CLOSED;
     }
@@ -357,8 +352,6 @@ public class ScormEntity implements LessonEntity {
 
     }
 
-    // currently assignment 2 does not participate in the fixup. However I'm going to include
-    // the ID anyway, just in case it happens in the future
     public String getObjectId(){
 	String title = getTitle();
 	if (title == null)
