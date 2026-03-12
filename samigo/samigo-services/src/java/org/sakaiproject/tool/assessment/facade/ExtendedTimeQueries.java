@@ -17,6 +17,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,37 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
             return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
         } catch (DataAccessException e) {
             log.error("Failed to get Extended Time Entries for Published Assessment: " + pub.getPublishedAssessmentId(), e);
+            return null;
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<ExtendedTime> getEntriesForPublishedAssessments(List<Long> publishedAssessmentIds, String userId, List<String> groupIds) {
+        if (publishedAssessmentIds == null || publishedAssessmentIds.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+
+        try {
+            final boolean hasGroups = groupIds != null && !groupIds.isEmpty();
+            final String hql = hasGroups
+                    ? "from ExtendedTime eTime where eTime.pubAssessment.publishedAssessmentId in (:publishedAssessmentIds) and "
+                            + "(eTime.user = :userId or eTime.group in (:groupIds))"
+                    : "from ExtendedTime eTime where eTime.pubAssessment.publishedAssessmentId in (:publishedAssessmentIds) and "
+                            + "eTime.user = :userId";
+            HibernateCallback hcb = (Session s) -> {
+                Query q = s.createQuery(hql);
+                q.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
+                q.setParameter("userId", userId, new StringType());
+                if (hasGroups) {
+                    q.setParameterList("groupIds", groupIds);
+                }
+                return q.list();
+            };
+
+            return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
+        } catch (DataAccessException e) {
+            log.error("Failed to get extended time entries for published assessments: {}", publishedAssessmentIds, e);
             return null;
         }
     }

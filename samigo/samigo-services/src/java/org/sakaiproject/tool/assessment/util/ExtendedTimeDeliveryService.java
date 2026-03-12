@@ -23,6 +23,10 @@ import lombok.Getter;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -98,19 +102,132 @@ public class ExtendedTimeDeliveryService {
 			groupExtendedTime = extendedTimeFacade.getEntryForPubAndGroup(pubData, group);
 		}
 
-		this.hasExtendedTime = (extendedTime != null || groupExtendedTime != null);
-		if (this.hasExtendedTime) {
-			ExtendedTime useMe;
-			if(extendedTime != null) {
-				useMe = extendedTime;
-			} else {
-				useMe = groupExtendedTime;
+		applyExtendedTime(publishedAssessment, extendedTime != null ? extendedTime : groupExtendedTime);
+	}
+
+	ExtendedTimeDeliveryService(PublishedAssessmentFacade publishedAssessment, String agentId, ExtendedTime resolvedExtendedTime) {
+		if (!assessmentInitialized(publishedAssessment)) {
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			publishedAssessment = publishedAssessmentService
+					.getPublishedAssessmentQuick(publishedAssessment.getPublishedAssessmentId().toString());
+		}
+
+		this.publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
+		this.agentId = agentId;
+		applyExtendedTime(publishedAssessment, resolvedExtendedTime);
+	}
+
+	ExtendedTimeDeliveryService(Long publishedAssessmentId, String agentId, ExtendedTime resolvedExtendedTime) {
+		if (resolvedExtendedTime == null) {
+			throw new IllegalArgumentException(
+					"resolvedExtendedTime must not be null when using ExtendedTimeDeliveryService(Long, String, ExtendedTime); "
+							+ "otherwise applyExtendedTime(...) would not have assessment dates available.");
+		}
+		this.publishedAssessmentId = publishedAssessmentId;
+		this.agentId = agentId;
+		applyExtendedTime(null, resolvedExtendedTime);
+	}
+
+	public static Map<Long, ExtendedTimeDeliveryService> buildForStudentSiteList(List<PublishedAssessmentFacade> publishedAssessments,
+			String agentId, String siteId) {
+		if (publishedAssessments == null || publishedAssessments.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Long> publishedAssessmentIds = new ArrayList<>(publishedAssessments.size());
+		for (PublishedAssessmentFacade publishedAssessment : publishedAssessments) {
+			if (publishedAssessment.getPublishedAssessmentId() != null) {
+				publishedAssessmentIds.add(publishedAssessment.getPublishedAssessmentId());
+			}
+		}
+
+		Set<String> siteGroupIds = getSiteGroupIds(siteId, agentId);
+		List<String> groupIds = new ArrayList<>(siteGroupIds);
+		List<ExtendedTime> extendedTimes = PersistenceService.getInstance().getExtendedTimeFacade()
+				.getEntriesForPublishedAssessments(publishedAssessmentIds, agentId, groupIds);
+		Map<Long, ExtendedTime> resolvedEntries = resolveEntriesByPublishedAssessment(extendedTimes, agentId, siteGroupIds);
+
+		Map<Long, ExtendedTimeDeliveryService> extendedTimeByAssessment = new HashMap<>();
+		for (PublishedAssessmentFacade publishedAssessment : publishedAssessments) {
+			Long publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
+			if (publishedAssessmentId == null) {
+				continue;
+			}
+			ExtendedTime resolvedExtendedTime = resolvedEntries.get(publishedAssessmentId);
+			if (resolvedExtendedTime != null) {
+				extendedTimeByAssessment.put(publishedAssessmentId,
+						new ExtendedTimeDeliveryService(publishedAssessmentId, agentId, resolvedExtendedTime));
+			}
+		}
+		return extendedTimeByAssessment;
+	}
+
+	static Map<Long, ExtendedTime> resolveEntriesByPublishedAssessment(List<ExtendedTime> extendedTimes, String agentId,
+			Set<String> siteGroupIds) {
+		Map<Long, ExtendedTime> groupEntries = new HashMap<>();
+		Map<Long, ExtendedTime> userEntries = new HashMap<>();
+		if (extendedTimes == null || extendedTimes.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<ExtendedTime> orderedExtendedTimes = new ArrayList<>(extendedTimes);
+		orderedExtendedTimes.sort(
+				Comparator.comparing(ExtendedTime::getPubAssessmentId, Comparator.nullsFirst(Long::compareTo))
+						.thenComparing(e -> e.getUser() == null ? 0 : 1)
+						.thenComparing(ExtendedTime::getGroup, Comparator.nullsFirst(String::compareTo))
+						.thenComparing(ExtendedTime::getUser, Comparator.nullsFirst(String::compareTo))
+						.thenComparing(ExtendedTime::getId, Comparator.nullsFirst(Long::compareTo)));
+
+		for (ExtendedTime extendedTime : orderedExtendedTimes) {
+			Long pubAssessmentId = extendedTime.getPubAssessmentId();
+			if (pubAssessmentId == null) {
+				continue;
 			}
 
-			this.timeLimit = useMe.getTimeHours() * MINS_IN_HOUR * SECONDS_IN_MIN + useMe.getTimeMinutes() * SECONDS_IN_MIN;
-			this.startDate = useMe.getStartDate();
-			this.dueDate = useMe.getDueDate();
-			this.retractDate = useMe.getRetractDate();
+			if (agentId != null && agentId.equals(extendedTime.getUser())) {
+				userEntries.put(pubAssessmentId, extendedTime);
+			} else if (extendedTime.getGroup() != null && siteGroupIds.contains(extendedTime.getGroup())) {
+				groupEntries.put(pubAssessmentId, extendedTime);
+			}
+		}
+
+		Map<Long, ExtendedTime> resolvedEntries = new HashMap<>(groupEntries);
+		resolvedEntries.putAll(userEntries);
+		return resolvedEntries;
+	}
+
+	private static Set<String> getSiteGroupIds(String siteId, String agentId) {
+		if (siteId == null || agentId == null) {
+			return Collections.emptySet();
+		}
+
+		SiteService siteService = ComponentManager.get(SiteService.class);
+		if (siteService == null) {
+			return Collections.emptySet();
+		}
+
+		try {
+			Site site = siteService.getSite(siteId);
+			Collection<Group> siteGroups = site.getGroupsWithMember(agentId);
+			Set<String> siteGroupIds = new HashSet<>();
+			for (Group group : siteGroups) {
+				siteGroupIds.add(group.getId());
+			}
+			return siteGroupIds;
+		} catch (IdUnusedException e) {
+			return Collections.emptySet();
+		}
+	}
+
+	private void applyExtendedTime(PublishedAssessmentFacade publishedAssessment, ExtendedTime extendedTime) {
+		this.hasExtendedTime = extendedTime != null;
+		if (this.hasExtendedTime) {
+			int hours = extendedTime.getTimeHours() == null ? 0 : extendedTime.getTimeHours();
+			int minutes = extendedTime.getTimeMinutes() == null ? 0 : extendedTime.getTimeMinutes();
+			this.timeLimit = hours * MINS_IN_HOUR * SECONDS_IN_MIN + minutes * SECONDS_IN_MIN;
+			this.startDate = extendedTime.getStartDate();
+			this.dueDate = extendedTime.getDueDate();
+			this.retractDate = extendedTime.getRetractDate();
 		} else {
 			this.timeLimit = 0;
 			this.startDate = publishedAssessment.getStartDate();
