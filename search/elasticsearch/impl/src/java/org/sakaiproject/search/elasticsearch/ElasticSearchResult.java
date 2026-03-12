@@ -18,20 +18,20 @@ package org.sakaiproject.search.elasticsearch;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.opensearch.common.document.DocumentField;
@@ -41,6 +41,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.api.TermFrequency;
 
 import lombok.extern.slf4j.Slf4j;
@@ -112,41 +113,64 @@ public class ElasticSearchResult implements SearchResult {
 
     @Override
     public String getTitle() {
-        return getFieldFromSearchHit(SearchService.FIELD_TITLE);
+        String title = getFieldFromSearchHit(SearchService.FIELD_TITLE);
+        if (title == null || title.isEmpty()) {
+            return title;
+        }
+        String highlighted = highlight(title, 1);
+        return highlighted != null ? highlighted : StringEscapeUtils.escapeHtml4(title);
     }
-
 
     @Override
     public String getSearchResult() {
         try {
-            TermQuery query = new TermQuery(new Term("text",searchTerms));
-
-            Scorer scorer = new QueryScorer(query);
-            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
-            StringBuilder sb = new StringBuilder();
-            // contents no longer contains the digested contents, so we need to
-            // fetch it from the EntityContentProducer
-
             String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE);
-
-            if (reference != null) {
-
-                EntityContentProducer sep = searchIndexBuilder
-                        .newEntityContentProducer(reference);
-                if (sep != null) {
-                    sb.append(sep.getContent(reference));
-                }
+            if (reference == null) {
+                return "";
             }
-            String text = sb.toString();
-            TokenStream tokenStream = analyzer.tokenStream(
-                    SearchService.FIELD_CONTENTS, new StringReader(text));
-            return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
-        } catch (IOException e) {
-            return e.getMessage(); //$NON-NLS-1$
-        } catch (InvalidTokenOffsetsException e) {
-            return e.getMessage();
-        }
 
+            EntityContentProducer sep = searchIndexBuilder.newEntityContentProducer(reference);
+            if (sep == null) {
+                return "";
+            }
+
+            String content = SearchUtils.stripHtml(sep.getContent(reference));
+            if (content == null || content.trim().isEmpty()) {
+                return "";
+            }
+
+            String highlighted = highlight(content, 5);
+            return highlighted != null ? highlighted : "";
+        } catch (Exception e) {
+            log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
+            return "";
+        }
+    }
+
+    private String highlight(String text, int maxFragments) {
+        if (searchTerms == null || searchTerms.isEmpty()) {
+            return null;
+        }
+        try {
+            String prefixQuery = Arrays.stream(searchTerms.split("\\s+"))
+                    .filter(t -> !t.isEmpty())
+                    .map(QueryParser::escape)
+                    .map(t -> t.length() >= 3 ? t + "*" : t)
+                    .collect(Collectors.joining(" "));
+
+            Query query = new QueryParser(SearchService.FIELD_CONTENTS, analyzer).parse(prefixQuery);
+            Highlighter highlighter = new Highlighter(
+                    new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), new QueryScorer(query));
+            try (TokenStream tokenStream = analyzer.tokenStream(
+                    SearchService.FIELD_CONTENTS, new StringReader(text))) {
+                return maxFragments == 1
+                        ? highlighter.getBestFragment(tokenStream, text)
+                        : highlighter.getBestFragments(tokenStream, text, maxFragments, " ... ");
+            }
+        } catch (Exception e) {
+            log.debug("Could not highlight text: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Override
