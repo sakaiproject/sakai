@@ -22,14 +22,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.service.PollsService;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -44,7 +46,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.*;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -87,7 +90,15 @@ public class PollController {
             return "polls/list";
         }
 
-        List<Poll> polls = new ArrayList<>(pollsService.findAllPolls(siteId));
+        Map<String, String> groupTitleById = pollsService.getGroupTitlesForSite(siteId);
+
+        List<Poll> visiblePolls = new ArrayList<>(pollsService.findAllPolls(siteId));
+
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!(isSiteOwner() || isAllowedPollAdd())) {
+            visiblePolls = pollsService.filterPollsVisibleToUser(visiblePolls, userId);
+        }
+
         Locale effectiveLocale = normaliseLocale(locale != null ? locale : Locale.getDefault());
 
         DateTimeFormatter sortFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
@@ -96,7 +107,7 @@ public class PollController {
 
         List<PollRow> rows = new ArrayList<>();
         boolean renderDelete = false;
-        for (Poll poll : polls) {
+        for (Poll poll : visiblePolls) {
             boolean canVote = pollsService.pollIsVotable(poll);
             boolean canEdit = pollCanEdit(poll);
             boolean canDelete = pollsService.userCanDeletePoll(poll);
@@ -122,6 +133,28 @@ public class PollController {
             }
 
             boolean canViewResults = pollsService.isAllowedViewResults(poll, sessionManager.getCurrentSessionUserId());
+
+            String visibilityDisplay;
+            Set<String> pollGroupIds = poll.getGroupIds();
+            if (poll.isPublic()) {
+                visibilityDisplay = messageSource.getMessage("poll_visibility_public", null, effectiveLocale);
+            } else if (poll.getTypeOfAccess() == Poll.Access.GROUP) {
+                List<String> titles = new ArrayList<>();
+                for (String gid : pollGroupIds != null ? pollGroupIds : List.<String>of()) {
+                    String title = groupTitleById.get(gid);
+                    if (title != null) {
+                        titles.add(title);
+                    }
+                }
+                if (titles.isEmpty()) {
+                    visibilityDisplay = messageSource.getMessage("poll_visibility_groups", null, effectiveLocale);
+                } else {
+                    visibilityDisplay = String.join(", ", titles);
+                }
+            } else {
+                visibilityDisplay = messageSource.getMessage("poll_visibility_site", null, effectiveLocale);
+            }
+
             rows.add(new PollRow(
                     poll.getId(),
                     poll.getText(),
@@ -133,7 +166,8 @@ public class PollController {
                     voteOpenSortKey,
                     voteCloseDisplay,
                     voteCloseSortKey,
-                    optionCount
+                    optionCount,
+                    visibilityDisplay
             ));
         }
 
@@ -220,5 +254,6 @@ public class PollController {
         String voteCloseDisplay;
         String voteCloseSortKey;
         int optionCount;
+        String visibilityDisplay;
     }
 }

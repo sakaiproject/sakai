@@ -28,8 +28,10 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,19 +62,30 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
+import static org.sakaiproject.poll.api.PollConstants.APPLICATION_ID;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_OWN;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_PREFIX;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
+import static org.sakaiproject.poll.api.PollConstants.REFERENCE_ROOT;
 import org.sakaiproject.poll.api.entity.PollEntity;
-import org.sakaiproject.poll.api.model.VoteCollection;
-import org.sakaiproject.poll.api.service.PollImportError;
-import org.sakaiproject.poll.api.service.PollImportException;
-import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.repository.VoteRepository;
+import org.sakaiproject.poll.api.service.PollImportError;
+import org.sakaiproject.poll.api.service.PollImportException;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.util.PollUtil;
 import org.sakaiproject.poll.api.util.PollUtils;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -89,8 +102,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import static org.sakaiproject.poll.api.PollConstants.*;
 
 import com.opencsv.CSVReader;
 
@@ -165,6 +176,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (polls == null) {
             polls = new ArrayList<>();
         }
+        polls.removeIf(p -> !userCanViewPoll(p, userId));
+
         return polls;
     }
 
@@ -173,6 +186,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll == null
                 || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
             throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
+        }
+        if (poll.getTypeOfAccess() == Poll.Access.GROUP && (poll.getGroupIds() == null || poll.getGroupIds().isEmpty())) {
+            throw new IllegalArgumentException("you must select at least one group when poll access is set to GROUP");
         }
         String userId = sessionManager.getCurrentSessionUserId();
         String siteRef = siteService.siteReference(poll.getSiteId());
@@ -456,6 +472,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             if (!securityService.unlock(userId, "site.visit", siteService.siteReference(poll.get().getSiteId()))) {
                 throw new SecurityException("user:" + userId + " can't read poll " + pollId);
             }
+            if (!userCanViewPoll(poll.get(), userId)) {
+                throw new SecurityException("User cannot view this poll due to group restrictions");
+            }
         }
         return poll;
     }
@@ -736,6 +755,14 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 toPoll.setVoteClose(fromPoll.getVoteClose());
                 toPoll.setDisplayResult(fromPoll.getDisplayResult());
                 toPoll.setLimitVoting(fromPoll.isLimitVoting());
+                if (Objects.equals(fromContext, toContext)) {
+                    toPoll.setTypeOfAccess(fromPoll.getTypeOfAccess());
+                    Set<String> fromGroupIds = fromPoll.getGroupIds();
+                    toPoll.setGroupIds(fromGroupIds != null ? new HashSet<>(fromGroupIds) : new HashSet<>());
+                } else {
+                    toPoll.setTypeOfAccess(Poll.Access.SITE);
+                    toPoll.setGroupIds(new HashSet<>());
+                }
                 String description = fromPoll.getDescription();
                 description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
                 toPoll.setDescription(description);
@@ -958,6 +985,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll == null) {
             throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
         }
+        if (!userCanViewPoll(poll, userId)) {
+            return false;
+        }
         String siteRef = "/site/" + poll.getSiteId();
         if (securityService.unlock(userId, PERMISSION_VOTE, siteRef)) {
             if (ignoreVoted) {
@@ -977,6 +1007,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     public boolean pollIsVotable(Poll poll) {
         // POLL-148 this could be null
         if (poll == null) {
+            return false;
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!userCanViewPoll(poll, userId)) {
             return false;
         }
 
@@ -1398,5 +1432,136 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         List<String> siteGroupRefs = new ArrayList<>();
         siteGroupRefs.add(siteService.siteReference(siteId));
         return authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteGroupRefs).size();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean userCanViewPoll(Poll poll, String userId) {
+
+        if (poll == null) {
+            return false;
+        }
+
+        String siteRef = siteService.siteReference(poll.getSiteId());
+        if (userId != null && securityService.unlock(userId, PERMISSION_ADD, siteRef)) {
+            return true;
+        }
+
+        if (poll.isPublic()) {
+            return true;
+        }
+
+        if (poll.getTypeOfAccess() != Poll.Access.GROUP) {
+            return true;
+        }
+
+        return userIsInPollGroup(poll, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean userIsInPollGroup(Poll poll, String userId) {
+
+        // Strict membership semantics: poll without groups means no group membership match.
+        if (poll == null || userId == null || poll.getGroupIds() == null || poll.getGroupIds().isEmpty()) {
+            return false;
+        }
+
+        String siteId = poll.getSiteId();
+
+        Set<String> userGroupIds;
+        try {
+            userGroupIds = siteService.getSite(siteId)
+                    .getGroupsWithMember(userId)
+                    .stream()
+                    .map(Group::getId)
+                    .map(id -> id.contains("/group/") ? id.substring(id.lastIndexOf("/") + 1) : id)
+                    .collect(Collectors.toSet());
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when checking group membership for user {}", siteId, userId);
+            return false;
+        }
+
+        return !Collections.disjoint(poll.getGroupIds(), userGroupIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, String> getGroupTitlesForSite(String siteId) {
+        if (siteId == null) return Collections.emptyMap();
+        try {
+            Site site = siteService.getSite(siteId);
+            return site.getGroups().stream()
+                    .collect(Collectors.toMap(Group::getId, Group::getTitle));
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when getting group titles", siteId);
+            return Collections.emptyMap();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Group> getSiteGroups(String siteId) {
+        if (siteId == null) return List.of();
+        try {
+            return siteService.getSite(siteId).getGroups();
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when getting groups", siteId);
+            return List.of();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> filterValidGroupIds(String siteId, Set<String> candidateIds) {
+        if (candidateIds == null || candidateIds.isEmpty() || siteId == null) {
+            return new HashSet<>();
+        }
+        try {
+            Set<String> valid = siteService.getSite(siteId).getGroups().stream()
+                    .map(Group::getId)
+                    .collect(Collectors.toSet());
+            return candidateIds.stream().filter(valid::contains).collect(Collectors.toCollection(HashSet::new));
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found when filtering group ids", siteId);
+            return new HashSet<>();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Poll> filterPollsVisibleToUser(Collection<Poll> polls, String userId) {
+        if (polls == null) return new ArrayList<>();
+        return polls.stream().filter(p -> userCanViewPoll(p, userId)).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> getGroupIdsUsedByPolls(String siteId) {
+        if (siteId == null) {
+            return new HashSet<>();
+        }
+        return findAllPolls(siteId).stream()
+                .filter(poll -> Poll.Access.GROUP.equals(poll.getTypeOfAccess()))
+                .filter(poll -> poll.getGroupIds() != null && !poll.getGroupIds().isEmpty())
+                .flatMap(poll -> poll.getGroupIds().stream())
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<String>> getPollTitlesByGroupId(String siteId) {
+        Map<String, List<String>> pollTitlesByGroupId = new HashMap<>();
+        if (siteId == null) {
+            return pollTitlesByGroupId;
+        }
+
+        findAllPolls(siteId).stream()
+                .filter(poll -> Poll.Access.GROUP.equals(poll.getTypeOfAccess()))
+                .filter(poll -> poll.getGroupIds() != null && !poll.getGroupIds().isEmpty())
+                .forEach(poll -> poll.getGroupIds().forEach(groupId ->
+                        pollTitlesByGroupId.computeIfAbsent(groupId, key -> new ArrayList<>()).add(poll.getText())));
+
+        return pollTitlesByGroupId;
     }
 }

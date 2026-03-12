@@ -21,13 +21,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.service.PollsService;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.VoteCollection;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.tool.model.VoteForm;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -42,7 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -55,6 +55,7 @@ public class VoteController {
     private final SiteService siteService;
     private final ToolManager toolManager;
     private final MessageSource messageSource;
+    private final SessionManager sessionManager;
 
     @GetMapping("/voteQuestion")
     public String showVote(@RequestParam("pollId") String pollId,
@@ -70,6 +71,11 @@ public class VoteController {
         }
         if (poll.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/votePolls";
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!pollsService.userCanViewPoll(poll.get(), userId)) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/votePolls";
         }
         if (!pollsService.pollIsVotable(poll.get())) {
@@ -106,6 +112,11 @@ public class VoteController {
         }
         if (poll.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/votePolls";
+        }
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (!pollsService.userCanViewPoll(poll.get(), userId)) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/votePolls";
         }
         try {

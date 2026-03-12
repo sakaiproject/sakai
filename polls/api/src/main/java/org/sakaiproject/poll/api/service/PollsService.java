@@ -21,15 +21,18 @@
 
 package org.sakaiproject.poll.api.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.model.VoteCollection;
+import org.sakaiproject.site.api.Group;
 
 /**
  * This is the interface for the Manager for our poll tool, 
@@ -128,6 +131,15 @@ public interface PollsService {
      */
 
     boolean isAllowedViewResults(Poll poll, String userId);
+
+    /**
+     * Check if a user can view a poll based on group restrictions.
+     *
+     * @param poll the poll
+     * @param userId the internal user id
+     * @return true if the user can view the poll
+     */
+    boolean userCanViewPoll(Poll poll, String userId);
 
     /**
      * Save an individual option
@@ -386,4 +398,44 @@ public interface PollsService {
      * @return count of users with vote permission in the site
      */
     int getNumberUsersCanVote(String siteId);
+
+    /**
+     * Return a map of group id -> group title for the given site. Returns an empty map if site not found.
+     */
+    Map<String, String> getGroupTitlesForSite(String siteId);
+
+    /**
+     * Filter the provided candidate group ids keeping only those valid for the site.
+     */
+    Set<String> filterValidGroupIds(String siteId, Set<String> candidateIds);
+
+    /**
+     * Return only the polls visible to the given user from the provided collection.
+     */
+    List<Poll> filterPollsVisibleToUser(Collection<Poll> polls, String userId);
+
+    /**
+     * Return the site groups for the given site id (empty collection if site not found).
+     */
+    Collection<Group> getSiteGroups(String siteId);
+
+    /**
+     * Get the group ids referenced by GROUP-access polls in the given site.
+     */
+    Set<String> getGroupIdsUsedByPolls(String siteId);
+
+    /**
+     * Get poll titles grouped by group id for the given site.
+     */
+    Map<String, List<String>> getPollTitlesByGroupId(String siteId);
+
+    /**
+     * Check whether a user belongs to at least one of the groups assigned to a poll.
+     * This method answers strict membership only and does not apply visibility defaults.
+     *
+     * @param poll the poll to check
+     * @param userId the user ID to evaluate
+     * @return true only if the poll has assigned groups and the user belongs to at least one
+     */
+    boolean userIsInPollGroup(Poll poll, String userId);
 }

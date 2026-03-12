@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -36,6 +38,7 @@ import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.MainForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -63,6 +66,9 @@ public class MainController {
 
     @Autowired
     private SakaiService sakaiService;
+
+    @Autowired
+    private PollsService pollsService;
 
     @RequestMapping(value = {"/", "/index"})
     public String showIndex(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -103,6 +109,7 @@ public class MainController {
         List<String> lockedGroupList = new ArrayList<>();
         List<String> lockedForDeletionGroupList = new ArrayList<>();
         Map<String, Map<String, List<String>>> lockedGroupsEntityMap = new HashMap<>();
+        Map<String, List<String>> pollTitlesByGroupId = pollsService.getPollTitlesByGroupId(site.getId());
 
         // For each group of the site, get the members separated by comma, the joinable sets and the size of the joinable sets.
         for (Group group: groupList) {
@@ -189,6 +196,17 @@ public class MainController {
                 lockedGroupsEntityMap.put(group.getId(), entityMap);
             }
 
+            List<String> pollTitles = pollTitlesByGroupId.get(group.getId());
+            if (pollTitles != null && !pollTitles.isEmpty()) {
+                anyGroupLocked = true;
+                Map<String, List<String>> entityMap = lockedGroupsEntityMap.getOrDefault(group.getId(), new HashMap<>());
+                entityMap.put("polls", pollTitles.stream().distinct().collect(Collectors.toList()));
+                lockedGroupsEntityMap.put(group.getId(), entityMap);
+                if (!lockedForDeletionGroupList.contains(group.getId())) {
+                    lockedForDeletionGroupList.add(group.getId());
+                }
+            }
+
         }
 
         // Check for groups that are being used as restrictions in joinable sets
@@ -264,25 +282,44 @@ public class MainController {
         // Control if any group has been deleted
         boolean anyGroupDeleted = false;
 
-        // Check if any groups to delete are being used as restrictions in joinable sets
-        List<Group> groupsUsedInJoinableSets = new ArrayList<>();
+        Set<String> deletedGroupIds = new HashSet<>(deleteGroupsForm.getDeletedGroupList());
+        Set<String> groupIdsUsedByPolls = pollsService.getGroupIdsUsedByPolls(site.getId());
+
+        List<String> blockedGroups = new ArrayList<>();
+
         for (String deletedGroupId : deleteGroupsForm.getDeletedGroupList()) {
-            // Check if this group is referenced in any joinable set's allowed groups property
+            Optional<Group> groupOptional = sakaiService.findGroupById(deletedGroupId);
+            if (!groupOptional.isPresent()) {
+                continue;
+            }
+
+            Group group = groupOptional.get();
+            boolean isBlocked = false;
+
+            if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.DELETE.equals(group.getRealmLock())) {
+                isBlocked = true;
+            }
+
             boolean isUsedInJoinableSet = site.getGroups().stream()
-                .anyMatch(group -> {
-                    String allowedGroups = group.getProperties().getProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
+                .anyMatch(siteGroup -> {
+                    String allowedGroups = siteGroup.getProperties().getProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
                     return allowedGroups != null && Arrays.asList(allowedGroups.split(",")).contains(deletedGroupId);
                 });
-
             if (isUsedInJoinableSet) {
-                sakaiService.findGroupById(deletedGroupId).ifPresent(groupsUsedInJoinableSets::add);
+                isBlocked = true;
+            }
+
+            if (deletedGroupIds.contains(deletedGroupId) && groupIdsUsedByPolls.contains(deletedGroupId)) {
+                isBlocked = true;
+            }
+
+            if (isBlocked) {
+                blockedGroups.add(group.getTitle());
             }
         }
 
-        // If groups are being used in joinable sets, show error and return
-        if (!groupsUsedInJoinableSets.isEmpty()) {
-            String groups = String.join(", ", groupsUsedInJoinableSets.stream().map(g -> g.getTitle()).collect(Collectors.toList()));
-            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteGroupsUsedInJoinableSets", new Object[] {groups}, sakaiService.getLocaleForCurrentSiteAndUser()));
+        if (!blockedGroups.isEmpty()) {
+            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteLockedGroup", new Object[] {String.join(", ", blockedGroups)}, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showIndex(model, request, response);
         }
 

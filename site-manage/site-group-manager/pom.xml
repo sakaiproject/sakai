@@ -118,6 +118,11 @@
             <artifactId>samigo-services</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.polls</groupId>
+            <artifactId>polls-api</artifactId>
+            <version>26-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
         </dependency>
