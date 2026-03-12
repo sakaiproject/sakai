@@ -84,7 +84,7 @@
 			 ## feedback attachments
 				<label for="feedbackAttachments" class="indnt1"><input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("download.feedback.attachment")</label><br/>
 			 ## rubrics
-			 #if ($hasRubric)
+			 #if ($download && $hasRubric)
 				<label for="rubrics" class="indnt1"><input id="rubrics" type="checkbox" value="rubrics" name="choices" class="toggleSelectedAll" #if($!includeRubrics)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.rubrics")</label><br/>
 			 #end
 			<br/>
