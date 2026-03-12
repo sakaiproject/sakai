@@ -7050,7 +7050,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 if (assignmentRef != null) {
                                     String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     // update grade in gradebook
-                                    updateGradebookAssociation(state, siteId, assignmentRef, associateGradebookAssignment, submissionId, "update");
+                                    updateGradebookAssociation(state, siteId, assignmentRef, associateGradebookAssignment, submissionId, "update", a.getGroups());
                                 }
                             }
                         }
@@ -11325,7 +11325,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     Set<String> itemSet = new HashSet<>(itemList);
                     for (String item : itemSet) {
                         // remove from Gradebook
-                        updateGradebookAssociation(state, siteId, ref, item, null, "remove");
+                        updateGradebookAssociation(state, siteId, ref, item, null, "remove", assignment.getGroups());
                     }
                 }
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
@@ -11826,7 +11826,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // integrate with Gradebook
                 String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                 String siteId = a.getContext();
-                updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, null, "update");
+                updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, null, "update", a.getGroups());
             }
         }
     }
@@ -12606,7 +12606,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                             String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                             // update grade in gradebook
                                             String siteId = assignment.getContext();
-                                            updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, submissionId, "update");
+                                            updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, submissionId, "update", a.getGroups());
                                         }
                                     }
                                 }
@@ -15573,7 +15573,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             // update grade in gradebook
                             if (associateGradebookAssignment != null) {
                                 String siteId = assignment.getContext();
-                                updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, sReference, "update");
+                                updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, sReference, "update", assignment.getGroups());
                             }
                         }
                     } catch (PermissionException e) {
@@ -15587,7 +15587,7 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * A helper method for updating relevant gradebook associations.
      */
-    private void updateGradebookAssociation(SessionState state, String siteId, String aReference, String associateGradebookAssignment, String submissionId, String updateRemoveSubmission) {
+    private void updateGradebookAssociation(SessionState state, String siteId, String aReference, String associateGradebookAssignment, String submissionId, String updateRemoveSubmission, Collection<String> groupRefs) {
         if (StringUtils.isBlank(associateGradebookAssignment)) {
             return;
         }
@@ -15598,13 +15598,60 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!gradingService.isGradebookGroupEnabled(siteId)) {
             addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), siteId, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
         } else {
-            List<String> gradebookUids = gradingService.getGradebookUidByExternalId(associateGradebookAssignment);
-            if (CollectionUtils.isNotEmpty(gradebookUids)) {
-                for (String gradebookUid : gradebookUids) {
-                    addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
+        	try {
+                HashSet<String> groupSet = new HashSet<>();
+
+                Site site = siteService.getSite(siteId);
+                List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aReference);
+
+                for (AssignmentSubmission s : submissions) {
+                    Set<AssignmentSubmissionSubmitter> submitterSet = s.getSubmitters();
+
+                    for (AssignmentSubmissionSubmitter ass : submitterSet) {
+                        String submitterId = ass.getSubmitter();
+
+                        for (String groupRef : groupRefs) {
+                            Group group = site.getGroup(groupRef);
+                            Set<String> userList = group.getUsers();
+
+                            if (userList != null && userList.size() >= 1 && userList.contains(submitterId)) {
+                                groupSet.add(group.getId());
+                            }
+                        }
+                    }
                 }
-            } else {
-                log.warn("Cannot update gradebook. No gradebookUids found for associateGradebookAssignment: {}", associateGradebookAssignment);
+
+                // Since there is a possibility that the "associateGradebookAssignment"
+                // variable is comma-separated, we need to split it into a list.
+                List<String> itemList = Arrays.asList(associateGradebookAssignment.split(","));
+
+                for (String gradebookUid : groupSet) {
+                    for (String item : itemList) {
+                        // We need to check whether it is a reference or a gradebook item ID.
+                        boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, item);
+
+                        if (isExternalAssignmentDefined) {
+                            // In this case, no further actions are required.
+                           addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, null, null, -1, null, submissionId, update, -1));
+                        } else {
+                            // In this case, we need to find the item in the list that matches the group being iterated.
+                            try {
+                                Long itemId = Long.parseLong(item);
+
+                                GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(siteId, itemId);
+
+                                if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
+                                    gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
+                                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, null, null, -1, null, submissionId, update, -1));
+                                }
+                            } catch (NumberFormatException e) {
+                                log.error("Exception trying to parse item value {} : {} ", item, e);
+                            }
+                        }
+                    }
+                }
+            } catch (IdUnusedException e) {
+                log.error("Exception trying to get site {} : {} ", siteId, e);
             }
         }
     }
