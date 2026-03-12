@@ -1946,11 +1946,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public AssignmentSubmission getSubmission(String assignmentId, String submitterId) throws PermissionException {
 
         if (!StringUtils.isAnyBlank(assignmentId, submitterId)) {
-            // normal submission lookup where submitterId is for a user
-            AssignmentSubmission submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
-            if (submission == null) {
-                // if not found submitterId could be a group id
-                submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+            Assignment assignment = assignmentRepository.findAssignment(assignmentId);
+            AssignmentSubmission submission = null;
+
+            if (assignment != null && assignment.getIsGroup()) {
+                // Group submissions should follow the user's current assigned group and avoid the destructive
+                // user-based duplicate cleanup path when stale submitter rosters exist on older submissions.
+                String resolvedSubmitterId = getSubmitterIdForAssignment(assignment, submitterId);
+                if (StringUtils.isNotBlank(resolvedSubmitterId)) {
+                    submission = assignmentRepository.findSubmissionForGroup(assignmentId, resolvedSubmitterId);
+                }
+                if (submission == null && !StringUtils.equals(resolvedSubmitterId, submitterId)) {
+                    submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+                }
+            } else {
+                // normal submission lookup where submitterId is for a user
+                submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
+                if (submission == null) {
+                    // if not found submitterId could be a group id
+                    submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+                }
             }
 
             if (submission != null) {

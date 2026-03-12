@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.impl;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -639,6 +640,124 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertEquals(submission.getId(), finalSubmission.getId());
         } catch (Exception e) {
             Assert.fail("No exception should be thrown\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void groupSubmissionLookupUsesCurrentGroupWithoutDeletingOtherSubmission() {
+        String context = UUID.randomUUID().toString();
+        String teamOneId = "team-1";
+        String teamFourId = "team-4";
+        String overlapUser = "ypalmer";
+        String teamOneOnlyUser = "team-1-only";
+        String teamFourOnlyUser = "team-4-only";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String teamOneReference = siteReference + "/group/" + teamOneId;
+        String teamFourReference = siteReference + "/group/" + teamFourId;
+        Set<String> teamOneAccess = Collections.singleton(teamOneReference);
+        Set<String> teamFourAccess = Collections.singleton(teamFourReference);
+
+        assignment.getGroups().add(teamOneReference);
+        assignment.getGroups().add(teamFourReference);
+
+        Site site = mock(Site.class);
+        Group teamOne = mock(Group.class);
+        Group teamFour = mock(Group.class);
+        AuthzGroup teamOneAuthzGroup = mock(AuthzGroup.class);
+        AuthzGroup teamFourAuthzGroup = mock(AuthzGroup.class);
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(teamOneReference)).thenReturn(teamOneAuthzGroup);
+            when(authzGroupService.getAuthzGroup(teamFourReference)).thenReturn(teamFourAuthzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure group assignment mocks\n" + e.toString());
+        }
+
+        when(teamOne.getId()).thenReturn(teamOneId);
+        when(teamOne.getReference()).thenReturn(teamOneReference);
+        when(teamOne.getProperties()).thenReturn(new BaseResourceProperties());
+
+        when(teamFour.getId()).thenReturn(teamFourId);
+        when(teamFour.getReference()).thenReturn(teamFourReference);
+        when(teamFour.getProperties()).thenReturn(new BaseResourceProperties());
+
+        when(site.getGroups()).thenReturn(new HashSet<>(Arrays.asList(teamOne, teamFour)));
+        when(site.getGroup(teamOneId)).thenReturn(teamOne);
+        when(site.getGroup(teamFourId)).thenReturn(teamFour);
+        when(site.getGroup(teamOneReference)).thenReturn(teamOne);
+        when(site.getGroup(teamFourReference)).thenReturn(teamFour);
+        when(site.getGroupsWithMember(overlapUser)).thenReturn(Collections.singleton(teamFour));
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamOneReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamFourReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teamOneOnlyUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(teamOneAccess);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teamFourOnlyUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(teamFourAccess);
+
+        Set<Member> teamOneMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(overlapUser),
+                buildGroupMember(teamOneOnlyUser)));
+        Set<Member> teamFourMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(overlapUser),
+                buildGroupMember(teamFourOnlyUser)));
+        when(teamOne.getMembers()).thenReturn(teamOneMembers);
+        when(teamFour.getMembers()).thenReturn(teamFourMembers);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for group submission test\n" + e.toString());
+        }
+
+        AssignmentSubmission teamOneSubmission = null;
+        AssignmentSubmission teamFourSubmission = null;
+        try {
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(teamOneOnlyUser);
+            teamOneSubmission = assignmentService.addSubmission(assignment.getId(), teamOneId);
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(teamFourOnlyUser);
+            teamFourSubmission = assignmentService.addSubmission(assignment.getId(), teamFourId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submissions\n" + e.toString());
+        }
+
+        Assert.assertNotNull(teamOneSubmission);
+        Assert.assertNotNull(teamFourSubmission);
+        Assert.assertEquals(teamOneId, teamOneSubmission.getGroupId());
+        Assert.assertEquals(teamFourId, teamFourSubmission.getGroupId());
+        Assert.assertTrue(teamOneSubmission.getSubmitters().stream().anyMatch(s -> overlapUser.equals(s.getSubmitter())));
+        Assert.assertTrue(teamFourSubmission.getSubmitters().stream().anyMatch(s -> overlapUser.equals(s.getSubmitter())));
+
+        String teamOneSubmissionReference = AssignmentReferenceReckoner.reckoner().submission(teamOneSubmission).reckon().getReference();
+        String teamFourSubmissionReference = AssignmentReferenceReckoner.reckoner().submission(teamFourSubmission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, teamOneSubmissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, teamFourSubmissionReference)).thenReturn(true);
+
+        try {
+            AssignmentSubmission lookupByCurrentUser = assignmentService.getSubmission(assignment.getId(), overlapUser);
+            Assert.assertNotNull(lookupByCurrentUser);
+            Assert.assertEquals(teamFourSubmission.getId(), lookupByCurrentUser.getId());
+
+            AssignmentSubmission persistedTeamOneSubmission = assignmentService.getSubmission(assignment.getId(), teamOneId);
+            AssignmentSubmission persistedTeamFourSubmission = assignmentService.getSubmission(assignment.getId(), teamFourId);
+            Assert.assertNotNull(persistedTeamOneSubmission);
+            Assert.assertNotNull(persistedTeamFourSubmission);
+            Assert.assertEquals(teamOneSubmission.getId(), persistedTeamOneSubmission.getId());
+            Assert.assertEquals(teamFourSubmission.getId(), persistedTeamFourSubmission.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not look up group submissions without deleting one\n" + e.toString());
         }
     }
 
@@ -1727,6 +1846,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.fail(e.toString());
         }
         return null;
+    }
+
+    private Member buildGroupMember(String userId) {
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn(userId);
+        Role role = mock(Role.class);
+        when(member.getRole()).thenReturn(role);
+        when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+        when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+        return member;
     }
 
     private Assignment createNewFutureAssignment(String context) {
