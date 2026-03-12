@@ -1803,29 +1803,49 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return;
             }
 
-            List<String> submitterIds = group.getMembers().stream()
+            // Reconcile in place so current members keep their existing submitter rows and any
+            // per-user state stored there, while roster changes only add or remove the delta.
+            Set<String> submitterIds = group.getMembers().stream()
                     .filter(member -> (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
                             || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
                             && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
                             && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
                     .map(Member::getUserId)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            submission.getSubmitters().clear();
-            for (String submitterId : submitterIds) {
-                AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
-                submissionSubmitter.setSubmission(submission);
-                submissionSubmitter.setSubmitter(submitterId);
-                submissionSubmitter.setSubmittee(false);
-                if (StringUtils.equals(submitterId, sessionManager.getCurrentSessionUserId())) {
-                    submissionSubmitter.setSubmittee(true);
+            Map<String, AssignmentSubmissionSubmitter> existingSubmitters = new HashMap<>();
+            for (Iterator<AssignmentSubmissionSubmitter> iterator = submission.getSubmitters().iterator(); iterator.hasNext();) {
+                AssignmentSubmissionSubmitter existingSubmitter = iterator.next();
+                if (!submitterIds.contains(existingSubmitter.getSubmitter())) {
+                    iterator.remove();
+                    continue;
                 }
-                submission.getSubmitters().add(submissionSubmitter);
+
+                existingSubmitter.setSubmittee(false);
+                existingSubmitters.put(existingSubmitter.getSubmitter(), existingSubmitter);
             }
 
+            String currentUserId = sessionManager.getCurrentSessionUserId();
+            for (String submitterId : submitterIds) {
+                AssignmentSubmissionSubmitter submissionSubmitter = existingSubmitters.get(submitterId);
+                if (submissionSubmitter == null) {
+                    submissionSubmitter = new AssignmentSubmissionSubmitter();
+                    submissionSubmitter.setSubmission(submission);
+                    submissionSubmitter.setSubmitter(submitterId);
+                    submissionSubmitter.setSubmittee(false);
+                    submission.getSubmitters().add(submissionSubmitter);
+                }
+
+                if (StringUtils.equals(submitterId, currentUserId)) {
+                    submissionSubmitter.setSubmittee(true);
+                }
+            }
+
+            // When a student posts, one current group member must resolve as the submittee. A
+            // grading user may update on behalf of the group without being one of the submitters.
             if (submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
                     && !allowGradeSubmission(assignmentReference)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
+                throw new PermissionException(currentUserId, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
             }
         } catch (IdUnusedException iue) {
             log.warn("Cannot reconcile submitters for submission {} because site {} was not found", submission.getId(),
@@ -2729,8 +2749,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // If an Extension exists for the user, we switch out the assignment's overall
         // close date for the extension deadline
         if (!isBeforeEffectiveCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
-            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
-            isBeforeEffectiveCloseDate = currentTime.isBefore(extensionCloseTime);
+            String extensionCloseTimeValue = submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+            try {
+                Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(extensionCloseTimeValue));
+                isBeforeEffectiveCloseDate = currentTime.isBefore(extensionCloseTime);
+            } catch (NumberFormatException nfe) {
+                log.warn("Ignoring malformed extension close time {} for submission {}", extensionCloseTimeValue, submission.getId());
+            }
         }
 
         // before the assignment close date

@@ -832,6 +832,15 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> currentUser.equals(s.getSubmitter())));
         Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
 
+        Optional<AssignmentSubmissionSubmitter> currentSubmitter = submission.getSubmitters().stream()
+                .filter(s -> currentUser.equals(s.getSubmitter()))
+                .findFirst();
+        Assert.assertTrue(currentSubmitter.isPresent());
+        currentSubmitter.get().setGrade("92");
+        currentSubmitter.get().setFeedback("Current member feedback");
+        currentSubmitter.get().setTimeSpent("45");
+        Long currentSubmitterId = currentSubmitter.get().getId();
+
         String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
@@ -854,8 +863,123 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     .anyMatch(s -> currentUser.equals(s.getSubmitter())));
             Assert.assertFalse(reconciledSubmission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
             Assert.assertTrue(reconciledSubmission.getSubmitters().stream().anyMatch(s -> addedUser.equals(s.getSubmitter())));
+
+            Optional<AssignmentSubmissionSubmitter> reconciledCurrentSubmitter = reconciledSubmission.getSubmitters().stream()
+                    .filter(s -> currentUser.equals(s.getSubmitter()))
+                    .findFirst();
+            Assert.assertTrue(reconciledCurrentSubmitter.isPresent());
+            Assert.assertEquals(currentSubmitterId, reconciledCurrentSubmitter.get().getId());
+            Assert.assertEquals("92", reconciledCurrentSubmitter.get().getGrade());
+            Assert.assertEquals("Current member feedback", reconciledCurrentSubmitter.get().getFeedback());
+            Assert.assertEquals("45", reconciledCurrentSubmitter.get().getTimeSpent());
         } catch (Exception e) {
             Assert.fail("Could not reconcile group submitters on post\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void instructorGroupUpdatePreservesCurrentMemberSubmitterRows() {
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-4";
+        String instructorId = "instructor001";
+        String currentUser = "student0011";
+        String removedUser = "student0012";
+        String addedUser = "student0013";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        assignment.setAuthor(instructorId);
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> initialMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(currentUser),
+                buildGroupMember(removedUser)));
+        Set<Member> updatedMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(currentUser),
+                buildGroupMember(addedUser)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure instructor group submission mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(initialMembers, updatedMembers);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(instructorId);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for instructor group submission test\n" + e.toString());
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create instructor group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+
+        Optional<AssignmentSubmissionSubmitter> currentSubmitter = submission.getSubmitters().stream()
+                .filter(s -> currentUser.equals(s.getSubmitter()))
+                .findFirst();
+        Assert.assertTrue(currentSubmitter.isPresent());
+        currentSubmitter.get().setGrade("88");
+        currentSubmitter.get().setFeedback("Instructor grading note");
+        currentSubmitter.get().setTimeSpent("30");
+        Long currentSubmitterId = currentSubmitter.get().getId();
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        submission.setSubmitted(true);
+        submission.setUserSubmission(false);
+
+        try {
+            assignmentService.updateSubmission(submission);
+            AssignmentSubmission reconciledSubmission = assignmentService.getSubmission(submission.getId());
+
+            Assert.assertNotNull(reconciledSubmission);
+            Assert.assertFalse(reconciledSubmission.getSubmitters().stream().anyMatch(s -> removedUser.equals(s.getSubmitter())));
+            Assert.assertTrue(reconciledSubmission.getSubmitters().stream().anyMatch(s -> addedUser.equals(s.getSubmitter())));
+
+            Optional<AssignmentSubmissionSubmitter> reconciledCurrentSubmitter = reconciledSubmission.getSubmitters().stream()
+                    .filter(s -> currentUser.equals(s.getSubmitter()))
+                    .findFirst();
+            Assert.assertTrue(reconciledCurrentSubmitter.isPresent());
+            Assert.assertEquals(currentSubmitterId, reconciledCurrentSubmitter.get().getId());
+            Assert.assertEquals("88", reconciledCurrentSubmitter.get().getGrade());
+            Assert.assertEquals("Instructor grading note", reconciledCurrentSubmitter.get().getFeedback());
+            Assert.assertEquals("30", reconciledCurrentSubmitter.get().getTimeSpent());
+        } catch (Exception e) {
+            Assert.fail("Could not preserve current member submitter rows for instructor update\n" + e.toString());
         }
     }
 
@@ -1881,6 +2005,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(1)).toEpochMilli()));
             assignmentService.updateSubmission(submission);
             Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // malformed extension values should be ignored rather than breaking submission checks
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, "not-a-long");
+            assignmentService.updateSubmission(submission);
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
 
             // test assignment closed, competing extension and resubmission both in past
             assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
