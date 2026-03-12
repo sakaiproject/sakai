@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -251,6 +252,19 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
                 .list();
         return submissions;
+    }
+
+    @Override
+    @Transactional
+    public List<AssignmentSubmission> findSubmissionsForGroups(String assignmentId, List<String> groupIds) {
+        if (groupIds == null || groupIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return geCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("groupId", groupIds))
+                .list();
     }
 
     @Override

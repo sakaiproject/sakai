@@ -69,6 +69,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds);
 
+    List<AssignmentSubmission> findSubmissionsForGroups(String assignmentId, List<String> groupIds);
+
     AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId);
 
     long countAssignmentsBySite(String siteId);
