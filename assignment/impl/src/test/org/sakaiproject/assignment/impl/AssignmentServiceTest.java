@@ -602,8 +602,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
 
             String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
             when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
 
             assignmentService.reassignGroupSubmission(submission, updatedGroupId);
             assignmentService.updateSubmission(submission);
@@ -632,6 +634,62 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertNotNull(e);
         } catch (Exception e) {
             Assert.fail("Unexpected exception when checking reassignment permissions\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void reassignGroupSubmissionRequiresTargetGroupMembershipForNonGraders() {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        String originalSubmitter1 = UUID.randomUUID().toString();
+        String originalSubmitter2 = UUID.randomUUID().toString();
+        String updatedSubmitter1 = UUID.randomUUID().toString();
+        String updatedSubmitter2 = UUID.randomUUID().toString();
+
+        Set<String> originalSubmitters = new LinkedHashSet<>(Arrays.asList(originalSubmitter1, originalSubmitter2));
+
+        try {
+            AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+            Assignment assignment = submission.getAssignment();
+            String updatedGroupRef = "/site/" + context + "/group/" + updatedGroupId;
+            assignment.getGroups().add(updatedGroupRef);
+
+            Site site = siteService.getSite(context);
+            Group updatedGroup = mock(Group.class);
+            when(updatedGroup.getReference()).thenReturn(updatedGroupRef);
+            when(updatedGroup.getProperties()).thenReturn(new BaseResourceProperties());
+
+            Set<Member> updatedMembers = new HashSet<>();
+            for (String submitterId : Arrays.asList(updatedSubmitter1, updatedSubmitter2)) {
+                Member member = mock(Member.class);
+                when(member.getUserId()).thenReturn(submitterId);
+                Role role = mock(Role.class);
+                when(member.getRole()).thenReturn(role);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+                updatedMembers.add(member);
+            }
+            when(updatedGroup.getMembers()).thenReturn(updatedMembers);
+
+            Collection<Group> groups = new HashSet<>(site.getGroups());
+            groups.add(updatedGroup);
+            when(site.getGroups()).thenReturn(groups);
+            when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
+            when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
+
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(originalSubmitter1);
+
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            Assert.fail("Expected a PermissionException when reassigning to a group the current user does not belong to");
+        } catch (PermissionException e) {
+            Assert.assertNotNull(e);
+        } catch (Exception e) {
+            Assert.fail("Unexpected exception when checking target group membership for reassignment\n" + e.toString());
         }
     }
 

@@ -1563,7 +1563,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
-        if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
+        boolean canUpdate = allowUpdateSubmission(reference);
+        boolean canGrade = allowGradeSubmission(assignmentReference);
+        if (!(canUpdate || canGrade)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
@@ -1587,6 +1589,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         String currentUser = sessionManager.getCurrentSessionUserId();
+        if (!canGrade && refreshedSubmitters.stream().noneMatch(s -> StringUtils.equals(currentUser, s.getSubmitter()))) {
+            throw new PermissionException(currentUser, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        }
+
         Optional<AssignmentSubmissionSubmitter> submittee = refreshedSubmitters.stream()
                 .filter(s -> StringUtils.equals(currentUser, s.getSubmitter()))
                 .findFirst();
