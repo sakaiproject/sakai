@@ -39,8 +39,12 @@ should be included in file importing DeliveryMessages
 
 <h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="sak-banner-error"/>
 
-<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_deliverShortAnswer" /></f:verbatim>
-<h:panelGroup rendered="#{question.itemData.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{question.itemData.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+<input type="hidden" id="ckeditor-autosave-context" value="samigo_deliverShortAnswer" />
+<h:panelGroup rendered="#{question.itemData.itemId!=null}">
+  <h:outputFormat escape="false" value="<input type='hidden' id='ckeditor-autosave-entity-id' value='{0}' />">
+    <f:param value="#{question.itemData.itemId}"/>
+  </h:outputFormat>
+</h:panelGroup>
 
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
             && delivery.actionString!='gradeAssessment'}">
