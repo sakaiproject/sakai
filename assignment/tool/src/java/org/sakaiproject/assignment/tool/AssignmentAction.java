@@ -15603,18 +15603,24 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String update = StringUtils.equals("update", updateRemoveSubmission) ? updateRemoveSubmission : null;
         String remove = StringUtils.equals("remove", updateRemoveSubmission) ? updateRemoveSubmission : null;
+        Assignment assignment = getAssignment(aReference, "updateGradebookAssociation", state);
+        if (assignment == null) {
+            return;
+        }
 
-        if (!gradingService.isGradebookGroupEnabled(siteId)) {
-            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), siteId, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
-        } else {
-            List<String> gradebookUids = gradingService.getGradebookUidByExternalId(associateGradebookAssignment);
-            if (CollectionUtils.isNotEmpty(gradebookUids)) {
-                for (String gradebookUid : gradebookUids) {
-                    addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
-                }
-            } else {
-                log.warn("Cannot update gradebook. No gradebookUids found for associateGradebookAssignment: {}", associateGradebookAssignment);
+        AssignmentSubmission submission = null;
+        if (StringUtils.isNotBlank(submissionId)) {
+            submission = getSubmission(submissionId, "updateGradebookAssociation", state);
+            if (submission == null) {
+                return;
             }
+        }
+
+        List<AssignmentToolUtils.GradebookTarget> gradebookTargets =
+                assignmentToolUtils.resolveGradebookTargets(siteId, assignment, associateGradebookAssignment, submission);
+        for (AssignmentToolUtils.GradebookTarget gradebookTarget : gradebookTargets) {
+            addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookTarget.getGradebookUid(),
+                    aReference, gradebookTarget.getGradebookItem(), remove, null, -1, null, submissionId, update, -1));
         }
     }
         

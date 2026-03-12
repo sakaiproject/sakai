@@ -28,9 +28,11 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +50,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
@@ -76,6 +79,24 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class AssignmentToolUtils {
 
+    static final class GradebookTarget {
+        private final String gradebookUid;
+        private final String gradebookItem;
+
+        GradebookTarget(String gradebookUid, String gradebookItem) {
+            this.gradebookUid = gradebookUid;
+            this.gradebookItem = gradebookItem;
+        }
+
+        String getGradebookUid() {
+            return gradebookUid;
+        }
+
+        String getGradebookItem() {
+            return gradebookItem;
+        }
+    }
+
     private AssignmentService assignmentService;
     private FormattedText formattedText;
     private GradingService gradingService;
@@ -92,6 +113,118 @@ public class AssignmentToolUtils {
 
     public AssignmentToolUtils(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
+    }
+
+    /**
+     * Resolve the concrete Gradebook targets for an assignment or submission update.
+     *
+     * Resolution precedence is:
+     * 1. Site gradebook when Gradebook-by-groups is disabled.
+     * 2. For group submissions, the persisted submission owner ({@code submission.groupId}).
+     * 3. For non-group ownership, the assignment's current assigned groups intersected with the submission's submitters.
+     * 4. For bulk operations, every currently assigned group on the assignment.
+     */
+    List<GradebookTarget> resolveGradebookTargets(String siteId, Assignment assignment, String associateGradebookAssignment, AssignmentSubmission submission) {
+        associateGradebookAssignment = StringUtils.trimToNull(associateGradebookAssignment);
+        if (assignment == null || StringUtils.isBlank(siteId) || associateGradebookAssignment == null) {
+            return Collections.emptyList();
+        }
+
+        if (!gradingService.isGradebookGroupEnabled(siteId)) {
+            return Collections.singletonList(new GradebookTarget(siteId, associateGradebookAssignment));
+        }
+
+        try {
+            Site site = siteService.getSite(siteId);
+            Set<String> gradebookUids = resolveGradebookUids(site, assignment, submission);
+            if (gradebookUids.isEmpty()) {
+                log.warn("Cannot resolve gradebook targets for assignment {} in site {}", assignment.getId(), siteId);
+                return Collections.emptyList();
+            }
+
+            List<String> gradebookItems = Arrays.stream(associateGradebookAssignment.split(","))
+                    .map(StringUtils::trimToNull)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            List<GradebookTarget> targets = new ArrayList<>();
+            Set<String> seenTargets = new LinkedHashSet<>();
+            for (String gradebookUid : gradebookUids) {
+                for (String gradebookItem : gradebookItems) {
+                    if (gradebookItemBelongsToGradebook(siteId, gradebookUid, gradebookItem)) {
+                        String targetKey = gradebookUid + "|" + gradebookItem;
+                        if (seenTargets.add(targetKey)) {
+                            targets.add(new GradebookTarget(gradebookUid, gradebookItem));
+                        }
+                    }
+                }
+            }
+
+            if (targets.isEmpty()) {
+                log.warn("Cannot resolve matching gradebook items for assignment {} in site {}", assignment.getId(), siteId);
+            }
+
+            return targets;
+        } catch (IdUnusedException e) {
+            log.warn("Cannot resolve gradebook targets, site {} not found: {}", siteId, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private Set<String> resolveGradebookUids(Site site, Assignment assignment, AssignmentSubmission submission) {
+        List<Group> assignedGroups = assignment.getGroups().stream()
+                .map(site::getGroup)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        if (assignedGroups.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        if (submission != null && assignment.getIsGroup() && StringUtils.isNotBlank(submission.getGroupId())) {
+            Optional<String> ownerGroupUid = assignedGroups.stream()
+                    .filter(group -> StringUtils.equals(submission.getGroupId(), group.getId()))
+                    .map(Group::getId)
+                    .findFirst();
+            if (ownerGroupUid.isPresent()) {
+                return new LinkedHashSet<>(Collections.singleton(ownerGroupUid.get()));
+            }
+
+            log.warn("Cannot resolve persisted group submission owner {} for assignment {}", submission.getGroupId(), assignment.getId());
+            return Collections.emptySet();
+        }
+
+        if (submission == null) {
+            return assignedGroups.stream()
+                    .map(Group::getId)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+
+        Set<String> submitterIds = submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
+
+        return assignedGroups.stream()
+                .filter(group -> CollectionUtils.isNotEmpty(group.getUsers()) && CollectionUtils.containsAny(group.getUsers(), submitterIds))
+                .map(Group::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private boolean gradebookItemBelongsToGradebook(String siteId, String gradebookUid, String gradebookItem) {
+        if (gradingService.isExternalAssignmentDefined(gradebookUid, gradebookItem)) {
+            return true;
+        }
+
+        try {
+            Long itemId = Long.parseLong(gradebookItem);
+            GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(siteId, itemId);
+            return gradebookAssignment != null
+                    && gradebookAssignment.getGradebook() != null
+                    && StringUtils.equals(gradebookUid, gradebookAssignment.getGradebook().getUid());
+        } catch (NumberFormatException e) {
+            log.debug("Associated gradebook item {} is not an internal gradebook id", gradebookItem);
+            return false;
+        }
     }
 
     /**
@@ -420,71 +553,10 @@ public class AssignmentToolUtils {
 
             String siteId = a.getContext();
 
-            boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(siteId);
-
-            // This block is responsible for dividing between cases where "isGradebookGroupEnabled"
-            // is true and others where it is false.
-            if (!isGradebookGroupEnabled) {
-                // In this case, the "associateGradebookAssignment" association is unique,
-                // so no further action is needed.
-                alerts.addAll(integrateGradebook(options, siteId, aReference, associateGradebookAssignment, null, null, -1, null, sReference, op, -1));
-            } else {
-                try {
-                    // First, we need to retrieve the groups of the submitters of the submission.
-                    // To do this, we will iterate through the collection of submitters and check
-                    // with the users of each group in the site.
-                    List<String> groupList = new ArrayList<>();
-
-                    Collection<String> groupRefs = a.getGroups();
-                    Set<AssignmentSubmissionSubmitter> submitterSet = submission.getSubmitters();
-
-                    Site site = siteService.getSite(siteId);
-
-                    for (AssignmentSubmissionSubmitter ass : submitterSet) {
-                        String submitterId = ass.getSubmitter();
-
-                        for (String groupRef : groupRefs) {
-                            Group group = site.getGroup(groupRef);
-                            Set<String> userList = group.getUsers();
-
-                            if (userList != null && userList.size() >= 1 && userList.contains(submitterId)) {
-                                groupList.add(group.getId());
-                            }
-                        }
-                    }
-
-                    for (String gradebookUid : groupList) {
-                        // Since there is a possibility that the "associateGradebookAssignment"
-                        // variable is comma-separated, we need to split it into a list.
-                        List<String> itemList = Arrays.asList(associateGradebookAssignment.split(","));
-
-                        for (String item : itemList) {
-                            // We need to check whether it is a reference or a gradebook item ID.
-                            boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, item);
-
-                            if (isExternalAssignmentDefined) {
-                                // In this case, no further actions are required.
-                                alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
-                            } else {
-                                // In this case, we need to find the item in the list that matches the group being iterated.
-                                try {
-                                    Long itemId = Long.parseLong(item);
-
-                                    GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(gradebookUid, itemId);
-
-                                    if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
-                                        gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
-                                    }
-                                } catch (NumberFormatException e) {
-                                    log.error("Exception trying to parse item value {} : {} ", item, e);
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    log.warn("Site not found [{}], {}", siteId, ex);
-                }
+            List<GradebookTarget> gradebookTargets = resolveGradebookTargets(siteId, a, associateGradebookAssignment, submission);
+            for (GradebookTarget gradebookTarget : gradebookTargets) {
+                alerts.addAll(integrateGradebook(options, gradebookTarget.getGradebookUid(), aReference,
+                        gradebookTarget.getGradebookItem(), null, null, -1, null, sReference, op, -1));
             }
         }
     } // gradeSubmission
