@@ -1818,19 +1818,16 @@ $(document).ready(function () {
 
         } else if (type === 's'){
           // SCORM package
+          var height = row.find(".item-height").text();
+          $("#edit-height-value").val(height);
+          $("#edit-height").show();
           $("#change-scorm-p").show();
           $("#change-scorm").attr("href",
                 $("#change-scorm").attr("href").replace("itemId=-1", "itemId=" + itemid));
           if ($("#configure-scorm").length > 0) {
             $("#configure-scorm-p").show();
           }
-          if (format != 'window' && format != 'inline') format = 'window';
-          $(".format").prop("checked", false);
-          $("#format-" + format).prop("checked", true);
-          $("#formatstuff").show();
-          $("#format-window").show();
-          // Hide "page" option for SCORM - it has its own internal navigation
-          $("#format-page").parent().hide();
+          $("#require-label").text(msg("simplepage.require_completed_scorm"));
 
         } else if (type === '8'){
           $("#change-forum-p").show();

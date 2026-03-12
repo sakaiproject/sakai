@@ -178,17 +178,6 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 				UILink.make(row, "link", a.getTitle(), a.getUrl());
 			}
 
-			// Display Options: default to "window"
-			String currentFormat = "window";
-			if (existingItem != null && existingItem.getFormat() != null && !existingItem.getFormat().isEmpty()) {
-			    currentFormat = existingItem.getFormat();
-			}
-			UISelect formatSelect = UISelect.make(form, "format-span",
-			    new String[] {"window", "inline"},
-			    "#{simplePageBean.format}", currentFormat);
-			UISelectChoice.make(form, "format-window", formatSelect.getFullID(), 0);
-			UISelectChoice.make(form, "format-inline", formatSelect.getFullID(), 1);
-
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 			UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 

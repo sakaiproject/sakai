@@ -189,8 +189,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (available) {
 		if (type == SimplePageItem.RESOURCE || type == SimplePageItem.BLTI)
 		    simplePageBean.track(params.getItemId(), null);
-		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM))
-		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
+		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.SCORM))
+		    simplePageBean.checkItemPermissions(item, true); // set acl, etc
 
 	    }
 
@@ -402,6 +402,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 
 		boolean isBlti = item != null && item.getType() == SimplePageItem.BLTI;
+		boolean isScorm = item != null && item.getType() == SimplePageItem.SCORM;
 		String allow = ServerConfigurationService.getBrowserFeatureAllowString();
 		String allowEscaped = StringEscapeUtils.escapeHtml4(allow);
 		String sourceEscaped = StringEscapeUtils.escapeHtml4(source);
@@ -413,7 +414,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		} else {
 			String classAttr = !IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl()) ? " class=\"sakai-iframe-force-light\"" : "";
-			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"350\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
+			String rawHeight = isScorm ? item.getHeight() : null;
+			String height = StringUtils.isBlank(rawHeight) ? (isScorm ? "600" : "350") : StringEscapeUtils.escapeHtml4(rawHeight.replace("px", "").trim());
+			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"" + height + "\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		}
 	}

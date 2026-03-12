@@ -3322,7 +3322,7 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI || i.getType() == SimplePageItem.SCORM) {
+			if (i.getType() == SimplePageItem.BLTI) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3332,10 +3332,9 @@ public class SimplePageBean {
 				i.setSameWindow(false);
 			    else
 				i.setSameWindow(true);
-
-			    if (i.getType() == SimplePageItem.BLTI) {
-				i.setHeight(height);
-			    }
+			    i.setHeight(height);
+			} else if (i.getType() == SimplePageItem.SCORM) {
+			    i.setHeight(height);
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -4452,14 +4451,11 @@ public class SimplePageBean {
 			    if (selectedObject == null)
 				return "failure";
 
-			    // validate format: only "window" or "inline" for SCORM
-			    String fmt = "inline".equals(format) ? "inline" : "window";
-
 			    // editing existing item?
 			    SimplePageItem i;
 			    if (itemId != null && itemId != -1) {
 				i = findItem(itemId);
-				// do getEntity/getreference to normalize, in case sakaiid is old format
+				// do getEntity/getReference to normalize, in case sakaiid is old format
 				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
 				String ref = (existing != null) ? existing.getReference() : null;
 				// if same scorm package, nothing to do
@@ -4468,13 +4464,9 @@ public class SimplePageBean {
 				    i.setName(selectedObject.getTitle());
 				    i.setDescription("");
 				}
-				i.setFormat(fmt);
-				i.setSameWindow(!"window".equals(fmt));
 				update(i);
 			    } else { // no, add new item
 				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.SCORM);
-				i.setFormat(fmt);
-				i.setSameWindow(!"window".equals(fmt));
 				saveItem(i);
 			    }
 			    return "success";
