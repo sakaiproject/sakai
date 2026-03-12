@@ -364,6 +364,16 @@ public interface AssignmentService extends EntityProducer {
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
 
     /**
+     * Reassign a group submission to a different assignment group and refresh the stored submitter roster to match.
+     *
+     * @param submission the submission to update
+     * @param groupId the target site group id
+     * @throws IdUnusedException if the submission's site cannot be resolved
+     * @throws PermissionException if the current user cannot update the submission
+     */
+    public void reassignGroupSubmission(AssignmentSubmission submission, String groupId) throws IdUnusedException, PermissionException;
+
+    /**
      * @param reference
      * @return
      * @throws IdUnusedException

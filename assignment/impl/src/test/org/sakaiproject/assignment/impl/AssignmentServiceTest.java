@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -484,6 +485,153 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertTrue(assignmentService.isGradeOverridden(getSubmission, submitter1));
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void updateGroupSubmissionResynchronizesSubmittersWhenGroupChanges() {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        String originalSubmitter1 = UUID.randomUUID().toString();
+        String originalSubmitter2 = UUID.randomUUID().toString();
+        String updatedSubmitter1 = UUID.randomUUID().toString();
+        String updatedSubmitter2 = UUID.randomUUID().toString();
+
+        Set<String> originalSubmitters = new HashSet<>(Arrays.asList(originalSubmitter1, originalSubmitter2));
+
+        try {
+            AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+            Assignment assignment = submission.getAssignment();
+            String updatedGroupRef = "/site/" + context + "/group/" + updatedGroupId;
+            assignment.getGroups().add(updatedGroupRef);
+
+            Site site = siteService.getSite(context);
+            Group updatedGroup = mock(Group.class);
+            when(updatedGroup.getReference()).thenReturn(updatedGroupRef);
+            when(updatedGroup.getProperties()).thenReturn(new BaseResourceProperties());
+
+            Set<Member> updatedMembers = new HashSet<>();
+            for (String submitterId : Arrays.asList(updatedSubmitter1, updatedSubmitter2)) {
+                Member member = mock(Member.class);
+                when(member.getUserId()).thenReturn(submitterId);
+                Role role = mock(Role.class);
+                when(member.getRole()).thenReturn(role);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+                updatedMembers.add(member);
+            }
+            when(updatedGroup.getMembers()).thenReturn(updatedMembers);
+
+            Collection<Group> groups = new HashSet<>(site.getGroups());
+            groups.add(updatedGroup);
+            when(site.getGroups()).thenReturn(groups);
+            when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
+            when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
+
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(updatedSubmitter1);
+
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            assignmentService.updateSubmission(submission);
+
+            AssignmentSubmission updatedSubmission = assignmentService.getSubmission(submission.getId());
+            Set<String> updatedSubmitters = updatedSubmission.getSubmitters().stream()
+                    .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .collect(Collectors.toSet());
+
+            Assert.assertEquals(new HashSet<>(Arrays.asList(updatedSubmitter1, updatedSubmitter2)), updatedSubmitters);
+            Assert.assertEquals(updatedGroupId, updatedSubmission.getGroupId());
+            Assert.assertEquals(1, updatedSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(updatedSubmission.getSubmitters().stream()
+                    .anyMatch(ass -> ass.getSubmittee() && updatedSubmitter1.equals(ass.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not resynchronize group submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void reassignGroupSubmissionPreservesSubmitteeWhenCurrentUserIsNotInTargetGroup() {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        String sharedSubmitter = UUID.randomUUID().toString();
+        String originalSubmitter = UUID.randomUUID().toString();
+        String updatedSubmitter = UUID.randomUUID().toString();
+
+        Set<String> originalSubmitters = new LinkedHashSet<>(Arrays.asList(sharedSubmitter, originalSubmitter));
+
+        try {
+            AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+            Assignment assignment = submission.getAssignment();
+            String updatedGroupRef = "/site/" + context + "/group/" + updatedGroupId;
+            assignment.getGroups().add(updatedGroupRef);
+
+            Site site = siteService.getSite(context);
+            Group updatedGroup = mock(Group.class);
+            when(updatedGroup.getReference()).thenReturn(updatedGroupRef);
+            when(updatedGroup.getProperties()).thenReturn(new BaseResourceProperties());
+
+            Set<Member> updatedMembers = new HashSet<>();
+            for (String submitterId : Arrays.asList(sharedSubmitter, updatedSubmitter)) {
+                Member member = mock(Member.class);
+                when(member.getUserId()).thenReturn(submitterId);
+                Role role = mock(Role.class);
+                when(member.getRole()).thenReturn(role);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+                updatedMembers.add(member);
+            }
+            when(updatedGroup.getMembers()).thenReturn(updatedMembers);
+
+            Collection<Group> groups = new HashSet<>(site.getGroups());
+            groups.add(updatedGroup);
+            when(site.getGroups()).thenReturn(groups);
+            when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
+            when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
+
+            submission.getSubmitters().forEach(ass -> ass.setSubmittee(Boolean.FALSE));
+            submission.getSubmitters().stream()
+                    .filter(ass -> sharedSubmitter.equals(ass.getSubmitter()))
+                    .findFirst()
+                    .ifPresent(ass -> ass.setSubmittee(Boolean.TRUE));
+
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
+
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            assignmentService.updateSubmission(submission);
+
+            AssignmentSubmission updatedSubmission = assignmentService.getSubmission(submission.getId());
+            Assert.assertEquals(1, updatedSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(updatedSubmission.getSubmitters().stream()
+                    .anyMatch(ass -> ass.getSubmittee() && sharedSubmitter.equals(ass.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not preserve submittee during group reassignment\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void reassignGroupSubmissionRequiresPermission() {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        Set<String> originalSubmitters = new LinkedHashSet<>(Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+
+        try {
+            AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            Assert.fail("Expected a PermissionException when reassigning a submission without update permission");
+        } catch (PermissionException e) {
+            Assert.assertNotNull(e);
+        } catch (Exception e) {
+            Assert.fail("Unexpected exception when checking reassignment permissions\n" + e.toString());
         }
     }
 

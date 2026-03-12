@@ -7381,9 +7381,18 @@ public class AssignmentAction extends PagedResourceActionII {
                             if (submissioncheck != null) {
                                 addAlert(state, rb.getString("group.already.submitted"));
                                 log.warn("The group {} has already submitted {}!", group_id, submissioncheck.getId());
+                                return;
                             }
+                            try {
+                                assignmentService.reassignGroupSubmission(submission, group_id);
+                            } catch (IdUnusedException | IllegalArgumentException | PermissionException e) {
+                                addAlert(state, rb.getString("group.submission.not.found"));
+                                log.warn("Could not reassign submission {} to group {}, {}", submission.getId(), group_id, e.getMessage());
+                                return;
+                            }
+                        } else {
+                            submission.setGroupId(group_id);
                         }
-                        submission.setGroupId(group_id);
                     }
 
                     if (NumberUtils.isParsable(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER))) {

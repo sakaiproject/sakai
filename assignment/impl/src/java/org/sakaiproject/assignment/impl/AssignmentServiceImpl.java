@@ -1496,15 +1496,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (a.getIsGroup()) {
                     Group group = site.getGroup(submitter);
                     if (group != null && a.getGroups().contains(group.getReference())) {
-                        group.getMembers().stream()
-                                .filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION) || group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
-                                        && !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
-                                        && !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
-                                .forEach(member -> {
-                                    AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
-                                    ass.setSubmitter(member.getUserId());
-                                    submissionSubmitters.add(ass);
-                                });
+                        submissionSubmitters.addAll(buildGroupSubmissionSubmitters(group, null, null));
                         groupId = Optional.of(submitter);
                     } else {
                         log.warn("A submission cannot be added for group {} to assignment {}", submitter, assignmentId);
@@ -1538,6 +1530,77 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return submission;
         }
         return null;
+    }
+
+    private Set<AssignmentSubmissionSubmitter> buildGroupSubmissionSubmitters(Group group, AssignmentSubmission submission,
+            Map<String, AssignmentSubmissionSubmitter> existingSubmitters) {
+
+        Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
+        group.getMembers().stream()
+                .filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION) || group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                        && !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                        && !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                .forEach(member -> {
+                    AssignmentSubmissionSubmitter ass = Optional.ofNullable(existingSubmitters)
+                            .map(existing -> existing.get(member.getUserId()))
+                            .orElseGet(AssignmentSubmissionSubmitter::new);
+                    ass.setSubmission(submission);
+                    ass.setSubmitter(member.getUserId());
+                    ass.setSubmittee(Boolean.FALSE);
+                    submitters.add(ass);
+                });
+        return submitters;
+    }
+
+    @Override
+    @Transactional
+    public void reassignGroupSubmission(AssignmentSubmission submission, String groupId) throws IdUnusedException, PermissionException {
+        Assert.notNull(submission, "Submission cannot be null");
+        Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
+        Assert.notNull(submission.getAssignment(), "Submission must belong to an assignment");
+        Assert.isTrue(Boolean.TRUE.equals(submission.getAssignment().getIsGroup()), "Submission must belong to a group assignment");
+        Assert.hasText(groupId, "Group id cannot be blank");
+
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
+        if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        }
+
+        Site site = siteService.getSite(submission.getAssignment().getContext());
+        Group group = site.getGroup(groupId);
+        if (group == null || !submission.getAssignment().getGroups().contains(group.getReference())) {
+            throw new IllegalArgumentException(String.format("Group %s is not valid for assignment %s", groupId, submission.getAssignment().getId()));
+        }
+
+        String previousSubmittee = submission.getSubmitters().stream()
+                .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .findFirst()
+                .orElse(null);
+        Map<String, AssignmentSubmissionSubmitter> existingSubmitters = submission.getSubmitters().stream()
+                .collect(Collectors.toMap(AssignmentSubmissionSubmitter::getSubmitter, ass -> ass, (left, right) -> left));
+
+        Set<AssignmentSubmissionSubmitter> refreshedSubmitters = buildGroupSubmissionSubmitters(group, submission, existingSubmitters);
+        if (refreshedSubmitters.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Group %s has no eligible submitters for assignment %s", groupId, submission.getAssignment().getId()));
+        }
+
+        String currentUser = sessionManager.getCurrentSessionUserId();
+        Optional<AssignmentSubmissionSubmitter> submittee = refreshedSubmitters.stream()
+                .filter(s -> StringUtils.equals(currentUser, s.getSubmitter()))
+                .findFirst();
+        if (!submittee.isPresent()) {
+            submittee = refreshedSubmitters.stream()
+                    .filter(s -> StringUtils.equals(previousSubmittee, s.getSubmitter()))
+                    .findFirst();
+        }
+        submittee.or(() -> refreshedSubmitters.stream().findFirst())
+                .ifPresent(s -> s.setSubmittee(Boolean.TRUE));
+
+        submission.getSubmitters().clear();
+        submission.getSubmitters().addAll(refreshedSubmitters);
+        submission.setGroupId(groupId);
     }
 
     @Override
