@@ -15598,26 +15598,13 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!gradingService.isGradebookGroupEnabled(siteId)) {
             addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), siteId, aReference, associateGradebookAssignment, remove, null, -1, null, submissionId, update, -1));
         } else {
-        	try {
+            try {
                 HashSet<String> groupSet = new HashSet<>();
-
                 Site site = siteService.getSite(siteId);
-                List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aReference);
-
-                for (AssignmentSubmission s : submissions) {
-                    Set<AssignmentSubmissionSubmitter> submitterSet = s.getSubmitters();
-
-                    for (AssignmentSubmissionSubmitter ass : submitterSet) {
-                        String submitterId = ass.getSubmitter();
-
-                        for (String groupRef : groupRefs) {
-                            Group group = site.getGroup(groupRef);
-                            Set<String> userList = group.getUsers();
-
-                            if (userList != null && userList.size() >= 1 && userList.contains(submitterId)) {
-                                groupSet.add(group.getId());
-                            }
-                        }
+                for (String groupRef : groupRefs) {
+                    Group group = site.getGroup(groupRef);
+                    if (group != null) {
+                         groupSet.add(group.getId());
                     }
                 }
 
@@ -15632,7 +15619,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (isExternalAssignmentDefined) {
                             // In this case, no further actions are required.
-                           addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, null, null, -1, null, submissionId, update, -1));
+                           addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, update, -1));
                         } else {
                             // In this case, we need to find the item in the list that matches the group being iterated.
                             try {
@@ -15642,7 +15629,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                                 if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
                                     gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, null, null, -1, null, submissionId, update, -1));
+                                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, aReference, item, remove, null, -1, null, submissionId, update, -1));
                                 }
                             } catch (NumberFormatException e) {
                                 log.error("Exception trying to parse item value {} : {} ", item, e);
