@@ -1537,9 +1537,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         Set<AssignmentSubmissionSubmitter> submitters = new LinkedHashSet<>();
         group.getMembers().stream()
-                .filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION) || group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
-                        && !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
-                        && !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                .filter(member -> isEligibleGroupSubmitter(group, member))
                 .forEach(member -> {
                     AssignmentSubmissionSubmitter ass = Optional.ofNullable(existingSubmitters)
                             .map(existing -> existing.get(member.getUserId()))
@@ -1550,6 +1548,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     submitters.add(ass);
                 });
         return submitters;
+    }
+
+    private boolean isEligibleGroupSubmitter(Group group, Member member) {
+        return member != null
+                && (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                        || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION);
     }
 
     @Override
@@ -1574,6 +1580,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (group == null || !submission.getAssignment().getGroups().contains(group.getReference())) {
             throw new IllegalArgumentException(String.format("Group %s is not valid for assignment %s", groupId, submission.getAssignment().getId()));
         }
+
+        String currentUser = sessionManager.getCurrentSessionUserId();
+        if (!canGrade && !isEligibleGroupSubmitter(group, group.getMember(currentUser))) {
+            throw new PermissionException(currentUser, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        }
+
         AssignmentSubmission existingSubmission = assignmentRepository.findSubmissionForGroup(submission.getAssignment().getId(), groupId);
         if (existingSubmission != null && !StringUtils.equals(existingSubmission.getId(), submission.getId())) {
             throw new IllegalArgumentException(String.format("Group %s already has a submission for assignment %s", groupId, submission.getAssignment().getId()));
@@ -1590,11 +1602,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Set<AssignmentSubmissionSubmitter> refreshedSubmitters = buildGroupSubmissionSubmitters(group, submission, existingSubmitters);
         if (refreshedSubmitters.isEmpty()) {
             throw new IllegalArgumentException(String.format("Group %s has no eligible submitters for assignment %s", groupId, submission.getAssignment().getId()));
-        }
-
-        String currentUser = sessionManager.getCurrentSessionUserId();
-        if (!canGrade && refreshedSubmitters.stream().noneMatch(s -> StringUtils.equals(currentUser, s.getSubmitter()))) {
-            throw new PermissionException(currentUser, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
         Optional<AssignmentSubmissionSubmitter> submittee = refreshedSubmitters.stream()

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,10 +31,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
@@ -161,6 +164,34 @@ public class AssignmentToolUtilsTest {
     }
 
     @Test
+    public void resolveGradebookTargetsUsesAssignmentReferenceWhenAssociationMissing() throws Exception {
+        String siteId = "site";
+        String team1Ref = "/site/site/group/team1";
+
+        Assignment assignment = mock(Assignment.class);
+        when(assignment.getContext()).thenReturn(siteId);
+        when(assignment.getId()).thenReturn("assignment-1");
+        when(assignment.getGroups()).thenReturn(new LinkedHashSet<>(Collections.singleton(team1Ref)));
+
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        Site site = mock(Site.class);
+        Group team1 = mockGroup("team1", Collections.singleton("team1-user"));
+
+        when(gradingService.isGradebookGroupEnabled(siteId)).thenReturn(true);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup(team1Ref)).thenReturn(team1);
+        when(gradingService.isExternalAssignmentDefined("team1", assignmentRef)).thenReturn(true);
+
+        List<AssignmentToolUtils.GradebookTarget> targets =
+                assignmentToolUtils.resolveGradebookTargets(siteId, assignment, null, null);
+
+        Assert.assertEquals(1, targets.size());
+        Assert.assertEquals("team1", targets.get(0).getGradebookUid());
+        Assert.assertEquals(assignmentRef, targets.get(0).getGradebookItem());
+    }
+
+    @Test
     public void resolveGradebookTargetsIncludesAllAssignedGroupsForBulkUpdates() throws Exception {
         String siteId = "site";
         String team1Ref = "/site/site/group/team1";
@@ -188,10 +219,38 @@ public class AssignmentToolUtilsTest {
                 assignmentToolUtils.resolveGradebookTargets(siteId, assignment, "external-team1,1002", null);
 
         Assert.assertEquals(2, targets.size());
+        Set<String> targetPairs = targets.stream()
+                .map(target -> target.getGradebookUid() + "|" + target.getGradebookItem())
+                .collect(Collectors.toSet());
+        Assert.assertEquals(Set.of("team1|external-team1", "team4|1002"), targetPairs);
+    }
+
+    @Test
+    public void resolveGradebookTargetsIgnoresStaleInternalGradebookItems() throws Exception {
+        String siteId = "site";
+        String team1Ref = "/site/site/group/team1";
+
+        Assignment assignment = mock(Assignment.class);
+        when(assignment.getGroups()).thenReturn(new LinkedHashSet<>(Collections.singleton(team1Ref)));
+
+        Site site = mock(Site.class);
+        Group team1 = mockGroup("team1", Collections.singleton("team1-user"));
+
+        when(gradingService.isGradebookGroupEnabled(siteId)).thenReturn(true);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getGroup(team1Ref)).thenReturn(team1);
+
+        when(gradingService.isExternalAssignmentDefined("team1", "external-team1")).thenReturn(true);
+        when(gradingService.isExternalAssignmentDefined("team1", "1002")).thenReturn(false);
+        when(gradingService.getGradebookAssigment(siteId, 1002L))
+                .thenThrow(new AssessmentNotFoundException("stale item"));
+
+        List<AssignmentToolUtils.GradebookTarget> targets =
+                assignmentToolUtils.resolveGradebookTargets(siteId, assignment, "external-team1,1002", null);
+
+        Assert.assertEquals(1, targets.size());
         Assert.assertEquals("team1", targets.get(0).getGradebookUid());
         Assert.assertEquals("external-team1", targets.get(0).getGradebookItem());
-        Assert.assertEquals("team4", targets.get(1).getGradebookUid());
-        Assert.assertEquals("1002", targets.get(1).getGradebookItem());
     }
 
     private Group mockGroup(String groupId, Set<String> users) {

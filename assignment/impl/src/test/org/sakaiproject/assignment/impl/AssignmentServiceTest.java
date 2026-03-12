@@ -521,6 +521,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 when(member.getRole()).thenReturn(role);
                 when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
                 when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+                when(updatedGroup.getMember(submitterId)).thenReturn(member);
                 updatedMembers.add(member);
             }
             when(updatedGroup.getMembers()).thenReturn(updatedMembers);
@@ -586,6 +587,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             when(member.getRole()).thenReturn(role);
             when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
             when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+            when(updatedGroup.getMember(submitterId)).thenReturn(member);
             updatedMembers.add(member);
         }
         when(updatedGroup.getMembers()).thenReturn(updatedMembers);
@@ -698,11 +700,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
             when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
 
-            submission.getSubmitters().forEach(ass -> ass.setSubmittee(Boolean.FALSE));
-            submission.getSubmitters().stream()
+            AssignmentSubmissionSubmitter sharedSubmitterRow = submission.getSubmitters().stream()
                     .filter(ass -> sharedSubmitter.equals(ass.getSubmitter()))
                     .findFirst()
-                    .ifPresent(ass -> ass.setSubmittee(Boolean.TRUE));
+                    .orElse(null);
+            Assert.assertNotNull(sharedSubmitterRow);
+            Long sharedSubmitterId = sharedSubmitterRow.getId();
+            sharedSubmitterRow.setGrade("17");
+
+            submission.getSubmitters().forEach(ass -> ass.setSubmittee(Boolean.FALSE));
+            sharedSubmitterRow.setSubmittee(Boolean.TRUE);
 
             when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
 
@@ -717,8 +724,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             AssignmentSubmission updatedSubmission = assignmentService.getSubmission(submission.getId());
             Assert.assertEquals(1, updatedSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
-            Assert.assertTrue(updatedSubmission.getSubmitters().stream()
-                    .anyMatch(ass -> ass.getSubmittee() && sharedSubmitter.equals(ass.getSubmitter())));
+            AssignmentSubmissionSubmitter updatedSharedSubmitter = updatedSubmission.getSubmitters().stream()
+                    .filter(ass -> sharedSubmitter.equals(ass.getSubmitter()))
+                    .findFirst()
+                    .orElse(null);
+            Assert.assertNotNull(updatedSharedSubmitter);
+            Assert.assertEquals(sharedSubmitterId, updatedSharedSubmitter.getId());
+            Assert.assertEquals("17", updatedSharedSubmitter.getGrade());
+            Assert.assertTrue(updatedSharedSubmitter.getSubmittee());
         } catch (Exception e) {
             Assert.fail("Could not preserve submittee during group reassignment\n" + e.toString());
         }

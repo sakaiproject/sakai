@@ -126,12 +126,15 @@ public class AssignmentToolUtils {
      */
     List<GradebookTarget> resolveGradebookTargets(String siteId, Assignment assignment, String associateGradebookAssignment, AssignmentSubmission submission) {
         associateGradebookAssignment = StringUtils.trimToNull(associateGradebookAssignment);
-        if (assignment == null || StringUtils.isBlank(siteId) || associateGradebookAssignment == null) {
+        if (assignment == null || StringUtils.isBlank(siteId)) {
             return Collections.emptyList();
         }
 
+        String gradebookItemsSource = Optional.ofNullable(associateGradebookAssignment)
+                .orElse(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+
         if (!gradingService.isGradebookGroupEnabled(siteId)) {
-            return Collections.singletonList(new GradebookTarget(siteId, associateGradebookAssignment));
+            return Collections.singletonList(new GradebookTarget(siteId, gradebookItemsSource));
         }
 
         try {
@@ -142,7 +145,7 @@ public class AssignmentToolUtils {
                 return Collections.emptyList();
             }
 
-            List<String> gradebookItems = Arrays.stream(associateGradebookAssignment.split(","))
+            List<String> gradebookItems = Arrays.stream(gradebookItemsSource.split(","))
                     .map(StringUtils::trimToNull)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -221,6 +224,9 @@ public class AssignmentToolUtils {
             return gradebookAssignment != null
                     && gradebookAssignment.getGradebook() != null
                     && StringUtils.equals(gradebookUid, gradebookAssignment.getGradebook().getUid());
+        } catch (AssessmentNotFoundException e) {
+            log.debug("Associated gradebook item {} is stale or not found for site {}", gradebookItem, siteId);
+            return false;
         } catch (NumberFormatException e) {
             log.debug("Associated gradebook item {} is not an internal gradebook id", gradebookItem);
             return false;

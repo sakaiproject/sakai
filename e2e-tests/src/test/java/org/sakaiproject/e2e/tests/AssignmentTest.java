@@ -260,7 +260,9 @@ class AssignmentTest extends SakaiUiTestBase {
         openAssignmentSubmissions(courseUrl, assignmentTitle);
 
         Locator team1Row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(team1Title)).first();
+        Locator team4Rows = page.locator("tr").filter(new Locator.FilterOptions().setHasText(team4Title));
         assertThat(team1Row).isVisible();
+        assertThat(team4Rows).hasCount(0);
     }
 
     private void openAddAssignmentForm() {
