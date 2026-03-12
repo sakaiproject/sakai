@@ -118,6 +118,11 @@ public class ExtendedTimeDeliveryService {
 	}
 
 	ExtendedTimeDeliveryService(Long publishedAssessmentId, String agentId, ExtendedTime resolvedExtendedTime) {
+		if (resolvedExtendedTime == null) {
+			throw new IllegalArgumentException(
+					"resolvedExtendedTime must not be null when using ExtendedTimeDeliveryService(Long, String, ExtendedTime); "
+							+ "otherwise applyExtendedTime(...) would not have assessment dates available.");
+		}
 		this.publishedAssessmentId = publishedAssessmentId;
 		this.agentId = agentId;
 		applyExtendedTime(null, resolvedExtendedTime);

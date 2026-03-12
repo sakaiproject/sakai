@@ -58,6 +58,16 @@ public class ExtendedTimeDeliveryServiceTest {
         Assert.assertEquals(Integer.valueOf(0), deliveryService.getTimeLimit());
     }
 
+    @Test
+    public void testAssessmentIdConstructorRejectsNullResolvedExtendedTime() {
+        try {
+            new ExtendedTimeDeliveryService(100L, "student1", null);
+            Assert.fail("Expected IllegalArgumentException for null resolvedExtendedTime");
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains("resolvedExtendedTime"));
+        }
+    }
+
     private ExtendedTime buildExtendedTime(String groupId, String userId, Long publishedAssessmentId) {
         ExtendedTime extendedTime = new ExtendedTime();
         PublishedAssessmentData publishedAssessment = new PublishedAssessmentData();
