@@ -420,10 +420,9 @@
                 <value>forums.delete</value>
             </list>
         </property>
-        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
     </bean>
-    
-    
+
+
     <bean id="org.sakaiproject.api.app.messageforums.EmailNotificationManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>

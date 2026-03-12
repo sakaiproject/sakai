@@ -58,6 +58,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.api.SiteSearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -208,7 +209,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                 .field(SearchService.FIELD_CREATOR_DISPLAY_NAME, ecp.getCreatorDisplayName(resourceName))
                 .field(SearchService.FIELD_CREATOR_ID, ecp.getCreatorId(resourceName))
                 .field(SearchService.FIELD_CREATOR_USER_NAME, ecp.getCreatorUserName(resourceName))
-                .field(SearchService.FIELD_TITLE, ecp.getTitle(resourceName))
+                .field(SearchService.FIELD_TITLE, SearchUtils.stripHtml(ecp.getTitle(resourceName)))
                 .field(SearchService.FIELD_REFERENCE, resourceName)
                 .field(SearchService.FIELD_URL, ecp.getUrl(resourceName, Entity.UrlType.PORTAL))
                 //.field(SearchService.FIELD_ID, ecp.getId(resourceName))
