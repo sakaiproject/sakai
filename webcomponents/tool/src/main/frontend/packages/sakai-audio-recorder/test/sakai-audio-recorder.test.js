@@ -1,16 +1,16 @@
 import "../sakai-audio-recorder.js";
 import * as data from "./data.js";
 import { aTimeout, waitUntil, elementUpdated, expect, fixture, html } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-audio-recorder tests", () => {
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("starts recording", async () => {

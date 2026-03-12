@@ -135,6 +135,7 @@
 				<prop key="prepStmtCacheSize">250</prop>
 				<prop key="prepStmtCacheSqlLimit">2048</prop>
 				<prop key="useServerPrepStmts">true</prop>
+				<prop key="oracle.jdbc.sendBooleanAsNativeBoolean">false</prop>
 			</props>
 		</property>
 	</bean>

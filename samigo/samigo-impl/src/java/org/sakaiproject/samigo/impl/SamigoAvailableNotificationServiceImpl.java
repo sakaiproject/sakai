@@ -27,6 +27,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -67,6 +69,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     @Setter private UserTimeService userTimeService;
     private PublishedAssessmentService publishedAssessmentService;
     private static final ResourceLoader rl = new ResourceLoader("SamigoAvailableNotificationMessages");
+    private static final String OPTIONAL_NOTIFICATION_PREF_KEY = Integer.toString(NotificationService.NOTI_OPTIONAL);
 
     public void init() {
         log.debug("SamigoAvailableNotificationService init()");
@@ -203,11 +206,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         }
 
         // Lookup the user preferences to see if the user has disabled this specific email
-        Preferences userPrefs = preferencesService.getPreferences(userNow.getId());
-        ResourceProperties props = userPrefs.getProperties(NotificationService.PREFS_TYPE + SamigoConstants.NOTI_PREFS_TYPE_SAMIGO_OPEN);
-        String notiStr = props != null && props.getProperty("2") != null ? props.getProperty("2") : String.valueOf(NotificationService.PREF_IMMEDIATE);
-        int noti = Integer.parseInt(notiStr);
-        if (noti == NotificationService.PREF_IGNORE) {
+        if (getOpenNotificationPreference(userNow) == NotificationService.PREF_IGNORE) {
             log.debug("Skipping notification to user because of user preference override: {}", userNow.getEid());
             return;
         }
@@ -265,6 +264,25 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         replacementValues.put("siteUrl", site.getUrl());
 
         emailTemplateServiceSend(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER, null, userNow, fromStr, userEmail, headerToStr, null, replacementValues);
+    }
+
+    int getOpenNotificationPreference(User userNow) {
+        Preferences userPrefs = preferencesService.getPreferences(userNow.getId());
+        ResourceProperties props = userPrefs.getProperties(NotificationService.PREFS_TYPE + SamigoConstants.NOTI_PREFS_TYPE_SAMIGO_OPEN);
+
+        if (props == null) {
+            return NotificationService.PREF_IMMEDIATE;
+        }
+
+        try {
+            return (int) props.getLongProperty(OPTIONAL_NOTIFICATION_PREF_KEY);
+        } catch (EntityPropertyNotDefinedException e) {
+            return NotificationService.PREF_IMMEDIATE;
+        } catch (EntityPropertyTypeException e) {
+            log.warn("Invalid Samigo open notification preference '{}' for user {}; defaulting to immediate",
+                    props.getProperty(OPTIONAL_NOTIFICATION_PREF_KEY), userNow.getEid());
+            return NotificationService.PREF_IMMEDIATE;
+        }
     }
 
     private String getSetupRequest() {

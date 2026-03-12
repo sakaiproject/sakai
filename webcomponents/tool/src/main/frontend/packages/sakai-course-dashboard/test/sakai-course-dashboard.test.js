@@ -1,15 +1,21 @@
 import "../sakai-course-dashboard.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-course-dashboard tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n)
-    .get(data.dialogContentI18nUrl, data.dialogContentI18n)
-   .get(data.dashboardUrl, data.dashboardData)
-    .get(data.widgetPanelI18nUrl, data.widgetPanelI18n);
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.dialogContentI18nUrl, data.dialogContentI18n)
+      .get(data.dashboardUrl, data.dashboardData)
+      .get(data.widgetPanelI18nUrl, data.widgetPanelI18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders in user mode correctly", async () => {
 

@@ -59,6 +59,12 @@ public class LinkMigrationHelperImplTest {
         assertEquals("This  [<a href='/url/forum/'>Link</a>] .", impl.bracketAndNullifySelectedLinks("This <a href='/url/forum/'>Link</a>."));
     }
 
+    @Test
+    public void testBracketAndNullifySelectedLinksIdempotent() throws Exception {
+        String once = impl.bracketAndNullifySelectedLinks("This <a href='/url/forum/'>Link</a>.");
+        assertEquals(once, impl.bracketAndNullifySelectedLinks(once));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testBracketAndNullifySelectedLinksBroken() throws Exception {
         impl.bracketAndNullifySelectedLinks("<a href='http://example.com'>No closing tag");

@@ -372,12 +372,14 @@ public class AssignmentAction extends PagedResourceActionII {
      * state sort *
      */
     static final String SORTED_BY = "Assignment.sorted_by";
+    static final String LIST_SORTED_BY = "Assignment.list_sorted_by";
 
     /* **************************** sort assignment ********************** */
     /**
      * state sort ascendingly *
      */
     static final String SORTED_ASC = "Assignment.sorted_asc";
+    static final String LIST_SORTED_ASC = "Assignment.list_sorted_asc";
     /**
      * default sorting
      */
@@ -2905,9 +2907,18 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("LongObject", Instant.now().toEpochMilli());
         context.put("currentTime", Instant.now());
         context.put("filterOptions", AssignmentFilter.values());
-        context.put("currentFilterOption", state.getAttribute(FILTER_OPTION));
+        context.put("currentFilterOption", getFilterOption(state));
         String sortedBy = (String) state.getAttribute(SORTED_BY);
         String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+        String viewKey = getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        String listSortedBy = getListSortedBy(state, viewKey);
+        String listSortedAsc = getListSortedAsc(state, viewKey);
+        if (listSortedBy != null && listSortedAsc != null) {
+            sortedBy = listSortedBy;
+            sortedAsc = listSortedAsc;
+            state.setAttribute(SORTED_BY, sortedBy);
+            state.setAttribute(SORTED_ASC, sortedAsc);
+        }
         // clean sort criteria
         if (SORTED_BY_GROUP_TITLE.equals(sortedBy) || SORTED_BY_GROUP_DESCRIPTION.equals(sortedBy)) {
             sortedBy = SORTED_BY_DUEDATE;
@@ -6142,16 +6153,26 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the instructor view to download/upload information from archive file
      */
     private String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        context.put("download", MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE)));
-        context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
-        context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
-        context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
-        context.put("gradeFileFormat", StringUtils.defaultString((String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT), "csv"));
-        context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
-        context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
-        context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
-        context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
-        context.put("withoutFolders", state.getAttribute(UPLOAD_ALL_WITHOUT_FOLDERS));
+        boolean downloadMode = MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE));
+        boolean hasSubmissionText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_TEXT, true);
+        boolean hasSubmissionAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, true);
+        boolean hasGradeFile = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_GRADEFILE, true);
+        boolean hasComments = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_COMMENTS, true);
+        boolean hasFeedbackText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_TEXT, true);
+        boolean hasFeedbackAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, true);
+        boolean withoutFolders = resolveDownloadUploadSelection(state, UPLOAD_ALL_WITHOUT_FOLDERS, false);
+
+        context.put("download", downloadMode);
+        context.put("hasSubmissionText", hasSubmissionText);
+        context.put("hasSubmissionAttachment", hasSubmissionAttachment);
+        context.put("hasGradeFile", hasGradeFile);
+        String gradeFileFormat = resolveDownloadUploadSelection(state, UPLOAD_ALL_GRADEFILE_FORMAT, "csv");
+        context.put("gradeFileFormat", gradeFileFormat);
+        context.put("hasComments", hasComments);
+        context.put("hasFeedbackText", hasFeedbackText);
+        context.put("hasFeedbackAttachment", hasFeedbackAttachment);
+        context.put("releaseGrades", Boolean.TRUE.equals(state.getAttribute(UPLOAD_ALL_RELEASE_GRADES)));
+        context.put("withoutFolders", withoutFolders);
         context.put("enableFlatDownload", serverConfigurationService.getBoolean("assignment.download.flat", false));
         context.put("contextString", state.getAttribute(STATE_CONTEXT_STRING));
 
@@ -6163,22 +6184,39 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (a != null) {
             Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
-            context.put("hasRubric", optAssociation.isPresent() && optAssociation.get().getRubricId() != null);
+            boolean hasRubric = optAssociation.isPresent() && optAssociation.get().getRubricId() != null;
+            boolean includeRubrics = downloadMode && hasRubric;
+            context.put("hasRubric", hasRubric);
+            context.put("includeRubrics", includeRubrics);
 
             context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
             Assignment.SubmissionType submissionType = a.getTypeOfSubmission();
             // if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
-            context.put("includeSubmissionText", Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType);
+            boolean includeSubmissionText = Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType;
+            context.put("includeSubmissionText", includeSubmissionText);
 
             // if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
-            context.put("includeSubmissionAttachment", Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType);
+            boolean includeSubmissionAttachment = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType;
+            context.put("includeSubmissionAttachment", includeSubmissionAttachment);
 
-            context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) != null ? state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) : "");
+            String viewString = StringUtils.defaultIfBlank((String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION), AssignmentConstants.ALL);
+            context.put("viewString", viewString);
 
             context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
             context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+            Collection<Group> groups = getCurrentUserGroupsInSite(a.getContext());
+            context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
+
+            // true when every applicable download option is checked; drives the "Select all" toggle state.
+            boolean allDataSelected = hasGradeFile
+                    && hasComments
+                    && hasFeedbackAttachment
+                    && (!includeSubmissionText || (hasSubmissionText && hasFeedbackText))
+                    && (!includeSubmissionAttachment || hasSubmissionAttachment)
+                    && (!downloadMode || !hasRubric || includeRubrics);
+            context.put("allDataSelected", allDataSelected);
 
             if (a.getContentReview())
             {
@@ -6192,6 +6230,22 @@ public class AssignmentAction extends PagedResourceActionII {
         String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
     } // build_instructor_upload_all
+
+    private boolean resolveDownloadUploadSelection(SessionState state, String key, boolean defaultValue) {
+        Object value = state.getAttribute(key);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        return defaultValue;
+    }
+
+    private String resolveDownloadUploadSelection(SessionState state, String key, String defaultValue) {
+        Object value = state.getAttribute(key);
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return defaultValue;
+    }
 
     public void doSearchTags(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
@@ -6225,7 +6279,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         try {
             AssignmentFilter selectedFilter = Enum.valueOf(AssignmentFilter.class, data.getParameters().getString(FILTER_OPTION));
-            if(selectedFilter != null && !selectedFilter.equals(state.getAttribute(FILTER_OPTION))) {
+            if (selectedFilter != null && !selectedFilter.equals(getFilterOption(state))) {
                 resetPaging(state);
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
                 state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
@@ -6788,9 +6842,6 @@ public class AssignmentAction extends PagedResourceActionII {
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
-        // reset sorting
-        setDefaultSort(state);
-
     } // doCancel_edit_assignment
 
     /**
@@ -6804,9 +6855,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-
-        // reset sorting
-        setDefaultSort(state);
 
     } // doCancel_new_assignment
 
@@ -6901,8 +6949,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
-        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        String viewKey = getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        String sortedBy = (String) state.getAttribute(SORTED_BY);
+        String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+        if (sortedBy == null || sortedAsc == null || SORTED_BY_DEFAULT.equals(sortedBy)) {
+            String backupSortedBy = getListSortedBy(state, viewKey);
+            String backupSortedAsc = getListSortedAsc(state, viewKey);
+            if (backupSortedBy != null && backupSortedAsc != null) {
+                state.setAttribute(SORTED_BY, backupSortedBy);
+                state.setAttribute(SORTED_ASC, backupSortedAsc);
+            } else {
+                setDefaultSort(state);
+            }
+        }
 
     } // doList_assignments
 
@@ -9741,6 +9800,95 @@ public class AssignmentAction extends PagedResourceActionII {
     private void setDefaultSort(SessionState state) {
         state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+    }
+
+    /**
+     * Get the filter option for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @return
+     */
+    private AssignmentFilter getFilterOption(SessionState state) {
+        AssignmentFilter filterOption = AssignmentFilter.ALL;
+        Object filterAttr = state.getAttribute(FILTER_OPTION);
+        if (filterAttr instanceof AssignmentFilter) {
+            filterOption = (AssignmentFilter) filterAttr;
+        } else if (filterAttr != null) {
+            try {
+                filterOption = AssignmentFilter.valueOf(filterAttr.toString());
+                state.setAttribute(FILTER_OPTION, filterOption);
+            } catch (IllegalArgumentException e) {
+                log.warn("Can not parse filterOption: {} as an AssignmentsFilter", filterAttr);
+            }
+        }
+        return filterOption;
+    }
+
+    /**
+      * Get the sort key for the list view, if not exist, return the default one
+      *
+      * @param state
+      * @param defaultView
+      * @return
+      */
+    private String getListSortViewKey(SessionState state, String defaultView) {
+        String viewKey = (String) state.getAttribute(STATE_SELECTED_VIEW);
+        if (StringUtils.isBlank(viewKey)) {
+            viewKey = defaultView;
+        }
+        return viewKey;
+    }
+
+    /**
+     * Get the sort by value for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @param viewKey
+     * @return
+     */
+    private String getListSortedBy(SessionState state, String viewKey) {
+        String key = LIST_SORTED_BY + "." + viewKey;
+        String value = (String) state.getAttribute(key);
+        if (value == null) {
+            value = (String) state.getAttribute(LIST_SORTED_BY);
+            if (value != null) {
+                state.setAttribute(key, value);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Get the sorted asc/desc value for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @param viewKey
+     * @return
+     */
+    private String getListSortedAsc(SessionState state, String viewKey) {
+        String key = LIST_SORTED_ASC + "." + viewKey;
+        String value = (String) state.getAttribute(key);
+        if (value == null) {
+            value = (String) state.getAttribute(LIST_SORTED_ASC);
+            if (value != null) {
+                state.setAttribute(key, value);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Set the sort by and sort asc/desc value for the list view
+     *
+     * @param state
+     * @param sortedBy
+     * @param sortedAsc
+     * @param viewKey
+     */
+    private void setListSortForView(SessionState state, String sortedBy, String sortedAsc, String viewKey) {
+        String resolvedViewKey = viewKey != null ? viewKey : getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(LIST_SORTED_BY + "." + resolvedViewKey, sortedBy);
+        state.setAttribute(LIST_SORTED_ASC + "." + resolvedViewKey, sortedAsc);
     }
 
     /**
@@ -12970,6 +13118,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (state.getAttribute(FILTER_OPTION) == null) {
             state.setAttribute(FILTER_OPTION, AssignmentFilter.ALL);
+        } else {
+            getFilterOption(state);
         }
 
         if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null) {
@@ -13594,6 +13744,8 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(SORTED_ASC, asc);
         }
 
+        setListSortForView(state, (String) state.getAttribute(SORTED_BY), (String) state.getAttribute(SORTED_ASC), null);
+
     } // doSort
 
     /**
@@ -13842,7 +13994,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     returnResources = ((List<Assignment>)returnResources).stream().filter(a -> a.getGroups().stream().anyMatch(g -> g.endsWith(selectedGroup))).collect(Collectors.toList());
                 }
 
-                returnResources = filterAssignments(returnResources, (AssignmentFilter) state.getAttribute(FILTER_OPTION)); 
+                returnResources = filterAssignments(returnResources, getFilterOption(state));
 
                 //Filter assignments by tags
                 List<String> selectedTags = state.getAttribute(TAG_SELECTOR) != null ? Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")) : new ArrayList<>();
@@ -14024,17 +14176,28 @@ public class AssignmentAction extends PagedResourceActionII {
         String sort = "";
         ascending = (String) state.getAttribute(SORTED_ASC);
         sort = (String) state.getAttribute(SORTED_BY);
+        if (MODE_LIST_ASSIGNMENTS.equals(mode) || MODE_LIST_DELETED_ASSIGNMENTS.equals(mode)) {
+            String viewKey = getListSortViewKey(state, mode);
+            String listSortedBy = getListSortedBy(state, viewKey);
+            String listSortedAsc = getListSortedAsc(state, viewKey);
+            if (listSortedBy != null && listSortedAsc != null) {
+                sort = listSortedBy;
+                ascending = listSortedAsc;
+            }
+        }
 
-        if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
-                && (sort == null || !sort.startsWith("sorted_grade_submission_by"))) {
-            ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
-            sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
-        } else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode) && (sort == null || sort.startsWith("sorted_submission_by"))) {
-            ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
-            sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
-        } else {
-            ascending = (String) state.getAttribute(SORTED_ASC);
-            sort = (String) state.getAttribute(SORTED_BY);
+        if (!MODE_LIST_ASSIGNMENTS.equals(mode) && !MODE_LIST_DELETED_ASSIGNMENTS.equals(mode)) {
+            if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
+                    && (sort == null || !sort.startsWith("sorted_grade_submission_by"))) {
+                ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
+                sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
+            } else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode) && (sort == null || sort.startsWith("sorted_submission_by"))) {
+                ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
+                sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
+            } else {
+                ascending = (String) state.getAttribute(SORTED_ASC);
+                sort = (String) state.getAttribute(SORTED_BY);
+            }
         }
 
         if ((returnResources.size() > 1) && !MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(mode)) {
@@ -14071,8 +14234,27 @@ public class AssignmentAction extends PagedResourceActionII {
             // we are changing the view, so start with first page again.
             resetPaging(state);
 
+            String sortedBy = (String) state.getAttribute(SORTED_BY);
+            String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+            Map<String, String> listSortBackup = new HashMap<>();
+            String[] listViews = new String[] { MODE_LIST_ASSIGNMENTS, MODE_STUDENT_VIEW, MODE_LIST_DELETED_ASSIGNMENTS };
+            for (String viewKey : listViews) {
+                String listSortedBy = getListSortedBy(state, viewKey);
+                String listSortedAsc = getListSortedAsc(state, viewKey);
+                if (listSortedBy != null) {
+                    listSortBackup.put(LIST_SORTED_BY + "." + viewKey, listSortedBy);
+                }
+                if (listSortedAsc != null) {
+                    listSortBackup.put(LIST_SORTED_ASC + "." + viewKey, listSortedAsc);
+                }
+            }
+
             // clear search form
             doSearch_clear(data, null);
+
+            for (Map.Entry<String, String> entry : listSortBackup.entrySet()) {
+                state.setAttribute(entry.getKey(), entry.getValue());
+            }
             
             state.removeAttribute(TAG_SELECTOR);
 
@@ -14080,6 +14262,12 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
 
             if (MODE_LIST_ASSIGNMENTS.equals(viewMode)) {
+                if (sortedBy != null) {
+                    state.setAttribute(SORTED_BY, sortedBy);
+                }
+                if (sortedAsc != null) {
+                    state.setAttribute(SORTED_ASC, sortedAsc);
+                }
                 doList_assignments(data);
             } else if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(viewMode)) {
                 doView_students_assignment(data);
@@ -15607,7 +15795,7 @@ public class AssignmentAction extends PagedResourceActionII {
     public void doPrep_download_all(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
-        String view = params.getString("view");
+        String view = StringUtils.defaultIfBlank(params.getString("view"), AssignmentConstants.ALL);
         state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
         state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 

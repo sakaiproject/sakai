@@ -639,6 +639,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             mediaData.getMimeType(),
                             mediaData.getMedia());
                 }
+                if (chsMedia != null && StringUtils.isNotBlank(chsMedia.getContentType())) {
+                    mediaData.setMimeType(chsMedia.getContentType());
+                }
                 mediaData.setContentResource(chsMedia);
                 return mediaPath;
             } catch (PermissionException | IdUsedException | IdInvalidException | InconsistentException | ServerOverloadException | OverQuotaException | VirusFoundException | IdUnusedException | TypeException | InUseException e) {

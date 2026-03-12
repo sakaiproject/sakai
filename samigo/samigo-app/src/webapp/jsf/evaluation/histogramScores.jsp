@@ -359,7 +359,10 @@ $Id$
                 <f:facet name="header">
                   <h:outputText escape="false" value="#{evaluationMessages.objPercent}" />
                 </f:facet>
-                <h:outputText value="#{obj.value}%" escape="false" />
+                <h:outputText value="#{obj.value}">
+                  <f:convertNumber maxFractionDigits="2" minFractionDigits="0" />
+                </h:outputText>
+                <h:outputText value="%" />
               </h:column>
             </h:dataTable>
           </div>
@@ -379,7 +382,10 @@ $Id$
                 <f:facet name="header">
                   <h:outputText escape="false" value="#{evaluationMessages.objPercent}" />
                 </f:facet>
-                <h:outputText value="#{keyword_s.value}%" escape="false" />
+                <h:outputText value="#{keyword_s.value}">
+                  <f:convertNumber maxFractionDigits="2" minFractionDigits="0" />
+                </h:outputText>
+                <h:outputText value="%" />
               </h:column>
             </h:dataTable>
           </div>

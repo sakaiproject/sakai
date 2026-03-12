@@ -25,6 +25,7 @@
 </style>
 
 <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js"></script>
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
 <script>
 
 // need a delay to allow dynamic things like inserting the html editor
@@ -33,8 +34,8 @@ function resizeiframe1() {
 }
 
 function resizeiframe() {
-
 var iframe = document.getElementById('iframe1');
+if (!iframe) return;
 var newsize = 350;
 try {
 // workarounds for differing implemtations in several browsers
@@ -79,7 +80,7 @@ $(function() {
 	       $(".Mrphs-siteHierarchy").append($(".title .crumb-item a,.title .crumb-item span").slice(1));
 	       // with title at the top, don't need a header for resources
 	       // don't do this to samigo view
-               if ($(".returnwarning, iframe[src*='samigo-app'").size() === 0) {
+               if ($(".returnwarning, iframe[src*='samigo-app']").size() === 0) {
                    $(".itemHeader").addClass("itemHeader-resource");
 		   $(".title span").text('');
                } else { // for tests, etc need the return warning, but kill the title
@@ -174,43 +175,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
             </div>
         </div>
 
-		<iframe rsf:id="iframe1" role="main"
-			name="iframe1"
-                        id="iframe1"
-			height="350"
-                        onload="resizeiframe1()"
-			width="100%"
-			frameborder="0"
-			marginwidth="0"
-			marginheight="0"
-			allowfullscreen="true"
-			webkitallowfullscreen="true"
-			mozallowfullscreen="true"
-			scrolling="auto">
-		</iframe>
-		<script>
-//<![CDATA[
-		window.addEventListener('message', function(e) {
-			var idval = 'iframe1';
-			var height = undefined;
-			try {
-				var message = e.data;
-				if ( typeof message == 'string' ) message = JSON.parse(e.data);
-				if ( message.subject == 'lti.frameResize' && typeof(message.height) == 'number' ) {
-					height = message.height;
-					document.getElementById(idval).height = height;
-					console.debug('Received lti.frameResize height='+height);
-				}
-				else if ( message.subject == 'lti.pageRefresh' ) {
-                                        location.reload(true);
-				}
-			} catch (error) {
-				console.debug('lti.frameResize of '+idval+' failed height='+height, error);
-				console.debug(e.data);
-			}
-		});
-//]]>
-		</script>
+		<div rsf:id="iframe1-container"></div>
 
 	</div>	
 </body>

@@ -49,8 +49,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,11 +129,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         homeWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.home.widgets", null));
         if (homeWidgets.isEmpty()) {
-            homeWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
+            homeWidgets = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar","forums", "grades"));
         }
         if (!tasksEnabled) homeWidgets.remove("tasks");
 
-        defaultHomeLayout = new ArrayList<>(List.of("tasks","announcements", "calendar", "grades", "forums"));
+        defaultHomeLayout = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar", "grades", "forums"));
         if (!tasksEnabled) defaultHomeLayout.remove("tasks");
 
         List<String> courseWidgetLayout1 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null));
@@ -204,7 +202,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         if (props == null) {
             bean.setWidgetLayout(defaultHomeLayout);
-            bean.setTemplate(1);
         } else {
             try {
                 String widgetLayoutJson = props.getProperty("widgetLayout");
@@ -224,20 +221,10 @@ public class DashboardController extends AbstractSakaiApiController implements E
                         bean.setWidgetLayout(widgetLayout);
                     }
                 }
-                try {
-                    int template = (int) props.getLongProperty("template");
-                    bean.setTemplate(template);
-                } catch (Exception e) {
-                    bean.setTemplate(1);
-                }
             } catch (Exception e) {
                 log.warn("Failed to deserialise user dashboard config: {}", e.toString());
             }
         }
-
-        bean.setHomeTemplate1ThumbnailUrl("/webcomponents/images/home_template1.png");
-        bean.setHomeTemplate2ThumbnailUrl("/webcomponents/images/home_template2.png");
-        bean.setHomeTemplate3ThumbnailUrl("/webcomponents/images/home_template3.png");
 
         return bean;
     }
@@ -256,9 +243,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
             try {
                 String widgetLayoutJson = (new ObjectMapper()).writeValueAsString(bean.getWidgetLayout());
                 props.addProperty("widgetLayout", widgetLayoutJson);
-                props.addProperty("template", Integer.toString(bean.getTemplate()));
-                // Remove the legacy layout property
+
+                // Remove the legacy template property and layout properties
+                props.removeProperty("template");
                 props.removeProperty("layout");
+
             } catch (JsonProcessingException jpe) {
                 log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
@@ -331,41 +320,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
             site.getProperties().addProperty("dashboard-config", configJson);
             siteService.save(site);
         } catch (Exception e) {
-        }
-    }
-
-    @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
-    public String saveSiteImage(HttpServletRequest req, @PathVariable String siteId) throws Exception {
-
-        try {
-            FileItem fi = (FileItem) req.getAttribute("siteImage");
-            String collectionId = contentHostingService.getSiteCollection(siteId);
-
-            // Ensure we have a collection for this site. If we've not added resources to the 
-            // site yet, there may be no collection.
-            try {
-                contentHostingService.checkCollection(collectionId);
-            } catch (IdUnusedException idue) {
-                contentHostingService.commitCollection(contentHostingService.addCollection(collectionId));
-            }
-
-            ContentResourceEdit edit;
-            try {
-                edit = contentHostingService.editResource(collectionId + COURSE_IMAGE_FILE);
-            } catch (IdUnusedException | PermissionException e) {
-                edit = contentHostingService.addResource(collectionId, COURSE_IMAGE, ".png", 1);
-            }
-            edit.setContent(fi.get());
-            edit.setContentLength(fi.getSize());
-            edit.setContentType(fi.getContentType());
-            contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-            Site site = siteService.getSite(siteId);
-            site.getProperties().addProperty(Site.PROP_COURSE_IMAGE_URL, edit.getUrl());
-            siteService.save(site);
-            return edit.getUrl();
-        } catch (Exception e) {
-            log.error("Failed to update image for site {}: {}", siteId, e.toString());
-            throw e;
         }
     }
 

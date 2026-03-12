@@ -1,19 +1,20 @@
 import "../sakai-conversations.js";
 import { aTimeout, elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-import * as constants from "../src/sakai-conversations-constants.js";
+import fetchMock from "fetch-mock";
 
+import * as constants from "../src/sakai-conversations-constants.js";
 describe("sakai-conversations tests", () => {
 
   window.top.portal = { user: { id: "user1", timezone: "Europe/London" } };
 
   beforeEach(() => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("renders add topic button correctly", async () => {

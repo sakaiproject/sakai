@@ -1,19 +1,20 @@
 import "../sakai-topic-list.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-import * as constants from "../src/sakai-conversations-constants.js";
+import fetchMock from "fetch-mock";
 
+import * as constants from "../src/sakai-conversations-constants.js";
 describe("sakai-topic-list tests", () => {
 
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle };
 
   beforeEach(() => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("renders with no topics", async () => {

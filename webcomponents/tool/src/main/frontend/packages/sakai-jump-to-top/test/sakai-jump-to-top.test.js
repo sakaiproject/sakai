@@ -2,11 +2,17 @@ import { init } from "../sakai-jump-to-top.js";
 import { expect, fixture, html } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as sinon from "sinon";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-jump-to-top tests", () => {
 
-  fetchMock.get(data.i18nUrl, data.i18n);
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders correctly with i18n", async () => {
 

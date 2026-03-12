@@ -210,6 +210,15 @@ public class FibGradingTest {
 		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red+, violets are -blue-", "+-"));
 		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are +red-, violets are -blue+", "+-"));
 		Assert.assertTrue(gradingService.checkPairErrorsFIB("Roses are -red+, violets are -blue+", "+-"));
+
+		// SAK-52033: slash and backslash markers must work even with rich text HTML wrappers
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("\\word/", "\\/"));
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("/word\\", "/\\"));
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("<p>\\word/</p>", "\\/"));
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("<p>/word\\</p>", "/\\"));
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("<p>\\red/ and \\blue/</p>", "\\/"));
+		Assert.assertFalse(gradingService.checkPairErrorsFIB("<p>/red\\ and /blue\\</p>", "/\\"));
+		Assert.assertTrue(gradingService.checkPairErrorsFIB("<p>\\word</p>", "\\/"));
 		
 	}
 	

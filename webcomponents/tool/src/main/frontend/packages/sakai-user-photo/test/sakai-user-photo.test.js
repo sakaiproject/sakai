@@ -2,13 +2,21 @@ import "../sakai-user-photo.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as profileData from "../../sakai-profile/test/data.js";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(profileData.i18nUrl, profileData.i18n, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-user-photo tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(profileData.i18nUrl, profileData.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("renders correctly", async () => {
  

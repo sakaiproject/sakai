@@ -15,7 +15,7 @@
       <input type="hidden" th:field="*{pollId}" />
 
       <div class="mb-3">
-        <label class="form-label" for="poll-text" th:text="#{new_poll_question_label}">Question</label>
+        <label class="form-label required" for="poll-text" th:text="#{new_poll_question_label}">Question</label>
         <input id="poll-text"
                type="text"
                class="form-control"
@@ -37,7 +37,7 @@
 
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label" for="open-date" th:text="#{new_poll_open_label}">Opening</label>
+          <label class="form-label required" for="open-date" th:text="#{new_poll_open_label}">Opening</label>
           <input type="datetime-local"
                  id="open-date"
                  class="form-control"
@@ -47,7 +47,7 @@
           <div class="invalid-feedback" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="close-date" th:text="#{new_poll_close_label}">Closing</label>
+          <label class="form-label required" for="close-date" th:text="#{new_poll_close_label}">Closing</label>
           <input type="datetime-local"
                  id="close-date"
                  class="form-control"
@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <div class="mt-4" th:if="${pollForm.pollId != null}">
+      <div class="mt-4" th:if="${!isNew}">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h3 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
         </div>
@@ -95,7 +95,7 @@
         <h2 class="h3" th:text="#{new_poll_limits}">Limits</h2>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="min-options" th:text="#{new_poll_min_limits}">Min options</label>
+            <label class="form-label required" for="min-options" th:text="#{new_poll_min_limits}">Min options</label>
             <input type="number"
                    id="min-options"
                    class="form-control"
@@ -106,7 +106,7 @@
             <div class="invalid-feedback" th:if="${#fields.hasErrors('minOptions')}" th:errors="*{minOptions}">Invalid minimum</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="max-options" th:text="#{new_poll_max_limits}">Max options</label>
+            <label class="form-label required" for="max-options" th:text="#{new_poll_max_limits}">Max options</label>
             <input type="number"
                    id="max-options"
                    class="form-control"

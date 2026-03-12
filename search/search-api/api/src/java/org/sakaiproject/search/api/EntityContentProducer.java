@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.api;
 
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,27 +37,6 @@ import org.sakaiproject.search.model.SearchBuilderItem;
  */
 public interface EntityContentProducer
 {
-	/**
-	 * Should the consumer use the reader or is it OK to use a memory copy of
-	 * the content
-	 * 
-	 * @param reference
-	 * @return
-	 */
-	default boolean isContentFromReader(String reference) {
-		return false;
-	}
-
-	/**
-	 * Get a reader for the supplied content resource
-	 * 
-	 * @param reference 
-	 * @return
-	 */
-	default Reader getContentReader(String reference) {
-		return null;
-	}
-
 	/**
 	 * Get the content as a string
 	 * @see SearchUtils#appendCleanString(String, StringBuilder)

@@ -27,7 +27,12 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.querySelector("sakai-calendar")?.loadData();
   });
 
-  document.getElementById("sakai-notifications-panel")?.addEventListener("hidden.bs.offcanvas", e => {
+  const notificationsPanel = document.getElementById("sakai-notifications-panel");
+  notificationsPanel?.addEventListener("show.bs.offcanvas", e => {
+    e.target.querySelector("sakai-notifications")?.loadNotifications();
+  });
+
+  notificationsPanel?.addEventListener("hidden.bs.offcanvas", e => {
     e.target.querySelector("sakai-notifications")?._clearTestNotifications();
   });
 });

@@ -225,6 +225,7 @@ public class SubmissionStatusListener
         AgentFacade agent = new AgentFacade(agentid);
         results.setLastName(agent.getLastName());
         results.setFirstName(agent.getFirstName());
+        results.setDisplayName(agent.getDisplayName());
         results.setEmail(agent.getEmail());
         if (results.getLastName() != null &&
             results.getLastName().length() > 0)
@@ -305,6 +306,7 @@ public class SubmissionStatusListener
       AgentFacade agent = new AgentFacade(studentid);
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
+      results.setDisplayName(agent.getDisplayName());
       results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
         results.getLastName().length() > 0)

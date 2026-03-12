@@ -12,6 +12,7 @@ export class SakaiNotifications extends SakaiElement {
   static properties = {
 
     url: { type: String },
+    notifications: { type: Array },
     chromeInfoUrl: { attribute: "chrome-info-url", type: String },
     firefoxInfoUrl: { attribute: "firefox-info-url", type: String },
     safariInfoUrl: { attribute: "safari-info-url", type: String },
@@ -56,8 +57,10 @@ export class SakaiNotifications extends SakaiElement {
 
     window.addEventListener("online", () => this._online = true );
 
+    this.notifications = [];
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this._pushRegistered = false;
     this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
@@ -76,15 +79,17 @@ export class SakaiNotifications extends SakaiElement {
     } else if (this.safariInfoUrl && navigator.userAgent.includes("Edg")) {
       this._browserInfoUrl = this.edgeInfoUrl;
     }
+  }
 
-    this._i18nLoaded.then(() => this._loadInitialNotifications());
+  loadNotifications() {
+    return this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
   _loadInitialNotifications(register = true) {
 
     console.debug("_loadInitialNotifications");
 
-    fetch(this.url, {
+    return fetch(this.url, {
       cache: "no-cache",
       headers: { "Content-Type": "application/json" },
     })
@@ -114,7 +119,9 @@ export class SakaiNotifications extends SakaiElement {
 
       this._pushEnabled = true;
 
-      if (Notification.permission !== "granted") return;
+      if (Notification.permission !== "granted" || this._pushRegistered) return;
+
+      this._pushRegistered = true;
 
       registerPushCallback("notifications", message => {
 
@@ -150,9 +157,15 @@ export class SakaiNotifications extends SakaiElement {
       this._filteredNotifications.get(toolEventPrefix).push(decorated);
     });
 
-    // Make sure the motd bundle is at the top.
+    // Sort alphabetically by title, with motd always at the top
     const entries = Array.from(this._filteredNotifications.entries());
-    entries.sort((a, b) => (a[0] === "motd" ? -1 : b[0] === "motd" ? 1 : 0));
+    entries.sort((a, b) => {
+      if (a[0] === "motd") return -1;
+      if (b[0] === "motd") return 1;
+      const titleA = this._i18n[a[0]] || a[0];
+      const titleB = this._i18n[b[0]] || b[0];
+      return titleA.localeCompare(titleB);
+    });
     this._filteredNotifications = new Map(entries);
 
     this._state = NOTIFICATIONS;
@@ -173,7 +186,7 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateCommonsNotification(decorated);
     } else if (toolEventPrefix === "sam") {
       this._decorateSamigoNotification(decorated);
-    } else if (toolEventPrefix === "message") {
+    } else if (toolEventPrefix === "messages") {
       this._decorateMessageNotification(decorated);
     } else if (toolEventPrefix === "lessonbuilder") {
       this._decorateLessonsCommentNotification(decorated);
@@ -214,8 +227,10 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateMessageNotification(noti) {
 
-    if (noti.event === "message.read.receipt") {
-      noti.title = this._i18n.message_read.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+    if (noti.event === "messages.new") {
+      noti.title = this._i18n.message_received.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);
+    } else if (noti.event === "messages.read.receipt") {
+      noti.title = this._i18n.message_read.replace("{0}", noti.fromDisplayName).replace("{1}", noti.siteTitle);
     }
   }
 
@@ -334,7 +349,7 @@ export class SakaiNotifications extends SakaiElement {
           this._state = PUSH_DENIED_INFO;
           break;
         case "granted":
-          this._loadInitialNotifications(true);
+          this.loadNotifications();
           this._highlightTestButton = true;
           break;
       }
@@ -542,7 +557,7 @@ export class SakaiNotifications extends SakaiElement {
 
             ${Notification.permission !== "granted" && this._online ? html`
               <button class="btn btn-secondary btn-sm me-2"
-                  @click=${this._loadInitialNotifications}>
+                  @click=${this.loadNotifications}>
                 ${this._i18n.update}
               </button>
             ` : nothing}

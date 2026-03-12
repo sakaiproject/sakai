@@ -470,7 +470,7 @@ public class AssignmentToolUtils {
                                 try {
                                     Long itemId = Long.parseLong(item);
 
-                                    GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(gradebookUid, itemId);
+                                    GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(siteId, itemId);
 
                                     if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
                                         gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {

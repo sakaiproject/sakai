@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,8 +42,6 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.util.api.FormattedText;
-
 
 @Slf4j
 public class MessageForumsEntityContentProducer implements
@@ -57,7 +53,7 @@ public class MessageForumsEntityContentProducer implements
 	// runtime dependency
 	private List removeEvents = null;
 	
-	@Setter private FormattedText formattedText;
+
 	@Setter private DeveloperHelperService developerHelperService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SearchService searchService;
@@ -153,37 +149,16 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public String getContent(String reference) {
-		log.debug("getting content for " + reference);
+		log.debug("getting content for {}", reference);
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
-		StringBuilder sb = new StringBuilder();
 		if (m != null) {
-			sb.append("author: " + m.getAuthor());
-			sb.append(" title: " + m.getTitle());
-			sb.append(" body: " + formattedText.convertFormattedTextToPlaintext(m.getBody()));
-			/* causes hibernate lazy init error
-			List attachments = m.getAttachments();
-			if (attachments != null && attachments.size() > 0) {
-				for (int q = 0; q < attachments.size(); q++) {
-					Attachment at = (Attachment) attachments.get(q);
-					String id = at.getAttachmentId();
-					EntityContentProducer ecp = searchIndexBuilder
-					.newEntityContentProducer(id);
-					String attachementDigest = ecp.getContent(id);
-					sb.append("\n attachement: \n");
-					sb.append(attachementDigest);
-					sb.append("\n");
-				}
-				
-			}
-			*/
+			String author = m.getAuthor() == null ? "" : m.getAuthor().toString();
+			String title = m.getTitle() == null ? "" : m.getTitle();
+			String body = m.getBody() == null ? "" : m.getBody();
+			return (author + " " + title + " " + body).trim();
 		}
-		return sb.toString();
-		
-	}
-
-	public Reader getContentReader(String reference) {
-		return new StringReader(getContent(reference));
+		return "";
 	}
 
 	public Map getCustomProperties(String ref) {
@@ -293,10 +268,6 @@ public class MessageForumsEntityContentProducer implements
 			}
 		}
 		return url;
-	}
-
-	public boolean isContentFromReader(String reference) {
-		return false;
 	}
 
 	public boolean isForIndex(String reference) {

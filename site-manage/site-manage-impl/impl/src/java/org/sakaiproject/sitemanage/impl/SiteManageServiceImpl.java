@@ -216,6 +216,13 @@ public class SiteManageServiceImpl implements SiteManageService {
             log.debug("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
             copyToolPermissions(oSiteId, nSiteId);
 
+            String sourceSiteInfoUrl = site.getInfoUrl();
+            try {
+                sourceSiteInfoUrl = siteService.getSite(oSiteId).getInfoUrl();
+            } catch (IdUnusedException iue) {
+                log.warn("Cannot resolve source site {} while importing site info URL, {}", oSiteId, iue.getMessage());
+            }
+
             if (pageList != null) {
                 for (SitePage page : pageList) {
                     List<ToolConfiguration> pageToolList = page.getTools();
@@ -236,7 +243,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
                             } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
                                 // handle Home tool specially, need to update the site infomration display url if needed
-                                String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
+                                String newSiteInfoUrl = resolveImportedSiteInfoUrl(oSiteId, nSiteId, sourceSiteInfoUrl);
                                 site.setInfoUrl(newSiteInfoUrl);
                                 saveSite(site);
                             } else if (StringUtils.isNotBlank(toolId)) {
@@ -316,6 +323,22 @@ public class SiteManageServiceImpl implements SiteManageService {
 
         return rv;
     }
+
+    private String resolveImportedSiteInfoUrl(String oSiteId, String nSiteId, String sourceSiteInfoUrl) {
+        String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, sourceSiteInfoUrl);
+
+        // A blank return indicates transfer failure after resolving a resource. Treat as unresolved.
+        if (StringUtils.isBlank(newSiteInfoUrl)) {
+            newSiteInfoUrl = sourceSiteInfoUrl;
+        }
+
+        // The source URL is not always a content resource URL. Fall back to direct site-id replacement.
+        if (StringUtils.equals(sourceSiteInfoUrl, newSiteInfoUrl) && StringUtils.contains(sourceSiteInfoUrl, oSiteId)) {
+            newSiteInfoUrl = StringUtils.replace(sourceSiteInfoUrl, oSiteId, nSiteId);
+        }
+
+        return newSiteInfoUrl;
+    }
     
     /**
      * Helper to copy the tool title from one site to another.
@@ -385,7 +408,8 @@ public class SiteManageServiceImpl implements SiteManageService {
             Site fromSite = siteService.getSite(fromSiteId);
             toSite = siteService.getSite(toSiteId);
             toSite.setDescription(fromSite.getDescription());
-            toSite.setInfoUrl(fromSite.getInfoUrl());
+            String newSiteInfoUrl = resolveImportedSiteInfoUrl(fromSiteId, toSiteId, fromSite.getInfoUrl());
+            toSite.setInfoUrl(newSiteInfoUrl);
             saveSite(toSite);
         } catch (IdUnusedException iue) {
             log.warn("Site not found, {}", iue.toString());

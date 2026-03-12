@@ -232,6 +232,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
       String label, String entry);
 
+  public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label);
+
   public void saveOrUpdateMetaData(PublishedMetaData meta);
 
   public Map<Long, PublishedFeedback> getFeedbackHash(String siteId);

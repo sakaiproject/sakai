@@ -36,7 +36,7 @@
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.6</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.4.1</sakai.httpcore5.version>
+    <sakai.httpcore5.version>5.4.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.17.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
@@ -91,6 +91,7 @@
     <sakai.jdk.version>17</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+    <sakai.skip.webcomponents.tests>false</sakai.skip.webcomponents.tests>
 
     <!-- Reproducible builds: UTC ISO-8601 timestamp or use SOURCE_DATE_EPOCH -->
     <project.build.outputTimestamp>${maven.build.timestamp}</project.build.outputTimestamp>
@@ -237,10 +238,14 @@
   </profiles>
 
   <repositories>
-    <!--
-      Apache Maven retrieves all components from the Central Repository by default.
-      Starting with Maven 3.2.3 the default access is via HTTPS and no further configuration is required.
-    -->
+    <repository>
+      <id>central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>sakai-maven</id>
       <name>Sakai Maven Repo</name>

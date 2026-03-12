@@ -37,6 +37,9 @@
                 "editor" : {
                     "type": "$!{editorType}",
                 },
+                "notifications": {
+                    "unviewedCount": $!{unviewedNotificationsCount}
+                },
                 "portalCDNQuery" : "$!{portalCDNQuery}",
                 "sakaiSkin" : "$!{pageSkin}",
                 "userTheme" : "$!{userTheme}",

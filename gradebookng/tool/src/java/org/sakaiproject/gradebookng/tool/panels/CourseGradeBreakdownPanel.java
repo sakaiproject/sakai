@@ -34,7 +34,6 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GbBreakdownItem;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -80,7 +79,6 @@ public class CourseGradeBreakdownPanel extends BasePanel {
                 return getItemsList();
             }
         };
-        final GradebookUiSettings settings = ((GradebookPage)this.getParent().getPage()).getUiSettings();   //only for Category colors
         final WebMarkupContainer itemListContainer = new WebMarkupContainer("item-list-container");
         itemListContainer.setOutputMarkupId(true);
         add(itemListContainer);
@@ -145,17 +143,16 @@ public class CourseGradeBreakdownPanel extends BasePanel {
                     String categoryPointsOrWeight;
                     if (categoryDefinition.getId() == -1) {
                         categoryPointsOrWeight = "-";
-                        item.add(new AttributeAppender("style", "background: #e6e6e6;"));
+                        item.add(new AttributeAppender("class", " table-light"));
                     } else {
                         categoryPointsOrWeight = CourseGradeBreakdownPanel.this.weightedCategories ? FormatHelper.formatDoubleAsPercentage(gbItem.getCategoryPointsOrWeight() * 100) : FormatHelper.formatDoubleToDecimal(gbItem.getCategoryPointsOrWeight());
-                        String categoryColor = settings.getCategoryColor(categoryDefinition.getName());
-                        item.add(new AttributeAppender("style", "background: " + categoryColor));
+                        item.add(new AttributeAppender("class", " table-secondary"));
                         if (categoryDefinition.getExtraCredit()) {
                             categoryPointsOrWeight = "+" + categoryPointsOrWeight;
                         }
                     }
                     item.add(new Label("out-of-label", categoryPointsOrWeight));
-                    item.add(new AttributeAppender("class", "categoryRow"));
+                    item.add(new AttributeAppender("class", " categoryRow"));
                 }
             }
         };

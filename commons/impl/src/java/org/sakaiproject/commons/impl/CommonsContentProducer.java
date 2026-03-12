@@ -21,7 +21,6 @@
 
 package org.sakaiproject.commons.impl;
 
-import java.io.Reader;
 import java.util.*;
 
 import org.sakaiproject.commons.api.CommonsConstants;
@@ -39,7 +38,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -86,36 +84,20 @@ public class CommonsContentProducer implements EntityContentProducer {
     }
 
     @Override
-    public boolean isContentFromReader(String reference) {
-        return false;
-    }
-
-    @Override
-    public Reader getContentReader(String reference) {
-        return null;
-    }
-
-    @Override
     public String getContent(String ref) {
 
         CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
 
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
-            Optional<Comment> opComment = commonsManager.getComment(r.getCommentId());
-            if (opComment.isPresent()) {
-                StringBuilder sb = new StringBuilder();
-                SearchUtils.appendCleanString(opComment.get().getContent(), sb);
-                return sb.toString();
-            }
+            return commonsManager.getComment(r.getCommentId())
+                    .map(Comment::getContent)
+                    .orElse("");
         }
 
         if (CommonsConstants.PostType.POST == r.getType()) {
-            Optional<Post> opPost = commonsManager.getPost(r.getPostId(), false);
-            if (opPost.isPresent()) {
-                StringBuilder sb = new StringBuilder();
-                SearchUtils.appendCleanString(opPost.get().getContent(), sb);
-                return sb.toString();
-            }
+            return commonsManager.getPost(r.getPostId(), false)
+                    .map(Post::getContent)
+                    .orElse("");
         }
 
         return "";

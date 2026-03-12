@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/common :: head}"></head>
+<head th:replace="~{fragments/common :: head}">
+</head>
 <body>
   <div class="portletBody container-fluid">
     <div th:replace="~{fragments/common :: menu('list')}"></div>
@@ -8,6 +9,16 @@
     <h1 class="h4 mb-3" th:text="#{results_title}">Results</h1>
     <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
     <p th:text="${pollSizeMessage}">Poll size</p>
+
+    <section class="card mb-4" aria-labelledby="poll-results-chart-heading">
+      <div class="card-body">
+        <h2 id="poll-results-chart-heading" class="h5 mb-3" th:text="#{results_chart_title}">Chart</h2>
+        <p id="poll-results-chart-summary" class="visually-hidden" th:text="#{results_chart_summary}">Bar chart of poll results by option.</p>
+        <div class="position-relative" style="min-height: 20rem;">
+          <canvas id="poll-results-chart" aria-describedby="poll-results-chart-summary" height="320"></canvas>
+        </div>
+      </div>
+    </section>
 
     <div class="table-responsive">
       <table class="table table-striped table-hover align-middle">
@@ -23,7 +34,10 @@
         <tbody>
         <tr th:each="row : ${rows}">
           <td th:text="${row.order}">1</td>
-          <td th:utext="${row.text}">Option</td>
+          <td>
+            <span th:text="${row.text}">Option</span>
+            <span th:if="${row.deleted}" th:utext="#{deleted_option_tag_html}"></span>
+          </td>
           <td th:text="${row.votes}">0</td>
           <td th:text="${row.percentageLabel}">0%</td>
         </tr>
@@ -44,5 +58,16 @@
              th:value="#{results_cancel}" value="Back" />
     </div>
   </div>
+  <script th:src="@{/webjars/chart.js/4.5.0/dist/chart.umd.min.js}"></script>
+  <script th:inline="javascript">
+    window.pollResultsChartData = {
+      labels: /*[[${chartLabels}]]*/ [],
+      votes: /*[[${chartVotes}]]*/ [],
+      percentages: /*[[${chartPercentages}]]*/ [],
+      optionLabel: /*[[#{results_answers_title}]]*/ 'Option',
+      votesLabel: /*[[#{results_answers_votes}]]*/ 'Votes'
+    };
+  </script>
+  <script th:src="@{/js/polls-results-chart.js}"></script>
 </body>
 </html>

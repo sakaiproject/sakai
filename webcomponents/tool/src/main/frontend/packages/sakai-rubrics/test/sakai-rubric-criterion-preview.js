@@ -2,13 +2,8 @@ import "../sakai-rubric-criterion-preview.js";
 import { html } from "lit";
 import * as data from "./data.js";
 import { expect, fixture, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 window.top.portal = { locale: "en_GB" };
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {
   editor: {
@@ -17,6 +12,18 @@ window.sakai = window.sakai || {
 };
 
 describe("sakai-rubric-criterion-preview tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("criterion preview renders correctly", async () => {
 

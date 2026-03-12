@@ -1607,6 +1607,38 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
         return null;
     }
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label) {
+		if (publishedAssessmentIds == null || publishedAssessmentIds.isEmpty() || org.apache.commons.lang3.StringUtils.isBlank(label)) {
+			return Collections.emptyMap();
+		}
+
+		try {
+			HibernateCallback<Map<Long, String>> hcb = session -> {
+				Query<Object[]> query = session.createQuery(
+						"select m.assessment.publishedAssessmentId, m.entry "
+								+ "from PublishedMetaData m "
+								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
+								+ "and m.label = :label",
+						Object[].class);
+				query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
+				query.setParameter("label", label);
+
+				Map<Long, String> assessmentMetaDataEntries = new HashMap<>();
+				for (Object[] row : query.list()) {
+					assessmentMetaDataEntries.put((Long) row[0], (String) row[1]);
+				}
+				return assessmentMetaDataEntries;
+			};
+
+			return getHibernateTemplate().execute(hcb);
+		} catch (DataAccessException e) {
+			log.error("Failed to get assessment metadata entries for assessments {} and label {}", publishedAssessmentIds, label, e);
+			return Collections.emptyMap();
+		}
+	}
+
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {

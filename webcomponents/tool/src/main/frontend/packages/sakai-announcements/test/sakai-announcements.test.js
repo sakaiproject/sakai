@@ -11,16 +11,16 @@ import {
 } from "../src/sakai-announcements-constants.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-announcements tests", () => {
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("renders in user mode correctly", async () => {
