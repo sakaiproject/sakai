@@ -3,6 +3,7 @@ package org.sakaiproject.samigo.impl;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,13 +25,18 @@ public class SamigoAvailableNotificationServiceImplTest {
     @Mock private Preferences preferences;
     @Mock private ResourceProperties resourceProperties;
     @Mock private User user;
-    private final SamigoAvailableNotificationServiceImpl service = new SamigoAvailableNotificationServiceImpl();
+    private SamigoAvailableNotificationServiceImpl service;
+
+    @Before
+    public void setUp() {
+        service = new SamigoAvailableNotificationServiceImpl();
+        service.setPreferencesService(preferencesService);
+        when(user.getEid()).thenReturn("user1");
+    }
 
     @Test
     public void getOpenNotificationPreferenceDefaultsInvalidPreferenceToImmediate() throws Exception {
-        service.setPreferencesService(preferencesService);
         when(user.getId()).thenReturn("user-1");
-        when(user.getEid()).thenReturn("user1");
         when(preferencesService.getPreferences("user-1")).thenReturn(preferences);
         when(preferences.getProperties(NotificationService.PREFS_TYPE + SamigoConstants.NOTI_PREFS_TYPE_SAMIGO_OPEN))
                 .thenReturn(resourceProperties);
@@ -43,7 +49,6 @@ public class SamigoAvailableNotificationServiceImplTest {
 
     @Test
     public void getOpenNotificationPreferenceHonorsIgnorePreference() throws Exception {
-        service.setPreferencesService(preferencesService);
         when(user.getId()).thenReturn("user-1");
         when(preferencesService.getPreferences("user-1")).thenReturn(preferences);
         when(preferences.getProperties(NotificationService.PREFS_TYPE + SamigoConstants.NOTI_PREFS_TYPE_SAMIGO_OPEN))
