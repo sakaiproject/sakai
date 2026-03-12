@@ -90,10 +90,6 @@ public class ScormEntity implements LessonEntity {
 	log.info("init() {}", scormContentService);
     }
 
-    public void destroy() {
-	log.info("destroy()");
-    }
-
     public boolean isAvailable() {
 	return scormContentService != null;
     }
@@ -196,7 +192,6 @@ public class ScormEntity implements LessonEntity {
 	    packages = scormContentService.getContentPackages(siteId);
 	} catch (Exception e) {
 	    log.warn("Unable to retrieve SCORM content packages for site {}: {}", siteId, e.getMessage());
-	    if (nextEntity != null) return nextEntity.getEntitiesInSite();
 	    return new ArrayList<>();
 	}
 	log.debug("packages {}", packages.size());

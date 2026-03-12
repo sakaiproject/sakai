@@ -284,8 +284,7 @@ simplePageBean.addForumSummary,
 
   <bean id="org.sakaiproject.lessonbuildertool.service.ScormEntity"
 	class="org.sakaiproject.lessonbuildertool.service.ScormEntity"
-        init-method="init"
-        destroy-method="destroy">
+        init-method="init">
     <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
