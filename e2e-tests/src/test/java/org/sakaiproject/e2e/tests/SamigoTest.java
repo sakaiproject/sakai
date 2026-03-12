@@ -248,14 +248,27 @@ class SamigoTest extends SakaiUiTestBase {
         Locator availableAssessmentTitles = availableAssessmentsTable.locator("a[id$=':takeAssessment'] .spanValue");
         assertThat(availableAssessmentTitles.first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
 
-        List<String> titles = availableAssessmentTitles.allTextContents();
-        boolean hasExpectedTitle = titles.stream()
+        List<String> titles = availableAssessmentTitles.allTextContents().stream()
             .map(String::trim)
-            .anyMatch(title -> SAMIGO_TITLE.equals(title) || ESSAY_TITLE.equals(title));
-
-        if (!hasExpectedTitle) {
-            throw new AssertionError("Expected assessment title not found. Available titles: " + titles);
+            .toList();
+        if (!titles.contains(SAMIGO_TITLE) || !titles.contains(ESSAY_TITLE)) {
+            throw new AssertionError("Expected assessment titles not found. Available titles: " + titles);
         }
+
+        Locator samigoTitle = availableAssessmentTitles.filter(
+            new Locator.FilterOptions().setHasText(SAMIGO_TITLE)
+        );
+        assertThat(samigoTitle).hasCount(1);
+
+        Locator takeAssessmentLink = samigoTitle.locator("xpath=ancestor::a[1]");
+        assertThat(takeAssessmentLink).hasCount(1);
+        takeAssessmentLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        Locator takeAssessmentForm = page.locator("#takeAssessmentForm");
+        assertThat(takeAssessmentForm).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(takeAssessmentForm).containsText(SAMIGO_TITLE);
+        assertThat(takeAssessmentForm).containsText("Begin Assessment");
     }
 
     @Test
@@ -371,13 +384,20 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     private boolean clickSubmitIfPresent(String label, double timeoutMs) {
-        Locator submit = page.locator("input[type=\"submit\"][value*=\"" + label + "\"]:visible, button:has-text(\"" + label + "\"):visible").first();
-        if (!isVisible(submit, timeoutMs)) {
-            return false;
+        Locator submit = page.locator("input[type=\"submit\"][value*=\"" + label + "\"], button:has-text(\"" + label + "\")");
+        int submitCount = (int) submit.count();
+        for (int index = 0; index < submitCount; index += 1) {
+            Locator candidate = submit.nth(index);
+            if (!isVisible(candidate, timeoutMs)) {
+                continue;
+            }
+
+            candidate.click(new Locator.ClickOptions().setForce(true));
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            return true;
         }
-        submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        return true;
+
+        return false;
     }
 
     private void selectQuestionType(Pattern labelPattern) {
@@ -462,13 +482,19 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     private boolean clickFirstVisibleIfPresent(Locator locator) {
-        Locator first = locator.first();
-        if (!isVisible(first, 5_000)) {
-            return false;
+        int count = (int) locator.count();
+        for (int index = 0; index < count; index += 1) {
+            Locator candidate = locator.nth(index);
+            if (!isVisible(candidate, 5_000)) {
+                continue;
+            }
+
+            candidate.click(new Locator.ClickOptions().setForce(true));
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            return true;
         }
-        first.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        return true;
+
+        return false;
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {
