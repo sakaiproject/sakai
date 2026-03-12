@@ -1535,7 +1535,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private Set<AssignmentSubmissionSubmitter> buildGroupSubmissionSubmitters(Group group, AssignmentSubmission submission,
             Map<String, AssignmentSubmissionSubmitter> existingSubmitters) {
 
-        Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
+        Set<AssignmentSubmissionSubmitter> submitters = new LinkedHashSet<>();
         group.getMembers().stream()
                 .filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION) || group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
                         && !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
@@ -1573,6 +1573,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Group group = site.getGroup(groupId);
         if (group == null || !submission.getAssignment().getGroups().contains(group.getReference())) {
             throw new IllegalArgumentException(String.format("Group %s is not valid for assignment %s", groupId, submission.getAssignment().getId()));
+        }
+        AssignmentSubmission existingSubmission = assignmentRepository.findSubmissionForGroup(submission.getAssignment().getId(), groupId);
+        if (existingSubmission != null && !StringUtils.equals(existingSubmission.getId(), submission.getId())) {
+            throw new IllegalArgumentException(String.format("Group %s already has a submission for assignment %s", groupId, submission.getAssignment().getId()));
         }
 
         String previousSubmittee = submission.getSubmitters().stream()

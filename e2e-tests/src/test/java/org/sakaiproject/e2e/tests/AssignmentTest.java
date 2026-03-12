@@ -7,6 +7,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Disabled;
@@ -20,7 +21,11 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class AssignmentTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
+    private static String groupSubmissionCourseUrl;
     private static final String ASSIGN_TITLE = "Playwright Assignment " + System.currentTimeMillis();
+    private static final String SHARED_GROUP_STUDENT_EID = "student0178";
+    private static final String TEAM4_ONLY_STUDENT_EID = "student0179";
+    private static final String TEAM1_ONLY_STUDENT_EID = "student0180";
 
     private String ensureCourseUrl() {
         if (sakaiUrl != null && !sakaiUrl.isBlank()) {
@@ -34,6 +39,16 @@ class AssignmentTest extends SakaiUiTestBase {
             "sakai\\.gradebookng"
         ));
         return sakaiUrl;
+    }
+
+    private String ensureGroupSubmissionCourseUrl() {
+        if (groupSubmissionCourseUrl != null && !groupSubmissionCourseUrl.isBlank()) {
+            return groupSubmissionCourseUrl;
+        }
+
+        sakai.login("instructor1");
+        groupSubmissionCourseUrl = sakai.createCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
+        return groupSubmissionCourseUrl;
     }
 
     @Test
@@ -223,6 +238,31 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(nonElectronicTitle);
     }
 
+    @Test
+    @Order(9)
+    void groupSubmissionReassignmentRefreshesDisplayedGroupMembers() {
+        String courseUrl = ensureGroupSubmissionCourseUrl();
+        String suffix = sakai.randomId();
+        String team1Title = "Team 1 " + suffix;
+        String team4Title = "Team 4 " + suffix;
+        String assignmentTitle = "Group ownership sync " + suffix;
+
+        sakai.login("instructor1");
+        createGroup(courseUrl, team1Title, SHARED_GROUP_STUDENT_EID, TEAM1_ONLY_STUDENT_EID);
+        createGroup(courseUrl, team4Title, SHARED_GROUP_STUDENT_EID, TEAM4_ONLY_STUDENT_EID);
+        createGroupAssignment(courseUrl, assignmentTitle, team1Title, team4Title);
+
+        sakai.login(SHARED_GROUP_STUDENT_EID);
+        submitGroupAssignment(courseUrl, assignmentTitle, team4Title, "<p>Original Team 4 submission.</p>");
+        submitGroupAssignment(courseUrl, assignmentTitle, team1Title, "<p>Reassigned to Team 1.</p>");
+
+        sakai.login("instructor1");
+        openAssignmentSubmissions(courseUrl, assignmentTitle);
+
+        Locator team1Row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(team1Title)).first();
+        assertThat(team1Row).isVisible();
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 
@@ -250,6 +290,100 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(titleInput).isVisible();
     }
 
+    private void openManageGroups(String courseUrl) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Site Info");
+        clickIntraToolAction("Manage Groups");
+        assertThat(page.locator("#menu")).isVisible();
+    }
+
+    private void createGroup(String courseUrl, String groupTitle, String... memberEids) {
+        openManageGroups(courseUrl);
+        clickIntraToolAction("Create New Group");
+
+        Locator form = page.locator("#creategroup-form").first();
+        assertThat(form).isVisible();
+
+        page.locator("#groupTitle").fill(groupTitle);
+        selectUsersByEid("#groupMembers", memberEids);
+        waitForEnabled("#create-group-submit-button");
+        page.locator("#create-group-submit-button").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+
+        Locator groupRow = page.locator("#groupTable tr").filter(new Locator.FilterOptions().setHasText(groupTitle)).first();
+        assertThat(groupRow).isVisible();
+    }
+
+    private void createGroupAssignment(String courseUrl, String assignmentTitle, String... groupTitles) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(assignmentTitle);
+
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck(new Locator.UncheckOptions().setForce(true));
+        }
+
+        Locator groupAssignment = page.locator("#groupAssignment").first();
+        assertThat(groupAssignment).isVisible();
+        groupAssignment.check(new Locator.CheckOptions().setForce(true));
+
+        selectOptionsByVisibleText("#selectedGroups", groupTitles);
+        fillAssignmentInstructions("<p>Switch the submission from Team 4 to Team 1 and verify the roster follows the new owner.</p>");
+        submitAssignmentForm();
+
+        goToAssignmentsList();
+        assertThat(page.locator("body")).containsText(assignmentTitle);
+    }
+
+    private void openAssignmentForCurrentUser(String courseUrl, String assignmentTitle) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        goToAssignmentsList();
+
+        Locator assignmentLink = page.locator("a[name=\"asnActionLink\"], .title a, a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(assignmentTitle) + "$")))
+            .first();
+        assertThat(assignmentLink).isVisible();
+        assignmentLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+    }
+
+    private void submitGroupAssignment(String courseUrl, String assignmentTitle, String groupTitle, String submissionHtml) {
+        openAssignmentForCurrentUser(courseUrl, assignmentTitle);
+        selectSubmissionGroup(groupTitle);
+        fillStudentSubmissionText(submissionHtml);
+
+        Locator confirm = page.locator("#confirm").first();
+        if (confirm.count() > 0 && confirm.isVisible()) {
+            confirm.click(new Locator.ClickOptions().setForce(true));
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        }
+
+        Locator post = page.locator("#post").first();
+        assertThat(post).isVisible();
+        post.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+    }
+
+    private void openAssignmentSubmissions(String courseUrl, String assignmentTitle) {
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        goToAssignmentsList();
+
+        Locator assignmentRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(assignmentTitle)).first();
+        assertThat(assignmentRow).isVisible();
+
+        Locator graderAction = assignmentRow.locator(".itemAction a, a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Grade|View Submissions", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(graderAction).isVisible();
+        graderAction.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+    }
+
     private void goToAssignmentsList() {
         Locator assignmentsNav = page.locator(".navIntraTool a, .navIntraTool button")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Assignments$", Pattern.CASE_INSENSITIVE)))
@@ -258,6 +392,103 @@ class AssignmentTest extends SakaiUiTestBase {
             assignmentsNav.click(new Locator.ClickOptions().setForce(true));
             page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         }
+    }
+
+    private void clickIntraToolAction(String label) {
+        Locator action = page.locator(".navIntraTool a, .navIntraTool button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(label) + "$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(action).isVisible();
+        action.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+    }
+
+    private void selectUsersByEid(String selectCss, String... userEids) {
+        String[] optionValues = Arrays.stream(userEids)
+            .map(eid -> findOptionValueContainingEid(selectCss, eid))
+            .toArray(String[]::new);
+        page.locator(selectCss).selectOption(optionValues);
+        page.locator(selectCss).dispatchEvent("change");
+    }
+
+    private void selectOptionsByVisibleText(String selectCss, String... visibleTexts) {
+        String[] optionValues = Arrays.stream(visibleTexts)
+            .map(text -> findOptionValueByVisibleText(selectCss, text))
+            .toArray(String[]::new);
+        page.locator(selectCss).selectOption(optionValues);
+        page.locator(selectCss).dispatchEvent("change");
+    }
+
+    private String findOptionValueContainingEid(String selectCss, String eid) {
+        Object value = page.evaluate(
+            "(args) => {" +
+                "const selector = args[0];" +
+                "const eid = args[1];" +
+                "const option = Array.from(document.querySelectorAll(selector + ' option'))" +
+                    ".find(el => (el.textContent || '').includes('(' + eid + ')'));" +
+                "return option ? option.value : null;" +
+            "}",
+            List.of(selectCss, eid)
+        );
+
+        if (!(value instanceof String) || ((String) value).isBlank()) {
+            fail("Could not find select option for user eid " + eid + " in " + selectCss);
+        }
+
+        return (String) value;
+    }
+
+    private String findOptionValueByVisibleText(String selectCss, String visibleText) {
+        Object value = page.evaluate(
+            "(args) => {" +
+                "const selector = args[0];" +
+                "const text = args[1];" +
+                "const option = Array.from(document.querySelectorAll(selector + ' option'))" +
+                    ".find(el => (el.textContent || '').trim().startsWith(text));" +
+                "return option ? option.value : null;" +
+            "}",
+            List.of(selectCss, visibleText)
+        );
+
+        if (!(value instanceof String) || ((String) value).isBlank()) {
+            fail("Could not find select option for text " + visibleText + " in " + selectCss);
+        }
+
+        return (String) value;
+    }
+
+    private void selectSubmissionGroup(String groupTitle) {
+        Locator row = page.locator("#groupTable tr")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*" + Pattern.quote(groupTitle) + "\\b")))
+            .first();
+        assertThat(row).isVisible();
+
+        Locator radio = row.locator("input[type=\"radio\"]").first();
+        radio.check(new Locator.CheckOptions().setForce(true));
+    }
+
+    private void fillStudentSubmissionText(String html) {
+        if (sakai.typeFirstCkEditorIfPresent(html)) {
+            return;
+        }
+
+        Locator fallback = page.locator("textarea:visible, [contenteditable=\"true\"]:visible").first();
+        assertThat(fallback).isVisible();
+        fallback.fill(html.replaceAll("<[^>]+>", ""));
+        fallback.dispatchEvent("input");
+        fallback.dispatchEvent("change");
+        fallback.dispatchEvent("blur");
+    }
+
+    private void waitForEnabled(String selector) {
+        page.waitForFunction(
+            "(selector) => {" +
+                "const button = document.querySelector(selector);" +
+                "return Boolean(button) && !button.disabled;" +
+            "}",
+            selector,
+            new Page.WaitForFunctionOptions().setTimeout(10_000)
+        );
     }
 
     private void submitAssignmentForm() {
@@ -299,4 +530,5 @@ class AssignmentTest extends SakaiUiTestBase {
             return false;
         }
     }
+
 }

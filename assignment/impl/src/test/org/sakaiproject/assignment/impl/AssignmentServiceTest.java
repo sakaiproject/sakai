@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.Duration;
@@ -70,6 +71,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -554,6 +556,109 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void reassignGroupSubmissionLeavesOriginalUnchangedWhenTargetGroupAlreadyHasSubmission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        String originalSubmitter1 = UUID.randomUUID().toString();
+        String originalSubmitter2 = UUID.randomUUID().toString();
+        String updatedSubmitter1 = UUID.randomUUID().toString();
+        String updatedSubmitter2 = UUID.randomUUID().toString();
+
+        Set<String> originalSubmitters = new LinkedHashSet<>(Arrays.asList(originalSubmitter1, originalSubmitter2));
+        Set<String> updatedSubmitters = new LinkedHashSet<>(Arrays.asList(updatedSubmitter1, updatedSubmitter2));
+
+        AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+        Assignment assignment = submission.getAssignment();
+        String updatedGroupRef = "/site/" + context + "/group/" + updatedGroupId;
+        assignment.getGroups().add(updatedGroupRef);
+
+        Site site = siteService.getSite(context);
+        Group updatedGroup = mock(Group.class);
+        when(updatedGroup.getReference()).thenReturn(updatedGroupRef);
+        when(updatedGroup.getProperties()).thenReturn(new BaseResourceProperties());
+
+        Set<Member> updatedMembers = new HashSet<>();
+        for (String submitterId : updatedSubmitters) {
+            Member member = mock(Member.class);
+            when(member.getUserId()).thenReturn(submitterId);
+            Role role = mock(Role.class);
+            when(member.getRole()).thenReturn(role);
+            when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+            when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+            updatedMembers.add(member);
+        }
+        when(updatedGroup.getMembers()).thenReturn(updatedMembers);
+
+        Collection<Group> groups = new HashSet<>(site.getGroups());
+        groups.add(updatedGroup);
+        when(site.getGroups()).thenReturn(groups);
+        when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
+        when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
+
+        Set<String> assignmentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(updatedSubmitter1);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, updatedGroupRef)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(updatedSubmitter1, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentGroupRefs))
+                .thenReturn(Collections.singleton(updatedGroupRef));
+
+        AssignmentSubmission targetSubmission = assignmentService.addSubmission(assignment.getId(), updatedGroupId);
+        Assert.assertNotNull(targetSubmission);
+        Assert.assertEquals(updatedGroupId, targetSubmission.getGroupId());
+
+        String originalSubmissionId = submission.getId();
+        Set<String> expectedSubmitters = submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .collect(Collectors.toSet());
+        String expectedSubmittee = submission.getSubmitters().stream()
+                .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .findFirst()
+                .orElse(null);
+
+        String originalSubmissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, originalSubmissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, originalSubmissionReference)).thenReturn(true);
+
+        try {
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            Assert.fail("Expected reassignment to abort when the target group already has a submission");
+        } catch (IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains(updatedGroupId));
+        }
+
+        assignmentService.updateSubmission(submission);
+
+        AssignmentServiceImpl assignmentServiceImpl = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
+        Field assignmentRepositoryField = AssignmentServiceImpl.class.getDeclaredField("assignmentRepository");
+        assignmentRepositoryField.setAccessible(true);
+        AssignmentRepository assignmentRepository = (AssignmentRepository) assignmentRepositoryField.get(assignmentServiceImpl);
+        Assert.assertNotNull(assignmentRepository);
+
+        AssignmentSubmission unchangedSubmission = assignmentRepository.findSubmission(originalSubmissionId);
+        Set<String> unchangedSubmitters = unchangedSubmission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .collect(Collectors.toSet());
+        String unchangedSubmittee = unchangedSubmission.getSubmitters().stream()
+                .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .findFirst()
+                .orElse(null);
+
+        Assert.assertEquals(originalGroupId, unchangedSubmission.getGroupId());
+        Assert.assertEquals(expectedSubmitters, unchangedSubmitters);
+        Assert.assertEquals(expectedSubmittee, unchangedSubmittee);
+
+        AssignmentSubmission persistedTargetSubmission = assignmentRepository.findSubmission(targetSubmission.getId());
+        Assert.assertEquals(updatedGroupId, persistedTargetSubmission.getGroupId());
+        Assert.assertEquals(updatedSubmitters, persistedTargetSubmission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .collect(Collectors.toSet()));
+        Assert.assertEquals(originalSubmissionId, assignmentRepository.findSubmissionForGroup(assignment.getId(), originalGroupId).getId());
+        Assert.assertEquals(targetSubmission.getId(), assignmentRepository.findSubmissionForGroup(assignment.getId(), updatedGroupId).getId());
+    }
+
+    @Test
     public void reassignGroupSubmissionPreservesSubmitteeWhenCurrentUserIsNotInTargetGroup() {
         String context = UUID.randomUUID().toString();
         String originalGroupId = UUID.randomUUID().toString();
@@ -616,6 +721,73 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     .anyMatch(ass -> ass.getSubmittee() && sharedSubmitter.equals(ass.getSubmitter())));
         } catch (Exception e) {
             Assert.fail("Could not preserve submittee during group reassignment\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void reassignGroupSubmissionFallsBackToFirstTargetMemberInGroupOrder() {
+        String context = UUID.randomUUID().toString();
+        String originalGroupId = UUID.randomUUID().toString();
+        String updatedGroupId = UUID.randomUUID().toString();
+        String originalSubmitter1 = UUID.randomUUID().toString();
+        String originalSubmitter2 = UUID.randomUUID().toString();
+        String fallbackSubmitter = UUID.randomUUID().toString();
+        String laterSubmitter = UUID.randomUUID().toString();
+
+        Set<String> originalSubmitters = new LinkedHashSet<>(Arrays.asList(originalSubmitter1, originalSubmitter2));
+
+        try {
+            AssignmentSubmission submission = createNewGroupSubmission(context, originalGroupId, originalSubmitters);
+            Assignment assignment = submission.getAssignment();
+            String updatedGroupRef = "/site/" + context + "/group/" + updatedGroupId;
+            assignment.getGroups().add(updatedGroupRef);
+
+            Site site = siteService.getSite(context);
+            Group updatedGroup = mock(Group.class);
+            when(updatedGroup.getReference()).thenReturn(updatedGroupRef);
+            when(updatedGroup.getProperties()).thenReturn(new BaseResourceProperties());
+
+            Set<Member> updatedMembers = new LinkedHashSet<>();
+            for (String submitterId : Arrays.asList(fallbackSubmitter, laterSubmitter)) {
+                Member member = mock(Member.class);
+                when(member.getUserId()).thenReturn(submitterId);
+                Role role = mock(Role.class);
+                when(member.getRole()).thenReturn(role);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(role.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+                updatedMembers.add(member);
+            }
+            when(updatedGroup.getMembers()).thenReturn(updatedMembers);
+
+            Collection<Group> groups = new HashSet<>(site.getGroups());
+            groups.add(updatedGroup);
+            when(site.getGroups()).thenReturn(groups);
+            when(site.getGroup(updatedGroupRef)).thenReturn(updatedGroup);
+            when(site.getGroup(updatedGroupId)).thenReturn(updatedGroup);
+
+            submission.getSubmitters().forEach(ass -> ass.setSubmittee(Boolean.FALSE));
+            submission.getSubmitters().stream()
+                    .filter(ass -> originalSubmitter1.equals(ass.getSubmitter()))
+                    .findFirst()
+                    .ifPresent(ass -> ass.setSubmittee(Boolean.TRUE));
+
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
+
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+
+            assignmentService.reassignGroupSubmission(submission, updatedGroupId);
+            assignmentService.updateSubmission(submission);
+
+            AssignmentSubmission updatedSubmission = assignmentService.getSubmission(submission.getId());
+            Assert.assertEquals(1, updatedSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(updatedSubmission.getSubmitters().stream()
+                    .anyMatch(ass -> ass.getSubmittee() && fallbackSubmitter.equals(ass.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not choose the first target member during group reassignment fallback\n" + e.toString());
         }
     }
 

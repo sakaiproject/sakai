@@ -370,6 +370,7 @@ public interface AssignmentService extends EntityProducer {
      * @param groupId the target site group id
      * @throws IdUnusedException if the submission's site cannot be resolved
      * @throws PermissionException if the current user cannot update the submission
+     * @throws IllegalArgumentException if the target group is invalid, already has a submission, or has no eligible submitters
      */
     public void reassignGroupSubmission(AssignmentSubmission submission, String groupId) throws IdUnusedException, PermissionException;
 

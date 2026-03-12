@@ -7387,7 +7387,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 assignmentService.reassignGroupSubmission(submission, group_id);
                             } catch (IdUnusedException | IllegalArgumentException | PermissionException e) {
                                 addAlert(state, rb.getString("group.submission.not.found"));
-                                log.warn("Could not reassign submission {} to group {}, {}", submission.getId(), group_id, e.getMessage());
+                                log.warn("Could not reassign submission {} to group {}", submission.getId(), group_id, e);
                                 return;
                             }
                         } else {
