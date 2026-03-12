@@ -696,11 +696,10 @@ ${extra}")
 <div class="sakai-table-searchFilter">
 	<label for="$panelName">$tlang.getString("search.label")</label>
 	<div class="sakai-table-searchFilterControls">
-		<input type="text" name="$panelName" id="$panelName" value="$formattedText.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField" />
-		<input type="button" id="btnSearch_$panelName" value="$tlang.getString('search.button')" onclick="VM_SFP.doSearch('#toolLink("$action" "$searchActionKey")', 'btnSearch_$panelName', '$panelName');" />
-		#if($!userSearchTerm && !$userSearchTerm.isEmpty())
-			<input type="button" value="$tlang.getString("search.clear")" onclick="VM_SFP.doClearSearch('#toolLink("$action" "$clearSearchActionKey")', this);" />
-		#end
+		<div class="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center flex-grow-1">
+			<input type="text" name="$panelName" id="$panelName" value="$formattedText.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField w-100" data-search-url="#toolLink("$action" "$searchActionKey")" data-clear-url="#toolLink("$action" "$clearSearchActionKey")" />
+			<button type="button" class="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1" aria-label="$tlang.getString('search.clear')" #if(!($!userSearchTerm && !$userSearchTerm.isEmpty())) style="display:none" #end>&#x2715;</button>
+		</div>
 	</div>
 </div>
 #set($libLink="#libraryLink('js/sakai-table-toolbar/searchFilterPanelMacro.js')")
