@@ -222,22 +222,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     }
 
     @Override
-    public String getCurrentSiteLocale() {
-
-        String siteId = toolManager.getCurrentPlacement().getContext();
-        Site currentSite = getSite(siteId);
-
-        if (currentSite != null) {
-            String locale = currentSite.getProperties().getProperty("locale_string");
-            if (locale != null) {
-                return locale;
-            }
-        }
-
-        return null;
-    }
-
-    @Override
     public Integer getDefaultRosterState() {
 
         return serverConfigurationService.getInt("roster.defaultState",
@@ -392,20 +376,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             return null;
         }
-    }
-
-    @Override
-    public List<User> getSiteUsers(String siteId) {
-
-        Site site = null;
-        try {
-            site = siteService.getSite(siteId);
-        } catch (IdUnusedException e) {
-            log.warn("Site {} not found. Returning null ...", siteId);
-            return null;
-        }
-
-        return userDirectoryService.getUsers(site.getUsers());
     }
 
     @Override
@@ -1125,22 +1095,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             return false;
         } else {
             return isAllowed(userId, permission, site.getReference());
-        }
-    }
-
-    @Override
-    public Boolean hasUserGroupPermission(String userId, String permission,
-            String siteId, String groupId) {
-
-        Site site = getSite(siteId);
-        if (null == site) {
-            return false;
-        } else {
-            if (null == site.getGroup(groupId)) {
-                return false;
-            } else {
-                return isAllowed(userId, permission, site.getGroup(groupId).getReference());
-            }
         }
     }
 

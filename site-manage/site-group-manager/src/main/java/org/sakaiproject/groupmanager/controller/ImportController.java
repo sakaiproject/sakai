@@ -77,7 +77,7 @@ public class ImportController {
         log.debug("showImportGroups called with value {}", groupUploadedText);
 
         // Variable definition
-        Locale userLocale = sakaiService.getCurrentUserLocale();
+        Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
         Map<String, List<String>> importedGroupMap = new HashMap<String, List<String>>();
         String uploadedText = StringUtils.EMPTY;
         String groupFileUploadedText = StringUtils.EMPTY;

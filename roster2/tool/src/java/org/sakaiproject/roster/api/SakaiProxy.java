@@ -39,7 +39,6 @@ import java.util.Map;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
-import org.sakaiproject.user.api.User;
 
 
 /**
@@ -79,13 +78,6 @@ public interface SakaiProxy {
 	 * @return the ID of the current site.
 	 */
 	public String getCurrentSiteId();
-
-	/**
-	 * Returns the locale_string property of the current site.
-	 * 
-	 * @return the locale_string property of the current site.
-	 */
-	public String getCurrentSiteLocale();
 	
 	/**
 	 * Returns the value of the <code>roster.default.state</code> Sakai
@@ -206,8 +198,6 @@ public interface SakaiProxy {
 	public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
 
 	public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId);
-
-	public List<User> getSiteUsers(String siteId);
 	
 	/**
 	 * Returns site information for the specified site.
@@ -239,20 +229,6 @@ public interface SakaiProxy {
 	 *         <code>false</code>.
 	 */
 	public Boolean hasUserSitePermission(String userId, String permission, String siteId);
-	
-	/**
-	 * Returns whether or not the specified user is allowed the specified
-	 * permission within the specified site group.
-	 * 
-	 * @param userId the ID of the user.
-	 * @param permission the permission.
-	 * @param siteId the ID of the <code>Site</code> the group belongs to.
-	 * @param groupId the ID of th3e group.
-	 * @return <code>true</code> if the user has permission, otherwise returns
-	 *         <code>false</code>.
-	 */
-	public Boolean hasUserGroupPermission(String userId, String permission,
-			String siteId, String groupId);
 	
 	/**
 	 * Returns the name of the skin of the current site.

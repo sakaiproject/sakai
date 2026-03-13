@@ -112,6 +112,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -142,6 +143,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private UserTimeService userTimeService;
 	@Setter private SamigoAvailableNotificationService samigoAvailableNotificationService;
 	@Setter private FormattedText formattedText;
+	@Setter private LocaleService localeService;
 
 	private final Map<String, Calendar> calendarMap = new HashMap<>();
 	private final DateTimeFormatter inputDateFormatter;
@@ -233,25 +235,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return locale;
 	}
 
+	@Override
 	public Locale getLocaleForCurrentSiteAndUser() {
-		Locale locale = null;
-
-		// First try to get site locale
-		Optional<Site> currentSite = getCurrentSite();
-		if (currentSite.isPresent()) {
-			ResourceProperties siteProperties = currentSite.get().getProperties();
-			String siteLocale = (String) siteProperties.get("locale_string");
-			if (StringUtils.isNotBlank(siteLocale)) {
-				locale = serverConfigurationService.getLocaleFromString(siteLocale);
-			}
-		}
-
-		// If there is not site locale defined, get user default locale
-		if (locale == null) {
-			locale = getUserLocale();
-		}
-
-		return locale;
+		return localeService.getLocaleForSiteAndUser(getCurrentSiteId(), getCurrentUserId());
 	}
 
 	@Override

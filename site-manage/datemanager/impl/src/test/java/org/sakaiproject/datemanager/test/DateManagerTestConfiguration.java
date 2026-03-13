@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -159,5 +160,10 @@ public class DateManagerTestConfiguration {
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")
     public PreferencesService preferencesService() {
         return Mockito.mock(PreferencesService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        return Mockito.mock(LocaleService.class);
     }
 }

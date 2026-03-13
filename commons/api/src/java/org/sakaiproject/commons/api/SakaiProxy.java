@@ -38,16 +38,7 @@ public interface SakaiProxy {
 
     public Site getSiteOrNull(String siteId);
 
-    /**
-     * Returns the locale_string property of the current site.
-     *
-     * @return the locale_string property of the current site.
-     */
-    public String getCurrentSiteLocale();
-
     public Tool getCurrentTool();
-
-    public String getCurrentToolId();
 
     public Session getCurrentSession();
 
@@ -74,8 +65,6 @@ public interface SakaiProxy {
     public boolean isAllowedFunction(String function, Role role);
 
     public void postEvent(String event, String entityId, String siteId);
-
-    public Set<String> getSiteUsers(String siteId);
 
     public String getCommonsToolId(String siteId);
 
