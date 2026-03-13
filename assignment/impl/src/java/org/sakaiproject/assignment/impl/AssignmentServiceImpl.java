@@ -2086,9 +2086,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return matchingSubmissions.stream()
-                .max(Comparator.comparing(AssignmentSubmission::getDateModified, Comparator.nullsLast(Comparator.naturalOrder()))
-                        .thenComparing(AssignmentSubmission::getDateSubmitted, Comparator.nullsLast(Comparator.naturalOrder()))
-                        .thenComparing(AssignmentSubmission::getDateCreated, Comparator.nullsLast(Comparator.naturalOrder())))
+                .max(Comparator.comparing(AssignmentSubmission::getDateModified, Comparator.nullsFirst(Comparator.naturalOrder()))
+                        .thenComparing(AssignmentSubmission::getDateSubmitted, Comparator.nullsFirst(Comparator.naturalOrder()))
+                        .thenComparing(AssignmentSubmission::getDateCreated, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .orElse(null);
     }
 
