@@ -119,16 +119,6 @@ public class SelectActionListener implements ActionListener {
     // look for some sort information passed as parameters
     processSortInfo(select);
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
-    if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
-      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-      select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-    } else {
-      // If secure delivery modules are not available, set an empty html fragment string
-      select.setSecureDeliveryHTMLFragments( "" );
-    }
-
     // ----------------- prepare Takeable assessment list -------------
     // 1a. get total no. of submission (for grade) per assessment by the given agent in current site
     Map<Long, Integer> h = publishedAssessmentService.getTotalSubmissionPerAssessment(
@@ -354,12 +344,6 @@ public class SelectActionListener implements ActionListener {
           recorded.setRawScore(beanie.getRawScore());
         }
 
-        recordedList.add(recorded);
-        reviewableList.add(recorded);
-        reviewableList.add(beanie);
-      } else if (StringUtils.equalsAny(select.getDisplayAllAssessments(), "2", "3")) {
-        reviewableList.add(beanie);
-      }
         recordedList.add(recorded);
         reviewableList.add(recorded);
         reviewableList.add(beanie);
