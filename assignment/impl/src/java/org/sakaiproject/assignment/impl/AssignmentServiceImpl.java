@@ -1803,6 +1803,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return;
             }
 
+            // The selected group is fixed in the UI, but the persisted submitter rows may still
+            // be stale by the time a real post happens. Group submissions can exist as drafts or
+            // instructor-created grading records before posting, and membership can change in the
+            // meantime, so we reconcile against the group's current eligible members here.
             // Reconcile in place so current members keep their existing submitter rows and any
             // per-user state stored there, while roster changes only add or remove the delta.
             Set<String> submitterIds = group.getMembers().stream()
@@ -1816,6 +1820,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Map<String, AssignmentSubmissionSubmitter> existingSubmitters = new HashMap<>();
             for (Iterator<AssignmentSubmissionSubmitter> iterator = submission.getSubmitters().iterator(); iterator.hasNext();) {
                 AssignmentSubmissionSubmitter existingSubmitter = iterator.next();
+                // Remove submitter rows only for users who are no longer eligible current
+                // members of the assignment group; surviving rows stay in place so their
+                // existing per-user state is not destroyed and recreated.
                 if (!submitterIds.contains(existingSubmitter.getSubmitter())) {
                     iterator.remove();
                     continue;
@@ -2733,7 +2740,28 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             for (AssignmentSubmission submission : submissions) {
-                if (canSubmitSubmission(submission, currentTime, isBeforeAssignmentCloseDate)) {
+                boolean isBeforeEffectiveCloseDate = isBeforeAssignmentCloseDate;
+
+                // If an Extension exists for the user, we switch out the assignment's overall
+                // close date for the extension deadline
+                if (!isBeforeEffectiveCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
+                    String extensionCloseTimeValue = submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+                    try {
+                        Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(extensionCloseTimeValue));
+                        isBeforeEffectiveCloseDate = currentTime.isBefore(extensionCloseTime);
+                    } catch (NumberFormatException nfe) {
+                        log.warn("Ignoring malformed extension close time {} for submission {}", extensionCloseTimeValue, submission.getId());
+                    }
+                }
+
+                // before the assignment close date
+                // and if no date then a submission was never truly submitted by the student
+                if (isBeforeEffectiveCloseDate && submission.getDateSubmitted() == null) {
+                    return true;
+                }
+
+                // returns true if resubmission is allowed
+                if (canSubmitResubmission(submission, currentTime)) {
                     return true;
                 }
             }
@@ -2741,30 +2769,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("The user {} cannot submit to assignment {}, {}", userId, assignment.getId(), e.getMessage());
         }
         return false;
-    }
-
-    private boolean canSubmitSubmission(AssignmentSubmission submission, Instant currentTime, boolean isBeforeAssignmentCloseDate) {
-        boolean isBeforeEffectiveCloseDate = isBeforeAssignmentCloseDate;
-
-        // If an Extension exists for the user, we switch out the assignment's overall
-        // close date for the extension deadline
-        if (!isBeforeEffectiveCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
-            String extensionCloseTimeValue = submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
-            try {
-                Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(extensionCloseTimeValue));
-                isBeforeEffectiveCloseDate = currentTime.isBefore(extensionCloseTime);
-            } catch (NumberFormatException nfe) {
-                log.warn("Ignoring malformed extension close time {} for submission {}", extensionCloseTimeValue, submission.getId());
-            }
-        }
-
-        // before the assignment close date
-        // and if no date then a submission was never truly submitted by the student
-        if (isBeforeEffectiveCloseDate && submission.getDateSubmitted() == null) {
-            return true;
-        }
-
-        return canSubmitResubmission(submission, currentTime);
     }
 
     @Override
