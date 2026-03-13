@@ -3503,8 +3503,6 @@ public class SimplePageBean {
 					i.setName(selectedObject.getTitle());
 				    }
 
-				    // reset assignment-specific stuff
-				    i.setDescription("");
 				    update(i);
 				}
 			    } else {
@@ -4330,9 +4328,6 @@ public class SimplePageBean {
 					i.setSakaiId(selectedQuiz);
 					i.setName(selectedObject.getTitle());
 				    }
-				    // reset quiz-specific stuff
-				    i.setDescription("");
-
 				    update(i);
 				}
 			    } else { // no, add new item
