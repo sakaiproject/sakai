@@ -231,6 +231,8 @@ public class ScormEntity implements LessonEntity {
 
     // properties of entities
     public String getTitle() {
+	if (scormContentService == null)
+	    return null;
 	if (contentPackage == null)
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)
@@ -239,12 +241,16 @@ public class ScormEntity implements LessonEntity {
     }
 
     public String getUrl() {
+	if (simplePageBean == null || scormContentService == null)
+	    return null;
 	if (contentPackage == null)
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)
 	    return null;
-
-	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/scormPlayerPage?contentPackageId=" + id;
+	String tool = simplePageBean.getCurrentTool("sakai.scorm.tool");
+	if (tool == null)
+	    return null;
+	return ServerConfigurationService.getToolUrl() + "/" + tool + "/scormPlayerPage?contentPackageId=" + id;
     }
 
     public Date getDueDate() {
@@ -252,6 +258,8 @@ public class ScormEntity implements LessonEntity {
     }
 
     public LessonSubmission getSubmission(String userId) {
+	if (scormContentService == null)
+	    return null;
 	if (contentPackage == null)
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)
@@ -272,6 +280,8 @@ public class ScormEntity implements LessonEntity {
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
 // I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.
     public int getSubmissionCount(String user) {
+	if (scormContentService == null)
+	    return 0;
 	if (contentPackage == null)
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)

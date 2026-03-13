@@ -70,7 +70,6 @@ import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-import org.sakaiproject.lessonbuildertool.service.ScormEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
@@ -1267,6 +1266,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				
 				if (!simplePageBean.isItemVisible(i, currentPage)) continue;
 
+				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
+				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM)
+				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
+
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
 						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
 				{
@@ -1303,10 +1306,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// break isn't a real item. probably don't want to count it
 				if (i.getType() != SimplePageItem.BREAK)
 				    anyItemVisible[0] = true;
-
-				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
-				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM)
-				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
 
 				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
@@ -1737,8 +1736,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    break;
 							case SimplePageItem.SCORM:
 							    lessonEntity = resolvedScormEntity;
-							    if (lessonEntity != null)
-								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
 							    if (lessonEntity != null && !lessonEntity.objectExists())
 								entityDeleted = true;
 							    break;
@@ -3824,7 +3821,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (usable && i.isPrerequisite()) {
 				simplePageBean.checkItemPermissions(i, true);
 			}
-			LessonEntity lessonEntity = resolvedScormEntity;
+			LessonEntity lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
@@ -4033,7 +4030,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
 					break;
 				case SimplePageItem.SCORM:
-					lessonEntity = resolvedScormEntity;
+					lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 					break;
 				default:
 					break;
@@ -4311,7 +4308,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
-		    if (scormEntity instanceof ScormEntity && ((ScormEntity) scormEntity).isAvailable()) {
+		    if (scormEntity != null && scormEntity.isAvailable()) {
 			UIOutput.make(tofill, "scorm-li");
 			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm.tooltip");
 		    }

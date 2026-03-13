@@ -348,6 +348,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		} else if (source.startsWith("CREATE/SCORM/")) {
 		    List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
 		    int i = Integer.parseInt(source.substring("CREATE/SCORM/".length()));
+		    if (i < 0 || i >= createLinks.size()) return;
 		    source = createLinks.get(i).Url;
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)
@@ -415,7 +416,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		} else {
 			String classAttr = !IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl()) ? " class=\"sakai-iframe-force-light\"" : "";
 			String rawHeight = isScorm ? item.getHeight() : null;
-			String height = StringUtils.isBlank(rawHeight) ? (isScorm ? "600" : "350") : StringEscapeUtils.escapeHtml4(rawHeight.replace("px", "").trim());
+			String height = StringUtils.isBlank(rawHeight) ? (isScorm ? "600" : "350") : rawHeight;
 			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"" + height + "\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		}

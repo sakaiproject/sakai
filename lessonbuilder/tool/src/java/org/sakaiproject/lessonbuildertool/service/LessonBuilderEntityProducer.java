@@ -209,6 +209,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		lessonBuilderAccessAPI = l;
 	}
 
+	private LessonEntity entityForType(int type) {
+		if (type == SimplePageItem.FORUM) return forumEntity;
+		if (type == SimplePageItem.ASSESSMENT) return quizEntity;
+		if (type == SimplePageItem.SCORM) return scormEntity;
+		return assignmentEntity;
+	}
+
 
 	private Set<String> servers;
 
@@ -418,16 +425,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
 				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
 					if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM) {
-						LessonEntity e = null;
-						if (item.getType() == SimplePageItem.FORUM)
-							e = forumEntity;
-						else if (item.getType() == SimplePageItem.ASSESSMENT)
-							e = quizEntity;
-						else if (item.getType() == SimplePageItem.SCORM)
-							e = scormEntity;
-						else
-							e = assignmentEntity;
-						e = e.getEntity(item.getSakaiId());
+						LessonEntity e = entityForType(item.getType()).getEntity(item.getSakaiId());
 						if (e != null) {
 							String title = e.getTitle();
 							if (title != null && !title.equals(""))
@@ -514,16 +512,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
 
 				if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM) {
-					LessonEntity e = null;
-					if (item.getType() == SimplePageItem.FORUM)
-						e = forumEntity;
-					else if (item.getType() == SimplePageItem.ASSESSMENT)
-						e = quizEntity;
-					else if (item.getType() == SimplePageItem.SCORM)
-						e = scormEntity;
-					else
-						e = assignmentEntity;
-					e = e.getEntity(item.getSakaiId());
+					LessonEntity e = entityForType(item.getType()).getEntity(item.getSakaiId());
 					if (e != null) {
 						String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary
 						if (objectid!= null)

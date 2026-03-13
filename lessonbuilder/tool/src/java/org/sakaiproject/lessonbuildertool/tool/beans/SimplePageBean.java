@@ -3334,7 +3334,8 @@ public class SimplePageBean {
 				i.setSameWindow(true);
 			    i.setHeight(height);
 			} else if (i.getType() == SimplePageItem.SCORM) {
-			    i.setHeight(height);
+			    String scormHeight = StringUtils.isBlank(height) ? "" : height.replace("px", "").trim();
+			    i.setHeight(scormHeight.matches("\\d+") ? scormHeight : "");
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -4455,6 +4456,7 @@ public class SimplePageBean {
 			    SimplePageItem i;
 			    if (itemId != null && itemId != -1) {
 				i = findItem(itemId);
+				if (i == null) return "failure";
 				// do getEntity/getReference to normalize, in case sakaiid is old format
 				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
 				String ref = (existing != null) ? existing.getReference() : null;

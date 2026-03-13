@@ -128,6 +128,12 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
+
+			if (createLinks.isEmpty()) {
+			    showError(tofill, "simplepage.no_scorm_tool");
+			    return;
+			}
+
 			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "scorm-create:");
@@ -142,11 +148,6 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			List<LessonEntity> plist = scormEntity.getEntitiesInSite(simplePageBean);
-
-			if (createLinks.size() == 0) {
-			    showError(tofill, "simplepage.no_scorm_tool");
-			    return;
-			}
 
 			if (plist == null || plist.size() < 1) {
 			    showError(tofill, "simplepage.no_scorm_packages");
@@ -168,7 +169,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			if (currentItem == null)
 			    currentItem = plist.get(0).getReference();
 
-			UISelect select = UISelect.make(form, "scorm-span", values.toArray(new String[1]), "#{simplePageBean.selectedScorm}", currentItem);
+			UISelect select = UISelect.make(form, "scorm-span", values.toArray(new String[0]), "#{simplePageBean.selectedScorm}", currentItem);
 			for (int idx = 0; idx < plist.size(); idx++) {
 				LessonEntity a = plist.get(idx);
 				UIBranchContainer row = UIBranchContainer.make(form, "scorm:", String.valueOf(idx));
