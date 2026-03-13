@@ -1796,10 +1796,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         try {
-            Site site = siteService.getSite(submission.getAssignment().getContext());
+            Assignment assignment = submission.getAssignment();
+            Site site = siteService.getSite(assignment.getContext());
             Group group = site.getGroup(groupId);
             if (group == null) {
                 log.warn("Cannot reconcile submitters for submission {} because group {} no longer exists", submission.getId(), groupId);
+                return;
+            }
+            if (!assignment.getGroups().contains(group.getReference())) {
+                log.warn("Cannot reconcile submitters for submission {} because group {} is not assigned to assignment {}",
+                        submission.getId(), groupId, assignment.getId());
                 return;
             }
 
