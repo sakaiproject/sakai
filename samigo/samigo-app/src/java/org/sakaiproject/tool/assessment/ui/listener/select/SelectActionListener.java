@@ -119,16 +119,6 @@ public class SelectActionListener implements ActionListener {
     // look for some sort information passed as parameters
     processSortInfo(select);
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
-    if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
-      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-      select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-    } else {
-      // If secure delivery modules are not available, set an empty html fragment string
-      select.setSecureDeliveryHTMLFragments( "" );
-    }
-
     // ----------------- prepare Takeable assessment list -------------
     // 1a. get total no. of submission (for grade) per assessment by the given agent in current site
     Map<Long, Integer> h = publishedAssessmentService.getTotalSubmissionPerAssessment(
@@ -178,24 +168,6 @@ public class SelectActionListener implements ActionListener {
 			delivery.setAssessmentUpdated(
 				updatedAssessmentList.contains(f.getPublishedAssessmentId())
 			);
-
-      try {
-        // If secure delivery modules are installed, then insert their html fragments
-        if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
-          PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessmentQuick(f.getAssessmentId().toString());
-          final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-
-          if (moduleId != null) {
-            delivery.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(
-                moduleId,
-                Long.valueOf(delivery.getAssessmentId()),
-                AgentFacade.getAgentString()
-            ).orElse("") );
-          }
-        }
-			} catch (Exception e) {
-				log.debug("SecureDelivery lookup failed for assessment {}", delivery.getAssessmentId(), e);
-			}
 
 			takeablePublishedList.add(delivery);
 		}
@@ -405,6 +377,21 @@ public class SelectActionListener implements ActionListener {
 
     if (!select.isReviewableAscending()) {
       Collections.reverse(submittedAssessmentGradingList);
+    }
+
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale()));
+
+      Map<Long, String> secureDeliveryModuleIdsByAssessment = getSecureDeliveryModuleIdsByAssessment(
+        takeablePublishedList, publishedAssessmentService);
+      applySecureDeliveryUrls(takeablePublishedList, secureDeliveryModuleIdsByAssessment, secureDelivery,
+        AgentFacade.getAgentString());
+    } else {
+      // If secure delivery modules are not available, set an empty html fragment string
+      select.setSecureDeliveryHTMLFragments( "" );
     }
 
     // set the managed beanlist properties that we need
