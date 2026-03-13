@@ -22,6 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -59,7 +60,7 @@ public class QuickEntryPage extends BasePage {
     public void onInitialize() {
         super.onInitialize();
 
-        Integer gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
+        GradeType gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
 
         SortType sortBy = SortType.SORT_BY_NAME;
         final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
@@ -127,24 +128,26 @@ public class QuickEntryPage extends BasePage {
                 QuickEntryPageModel dataNow = this.getModelObject();
                 ArrayList<QuickEntryRowModel> allgrades = dataNow.getItemgrades();
                 Long itemId = dataNow.getItemIdNow();
-                for(QuickEntryRowModel row: allgrades){ //first loop vor validation only
-                    try {
-                        double gradeValidator = FormatHelper.validateDouble(row.getGrade());
-                        if(gradeValidator<0){
-                            getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
-                            row.setHasError(true);
-                            noErrors = false;
-                        } else {
-                            row.setHasError(false);
-                        }
-                    } catch (NumberFormatException e){
-                        getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
-                        row.setHasError(true);
-                        noErrors = false;
-                    } catch (NullPointerException n){
-                        row.setGrade("");   //NPE is actually ok, we just need to turn it into a blank string.
-                    }
-                }
+				if (gradeType != GradeType.LETTER) {
+					for(QuickEntryRowModel row: allgrades){ //first loop vor validation only
+						try {
+							double gradeValidator = FormatHelper.validateDouble(row.getGrade());
+							if(gradeValidator<0){
+								getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
+								row.setHasError(true);
+								noErrors = false;
+							} else {
+								row.setHasError(false);
+							}
+						} catch (NumberFormatException e){
+							getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
+							row.setHasError(true);
+							noErrors = false;
+						} catch (NullPointerException n){
+							row.setGrade("");   //NPE is actually ok, we just need to turn it into a blank string.
+						}
+					}
+				}
                 if(noErrors){   //if still no errors, second loop to start saving things
                     for(QuickEntryRowModel row: allgrades){
                         String oldGrade = businessService.getGradeForStudentForItem(gradebookUid, siteId, row.getStudentid(),itemId).getGrade();
@@ -210,8 +213,8 @@ public class QuickEntryPage extends BasePage {
                 }
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
-            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
-            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
+            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints(), gradeType);
+            String itemdetails = " - " + (gradeType == GradeType.PERCENTAGE ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
@@ -245,7 +248,7 @@ public class QuickEntryPage extends BasePage {
                     rowNow.setOriginalComment(null);
                 }
                 String gradeNow = this.businessService.getGradeForStudentForItem(gradebookUid, siteId, uid, this.assignmentNow.getId()).getGrade();
-                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow);
+                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow, gradeType);
                 rowNow.setGrade(StringUtils.defaultIfBlank(localeGrade, null));
                 rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(gradebookUid, this.assignmentNow.getId(),uid), "0"));
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
@@ -254,15 +257,16 @@ public class QuickEntryPage extends BasePage {
                 rows.add(rowNow);
                 ((QuickEntryPageModel)form.getModelObject()).getItemgrades().add(rowNow);
             }
-            form.add(new Label("summarycount",MessageFormat.format(getString("quickentry.count"),studentsnow,totalstudents)));
+            form.add(new Label("summarycount", MessageFormat.format(getString("quickentry.count"),studentsnow,totalstudents)));
             ListView<QuickEntryRowModel> userFields = new ListView<QuickEntryRowModel>("studentRow",rows){
                 @Override
                 protected void populateItem(final ListItem<QuickEntryRowModel> item) {
+
                     item.add(new Label("studentName",item.getModelObject().getName()));
-                    TextField<String> gradeNow = new TextField<>("studentGrade", new PropertyModel<>(item.getModelObject(),"grade"));
+                    boolean locked = item.getModelObject().isLocked();
+
                     String gradeClass = "enabledGrade";
-                    if(item.getModelObject().isLocked()){
-                        gradeNow.setEnabled(false);
+                    if (locked) {
                         gradeClass = "disabledGrade";
                         item.add(new WebMarkupContainer("lockicon").add(new AttributeModifier("class","fa fa-lock")));
                     } else {
@@ -271,8 +275,29 @@ public class QuickEntryPage extends BasePage {
                     if(item.getModelObject().isHasError()){
                         gradeClass = gradeClass + " errorCell";
                     }
-                    gradeNow.add(new AttributeModifier("class",gradeClass));
-                    item.add(gradeNow);
+
+                    if (gradeType != GradeType.LETTER) {
+                        TextField<String> numericGradeNow = new TextField<>("numericStudentGrade", new PropertyModel<>(item.getModelObject(),"grade"));
+                        numericGradeNow.setEnabled(!locked);
+                        numericGradeNow.add(new AttributeModifier("class", gradeClass));
+                        item.add(numericGradeNow);
+
+                        WebMarkupContainer dummy = new WebMarkupContainer("letterStudentGrade", null);
+                        dummy.setVisible(false);
+                        item.add(dummy);
+                    } else {
+                        Map<String, Double> gradeMap = businessService.getGradebookSettings(gradebookUid, siteId).getSelectedGradingScaleBottomPercents();
+                        DropDownChoice<String> letterGradeNow = new DropDownChoice<>("letterStudentGrade",
+                            new PropertyModel<>(item.getModelObject(),"grade"),
+                            new ArrayList<String>(gradeMap.keySet()));
+                        letterGradeNow.setEnabled(!locked);
+                        letterGradeNow.add(new AttributeModifier("class", gradeClass));
+                        item.add(letterGradeNow);
+
+                        WebMarkupContainer dummy = new WebMarkupContainer("numericStudentGrade", null);
+                        dummy.setVisible(false);
+                        item.add(dummy);
+                    }
 
                     item.add(new TextArea<>("studentComment", new PropertyModel<String>(item.getModelObject(), "comment")));
                     AjaxCheckBox excused = new AjaxCheckBox("studentExcuse",new PropertyModel<>(item.getModelObject(), "excused")){
@@ -308,7 +333,7 @@ public class QuickEntryPage extends BasePage {
             WebMarkupContainer itemtitle = new WebMarkupContainer("itemtitle",null);
             WebMarkupContainer emptyrow = new WebMarkupContainer("studentRow",null);
             emptyrow.add(new WebMarkupContainer("studentName",null));
-            emptyrow.add(new WebMarkupContainer("studentGrade",null));
+            emptyrow.add(new WebMarkupContainer("numericStudentGrade",null));
             emptyrow.add(new WebMarkupContainer("studentComment",null));
             emptyrow.setVisible(false);
             form.add(emptyrow);

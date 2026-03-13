@@ -90,7 +90,7 @@ public class PreviewImportedGradesPanel extends Panel
                 item.add( new Label( "studentName", user.getDisplayName() ) );
 
                 // Convert back to user's locale for display/validation purposes
-                String grade = FormatHelper.formatGradeForDisplay( details.getGrade() );
+                String grade = FormatHelper.formatGradeForDisplay(details.getGrade(), importWizardModel.getGradeType());
                 item.add( new Label( "studentGrade", grade ) );
             }
         };

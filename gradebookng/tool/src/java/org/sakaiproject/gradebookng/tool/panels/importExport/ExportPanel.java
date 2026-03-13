@@ -58,6 +58,7 @@ import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.util.Validator;
@@ -384,6 +385,8 @@ public class ExportPanel extends BasePanel {
 				final List<Assignment> assignments = this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, sortBy);
 				final List<CategoryDefinition> categories = this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 
+				final GradeType gradeType = businessService.getGradebookSettings(currentGradebookUid, currentSiteId).getGradeType();
+
 				// no assignments, give a template
 				if (assignments.isEmpty()) {
 					if (!isCustomExport || this.includeGradeItemScores) {
@@ -402,7 +405,7 @@ public class ExportPanel extends BasePanel {
 						final Assignment a1 = assignments.get(i);
 						final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
 
-						final String assignmentPoints = FormatHelper.formatGradeForDisplay(a1.getPoints().toString());
+						final String assignmentPoints = FormatHelper.formatGradeForDisplay(a1.getPoints().toString(), gradeType);
 						String externalPrefix = "";
 						if (a1.getExternallyMaintained()) {
 							externalPrefix = IGNORE_COLUMN_PREFIX;
@@ -473,13 +476,13 @@ public class ExportPanel extends BasePanel {
 					final CourseGradeTransferBean courseGrade = studentGradeInfo.getCourseGrade();
 
 					if (isCustomExport && this.includePoints) {
-						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
+						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()), gradeType));
 					}
 					if (isCustomExport && this.includeCourseGrade) {
 						line.add(courseGrade.getMappedGrade());
 					}
 					if (isCustomExport && this.includeCalculatedGrade) {
-						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade(), gradeType));
 					}
 					if (isCustomExport && this.includeGradeOverride) {
 						if (courseGrade.getEnteredGrade() != null) {
@@ -519,7 +522,7 @@ public class ExportPanel extends BasePanel {
 
 								if (gradeInfo != null) {
 									if (!isCustomExport || this.includeGradeItemScores) {
-										String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
+										String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade(), gradeType);
 										line.add(StringUtils.removeEnd(grade, formattedText.getDecimalSeparator() + "0"));
 									}
 									if (!isCustomExport || this.includeGradeItemComments) {
@@ -540,7 +543,7 @@ public class ExportPanel extends BasePanel {
 									&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 								final Double average = categoryAverages.get(a1.getCategoryId());
 								
-								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
+								final String formattedAverage = FormatHelper.formatGradeForDisplay(average, gradeType);
 								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
 								}
 							}

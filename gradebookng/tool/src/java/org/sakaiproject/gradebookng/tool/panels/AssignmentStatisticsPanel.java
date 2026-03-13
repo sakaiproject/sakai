@@ -28,6 +28,7 @@ import org.sakaiproject.gradebookng.tool.chart.AssignmentGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.stats.AssignmentStatistics;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 public class AssignmentStatisticsPanel extends BasePanel {
 
@@ -82,6 +83,9 @@ public class AssignmentStatisticsPanel extends BasePanel {
 				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
 				null));
 		data.put("assignmentId", assignment.getId());
+        GradebookInformation info = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
+        data.put("gradeMap", info.getSelectedGradingScaleBottomPercents());
+        data.put("gradeType", info.getGradeType());
 		return Model.ofMap(data);
 	}
 
