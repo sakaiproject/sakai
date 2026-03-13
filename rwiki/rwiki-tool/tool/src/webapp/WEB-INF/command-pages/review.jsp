@@ -51,7 +51,7 @@
       <div id="rwiki_container">
       	<div class="portletBody">
       		<div class="navIntraTool actionToolBar">
-	  <form action="?#" method="get" class="rwiki_searchForm">
+	  <div class="rwiki_searchForm">
 	  	<rwiki:commandlinks 
 							useHomeLink="true"
 							useViewLink="true"
@@ -66,11 +66,9 @@
 							resourceLoaderBean="${rlb}"
 						        />
 	    <span class="rwiki_searchBox">
-	    <c:out value="${rlb.jsp_search}"/>:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
-	    <input type="hidden" name="panel" value="Main" />
-	    <input type="text" name="search" />
+	      <button type="button" class="btn btn-secondary" onclick="openWikiSearch()"><c:out value="${rlb.jsp_search}"/></button>
 	    </span>
-	  </form>
+	  </div>
 	</div>
 	<c:choose>
 	 <c:when test="${rightRenderBean.hasContent}" >

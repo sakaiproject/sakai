@@ -15,7 +15,32 @@
   	#end
 <script type="text/javascript" >
 var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')}";
-</script>  
+</script>
+<script type="text/javascript">
+function openWikiSearch() {
+  var top = window.top;
+  var portal = top.portal;
+  if (!portal) return;
+  // Set tool filter ('wiki' = content producer key) and site on the search component
+  var search = top.document.querySelector('#sakai-search-panel sakai-search');
+  if (search) {
+    search.setAttribute('tool', 'wiki');
+    search.setAttribute('site-id', portal.siteId);
+  }
+  // Set panel label using the portal tool registration ID ('sakai.rwiki') for the title lookup
+  var label = top.document.getElementById('sakai-search-panel-label');
+  if (label) {
+    var toolTitle = portal.toolTitles && portal.toolTitles['sakai.rwiki'];
+    label.innerHTML = toolTitle
+      ? portal.search.searchTranslation + ' ' + toolTitle
+      : portal.search.defaultTitle;
+  }
+  var panel = top.document.getElementById('sakai-search-panel');
+  if (panel) {
+    top.bootstrap.Offcanvas.getOrCreateInstance(panel).show();
+  }
+}
+</script>
 #end
 
 #macro( footer ) 
@@ -89,11 +114,15 @@ LOG-LOG-LOG-LOG-LOG
 	   #if ( $withNotification)
 <li><span>
 <a href="${util.escapeHtml($viewBean.getPreferencesUrl())}"
-	id="watchLink"  
-	title="${resourceLoaderBean.getString("jsp_watch_for_changes")}" >${resourceLoaderBean.getString("jsp_watch")}</a> 
-</span></li>	
+	id="watchLink"
+	title="${resourceLoaderBean.getString("jsp_watch_for_changes")}" >${resourceLoaderBean.getString("jsp_watch")}</a>
+</span></li>
 	   #end
 #end
+<li class="rwiki_searchBox">
+  <button type="button" class="btn btn-secondary" onclick="openWikiSearch()"
+      aria-controls="sakai-search-panel">${resourceLoaderBean.getString("jsp_search")}</button>
+</li>
 ## </span>
 #end
 

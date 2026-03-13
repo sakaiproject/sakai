@@ -20,5 +20,17 @@
   </jsp:scriptlet>
 <script type="text/javascript" >
 var placementid = "Main<jsp:expression>request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')</jsp:expression>";
-</script>  
+</script>
+<script type="text/javascript">
+function openWikiSearch() {
+  var top = window.top;
+  if (top.portal) {
+    top.portal.search.setup({tool: 'wiki', site: top.portal.siteId});
+    var panel = top.document.getElementById('sakai-search-panel');
+    if (panel) {
+      top.bootstrap.Offcanvas.getOrCreateInstance(panel).show();
+    }
+  }
+}
+</script>
 </jsp:root>
