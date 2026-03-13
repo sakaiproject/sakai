@@ -37,6 +37,10 @@
     <constructor-arg value="conversations"/>
   </bean>
 
+  <bean id="org.sakaiproject.conversations.impl.ConversationsUserNotificationHandler"
+      class="org.sakaiproject.conversations.impl.ConversationsUserNotificationHandler" init-method="init">
+  </bean>
+
   <bean id="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository"
       class="org.sakaiproject.conversations.impl.repository.ConversationsCommentRepositoryImpl">
     <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />

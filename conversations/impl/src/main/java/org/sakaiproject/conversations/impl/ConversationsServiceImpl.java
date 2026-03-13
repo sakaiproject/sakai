@@ -50,7 +50,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.conversations.api.ConversationsEvents;
+import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import org.sakaiproject.conversations.api.ConversationsService;
@@ -874,7 +874,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         afterCommit(() -> {
-            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.TOPIC_DELETED.label, ref, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.TOPIC_DELETED.label, ref, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
         });
     }
 
@@ -918,7 +918,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     total.setTotal(total.getTotal() - 1);
                     topicReactedEvent = false;
                     afterCommit(() -> {
-                        eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.UNREACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
+                        eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.UNREACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
                     });
                 }
                 existingReaction.setState(es.getValue());
@@ -938,7 +938,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             }
 
             if (topicReactedEvent) {
-                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
             }
             topicReactionTotalRepository.save(total);
         });
@@ -980,7 +980,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topic.setUpvotes(topic.getUpvotes() + 1);
             afterCommit(() -> {
                 String ref = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
-                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.TOPIC_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.TOPIC_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
             });
         }
 
@@ -1121,15 +1121,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         PostTransferBean decoratedBean = decoratePostBean(PostTransferBean.of(post), postBean.siteId, topic, currentUserId, settings, null, null);
 
-        // We have to do this to satisfy the lambda requirements
-        Optional<ConversationsPost> optParent = parent;
-
-        final boolean finalWasDraft = wasDraft;
-
-        this.afterCommit(() -> {
-
-            ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
+        if ((isNew || wasDraft) && !postBean.draft) {
+            ConversationsEvent event = isNew ? ConversationsEvent.POST_CREATED : ConversationsEvent.POST_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+
+            event = parent.isPresent() ? ConversationsEvent.POST_REPLIED : ConversationsEvent.POSTED_TO_TOPIC;
+            eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+        }
+
+        // We have to do this to satisfy the lambda requirements
+        final boolean finalWasDraft = wasDraft;
+        Optional<ConversationsPost> optParent = parent;
+        this.afterCommit(() -> {
 
             if (sendMessage && (isNew || finalWasDraft) && !postBean.draft) {
                 try {
@@ -1522,7 +1525,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         this.afterCommit(() -> {
             String reference = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("p").id(postId).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_DELETED.label, reference, siteId, true, NotificationService.NOTI_OPTIONAL));
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.POST_DELETED.label, reference, siteId, true, NotificationService.NOTI_OPTIONAL));
         });
     }
 
@@ -1636,7 +1639,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
             if (postReactedEvent) {
                 String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
-                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_POST.label, ref, post.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.REACTED_TO_POST.label, ref, post.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
             }
             postReactionTotalRepository.save(total);
         });
@@ -1707,7 +1710,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                 }
 
                 String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
-                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_VIEWED.label, ref, post.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.POST_VIEWED.label, ref, post.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
             } catch (PersistenceException pe) {
                 log.debug("Caught constraint exception while marking post viewed. This can happen "
                         + "due to the way the client detects posts scrolling into view", pe);
@@ -1765,7 +1768,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
             postsCache.remove(commentBean.topicId);
 
-            ConversationsEvents event = isNew ? ConversationsEvents.COMMENT_CREATED : ConversationsEvents.COMMENT_UPDATED;
+            ConversationsEvent event = isNew ? ConversationsEvent.COMMENT_CREATED : ConversationsEvent.COMMENT_UPDATED;
             String reference = ConversationsReferenceReckoner.reckoner()
                 .siteId(commentBean.siteId)
                 .type("c")
@@ -2089,7 +2092,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!alreadyUpvoted) {
             post.setUpvotes(post.getUpvotes() + 1);
             String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.POST_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
         }
 
         if (StringUtils.isNotBlank(post.getParentThreadId())) {
@@ -2311,7 +2314,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         List<User> users = userDirectoryService.getUsers(userIds);
 
         Map<String, Long> topicCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.TOPIC_CREATED, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.TOPIC_CREATED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = topicCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2319,7 +2322,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         Map<String, Long> reactedTopicCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.REACTED_TO_TOPIC, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.REACTED_TO_TOPIC, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = reactedTopicCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2327,7 +2330,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         Map<String, Long> upvotedTopicCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.TOPIC_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.TOPIC_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = upvotedTopicCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2339,7 +2342,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                 .collect(Collectors.toMap(pair -> (String) pair[0], pair -> (Long) pair[1]));
 
         Map<String, Long> postCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.POST_CREATED, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.POST_CREATED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = postCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2347,7 +2350,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         Map<String, Long> reactedPostCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.REACTED_TO_POST, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.REACTED_TO_POST, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = reactedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2355,7 +2358,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         Map<String, Long> upvotedPostCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.POST_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.POST_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = upvotedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2363,7 +2366,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         Map<String, Long> viewedPostCountsByUser = new HashMap<>();
-        getEventStats(ConversationsEvents.POST_VIEWED, siteId, from, to, userIds).forEach(stat -> {
+        getEventStats(ConversationsEvent.POST_VIEWED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = viewedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current += stat.getCount();
@@ -2557,7 +2560,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                         "stats", sortedStats.subList(start, end));
     }
 
-    private List<Stat> getEventStats(ConversationsEvents event, String siteId, Instant from, Instant to, List<String> userIds) {
+    private List<Stat> getEventStats(ConversationsEvent event, String siteId, Instant from, Instant to, List<String> userIds) {
 
         return statsManager.getEventStats(siteId,
             List.of(event.label),
@@ -2586,13 +2589,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     public String[] getEventKeys() {
-        return new String[] { ConversationsEvents.TOPIC_CREATED.label,
-                                ConversationsEvents.TOPIC_UPVOTED.label,
-                                ConversationsEvents.REACTED_TO_TOPIC.label,
-                                ConversationsEvents.POST_CREATED.label,
-                                ConversationsEvents.POST_VIEWED.label,
-                                ConversationsEvents.POST_UPVOTED.label,
-                                ConversationsEvents.REACTED_TO_POST.label };
+        return new String[] { ConversationsEvent.TOPIC_CREATED.label,
+                                ConversationsEvent.TOPIC_UPVOTED.label,
+                                ConversationsEvent.REACTED_TO_TOPIC.label,
+                                ConversationsEvent.POST_CREATED.label,
+                                ConversationsEvent.POST_VIEWED.label,
+                                ConversationsEvent.POST_UPVOTED.label,
+                                ConversationsEvent.REACTED_TO_POST.label };
     }
 
     @Override
