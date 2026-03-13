@@ -21,13 +21,13 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
@@ -35,6 +35,7 @@ import org.apache.commons.configuration2.plist.XMLPropertyListConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.util.HashingUtil;
 
@@ -118,6 +119,7 @@ public class SebConfig {
     private static final String SHOW_WIFI_CONTROL_KEY = "allowWlan";
     private static final String USER_CONFIRM_QUIT_KEY = "quitURLConfirm";
     private static final String QUIT_PASSWORD_KEY = "hashedQuitPassword";
+    private static final String ALLOW_UPLOADS_KEY = "allowUploads";
 
     private static final String URL_FILTER_ENABLE = "URLFilterEnable";
     private static final String URL_FILTER_ENABLE_DEFAULT = "false";
@@ -312,6 +314,42 @@ public class SebConfig {
         return map.entrySet().stream()
                 .filter(entry -> entry.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
+    }
+
+    /**
+     * Reads the allowUploads property from a SEB configuration file uploaded to ContentHostingService.
+     *
+     * @param configResourceId The resource ID of the uploaded SEB configuration file in ContentHostingService
+     * @return true if allowUploads is enabled in the configuration file, false otherwise or if the file cannot be read
+     */
+    public static boolean isAllowUploadsEnabled(String configResourceId) {
+        if (StringUtils.isBlank(configResourceId)) {
+            log.debug("Config resource ID is blank, returning false for allowUploads");
+            return false;
+        }
+
+        try {
+            ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);
+            org.sakaiproject.content.api.ContentResource configResource = contentHostingService.getResource(configResourceId);
+
+            Parameters parameters = new Parameters();
+            FileBasedConfigurationBuilder<XMLPropertyListConfiguration> configBuilder =
+                    new FileBasedConfigurationBuilder<>(XMLPropertyListConfiguration.class)
+                            .configure(parameters.fileBased());
+            XMLPropertyListConfiguration config = configBuilder.getConfiguration();
+            org.apache.commons.configuration2.io.FileHandler fileHandler = new org.apache.commons.configuration2.io.FileHandler(config);
+            fileHandler.setEncoding(CONFIG_ENCODING);
+            fileHandler.load(configResource.streamContent());
+
+            // Read the allowUploads property
+            Boolean allowUploads = config.getBoolean(ALLOW_UPLOADS_KEY, false);
+            log.debug("allowUploads property from SEB config file: {}", allowUploads);
+
+            return allowUploads;
+        } catch (Exception e) {
+            log.error("Error reading allowUploads from SEB config file: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
 }

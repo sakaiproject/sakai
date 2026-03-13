@@ -459,10 +459,24 @@ public class ConfirmPublishAssessmentListener
             while (itemFacadeIterator.hasNext()){
                 ItemFacade itemFacade = itemFacadeIterator.next();
                 if (TypeIfc.FILE_UPLOAD.equals(itemFacade.getType().getTypeId())) {
-                    String sebUpload_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "seb_file_upload_error");
-                    context.addMessage(null,new FacesMessage(sebUpload_err));
-                    sebFileUploadError=true;
-                    break;
+                    // Check if the SEB configuration allows file uploads
+                    boolean isUploadModeWithUploadsEnabled = false;
+
+                    // If config mode is UPLOAD, check if the uploaded file has allowUploads enabled
+                    String sebConfigMode = assessmentSettings.getSebConfigMode();
+                    if ("UPLOAD".equals(sebConfigMode)) {
+                        String configUploadId = assessmentSettings.getSebConfigUploadId();
+                        isUploadModeWithUploadsEnabled = SebConfig.isAllowUploadsEnabled(configUploadId);
+                        log.debug("SEB config mode is UPLOAD. Config file allowUploads: {}", isUploadModeWithUploadsEnabled);
+                    }
+
+                    // Only show error if NOT in UPLOAD mode with allowUploads enabled
+                    if (!isUploadModeWithUploadsEnabled) {
+                        String sebUpload_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "seb_file_upload_error");
+                        context.addMessage(null,new FacesMessage(sebUpload_err));
+                        sebFileUploadError=true;
+                        break;
+                    }
                 }
             }
             if (sebFileUploadError) {
