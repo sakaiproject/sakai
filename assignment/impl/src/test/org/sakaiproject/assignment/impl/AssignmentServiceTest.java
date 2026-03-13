@@ -2357,6 +2357,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submitters.forEach(s -> {
                 Member member = mock(Member.class);
                 when(member.getUserId()).thenReturn(s);
+                when(member.isActive()).thenReturn(true);
                 Role r = mock(Role.class);
                 when(member.getRole()).thenReturn(r);
                 when(r.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
@@ -2392,6 +2393,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     private Member buildGroupMember(String userId) {
         Member member = mock(Member.class);
         when(member.getUserId()).thenReturn(userId);
+        when(member.isActive()).thenReturn(true);
         Role role = mock(Role.class);
         when(member.getRole()).thenReturn(role);
         when(role.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
