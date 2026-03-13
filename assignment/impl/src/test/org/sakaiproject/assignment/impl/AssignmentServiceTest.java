@@ -1083,6 +1083,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         try {
             assignmentService.updateSubmission(teamFourSubmission);
 
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(overlapUser);
             AssignmentSubmission lookupByCurrentUser = assignmentService.getSubmission(assignment.getId(), overlapUser);
             Assert.assertNotNull(lookupByCurrentUser);
             Assert.assertEquals(teamFourSubmission.getId(), lookupByCurrentUser.getId());
@@ -1090,6 +1091,91 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } catch (Exception e) {
             Assert.fail("Could not resolve ambiguous group submission lookup\n" + e.toString());
         }
+    }
+
+    @Test
+    public void ambiguousGroupUserWithoutResolvedSubmitterCannotSubmitWithoutSubmission() {
+        String context = UUID.randomUUID().toString();
+        String teamOneId = "team-1";
+        String teamFourId = "team-4";
+        String overlapUser = "ypalmer";
+        String teamFourOnlyUser = "team-4-only";
+        Instant now = Instant.now();
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(now.minus(Period.ofDays(2)));
+        assignment.setCloseDate(now.plus(Period.ofDays(2)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String teamOneReference = siteReference + "/group/" + teamOneId;
+        String teamFourReference = siteReference + "/group/" + teamFourId;
+        Set<String> overlapAccess = new HashSet<>(Arrays.asList(teamOneReference, teamFourReference));
+        Set<String> teamFourAccess = Collections.singleton(teamFourReference);
+
+        assignment.getGroups().add(teamOneReference);
+        assignment.getGroups().add(teamFourReference);
+
+        Site site = mock(Site.class);
+        Group teamOne = mock(Group.class);
+        Group teamFour = mock(Group.class);
+        AuthzGroup teamOneAuthzGroup = mock(AuthzGroup.class);
+        AuthzGroup teamFourAuthzGroup = mock(AuthzGroup.class);
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(teamOneReference)).thenReturn(teamOneAuthzGroup);
+            when(authzGroupService.getAuthzGroup(teamFourReference)).thenReturn(teamFourAuthzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure ambiguous no-submission mocks\n" + e.toString());
+        }
+
+        when(teamOne.getId()).thenReturn(teamOneId);
+        when(teamOne.getReference()).thenReturn(teamOneReference);
+        when(teamOne.getProperties()).thenReturn(new BaseResourceProperties());
+
+        when(teamFour.getId()).thenReturn(teamFourId);
+        when(teamFour.getReference()).thenReturn(teamFourReference);
+        when(teamFour.getProperties()).thenReturn(new BaseResourceProperties());
+
+        when(site.getGroups()).thenReturn(new HashSet<>(Arrays.asList(teamOne, teamFour)));
+        when(site.getGroup(teamOneId)).thenReturn(teamOne);
+        when(site.getGroup(teamFourId)).thenReturn(teamFour);
+        when(site.getGroup(teamOneReference)).thenReturn(teamOne);
+        when(site.getGroup(teamFourReference)).thenReturn(teamFour);
+        when(site.getGroupsWithMember(overlapUser)).thenReturn(new HashSet<>(Arrays.asList(teamOne, teamFour)));
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamOneReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamFourReference)).thenReturn(true);
+        when(securityService.unlock(overlapUser, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamOneReference)).thenReturn(true);
+        when(securityService.unlock(overlapUser, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, teamFourReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(overlapUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(overlapAccess);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teamFourOnlyUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(teamFourAccess);
+
+        Set<Member> teamOneMembers = new HashSet<>(Collections.singletonList(buildGroupMember(overlapUser)));
+        Set<Member> teamFourMembers = new HashSet<>(Arrays.asList(
+                buildGroupMember(overlapUser),
+                buildGroupMember(teamFourOnlyUser)));
+        when(teamOne.getMembers()).thenReturn(teamOneMembers);
+        when(teamFour.getMembers()).thenReturn(teamFourMembers);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for ambiguous no-submission test\n" + e.toString());
+        }
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(overlapUser);
+        Assert.assertNull(assignmentService.getSubmitterIdForAssignment(assignment, overlapUser));
+        Assert.assertFalse(assignmentService.canSubmit(assignment, overlapUser));
     }
 
     @Test

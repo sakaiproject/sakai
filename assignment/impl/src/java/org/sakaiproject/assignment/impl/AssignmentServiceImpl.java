@@ -1497,9 +1497,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Group group = site.getGroup(submitter);
                     if (group != null && a.getGroups().contains(group.getReference())) {
                         group.getMembers().stream()
-                                .filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION) || group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
-                                        && !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
-                                        && !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                                .filter(member -> isSubmitterEligible(member, group))
                                 .forEach(member -> {
                                     AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                     ass.setSubmitter(member.getUserId());
@@ -1816,10 +1814,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // Reconcile in place so current members keep their existing submitter rows and any
             // per-user state stored there, while roster changes only add or remove the delta.
             Set<String> submitterIds = group.getMembers().stream()
-                    .filter(member -> (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
-                            || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
-                            && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
-                            && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                    .filter(member -> isSubmitterEligible(member, group))
                     .map(Member::getUserId)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -1877,6 +1872,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant dateSubmitted = submission.getDateSubmitted();
         Instant dateModified = submission.getDateModified();
         return dateSubmitted == null || dateModified == null || !dateSubmitted.isBefore(dateModified);
+    }
+
+    private boolean isSubmitterEligible(Member member, Group group) {
+        return (member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                || group.isAllowed(member.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                && !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION);
     }
 
     @Override
@@ -2407,10 +2409,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public List<User> getSortedGroupUsers(Group g) {
         List<User> users = new ArrayList<>();
 		g.getMembers().stream()
-		.filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
-				|| g.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
-				&& !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
-				&& !g.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+		.filter(m -> isSubmitterEligible(m, g))
 		.forEach( member -> {
 			try {
 				users.add(userDirectoryService.getUser(member.getUserId()));
@@ -2736,6 +2735,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             .orElse(Collections.emptyList());
 
             if (submissions.isEmpty()) {
+                if (assignment.getIsGroup() && getSubmitterIdForAssignment(assignment, userId) == null) {
+                    return false;
+                }
                 // there is no submission yet so only check if before assignment close date
                 return isBeforeAssignmentCloseDate;
             }
