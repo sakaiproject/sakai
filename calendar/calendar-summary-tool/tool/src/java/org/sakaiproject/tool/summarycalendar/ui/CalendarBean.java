@@ -38,6 +38,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +54,6 @@ import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -76,7 +77,6 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 
 @Slf4j
@@ -98,15 +98,13 @@ public class CalendarBean {
 	private CalendarUtil calendarUtil = new CalendarUtil();
 	
 	/** Bean members */
-	private String									viewMode				= MODE_MONTHVIEW;
+	@Getter @Setter private String					viewMode				= MODE_MONTHVIEW;
 	private String									prevViewMode			= null;
 	private Date									today					= null;
-	private Date									viewingDate			= null;
+	@Setter private Date							viewingDate				= null;
 	private Date									selectedDay				= null;
 	private boolean									selectedDayHasEvents	= false;
-	private String									selectedEventRef		= null;
-	private String									selectedCalendarRef		= null;
-	private EventSummary							selectedEvent			= null;
+	@Getter private EventSummary					selectedEvent			= null;
 
 	/** Private members */
 	private boolean									updateEventList			= true;
@@ -135,6 +133,7 @@ public class CalendarBean {
 	
 	/** Sakai services */
 	private transient CalendarService				M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
+	private transient EntityBroker					M_eb					= (EntityBroker) ComponentManager.get(EntityBroker.class.getName());
 	private transient ExternalCalendarSubscriptionService M_ecs				= (ExternalCalendarSubscriptionService) ComponentManager.get(ExternalCalendarSubscriptionService.class.getName());
 	private transient TimeService					M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
 	private transient SiteService					M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
@@ -420,7 +419,7 @@ public class CalendarBean {
 		setViewingDate(cal.getTime());
 		// show events for today if any
 		selectedDay = getToday();
-		selectedEventRef = null;
+		selectedEvent = null;
 		updateEventList = true;
 	}
 	
@@ -452,7 +451,7 @@ public class CalendarBean {
 		cal.add(Calendar.MONTH, -1);
 		setViewingDate(cal.getTime());
 		selectedDay = null;
-		selectedEventRef = null;
+		selectedEvent = null;
 	}
 
 	private void nextMonth(ActionEvent e) {
@@ -461,7 +460,7 @@ public class CalendarBean {
 		cal.add(Calendar.MONTH, +1);
 		setViewingDate(cal.getTime());
 		selectedDay = null;
-		selectedEventRef = null;
+		selectedEvent = null;
 	}
 	
 	private void prevWeek(ActionEvent e) {
@@ -470,7 +469,7 @@ public class CalendarBean {
 		cal.add(Calendar.WEEK_OF_YEAR, -1);
 		setViewingDate(cal.getTime());
 		selectedDay = null;
-		selectedEventRef = null;
+		selectedEvent = null;
 	}
 
 	private void nextWeek(ActionEvent e) {
@@ -479,7 +478,7 @@ public class CalendarBean {
 		cal.add(Calendar.WEEK_OF_YEAR, +1);
 		setViewingDate(cal.getTime());
 		selectedDay = null;
-		selectedEventRef = null;
+		selectedEvent = null;
 	}
 
 	public void selectDate(ActionEvent e) {
@@ -490,41 +489,88 @@ public class CalendarBean {
 			DateFormat df = new SimpleDateFormat(msgs.getString("date_link_format"), msgs.getLocale());
 			df.setTimeZone(getCurrentUserTimezone());
 			selectedDay = df.parse(dateStr);
-			selectedEventRef = null;
+			selectedEvent = null;
 			updateEventList = true;
 		}catch(Exception ex){
 			log.error("Error getting selectedDate: {}", ex.toString());
 		}
 	}
 
-	public void selectEvent(ActionEvent e) {
-		try{
+	public void selectEvent(ActionEvent actionEvent) {
+		selectedEvent = null;
+		updateEventList = true;
+
+		try {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			Map paramMap = context.getRequestParameterMap();
-			selectedCalendarRef = (String) paramMap.get("calendarRef");
-			selectedEventRef = (String) paramMap.get("eventRef");
-			selectedEvent = null;
-			updateEventList = false;
-		}catch(Exception ex){
-			log.error("Error getting selectedEventRef: {}", ex.toString());
+			Map<String, String> paramMap = context.getRequestParameterMap();
+			String calendarRef = paramMap.get("calendarRef");
+			String eventRef = paramMap.get("eventRef");
+
+			if (StringUtils.isAnyBlank(calendarRef, eventRef)) {
+				log.warn("Calendar reference [{}] or event reference [{}] not specified", calendarRef, eventRef);
+				return;
+			}
+
+			org.sakaiproject.calendar.api.Calendar calendar = M_ca.getCalendar(calendarRef);
+			if (calendar != null) {
+				String siteId = calendar.getContext();
+				CalendarEvent event = calendar.getEvent(eventRef);
+				if (event != null) {
+					EventSummary eventSummary = new EventSummary();
+					eventSummary.setCalendarRef(calendarRef);
+					eventSummary.setEventRef(eventRef);
+					eventSummary.setDisplayName(event.getDisplayName());
+					eventSummary.setDate(event.getRange());
+					eventSummary.setType(event.getType());
+					eventSummary.setTypeLocalized(calendarUtil.getLocalizedEventType(event.getType()));
+					eventSummary.setDescription(event.getDescriptionFormatted());
+					eventSummary.setLocation(event.getLocation());
+					M_ss.getOptionalSite(siteId).ifPresent(site -> {
+						eventSummary.setSite(site.getTitle());
+						eventSummary.setUrl(buildEventUrl(site, event));
+					});
+					eventSummary.setAttachments(event.getAttachments());
+
+					// Checking assignment If the event is assignment due date
+					try {
+						String assignmentId = event.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+						if (StringUtils.isNotBlank(assignmentId)) {
+							M_eb.executeCustomAction(ASSN_ENTITY_PREFIX + assignmentId, ASSN_ENTITY_ACTION, null, null);
+						}
+					} catch (EntityNotFoundException enfe) {
+						String openDateErrorDescription = msgs.getFormattedMessage("java.alert.opendatedescription", event.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+						eventSummary.setOpenDateErrorDescription(openDateErrorDescription);
+						eventSummary.setOpenDateError(true);
+					}
+
+					if (M_as.unlock("calendar.all.groups", M_ss.siteReference(siteId))) {
+						Collection<Group> groups = event.getGroupObjects();
+						if (!groups.isEmpty()) {
+							String groupTitles = groups.stream()
+									.map(Group::getTitle)
+									.collect(java.util.stream.Collectors.joining(", "));
+							eventSummary.setGroups(groupTitles);
+						}
+					}
+					selectedEvent = eventSummary;
+				} else {
+					log.warn("Calendar event not found with reference [{}]", eventRef);
+				}
+			} else {
+				log.warn("Calendar not found with reference [{}]", calendarRef);
+			}
+		} catch (Exception e) {
+			log.error("Error setting the current event: {}", e.toString());
 		}
 	}
 
 	public void backToEventList(ActionEvent e) {
 		try{
-			selectedEventRef = null;
+			selectedEvent = null;
 			updateEventList = true;
 		}catch(Exception ex){
 			log.error("Error in backToEventList: {}", ex.toString());
 		}
-	}
-	
-	public String getViewMode() {
-		return viewMode;
-	}
-	
-	public void setViewMode(String viewMode) {
-		this.viewMode = viewMode;
 	}
 
 	// ######################################################################################
@@ -725,11 +771,11 @@ public class CalendarBean {
 		t.setTime(selectedDay);
 		selectedDayHasEvents = getScheduleEventsForDay(t).size() > 0;
 
-		return selectedDayHasEvents && selectedEventRef == null;
+		return selectedDayHasEvents && selectedEvent == null;
 	}
 
 	public boolean isViewingSelectedEvent() {
-		return selectedEventRef != null;
+		return selectedEvent != null;
 	}
 
 	public String getSelectedDayAsString() {
@@ -744,70 +790,7 @@ public class CalendarBean {
 		return getDayEvents(getScheduleEventsForDay(c));
 	}
 
-	public EventSummary getSelectedEvent() {
-		if(selectedEvent == null){
-			try{
-				org.sakaiproject.calendar.api.Calendar calendar = M_ca.getCalendar(selectedCalendarRef);
-				CalendarEvent event = calendar.getEvent(selectedEventRef);
-				selectedEvent = new EventSummary();
-				selectedEvent.setDisplayName(event.getDisplayName());
-				selectedEvent.setDate(event.getRange());
-				selectedEvent.setType(event.getType());
-				selectedEvent.setTypeLocalized(calendarUtil.getLocalizedEventType(event.getType()));
-				selectedEvent.setDescription(event.getDescriptionFormatted());
-				selectedEvent.setLocation(event.getLocation());
-				Site site = M_ss.getSite(calendar.getContext());
-				selectedEvent.setSite(site.getTitle());
-				String eventUrl = buildEventUrl(site, event.getReference());
-				selectedEvent.setUrl(eventUrl);
-				selectedEvent.setAttachments(event.getAttachments());
-				//Checking assignment If the event is assignment due date
-				try{
-					String assignmentId = event.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
-					if (assignmentId != null && assignmentId.trim().length() > 0)
-					{
-						StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
-						entityId.append( assignmentId );
-						if (entityBroker == null)
-						{
-							entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
-						}
-						entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);						
-					}
-					
-				}catch(EntityNotFoundException e){
-					final String openDateErrorDescription = msgs.getFormattedMessage("java.alert.opendatedescription",
-									event.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-					selectedEvent.setOpenDateErrorDescription(openDateErrorDescription);
-					selectedEvent.setOpenDateError(true);
-				}				
-				
-				// groups
-				if(M_as.unlock("calendar.all.groups", "/site/"+calendar.getContext())){
-					Collection grps = event.getGroupObjects();
-					if(grps.size() > 0){
-						StringBuilder sb = new StringBuilder();
-						Iterator gi = grps.iterator();
-						while(gi.hasNext()){
-							Group g = (Group) gi.next();
-							if(sb.length() > 0)
-								sb.append(", ");
-							sb.append(g.getTitle());
-						}
-						selectedEvent.setGroups(sb.toString());
-					}
-				}
-				
-			}catch(IdUnusedException e){
-				log.error("IdUnusedException: {}", e.getMessage());
-			}catch(PermissionException e){
-				log.error("Permission exception: {}", e.getMessage());
-			}
-		}
-		return selectedEvent;
-	}
-	
-	private String buildEventUrl(Site site, String eventRef) {
+	private String buildEventUrl(Site site, CalendarEvent event) {
 		StringBuilder url = new StringBuilder();
 		ToolConfiguration tc = null;
 		if ("!worksite".equals(site.getId()))
@@ -840,7 +823,7 @@ public class CalendarBean {
 			url.append("/directtool/");
 			url.append(tc.getId());
 			url.append("?eventReference=");
-			url.append(Validator.escapeUrl(eventRef));
+			url.append(Validator.escapeUrl(event.getReference()));
 			url.append("&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
 			return url.toString();
 		}else{
@@ -873,11 +856,7 @@ public class CalendarBean {
 		return viewingDate;
 	}
 
-	public void setViewingDate(Date selectedMonth) {
-		this.viewingDate = selectedMonth;
-	}
-	
-	public String[] getDayOfWeekNames() {
+    public String[] getDayOfWeekNames() {
 		Calendar c = Calendar.getInstance(getCurrentUserTimezone(),msgs.getLocale());
 		return new CalendarUtil(c).getCalendarDaysOfWeekNames(false);
 	}
@@ -906,6 +885,5 @@ public class CalendarBean {
 	}
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "item";
-	private EntityBroker entityBroker;
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
 }
