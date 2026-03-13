@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -3043,34 +3044,41 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
     }
 
-    public List getUpdatedAssessmentList(String agentId, String siteId) {
-        List finalList = new ArrayList();
-        List updatedAssessmentList = new ArrayList();
-        List updatedAssessmentNeedResubmitListList = new ArrayList();
+    // This method returns a list of two lists.
+    // The first list contains the assessment ids with status ASSESSMENT_UPDATED_NEED_RESUBMIT
+    // The second list contains the assessment ids with status ASSESSMENT_UPDATED.
+    public List<Set<Long>> getUpdatedAssessmentList(String agentId, String siteId) {
+        Set<Long> updatedAssessmentIds = new LinkedHashSet<>();
+        Set<Long> needResubmitAssessmentIds = new LinkedHashSet<>();
 
-        List list = getHibernateTemplate()
+        List<Object[]> results = (List<Object[]>) getHibernateTemplate()
                 .findByNamedParam(
-                        "select a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
+                        "select distinct a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
                                 " where a.agentId = :agent and az.agentIdString = :site and az.functionId = :fid " +
                                 " and az.qualifierId=a.publishedAssessmentId and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) " +
                                 " order by a.status",
                         new String[]{"agent", "site", "fid", "forgrade", "status1", "status2"},
                         new Object[]{agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingData.ASSESSMENT_UPDATED, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT});
-        if (list.isEmpty()) {
-            return updatedAssessmentList;
-        }
 
-        Iterator iter = list.iterator();
-        while (iter.hasNext()) {
-            Object o[] = (Object[]) iter.next();
-            if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
-                updatedAssessmentNeedResubmitListList.add(o[0]);
-            } else {
-                updatedAssessmentList.add(o[0]);
+        if (results != null) {
+            for (Object[] row : results) {
+                Long assessmentId = (Long) row[0];
+                Integer status = (Integer) row[1];
+
+                if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(status)) {
+                    updatedAssessmentIds.remove(assessmentId);
+                    needResubmitAssessmentIds.add(assessmentId);
+                } else if (AssessmentGradingData.ASSESSMENT_UPDATED.equals(status)
+                        && !needResubmitAssessmentIds.contains(assessmentId)){
+                    updatedAssessmentIds.add(assessmentId);
+                }
             }
         }
-        finalList.add(updatedAssessmentNeedResubmitListList);
-        finalList.add(updatedAssessmentList);
+
+        List<Set<Long>> finalList = new ArrayList<>(2);
+        finalList.add(needResubmitAssessmentIds);
+        finalList.add(updatedAssessmentIds);
+
         return finalList;
     }
 
