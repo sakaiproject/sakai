@@ -131,12 +131,11 @@ public class ScormEntity implements LessonEntity {
     // ref looks like /scorm/id
     public ContentPackage getContentPackage(Long id) {
 	try {
-	    contentPackage = scormContentService.getContentPackage(id);
+	    return scormContentService.getContentPackage(id);
 	} catch (Exception e) {
 	    log.warn("Unable to load SCORM content package {}: {}", id, e.getMessage());
-	    contentPackage = null;
+	    return null;
 	}
-	return contentPackage;
     }
 
     // type of the underlying object

@@ -90,9 +90,10 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
-		if (((GeneralViewParameters) viewparams).getSendingPage() != -1) {
+		GeneralViewParameters params = (GeneralViewParameters) viewparams;
+		if (params.getSendingPage() != -1) {
 		    try {
-			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
+			simplePageBean.updatePageObject(params.getSendingPage());
 		    } catch (Exception e) {
 			log.warn("ScormPicker permission exception {}", e.toString());
 			return;
@@ -102,7 +103,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
-		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
+		Long itemId = params.getItemId();
 
 		simplePageBean.setItemId(itemId);
 
@@ -131,11 +132,11 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "scorm-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSendingPage(params.getSendingPage());
+			    view.setId(itemId != null ? Long.toString(itemId) : null);
 			    view.setSource("CREATE/SCORM/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
-			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
+			    view.setAddBefore(params.getAddBefore());
 			    view.setTitle(messageLocator.getMessage("simplepage.return_scorm"));
 			    UIInternalLink.make(link, "scorm-create-link", createLink.label , view);
 			}
@@ -179,7 +180,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
-			UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
+			UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", params.getAddBefore());
 
 			UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addScorm}");
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
