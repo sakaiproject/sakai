@@ -219,6 +219,22 @@
 			</label>
 		</div>
 
+		#if ($!allowAutoSubmit)
+			<div class="checkbox">
+				<label for="$name_CheckAutoSubmit">
+					<input id="$name_CheckAutoSubmit" name="$name_CheckAutoSubmit" type="checkbox" value="true"
+						#if ($!value_CheckAutoSubmit)
+							checked="checked"
+						#end
+					/>
+					$tlang.getString("auto.submit.checkbox.label")
+				</label>
+				<p class="text-muted small">
+					$tlang.getString("auto.submit.checkbox.description")
+				</p>
+			</div>
+		#end
+
 		## attachments
 		<h4>
 			$tlang.getString("gen.att")

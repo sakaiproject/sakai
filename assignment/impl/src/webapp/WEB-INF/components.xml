@@ -308,4 +308,27 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
+
+    <bean id="AutoSubmitAssignments"
+          class="org.sakaiproject.assignment.impl.AutoSubmitAssignmentsJob">
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssignments"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="AutoSubmitAssignments"/>
+        <property name="jobName" value="Auto Submit Assignments Job"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
 </beans>
