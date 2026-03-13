@@ -511,7 +511,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Collection<Group> siteGroups = site.getGroups();
 				addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
 
-				if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM) {
+				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId()) && (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM)) {
 					LessonEntity e = entityForType(item.getType()).getEntity(item.getSakaiId());
 					if (e != null) {
 						String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary

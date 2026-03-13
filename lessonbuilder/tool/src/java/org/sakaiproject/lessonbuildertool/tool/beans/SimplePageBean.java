@@ -5940,12 +5940,22 @@ public class SimplePageBean {
 			    }
 			}
 		} else if (item.getType() == SimplePageItem.SCORM) {
-			boolean scormComplete = false;
-			if (!item.getSakaiId().equals(SimplePageItem.DUMMY)) {
-			    LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(), this);
-			    if (scorm != null) {
-				scormComplete = scorm.getSubmission(getCurrentUserId()) != null;
-			    }
+			if (item.getSakaiId().equals(SimplePageItem.DUMMY)) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(), this);
+			if (scorm == null) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			boolean scormComplete;
+			if (!item.getSubrequirement()) {
+			    // any attempt (visit) is sufficient
+			    scormComplete = scorm.getSubmissionCount(getCurrentUserId()) > 0;
+			} else {
+			    // must complete or pass the package
+			    scormComplete = scorm.getSubmission(getCurrentUserId()) != null;
 			}
 			completeCache.put(itemId, scormComplete);
 			return scormComplete;
