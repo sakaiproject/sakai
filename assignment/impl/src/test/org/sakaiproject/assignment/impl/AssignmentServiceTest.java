@@ -31,6 +31,9 @@ import static org.mockito.Mockito.verify;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.Duration;
@@ -168,6 +171,42 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     public void checkAssignmentToolId() {
         Assert.assertNotNull(assignmentService.getToolId());
+    }
+
+    @Test
+    public void addAssignmentLinkMappingsIncludesDeepLinkPatterns() throws Exception {
+        AssignmentServiceImpl assignmentServiceImpl = AopTestUtils.getTargetObject(assignmentService);
+        Map<String, String> transversalMap = new HashMap<>();
+
+        String fromContext = "old-site";
+        String toContext = "new-site";
+        String fromAssignmentId = "old-assignment-id";
+        String toAssignmentId = "new-assignment-id";
+
+        Method method = AssignmentServiceImpl.class.getDeclaredMethod("addAssignmentLinkMappings",
+                Map.class, String.class, String.class, String.class, String.class);
+        method.setAccessible(true);
+        method.invoke(assignmentServiceImpl, transversalMap, fromContext, toContext, fromAssignmentId, toAssignmentId);
+
+        String fromReference = AssignmentReferenceReckoner.reckoner()
+                .context(fromContext).id(fromAssignmentId).reckon().getReference();
+        String toReference = AssignmentReferenceReckoner.reckoner()
+                .context(toContext).id(toAssignmentId).reckon().getReference();
+
+        Assert.assertEquals("assignment/" + toAssignmentId, transversalMap.get("assignment/" + fromAssignmentId));
+        Assert.assertEquals(toReference, transversalMap.get(fromReference));
+        Assert.assertEquals("assignmentId=" + toAssignmentId, transversalMap.get("assignmentId=" + fromAssignmentId));
+        Assert.assertEquals("assignmentReference=" + toReference,
+                transversalMap.get("assignmentReference=" + fromReference));
+
+        String encodedFromReference = URLEncoder.encode(fromReference, StandardCharsets.UTF_8);
+        String encodedToReference = URLEncoder.encode(toReference, StandardCharsets.UTF_8);
+        Assert.assertEquals("assignmentReference=" + encodedToReference,
+                transversalMap.get("assignmentReference=" + encodedFromReference));
+        Assert.assertEquals("assignmentReference%3D" + encodedToReference,
+                transversalMap.get("assignmentReference%3D" + encodedFromReference));
+        Assert.assertEquals("assignmentId%3D" + toAssignmentId,
+                transversalMap.get("assignmentId%3D" + fromAssignmentId));
     }
 
     @Test

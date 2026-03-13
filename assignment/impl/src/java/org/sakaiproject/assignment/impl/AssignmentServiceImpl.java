@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
@@ -4667,7 +4669,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
-                    transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
+                    addAssignmentLinkMappings(transversalMap, fromContext, toContext, oAssignmentId, nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
 
                     try {
@@ -4806,6 +4808,29 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getToolPermissionsPrefix() {
         return AssignmentServiceConstants.SECURE_PERMISSION_PREFIX;
+    }
+
+    private void addAssignmentLinkMappings(Map<String, String> transversalMap, String fromContext, String toContext,
+            String fromAssignmentId, String toAssignmentId) {
+        if (transversalMap == null || StringUtils.isAnyBlank(fromContext, toContext, fromAssignmentId, toAssignmentId)) {
+            return;
+        }
+
+        // Keep legacy assignment/<id> mapping for existing /direct/assignment/<id> links.
+        transversalMap.put("assignment/" + fromAssignmentId, "assignment/" + toAssignmentId);
+
+        // Also map full assignment references and query parameters used by directtool deep links.
+        String sourceReference = AssignmentReferenceReckoner.reckoner().context(fromContext).id(fromAssignmentId).reckon().getReference();
+        String targetReference = AssignmentReferenceReckoner.reckoner().context(toContext).id(toAssignmentId).reckon().getReference();
+        transversalMap.put(sourceReference, targetReference);
+        transversalMap.put("assignmentReference=" + sourceReference, "assignmentReference=" + targetReference);
+        transversalMap.put("assignmentId=" + fromAssignmentId, "assignmentId=" + toAssignmentId);
+
+        String encodedSourceReference = URLEncoder.encode(sourceReference, StandardCharsets.UTF_8);
+        String encodedTargetReference = URLEncoder.encode(targetReference, StandardCharsets.UTF_8);
+        transversalMap.put("assignmentReference=" + encodedSourceReference, "assignmentReference=" + encodedTargetReference);
+        transversalMap.put("assignmentReference%3D" + encodedSourceReference, "assignmentReference%3D" + encodedTargetReference);
+        transversalMap.put("assignmentId%3D" + fromAssignmentId, "assignmentId%3D" + toAssignmentId);
     }
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {
