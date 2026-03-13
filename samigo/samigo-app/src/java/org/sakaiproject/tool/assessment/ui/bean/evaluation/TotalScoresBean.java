@@ -1003,23 +1003,18 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
     	enrollments = getAvailableEnrollments(true, siteId);
     }
-    else if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
-    		|| (calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER 
-    				&& "true".equalsIgnoreCase(anonymous)) 
-	    	|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
-    	    		&& "true".equalsIgnoreCase(anonymous))
-    		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
-    	    		&& "true".equalsIgnoreCase(anonymous)) 
-    		|| (calledFrom==CALLED_FROM_NOTIFICATION_LISTENER
-	    	        && "true".equalsIgnoreCase(anonymous))
-    	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
-    	    	    && "true".equalsIgnoreCase(anonymous))) {
-        // For instructors who have all groups privilege, get all available enrollments without group filtering
-        if (hasAllGroupsPrivilege) {
-            enrollments = getAvailableEnrollments(false, siteId);
-        } else {
-            enrollments = getAllGroupsReleaseEnrollments(siteId);
-        }
+    else if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER
+      || getSelectedSectionFilterValue().trim().equals(ALL_SECTIONS_SELECT_VALUE)
+      || (calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER && "true".equalsIgnoreCase(anonymous))
+      || (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER && "true".equalsIgnoreCase(anonymous))
+      || (calledFrom==CALLED_FROM_NOTIFICATION_LISTENER && "true".equalsIgnoreCase(anonymous))
+      || (calledFrom==CALLED_FROM_EXPORT_LISTENER && "true".equalsIgnoreCase(anonymous))) {
+      // For instructors who have all groups privilege, get all available enrollments without group filtering
+      if (hasAllGroupsPrivilege) {
+        enrollments = getAvailableEnrollments(false, siteId);
+      } else {
+        enrollments = getAllGroupsReleaseEnrollments(siteId);
+      }
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments(siteId);
