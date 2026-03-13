@@ -1830,6 +1830,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // members of the assignment group; surviving rows stay in place so their
                 // existing per-user state is not destroyed and recreated.
                 if (!submitterIds.contains(existingSubmitter.getSubmitter())) {
+                    log.info("Removing submitter {} from submission {} during reconciliation for group {}",
+                            existingSubmitter.getSubmitter(), submission.getId(), groupId);
                     iterator.remove();
                     continue;
                 }
