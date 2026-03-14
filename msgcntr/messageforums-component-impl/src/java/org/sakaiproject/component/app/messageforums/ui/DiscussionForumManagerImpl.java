@@ -100,6 +100,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -108,6 +109,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
 @Slf4j
+@Transactional
 public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DiscussionForumManager {
   private static final String MC_DEFAULT = "mc.default.";

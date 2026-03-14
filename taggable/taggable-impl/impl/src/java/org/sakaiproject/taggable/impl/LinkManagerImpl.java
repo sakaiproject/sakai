@@ -31,7 +31,9 @@ import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 {
 	

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +73,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 ************************************************************************************************************************************************/
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_useExternalLocks = true;
+	@Setter protected SqlService sqlService;
 
 	/*************************************************************************************************************************************************
 	 * Configuration
@@ -84,15 +86,11 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	protected UserServiceSql userServiceSql;
 	protected Cache cache = null;
 
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract SqlService sqlService();
 
 	/**
 	 * Configuration: set the table name
 	 *
-	 * @param path
+	 * @param name
 	 *        The table name.
 	 */
 	public void setTableName(String name)
@@ -154,14 +152,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_user");
 			}
 
 			super.init();
-			setUserServiceSql(sqlService().getVendor());
+			setUserServiceSql(sqlService.getVendor());
 
 			log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
-			cache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
+			cache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
 			log.info("User ID/EID mapping Cache [" + cache.getName() +"]");
 
 		}
@@ -217,7 +215,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		 */
 		public DbStorage()
 		{
-			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService());
+			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService);
 			setSortField(m_sortField1, m_sortField2);
 
 			m_reader = this;
@@ -378,12 +376,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			if (edit == null)
 			{
-				String attribUser = sessionManager().getCurrentSessionUserId();
+				String attribUser = sessionManager.getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if ((attribUser == null) || (attribUser.length() == 0)) attribUser = (String) rv[0];
 
-				Time now = timeService().newTime();
+				Time now = timeService.getObject().newTime();
 				rv[1] = "";
 				rv[2] = "";
 				rv[3] = "";
@@ -584,7 +582,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			String statement = userServiceSql.getUserEidSql();
 			Object fields[] = new Object[1];
 			fields[0] = id;
-			List rv = sqlService().dbRead(statement, fields, null);
+			List rv = sqlService.dbRead(statement, fields, null);
 
 			if (rv.size() > 0)
 			{
@@ -617,7 +615,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			String statement = userServiceSql.getUserIdSql();
 			Object fields[] = new Object[1];
 			fields[0] = eid;
-			List rv = sqlService().dbRead(statement, fields, null);
+			List rv = sqlService.dbRead(statement, fields, null);
 
 			if (rv.size() > 0)
 			{

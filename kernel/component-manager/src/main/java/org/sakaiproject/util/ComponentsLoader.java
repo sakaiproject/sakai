@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.CachedIntrospectionResults;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -128,6 +129,9 @@ public class ComponentsLoader
 		// setup the classloader onto the thread
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		ClassLoader loader = newPackageClassLoader(dir);
+
+		// inform spring to trust this classloader as hot deploy of components is not supported
+		CachedIntrospectionResults.acceptClassLoader(loader);
 
 		log.info(dir.toString());
 

@@ -37,11 +37,13 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class StatisticsFacadeQueries extends HibernateDaoSupport implements StatisticsFacadeQueriesAPI {
 
 

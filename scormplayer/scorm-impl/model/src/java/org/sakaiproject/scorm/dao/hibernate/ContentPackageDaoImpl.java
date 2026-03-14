@@ -23,7 +23,9 @@ import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao
 {
 	@Override

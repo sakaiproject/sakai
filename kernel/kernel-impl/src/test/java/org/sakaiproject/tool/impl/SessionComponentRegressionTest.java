@@ -31,24 +31,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.mutable.MutableLong;
-import org.jmock.Expectations;
+import org.junit.Test;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Mostly black-box {@link SessionComponent} unit tests intended to guard against
  * regressions. Was specifically motivated by an effort to re-implement
  * session attribute storage against a distributable cache. Class
  * name is unfortunate, but is necessitated by the existence of
- * {@link SessionComponentTest} in the "main" src dir.
+ * {@link SessionComponent} in the "main" src dir.
  * 
  * @author dmccallum@unicon.net
  */
 @Slf4j
 public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 
+	@Test
 	public void testGetSessionReturnsNullIfNoSuchSession() {
 		assertNull(sessionComponent.getSession("COMPLETE_NONSENSE"));
 	}
@@ -59,9 +64,10 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * here is limited to non-expired sessions.
 	 * 
 	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
+	@Test
 	public void testGetSessionAlwaysReturnsSessionCreatedByStartSession() 
 	throws InterruptedException, ExecutionException, TimeoutException {
 		final Session startedSession = startSessionForUser();
@@ -83,9 +89,10 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * ({@link SessionComponent#startSession(String)}.
 	 * 
 	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
+	@Test
 	public void testGetSessionAlwaysReturnsSessionStartedWithClientSpecifiedId() 
 	throws InterruptedException, ExecutionException, TimeoutException {
 		final Session startedSession = sessionComponent.startSession("9876543210");
@@ -109,9 +116,10 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * @throws InterruptedException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchFieldException 
-	 * @throws IllegalArgumentException 
-	 * @throws SecurityException 
+	 * @throws IllegalArgumentException
+	 * @throws SecurityException
 	 */
+	@Test
 	public void testGetSessionReturnsNullIfSessionExpired() 
 	throws InterruptedException, SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 		resetMaintenance("1", "1");
@@ -129,6 +137,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * but relies on its internal maintenance thread to trigger the session
 	 * invalidation.
 	 */
+	@Test
 	public void testGetSessionReturnsNullIfSessionExplicitlyInvalidated() {
 		stopMaintenance(); // ensure that it's actually the test code triggering invalidation
 		Session session = startSessionAndExpectItsExpiration();
@@ -153,6 +162,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * that the session is subsequently available to the current thread by other
 	 * means, though.
 	 */
+	@Test
 	public void testGetCurrentSessionLazilyCreatesTransientSession() {
 		expectLazyCurrentSessionCreation();
 		Session session = sessionComponent.getCurrentSession();
@@ -173,6 +183,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
+	@Test
 	public void testGetCurrentSessionCachesLazilyCreatedThreadScopedSession() 
 	throws InterruptedException, ExecutionException, TimeoutException {
 		expectLazyCurrentSessionCreation("1234546789");
@@ -180,14 +191,11 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		assertNotNull("Should have allocated a new session", session);
 		
 		// Since we control the return value of the "gets" on threadLocalManager,
-		// the important bit here is that the "get" expectation defined immediately 
-		// below is satisfied, much less so the "sameness" assertion following that. 
+		// the important bit here is that the "get" expectation defined immediately
+		// below is satisfied, much less so the "sameness" assertion following that.
 		// The same basic point holds for the asynch further on down.
-		checking(new Expectations() {{
-			one(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION))); 
-			will(returnValue(session));
-		}});
-		assertSame("A thread should always receive the same \"current\" session", 
+		when(threadLocalManager.get(eq(SessionComponent.CURRENT_SESSION))).thenReturn(session);
+		assertSame("A thread should always receive the same \"current\" session",
 				session, sessionComponent.getCurrentSession());
 		
 		// other threads should get different "current" Session objects
@@ -208,6 +216,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * are initialized to the correct state. This effectively means that the resulting
 	 * session exhibits all the characteristics of any other "started" session.
 	 */
+	@Test
 	public void testGetCurrentSessionCachesLazilyCreatedSessionsInExpectedState() {
 		String expectedSessionId = "123456789";
 		String expectedInactiveInterval = "10";
@@ -224,13 +233,11 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * session creation logic is skipped when appropriate.
 	 *  
 	 */
+	@Test
 	public void testGetCurrentSessionReturnsExistingThreadScopedSession() {
 		final Session session = mock(Session.class);
-		checking(new Expectations() {{
-			one(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION))); 
-			will(returnValue(session));
-		}});
-		assertSame("Should have returned existing session", 
+		when(threadLocalManager.get(eq(SessionComponent.CURRENT_SESSION))).thenReturn(session);
+		assertSame("Should have returned existing session",
 				session, sessionComponent.getCurrentSession());
 	}
 
@@ -240,6 +247,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * duplication, most assertions are actually implemented by 
 	 * {@link #assertStartedSessionState(Session)}.
 	 */
+	@Test
 	public void testStartsSessionsInCorrectState() {
 		resetMaintenance("10", "10");
 		String expectedSessionId = "123456789";
@@ -253,6 +261,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * except that it tests the overload of <code>startSession()</code>
 	 * ({@link SessionComponent#startSession(String)}.
 	 */
+	@Test
 	public void testStartsSpecificSessionsInCorrectState() {
 		resetMaintenance("10", "10");
 		String expectedSessionId = "987654321";
@@ -282,6 +291,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		assertNull("Sessions should be started without a user EID", startedSession.getUserEid());
 	}
 
+	@Test
 	public void testStartingSessionDoesNotSetCurrentSession() {
 		// Currently, getCurrentSession() lazily allocates a thread-scoped
 		// Session if such a Session does not already exist. That behavior
@@ -294,50 +304,42 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		assertNotSame(startedSession, sessionComponent.getCurrentSession());
 	}
 	
+	@Test
 	public void testStartingSpecificSessionDoesNotSetCurrentSession() {
 		allowLazyCurrentSessionCreation();
 		Session startedSession = sessionComponent.startSession("987654321");	
 		assertNotSame(startedSession, sessionComponent.getCurrentSession());
 	}
 	
+	@Test
 	public void testGetCurrentSessionUserIdRetrievesIdFromThreadScopedSession() {
 		final Session session = mock(Session.class);
 		final String userId = "SOME_USER_ID";
-		checking(new Expectations() {{
-			one(threadLocalManager).get(SessionComponent.CURRENT_SESSION);
-			will(returnValue(session));
-			one(session).getUserId();
-			will(returnValue(userId));
-		}});
-		assertEquals("Incorrect current session user ID", 
+		when(threadLocalManager.get(SessionComponent.CURRENT_SESSION)).thenReturn(session);
+		when(session.getUserId()).thenReturn(userId);
+		assertEquals("Incorrect current session user ID",
 				userId, sessionComponent.getCurrentSessionUserId());
 	}
 	
+	@Test
 	public void testGetCurrentSessionUserIdReturnsNullIfNoThreadScopedSession() {
-		checking(new Expectations() {{
-			one(threadLocalManager).get(SessionComponent.CURRENT_SESSION);
-			will(returnValue(null));
-		}});
-		assertNull("Should have returned null user ID", 
+		when(threadLocalManager.get(SessionComponent.CURRENT_SESSION)).thenReturn(null);
+		assertNull("Should have returned null user ID",
 				sessionComponent.getCurrentSessionUserId());
 	}
-	
+
+	@Test
 	public void testGetCurrentToolSessionReturnsThreadScopedSession() {
 		final ToolSession session = mock(ToolSession.class);
-		checking(new Expectations() {{
-			one(threadLocalManager).get(SessionComponent.CURRENT_TOOL_SESSION);
-			will(returnValue(session));
-		}});
-		assertEquals("Should have returned the current thread-scoped ToolSession", 
+		when(threadLocalManager.get(SessionComponent.CURRENT_TOOL_SESSION)).thenReturn(session);
+		assertEquals("Should have returned the current thread-scoped ToolSession",
 				session, sessionComponent.getCurrentToolSession());
 	}
-	
+
+	@Test
 	public void testGetCurrentToolSessionReturnsNullIfNoThreadScopedSession() {
-		checking(new Expectations() {{
-			one(threadLocalManager).get(SessionComponent.CURRENT_TOOL_SESSION);
-			will(returnValue(null));
-		}});
-		assertNull("Should have returned null ToolSession", 
+		when(threadLocalManager.get(SessionComponent.CURRENT_TOOL_SESSION)).thenReturn(null);
+		assertNull("Should have returned null ToolSession",
 				sessionComponent.getCurrentToolSession());
 	}
 	
@@ -347,45 +349,40 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * not stored in the "global" session lookup table, and is therefore not 
 	 * findable by ID.
 	 */
+	@Test
 	public void testSetCurrentSessionCachesSessionInThreadScope() {
 		final String sessionId = "123456789";
 		final Session session = mock(Session.class);
-		checking(new Expectations() {{
-			one(threadLocalManager).set(SessionComponent.CURRENT_SESSION, session);
-			allowing(session).getId(); will(returnValue(sessionId));
-			
-		}});
+		when(session.getId()).thenReturn(sessionId);
 		sessionComponent.setCurrentSession(session);
+		verify(threadLocalManager).set(SessionComponent.CURRENT_SESSION, session);
 		assertNull("Should not have registered \"current\" session with the global lookup table",
 				sessionComponent.getSession(sessionId));
 	}
-	
+
+	@Test
 	public void testSetCurrentSessionCachesNullSessionInThreadScope() {
-		checking(new Expectations() {{
-			one(threadLocalManager).set(SessionComponent.CURRENT_SESSION, null);
-		}});
 		sessionComponent.setCurrentSession(null);
+		verify(threadLocalManager).set(SessionComponent.CURRENT_SESSION, null);
 	}
-	
+
 	/**
 	 * Verifies that the specified tool session is cached in the correct
-	 * <code>ThreadLocal</code>. No need to verify that the tool session 
+	 * <code>ThreadLocal</code>. No need to verify that the tool session
 	 * isn't placed in the global lookup table b/c the API effectively
-	 * prevents this. 
+	 * prevents this.
 	 */
+	@Test
 	public void testSetCurrentToolSessionCachesSessionInThreadScope() {
 		final ToolSession session = mock(ToolSession.class);
-		checking(new Expectations() {{
-			one(threadLocalManager).set(SessionComponent.CURRENT_TOOL_SESSION, session);
-		}});
 		sessionComponent.setCurrentToolSession(session);
+		verify(threadLocalManager).set(SessionComponent.CURRENT_TOOL_SESSION, session);
 	}
-	
+
+	@Test
 	public void testSetCurrentToolSessionCachesNullSessionInThreadScope() {
-		checking(new Expectations() {{
-			one(threadLocalManager).set(SessionComponent.CURRENT_TOOL_SESSION, null);
-		}});
 		sessionComponent.setCurrentToolSession(null);
+		verify(threadLocalManager).set(SessionComponent.CURRENT_TOOL_SESSION, null);
 	}
 	
 	/**
@@ -397,6 +394,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * were {@link SessionComponent}'s internal session map implemented by
 	 * something other than a {@link ConcurrentMap}.
 	 */
+	@Test
 	public void testGetActiveUserCount() {
 		startSessionForUser();
 		startSessionForUser();
@@ -424,6 +422,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * @see Session#getLastAccessedTime()
 	 * @throws InterruptedException
 	 */
+	@Test
 	public void testGetActiveUserCountFiltersInactiveSessions() 
 	throws InterruptedException {
 		startSessionForUser();
@@ -442,6 +441,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * specialness. Misimplementation of one needn't imply misimplementation
 	 * of the other.
 	 */
+	@Test
 	public void testGetActiveUserCountFiltersSpecialUserSessions() {
 		startSessionForUser("admin", "admin");
 		startSessionForUser("postmaster", "admin");
@@ -470,6 +470,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * @throws IllegalAccessException 
 	 * @throws IllegalArgumentException 
 	 */
+	@Test
 	public void testGetActiveUserCountFiltersExpiredSessions() 
 	throws InterruptedException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		resetMaintenance("1", "1");
@@ -502,6 +503,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * the {@link SessionComponent#getActiveUserCount(int)} method name. That
 	 * method does in fact count users, not sessions per se.
 	 */
+	@Test
 	public void testGetActiveUserCountIncludesMultipleSessionsForSameUser() {
 		String userUuid = nextUuid();
 		startSessionForUser(userUuid, userUuid);
@@ -509,6 +511,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		assertEquals(1, sessionComponent.getActiveUserCount(100000));
 	}
 	
+	@Test
 	public void testSessionIsInvalidatedDuringMaintenance() throws InterruptedException {
 		// 20 seconds
 		sessionComponent.setInactiveInterval("20");
@@ -560,6 +563,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * 
 	 * @see #testCanStartSessionWhileCalculatingActiveUserCount()
 	 */
+	@Test
 	public void testCanStartSessionWhilePerformingMaintenance() 
 	throws InterruptedException {
 		final CountDownLatch maintenanceStartedLatch = new CountDownLatch(1);
@@ -600,6 +604,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	 * for {@link SessionComponent#getActiveUserCount(int)}</p>
 	 * @throws InterruptedException 
 	 */
+	@Test
 	public void testCanStartSessionWhileCalculatingActiveUserCount() 
 	throws InterruptedException {
 		final CountDownLatch countStartedLatch = new CountDownLatch(1);
@@ -781,13 +786,8 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	protected void allowLazyCurrentSessionCreation(final SessionHolder createdSessionHolder,
 			String sessionId) {
 		final String scrubbedSessionId = sessionId == null ? "LAZY_SESSION_ID" : sessionId;
-		checking(new Expectations() {{
-			allowing(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION))); 
-			will(returnValue(null));
-			allowing(idManager).createUuid(); will(returnValue(scrubbedSessionId));
-			allowing(threadLocalManager).set(with(equal(SessionComponent.CURRENT_SESSION)), 
-					with(sessionHavingId(scrubbedSessionId, createdSessionHolder)));
-		}});
+		when(threadLocalManager.get(eq(SessionComponent.CURRENT_SESSION))).thenReturn(null);
+		when(idManager.createUuid()).thenReturn(scrubbedSessionId);
 	}
 	
 	protected void expectLazyCurrentSessionCreation() {
@@ -805,22 +805,12 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	protected void expectLazyCurrentSessionCreation(final SessionHolder createdSessionHolder,
 			String sessionId) {
 		final String scrubbedSessionId = sessionId == null ? "LAZY_SESSION_ID" : sessionId;
-		checking(new Expectations() {{
-			one(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION))); 
-			will(returnValue(null));
-			one(idManager).createUuid(); will(returnValue(scrubbedSessionId));
-			one(threadLocalManager).set(with(equal(SessionComponent.CURRENT_SESSION)), 
-					with(sessionHavingId(scrubbedSessionId, createdSessionHolder)));
-		}});
+		when(threadLocalManager.get(eq(SessionComponent.CURRENT_SESSION))).thenReturn(null);
+		when(idManager.createUuid()).thenReturn(scrubbedSessionId);
 	}
-	
+
 	protected void expectGetCurrentSessionReturnNull(final Session session) {
-		checking(new Expectations() {{
-			allowing(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION)));
-//			exactly(2).of(threadLocalManager).get(with(any(String.class)));
-			will(returnValue(session));
-			allowing(threadLocalManager).set(with(equal(SessionComponent.CURRENT_SESSION)),with(equal((Object)null)));
-		}});
+		when(threadLocalManager.get(eq(SessionComponent.CURRENT_SESSION))).thenReturn(session);
 	}
 	
 }

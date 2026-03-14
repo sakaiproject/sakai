@@ -80,8 +80,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
 
     //private static final String QUERY_BY_MESSAGE_ID = "findMessageById";

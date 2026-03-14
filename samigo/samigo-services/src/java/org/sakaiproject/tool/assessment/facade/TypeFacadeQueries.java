@@ -35,9 +35,11 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI{
+@Transactional
+public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI {
 
   private Map<Long, TypeFacade> typeFacadeMap;
   private List<TypeFacade> itemTypes;
@@ -55,6 +57,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
     /**
      * get the typeFacadeMap
      */
+    @Transactional(readOnly = true)
     public Map<Long, TypeFacade> getTypeFacadeMap() {
 	    return this.typeFacadeMap;
     }
@@ -65,6 +68,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @param typeId
      * @return TypeFacade
      */
+    @Transactional(readOnly = true)
     public TypeFacade getTypeFacadeById(Long typeId) {
 	    TypeFacade typeFacade = null;
 	    Map<Long, TypeFacade> typeMap = getTypeFacadeMap();
@@ -78,6 +82,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @param typeId
      * @return org.osid.shared.Type or null if no types of that id
      */
+    @Transactional(readOnly = true)
     public Type getTypeById(Long typeId){
 	    TypeFacade typeFacade = getTypeFacadeById(typeId);
 	    // SAM-1792 this could be a request for an unknown type
@@ -127,6 +132,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return a list of TypeD
      */
     @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
 	private List<TypeD> getAllTypes() {
     	return (List<TypeD>) getHibernateTemplate().find("from TypeD");
     }
@@ -136,6 +142,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * containing all the TypeFacade available
      * @return HashMap
      */
+    @Transactional(readOnly = true)
     private Map<Long, TypeFacade> getMapForAllTypes() {
 	    List<TypeD> typeList = getAllTypes();
 	    return createTypeFacadeMapById(typeList);

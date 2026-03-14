@@ -45,10 +45,12 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class EmailNotificationManagerImpl extends HibernateDaoSupport implements EmailNotificationManager {
 
 	private static final String QUERY_BY_USER_ID = "findEmailNotificationByUserId";

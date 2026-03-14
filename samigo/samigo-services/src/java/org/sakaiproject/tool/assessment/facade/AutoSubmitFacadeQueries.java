@@ -26,12 +26,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author plukasew
  */
 @Slf4j
+@Transactional
 public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements AutoSubmitFacadeQueriesAPI
 {
 	@Override

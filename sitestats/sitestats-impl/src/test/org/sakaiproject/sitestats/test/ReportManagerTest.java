@@ -33,12 +33,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.MemoryService;
@@ -59,37 +56,25 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.aop.framework.Advised;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration(classes = {SiteStatsTestConfiguration.class})
-@RunWith(SpringJUnit4ClassRunner.class)
 @Slf4j
-@Transactional(transactionManager = "org.sakaiproject.sitestats.SiteStatsTransactionManager")
 public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Resource(name = "org.sakaiproject.sitestats.test.DB")
-	private DB db;
-	@Resource(name = "org.sakaiproject.memory.api.MemoryService")
-	private MemoryService memoryService;
-	@Resource(name = "org.sakaiproject.sitestats.api.report.ReportManager")
-	private ReportManager reportManager;
-	@Resource(name = "org.sakaiproject.util.ResourceLoader.sitestats")
-	private ResourceLoader resourceLoader;
-	@Resource(name = "org.sakaiproject.site.api.SiteService")
-	private SiteService siteService;
-	@Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
-	private StatsManager statsManager;
-	@Resource(name = "org.sakaiproject.sitestats.api.StatsUpdateManager")
-	private StatsUpdateManager statsUpdateManager;
-	@Resource(name = "org.sakaiproject.tool.api.ToolManager")
-	private ToolManager toolManager;
-	@Resource(name = "org.sakaiproject.sitestats.api.event.EventRegistryService")
-	private EventRegistryService eventRegistryService;
+	@Autowired private DB db;
+	@Autowired private MemoryService memoryService;
+	@Autowired private ReportManager reportManager;
+	@Autowired private ResourceLoader resourceLoader;
+	@Autowired private SiteService siteService;
+	@Autowired private StatsManager statsManager;
+	@Autowired private StatsUpdateManager statsUpdateManager;
+	@Autowired private ToolManager toolManager;
+	@Autowired private EventRegistryService eventRegistryService;
 
 	@Before
 	public void onSetUp() throws Exception {

@@ -109,12 +109,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nuno Fernandes
  *
  */
 @Slf4j
+@Transactional
 public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
 
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();

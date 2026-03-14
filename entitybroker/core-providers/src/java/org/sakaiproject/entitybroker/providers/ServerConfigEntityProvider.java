@@ -219,7 +219,6 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
         m.put("serverName", serverConfigurationService.getServerName());
         m.put("serverUrl", serverConfigurationService.getServerUrl());
         m.put("toolUrl", serverConfigurationService.getToolUrl());
-        m.put("userHomeUrl", serverConfigurationService.getUserHomeUrl());
         // added in server IP address and hostname
         try {
             InetAddress i4 = Inet4Address.getLocalHost();

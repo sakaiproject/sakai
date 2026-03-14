@@ -32,8 +32,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
 
   public SectionFacadeQueries () {

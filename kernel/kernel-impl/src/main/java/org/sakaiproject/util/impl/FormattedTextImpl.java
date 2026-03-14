@@ -118,41 +118,39 @@ public class FormattedTextImpl implements FormattedText
     protected final String RESOURCEBUNDLE = "resource.bundle.content";
 
     public void init() {
-        if (serverConfigurationService != null) { // this keeps the tests from dying
 
-            // Determine if the MySQL DB is utf8mb3 or utf8mb4
-            validateUTF8Db();
+        // Determine if the MySQL DB is utf8mb3 or utf8mb4
+        validateUTF8Db();
 
-            //Filter content output to limited unicode characters KNL-1431
-            restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
+        //Filter content output to limited unicode characters KNL-1431
+        restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
 
-            /* KNL-1075 - content.cleaner.errors.handling = none|logged|notify|display
-             * - none - errors are completely ignored and not even stored at all
-             * - logged - errors are output in the logs only
-             * - notify - user notified about errors using a non-blocking JS popup
-             * - display - errors are displayed to the user using the new and fancy JS popup
-             */
-            errorsHandling = serverConfigurationService.getString("content.cleaner.errors.handling", errorsHandling);
-            // NONE is the case when the string is not matched as well
-            if ("logged".equalsIgnoreCase(errorsHandling)) {
-                logErrors = true;
-            } else if ("notify".equalsIgnoreCase(errorsHandling)) {
-                showErrorToUser = true;
-            } else if ("display".equalsIgnoreCase(errorsHandling)) {
-                showDetailedErrorToUser = true;
-            } else {
-                // probably the none case, but maybe also a case of invalid config....
-                if (!"none".equalsIgnoreCase(errorsHandling)) {
-                    log.warn("FormattedText error handling option invalid: "+errorsHandling+", defaulting to 'none'");
-                }
+        /* KNL-1075 - content.cleaner.errors.handling = none|logged|notify|display
+         * - none - errors are completely ignored and not even stored at all
+         * - logged - errors are output in the logs only
+         * - notify - user notified about errors using a non-blocking JS popup
+         * - display - errors are displayed to the user using the new and fancy JS popup
+         */
+        errorsHandling = serverConfigurationService.getString("content.cleaner.errors.handling", errorsHandling);
+        // NONE is the case when the string is not matched as well
+        if ("logged".equalsIgnoreCase(errorsHandling)) {
+            logErrors = true;
+        } else if ("notify".equalsIgnoreCase(errorsHandling)) {
+            showErrorToUser = true;
+        } else if ("display".equalsIgnoreCase(errorsHandling)) {
+            showDetailedErrorToUser = true;
+        } else {
+            // probably the none case, but maybe also a case of invalid config....
+            if (!"none".equalsIgnoreCase(errorsHandling)) {
+                log.warn("FormattedText error handling option invalid: "+errorsHandling+", defaulting to 'none'");
             }
-            // allow one extra option to control logging if desired
-            logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
-            log.info("FormattedText error handling: {}; log errors={}; notify user={}; details to user={}",
-                    errorsHandling, logErrors, showErrorToUser, showDetailedErrorToUser);
-
-            referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
         }
+        // allow one extra option to control logging if desired
+        logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
+        log.info("FormattedText error handling: {}; log errors={}; notify user={}; details to user={}",
+                errorsHandling, logErrors, showErrorToUser, showDetailedErrorToUser);
+
+        referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
 
         /* INIT Antisamy
          * added in support for antisamy html cleaner - KNL-1015

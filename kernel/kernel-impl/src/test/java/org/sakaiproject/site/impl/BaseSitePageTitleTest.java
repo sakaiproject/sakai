@@ -62,15 +62,6 @@ public class BaseSitePageTitleTest {
 				ignoring(service).storage();
 				will(returnValue(storage));
 				
-				ignoring(service).idManager();
-				will(returnValue(idManager));
-				
-				ignoring(service).serverConfigurationService();
-				will(returnValue(serverConfigurationService));
-				
-				ignoring(service).activeToolManager();
-				will(returnValue(activeToolManager));
-				
 				ignoring(storage).readPageProperties(with(any(SitePage.class)), with(any(ResourcePropertiesEdit.class)));
 				ignoring(storage).readPageTools(with(any(SitePage.class)), with(any(ResourceVector.class)));
 

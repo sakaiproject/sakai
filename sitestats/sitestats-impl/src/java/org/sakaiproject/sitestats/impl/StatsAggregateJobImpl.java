@@ -42,21 +42,26 @@ import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StatsAggregateJobImpl implements StatefulJob {
-	// Spring fields
-	private int					maxEventsPerRun		= 0;
-	private int					sqlBlockSize		= 1000;
-	private long				startEventId		= -1;
-	private long 				lastEventIdInTable	= -1;
-	private String				sakaiEventTimeZone	= "";
+    // ################################################################
+    // Spring related methods
+    // ################################################################
+    // Spring fields
+	@Getter @Setter private int					maxEventsPerRun		= 0;
+	@Setter private int					        sqlBlockSize		= 1000;
+	@Getter @Setter private long				startEventId		= -1;
+	private long 				                lastEventIdInTable	= -1;
+	@Getter @Setter private String				sakaiEventTimeZone	= "";
 
-	private String				driverClassName		= null;
-	private String				url					= null;
-	private String				username			= null;
-	private String				password			= null;
+	@Getter @Setter private String				driverClassName		= null;
+	@Getter @Setter private String				url					= null;
+	@Getter @Setter private String				username			= null;
+	@Getter @Setter private String				password			= null;
 	
 	// Relevant job fields
 	private JobRun				jobRun				= null;
@@ -96,8 +101,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 														"and EVENT_DATE >= ? and EVENT_DATE <= ?";
 	
 	// Services
-	private StatsUpdateManager	statsUpdateManager	= null;
-	private SqlService			sqlService			= null;
+	@Setter private StatsUpdateManager	statsUpdateManager	= null;
+	@Setter private SqlService			sqlService			= null;
 
 	public void init(){
 		doInitialCheck();
@@ -641,88 +646,4 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			}
 		}		
 	}
-
-	// ################################################################
-	// Spring related methods
-	// ################################################################
-	public int getMaxEventsPerRun() {
-		return maxEventsPerRun;
-	}
-
-	public void setMaxEventsPerRun(int maxEventsPerRun) {
-		this.maxEventsPerRun = maxEventsPerRun;
-	}
-
-	public int getSqlBlockSize() {
-		return sqlBlockSize;
-	}
-
-	public void setSqlBlockSize(int sqlBlockSize) {
-		this.sqlBlockSize = sqlBlockSize;
-	}
-
-	public long getStartEventId() {
-		return startEventId;
-	}
-
-	public void setStartEventId(long startEventId) {
-		this.startEventId = startEventId;
-	}
-
-	public String getSakaiEventTimeZone() {
-		return sakaiEventTimeZone;
-	}
-
-	public void setSakaiEventTimeZone(String timeZone) {
-		sakaiEventTimeZone = timeZone;
-	}
-
-	public String getDriverClassName() {
-		return driverClassName;
-	}
-
-	public void setDriverClassName(String driverClassName) {
-		this.driverClassName = driverClassName;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public StatsUpdateManager getStatsUpdateManager() {
-		return statsUpdateManager;
-	}
-
-	public void setStatsUpdateManager(StatsUpdateManager statsUpdateManager) {
-		this.statsUpdateManager = statsUpdateManager;
-	}
-
-	public SqlService getSqlService() {
-		return sqlService;
-	}
-
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
-	}
-
 }

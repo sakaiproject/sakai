@@ -36,6 +36,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
 import org.sakaiproject.db.api.SqlService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * KNL-1063
@@ -46,6 +47,7 @@ import org.sakaiproject.db.api.SqlService;
  *         Created on Mar 8, 2013
  */
 @Slf4j
+@Transactional
 public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements HibernateConfigItemDao {
     private static String SAKAI_CONFIG_ITEM_SQL = "sakai_config_item";
     private SqlService sqlService;

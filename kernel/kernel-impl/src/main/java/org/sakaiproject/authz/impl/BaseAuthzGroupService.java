@@ -54,6 +54,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -61,7 +62,9 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -72,6 +75,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -128,7 +132,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -158,7 +162,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!securityService().unlock(lock, resource))
+		if (!securityService.unlock(lock, resource))
 		{
 			return false;
 		}
@@ -180,7 +184,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new AuthzPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
+			throw new AuthzPermissionException(sessionManager.getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
@@ -189,7 +193,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	protected void addLiveProperties(BaseAuthzGroup azGroup)
 	{
-		String current = sessionManager().getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 
 		azGroup.m_createdUserId = current;
 		azGroup.m_lastModifiedUserId = current;
@@ -204,7 +208,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	protected void addLiveUpdateProperties(BaseAuthzGroup azGroup)
 	{
-		String current = sessionManager().getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 
 		azGroup.m_lastModifiedUserId = current;
 		azGroup.m_lastModifiedTime = Instant.now();
@@ -240,56 +244,21 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected EntityManager entityManager;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected SecurityService securityService;
+	@Setter protected SessionManager sessionManager;
+	@Setter protected EventTrackingService eventTrackingService;
+	@Setter protected UserDirectoryService userDirectoryService;
+	@Setter protected List<AuthzGroupAdvisor> authzGroupAdvisors;
+	@Setter protected SiteService siteService;
+	@Setter protected MemoryService memoryService;
+	@Setter protected SchedulingService schedulingService;
+	@Setter protected SqlService sqlService;
+	@Setter protected TimeService timeService;
+	@Setter protected MicrosoftMessagingService microsoftMessagingService;
 
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
-	protected abstract EventTrackingService eventTrackingService();
-
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-
-	protected List<AuthzGroupAdvisor> authzGroupAdvisors;
-	
-	protected abstract MicrosoftMessagingService microsoftMessagingService();
-	
-	protected SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-	
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -299,13 +268,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void init()
 	{
-		authzGroupAdvisors = new ArrayList<AuthzGroupAdvisor>();
+		authzGroupAdvisors = new ArrayList<>();
 		
 		try
 		{
 			// Get resource bundle
-			String resourceClass = serverConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-			String resourceBundle = serverConfigurationService().getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+			String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+			String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 			rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 			
 			m_relativeAccessPoint = REFERENCE_ROOT;
@@ -315,28 +284,15 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			m_storage.open();
 
 			// register as an entity producer
-			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			functionManager().registerFunction(SECURE_ADD_AUTHZ_GROUP);
-			functionManager().registerFunction(SECURE_REMOVE_AUTHZ_GROUP);
-			functionManager().registerFunction(SECURE_UPDATE_AUTHZ_GROUP);
-			functionManager().registerFunction(SECURE_UPDATE_OWN_AUTHZ_GROUP);
-			functionManager().registerFunction(SECURE_VIEW_ALL_AUTHZ_GROUPS);
+			functionManager.registerFunction(SECURE_ADD_AUTHZ_GROUP);
+			functionManager.registerFunction(SECURE_REMOVE_AUTHZ_GROUP);
+			functionManager.registerFunction(SECURE_UPDATE_AUTHZ_GROUP);
+			functionManager.registerFunction(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+			functionManager.registerFunction(SECURE_VIEW_ALL_AUTHZ_GROUPS);
 
-			// if no provider was set, see if we can find one
-			if (m_provider == null)
-			{
-				m_provider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
-			}
-
-			// try and find a role provider.
-            if (m_roleProvider == null) {
-                m_roleProvider = (RoleProvider) ComponentManager.get(RoleProvider.class.getName());
-            }
-
-			log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
-			
 			dummyUserPrefix = UUID.randomUUID().toString().substring(0, 8);
 		}
 		catch (Exception t)
@@ -448,7 +404,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void joinGroup(String authzGroupId, String roleId, int maxSize) throws GroupNotDefinedException, AuthzPermissionException, GroupFullException, AuthzRealmLockException
 	{
-		String user = sessionManager().getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		if (user == null) {
 		    throw new AuthzPermissionException(null, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 		}
@@ -493,7 +449,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void unjoinGroup(String authzGroupId) throws GroupNotDefinedException, AuthzPermissionException, AuthzRealmLockException
 	{
-		String user = sessionManager().getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		if (user == null) {
 		    throw new AuthzPermissionException(null, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 		}
@@ -546,7 +502,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public boolean allowJoinGroup(String authzGroupId)
 	{
-		String user = sessionManager().getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		if (user == null) return false;
 
 		// check security (throws if not permitted)
@@ -572,7 +528,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public boolean allowUnjoinGroup(String authzGroupId)
 	{
-		String user = sessionManager().getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		if (user == null)
 		{
 			return false;
@@ -630,7 +586,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		log.debug("AuthzGroup: {}", azGroup);
 		if (azGroup.getId() == null) throw new GroupNotDefinedException("<null>");
 
-       	Reference ref = entityManager().newReference(azGroup.getId());
+       	Reference ref = entityManager.newReference(azGroup.getId());
 
 		boolean allowed = false;
 		if ("sakai:site".equals(ref.getType())) {
@@ -678,7 +634,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		Set<String> removedUsers
 			= existingUsers.stream().filter(eu -> !updatedUsers.contains(eu)).collect(Collectors.toSet());
 		try {
-			((SakaiSecurity) securityService()).notifyMembersRemovedFromRealm(removedUsers, existingAuthzGroup.getReference());
+			((SakaiSecurity) securityService).notifyMembersRemovedFromRealm(removedUsers, existingAuthzGroup.getReference());
 		} catch (Exception e) {
 			log.warn("Failure while trying to notify SS about realm removal for AZG("
 						+ existingAuthzGroup.getId() + "): " + e, e);
@@ -729,12 +685,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
                         log.debug("Changed permissions for roles (" + roles + ") in " + azGroup.getId() + ": " + permissions);
                     }
                 }
-                ((SakaiSecurity) securityService()).notifyRealmChanged(azGroup.getId(), roles, permissions);
+                ((SakaiSecurity) securityService).notifyRealmChanged(azGroup.getId(), roles, permissions);
             } catch (Exception e) {
                 log.warn("Failure while trying to notify SS about realm changes for AZG(" + azGroup.getId() + "): " + e, e);
             }
         } // End KNL-1230
-		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(event, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -780,7 +736,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// KNL-523 set the event
 		//String event = ((BaseAuthzGroup) azGroup).getEvent();
 		//if (event == null) event = SECURE_JOIN_AUTHZ_GROUP;
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_JOIN_AUTHZ_GROUP, azGroup.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_JOIN_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -825,7 +781,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// KNL-523 set the event
 		//String event = ((BaseAuthzGroup) azGroup).getEvent();
 		//if (event == null) event = SECURE_UNJOIN_AUTHZ_GROUP;
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UNJOIN_AUTHZ_GROUP, azGroup.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_UNJOIN_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -974,7 +930,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		}
         // KNL-1230 handle removal of authzgroups by processing caching changes
         try {
-            ((SakaiSecurity) securityService()).notifyRealmRemoved(azGroup.getId());
+            ((SakaiSecurity) securityService).notifyRealmRemoved(azGroup.getId());
         } catch (Exception e) {
             log.warn("Failure while trying to notify SS about realm removal for AZG(" + azGroup.getId() + "): " + e, e);
         } // End KNL-1230
@@ -982,7 +938,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		m_storage.remove(azGroup);
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -1128,13 +1084,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		try
 		{
-			String eid = userDirectoryService().getUserEid(userId);
+			String eid = userDirectoryService.getUserEid(userId);
 
 			// wrap the provided map in our special map that will deal with compound provider ids
 			// suppressed using a properties setting and per
 			// http://article.gmane.org/gmane.comp.cms.sakai.devel/36245
 			// DRS / Univ of VA SAK-1590
-			if (!serverConfigurationService().getBoolean("suppressCMRefresh", false)) {
+			if (!serverConfigurationService.getBoolean("suppressCMRefresh", false)) {
 				Map providerGrants = new ProviderMap(m_provider, m_provider.getGroupRolesForUser(eid));
 
 				m_storage.refreshUser(userId, providerGrants);
@@ -1151,7 +1107,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			for (Iterator i = updAuthzGroups.iterator(); i.hasNext();)
 			{
 				String azGroupId = (String) i.next();
-				Reference ref = entityManager().newReference(azGroupId);
+				Reference ref = entityManager.newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
 						&& !siteService.isSpecialSite(ref.getId())
 						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
@@ -1164,7 +1120,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			for (Iterator i = unpAuthzGroups.iterator(); i.hasNext();)
 			{
 				String azGroupId = (String) i.next();
-				Reference ref = entityManager().newReference(azGroupId);
+				Reference ref = entityManager.newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
 						&& !siteService.isSpecialSite(ref.getId())
 						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
@@ -1177,7 +1133,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			for (Iterator i = visitAuthzGroups.iterator(); i.hasNext();)
 			{
 				String azGroupId = (String) i.next();
-				Reference ref = entityManager().newReference(azGroupId);
+				Reference ref = entityManager.newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
 						&& !siteService.isSpecialSite(ref.getId())
 						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
@@ -1203,7 +1159,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	protected void updateSiteSecurity(AuthzGroup azGroup)
 	{
 		// Special code for the site service
-		Reference ref = entityManager().newReference(azGroup.getId());
+		Reference ref = entityManager.newReference(azGroup.getId());
 		if (SiteService.APPLICATION_ID.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
 		{
 			// collect the users
@@ -1224,7 +1180,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	protected void removeSiteSecurity(AuthzGroup azGroup)
 	{
 		// Special code for the site service
-		Reference ref = entityManager().newReference(azGroup.getId());
+		Reference ref = entityManager.newReference(azGroup.getId());
 		if (SiteService.APPLICATION_ID.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
 		{
 			// no azGroup, no users
@@ -1293,10 +1249,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		if ((ref.getId() != null) && (ref.getId().length() > 0) && (!ref.getId().startsWith("!")))
 		{
 			// add the current user's azGroup (for what azGroup stuff everyone can do, i.e. add)
-			ref.addUserAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
+			ref.addUserAuthzGroup(rv, sessionManager.getCurrentSessionUserId());
 
 			// make a new reference on the azGroup's id
-			Reference refnew = entityManager().newReference(ref.getId());
+			Reference refnew = entityManager.newReference(ref.getId());
 			rv.addAll(refnew.getAuthzGroups(userId));
 		}
 
@@ -1655,7 +1611,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	{
 		Set<String> roles = new HashSet<String>();
 		roles.add(ANON_ROLE);
-		if ((userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId)))
+		if ((userId != null) && (!userDirectoryService.getAnonymousUser().getId().equals(userId)))
 		{
 
 			// A dummy user is created to test role access instead of loading all of the roles and iterating over them.
@@ -1736,7 +1692,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  	 * @return <code>true</code> if .anon can be granted.
  	 */
  	protected boolean isAllowedAnon() {
- 		return serverConfigurationService().getBoolean("sitemanage.grant.anon", false);
+ 		return serverConfigurationService.getBoolean("sitemanage.grant.anon", false);
  	}
  
  	/**
@@ -1744,6 +1700,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  	 * @return <code>true</code> if .auth can be granted.
  	 */
  	protected boolean isAllowedAuth() {
- 		return serverConfigurationService().getBoolean("sitemanage.grant.auth", false);
+ 		return serverConfigurationService.getBoolean("sitemanage.grant.auth", false);
  	}
 }

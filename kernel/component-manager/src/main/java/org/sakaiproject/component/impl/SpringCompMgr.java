@@ -121,8 +121,7 @@ public class SpringCompMgr implements ComponentManager {
 	 * systems it should be <code>false</code>.
 	 */
 	public void init(boolean lateRefresh) {
-		if (m_ac != null)
-			return;
+		if (m_ac != null) return;
 
 		this.lateRefresh = lateRefresh;
 
@@ -135,8 +134,7 @@ public class SpringCompMgr implements ComponentManager {
 
 		List<String> configLocationList = new ArrayList<String>();
 		configLocationList.add(DEFAULT_CONFIGURATION_FILE);
-		String localConfigLocation = System.getProperty("sakai.home")
-				+ CONFIGURATION_FILE_NAME;
+		String localConfigLocation = System.getProperty("sakai.home") + CONFIGURATION_FILE_NAME;
 		File configFile = new File(localConfigLocation);
 		if (configFile.exists()) {
 			configLocationList.add("file:" + localConfigLocation);
@@ -339,14 +337,12 @@ public class SpringCompMgr implements ComponentManager {
 
 		// locate the components root
 		// if we have our system property set, use it
-		String componentsRoot = System
-				.getProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP);
+		String componentsRoot = System.getProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP);
 		if (componentsRoot == null) {
 			// if we are in Catalina, place it at ${catalina.home}/components/
 			String catalina = getCatalina();
 			if (catalina != null) {
-				componentsRoot = catalina + File.separatorChar + "components"
-						+ File.separatorChar;
+				componentsRoot = catalina + File.separatorChar + "components" + File.separatorChar;
 			}
 		}
 
@@ -377,8 +373,7 @@ public class SpringCompMgr implements ComponentManager {
 
 		// if we are not using the shutdown hook, close() when the m_childCount
 		// == 0
-		if ((m_childCount == 0)
-				&& (System.getProperty(CLOSE_ON_SHUTDOWN) == null)) {
+		if ((m_childCount == 0) && (System.getProperty(CLOSE_ON_SHUTDOWN) == null)) {
 			close();
 		}
 	}
@@ -402,9 +397,7 @@ public class SpringCompMgr implements ComponentManager {
 	 */
 	public Properties getConfig() {
 		if (log.isErrorEnabled())
-			log.error(
-							"getConfig called; ServerConfigurationService should be used instead",
-							new Exception());
+			log.error("getConfig called; ServerConfigurationService should be used instead", new Exception());
 		return null;
 	}
 
@@ -428,8 +421,7 @@ public class SpringCompMgr implements ComponentManager {
 		if (sakaiHomePath == null) {
 			String catalina = getCatalina();
 			if (catalina != null) {
-				sakaiHomePath = catalina + File.separatorChar + "sakai"
-						+ File.separatorChar;
+				sakaiHomePath = catalina + File.separatorChar + "sakai" + File.separatorChar;
 			}
 		}
 
@@ -442,15 +434,12 @@ public class SpringCompMgr implements ComponentManager {
 			sakaiHomePath = sakaiHomePath + File.separatorChar;
 
 		final File sakaiHomeDirectory = new File(sakaiHomePath);
-		if (!sakaiHomeDirectory.exists()) // no sakai.home directory exists,
-											// try to create one
-		{
+		if (!sakaiHomeDirectory.exists()) {
+			// no sakai.home directory exists, try to create one
 			if (sakaiHomeDirectory.mkdir()) {
-				log.debug("Created sakai.home directory at: "
-								+ sakaiHomePath);
+				log.debug("Created sakai.home directory at: {}", sakaiHomePath);
 			} else {
-				log.warn("Could not create sakai.home directory at: "
-						+ sakaiHomePath);
+				log.warn("Could not create sakai.home directory at: {}", sakaiHomePath);
 			}
 		}
 

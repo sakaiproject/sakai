@@ -376,11 +376,16 @@ public interface SqlService
 	String getBooleanConstant(boolean value);
 
 	/**
-	 * @param sql
-	 * @param reader
-	 * @return
+	 * Executes a SQL query with a read lock on the database and processes the result using the provided reader.
+	 * This method acquires a read lock before executing the query, allowing concurrent reads while preventing
+	 * writes to the locked data until the operation completes.
+	 *
+	 * @param <T> the type of result returned by the SqlReader
+	 * @param sql the SQL query string to execute with a read lock
+	 * @param reader the SqlReader implementation used to process the query results
+	 * @return the database Connection used for the read lock operation
 	 */
-	Connection dbReadLock(String sql, SqlReader reader);
+	<T> Connection dbReadLock(String sql, SqlReader<T> reader);
 
 	/**
 	 * Execute the "write/update" sql - no response, using a set of fields from an array plus one more as params and connection.

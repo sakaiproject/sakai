@@ -49,6 +49,8 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +61,11 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@Transactional(
+		propagation = Propagation.REQUIRED,
+		readOnly = true,
+		noRollbackFor = IdNotFoundException.class
+)
 public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
 
 	private static final ResourceLoader enrollmentsMessages = new ResourceLoader("enrollmentstatus");

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.sitestats.test;
 
+import static org.hibernate.cfg.Environment.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -26,7 +27,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
@@ -70,10 +70,10 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -91,14 +91,13 @@ public class SiteStatsTestConfiguration {
     @Autowired
     private Environment environment;
 
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.sitestats")
+    @Autowired @Qualifier("org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.sitestats")
     private AdditionalHibernateMappings hibernateMappings;
 
     static {
         System.setProperty("sakai.tests.enabled", "true");
     }
 
-    @Primary
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
@@ -110,22 +109,20 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "javax.sql.DataSource")
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
-        dataSource.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
-        dataSource.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
-        dataSource.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
+        dataSource.setDriverClassName(environment.getProperty(DRIVER, jdbcDriver.class.getName()));
+        dataSource.setUrl(environment.getProperty(URL, "jdbc:hsqldb:mem:test"));
+        dataSource.setUsername(environment.getProperty(USER, "sa"));
+        dataSource.setPassword(environment.getProperty(PASS, ""));
         return dataSource;
     }
 
     @Bean
-    public Properties hibernateProperties() {
-        return new Properties() {
-            {
-                setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
-                setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
-                setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
-            }
-        };
+    public Properties hibernateProperties(Environment environment) {
+        Properties properties = new Properties();
+        properties.setProperty(DIALECT, environment.getProperty(DIALECT, HSQLDialect.class.getName()));
+        properties.setProperty(HBM2DDL_AUTO, environment.getProperty(HBM2DDL_AUTO));
+        properties.setProperty(ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(ENABLE_LAZY_LOAD_NO_TRANS, "true"));
+        return properties;
     }
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")

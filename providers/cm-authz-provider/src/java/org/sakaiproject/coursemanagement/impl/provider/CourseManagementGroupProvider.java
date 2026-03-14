@@ -33,6 +33,7 @@ import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * A Sakai GroupProvider that utilizes the CourseManagementService and the
@@ -41,6 +42,7 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
  * based on memberships in parent objects such as CourseSets.
  */
 @Slf4j
+@Transactional(readOnly = true)
 public class CourseManagementGroupProvider implements GroupProvider {
 
 	// Configuration keys.

@@ -26,8 +26,10 @@ import org.adl.datamodels.SCODataManager;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao
 {
 	@Override

@@ -41,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Transactional(transactionManager = "org.sakaiproject.sitestats.SiteStatsTransactionManager")
 public class DB extends HibernateDaoSupport {
 
 	public void insertObject(final Object obj) {

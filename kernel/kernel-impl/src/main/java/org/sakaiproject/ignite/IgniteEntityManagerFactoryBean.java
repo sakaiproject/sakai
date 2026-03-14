@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IgniteEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
-    public void setIgnite(IgniteConfiguration igniteConfiguration) {
+    public void setIgniteConfiguration(IgniteConfiguration igniteConfiguration) {
         String igniteInstanceName = igniteConfiguration.getIgniteInstanceName();
         getJpaPropertyMap().put("org.apache.ignite.hibernate.ignite_instance_name", igniteInstanceName);
         log.info("Ignite instance name [{}] configured as hibernate cache provider", igniteInstanceName);

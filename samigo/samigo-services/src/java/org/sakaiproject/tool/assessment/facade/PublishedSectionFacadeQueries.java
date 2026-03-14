@@ -18,9 +18,10 @@ package org.sakaiproject.tool.assessment.facade;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
-public class PublishedSectionFacadeQueries extends HibernateDaoSupport
-		implements PublishedSectionFacadeQueriesAPI {
+@Transactional
+public class PublishedSectionFacadeQueries extends HibernateDaoSupport implements PublishedSectionFacadeQueriesAPI {
 
 	  public IdImpl getId(String id) {
 	    return new IdImpl(id);

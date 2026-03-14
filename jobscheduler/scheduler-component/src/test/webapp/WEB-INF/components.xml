@@ -12,24 +12,9 @@
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"
+    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
           class="org.sakaiproject.component.app.scheduler.events.hibernate.TriggerEventManagerHibernateImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"/>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
     </bean>
 
     <bean id="navigableLogListener" class="org.sakaiproject.component.app.scheduler.NavigableEventLogListener"/>

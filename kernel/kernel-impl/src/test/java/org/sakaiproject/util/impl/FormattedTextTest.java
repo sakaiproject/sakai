@@ -73,29 +73,7 @@ public class FormattedTextTest {
         final ThreadLocalManager threadLocalManager = new ThreadLocalComponent();
         BasicConfigurationService basicConfigurationService = new BasicConfigurationService(); // cannot use home or server methods
         basicConfigurationService.setThreadLocalManager(threadLocalManager);
-        sessionManager = new SessionComponent() {
-            @Override
-            protected ToolManager toolManager() {
-                return null; // not needed for this test
-            }
-            @Override
-            protected ThreadLocalManager threadLocalManager() {
-                return threadLocalManager;
-            }
-            @Override
-            protected IdManager idManager() {
-                return idManager;
-            }
-            @Override
-            protected RebuildBreakdownService rebuildBreakdownService() {
-                return null;
-            }
-
-            @Override
-            protected ClusterService clusterManager() {
-                return null;
-            }
-        };
+        sessionManager = new SessionComponent();
 
         // add in the config so we can test it
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "none", "FormattedTextTest"));

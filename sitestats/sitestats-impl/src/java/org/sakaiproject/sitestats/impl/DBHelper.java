@@ -38,11 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DBHelper extends HibernateDaoSupport {
 
-	@Setter private ServerConfigurationService serverConfigurationService;
 	private boolean		autoDdl					= false;
 	private String		dbVendor				= null;
 	private boolean		notifiedIndexesUpdate	= false;
-	
+
+	@Setter private ServerConfigurationService serverConfigurationService;
 
 	// ################################################################
 	// Spring bean methods

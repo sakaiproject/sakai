@@ -21,9 +21,6 @@
 
 package org.sakaiproject.user.impl;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.util.IPAddrUtil;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -35,6 +32,10 @@ import org.sakaiproject.user.api.IdPwEvidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.IPAddrUtil;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -42,129 +43,86 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * </p>
  */
 @Slf4j
-public abstract class UserAuthnComponent implements AuthenticationManager
-{
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
+public class UserAuthnComponent implements AuthenticationManager {
 
-	/**
-	 * @return the UserDirectoryService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-	
-	protected abstract AuthenticationCache authenticationCache();
+    @Setter protected UserDirectoryService userDirectoryService;
+    @Setter protected AuthenticationCache authenticationCache;
 
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+    public void init() {
+        log.info("init()");
+    }
 
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
-	public void init()
-	{
-		log.info("init()");
-	}
+    public void destroy() {
+        log.info("destroy()");
+    }
 
-	/**
-	 * Final cleanup.
-	 */
-	public void destroy()
-	{
-		log.info("destroy()");
-	}
+    public Authentication authenticate(Evidence e) throws AuthenticationException {
+        if (e instanceof IdPwEvidence) {
+            IdPwEvidence evidence = (IdPwEvidence) e;
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Work interface methods: AuthenticationManager
-	 *********************************************************************************************************************************************************************************************************************************************************/
+            // reject null or blank
+            if ((evidence.getPassword() == null) || (evidence.getPassword().trim().length() == 0)
+                    || (evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0)) {
+                throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
+            }
 
-	/**
-	 * @inheritDoc
-	 */
-	public Authentication authenticate(Evidence e) throws AuthenticationException
-	{
-		if (e instanceof IdPwEvidence)
-		{
-			IdPwEvidence evidence = (IdPwEvidence) e;
+            // Check the cache. If repeat authentication failures are being throttled,
+            // an immediate AuthenticationException might be thrown here.
+            Authentication rv = authenticationCache.getAuthentication(evidence.getIdentifier(), evidence.getPassword());
+            if (rv != null) {
+                return rv;
+            }
 
-			// reject null or blank
-			if ((evidence.getPassword() == null) || (evidence.getPassword().trim().length() == 0)
-					|| (evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0))
-			{
-				throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
-			}
-			
-			// Check the cache. If repeat authentication failures are being throttled,
-			// an immediate AuthenticationException might be thrown here.
-			Authentication rv = authenticationCache().getAuthentication(evidence.getIdentifier(), evidence.getPassword());
-			if (rv != null) {
-				return rv;
-			}
+            // the evidence id must match a defined User
+            User user = userDirectoryService.authenticate(evidence.getIdentifier(), evidence.getPassword());
+            if (user == null) {
+                authenticationCache.putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
+                throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
+            }
 
-			// the evidence id must match a defined User
-			User user = userDirectoryService().authenticate(evidence.getIdentifier(), evidence.getPassword());
-			if (user == null)
-			{
-				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
-				throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
-			}
+            // Check to see if the user account is disabled
+            String disabled = user.getProperties().getProperty("disabled");
+            if (disabled != null && "true".equals(disabled)) {
+                throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
+            }
 
-			// Check to see if the user account is disabled
-			String disabled = user.getProperties().getProperty("disabled");
-			if (disabled != null && "true".equals(disabled))
-			{
-				throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
-			}
+            // Check optional whitelist for this account
+            String whitelist = user.getProperties().getProperty("ip-whitelist");
+            if (whitelist != null && !whitelist.isEmpty() && !IPAddrUtil.matchIPList(whitelist, evidence.getRemoteAddr())) {
+                throw new AuthenticationException("Authentication refused: The user may only authenticate from whitelisted addresses");
+            }
 
-			// Check optional whitelist for this account
-			String whitelist = user.getProperties().getProperty("ip-whitelist");
-			if (whitelist != null && !whitelist.isEmpty() && !IPAddrUtil.matchIPList(whitelist, evidence.getRemoteAddr())) {
-				throw new AuthenticationException("Authentication refused: The user may only authenticate from whitelisted addresses");
-			}
+            rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 
-			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
-			
-			// Cache the authentication.
-			authenticationCache().putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
-			
-			return rv;
-		}
+            // Cache the authentication.
+            authenticationCache.putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
 
-		else if (e instanceof ExternalTrustedEvidence)
-		{
-			ExternalTrustedEvidence evidence = (ExternalTrustedEvidence) e;
+            return rv;
+        } else if (e instanceof ExternalTrustedEvidence) {
+            ExternalTrustedEvidence evidence = (ExternalTrustedEvidence) e;
 
-			// reject null or blank
-			if ((evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0))
-			{
-				throw new AuthenticationException("Invalid Login: Identifier empty.");
-			}
+            // reject null or blank
+            if ((evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0)) {
+                throw new AuthenticationException("Invalid Login: Identifier empty.");
+            }
 
-			// accept, so now lookup the user in our database.
-			try
-			{
-				User user = userDirectoryService().getUserByAid(evidence.getIdentifier());
-				String disabled = user.getProperties().getProperty("disabled");
-				if (disabled != null && "true".equals(disabled))
-				{
-					throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
-				}
-				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
-				return rv;
-			}
-			catch (UserNotDefinedException ex)
-			{
-				// reject if the user is not defined
-				// TODO: create the user record here?
-				throw new AuthenticationMissingException("User '" + evidence.getIdentifier() + "' not defined", e);
-			}
-		}
-
-		else
-		{
-			throw new AuthenticationUnknownException(e.toString());
-		}
-	}
+            // accept, so now lookup the user in our database.
+            try {
+                User user = userDirectoryService.getUserByAid(evidence.getIdentifier());
+                String disabled = user.getProperties().getProperty("disabled");
+                if (disabled != null && "true".equals(disabled)) {
+                    throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
+                }
+                Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+                return rv;
+            } catch (UserNotDefinedException ex) {
+                // reject if the user is not defined
+                // TODO: create the user record here?
+                throw new AuthenticationMissingException("User '" + evidence.getIdentifier() + "' not defined", e);
+            }
+        } else {
+            throw new AuthenticationUnknownException(e.toString());
+        }
+    }
 }

@@ -43,7 +43,9 @@ import org.sakaiproject.component.app.postem.data.TemplateImpl;
 
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class GradebookManagerImpl extends HibernateDaoSupport implements GradebookManager, Serializable {
 
     public static final String TITLE = "title";

@@ -65,9 +65,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Setter
+@Transactional
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
 
 	private static final String QUERY_WORKSPACE_SYNOPTIC_ITEMS = "findWorkspaceSynopticMsgcntrItems";

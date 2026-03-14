@@ -41,6 +41,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -91,20 +92,10 @@ public abstract class ToolComponent implements ToolManager
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the ThreadLocalManager collaborator.
-	 */
-	protected abstract ThreadLocalManager threadLocalManager();
-	
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-	
-	/**
-	 * @return the SiteService collaborator.
-	 */
-	protected abstract SiteService siteService();
+	@Setter protected ThreadLocalManager threadLocalManager;
+	@Setter protected SecurityService securityService;
+	@Setter protected SiteService siteService;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -303,7 +294,7 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	public Placement getCurrentPlacement()
 	{
-		return (Placement) threadLocalManager().get(CURRENT_PLACEMENT);
+		return (Placement) threadLocalManager.get(CURRENT_PLACEMENT);
 	}
 
 	/**
@@ -311,7 +302,7 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	public Tool getCurrentTool()
 	{
-		return (Tool) threadLocalManager().get(CURRENT_TOOL);
+		return (Tool) threadLocalManager.get(CURRENT_TOOL);
 	}
 
 	/**
@@ -500,7 +491,7 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	protected void setCurrentPlacement(Placement placement)
 	{
-		threadLocalManager().set(CURRENT_PLACEMENT, placement);
+		threadLocalManager.set(CURRENT_PLACEMENT, placement);
 	}
 
 	/**
@@ -511,7 +502,7 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	protected void setCurrentTool(Tool tool)
 	{
-		threadLocalManager().set(CURRENT_TOOL, tool);
+		threadLocalManager.set(CURRENT_TOOL, tool);
 	}
 
 	/**
@@ -628,7 +619,7 @@ public abstract class ToolComponent implements ToolManager
 				// Since all in a set are required, if we are missing just one permission, set
 				// false, break and continue to check next set as that set may override and
 				// allow access.
-				if (!securityService().unlock(perm.trim(), site.getReference())){
+				if (!securityService.unlock(perm.trim(), site.getReference())){
 					allowed = false;
 					break;
 				}
@@ -681,7 +672,7 @@ public abstract class ToolComponent implements ToolManager
 	public boolean allowTool(Site site, Placement placement)
 	{
 		if(allowToolHelper(site, placement)){
-			if(!securityService().isSuperUser()){
+			if(!securityService.isSuperUser()){
 				try{
 					//delegated access sets a session attribute that determines if the user can't view a tool in a site
 					//delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
@@ -758,7 +749,7 @@ public abstract class ToolComponent implements ToolManager
 			boolean gotAllInList = true;
 			for (int j = 0; j < requiredPermissions.length; j++)
 			{
-				if (!securityService().unlock(requiredPermissions[j].trim(), site.getReference()))
+				if (!securityService.unlock(requiredPermissions[j].trim(), site.getReference()))
 				{
 					gotAllInList = false;
 					break;
@@ -801,7 +792,7 @@ public abstract class ToolComponent implements ToolManager
 	{
 		Site site = null;
 		try {
-			site = siteService().getSite(siteId);
+			site = siteService.getSite(siteId);
 		} catch (IdUnusedException e) {
 			log.error("Site for ID {} not found", siteId, e.toString());
 		}

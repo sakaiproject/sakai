@@ -108,8 +108,10 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
 
     /**

@@ -13,29 +13,12 @@
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.config.api.HibernateConfigItemDao.target"
+    <bean id="org.sakaiproject.config.api.HibernateConfigItemDao"
           class="org.sakaiproject.config.impl.HibernateConfigItemDaoImpl"
           init-method="init">
-
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
         <property name="autoDdl" value="${auto.ddl}"/>
-    </bean>
-
-    <bean id="org.sakaiproject.config.api.HibernateConfigItemDao"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-          lazy-init="true">
-
-        <property name="transactionManager"
-                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-
-        <property name="target" ref="org.sakaiproject.config.api.HibernateConfigItemDao.target"/>
-
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
     </bean>
 
     <bean id="org.sakaiproject.config.impl.StoredConfigService"

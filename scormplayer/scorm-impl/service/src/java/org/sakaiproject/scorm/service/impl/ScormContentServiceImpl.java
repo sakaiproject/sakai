@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -50,23 +51,22 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 @Slf4j
-public abstract class ScormContentServiceImpl implements ScormContentService
-{
-	// Data access objects (also dependency injected by lookup method)
-	protected abstract ContentPackageDao contentPackageDao();
-	protected abstract ContentPackageManifestDao contentPackageManifestDao();
-	protected abstract DataManagerDao dataManagerDao();
-	protected abstract LearnerDao learnerDao();
-	protected abstract LearningManagementSystem lms();
+@Transactional
+public class ScormContentServiceImpl implements ScormContentService {
 
-	// Dependency injected lookup methods
-	protected abstract ScormResourceService resourceService();
-	protected abstract ServerConfigurationService serverConfigurationService();
+	@Setter protected ContentPackageDao contentPackageDao;
+	@Setter protected ContentPackageManifestDao contentPackageManifestDao;
+	@Setter protected DataManagerDao dataManagerDao;
+	@Setter protected LearnerDao learnerDao;
+	@Setter protected LearningManagementSystem lms;
+	@Setter protected ScormResourceService resourceService;
+	@Setter protected ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * Takes the identifier for a content package that's been stored in the
@@ -79,19 +79,19 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 		ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
 
 		// Grab some important info about the site and user
-		String context = lms().currentContext();
-		String learnerId = lms().currentLearnerId();
+		String context = lms.currentContext();
+		String learnerId = lms.currentLearnerId();
 		Date now = new Date();
 
 		String title = getContentPackageTitle(outcome.getDocument());
-		int packageCount = contentPackageDao().countContentPackages(context, title);
+		int packageCount = contentPackageDao.countContentPackages(context, title);
 		if (packageCount > 1)
 		{
 			title = new StringBuilder(title).append(" (").append(packageCount).append(")").toString();
 		}
 
-		String archiveId = resourceService().convertArchive(resourceId, title);
-		Serializable manifestId = contentPackageManifestDao().save(manifest);
+		String archiveId = resourceService.convertArchive(resourceId, title);
+		Serializable manifestId = contentPackageManifestDao.save(manifest);
 
 		// Now create a representation of this content package in the database
 		ContentPackage cp = new ContentPackage(title, archiveId);
@@ -104,10 +104,10 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 		cp.setModifiedOn(now);
 
 		// Defaults controlled by sakai.properties
-		boolean showTocDefault = serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_TOC, SAK_PROP_CONFIG_SHOW_TOC_DFLT);
+		boolean showTocDefault = serverConfigurationService.getBoolean(SAK_PROP_CONFIG_SHOW_TOC, SAK_PROP_CONFIG_SHOW_TOC_DFLT);
 		cp.setShowTOC(showTocDefault || hasMultipleLaunchableItems(outcome.getDocument()));
-		cp.setShowNavBar(serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_NAV_BAR, SAK_PROP_CONFIG_SHOW_NAV_BAR_DFLT));
-		contentPackageDao().save(cp);
+		cp.setShowNavBar(serverConfigurationService.getBoolean(SAK_PROP_CONFIG_SHOW_NAV_BAR, SAK_PROP_CONFIG_SHOW_NAV_BAR_DFLT));
+		contentPackageDao.save(cp);
 		return cp;
 	}
 
@@ -181,7 +181,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	@Override
 	public ContentPackage getContentPackage(long contentPackageId)
 	{
-		return contentPackageDao().load(contentPackageId);
+		return contentPackageDao.load(contentPackageId);
 	}
 
 	/*
@@ -191,7 +191,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	@Override
 	public ContentPackage getContentPackageByResourceId(String resourceId)
 	{
-		return contentPackageDao().loadByResourceId(resourceId);
+		return contentPackageDao.loadByResourceId(resourceId);
 	}
 
 	/*
@@ -222,11 +222,11 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	 */
 	private List<ContentPackage> getAllContentPackages( String siteID )
 	{
-		String context = StringUtils.isNotBlank( siteID ) ? siteID : lms().currentContext();
-		List<ContentPackage> allPackages = contentPackageDao().find( context );
+		String context = StringUtils.isNotBlank( siteID ) ? siteID : lms.currentContext();
+		List<ContentPackage> allPackages = contentPackageDao.find( context );
 		List<ContentPackage> releasedPackages = new LinkedList<>();
 
-		if( lms().canModify( context ) )
+		if( lms.canModify( context ) )
 		{
 			return allPackages;
 		}
@@ -324,12 +324,11 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	@Override
 	public void removeContentPackage(long contentPackageId) throws ResourceNotDeletedException
 	{
-		LearningManagementSystem lms = lms();
 		if (lms.canDelete(lms.currentContext()))
 		{
-			ContentPackage contentPackage = contentPackageDao().load(contentPackageId);
-			contentPackageDao().remove(contentPackage);
-			resourceService().removeResources(contentPackage.getResourceId());
+			ContentPackage contentPackage = contentPackageDao.load(contentPackageId);
+			contentPackageDao.remove(contentPackage);
+			resourceService.removeResources(contentPackage.getResourceId());
 		}
 	}
 
@@ -340,7 +339,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	@Override
 	public void updateContentPackage(ContentPackage contentPackage)
 	{
-		String learnerId = lms().currentLearnerId();
+		String learnerId = lms.currentLearnerId();
 		if (learnerId == null)
 		{
 			learnerId = "unknown";
@@ -348,7 +347,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 
 		contentPackage.setModifiedBy(learnerId);
 		contentPackage.setModifiedOn(new Date());
-		contentPackageDao().save(contentPackage);
+		contentPackageDao.save(contentPackage);
 	}
 
 	public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema, String encoding)
@@ -378,7 +377,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 	 */
 	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding, boolean createContentPackage) throws ResourceStorageException
 	{
-		File file = createFile(resourceService().getArchiveStream(resourceId));
+		File file = createFile(resourceService.getArchiveStream(resourceId));
 		int result = VALIDATION_SUCCESS;
 		if (!file.exists())
 		{

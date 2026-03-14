@@ -30,6 +30,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Message;
@@ -165,6 +166,7 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao#update(java.lang.Object)
 	 */
+	@Transactional
 	public void update(Object o)
 	{
 		getHibernateTemplate().saveOrUpdate(o);

@@ -51,7 +51,7 @@ public class TimeRangeTest {
         fixed = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC);
         BasicTimeService timeService = new BasicTimeService();
         timeService.setUserLocaleService(userLocaleService);
-        timeService.setUserTimeService(userTimeService);
+        timeService.setUserTimeService(() -> userTimeService);
         timeService.setClock(fixed);
         timeService.init();
         this.timeService = timeService;

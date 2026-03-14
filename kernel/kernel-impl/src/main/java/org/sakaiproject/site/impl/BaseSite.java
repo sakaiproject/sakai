@@ -579,8 +579,8 @@ public class BaseSite implements Site
 				throw new IllegalStateException("Cannot get the SiteService when constructing BaseSite");
 			}
 		}
-		this.authzGroupService = this.siteService.authzGroupService();
-		this.microsoftMessagingService = this.siteService.microsoftMessagingService();
+		this.authzGroupService = this.siteService.authzGroupService;
+		this.microsoftMessagingService = this.siteService.microsoftMessagingService;
 		this.sessionManager = sessionManager;
 		if (this.sessionManager == null) {
 			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
@@ -744,7 +744,7 @@ public class BaseSite implements Site
 			siteString = "/" + controllingPortal + "/";
 		}
 		return siteService
-				.serverConfigurationService().getPortalUrl()
+				.serverConfigurationService.getPortalUrl()
 				+ siteString + m_id;
 	}
 
@@ -1186,13 +1186,13 @@ public class BaseSite implements Site
 		if (m_customPageOrdered) return getPages();
 
 		List order = siteService
-				.serverConfigurationService().getToolOrder(getType());
+				.serverConfigurationService.getToolOrder(getType());
 		if (order.isEmpty()) return getPages();
 
-		Map<String, String> pageCategoriesByTool = siteService.serverConfigurationService().getToolToCategoryMap(
+		Map<String, String> pageCategoriesByTool = siteService.serverConfigurationService.getToolToCategoryMap(
 				getType());
 
-		boolean dynamicToolCategorization = siteService.serverConfigurationService().getBoolean(DYNAMIC_TOOL_CATEGORIZATION, false);
+		boolean dynamicToolCategorization = siteService.serverConfigurationService.getBoolean(DYNAMIC_TOOL_CATEGORIZATION, false);
 
 		// get a copy we can modify without changing the site!
 		List pages = new Vector(getPages());
@@ -1322,7 +1322,7 @@ public class BaseSite implements Site
 		if (id.startsWith(Entity.SEPARATOR))
 		{
 			Reference ref = siteService
-					.entityManager().newReference(id);
+					.entityManager.newReference(id);
 			if ((SiteService.APPLICATION_ID.equals(ref.getType()))
 					&& (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))

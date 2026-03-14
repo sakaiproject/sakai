@@ -50,8 +50,10 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
 
     private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";

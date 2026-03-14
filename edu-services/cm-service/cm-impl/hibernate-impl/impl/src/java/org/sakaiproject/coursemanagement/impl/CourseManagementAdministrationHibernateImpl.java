@@ -53,6 +53,7 @@ import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.facade.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Manipulates course and enrollment data stored in sakai's local hibernate tables.
@@ -61,6 +62,7 @@ import org.sakaiproject.coursemanagement.impl.facade.Authentication;
  *
  */
 @Slf4j
+@Transactional
 public class CourseManagementAdministrationHibernateImpl extends
 		HibernateDaoSupport implements CourseManagementAdministration {
 

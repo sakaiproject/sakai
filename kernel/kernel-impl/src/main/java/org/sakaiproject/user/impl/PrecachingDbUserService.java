@@ -54,7 +54,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu)
  */
 @Slf4j
-public abstract class PrecachingDbUserService extends DbUserService
+public class PrecachingDbUserService extends DbUserService
 {
     boolean logUsersRemoved = false; 
     boolean logUsersNotRemoved = false; 
@@ -96,15 +96,15 @@ public abstract class PrecachingDbUserService extends DbUserService
         }
 
         // LOAD the various sakai config options
-        Boolean runOnStartup = serverConfigurationService().getBoolean("precache.users.run.startup", false);
-        Boolean runDaily = serverConfigurationService().getBoolean("precache.users.run.daily", false);
-        String cacheTimeString = serverConfigurationService().getString("precache.users.refresh.time", "04:00");
-        this.siteUserIdsQuery = serverConfigurationService().getString("precache.users.userlist.query", this.siteUserIdsQuery);
+        Boolean runOnStartup = serverConfigurationService.getBoolean("precache.users.run.startup", false);
+        Boolean runDaily = serverConfigurationService.getBoolean("precache.users.run.daily", false);
+        String cacheTimeString = serverConfigurationService.getString("precache.users.refresh.time", "04:00");
+        this.siteUserIdsQuery = serverConfigurationService.getString("precache.users.userlist.query", this.siteUserIdsQuery);
 
-        this.logUsersRemoved = serverConfigurationService().getBoolean("precache.users.log.usersRemoved", this.logUsersRemoved);
-        this.logUsersNotRemoved = serverConfigurationService().getBoolean("precache.users.log.usersNotRemoved", this.logUsersNotRemoved);
-        this.logUsersAccessed = serverConfigurationService().getBoolean("precache.users.log.usersAccessed", this.logUsersAccessed);
-        this.logUsersNotAccessed = serverConfigurationService().getBoolean("precache.users.log.usersNotAccessed", this.logUsersNotAccessed);
+        this.logUsersRemoved = serverConfigurationService.getBoolean("precache.users.log.usersRemoved", this.logUsersRemoved);
+        this.logUsersNotRemoved = serverConfigurationService.getBoolean("precache.users.log.usersNotRemoved", this.logUsersNotRemoved);
+        this.logUsersAccessed = serverConfigurationService.getBoolean("precache.users.log.usersAccessed", this.logUsersAccessed);
+        this.logUsersNotAccessed = serverConfigurationService.getBoolean("precache.users.log.usersNotAccessed", this.logUsersNotAccessed);
 
         Calendar cal = Calendar.getInstance();
 

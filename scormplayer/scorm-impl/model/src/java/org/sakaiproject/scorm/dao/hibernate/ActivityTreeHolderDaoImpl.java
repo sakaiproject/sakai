@@ -21,7 +21,9 @@ import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements ActivityTreeHolderDao
 {
 	@Override

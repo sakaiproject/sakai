@@ -21,12 +21,21 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 
 public class EagerIgniteSpringBean extends IgniteSpringBean implements InitializingBean, SmartInitializingSingleton {
 
+    private static boolean started = false;
+
     @Override
     public void afterSingletonsInstantiated() {
+        if (!started) {
+            super.afterSingletonsInstantiated();
+            started = true;
+        }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        super.afterSingletonsInstantiated();
+        if (!started) {
+            super.afterSingletonsInstantiated();
+            started = true;
+        }
     }
 }

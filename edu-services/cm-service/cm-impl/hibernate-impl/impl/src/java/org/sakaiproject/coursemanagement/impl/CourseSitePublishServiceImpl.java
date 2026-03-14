@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.coursemanagement.impl;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 @Slf4j
+@Transactional
 public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements CourseSitePublishService {
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day

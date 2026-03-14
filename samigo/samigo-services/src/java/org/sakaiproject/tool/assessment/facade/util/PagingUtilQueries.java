@@ -31,10 +31,11 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public class PagingUtilQueries
-    extends HibernateDaoSupport implements PagingUtilQueriesAPI{
+@Transactional
+public class PagingUtilQueries extends HibernateDaoSupport implements PagingUtilQueriesAPI {
 
   public PagingUtilQueries () {
   }

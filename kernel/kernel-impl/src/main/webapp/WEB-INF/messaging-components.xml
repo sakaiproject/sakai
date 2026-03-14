@@ -41,9 +41,9 @@
     </bean>
 
     <bean id="org.sakaiproject.messaging.api.MicrosoftMessagingService"
-        class="org.sakaiproject.messaging.impl.MicrosoftMessagingServiceImpl"
-        init-method="init"
-        destroy-method="destroy">
+          class="org.sakaiproject.messaging.impl.MicrosoftMessagingServiceImpl"
+          init-method="init"
+          destroy-method="destroy">
         <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
     </bean>
 

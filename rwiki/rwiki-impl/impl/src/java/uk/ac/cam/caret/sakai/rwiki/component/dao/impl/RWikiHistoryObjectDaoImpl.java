@@ -30,6 +30,7 @@ import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiHistoryObjectDao;
@@ -41,24 +42,22 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
+@Transactional(readOnly = true)
 public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		RWikiHistoryObjectDao, ObjectProxy
 {
 
 	private RWikiObjectContentDao contentDAO;
 
-	/**
-	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#update(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiHistoryObject)
-	 */
-	public void update(RWikiHistoryObject rwo)
-	{
+	@Override
+	@Transactional
+	public void update(RWikiHistoryObject rwo) {
 		// should have already checked
 		RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
 		getHibernateTemplate().saveOrUpdate(impl);
 		// and remember to save the content
 		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
 		contentDAO.update(impl.getRWikiObjectContent());
-
 	}
 
 	/**
@@ -250,6 +249,7 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 				this);
 	}
 
+	@Transactional
 	public void updateObject(RWikiObject rwo)
 	{
 		getHibernateTemplate().saveOrUpdate(rwo);

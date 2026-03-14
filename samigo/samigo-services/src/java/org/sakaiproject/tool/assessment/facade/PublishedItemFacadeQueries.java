@@ -31,11 +31,14 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		PublishedItemFacadeQueriesAPI {
 
@@ -155,6 +158,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.NEVER)
 	public BackfillItemHashResult backfillItemHashes(int batchSize, boolean backfillBaselineHashes) {
 		return itemHashUtil.backfillItemHashes(
 				batchSize,

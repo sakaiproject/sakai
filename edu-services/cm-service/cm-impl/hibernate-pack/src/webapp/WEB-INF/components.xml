@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 	<!--
-		Decide on a Course Management service implementation based on the runtime
-		property "org.sakaiproject.coursemanagement.api.CourseManagementService".
+		The Course Management service implementation is configured via an alias.
+		By default, the alias points to the Federated implementation which chains
+		together the Sample and Hibernate implementations.
 
-		WARNING: This property MUST be set externally! No default is currently set within
-		this module itself! The default "sakai.properties" file should contain the line:
-		org.sakaiproject.coursemanagement.api.CourseManagementService=org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl
+		To add a custom provider, add your bean to the implList property of the
+		CourseManagementServiceFederatedImpl bean below. Custom providers are
+		evaluated in order, with earlier providers taking precedence.
 	-->
-	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementService" class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="targetName" value="${org.sakaiproject.coursemanagement.api.CourseManagementService}" />
-		<property name="proxyInterfaces">
-			<list>
-                <value>org.sakaiproject.coursemanagement.api.CourseManagementService</value>
-			</list>
-		</property>
-	</bean>
+	<alias name="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl"
+		   alias="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.coursemanagement"
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
@@ -40,90 +37,50 @@
 		</property>
 	</bean>
 
+	<!-- Federated CourseManagementService — has no transaction support -->
 	<bean id="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		lazy-init="true">
-		<property name="transactionManager">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		  class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
+		<property name="implList">
+			<list>
+				<ref bean="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
+				<ref bean="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl"/>
+			</list>
 		</property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.coursemanagement.api.exception.IdNotFoundException</prop>
-            </props>
-        </property>
-        <property name="target">
-            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
-            	<property name="implList">
-            		<!-- List the implementations here, in descending order of authority -->
-            		<list>
-			            <!--
-			            	For testing, we use an impl that returns no data.  Replace this
-			            	sample chained impl with your custom impl, if any, or replace the
-			            	federated impl entirely with your own custom impl.
-			            -->
-			            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
-
-            			<!-- The internal, hibernate-backed implementation -->
-						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
-							<property name="sessionFactory">
-								<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-							</property>
-						</bean>
-					</list>
-            	</property>
-            </bean>
-        </property>
 	</bean>
 
-	<!--
-		This is a complex bean that's hard to read, so here's the "wrapper hierarchy":
+	<!-- Sample CourseManagementService — has no transaction support -->
+	<bean id="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"
+		  class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
 
-		Transaction Proxy
-			Authz Proxy
-				CM Admin Hibernate Impl
+	<!-- Hibernate CourseManagementService — has transaction support -->
+	<bean id="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl"
+		  class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+	</bean>
 
-		Note that is service operates only on the CM data managed by hibernate.  Any
-		other data that is federated with the hibernate data (see the
-		org.sakaiproject.coursemanagement.api.CourseManagementService bean for
-		details on federation) is not available for manipulation by the CM Admin service.
-	-->
 	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		</property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
-		<property name="target">
-			<bean class="org.springframework.aop.framework.ProxyFactoryBean">
-				<property name="proxyInterfaces">
-					<value>org.sakaiproject.coursemanagement.api.CourseManagementAdministration</value>
-				</property>
-				<property name="interceptorNames">
-					<list><value>cmAdminAuthzAdvisor</value></list>
-				</property>
-				<property name="target">
-					<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl"
-						init-method="init" destroy-method="destroy">
-						<property name="sessionFactory">
-							<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-						</property>
-		        		<property name="authn">
-		        			<bean class="org.sakaiproject.coursemanagement.impl.facade.SakaiAuthentication"/>
-		        		</property>
-					</bean>
-				</property>
-			</bean>
+		  class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="authn">
+			<bean class="org.sakaiproject.coursemanagement.impl.facade.SakaiAuthentication"/>
 		</property>
 	</bean>
+
+	<aop:config>
+		<aop:advisor
+				advice-ref="cmAdminAuthzAdvisor"
+				pointcut="execution(* org.sakaiproject.coursemanagement.api.CourseManagementAdministration.*(..))"/>
+	</aop:config>
 
 	<!-- Hibernate doesn't generate all of the indexes we need.  This bean will fill in the missing indexes -->
-	<bean id="cm_index_generator" class="org.sakaiproject.coursemanagement.impl.IndexGenerator" init-method="init" destroy-method="destroy">
-		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService"/>
-		<lookup-method name="scs" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+	<bean id="cm_index_generator"
+		  class="org.sakaiproject.coursemanagement.impl.IndexGenerator"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="scs" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
 	<!-- AOP Advisor performs Authz checks for the CM Admin service -->
@@ -183,53 +140,29 @@
 
 
 	<!-- course site publishing service bean -->
-	<bean id="org.sakaiproject.coursemanagement.api.CourseSitePublishService.target"
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSitePublishService"
 		  class="org.sakaiproject.coursemanagement.impl.CourseSitePublishServiceImpl"
 		  destroy-method="destroy"
 		  init-method="init">
-		<property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms -->
-		<property name="functionManager"        ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions            -->
-		<property name="securityService"        ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                -->
-		<property name="sessionFactory"         ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager        -->
-		<property name="siteService"            ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites to publish  -->
-	</bean>
-
-	<!-- global hibernate transaction proxy bean -->
-	<bean id="org.sakaiproject.coursemanagement.api.CourseSitePublishService"
-		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-		<property name="target"            ><ref bean="org.sakaiproject.coursemanagement.api.CourseSitePublishService.target"    /></property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
+		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>   <!-- used to get the start and end date of terms -->
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>   <!-- used to register api permissions            -->
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>   <!-- used to check for super user                -->
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>   <!-- global hibernate transaction manager        -->
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>   <!-- needed to retrieve course sites to publish  -->
 	</bean>
 
 	<!-- course site removal service bean -->
-	<bean id="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService.target"
+	<bean id="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"
 		  class="org.sakaiproject.coursemanagement.impl.CourseSiteRemovalServiceImpl"
 		  destroy-method="destroy"
 		  init-method="init">
-		<property name="authzGroupService"         ><ref bean="org.sakaiproject.authz.api.AuthzGroupService"                       /></property>   <!-- used to get providers from a site                 -->
-		<property name="courseManagementService"   ><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms       -->
-		<property name="functionManager"           ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions                  -->
-		<property name="securityService"           ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                      -->
-		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"          /></property>   <!-- to get sakai.properties                           -->
-		<property name="sessionFactory"            ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager              -->
-		<property name="siteService"               ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites that have expired -->
-	</bean>
-
-	<!-- global hibernate transaction proxy bean -->
-	<bean id="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"
-		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-		<property name="target"            ><ref bean="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService.target"    /></property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>   <!-- used to get providers from a site                 -->
+		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>   <!-- used to get the start and end date of terms       -->
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>   <!-- used to register api permissions                  -->
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>   <!-- used to check for super user                      -->
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>   <!-- to get sakai.properties                           -->
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>   <!-- global hibernate transaction manager              -->
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>   <!-- needed to retrieve course sites that have expired -->
 	</bean>
  </beans>
 

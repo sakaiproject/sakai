@@ -56,7 +56,6 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
     @Autowired
     @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
-    private Cache cache;
 
     // run this before each test starts
     @Before
@@ -65,7 +64,6 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
         //create and setup the object to be tested
         hierarchyService = new HierarchyServiceImpl();
         hierarchyService.setDao(dao);
-        //    hierarchyService.setSessionManager(sessionManager);
     }
 
 

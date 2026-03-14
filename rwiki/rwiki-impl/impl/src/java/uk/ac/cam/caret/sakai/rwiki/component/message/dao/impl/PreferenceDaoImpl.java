@@ -32,6 +32,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.message.model.PreferenceImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.PreferenceDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Preference;
@@ -99,6 +100,7 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.PreferenceDao#update(java.lang.Object)
 	 */
+	@Transactional
 	public void update(Object o)
 	{
 		getHibernateTemplate().saveOrUpdate(o);
@@ -243,6 +245,7 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 		}
 	}
 
+	@Transactional
 	public int delete(final String user, final String context, final String type)
 	{
 		List l = findByUser(user, context, type);
@@ -256,6 +259,7 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 		return ndel;
 	}
 
+	@Transactional
 	public int deleteExact(final String user, final String context,
 			final String type)
 	{
@@ -265,6 +269,7 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 		return 1;
 	}
 
+	@Transactional
 	public int delete(final Preference pref)
 	{
 

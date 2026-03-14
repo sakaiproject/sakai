@@ -62,197 +62,70 @@
      <property name="sebValidationFacadeQueries" ><ref bean="SebValidationFacadeQueries"/></property>
      <property name="statisticsFacadeQueries"><ref bean="StatisticsFacadeQueries" /></property>
    </bean>
-    
-   <bean id="TypeFacadeQueries"
-         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+
+    <bean id="TypeFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="QuestionPoolFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="ItemFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-            <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil" />
-	    </bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-          <!-- this method batches internally, so manages own transactions. -->
-          <prop key="backfillItemHashes">PROPAGATION_NEVER</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil"/>
     </bean>
 
     <bean id="AssessmentFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
-    
-      <bean id="EventLogFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.EventLogFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+
+    <bean id="EventLogFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.EventLogFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="SectionFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+
+    <bean id="SecureDeliveryFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-      <bean id="SecureDeliveryFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-        <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-        </bean> 
-        </property>
-        <property name="transactionAttributes">
-          <props>
-            <prop key="*">PROPAGATION_REQUIRED</prop>
-          </props>
-        </property>
-      </bean>
+    <bean id="StatisticsFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
 
-      <bean id="StatisticsFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-        </property>
-        <property name="target">
-          <bean class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">
-            <property name="sessionFactory">
-              <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-            </property>
-          </bean>
-        </property>
-        <property name="transactionAttributes">
-          <props>
-            <prop key="*">PROPAGATION_REQUIRED</prop>
-          </props>
-        </property>
-      </bean>
-
-      <bean id="SebValidationFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-        <property name="target">
-          <bean class="org.sakaiproject.tool.assessment.facade.SebValidationFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-        </bean>
-        </property>
-        <property name="transactionAttributes">
-          <props>
-            <prop key="*">PROPAGATION_REQUIRED</prop>
-          </props>
-        </property>
-      </bean>
+    <bean id="SebValidationFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.SebValidationFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
 
     <bean id="PublishedAssessmentFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
-          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-          <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-          <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-	    </bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
     <bean id="PublishedSectionFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueries">
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="PublishedItemFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-          <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil" />
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-          <!-- this method batches internally, so manages own transactions. -->
-          <prop key="backfillItemHashes">PROPAGATION_NEVER</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil"/>
     </bean>
 
     <bean id="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
@@ -276,99 +149,39 @@
 
 
     <bean id="AssessmentGradingFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-          <property name="persistenceHelper" ref="persistenceHelper"/>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="persistenceHelper" ref="persistenceHelper"/>
     </bean>
 
     <bean id="AutoSubmitFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.AutoSubmitFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRES_NEW</prop> <!-- ensures every method invocation runs in its own transaction -->
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.AutoSubmitFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="AuthorizationFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
+          class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="PagingUtilQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
-    </bean>
 
     <bean id="AuthzQueriesFacade"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
           <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
-    </bean>
 
     <bean id="FavoriteColChoicesFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
-      <property name="target">
-        <bean class="org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          class="org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueries">
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
-      </property>
-      <property name="transactionAttributes">
-        <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
-        </props>
-      </property>
-    </bean>
 
     <!-- Currently being used to AutoDdl at startup -->
     <bean id="org.sakaiproject.tool.assessment.shared.SakaiBootStrap"
@@ -611,22 +424,10 @@
     </bean>
 
     <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
-    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesTarget"
+    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesAPI"
           class="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries"
           init-method="init">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    </bean>
-
-    <!-- Extended Time Data Access Object -->
-    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesAPI"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        <property name="target" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesTarget" />
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
     </bean>
 
     <bean id="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder"

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.scorm.adl.impl;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.datamodels.IDataManager;
@@ -31,13 +32,15 @@ import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public abstract class ADLConsultantImpl implements ADLConsultant
-{
-	protected abstract ActivityTreeHolderDao activityTreeHolderDao();
-	protected abstract ContentPackageManifestDao contentPackageManifestDao();
-	protected abstract DataManagerDao dataManagerDao();
+@Transactional
+public class ADLConsultantImpl implements ADLConsultant {
+
+	@Setter protected ActivityTreeHolderDao activityTreeHolderDao;
+	@Setter protected ContentPackageManifestDao contentPackageManifestDao;
+	@Setter protected DataManagerDao dataManagerDao;
 
 	@Override
 	public ISeqActivityTree getActivityTree(SessionBean sessionBean)
@@ -48,7 +51,7 @@ public abstract class ADLConsultantImpl implements ADLConsultant
 		if (treeHolder == null)
 		{
 			// If not, we look to see if there's a modified version in the data store
-			treeHolder = activityTreeHolderDao().find(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
+			treeHolder = activityTreeHolderDao.find(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
 
 			if (treeHolder == null)
 			{
@@ -91,12 +94,12 @@ public abstract class ADLConsultantImpl implements ADLConsultant
 
 		if (scoBean.getDataManagerId() == null)
 		{
-			dataManager = dataManagerDao().find(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId(), sessionBean.getAttemptNumber(), scoBean.getScoId());
+			dataManager = dataManagerDao.find(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId(), sessionBean.getAttemptNumber(), scoBean.getScoId());
 			scoBean.setDataManagerId(dataManager.getId());
 		}
 		else
 		{
-			dataManager = dataManagerDao().load(scoBean.getDataManagerId());
+			dataManager = dataManagerDao.load(scoBean.getDataManagerId());
 		}
 
 		return dataManager;
@@ -110,8 +113,8 @@ public abstract class ADLConsultantImpl implements ADLConsultant
 
 		if (manifest == null)
 		{
-			//manifest = resourceService().getManifest(sessionBean.getContentPackage().getManifestResourceId());
-			manifest = contentPackageManifestDao().load(sessionBean.getContentPackage().getManifestId());
+			//manifest = resourceService.getManifest(sessionBean.getContentPackage().getManifestResourceId());
+			manifest = contentPackageManifestDao.load(sessionBean.getContentPackage().getManifestId());
 			if (manifest != null)
 			{
 				sessionBean.setManifest(manifest);

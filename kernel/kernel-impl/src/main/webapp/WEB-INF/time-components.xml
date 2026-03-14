@@ -8,7 +8,11 @@
           init-method="init"
           destroy-method="destroy">
         <property name="userLocaleService" ref="org.sakaiproject.time.impl.UserLocaleServiceImpl"/>
-        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="userTimeService">
+            <bean class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+                <property name="targetBeanName" value="org.sakaiproject.time.api.UserTimeService"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="org.sakaiproject.time.api.UserTimeService"

@@ -17,31 +17,62 @@ package org.sakaiproject.authz.impl;
 
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IllegalSecurityAdvisorException;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.test.SakaiKernelTestBase;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+
+import java.util.Stack;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AdvisorTest extends SakaiKernelTestBase {
-	@BeforeClass
-	public static void beforeClass() {
-		try {
-			log.debug("starting oneTimeSetup");
-			oneTimeSetup();
-			log.debug("finished oneTimeSetup");
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-		}
+public class AdvisorTest {
+	@Rule
+	public MockitoRule mockito = MockitoJUnit.rule();
+
+	@Mock private FunctionManager functionManager;
+	@Mock private AuthzGroupService authzGroupService;
+	@Mock private EntityManager entityManager;
+	@Mock private MemoryService memoryService;
+	@Mock private ServerConfigurationService serverConfigurationService;
+	@Mock private EventTrackingService eventTrackingService;
+	@Mock private ThreadLocalManager threadLocalManager;
+
+	private SakaiSecurity securityService;
+	private Stack<SecurityAdvisor> advisorStack;
+
+	@Before
+	public void setUp() {
+		advisorStack = new Stack<>();
+		when(threadLocalManager.get(anyString())).thenReturn(advisorStack);
+
+		securityService = new SakaiSecurity();
+		securityService.setFunctionManager(functionManager);
+		securityService.setAuthzGroupService(authzGroupService);
+		securityService.setEntityManager(entityManager);
+		securityService.setMemoryService(memoryService);
+		securityService.setServerConfigurationService(serverConfigurationService);
+		securityService.setEventTrackingService(eventTrackingService);
+		securityService.setThreadLocalManager(threadLocalManager);
 	}
 
 	@Test
 	public void testAdvisorOrder() throws Exception {
-		SecurityService securityService = (SecurityService) getService(SecurityService.class);
 
 		SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function, String reference) {

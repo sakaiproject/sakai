@@ -33,10 +33,11 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public class LockManagerImpl extends HibernateDaoSupport implements LockManager
-{
+@Transactional
+public class LockManagerImpl extends HibernateDaoSupport implements LockManager {
 	/*
 	 * (non-Javadoc)
 	 * 

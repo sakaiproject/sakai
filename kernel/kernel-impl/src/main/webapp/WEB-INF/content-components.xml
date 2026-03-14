@@ -140,18 +140,8 @@
 	</bean>
 
 	<bean id="org.sakaiproject.content.api.LockManager"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="target">
-            <bean class="org.sakaiproject.content.impl.LockManagerImpl">
-                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-            </bean>
-        </property>
-        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
+          class="org.sakaiproject.content.impl.LockManagerImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
 
 	<bean id="org.sakaiproject.content.api.ResourceTypeRegistry"

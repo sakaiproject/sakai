@@ -160,14 +160,6 @@ public class ServerConfigurationService
 		return service.getLoggedOutUrl();
 	}
 
-	public static java.lang.String getUserHomeUrl()
-	{
-		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
-		if (service == null) return null;
-
-		return service.getUserHomeUrl();
-	}
-
 	public static java.lang.String getSakaiHomePath()
 	{
 		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();

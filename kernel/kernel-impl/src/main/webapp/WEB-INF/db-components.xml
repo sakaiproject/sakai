@@ -8,31 +8,17 @@
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlHSql"      class="org.sakaiproject.db.impl.BasicSqlServiceSqlHSql"/>
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlMySql"     class="org.sakaiproject.db.impl.BasicSqlServiceSqlMySql"/>
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlOracle"    class="org.sakaiproject.db.impl.BasicSqlServiceSqlOracle"/>
-        
-    <bean id="org.sakaiproject.db.api.SqlService"
-			class="org.sakaiproject.db.impl.BasicSqlService"
-			init-method="init" destroy-method="destroy">
 
-		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
-		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+	<bean id="org.sakaiproject.db.api.SqlService"
+		  class="org.sakaiproject.db.impl.BasicSqlService"
+		  init-method="init"
+		  destroy-method="destroy">
 
-		<property name="defaultDataSource">
-			<ref bean="javax.sql.DataSource" />
-		</property>
-
-		<property name="autoDdl">
-			<value>${auto.ddl}</value>
-		</property>
-
-		<property name="commitAfterRead">
-			<value>false</value>
-		</property>
-
-		<!-- HSQLDB configuration -->
-		<property name="vendor">
-			<value>hsqldb</value>
-		</property>
-        
+		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<property name="defaultDataSource" ref="javax.sql.DataSource"/>
+		<property name="autoDdl" value="${auto.ddl}"/>
+		<property name="commitAfterRead" value="false"/>
+		<property name="vendor" value="hsqldb"/>
         <property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlDefault"/></entry>
@@ -167,8 +153,9 @@
 
 	<!--  The "Global" JPA Entity Manager Factory -->
 	<bean id="entityManagerFactory"
-		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean">
-		<property name="ignite" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration" />
+		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean"
+		  depends-on="org.sakaiproject.ignite.SakaiIgnite">
+		<property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>

@@ -112,11 +112,13 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 @Slf4j
+@Transactional
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager {
 
   private final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  

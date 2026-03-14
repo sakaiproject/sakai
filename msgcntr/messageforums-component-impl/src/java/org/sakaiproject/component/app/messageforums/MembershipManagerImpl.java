@@ -54,8 +54,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class MembershipManagerImpl implements MembershipManager {
 
   @Setter private AuthzGroupService authzGroupService;

@@ -78,11 +78,13 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.presence.Presence;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.comparator.NullSafeComparator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -92,6 +94,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
 @Slf4j
+@Transactional
 public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
 
 	/** Spring bean members */
@@ -100,7 +103,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@Getter @Setter private boolean		collectAdminEvents					= false;
 	@Getter @Setter private boolean		collectEventsForSiteWithToolOnly	= false;
 	@Getter @Setter private boolean		collectDetailedEvents				= false;
-	@Setter private TransactionTemplate	transactionTemplate;
 
 	/** Sakai services */
 	@Setter private StatsManager			statsManager;
@@ -110,6 +112,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@Setter private EntityManager			entityManager;
 	@Setter private UsageSessionService		usageSessionService;
 	@Setter private EventTrackingService	eventTrackingService;
+	@Autowired private PlatformTransactionManager transactionManager;
 
 	/** Collect Thread and Semaphore */
 	private List<Event>	collectThreadQueue		= new ArrayList<>();
@@ -430,7 +433,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//long endTime2 = System.currentTimeMillis();
 					//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				transactionTemplate.execute(status -> doUpdateConsolidatedEvents());
+				TransactionTemplate tx = new TransactionTemplate(transactionManager);
+				tx.execute(status -> doUpdateConsolidatedEvents());
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 

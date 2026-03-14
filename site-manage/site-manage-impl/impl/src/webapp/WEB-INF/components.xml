@@ -115,30 +115,13 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService"
-        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl" />
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
-    </bean>
+		  class="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+	</bean>
 
-    <bean id="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
-    	class="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
-    	init-method="init" destroy-method="destroy">
-    	<property name="sessionFactory">
-    		<ref
-    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    	</property>
-    </bean>
-    
-    <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"
+	<bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"
     	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
     	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
     	init-method="init">

@@ -98,6 +98,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -107,6 +108,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *
  */
 @Slf4j
+@Transactional
 public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Receiver {
 
     @Getter private int messagesMax = 100;

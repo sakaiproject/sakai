@@ -141,13 +141,6 @@ public interface ServerConfigurationService
 	String getLoggedOutUrl();
 
 	/**
-	 * Access the URL to the user's "home" (My Workspace) in the service.
-	 * 
-	 * @return The URL to the user's "home" (My Workspace) in the service.
-	 */
-	String getUserHomeUrl();
-
-	/**
 	 * Access the file path to the "sakai home" on the app server.
 	 * 
 	 * @return The file path to the "sakai home" on the app server.

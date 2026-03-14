@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.coursemanagement.impl;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -52,6 +53,7 @@ import lombok.Setter;
  * This class is an implementation of the auto site removal service interface.
  */
 @Slf4j
+@Transactional
 public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements CourseSiteRemovalService {
 
    // class members

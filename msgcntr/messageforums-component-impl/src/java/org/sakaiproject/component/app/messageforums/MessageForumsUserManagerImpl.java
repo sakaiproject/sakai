@@ -35,8 +35,10 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements MessageForumsUserManager {
 
   private static final String QUERY_BY_USER_ID = "findUserByUserId";    

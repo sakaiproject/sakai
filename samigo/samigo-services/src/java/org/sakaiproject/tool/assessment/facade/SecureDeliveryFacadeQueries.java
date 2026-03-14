@@ -20,11 +20,13 @@ import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
+@Transactional
 public class SecureDeliveryFacadeQueries extends HibernateDaoSupport implements SecureDeliveryFacadeQueriesAPI {
 
   public List<SecureDeliveryData> getUrlsForAssessment(final Long assessmentId) {

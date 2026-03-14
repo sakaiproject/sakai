@@ -60,12 +60,14 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  */
 @Slf4j
+@Transactional
 public class SakaiPersonManagerImpl extends HibernateDaoSupport implements SakaiPersonManager
 {
 	private static final String PERCENT_SIGN = "%";

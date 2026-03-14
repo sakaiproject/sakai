@@ -18,11 +18,9 @@ package org.sakaiproject.authz.impl;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -63,7 +61,7 @@ public class SakaiSecurityTest {
 
     @Before
     public void setUp() {
-        SakaiSecurityConcrete sakaiSecurity = new SakaiSecurityConcrete();
+        SakaiSecurity sakaiSecurity = new SakaiSecurity();
         sakaiSecurity.setFunctionManager(functionManager);
         sakaiSecurity.setAuthzGroupService(authzGroupService);
         sakaiSecurity.setEntityManager(entityManager);

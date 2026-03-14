@@ -31,11 +31,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]
  */
 @Slf4j
+@Transactional
 public class ExtendedTimeQueries extends HibernateDaoSupport implements ExtendedTimeQueriesAPI {
 
     /**

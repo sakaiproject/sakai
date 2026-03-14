@@ -251,12 +251,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
     }
 
     @Override
-    public String getUserHomeUrl()
-    {
-        throw new UnsupportedOperationException( "Not supported yet." );
-    }
-
-    @Override
     public ConfigItem registerConfigItem( ConfigItem configItem )
     {
         throw new UnsupportedOperationException( "Not supported yet." );

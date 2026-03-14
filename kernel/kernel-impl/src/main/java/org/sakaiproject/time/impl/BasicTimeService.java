@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.time.api.Time;
@@ -43,6 +45,7 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.springframework.beans.factory.ObjectFactory;
 
 /**
  * <p>
@@ -78,36 +81,12 @@ public class BasicTimeService implements TimeService
 	// Map of Timezone/Locales to LocalTzFormat objects
 	private Hashtable<String, LocalTzFormat> M_localeTzMap = new Hashtable<String, LocalTzFormat>();
 
+	@Setter private ObjectFactory<UserTimeService> userTimeService;
+    @Setter private UserLocaleServiceImpl userLocaleService;
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-	private UserTimeService userTimeService;
+    // Can be injected for testing
+	@Getter @Setter private Clock clock = Clock.systemDefaultZone();
 
-	public void setUserTimeService(UserTimeService userTimeService) {
-		this.userTimeService = userTimeService;
-	}
-
-	private UserLocaleServiceImpl userLocaleService;
-
-	public void setUserLocaleService(UserLocaleServiceImpl userLocaleService) {
-		this.userLocaleService = userLocaleService;
-	}
-
-	// Can be injected for testing
-	private Clock clock = Clock.systemDefaultZone();
-
-	public void setClock(Clock clock) {
-		this.clock = clock;
-	}
-
-	public Clock getClock() {
-		return clock;
-	}
-
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
 	public void init()
 	{
 		Objects.requireNonNull(userLocaleService);
@@ -139,9 +118,6 @@ public class BasicTimeService implements TimeService
 
 	}
 
-	/**
-	 * Final cleanup.
-	 */
 	public void destroy()
 	{
 		log.info("destroy()");
@@ -149,7 +125,7 @@ public class BasicTimeService implements TimeService
 
 	protected String[] getUserTimezoneLocale()
 	{
-		String timeZone = userTimeService.getLocalTimeZone().getID();
+		String timeZone = userTimeService.getObject().getLocalTimeZone().getID();
 		// Now, get user's preferred locale
 		String localeId = userLocaleService.getLocalLocale();
 
@@ -254,7 +230,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		TimeZone tz_local = userTimeService.getLocalTimeZone();
+		TimeZone tz_local = userTimeService.getObject().getLocalTimeZone();
 		return new MyTime(this,tz_local, year, month, day, hour, minute, second, millisecond);
 	}
 
@@ -263,7 +239,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(TimeBreakdown breakdown)
 	{
-		TimeZone tz_local = userTimeService.getLocalTimeZone();
+		TimeZone tz_local = userTimeService.getObject().getLocalTimeZone();
 		return new MyTime(this,tz_local, breakdown);
 	}
 
@@ -317,19 +293,19 @@ public class BasicTimeService implements TimeService
 	@Override
 	public TimeZone getLocalTimeZone()
 	{
-		return userTimeService.getLocalTimeZone();
+		return userTimeService.getObject().getLocalTimeZone();
 	}
 
 	@Override
 	public TimeZone getLocalTimeZone(String userId) {
-		return userTimeService.getLocalTimeZone(userId);
+		return userTimeService.getObject().getLocalTimeZone(userId);
 	}
 
 	@Override
 	public boolean clearLocalTimeZone(String userId)
 	{
 		// Must not use && as need to clear them both.
-		return userTimeService.clearLocalTimeZone(userId) & userLocaleService.clearLocalLocale(userId);
+		return userTimeService.getObject().clearLocalTimeZone(userId) & userLocaleService.clearLocalLocale(userId);
 	}
 
 	@Override
@@ -1013,66 +989,66 @@ public class BasicTimeService implements TimeService
 
 	@Override
 	public String timeFormat(Date date, Locale locale, int df) {
-		return userTimeService.timeFormat(date, locale, df);
+		return userTimeService.getObject().timeFormat(date, locale, df);
 	}
 
 	@Override
 	public String dateFormat(Date date, Locale locale, int df) {
-		return userTimeService.dateFormat(date, locale, df);
+		return userTimeService.getObject().dateFormat(date, locale, df);
 	}
 
 	@Override
 	public String dayOfWeekFormat(Date date, Locale locale, int df) {
-		return userTimeService.dayOfWeekFormat(date, locale, df);
+		return userTimeService.getObject().dayOfWeekFormat(date, locale, df);
 	}
 
 	@Override
 	public String dateTimeFormat(Date date, Locale locale, int df) {
-		return userTimeService.dateTimeFormat(date, locale, df);
+		return userTimeService.getObject().dateTimeFormat(date, locale, df);
 	}
 
 	@Override
 	public String dateTimeFormat(Instant date, FormatStyle dateStyle, FormatStyle timeStyle) {
-		return userTimeService.dateTimeFormat(date, dateStyle, timeStyle);
+		return userTimeService.getObject().dateTimeFormat(date, dateStyle, timeStyle);
 	}
 
 	@Override
 	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
-		return userTimeService.shortLocalizedTimestamp(instant, timezone, locale);
+		return userTimeService.getObject().shortLocalizedTimestamp(instant, timezone, locale);
 	}
 
 	@Override
 	public String shortLocalizedTimestamp(Instant instant, Locale locale) {
-		return userTimeService.shortLocalizedTimestamp(instant, locale);
+		return userTimeService.getObject().shortLocalizedTimestamp(instant, locale);
 	}
 
 	@Override
 	public String shortLocalizedDate(LocalDate date, Locale locale) {
-		return userTimeService.shortLocalizedDate(date, locale);
+		return userTimeService.getObject().shortLocalizedDate(date, locale);
 	}
 
 	@Override
 	public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
-		return userTimeService.shortPreciseLocalizedTimestamp(instant, timezone, locale);
+		return userTimeService.getObject().shortPreciseLocalizedTimestamp(instant, timezone, locale);
 	}
 
 	@Override
 	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
-		return userTimeService.shortPreciseLocalizedTimestamp(instant, getLocalTimeZone(), locale);
+		return userTimeService.getObject().shortPreciseLocalizedTimestamp(instant, getLocalTimeZone(), locale);
 	}
 
 	@Override
 	public Date parseISODateInUserTimezone(String dateString) {
-		return userTimeService.parseISODateInUserTimezone(dateString);
+		return userTimeService.getObject().parseISODateInUserTimezone(dateString);
 	}
 
 	@Override
 	public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
-		return userTimeService.dateFromUtcToUserTimeZone(utcDate, formatted);
+		return userTimeService.getObject().dateFromUtcToUserTimeZone(utcDate, formatted);
 	}
 
 	@Override
 	public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
-		return userTimeService.dateFromUserTimeZoneToUtc(zonedDate);
+		return userTimeService.getObject().dateFromUserTimeZoneToUtc(zonedDate);
 	}
 }
