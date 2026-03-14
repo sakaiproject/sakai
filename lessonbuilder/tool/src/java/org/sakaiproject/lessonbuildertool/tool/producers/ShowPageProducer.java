@@ -187,6 +187,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity quizEntity;
 	private static LessonEntity assignmentEntity;
 	private static LessonEntity bltiEntity;
+	private static LessonEntity scormEntity;
 	public MessageLocator messageLocator;
 	private static LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
@@ -1265,6 +1266,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				
 				if (!simplePageBean.isItemVisible(i, currentPage)) continue;
 
+				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
+				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM && !SimplePageItem.DUMMY.equals(i.getSakaiId()))
+				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
+
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
 						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
 				{
@@ -1328,6 +1333,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName += "announcementsType"; break;
 				case SimplePageItem.CALENDAR: itemClassName += "calendar"; break;
 				case SimplePageItem.CHECKLIST: itemClassName += "checklistType"; break;
+				case SimplePageItem.SCORM: itemClassName += "scormType"; break;
 				}
 
 				Map<String,Object> ltiContent = null;
@@ -1443,6 +1449,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    case SimplePageItem.ASSESSMENT:
 						itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
 						break;
+					    case SimplePageItem.SCORM:
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-scorm-tool"));
+						break;
 						case SimplePageItem.BLTI:
 							String bltiIcon = "fa-globe";
 							if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
@@ -1503,6 +1512,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							break;
 						case SimplePageItem.ASSESSMENT:
 							code = "simplepage.copied.assessment";
+							break;
+						case SimplePageItem.SCORM:
+							code = "simplepage.copied.scorm";
 							break;
 						case SimplePageItem.FORUM:
 							code = "simplepage.copied.forum";
@@ -1584,6 +1596,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								requirement = i.getRequirementText();
 							}
 							UIOutput.make(tableRow, "requirement-text", requirement);
+						} else if (i.getType() == SimplePageItem.SCORM) {
+							UIOutput.make(tableRow, "type", "s");
+							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
+							if (resolvedScormEntity != null) {
+								String editUrl = resolvedScormEntity.editItemUrl(simplePageBean);
+								if (editUrl != null) {
+									UIOutput.make(tableRow, "edit-url", editUrl);
+								}
+								editUrl = resolvedScormEntity.editItemSettingsUrl(simplePageBean);
+								if (editUrl != null) {
+									UIOutput.make(tableRow, "edit-settings-url", editUrl);
+								}
+								itemGroupString = simplePageBean.getItemGroupString(i, resolvedScormEntity, true);
+								UIOutput.make(tableRow, "item-groups", itemGroupString);
+								if (i.getHeight() != null) UIOutput.make(tableRow, "item-height", i.getHeight());
+								if (!resolvedScormEntity.objectExists())
+								    entityDeleted = true;
+							}
 						} else if (i.getType() == SimplePageItem.ASSESSMENT) {
 							UIOutput.make(tableRow, "type", "6"); // Not used by
 							// assignments,
@@ -1701,6 +1731,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    else 
 								notPublished = quizEntity.notPublished(i.getSakaiId());
 							    if (!lessonEntity.objectExists())
+								entityDeleted = true;
+							    break;
+							case SimplePageItem.SCORM:
+							    lessonEntity = resolvedScormEntity;
+							    if (lessonEntity != null && !lessonEntity.objectExists())
 								entityDeleted = true;
 							    break;
 							case SimplePageItem.FORUM:
@@ -3781,6 +3816,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				fake = true; // need to set this in case it's available for missing entity
 			}
+		} else if (i.getType() == SimplePageItem.SCORM) {
+			if (usable && i.isPrerequisite()) {
+				simplePageBean.checkItemPermissions(i, true);
+			}
+			LessonEntity lessonEntity = SimplePageItem.DUMMY.equals(i.getSakaiId()) ? null : scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
+				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+				view.setSendingPage(currentPage.getPageId());
+				view.setItemId(i.getId());
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (!available)
+					fakeDisableLink(link, messageLocator);
+			} else {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, false);
+				}
+				fake = true;
+			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
 		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
 			if (usable && i.isPrerequisite()) {
@@ -3968,18 +4022,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			switch (i.getType()) {
 				case SimplePageItem.ASSIGNMENT:
 					linkText = getLinkText(linkText, i.getSakaiId());
+					// fall through to ASSESSMENT to resolve entity and set review link
 				case SimplePageItem.ASSESSMENT:
 					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
-				default:
-					UIOutput.make(container, ID + "-text", linkText)
-						.decorate(new UIFreeAttributeDecorator("data-original-name", i.getName()));
-
-					if (lessonEntity != null && lessonEntity.showAdditionalLink()) {
-						UIOutput.make(container, ID + "-additional-text", linkAdditionalText)
-							.decorate(new UIFreeAttributeDecorator("data-original-name", linkAdditionalText));
-					}
 					break;
+				default:
+					break;
+			}
+			UIOutput.make(container, ID + "-text", linkText)
+				.decorate(new UIFreeAttributeDecorator("data-original-name", i.getName()));
+			if (lessonEntity != null && lessonEntity.showAdditionalLink()) {
+				UIOutput.make(container, ID + "-additional-text", linkAdditionalText)
+					.decorate(new UIFreeAttributeDecorator("data-original-name", linkAdditionalText));
 			}
 
 		}
@@ -4138,6 +4193,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			bltiEntity = e;
 	}
 
+	public void setScormEntity(LessonEntity e) {
+		if (scormEntity == null)
+			scormEntity = e;
+	}
+
 	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
 	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
@@ -4242,6 +4302,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }		    
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
+
+		    if (scormEntity != null && scormEntity.isAvailable()) {
+			UIOutput.make(tofill, "scorm-li");
+			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm.tooltip");
+		    }
 
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");
@@ -4397,6 +4462,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.viewID = QuizPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-quiz", messageLocator.getMessage("simplepage.change_quiz"), params);
+
+		params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.viewID = ScormPickerProducer.VIEW_ID;
+		UIInternalLink.make(form, "change-scorm", messageLocator.getMessage("simplepage.change_scorm"), params);
+
+		// Configure SCORM package link - points to SCORM Player tool
+		String scormTool = simplePageBean.getCurrentTool("sakai.scorm.tool");
+		if (scormTool != null) {
+		    String scormToolUrl = ServerConfigurationService.getToolUrl() + "/" + scormTool;
+		    UILink.make(form, "configure-scorm", messageLocator.getMessage("simplepage.configure_scorm"), scormToolUrl);
+		}
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());

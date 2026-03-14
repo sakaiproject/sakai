@@ -100,6 +100,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    bltiEntity = (LessonEntity)e;
         }
 
+	private LessonEntity scormEntity = null;
+	public void setScormEntity(Object e) {
+		scormEntity = (LessonEntity)e;
+	}
+
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public static final String VIEW_ID = "ShowItem";
@@ -184,8 +189,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (available) {
 		if (type == SimplePageItem.RESOURCE || type == SimplePageItem.BLTI)
 		    simplePageBean.track(params.getItemId(), null);
-		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM))
-		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
+		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.SCORM))
+		    simplePageBean.checkItemPermissions(item, true); // set acl, etc
 
 	    }
 
@@ -340,6 +345,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
 		    Integer i = new Integer(source.substring("CREATE/FORUM/".length()));
 		    source = createLinks.get(i).Url;
+		} else if (source.startsWith("CREATE/SCORM/")) {
+		    List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
+		    int i = Integer.parseInt(source.substring("CREATE/SCORM/".length()));
+		    if (i < 0 || i >= createLinks.size()) return;
+		    source = createLinks.get(i).Url;
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)
 		source = item.getAttribute("multimediaUrl");
@@ -359,6 +369,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			break;
 		case SimplePageItem.ASSIGNMENT:
 		case SimplePageItem.ASSESSMENT:
+		case SimplePageItem.SCORM:
 		case SimplePageItem.FORUM:
 		case SimplePageItem.BLTI:
 		    LessonEntity lessonEntity = null;
@@ -368,6 +379,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			    break;
 		    case SimplePageItem.ASSESSMENT:
 			    lessonEntity = quizEntity.getEntity(item.getSakaiId(),simplePageBean);
+			    break;
+		    case SimplePageItem.SCORM:
+			    lessonEntity = scormEntity.getEntity(item.getSakaiId(), simplePageBean);
 			    break;
 		    case SimplePageItem.FORUM:
 			    lessonEntity = forumEntity.getEntity(item.getSakaiId());
@@ -385,10 +399,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl() + (params.getReviewAssessment() ? "&action=review" : "");
 
 			// Notify the Entity they are about to be launched from an item
-			lessonEntity.preShowItem(item);
+			if (lessonEntity != null) lessonEntity.preShowItem(item);
 		}
 
 		boolean isBlti = item != null && item.getType() == SimplePageItem.BLTI;
+		boolean isScorm = item != null && item.getType() == SimplePageItem.SCORM;
 		String allow = ServerConfigurationService.getBrowserFeatureAllowString();
 		String allowEscaped = StringEscapeUtils.escapeHtml4(allow);
 		String sourceEscaped = StringEscapeUtils.escapeHtml4(source);
@@ -400,7 +415,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		} else {
 			String classAttr = !IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl()) ? " class=\"sakai-iframe-force-light\"" : "";
-			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"350\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
+			String rawHeight = isScorm ? item.getHeight() : null;
+			String height = StringUtils.isBlank(rawHeight) ? (isScorm ? "600" : "350") : rawHeight;
+			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"" + height + "\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
 			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		}
 	}

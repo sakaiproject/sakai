@@ -1,7 +1,4 @@
 /**********************************************************************************
- * $URL: $
- * $Id: $
- ***********************************************************************************
  *
  * Author: Charles Hedrick, hedrick@rutgers.edu
  *
@@ -23,21 +20,11 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,35 +33,19 @@ import org.jdom2.Namespace;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.scorm.dao.api.ContentPackageDao;
-import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.api.ScormConstants;
+import org.sakaiproject.scorm.model.api.ActivitySummary;
+import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
-import org.sakaiproject.scorm.service.api.ScormResourceService;
+import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * Interface to Scorm
@@ -83,7 +54,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * 
  */
 @Slf4j
-public class ScormEntity implements LessonEntity, AssignmentInterface {
+public class ScormEntity implements LessonEntity {
     private SimplePageBean simplePageBean;
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
@@ -108,27 +79,19 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     }
 
 
-    static ContentPackageDao dao = null;
-    static ScormResourceService scormResourceService = null;
+    static ScormContentService scormContentService = null;
     static ScormResultService scormResultService = null;
 
-    static OptSql optSql = null;
-    Method saveMethod = null;
-
     public void init () {
-	dao = (ContentPackageDao)ComponentManager.get("org.sakaiproject.scorm.dao.api.ContentPackageDao");
-	scormResourceService = (ScormResourceService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormResourceService");
+	scormContentService = (ScormContentService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormContentService");
 	scormResultService = (ScormResultService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormResultService");
-	// don't use scorm unless all three are up. Code will only check dao
-	if (scormResourceService == null ||
-	    scormResultService == null)
-	    dao = null;
-	log.info("init() " + dao);
+	if (scormResultService == null)
+	    scormContentService = null;
+	log.info("init() {}", scormContentService);
     }
 
-    public void destroy()
-    {
-	log.info("destroy()");
+    public boolean isAvailable() {
+	return scormContentService != null;
     }
 
 
@@ -154,7 +117,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     }
 
     public String getToolId() {
-	return "sakai.scorm.helper";
+	return "sakai.scorm.tool";
     }
 
     // the underlying object, something Sakaiish
@@ -163,16 +126,16 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected ContentPackage assignment;;
+    protected ContentPackage contentPackage;
 
     // ref looks like /scorm/id
-    public ContentPackage getAssignment(Long id) {
-	return getAssignment(id, false);
-    }
-
-    public ContentPackage getAssignment(Long id, boolean nocache) {
-	assignment = dao.load(id);
-	return assignment;
+    public ContentPackage getContentPackage(Long id) {
+	try {
+	    return scormContentService.getContentPackage(id);
+	} catch (Exception e) {
+	    log.warn("Unable to load SCORM content package {}: {}", id, e.getMessage());
+	    return null;
+	}
     }
 
     // type of the underlying object
@@ -185,7 +148,15 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     }
 
     public int getTypeOfGrade() {
-	return 1;
+	return 0;
+    }
+
+    public boolean showAdditionalLink() {
+	return false;
+    }
+
+    public String getDescription() {
+	return "";
     }
 
   // hack for forums. not used for assessments, so always ok
@@ -204,25 +175,31 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite(final SimplePageBean bean) {
 
-	if (dao == null) {
-	    if (nextEntity != null) 
+	if (scormContentService == null) {
+	    if (nextEntity != null)
 		return nextEntity.getEntitiesInSite();
 	    else
-		return new ArrayList<LessonEntity>();
+		return new ArrayList<>();
 	}
 
-	List<LessonEntity> lessons = new ArrayList<LessonEntity>();
+	List<LessonEntity> lessons = new ArrayList<>();
 
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
-	List<ContentPackage> packages = dao.find(siteId);
-	log.info("pckages " + packages.size());
+	List<ContentPackage> packages;
+	try {
+	    packages = scormContentService.getContentPackages(siteId);
+	} catch (Exception e) {
+	    log.warn("Unable to retrieve SCORM content packages for site {}: {}", siteId, e.getMessage());
+	    return new ArrayList<>();
+	}
+	log.debug("packages {}", packages.size());
 
 	for (ContentPackage contentPackage: packages) {
 	    if (contentPackage.isDeleted())
 		continue;
 	    ScormEntity entity = new ScormEntity(TYPE_SCORM, contentPackage.getContentPackageId(), 1);
-	    entity.assignment = contentPackage;
+	    entity.contentPackage = contentPackage;
 	    entity.simplePageBean = bean;
 	    lessons.add(entity);
 	}
@@ -254,65 +231,76 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     // properties of entities
     public String getTitle() {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (scormContentService == null)
 	    return null;
-	log.info("title " + assignment.getTitle());
-	return assignment.getTitle();
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
+	    return null;
+	return contentPackage.getTitle();
     }
 
-    // http://heidelberg.rutgers.edu/portal/tool/575de542-a928-41a8-aab0-348a67e2ccc1/student-submit/5
     public String getUrl() {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (simplePageBean == null || scormContentService == null)
 	    return null;
-
-	log.info("simplepagebean " + simplePageBean);
-	log.info(simplePageBean.getCurrentTool("sakai.scorm.tool"));
-	log.info(assignment.getResourceId());
-	log.info(assignment.getTitle());
-	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/?wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage&contentPackageId=" + id + "&resourceId=" + assignment.getResourceId() + "&title=" + assignment.getTitle();
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
+	    return null;
+	String tool = simplePageBean.getCurrentTool("sakai.scorm.tool");
+	if (tool == null)
+	    return null;
+	return ServerConfigurationService.getToolUrl() + "/" + tool + "/scormPlayerPage?contentPackageId=" + id;
     }
 
     public Date getDueDate() {
 	return null;
     }
 
-    public Double toDouble(Object f) {
-	if (f instanceof Double)
-	    return (Double)f;
-	else if (f instanceof Float)
-	    return ((Float)f).doubleValue();
-        else
-	    return null;
-    }
-
     public LessonSubmission getSubmission(String userId) {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (scormContentService == null)
 	    return null;
-	if (scormResultService.getNewstAttempt(assignment.getContentPackageId(), userId) != null)
-	    return new LessonSubmission(null);
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
+	    return null;
+	Attempt latest = scormResultService.getNewstAttempt(contentPackage.getContentPackageId(), userId);
+	if (latest == null)
+	    return null;
+	// Check actual cmi.completion_status / cmi.success_status across all SCOs in this attempt
+	List<ActivitySummary> summaries = scormResultService.getActivitySummaries(
+	    contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
+	for (ActivitySummary summary : summaries) {
+	    if ("completed".equals(summary.getCompletionStatus()) || "passed".equals(summary.getSuccessStatus()))
+		return new LessonSubmission(null);
+	}
 	return null;
     }
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
 // I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.
     public int getSubmissionCount(String user) {
-	if (assignment == null)
-	    assignment = getAssignment(id);
-	if (assignment == null)
+	if (scormContentService == null)
 	    return 0;
-	return scormResultService.countAttempts(assignment.getContentPackageId(), user);
+	if (contentPackage == null)
+	    contentPackage = getContentPackage(id);
+	if (contentPackage == null)
+	    return 0;
+	return scormResultService.countAttempts(contentPackage.getContentPackageId(), user);
     }
 
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	return new ArrayList<UrlItem>();
+	List<UrlItem> list = new ArrayList<>();
+	if (scormContentService == null)
+	    return list;
+	String tool = bean.getCurrentTool("sakai.scorm.tool");
+	if (tool != null) {
+	    String url = ServerConfigurationService.getToolUrl() + "/" + tool;
+	    list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_scorm")));
+	}
+	return list;
     }
 
 
@@ -330,24 +318,30 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     }
 
    public boolean objectExists() {
-       if (dao == null)
+       if (scormContentService == null)
 	   return false;
-       return true;
+       if (contentPackage == null)
+	   contentPackage = getContentPackage(id);
+       return contentPackage != null;
    }
 
     public boolean notPublished(String ref) {
-	return false;
+	return notPublished();
     }
 
     public boolean notPublished() {
-	return false;
+	if (scormContentService == null) return true;
+	if (contentPackage == null) contentPackage = getContentPackage(id);
+	if (contentPackage == null) return true;
+	int status = scormContentService.getContentPackageStatus(contentPackage);
+	return status == ScormConstants.CONTENT_PACKAGE_STATUS_NOTYETOPEN
+	    || status == ScormConstants.CONTENT_PACKAGE_STATUS_CLOSED;
     }
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
-	List<String>ret = new ArrayList<String>();
-	return ret;
+	return null;
     }
   
     // set the item to be accessible only to the specific groups.
@@ -362,8 +356,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     }
 
-    // currently assignment 2 does not participate in the fixup. However I'm going to include
-    // the ID anyway, just in case it happens in the future
     public String getObjectId(){
 	String title = getTitle();
 	if (title == null)
@@ -378,8 +370,34 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    return null;
 	}
 
-	return null;
+	if (scormContentService == null)
+	    return null;
 
+	// objectid format: "scorm/{id}/{title}" — check transversal map first
+	int prefixLen = "scorm/".length();
+	int titleSlash = objectid.indexOf("/", prefixLen);
+	if (titleSlash <= 0)
+	    return null;
+
+	String realObjectId = objectid.substring(0, titleSlash); // "scorm/{id}"
+	String title = objectid.substring(titleSlash + 1);
+
+	String mapped = objectMap.get(realObjectId);
+	if (mapped != null)
+	    return "/" + mapped;
+
+	// fall back to title-based lookup in the destination site
+	try {
+	    List<ContentPackage> packages = scormContentService.getContentPackages(siteid);
+	    for (ContentPackage pkg : packages) {
+		if (!pkg.isDeleted() && title.equals(pkg.getTitle()))
+		    return "/" + SCORM + "/" + pkg.getContentPackageId();
+	    }
+	} catch (Exception e) {
+	    log.warn("findObject: Unable to retrieve SCORM packages for site {}: {}", siteid, e.getMessage());
+	}
+
+	return null;
     }
 
     public String importObject(String title, String href, String mime, boolean hide){
@@ -392,22 +410,12 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	return null;
     }
 
-    public String removeDotDot(String s) {
-	while (true) {
-	    int i = s.indexOf("/../");
-	    if (i < 1)
-		return s;
-	    int j = s.lastIndexOf("/", i-1);
-	    if (j < 0)
-		j = 0;
-	    else
-		j = j + 1;
-	    s = s.substring(0, j) + s.substring(i+4);
-	}
-    }
-
     public String getSiteId() {
 	return null;
+    }
+
+    @Override
+    public void preShowItem(SimplePageItem simplePageItem) {
     }
 
 }
