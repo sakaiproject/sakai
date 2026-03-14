@@ -1,12 +1,12 @@
 /******************************************************************************
  * TestDataPreload.java - created by Sakai App Builder -AZ
- * 
+ *
  * Copyright (c) 2006 Sakai Project/Sakai Foundation
  * Licensed under the Educational Community License version 1.0
- * 
- * A copy of the Educational Community License has been included in this 
+ *
+ * A copy of the Educational Community License has been included in this
  * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
- * 
+ *
  *****************************************************************************/
 
 package org.sakaiproject.hierarchy.impl.test.data;
@@ -15,11 +15,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.genericdao.api.GenericDao;
+import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+
+import lombok.Setter;
 
 /**
  * Contains test data for preloading and test constants
@@ -27,13 +30,10 @@ import org.sakaiproject.hierarchy.model.HierarchyNode;
  */
 public class TestDataPreload {
 
-   public GenericDao dao;
-   public void setDao(GenericDao dao) {
-      this.dao = dao;
-   }
+   @Setter public HierarchyDao dao;
 
-   public void init() {
-      preloadTestData(dao);
+    public void init() {
+      preloadTestData();
    }
 
    /**
@@ -52,12 +52,12 @@ public class TestDataPreload {
    public final static String MAINT_USER_ID = "maint-33333333";
    public final static String MAINT_USER_DISPLAY = "Maint User";
    /**
-    * super admin user 
+    * super admin user
     */
    public final static String ADMIN_USER_ID = "admin";
    public final static String ADMIN_USER_DISPLAY = "Administrator";
    /**
-    * Invalid user (also can be used to simulate the anonymous user) 
+    * Invalid user (also can be used to simulate the anonymous user)
     */
    public final static String INVALID_USER_ID = "invalid-UUUUUU";
 
@@ -146,7 +146,7 @@ public class TestDataPreload {
     * Preload a bunch of test data into the database
     * @param dao a generic dao
     */
-   public void preloadTestData(GenericDao dao) {
+   public void preloadTestData() {
       dao.save(pNode1);
       dao.save(pNode2);
       dao.save(pNode3);

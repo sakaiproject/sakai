@@ -14,18 +14,18 @@
 			init-method="init"
 			destroy-method="destroy">
 
-		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
-		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
-		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
-		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
-		<lookup-method name="schedulingService" bean="org.sakaiproject.scheduling.api.SchedulingService" />
-		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
-		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
- 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
- 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
-		<lookup-method name="microsoftMessagingService" bean="org.sakaiproject.messaging.api.MicrosoftMessagingService" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+ 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+ 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="schedulingService" ref="org.sakaiproject.scheduling.api.SchedulingService"/>
  		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="microsoftMessagingService" ref="org.sakaiproject.messaging.api.MicrosoftMessagingService"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="promoteUsersToProvided"><value>true</value></property>
@@ -42,21 +42,21 @@
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"
-			class="org.sakaiproject.authz.impl.SakaiSecurity"
-			init-method="init"
-			destroy-method="destroy">
+		  class="org.sakaiproject.authz.impl.SakaiSecurity"
+		  init-method="init"
+		  destroy-method="destroy">
 
-		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
-		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
-		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
- 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
- 		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
-		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
-		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
-		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService"/>
-		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
-		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
-
+	<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+ 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+ 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
   		<property name="cacheMinutes"><value>5</value></property>
 	</bean>
 

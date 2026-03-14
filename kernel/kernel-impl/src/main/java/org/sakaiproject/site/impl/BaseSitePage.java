@@ -97,7 +97,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	private BaseSitePage (BaseSiteService siteService) {
 		this.siteService = siteService;
-		m_titleExceptionIds = siteService.serverConfigurationService().getStrings("site.tool.custom.titles");
+		m_titleExceptionIds = siteService.serverConfigurationService.getStrings("site.tool.custom.titles");
 		if (m_titleExceptionIds == null) {
 			m_titleExceptionIds = SAKAI_DEFAULT_EXCEPTION_IDS;
 		}
@@ -113,7 +113,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		this(siteService);
 		m_site = site;
-		m_id = siteService.idManager().createUuid();
+		m_id = siteService.idManager.createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
 		m_tools = new ResourceVector();
 	}
@@ -233,7 +233,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		}
 		else
 		{
-			m_id = siteService.idManager().createUuid();
+			m_id = siteService.idManager.createUuid();
 		}
 		m_title = bOther.m_title;
 		m_layout = bOther.m_layout;
@@ -359,7 +359,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		// check for special home page tool id
 		if (getProperties().get(IS_HOME_PAGE) != null )
 		{
-			 String title = siteService.activeToolManager().getLocalizedToolProperty(HOME_TOOL_ID, "title");
+			 String title = siteService.activeToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
 			 if ( title != null )
 				 return title;
 			 else
@@ -376,7 +376,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
 
 		// otherwise, return attempt to return a localized title
-		Tool localTool = siteService.activeToolManager().getTool(toolId);
+		Tool localTool = siteService.activeToolManager.getTool(toolId);
 		if (localTool != null) {
 			return localTool.getTitle();
 		}
@@ -572,7 +572,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 **/	 
 	private boolean getTitleCustomLegacy()
 	{
-		if ( ! siteService.serverConfigurationService().getBoolean("legacyPageTitleCustom", true) )
+		if ( ! siteService.serverConfigurationService.getBoolean("legacyPageTitleCustom", true) )
 			return false;
 
 		// Get the toolId of the first tool associated with this page, making sure it's not the home page.
@@ -747,7 +747,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		String defaultCategory = null;
 		if (m_site != null) {
-			Map<String, String> toolCategories = siteService.serverConfigurationService()
+			Map<String, String> toolCategories = siteService.serverConfigurationService
 					.getToolToCategoryMap(m_site.getType());
 			defaultCategory = toolCategories.get(toolId);
 		}
@@ -812,11 +812,11 @@ public class BaseSitePage implements SitePage, Identifiable
 		String rv = null;
 		if (m_site == null)
 		{
-			rv = siteService.serverConfigurationService().getPortalUrl()
+			rv = siteService.serverConfigurationService.getPortalUrl()
 					+ siteService.sitePageReference(m_siteId, m_id);
 		} else {
 
-			rv = siteService.serverConfigurationService().getPortalUrl()
+			rv = siteService.serverConfigurationService.getPortalUrl()
 				+ siteService.sitePageReference(m_site.getId(), m_id);
 		}
 		return rv;
@@ -886,7 +886,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public void regenerateIds()
 	{
-		m_id = siteService.idManager().createUuid();
+		m_id = siteService.idManager.createUuid();
 		for (Iterator iTools = getTools().iterator(); iTools.hasNext();)
 		{
 			BaseToolConfiguration tool = (BaseToolConfiguration) iTools.next();

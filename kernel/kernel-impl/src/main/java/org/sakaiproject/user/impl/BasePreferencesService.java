@@ -24,6 +24,7 @@ package org.sakaiproject.user.impl;
 import java.util.*;
 import java.util.function.Consumer;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,13 +77,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	protected String m_relativeAccessPoint = null;
 	/** the cache for Preference objects **/
 	private Cache<String, BasePreferences> m_cache;
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Abstractions, etc.
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * Construct storage for this service.
-	 */
 	protected abstract Storage newStorage();
 
 	/**
@@ -94,7 +89,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	public String preferencesReference(String id)
@@ -129,7 +124,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!securityService().unlock(lock, resource))
+		if (!securityService.unlock(lock, resource))
 		{
 			return false;
 		}
@@ -151,61 +146,19 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	@Setter protected MemoryService memoryService;
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected EntityManager entityManager;
+	@Setter protected SecurityService securityService;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected SessionManager sessionManager;
+	@Setter protected EventTrackingService eventTrackingService;
+	@Setter protected UserDirectoryService userDirectoryService;
 
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract MemoryService memoryService();
-
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
-
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
-	protected abstract EventTrackingService eventTrackingService();
-
-	/**
-	 * @return the UserDirectoryService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
 	public void init()
 	{
 		try
@@ -217,16 +170,16 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_storage.open();
 
 			// register as an entity producer
-			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			functionManager().registerFunction(SECURE_ADD_PREFS);
-			functionManager().registerFunction(SECURE_EDIT_PREFS);
-			functionManager().registerFunction(SECURE_REMOVE_PREFS);
+			functionManager.registerFunction(SECURE_ADD_PREFS);
+			functionManager.registerFunction(SECURE_EDIT_PREFS);
+			functionManager.registerFunction(SECURE_REMOVE_PREFS);
 
 			
 			//register a cache
-			m_cache = memoryService().getCache(BasePreferencesService.class.getName() +".preferences");
+			m_cache = memoryService.getCache(BasePreferencesService.class.getName() +".preferences");
 			
 			log.info("init()");
 		}
@@ -357,12 +310,11 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			// complete the edit
 			m_storage.commit(edit);
 		
-			SessionManager sManager = sessionManager();
+			SessionManager sManager = sessionManager;
 			Session s = sManager.getCurrentSession();
 		
 			// track it
-			eventTrackingService()
-					.post(eventTrackingService().newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
+			eventTrackingService.post(eventTrackingService.newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
 
 			// close the edit object
 			((BasePreferences) edit).closeEdit();
@@ -426,7 +378,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		m_cache.remove(edit.getId());
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
 
 		// close the edit object
 		((BasePreferences) edit).closeEdit();
@@ -518,7 +470,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	@Override
 	public int getSiteTitleDisplayPreference() {
 
-		String currentUserId = sessionManager().getCurrentSessionUserId();
+		String currentUserId = sessionManager.getCurrentSessionUserId();
 
 		if (StringUtils.isBlank(currentUserId)) return USE_SITE_TITLE;
 
@@ -578,7 +530,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		// for preferences access: no additional role realms
 		try
 		{
-			rv.add(userDirectoryService().userReference(ref.getId()));
+			rv.add(userDirectoryService.userReference(ref.getId()));
 
 			ref.addUserTemplateAuthzGroup(rv, userId);
 		}
@@ -697,7 +649,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Commit the changes and release the lock.
 		 *
-		 * @param user
+		 * @param edit
 		 *        The edit to commit.
 		 */
 		public void commit(PreferencesEdit edit);
@@ -705,7 +657,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Cancel the changes and release the lock.
 		 *
-		 * @param user
+		 * @param edit
 		 *        The edit to commit.
 		 */
 		public void cancel(PreferencesEdit edit);
@@ -713,7 +665,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Remove this edit and release the lock.
 		 *
-		 * @param user
+		 * @param edit
 		 *        The edit to remove.
 		 */
 		public void remove(PreferencesEdit edit);
@@ -763,7 +715,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Construct from another Preferences object.
 		 *
-		 * @param user
+		 * @param prefs
 		 *        The user object to use for values.
 		 */
 		public BasePreferences(Preferences prefs)
@@ -876,7 +828,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Take all values from this object.
 		 *
-		 * @param user
+		 * @param prefs
 		 *        The user object to take values from.
 		 */
 		protected void setAll(Preferences prefs)
@@ -1065,7 +1017,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		/**
 		 * Take all values from this object.
 		 *
-		 * @param user
+		 * @param prefs
 		 *        The user object to take values from.
 		 */
 		protected void set(Preferences prefs)

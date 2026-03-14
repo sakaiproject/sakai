@@ -31,15 +31,14 @@ import org.junit.Test;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={"/spring-hibernate.xml"})
-public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringContextTests {
+public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	/** our query object */
 	@Autowired

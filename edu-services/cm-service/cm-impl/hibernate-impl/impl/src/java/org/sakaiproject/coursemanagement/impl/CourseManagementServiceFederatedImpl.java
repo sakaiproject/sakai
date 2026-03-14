@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,8 +76,7 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
  *
  */
 @Slf4j
-public class CourseManagementServiceFederatedImpl implements
-		CourseManagementService {
+public class CourseManagementServiceFederatedImpl implements CourseManagementService {
 
 	private List<CourseManagementService> implList;
 	

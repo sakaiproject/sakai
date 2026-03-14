@@ -67,10 +67,12 @@ import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -79,8 +81,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public abstract class DbAuthzGroupService extends BaseAuthzGroupService implements Observer
-{
+public class DbAuthzGroupService extends BaseAuthzGroupService implements Observer, SmartInitializingSingleton {
 	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with ORs. */
 	protected final static int MAX_IN_CLAUSE = 999;
 	/** All the event functions we know exist on the db. */
@@ -124,9 +125,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected boolean m_promoteUsersToProvided = true;
 	protected boolean m_promoteUsersToProvidedRole = false;
-	private MemoryService m_memoryService;
-
-	protected abstract SchedulingService schedulingService();
 
 	// KNL-600 CACHING for the realm role groups
 	private Cache m_realmRoleGRCache;
@@ -166,14 +164,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 ************************************************************************************************************************************************/
 
 	/**
-	 * returns the bean which contains database dependent code.
-	 */
-	public DbAuthzGroupSql getDbAuthzGroupSql()
-	{
-		return dbAuthzGroupSql;
-	}
-
-	/**
 	 * sets which bean containing database dependent code should be used depending on the database vendor.
 	 */
 	public void setDbAuthzGroupSql(String vendor) throws Exception
@@ -181,16 +171,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		this.dbAuthzGroupSql = (databaseBeans.containsKey(vendor) ? databaseBeans.get(vendor) : databaseBeans.get("default"));
 	}
 
-	public void setMemoryService(MemoryService memoryService) {
-		this.m_memoryService = memoryService;
-	}
-
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract SqlService sqlService();
-
-	/**
+    /**
 	 * Configuration: set the external locks value.
 	 *
 	 * @param value
@@ -260,46 +241,50 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		try
 		{
 			// The observer will be notified whenever there are new events. Priority observers get notified first, before normal observers.
-			eventTrackingService().addPriorityObserver(this);
+			eventTrackingService.addPriorityObserver(this);
 
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_realm");
 			}
 
 			super.init();
-			setDbAuthzGroupSql(sqlService().getVendor());
+			setDbAuthzGroupSql(sqlService.getVendor());
 
 			// pre-cache role and function names
 			cacheRoleNames();
 			cacheFunctionNames();
 
-			m_realmRoleGRCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
-			authzUserGroupIdsCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
-			maintainRolesCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
-			realmLocksCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmLocksCache");
+			m_realmRoleGRCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
+			authzUserGroupIdsCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
+			maintainRolesCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
+			realmLocksCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmLocksCache");
 
             //get the set of maintain roles and cache them on startup
             getMaintainRoles();
 
-            refreshTaskInterval = initConfig(REFRESH_INTERVAL_PROPKEY, serverConfigurationService().getString(REFRESH_INTERVAL_PROPKEY), refreshTaskInterval);
-            refreshMaxTime = initConfig(REFRESH_MAX_TIME_PROPKEY, serverConfigurationService().getString(REFRESH_MAX_TIME_PROPKEY), refreshMaxTime);
+            refreshTaskInterval = initConfig(REFRESH_INTERVAL_PROPKEY, serverConfigurationService.getString(REFRESH_INTERVAL_PROPKEY), refreshTaskInterval);
+            refreshMaxTime = initConfig(REFRESH_MAX_TIME_PROPKEY, serverConfigurationService.getString(REFRESH_MAX_TIME_PROPKEY), refreshMaxTime);
 
             refreshQueue = Collections.synchronizedMap(new LinkedHashMap<>());
-
-            schedulingService().scheduleWithFixedDelay(
-                new RefreshAuthzGroupTask(),
-                120, // minimally wait 2 mins for sakai to start
-                refreshTaskInterval, // delay before running again
-                TimeUnit.SECONDS
-            );
 		}
 		catch (Exception t)
 		{
 			log.warn("init(): ", t);
 		}
 	}
+
+	@Override
+	public void afterSingletonsInstantiated() {
+		schedulingService.scheduleWithFixedDelay(
+				new RefreshAuthzGroupTask(),
+				120, // minimally wait 2 mins for sakai to start
+				refreshTaskInterval, // delay before running again
+				TimeUnit.SECONDS
+		);
+	}
+
 
 	private long initConfig(String propkey, String scsValue, long currentValue) {
 		if (!"".equals(scsValue)) {
@@ -324,7 +309,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	public void destroy()
 	{
 		// done with event watching
-		eventTrackingService().deleteObserver(this);
+		eventTrackingService.deleteObserver(this);
 
 		authzUserGroupIdsCache.close();
 		maintainRolesCache.close();
@@ -340,7 +325,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected Storage newStorage()
 	{
-		DbStorage storage = new DbStorage(entityManager(), siteService);
+		DbStorage storage = new DbStorage(entityManager, siteService);
 		storage.setPromoteUsersToProvided(m_promoteUsersToProvided);
 		storage.setPromoteUsersToProvidedRole(m_promoteUsersToProvidedRole);
 		return storage;
@@ -366,7 +351,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
-		List results = sqlService().dbRead(statement, fields, new SqlReader()
+		List results = sqlService.dbRead(statement, fields, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
 			{
@@ -393,14 +378,14 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			statement = dbAuthzGroupSql.getInsertRealmRoleSql();
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this role name
-			sqlService().dbWriteFailQuiet(null, statement, fields);
+			sqlService.dbWriteFailQuiet(null, statement, fields);
 		}
 
 		synchronized (m_roleNameCache)
 		{
 			//Get realm role Key
 			statement = dbAuthzGroupSql.getSelectRealmRoleKeySql();
-			results = sqlService().dbRead(statement, fields, new SqlReader() {
+			results = sqlService.dbRead(statement, fields, new SqlReader() {
 				public Object readSqlResultRecord(ResultSet result) {
 					try {
 						String name = result.getString(1);
@@ -424,7 +409,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		synchronized (m_roleNameCache)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmRoleSql();
-			List results = sqlService().dbRead(statement, null, new SqlReader()
+			List results = sqlService.dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -464,7 +449,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
-		List results = sqlService().dbRead(statement, fields, new SqlReader()
+		List results = sqlService.dbRead(statement, fields, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
 			{
@@ -491,7 +476,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			statement = dbAuthzGroupSql.getInsertRealmFunctionSql();
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this function
-			sqlService().dbWriteFailQuiet(null, statement, fields);
+			sqlService.dbWriteFailQuiet(null, statement, fields);
 		}
 
 		// cache the existance of the function name
@@ -513,7 +498,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		synchronized (m_functionCache)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmFunction1Sql();
-			List results = sqlService().dbRead(statement, null, new SqlReader()
+			List results = sqlService.dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -675,7 +660,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	        if (roleId != null && roleMap != null && roleMap.containsKey(roleId))
 	        {
 	            Role role = (Role) roleMap.get(roleId);
-				rv.put(userId, new BaseMember(role, m.isActive(), m.isProvided(), userId, userDirectoryService()));
+				rv.put(userId, new BaseMember(role, m.isActive(), m.isProvided(), userId, userDirectoryService));
 	        }
 	    }
 	    return rv;
@@ -773,7 +758,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 */
 		public DbStorage(EntityManager entityManager, SiteService siteService)
 		{
-			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService());
+			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService);
 			m_reader = this;
 
 			setDbidField(m_realmDbidField);
@@ -992,7 +977,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			                        realm.m_roles.put(role.getId(), role);
 			                    }
 
-								grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId, userDirectoryService());
+								grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId, userDirectoryService);
 
 			                    realm.m_userGrants.put(userId, grant);
 			                }
@@ -1128,7 +1113,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 			fields[authzGroupIds.size()] = userid;
 
-			List dbResult = sqlService().dbRead(statement, fields, null );
+			List dbResult = sqlService.dbRead(statement, fields, null );
 
 			// no cache for user so create
 			if (uag == null) {
@@ -1181,7 +1166,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
             String statement = dbAuthzGroupSql.getSelectRealmUsersInGroupsSql(inClause);
             Object[] fields = groupIds.toArray();
             @SuppressWarnings("unchecked")
-            List<String> results = sqlService().dbRead(statement, fields, null);
+            List<String> results = sqlService.dbRead(statement, fields, null);
             return results;
         }
 
@@ -1191,7 +1176,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		public Set<String> getProviderIds(String authzGroupId)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmProviderId1Sql();
-			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);
+			List results = sqlService.dbRead(statement, new Object[] {authzGroupId}, null);
 			if (results == null)
 			{
 				return new HashSet<>();
@@ -1253,7 +1238,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		public Set getAuthzGroupIds(String providerId)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmIdSql();
-			List results = sqlService().dbRead(statement, new Object[] {providerId}, null);
+			List results = sqlService.dbRead(statement, new Object[] {providerId}, null);
 			if (results == null)
 			{
 				return new HashSet();
@@ -1280,7 +1265,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
                 String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql("SAKAI_REALM_RL_GR.ACTIVE = '1'");
                 Object[] fields = new Object[1];
                 fields[0] = userId;
-                List dbResult = sqlService().dbRead(statement, fields, null );
+                List dbResult = sqlService.dbRead(statement, fields, null );
                 return new HashSet(dbResult);
             }
 
@@ -1288,7 +1273,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// Note: consider over all realms just those realms where there's a grant of a role that satisfies the lock
 			// Ignore realms where anon or auth satisfy the lock.
 
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
+			boolean auth = (userId != null) && (!userDirectoryService.getAnonymousUser().getId().equals(userId));
 			String sql = dbAuthzGroupSql.getSelectRealmIdSql(azGroups);
 			int size = 2;
 			if (azGroups != null)
@@ -1990,7 +1975,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			if (edit == null)
 			{
-				String current = sessionManager().getCurrentSessionUserId();
+				String current = sessionManager.getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
@@ -2151,12 +2136,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			// Would be better to get this initially to make the code more efficient, but the realms collection
 			// does not have a common order for the site's id which is needed to determine if the session variable exists
-			String roleswap = securityService().getUserEffectiveRole();
-			Reference ref = entityManager().newReference(siteRef);
+			String roleswap = securityService.getUserEffectiveRole();
+			Reference ref = entityManager.newReference(siteRef);
 
 			List results = null;
 
-			if (delegatedAccess && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
+			if (delegatedAccess && userId != null && userId.equals(sessionManager.getCurrentSessionUserId())) {
 
 				// First check in the user's own Home site realm if it's in the list
 				// We don't want to change the user's role in their own site, so call the regular function.
@@ -2269,9 +2254,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		    String[] delegatedAccessGroupAndRole = null;
 		    // first we get the map out of the session (if it exists and is safe)
 		    Map<?,?> delegatedAccessMap = null;
-		    if (sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmapflag") != null) {
+		    if (sessionManager.getCurrentSession().getAttribute("delegatedaccess.accessmapflag") != null) {
 		        // only check for the map if the accessmapflag is set
-		        Object delegatedAccessMapObj = sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");
+		        Object delegatedAccessMapObj = sessionManager.getCurrentSession().getAttribute("delegatedaccess.accessmap");
 		        if (delegatedAccessMapObj != null && delegatedAccessMapObj instanceof Map) {
 		            // only read the map value out if it is set and is an actual map
 		            delegatedAccessMap = (Map<?,?>) delegatedAccessMapObj;
@@ -2285,9 +2270,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		             * this site hasn't been checked yet.  By posting an event, a DelegatedAccess observer will check this site's access for this user
 		             * and store it in the user's session
 		             */
-		            eventTrackingService().post(eventTrackingService().newEvent("dac.checkaccess", siteRef, false, NotificationService.NOTI_REQUIRED));
+		            eventTrackingService.post(eventTrackingService.newEvent("dac.checkaccess", siteRef, false, NotificationService.NOTI_REQUIRED));
 		            //grab the session after the checkaccess event since the checkaccess event could have modified it
-		            delegatedAccessMapObj = sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");
+		            delegatedAccessMapObj = sessionManager.getCurrentSession().getAttribute("delegatedaccess.accessmap");
 		            if (delegatedAccessMapObj != null && delegatedAccessMapObj instanceof Map) {
 		                // only read the map value out if it is set and is an actual map
 		                delegatedAccessMap = (Map<?,?>) delegatedAccessMapObj;
@@ -2307,7 +2292,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		                if (delegatedAccessGroupAndRole != null && delegatedAccessGroupAndRole.length > 1) {
 		                    dacgarStr = ", GroupAndRole["+delegatedAccessGroupAndRole[0]+", "+delegatedAccessGroupAndRole[1]+"]";
 		                }
-		                log.info("delegatedAccessCheck: userId="+sessionManager().getCurrentSessionUserId()+", siteRef="+siteRef+", delegatedAccess="+dacgarStr);
+		                log.info("delegatedAccessCheck: userId="+sessionManager.getCurrentSessionUserId()+", siteRef="+siteRef+", delegatedAccess="+dacgarStr);
 		            }
 		        }
 		    }
@@ -2701,7 +2686,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if ((realm == null) || (m_provider == null)) return;
 			log.debug("Refreshing authz group: {}", realm);
 
-			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
+			boolean synchWithContainingRealm = serverConfigurationService.getBoolean("authz.synchWithContainingRealm", true);
 
 			// check to see whether this is of group realm or not
 			// if of Group Realm, get the containing Site Realm
@@ -2783,7 +2768,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 				try
 				{
-					String userEid = userDirectoryService().getUserEid(userId);
+					String userEid = userDirectoryService.getUserEid(userId);
 					String targetRole = (String) target.get(userEid);
 					
 					Member cMember = null;
@@ -2821,7 +2806,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				String userEid = entry.getKey();
 				try
 				{
-					String userId = userDirectoryService().getUserId(userEid);
+					String userId = userDirectoryService.getUserId(userEid);
 
 					String role = entry.getValue();
 					boolean active = true;
@@ -2903,7 +2888,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					String role = entry.getValue();
 					try
 					{
-						String userEid = userDirectoryService().getUserEid(userId);
+						String userEid = userDirectoryService.getUserEid(userId);
 						String targetRole = (String) target.get(userEid);
 
 						if (role.equals(targetRole) || (StringUtils.isNotBlank(targetRole) && promoteUsersToProvidedRole))
@@ -2960,7 +2945,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 					m_sql.dbWrite(sql, fields);
 				}
-				eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_AUTHZ_GROUP, realm.getReference(), true));
+				eventTrackingService.post(eventTrackingService.newEvent(SECURE_UPDATE_AUTHZ_GROUP, realm.getReference(), true));
 			}
 			if (log.isDebugEnabled()) {
 				log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
@@ -3004,8 +2989,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// checks to see if the user is the current user and has the roleswap variable set in the session
 			String rv = null;
 
-			if (userId.equals(sessionManager().getCurrentSessionUserId())) {
-				rv = securityService().getUserEffectiveRole();
+			if (userId.equals(sessionManager.getCurrentSessionUserId())) {
+				rv = securityService.getUserEffectiveRole();
 			}
 
 			// otherwise drop through to the usual check

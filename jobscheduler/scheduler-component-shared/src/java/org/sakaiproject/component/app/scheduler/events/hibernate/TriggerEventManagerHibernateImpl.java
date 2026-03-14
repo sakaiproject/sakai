@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Time: 5:24:51 PM
  * To change this template use File | Settings | File Templates.
  */
+@Transactional
 public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implements TriggerEventManager
 {
     @Override

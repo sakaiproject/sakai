@@ -93,7 +93,7 @@ public class BaseGroup implements Group, Identifiable
 		if (site == null) log.warn("BaseGroup(site) created with null site");
 
 		m_site = site;
-		m_id = siteService.idManager().createUuid();
+		m_id = siteService.idManager.createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
 	}
 
@@ -137,7 +137,7 @@ public class BaseGroup implements Group, Identifiable
 		}
 		else
 		{
-			m_id = siteService.idManager().createUuid();
+			m_id = siteService.idManager.createUuid();
 		}
 
 		properties.setLazy(bOtherProperties.isLazy());
@@ -363,7 +363,7 @@ public class BaseGroup implements Group, Identifiable
 		{
 			try
 			{
-				m_azg = siteService.authzGroupService().getAuthzGroup(getReference());
+				m_azg = siteService.authzGroupService.getAuthzGroup(getReference());
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -377,21 +377,21 @@ public class BaseGroup implements Group, Identifiable
 					AuthzGroup template = null;
 					try
 					{
-						template = siteService.authzGroupService().getAuthzGroup(groupAzgTemplate);
+						template = siteService.authzGroupService.getAuthzGroup(groupAzgTemplate);
 					}
 					catch (Exception e1)
 					{
 						try
 						{
 							// if the template is not defined, try the fall back template
-							template = siteService.authzGroupService().getAuthzGroup("!group.template");
+							template = siteService.authzGroupService.getAuthzGroup("!group.template");
 						}
 						catch (Exception e2)
 						{
 						}
 					}
 
-					m_azg = siteService.authzGroupService().newAuthzGroup(getReference(), template, null);
+					m_azg = siteService.authzGroupService.newAuthzGroup(getReference(), template, null);
 					m_azgChanged = true;
 					
 					if (m_site != null)
@@ -414,7 +414,7 @@ public class BaseGroup implements Group, Identifiable
 							{
 								Role role = (Role) j.next();
 								// Ignore the unassignable roles.
-								if (!siteService.authzGroupService().isRoleAssignable(role.getId())) {
+								if (!siteService.authzGroupService.isRoleAssignable(role.getId())) {
 									continue;
 								}
 								if (currentRoles == null || !currentRoles.contains(role))

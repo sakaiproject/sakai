@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +45,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
@@ -120,22 +120,22 @@ public class BaseAuthzGroup implements AuthzGroup
 	protected boolean m_isNew = false;
 
 	private BaseAuthzGroupService baseAuthzGroupService;
-
+	private MicrosoftMessagingService microsoftMessagingService;
 	private UserDirectoryService userDirectoryService;
+	private TimeService timeService;
 
 	/** The most recently changed set of role/functions - ONLY valid during the save event processing on the same server */
 	public Set<DbAuthzGroupService.DbStorage.RoleAndFunction> m_lastChangedRlFn;
 
-	/**
-	 * Construct.
-	 * 
-	 * @param id
-	 *        The azGroup id.
-	 */
-	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, String id)
-	{
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService) {
 		this.baseAuthzGroupService = baseAuthzGroupService;
-		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
+		this.userDirectoryService = baseAuthzGroupService.userDirectoryService;
+		this.timeService = baseAuthzGroupService.timeService;
+		this.microsoftMessagingService = baseAuthzGroupService.microsoftMessagingService;
+	}
+
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, String id) {
+		this(baseAuthzGroupService);
 		m_id = id;
 
 		// setup for properties
@@ -157,10 +157,8 @@ public class BaseAuthzGroup implements AuthzGroup
 	 * @param azGroup
 	 *        The azGroup object to use for values.
 	 */
-	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, AuthzGroup azGroup)
-	{
-		this.baseAuthzGroupService = baseAuthzGroupService;
-		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, AuthzGroup azGroup) {
+		this(baseAuthzGroupService);
 		setAll(azGroup);
 	}
 
@@ -184,11 +182,16 @@ public class BaseAuthzGroup implements AuthzGroup
 	 * @param modifiedOn
 	 *        The time modified.
 	 */
-	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Integer dbid, String id, String providerId, String maintainRole, String createdBy, Instant createdOn,
-			String modifiedBy, Instant modifiedOn)
-	{
-		this.baseAuthzGroupService = baseAuthzGroupService;
-		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService,
+						  Integer dbid,
+						  String id,
+						  String providerId,
+						  String maintainRole,
+						  String createdBy,
+						  Instant createdOn,
+						  String modifiedBy,
+						  Instant modifiedOn) {
+		this(baseAuthzGroupService);
 		// setup for properties
 		ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 		m_properties = props;
@@ -219,11 +222,8 @@ public class BaseAuthzGroup implements AuthzGroup
 	 * @param el
 	 *        The XML DOM Element definining the azGroup.
 	 */
-	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Element el)
-	{
-		this.baseAuthzGroupService = baseAuthzGroupService;
-		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
-		TimeService timeService = baseAuthzGroupService.timeService();
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Element el) {
+		this(baseAuthzGroupService);
 		m_userGrants = new HashMap();
 		m_roles = new HashMap();
 		m_realmLocks = new HashSet<>();
@@ -524,7 +524,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		// the rest are references to some resource
 		try
 		{
-			Reference ref = baseAuthzGroupService.entityManager().newReference(getId());
+			Reference ref = baseAuthzGroupService.entityManager.newReference(getId());
 			return ref.getDescription();
 		}
 		catch (Exception ignore)
@@ -542,7 +542,6 @@ public class BaseAuthzGroup implements AuthzGroup
 	 */
 	protected void setAll(AuthzGroup azGroup)
 	{
-		TimeService timeService = baseAuthzGroupService.timeService();
 		if (((BaseAuthzGroup) azGroup).m_lazy)
 			baseAuthzGroupService.m_storage.completeGet(((BaseAuthzGroup) azGroup));
 
@@ -553,7 +552,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		m_createdUserId = ((BaseAuthzGroup) azGroup).m_createdUserId;
 		m_lastModifiedUserId = ((BaseAuthzGroup) azGroup).m_lastModifiedUserId;
-		m_createdTime = Instant.ofEpochMilli(timeService.newTime().getTime());
+		m_createdTime = Instant.ofEpochMilli(baseAuthzGroupService.timeService.newTime().getTime());
 		if (((BaseAuthzGroup) azGroup).m_lastModifiedTime != null)
 			m_lastModifiedTime = ((BaseAuthzGroup) azGroup).m_lastModifiedTime;
 
@@ -1015,7 +1014,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		
 
 		//send message to (ignite) MicrosoftMessagingService
-		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, MicrosoftMessage.builder()
+		microsoftMessagingService.send(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, MicrosoftMessage.builder()
 				.action(MicrosoftMessage.Action.ADD)
 				.reference(this.getId())
 				.userId(user)
@@ -1034,7 +1033,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		m_userGrants.remove(user);
 		
 		//send message to (ignite) MicrosoftMessagingService
-		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+		microsoftMessagingService.send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
 				.action(MicrosoftMessage.Action.REMOVE)
 				.reference(this.getId())
 				.userId(user)
@@ -1063,7 +1062,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		m_userGrants.clear();
 		
 		//send message to (ignite) MicrosoftMessagingService
-		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+		microsoftMessagingService.send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
 				.action(MicrosoftMessage.Action.REMOVE_ALL)
 				.reference(this.getId())
 				.build()

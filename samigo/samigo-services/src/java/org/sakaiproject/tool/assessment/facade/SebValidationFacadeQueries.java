@@ -21,8 +21,10 @@ import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SebValidationData;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings("unchecked")
+@Transactional
 public class SebValidationFacadeQueries extends HibernateDaoSupport implements SebValidationFacadeQueriesAPI {
 
   public Optional<SebValidationData> getLastSebValidation(final Long assessmentId, final String agentId) {

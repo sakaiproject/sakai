@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.api.ecmascript.APIErrorCodes;
@@ -47,31 +48,30 @@ import org.sakaiproject.scorm.model.api.Progress;
 import org.sakaiproject.scorm.model.api.Score;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResultService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public abstract class ScormResultServiceImpl implements ScormResultService
-{
+@Transactional
+public class ScormResultServiceImpl implements ScormResultService {
+
 	private static String[] fields = { CMI_COMPLETION_STATUS, CMI_SCORE_SCALED, CMI_SUCCESS_STATUS };
 
-	// Daos (also depedency injected)
-	protected abstract AttemptDao attemptDao();
-	protected abstract DataManagerDao dataManagerDao();
-	protected abstract LearnerDao learnerDao();
-
-	// Dependency injection method lookup signatures
-	protected abstract LearningManagementSystem lms();
+	@Setter protected AttemptDao attemptDao;
+	@Setter protected DataManagerDao dataManagerDao;
+	@Setter protected LearnerDao learnerDao;
+	@Setter protected LearningManagementSystem lms; // Dependency injection method lookup signatures
 
 	@Override
 	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId)
 	{
-		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		IDataManager dataManager = dataManagerDao.find(contentPackageId, learnerId, attemptNumber, scoId);
 		return dataManager != null;
 	}
 
 	@Override
 	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId)
 	{
-		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		IDataManager dataManager = dataManagerDao.find(contentPackageId, learnerId, attemptNumber, scoId);
 		if (dataManager == null)
 		{
 			return null;
@@ -93,7 +93,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	{
 		ActivityReport report = new ActivityReport();
 
-		IDataManager dataManager = dataManagerDao().findByActivityId(contentPackageId, activityId, learnerId, attemptNumber);
+		IDataManager dataManager = dataManagerDao.findByActivityId(contentPackageId, activityId, learnerId, attemptNumber);
 
 		report.setActivityId(activityId);
 		report.setTitle(dataManager.getTitle());
@@ -107,7 +107,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	public List<ActivityReport> getActivityReports(long contentPackageId, String learnerId, long attemptNumber)
 	{
-		List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
+		List<IDataManager> dataManagers = dataManagerDao.find(contentPackageId, learnerId, attemptNumber);
 		List<ActivityReport> reports = new LinkedList<>();
 
 		for (IDataManager dataManager : dataManagers)
@@ -129,7 +129,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	@Override
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber)
 	{
-		List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
+		List<IDataManager> dataManagers = dataManagerDao.find(contentPackageId, learnerId, attemptNumber);
 		List<ActivitySummary> summaries = new LinkedList<>();
 
 		for (IDataManager dataManager : dataManagers)
@@ -153,19 +153,19 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	@Override
 	public Attempt getAttempt(long id)
 	{
-		return attemptDao().load(id);
+		return attemptDao.load(id);
 	}
 
 	@Override
 	public Attempt getAttempt(long contentPackageId, String learnerId, long attemptNumber)
 	{
-		return attemptDao().lookup(contentPackageId, learnerId, attemptNumber);
+		return attemptDao.lookup(contentPackageId, learnerId, attemptNumber);
 	}
 
 	public CMIFieldGroup getAttemptResults(Attempt attempt)
 	{
 
-		IDataManager dataManager = dataManagerDao().find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
+		IDataManager dataManager = dataManagerDao.find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
 		CMIFieldGroup group = getDefaultFieldGroup();
 		List<CMIField> list = group.getList();
 
@@ -180,25 +180,25 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	@Override
 	public List<Attempt> getAttempts(long contentPackageId)
 	{
-		return attemptDao().find(contentPackageId);
+		return attemptDao.find(contentPackageId);
 	}
 
 	@Override
 	public List<Attempt> getAttempts(long contentPackageId, String learnerId)
 	{
-		return attemptDao().find(contentPackageId, learnerId);
+		return attemptDao.find(contentPackageId, learnerId);
 	}
 
 	@Override
 	public Attempt getNewstAttempt(long contentPackageId, String learnerId)
 	{
-		return attemptDao().lookupNewest(contentPackageId, learnerId);
+		return attemptDao.lookupNewest(contentPackageId, learnerId);
 	}
 
 	@Override
 	public List<Attempt> getAttempts(String courseId, String learnerId)
 	{
-		return attemptDao().find(courseId, learnerId);
+		return attemptDao.find(courseId, learnerId);
 	}
 
 	private List<CMIData> getCMIData(IDataManager dataManager)
@@ -305,7 +305,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	@Override
 	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId)
 	{
-		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		IDataManager dataManager = dataManagerDao.find(contentPackageId, learnerId, attemptNumber, scoId);
 		List<Interaction> interactions = new LinkedList<>();
 		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber, false);
 		Interaction interaction = null;
@@ -342,8 +342,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	public List<LearnerExperience> getLearnerExperiences(long contentPackageId)
 	{
 		List<LearnerExperience> experiences = new LinkedList<>();
-		String context = lms().currentContext();
-		List<Learner> learners = learnerDao().find(context);
+		String context = lms.currentContext();
+		List<Learner> learners = learnerDao.find(context);
 
 		for (int i = 0; i < learners.size(); i++)
 		{
@@ -375,9 +375,14 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	}
 
 	@Override
+	public List<Learner> getLearners(long contentPackageId) {
+		return List.of();
+	}
+
+	@Override
 	public int getNumberOfAttempts(long contentPackageId, String learnerId)
 	{
-		return attemptDao().count(contentPackageId, learnerId);
+		return attemptDao.count(contentPackageId, learnerId);
 	}
 
 	private double getRealValue(String element, IDataManager dataManager)
@@ -434,8 +439,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 		if (scoId == null)
 		{
 			// We just have the above ids
-			String context = lms().currentContext();
-			List<Learner> learners = learnerDao().find(context);
+			String context = lms.currentContext();
+			List<Learner> learners = learnerDao.find(context);
 			Collections.sort(learners);
 
 			for (int i = 0; i < learners.size(); i++)
@@ -460,7 +465,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 		else if (interactionId == null)
 		{
 			// We just have a sco id
-			List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
+			List<IDataManager> dataManagers = dataManagerDao.find(contentPackageId, learnerId, attemptNumber);
 
 			for (int i = 0; i < dataManagers.size(); i++)
 			{
@@ -483,7 +488,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 		}
 		else
 		{
-			IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+			IDataManager dataManager = dataManagerDao.find(contentPackageId, learnerId, attemptNumber, scoId);
 
 			// We have everything
 			List<Interaction> interactions = new LinkedList<>();
@@ -517,7 +522,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	public List<CMIData> getSummaryCMIData(Attempt attempt)
 	{
 		// FIXME: Need to replace SCO_ID with a real id
-		IDataManager dataManager = dataManagerDao().find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
+		IDataManager dataManager = dataManagerDao.find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
 		List<CMIData> cmiData = new LinkedList<>();
 		CMIFieldGroup group = getSummaryFieldGroup();
 		List<CMIField> list = group.getList();
@@ -585,13 +590,13 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	public Attempt lookupAttempt(String courseId, String learnerId, long attemptNumber, String[] fields)
 	{
-		Attempt attempt = attemptDao().find(courseId, learnerId, attemptNumber);
+		Attempt attempt = attemptDao.find(courseId, learnerId, attemptNumber);
 		if (attempt == null)
 		{
 			attempt = new Attempt();
 		}
 
-		IDataManager dataManager = dataManagerDao().find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
+		IDataManager dataManager = dataManagerDao.find(attempt.getCourseId(), "SCO_ID", attempt.getLearnerId(), attempt.getAttemptNumber());
 		attempt.setBeginDate(dataManager.getBeginDate());
 		attempt.setLastModifiedDate(dataManager.getLastModifiedDate());
 		return attempt;
@@ -832,12 +837,12 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 	@Override
 	public void saveAttempt(Attempt attempt)
 	{
-		attemptDao().save(attempt);
+		attemptDao.save(attempt);
 	}
 
 	@Override
 	public int countAttempts(long contentPackageId, String learnerId)
 	{
-		return attemptDao().count(contentPackageId, learnerId);
+		return attemptDao.count(contentPackageId, learnerId);
 	}
 }

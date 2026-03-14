@@ -53,8 +53,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class RankManagerImpl extends HibernateDaoSupport implements RankManager {
     private static final String QUERY_BY_CONTEXT_ID_USERID = "findRanksByContextIdUserID";
     private static final String QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED = "findRanksByContextIdBasedOnNumPost";

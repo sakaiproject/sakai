@@ -18,8 +18,10 @@ package org.sakaiproject.tool.impl;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.jmock.Expectations;
-import org.jmock.integration.junit3.MockObjectTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
@@ -27,6 +29,8 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.*;
 
 import java.lang.reflect.Field;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Provides common fixture set-up operations. This is necessary
@@ -36,62 +40,32 @@ import java.lang.reflect.Field;
  * @author dmccallum@unicon.net
  *
  */
-public abstract class BaseSessionComponentTest extends MockObjectTestCase {
+public abstract class BaseSessionComponentTest {
 
 	protected SessionComponent sessionComponent;
-	protected IdManager idManager;
-	protected ComponentManager componentManager;
-	protected ThreadLocalManager threadLocalManager;
-	protected ToolManager toolManager;
-	// not used - test passes null value to MySession() constructor
+	@Mock protected IdManager idManager;
+	@Mock protected ComponentManager componentManager;
+	@Mock protected ThreadLocalManager threadLocalManager;
+	@Mock protected ToolManager toolManager;
+	@Mock protected ClusterService clusterService;
 	protected SessionAttributeListener sessionListener;
 	private int uuidDiscriminator;
-	protected ClusterService clusterService;
-	
-	protected void setUp() throws Exception {
-		this.idManager = mock(IdManager.class);
-		this.threadLocalManager = mock(ThreadLocalManager.class);
-		this.toolManager = mock(ToolManager.class);
-		this.clusterService = mock(ClusterService.class);
+
+	@Before
+	public void setUp() throws Exception {
+		MockitoAnnotations.openMocks(this);
 		setUpComponentManager();
-		this.sessionComponent = new SessionComponent() {
-
-			@Override
-			protected IdManager idManager() {
-				return idManager;
-			}
-
-			@Override
-			protected ClusterService clusterManager() {
-				return clusterService;
-			}
-
-			@Override
-			protected ThreadLocalManager threadLocalManager() {
-				return threadLocalManager;
-			}
-
-			@Override
-			protected ToolManager toolManager() {
-				return toolManager;
-			}			
-
-			@Override
-			protected RebuildBreakdownService rebuildBreakdownService() {
-				return null;
-			}
-
-			@Override
-			protected boolean isClosing() {
-				return false;
-			}
-		};
+		this.sessionComponent = new SessionComponent();
+		// Inject the mocks into the sessionComponent
+		this.sessionComponent.setThreadLocalManager(threadLocalManager);
+		this.sessionComponent.setIdManager(idManager);
+		this.sessionComponent.setToolManager(toolManager);
+		this.sessionComponent.setClusterManager(clusterService);
 		//commenting out this next line, because it doesn't seem to be needed
 		//this.sessionComponent.setClusterableTools("");
 		this.sessionComponent.init();
 		// it's up to individual tests to start or stop maintenance
 		stopMaintenance();
-		super.setUp();
 	}
 	
 	/**
@@ -158,9 +132,7 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 	}
 	
 	protected void expectCreateUuidRequest(final String nextUuid) {
-		checking(new Expectations() {{
-			one(idManager).createUuid(); will(returnValue(nextUuid));
-		}});
+		when(idManager.createUuid()).thenReturn(nextUuid);
 	}
 	
 	protected void expectCreateUuidRequest() {
@@ -168,9 +140,7 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 	}
 	
 	protected void allowCreateUuidRequest(final String nextUuid) {
-		checking(new Expectations() {{
-			allowing(idManager).createUuid(); will(returnValue(nextUuid));
-		}});
+		when(idManager.createUuid()).thenReturn(nextUuid);
 	}
 	
 	protected void allowCreateUuidRequest() {
@@ -189,44 +159,28 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 	
 	protected void expectGetAndUnsetCurrentSession(final Session session) {
 		expectGetSession(session);
-		checking(new Expectations() {{
-			one(threadLocalManager).set(SessionComponent.CURRENT_SESSION, null);
-		}});
+		// No need to set up expectation for set() with Mockito - it's a void method
 	}
-	
+
 	protected void expectGetSession(final Session session) {
-		checking(new Expectations() {{
-			one(threadLocalManager).get(SessionComponent.CURRENT_SESSION); 
-			will(returnValue(session));
-		}});
+		when(threadLocalManager.get(SessionComponent.CURRENT_SESSION)).thenReturn(session);
 	}
 	
 	protected void allowGetAndUnsetCurrentSession(final Session session) {
-		checking(new Expectations() {{
-			allowing(threadLocalManager).get(SessionComponent.CURRENT_SESSION); 
-			will(returnValue(session));
-			allowing(threadLocalManager).set(SessionComponent.CURRENT_SESSION, null);
-		}});
+		when(threadLocalManager.get(SessionComponent.CURRENT_SESSION)).thenReturn(session);
+		// No need to set up expectation for set() with Mockito - it's a void method
 	}
 
 	protected void allowPlacementCheck(final String context) {
-		checking(new Expectations() {{
-			Placement mockPlacement = mock(Placement.class);
-			allowing(toolManager).getCurrentPlacement();
-			will(returnValue(mockPlacement));
-			allowing(mockPlacement).getContext();
-			will(returnValue(context));
-		}});
+		Placement mockPlacement = mock(Placement.class);
+		when(toolManager.getCurrentPlacement()).thenReturn(mockPlacement);
+		when(mockPlacement.getContext()).thenReturn(context);
 	}
 
 	protected void allowToolCheck(final String toolId) {
-		checking(new Expectations() {{
-			Tool mockTool = mock(Tool.class);
-			allowing(toolManager).getCurrentTool();
-			will(returnValue(mockTool));
-			allowing(mockTool).getId();
-			will(returnValue(toolId));
-		}});
+		Tool mockTool = mock(Tool.class);
+		when(toolManager.getCurrentTool()).thenReturn(mockTool);
+		when(mockTool.getId()).thenReturn(toolId);
 	}
 	
 	protected Matcher<Session> sessionHavingId(final String toMatch, final SessionHolder matchedSessionHolder) {
@@ -245,10 +199,10 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 		};
 	}
 	
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		sessionComponent.destroy();
 		// TODO try to verify Maintenance shutdown? prob overkill.
-		super.tearDown();
 	}
 	
 	protected static final class SessionHolder {

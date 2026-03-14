@@ -31,6 +31,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
@@ -166,6 +167,7 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao#update(java.lang.Object)
 	 */
+	@Transactional
 	public void update(Object o)
 	{
 		getHibernateTemplate().saveOrUpdate(o);

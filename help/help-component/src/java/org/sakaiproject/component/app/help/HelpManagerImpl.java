@@ -86,6 +86,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -102,6 +103,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@Transactional(transactionManager = "helpTransactionManager")
 public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 {
 

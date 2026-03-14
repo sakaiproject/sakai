@@ -41,6 +41,7 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
@@ -54,6 +55,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
+@Transactional(readOnly = true)
 public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RWikiCurrentObjectDao, ObjectProxy {
 
 	protected RWikiObjectContentDao contentDAO = null;
@@ -255,6 +257,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
+	@Transactional
 	public void update(RWikiCurrentObject rwo, RWikiHistoryObject rwho) {
 		// should have already checked
 		RWikiCurrentObjectImpl impl = (RWikiCurrentObjectImpl) rwo;
@@ -355,6 +358,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
+	@Transactional
 	public void updateObject(RWikiObject rwo) {
 		getHibernateTemplate().saveOrUpdate(rwo);
 	}

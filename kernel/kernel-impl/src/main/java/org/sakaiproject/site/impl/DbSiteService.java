@@ -50,6 +50,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -58,8 +59,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public abstract class DbSiteService extends BaseSiteService
-{
+public class DbSiteService extends BaseSiteService {
 	/** Table name for sites. */
 	protected String m_siteTableName = "SAKAI_SITE";
 
@@ -86,10 +86,7 @@ public abstract class DbSiteService extends BaseSiteService
 	 * Dependencies
 	 ************************************************************************************************************************************************/
 
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract SqlService sqlService();
+	@Setter protected SqlService sqlService;
 
 	/*************************************************************************************************************************************************
 	 * Configuration
@@ -161,14 +158,14 @@ public abstract class DbSiteService extends BaseSiteService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_site");
 
 				// also load the 2.1 new site database tables
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_group");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_site_group");
 			}
 
 			super.init();
-			setSiteServiceSql(sqlService().getVendor());
+			setSiteServiceSql(sqlService.getVendor());
 
 			log.info("init(): site table: " + m_siteTableName + " external locks: " + m_useExternalLocks);
 		}
@@ -228,7 +225,7 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		public DbStorage(BaseSiteService service)
 		{
-			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService());
+			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService);
 			m_reader = this;
 
 			m_service = service;
@@ -909,7 +906,7 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		private String getCurrentUserIdIfNull(String userId)
 		{
-			return userId == null ? sessionManager().getCurrentSessionUserId() : userId;
+			return userId == null ? sessionManager.getCurrentSessionUserId() : userId;
 		}
 		
 		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
@@ -1117,7 +1114,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			log.debug("getSiteIds SQL: {}, values: {}", sql, java.util.Arrays.toString(values));
 
-			List<String> results = sqlService().dbRead(sql, values, siteIdReader);
+			List<String> results = sqlService.dbRead(sql, values, siteIdReader);
 			Set<String> siteIds = new LinkedHashSet<>();
 			if (results != null) siteIds.addAll(results);
 			Set<String> excludedSiteIds = new LinkedHashSet<>();
@@ -1309,7 +1306,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			String statement = siteServiceSql.getTypesSql();
 
-			List rv = sqlService().dbRead(statement);
+			List rv = sqlService.dbRead(statement);
 
 			return rv;
 		}
@@ -1326,7 +1323,7 @@ public abstract class DbSiteService extends BaseSiteService
 			Object fields[] = new Object[1];
 			fields[0] = caseId(siteId);
 
-			List rv = sqlService().dbRead(statement, fields, new SqlReader()
+			List rv = sqlService.dbRead(statement, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -1491,7 +1488,7 @@ public abstract class DbSiteService extends BaseSiteService
 				int pos = 0;
 				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 				{
-					fields[pos++] = sessionManager().getCurrentSessionUserId();
+					fields[pos++] = sessionManager.getCurrentSessionUserId();
 				}
 				if (ofType != null)
 				{
@@ -1544,7 +1541,7 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 				if (type == SelectionType.JOINABLE)
 				{
-					fields[pos++] = sessionManager().getCurrentSessionUserId();
+					fields[pos++] = sessionManager.getCurrentSessionUserId();
 				}
 			}
 
@@ -2556,7 +2553,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (edit == null)
 			{
-				String current = sessionManager().getCurrentSessionUserId();
+				String current = sessionManager.getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
@@ -2716,7 +2713,7 @@ public abstract class DbSiteService extends BaseSiteService
 				// create the Resource from these fields
 				return new BaseSite(DbSiteService.this, id, title, type, shortDesc, description, icon, info, skin, published, joinable,
 						pubView, joinRole, isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered,
-						isSoftlyDeleted, softlyDeletedDate, includeDescription, sessionManager(), userDirectoryService());
+						isSoftlyDeleted, softlyDeletedDate, includeDescription, sessionManager, userDirectoryService);
 			}
 			catch (SQLException e)
 			{

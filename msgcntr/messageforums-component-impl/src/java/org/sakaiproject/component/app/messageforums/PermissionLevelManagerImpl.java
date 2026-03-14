@@ -53,6 +53,7 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -60,6 +61,7 @@ import org.springframework.util.Assert;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
 	private EventTrackingService eventTrackingService;

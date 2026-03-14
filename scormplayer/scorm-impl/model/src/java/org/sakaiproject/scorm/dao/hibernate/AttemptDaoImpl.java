@@ -32,7 +32,9 @@ import org.sakaiproject.scorm.model.api.Attempt;
 
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 {
 	@Override

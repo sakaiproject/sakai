@@ -43,13 +43,14 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SimpleEvent;
 import org.sakaiproject.memory.api.Cache;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
  * ClusterEventTracking is the implementation for the EventTracking service for use in a clustered multi-app server configuration.<br />
  * Events are backed in the cluster database, and this database is polled to read and process local events posted by the other cluster members.
  */
 @Slf4j
-public class ClusterEventTracking extends BaseEventTrackingService implements Runnable {
+public class ClusterEventTracking extends BaseEventTrackingService implements Runnable, SmartInitializingSingleton {
 
 	private static final long WARNING_SAFE_EVENTS_TABLE_SIZE = 18000000L; // see SAK-3793
 	private static final long MAX_SAFE_EVENTS_TABLE_SIZE = 20000000L; // see SAK-3793
@@ -87,14 +88,6 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 			// start the event checking
 			if (checkDb) {
 				initLastEvent();
-
-				// schedule a task for every pollDelaySeconds
-				schedulingService.scheduleWithFixedDelay(
-						this,
-						60, // minimally wait 60 seconds for sakai to start
-						period, // run every
-						TimeUnit.SECONDS
-				);
 			}
 
 			boolean eventsSizeCheck = serverConfigurationService.getBoolean("events.size.check", true);
@@ -132,7 +125,18 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 		}
 	}
 
-    /**
+	@Override
+	public void afterSingletonsInstantiated() {
+		// schedule a task for every pollDelaySeconds
+		schedulingService.scheduleWithFixedDelay(
+				this,
+				60, // minimally wait 60 seconds for sakai to start
+				period, // run every
+				TimeUnit.SECONDS
+		);
+	}
+
+	/**
      * @return the current total number of events in the events table (data storage)
      */
     protected long getEventsCount() {

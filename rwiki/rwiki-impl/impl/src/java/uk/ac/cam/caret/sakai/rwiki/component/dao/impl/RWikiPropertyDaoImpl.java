@@ -29,6 +29,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiPropertyDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
@@ -36,9 +37,8 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
-public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements
-		RWikiPropertyDao
-{
+@Transactional(readOnly = true)
+public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPropertyDao {
 	private String schemaVersion;
 
 	public RWikiProperty getProperty(final String name)
@@ -86,6 +86,7 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements
 		return new RWikiPropertyImpl();
 	}
 
+	@Transactional
 	public void update(RWikiProperty property)
 	{
 		getHibernateTemplate().saveOrUpdate(property);

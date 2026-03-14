@@ -26,11 +26,7 @@ package org.sakaiproject.grading.api;
  * it easier to throw them while using Hibernate. By default, Spring will
  * mark a transaction as rollback-only when a runtime exception is thrown
  * by a proxied method but will leave the transaction alone when a checked
- * exception is thrown. To preserve the original transaction-preserving
- * behavior, this exception class is explicitly called out in the Spring
- * TransactionProxyFactoryBean configuration file using the following syntax:
- *
- * <prop key="create*">PROPAGATION_REQUIRED,+org.sakaiproject.grading.api.GradebookException</prop>
+ * exception is thrown.
  */
 public class GradebookException extends RuntimeException {
 

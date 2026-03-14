@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +111,9 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-@Setter @Slf4j
+@Setter
+@Slf4j
+@Transactional
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao, PortalSubPageNavProvider {
 
 	private AuthzGroupService authzGroupService;

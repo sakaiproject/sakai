@@ -29,6 +29,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObjectContent;
@@ -38,6 +39,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
+@Transactional(readOnly = true)
 public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
 		implements RWikiObjectContentDao
 {
@@ -82,6 +84,7 @@ public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
 		return rwco;
 	}
 
+	@Transactional
 	public void update(RWikiObjectContent content)
 	{
 		RWikiHistoryObjectContentImpl impl = (RWikiHistoryObjectContentImpl) content;

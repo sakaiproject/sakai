@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,32 +70,19 @@ import org.sakaiproject.util.Xml;
  * </p>
  */
 @Slf4j
-public abstract class ActiveToolComponent extends ToolComponent implements ActiveToolManager
+public class ActiveToolComponent extends ToolComponent implements ActiveToolManager
 {
 	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 	static final String TOOL_CATEGORIES_PREFIX = "tool.categories.";
 	static final String TOOL_CATEGORIES_APPEND_PREFIX = TOOL_CATEGORIES_PREFIX+"append.";
 
-	// private ResourceLoader toolProps = null;
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-	
-	/**
-	 * @ the serverConfigurationService() collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
+	@Setter protected SessionManager sessionManager;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected ServerConfigurationService serverConfigurationService;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -192,7 +180,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			else if (rootElement.getTagName().equals("function"))
 			{
 				String function = rootElement.getAttribute("name").trim();
-				functionManager().registerFunction(function);
+				functionManager.registerFunction(function);
 			}
 		}
 	}
@@ -367,7 +355,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		}
 
 		// KNL-1031 - Override OR Add additional categories from sakai.properties
-		String[] categoriesArray = serverConfigurationService().getStrings(TOOL_CATEGORIES_PREFIX+tool.getId());
+		String[] categoriesArray = serverConfigurationService.getStrings(TOOL_CATEGORIES_PREFIX+tool.getId());
 		if (categoriesArray != null) {
 		    // override the set of categories
 		    categories.clear();
@@ -377,7 +365,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		        }
 		    }
 		} else {
-		    categoriesArray = serverConfigurationService().getStrings(TOOL_CATEGORIES_APPEND_PREFIX+tool.getId());
+		    categoriesArray = serverConfigurationService.getStrings(TOOL_CATEGORIES_APPEND_PREFIX+tool.getId());
 		    if (categoriesArray != null) {
 		        // add categories instead of overriding
 		        for (String category: categoriesArray) {
@@ -640,14 +628,14 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 				if (placement != null)
 				{
-					ToolSession ts = sessionManager().getCurrentSession().getToolSession(placement.getId());
+					ToolSession ts = sessionManager.getCurrentSession().getToolSession(placement.getId());
 
 					// put the session in the request attribute
 					setAttribute(TOOL_SESSION, ts);
 
 					// set as the current tool session, and setup for undoing this later
-					m_priorToolSession = sessionManager().getCurrentToolSession();
-					sessionManager().setCurrentToolSession(ts);
+					m_priorToolSession = sessionManager.getCurrentToolSession();
+					sessionManager.setCurrentToolSession(ts);
 
 					// set this tool placement as current, in the request and for the service's "current" tool placement
 					setAttribute(PLACEMENT, placement);
@@ -804,7 +792,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			{
 				// restore the tool, placement and tool session and tool placement config that was in effect before we changed it
 				setCurrentTool(m_priorTool);
-				sessionManager().setCurrentToolSession(m_priorToolSession);
+				sessionManager.setCurrentToolSession(m_priorToolSession);
 				setCurrentPlacement(m_priorPlacement);
 			}
 

@@ -100,7 +100,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	protected BaseToolConfiguration(BaseSiteService siteService, SitePage page, String id, String toolId,
 			String title, String layoutHints, int pageOrder)
 	{
-		super( id, toolId, siteService.activeToolManager().getTool(toolId), null, null, title);
+		super( id, toolId, siteService.activeToolManager.getTool(toolId), null, null, title);
 		this.siteService = siteService;
 
 		m_page = page;
@@ -163,7 +163,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	protected BaseToolConfiguration(BaseSiteService siteService, String id, String toolId, String title,
 			String layoutHints, String pageId, String siteId, String skin, int pageOrder)
 	{
-		super(id, toolId, siteService.activeToolManager().getTool(toolId), null, null, title);
+		super(id, toolId, siteService.activeToolManager.getTool(toolId), null, null, title);
 		this.siteService = siteService;
 		
 		m_page = null;
@@ -200,7 +200,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		}
 		else
 		{
-			m_id = siteService.idManager().createUuid();
+			m_id = siteService.idManager.createUuid();
 		}
 		m_toolId = other.getToolId();
 		m_tool = other.getTool();
@@ -245,7 +245,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(BaseSiteService siteService, SitePage page)
 	{
-		super(siteService.idManager().createUuid(), null, null, null, null, null);
+		super(siteService.idManager.createUuid(), null, null, null, null, null);
 		this.siteService = siteService;
 
 		m_page = page;
@@ -262,7 +262,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(BaseSiteService siteService, Tool reg, SitePage page)
 	{
-		super(siteService.idManager().createUuid(), reg.getId(), reg, null, null, null);
+		super(siteService.idManager.createUuid(), reg.getId(), reg, null, null, null);
 		this.siteService = siteService;
 		
 		m_page = page;
@@ -280,7 +280,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(BaseSiteService siteService, String toolId, SitePage page)
 	{
-		super(siteService.idManager().createUuid(), toolId, null, null, null, null);
+		super(siteService.idManager.createUuid(), toolId, null, null, null, null);
 		this.siteService = siteService;
 
 		m_page = page;
@@ -307,7 +307,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_toolId = StringUtils.trimToNull(el.getAttribute("toolId"));
 		if (m_toolId != null)
 		{
-			m_tool = siteService.activeToolManager().getTool(m_toolId);
+			m_tool = siteService.activeToolManager.getTool(m_toolId);
 		}
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
 		m_layoutHints = StringUtils.trimToNull(el.getAttribute("layoutHints"));
@@ -543,7 +543,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		siteService.storage().saveToolConfig(this);
 
 		// track the site change
-		siteService.eventTrackingService().post(siteService.eventTrackingService().newEvent(
+		siteService.eventTrackingService.post(siteService.eventTrackingService.newEvent(
 				SiteService.SECURE_UPDATE_SITE, siteService.siteReference(getSiteId()),
 				true));
 	}
@@ -598,7 +598,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected String localizeTool()
 	{
-		String localizedTitle = siteService.activeToolManager().getLocalizedToolProperty(getTool().getId(), "title");
+		String localizedTitle = siteService.activeToolManager.getLocalizedToolProperty(getTool().getId(), "title");
 			
 		// Use localized title if present
 		if(localizedTitle != null && localizedTitle.length()>0)
@@ -613,6 +613,6 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 	public void regenerateId()
 	{
-		m_id = siteService.idManager().createUuid();
+		m_id = siteService.idManager.createUuid();
 	}
 }

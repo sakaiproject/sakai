@@ -41,6 +41,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import javax.persistence.PersistenceException;
@@ -52,6 +53,7 @@ import javax.persistence.PersistenceException;
  * @author Ed Smiley <esmiley@stanford.edu> split integrated, standlaone.
  */
 @Slf4j
+@Transactional
 public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
 {
   // can convert these to use the resource bundle....

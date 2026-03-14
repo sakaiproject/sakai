@@ -43,60 +43,42 @@
     <bean id="cmTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
     </bean>
-    
-    <bean abstract="true" id="cmTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager"><ref bean="cmTransactionManager"/></property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
+
+    <bean id="org.sakaiproject.coursemanagement.api.CourseManagementService"
+          class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
+        <property name="implList">
+            <!-- List the implementations here, in descending order of authority -->
+            <list>
+                <!--
+                    For testing, we use an impl that returns no data.
+                    Replace this sample chained impl with your custom impl, if any.
+                -->
+                <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
+
+                <!-- The internal, hibernate-backed implementation -->
+                <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
+                    <property name="sessionFactory" ref="cmSessionFactory"/>
+                </bean>
+            </list>
         </property>
     </bean>
 
-	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementService" parent="cmTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
-            	<property name="implList">
-            		<!-- List the implementations here, in descending order of authority -->
-            		<list>
-			            <!-- 
-			            	For testing, we use an impl that returns no data.
-			            	Replace this sample chained impl with your custom impl, if any.
-			            -->
-			            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
 
-            			<!-- The internal, hibernate-backed implementation -->
-						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
-							<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
-						</bean>
-					</list>
-            	</property>
-            </bean>
-        </property>
-	</bean>
+    <bean id="org.sakaiproject.coursemanagement.impl.DataLoader"
+          class="org.sakaiproject.coursemanagement.test.HibernateTestDataLoader">
+        <property name="sessionFactory" ref="cmSessionFactory"/>
+        <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+    </bean>
 
-	
-	<bean id="org.sakaiproject.coursemanagement.impl.DataLoader" parent="cmTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.coursemanagement.test.HibernateTestDataLoader">
-        		<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
-        		<property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
-            </bean>
+    <bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"
+          class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl">
+        <property name="sessionFactory" ref="cmSessionFactory"/>
+        <property name="authn">
+            <bean class="org.sakaiproject.coursemanagement.impl.facade.TestAuthentication"/>
         </property>
-	</bean>
-	
-	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration" parent="cmTxTemplate">
-        <property name="target">
-            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl">
-        		<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
-        		<property name="authn">
-        			<bean class="org.sakaiproject.coursemanagement.impl.facade.TestAuthentication"/>
-        		</property>
-        	</bean>
-        </property>
-	</bean>
+    </bean>
 
-	<!--  Reconciliation Job for CM data -->   
+    <!--  Reconciliation Job for CM data -->
    <bean id="org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob"
    		class="org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob"
    		init-method="init" destroy-method="destroy">

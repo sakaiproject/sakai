@@ -42,11 +42,14 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
 
   @Setter private ItemHashUtil itemHashUtil;
@@ -172,6 +175,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     }
 
     @Override
+    @Transactional(propagation = Propagation.NEVER)
     public BackfillItemHashResult backfillItemHashes(int batchSize) {
         return itemHashUtil.backfillItemHashes(
                 batchSize,

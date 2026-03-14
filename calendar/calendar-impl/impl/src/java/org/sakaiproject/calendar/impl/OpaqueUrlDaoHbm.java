@@ -26,8 +26,10 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.OpaqueUrlDao;
 import org.sakaiproject.calendar.dao.hbm.OpaqueUrlHbm;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
+@Transactional
 public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao {
 	
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {

@@ -42,7 +42,7 @@ public class LessonsConditionEvaluator extends BaseConditionEvaluator {
     private AssessmentConditionEvaluator assessmentConditionEvaluator;
 
     @Autowired
-    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget")
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
     private SimplePageToolDao lessonService;
 
 
