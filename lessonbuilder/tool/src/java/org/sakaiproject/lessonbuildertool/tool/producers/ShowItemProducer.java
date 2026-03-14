@@ -399,7 +399,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl() + (params.getReviewAssessment() ? "&action=review" : "");
 
 			// Notify the Entity they are about to be launched from an item
-			lessonEntity.preShowItem(item);
+			if (lessonEntity != null) lessonEntity.preShowItem(item);
 		}
 
 		boolean isBlti = item != null && item.getType() == SimplePageItem.BLTI;

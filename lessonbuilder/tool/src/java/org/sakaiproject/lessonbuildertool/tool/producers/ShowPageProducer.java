@@ -1267,7 +1267,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (!simplePageBean.isItemVisible(i, currentPage)) continue;
 
 				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
-				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM)
+				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM && !SimplePageItem.DUMMY.equals(i.getSakaiId()))
 				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
 
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
@@ -1599,20 +1599,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						} else if (i.getType() == SimplePageItem.SCORM) {
 							UIOutput.make(tableRow, "type", "s");
 							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
-							LessonEntity scorm = resolvedScormEntity;
-							if (scorm != null) {
-								String editUrl = scorm.editItemUrl(simplePageBean);
+							if (resolvedScormEntity != null) {
+								String editUrl = resolvedScormEntity.editItemUrl(simplePageBean);
 								if (editUrl != null) {
 									UIOutput.make(tableRow, "edit-url", editUrl);
 								}
-								editUrl = scorm.editItemSettingsUrl(simplePageBean);
+								editUrl = resolvedScormEntity.editItemSettingsUrl(simplePageBean);
 								if (editUrl != null) {
 									UIOutput.make(tableRow, "edit-settings-url", editUrl);
 								}
-								itemGroupString = simplePageBean.getItemGroupString(i, scorm, true);
+								itemGroupString = simplePageBean.getItemGroupString(i, resolvedScormEntity, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
 								if (i.getHeight() != null) UIOutput.make(tableRow, "item-height", i.getHeight());
-								if (!scorm.objectExists())
+								if (!resolvedScormEntity.objectExists())
 								    entityDeleted = true;
 							}
 						} else if (i.getType() == SimplePageItem.ASSESSMENT) {
@@ -3821,7 +3820,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (usable && i.isPrerequisite()) {
 				simplePageBean.checkItemPermissions(i, true);
 			}
-			LessonEntity lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+			LessonEntity lessonEntity = SimplePageItem.DUMMY.equals(i.getSakaiId()) ? null : scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
@@ -3843,7 +3842,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
-				// Default: quiz - show via ShowItemProducer
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
@@ -4028,9 +4026,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.ASSESSMENT:
 					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
-					break;
-				case SimplePageItem.SCORM:
-					lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 					break;
 				default:
 					break;
