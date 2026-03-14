@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -247,13 +248,20 @@ public class PageHandler extends BasePortalHandler
 
 			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
 				String roleId = null;
-				if (site.getMember(session.getUserId()) != null) {
-					roleId = site.getMember(session.getUserId()).getRole().getId();
-				}
 				if (securityService.isSuperUser()) {
 					roleId = "admin";
+				} else {
+					String currentUserId = session.getUserId();
+					if (currentUserId != null) {
+						Member member = site.getMember(currentUserId);
+						if (member != null && member.getRole() != null) {
+							roleId = member.getRole().getId();
+						}
+					}
 				}
-				rcontext.put("currentRole", roleId);				
+				if (roleId != null) {
+					rcontext.put("currentRole", roleId);
+				}
 			}
 			
 			rcontext.put("pageTwoColumn", Boolean

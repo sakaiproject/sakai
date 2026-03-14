@@ -20,7 +20,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -29,11 +33,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +48,12 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 import org.sakaiproject.tool.api.ActiveToolManager;
@@ -63,6 +74,8 @@ public class ActiveToolComponentTest {
 	private FunctionManager functionManager;
 	private BasicConfigurationService serverConfigurationService;
 	private ActiveToolManager activeToolManager;
+	private ActiveToolComponent activeToolComponent;
+	private SessionManager previousSessionManagerCover;
 
 	@Before
 	public void setUp() {
@@ -71,11 +84,13 @@ public class ActiveToolComponentTest {
 		// Mock the others.
 		securityService = context.mock(SecurityService.class);
 		sessionManager = context.mock(SessionManager.class);
+		previousSessionManagerCover = getCoverSessionManager();
+		setCoverSessionManager(sessionManager);
 		functionManager = context.mock(FunctionManager.class);
 		serverConfigurationService = new BasicConfigurationService();
 		serverConfigurationService.setThreadLocalManager(threadLocalComponent);
 		serverConfigurationService.setSessionManager(sessionManager);
-		ActiveToolComponent activeToolComponent = new ActiveToolComponent() {
+		activeToolComponent = new ActiveToolComponent() {
 			
 			@Override
 			protected ThreadLocalManager threadLocalManager() {
@@ -109,6 +124,11 @@ public class ActiveToolComponentTest {
 		};
 		activeToolComponent.init();
 		this.activeToolManager = activeToolComponent;
+	}
+
+	@After
+	public void tearDown() {
+		setCoverSessionManager(previousSessionManagerCover);
 	}
 
 	@Test
@@ -281,5 +301,107 @@ public class ActiveToolComponentTest {
 		assertEquals("The first set should contain asn.new", permissionSets.get(0).iterator().next(), "asn.new");
 		assertEquals("The second set should contain asn.delete", permissionSets.get(1).iterator().next(), "asn.delete");
 		assertEquals("The third set should contain asn.read", permissionSets.get(2).iterator().next(), "asn.read");
+	}
+
+	@Test
+	public void testAllowToolSkipsMembershipLookupWithoutShoppingPeriodRestrictions() {
+
+		Session session = mock(Session.class);
+		Site site = mock(Site.class);
+		Placement placement = mock(Placement.class);
+		ResourceProperties properties = mock(ResourceProperties.class);
+		Properties config = new Properties();
+
+		context.checking(new org.jmock.Expectations() {{
+			allowing(securityService).isSuperUser(); will(returnValue(false));
+			allowing(sessionManager).getCurrentSession(); will(returnValue(session));
+		}});
+
+		when(session.getAttribute("delegatedaccess.deniedToolsMap")).thenReturn(null);
+		when(site.getReference()).thenReturn("/site/test");
+		when(site.getProperties()).thenReturn(properties);
+		when(properties.get("shopping-period-public-tools")).thenReturn(null);
+		when(properties.get("shopping-period-auth-tools")).thenReturn(null);
+		when(placement.getConfig()).thenReturn(config);
+		when(placement.getToolId()).thenReturn("sakai.announcements");
+
+		assertTrue(activeToolComponent.allowTool(site, placement));
+		verify(site, never()).getMember(nullable(String.class));
+	}
+
+	@Test
+	public void testAllowToolSkipsMembershipLookupForAnonymousShoppingPeriodRequests() {
+
+		Session session = mock(Session.class);
+		Site site = mock(Site.class);
+		Placement placement = mock(Placement.class);
+		ResourceProperties properties = mock(ResourceProperties.class);
+		Properties config = new Properties();
+
+		context.checking(new org.jmock.Expectations() {{
+			allowing(securityService).isSuperUser(); will(returnValue(false));
+			allowing(sessionManager).getCurrentSession(); will(returnValue(session));
+		}});
+
+		when(session.getAttribute("delegatedaccess.deniedToolsMap")).thenReturn(null);
+		when(session.getUserId()).thenReturn(null);
+		when(site.getReference()).thenReturn("/site/test");
+		when(site.getProperties()).thenReturn(properties);
+		when(properties.get("shopping-period-public-tools")).thenReturn("sakai.announcements;sakai.resources");
+		when(properties.get("shopping-period-auth-tools")).thenReturn("sakai.assignments");
+		when(placement.getConfig()).thenReturn(config);
+		when(placement.getToolId()).thenReturn("sakai.announcements");
+
+		assertTrue(activeToolComponent.allowTool(site, placement));
+		verify(site, never()).getMember(nullable(String.class));
+	}
+
+	@Test
+	public void testAllowToolSkipsShoppingPeriodChecksWhenShoppingUiDisabled() {
+
+		Session session = mock(Session.class);
+		Site site = mock(Site.class);
+		Placement placement = mock(Placement.class);
+		Properties config = new Properties();
+		BasicConfigurationService serverConfigurationServiceSpy = spy(serverConfigurationService);
+		doReturn(false).when(serverConfigurationServiceSpy)
+				.getBoolean("delegatedaccess.shopping.UI.enabled", false);
+		serverConfigurationService = serverConfigurationServiceSpy;
+
+		context.checking(new org.jmock.Expectations() {{
+			allowing(securityService).isSuperUser(); will(returnValue(false));
+			allowing(sessionManager).getCurrentSession(); will(returnValue(session));
+		}});
+
+		when(session.getAttribute("delegatedaccess.deniedToolsMap")).thenReturn(null);
+		when(site.getReference()).thenReturn("/site/test");
+		when(placement.getConfig()).thenReturn(config);
+		when(placement.getToolId()).thenReturn("sakai.announcements");
+
+		assertTrue(activeToolComponent.allowTool(site, placement));
+		verify(site, never()).getProperties();
+		verify(site, never()).getMember(nullable(String.class));
+	}
+
+	private SessionManager getCoverSessionManager() {
+
+		try {
+			Field instanceField = org.sakaiproject.tool.cover.SessionManager.class.getDeclaredField("m_instance");
+			instanceField.setAccessible(true);
+			return (SessionManager) instanceField.get(null);
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void setCoverSessionManager(SessionManager manager) {
+
+		try {
+			Field instanceField = org.sakaiproject.tool.cover.SessionManager.class.getDeclaredField("m_instance");
+			instanceField.setAccessible(true);
+			instanceField.set(null, manager);
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

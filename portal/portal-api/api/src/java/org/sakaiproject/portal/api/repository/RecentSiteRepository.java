@@ -21,6 +21,14 @@ import java.util.List;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
+/**
+ * Repository for recent site rows.
+ *
+ * Recent site mutations must be coordinated with portal navigation locking in
+ * {@code PortalServiceImpl}. External callers should use
+ * {@code PortalServiceImpl} for mutating operations to preserve lock-based
+ * consistency with in-memory portal navigation state.
+ */
 public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, Long> {
 
     /**

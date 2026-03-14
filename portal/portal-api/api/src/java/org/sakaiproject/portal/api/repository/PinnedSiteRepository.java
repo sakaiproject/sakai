@@ -21,14 +21,44 @@ import java.util.Optional;
 import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
+/**
+ * Repository for pinned site rows.
+ *
+ * Pinned site mutations must be coordinated with portal navigation locking in
+ * {@code PortalServiceImpl}. External callers should not invoke mutating
+ * methods directly. Use {@code PortalServiceImpl} APIs so updates stay
+ * consistent with in-memory portal navigation state.
+ */
 public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, Long> {
 
+    List<PinnedSite> findByUserId(String userId);
+    List<PinnedSite> findByUserIdOrderByHasBeenUnpinnedAscPosition(String userId);
     List<PinnedSite> findByUserIdOrderByPosition(String userId);
     List<PinnedSite> findByUserIdAndHasBeenUnpinnedOrderByPosition(String userId, boolean hasBeenUnpinned);
     Optional<PinnedSite> findByUserIdAndSiteId(String userId, String siteId);
     List<PinnedSite> findBySiteId(String siteId);
+
+    /**
+     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
+     * methods so locking is applied.
+     */
     Integer deleteByUserId(String userId);
+
+    /**
+     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
+     * methods so locking is applied.
+     */
     Integer deleteBySiteId(String siteId);
+
+    /**
+     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
+     * methods so locking is applied.
+     */
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
+
+    /**
+     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
+     * methods so locking is applied.
+     */
     Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }
