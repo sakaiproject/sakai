@@ -20,10 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,7 +93,7 @@ public class SelectActionListener implements ActionListener {
   public void processAction(ActionEvent ae) throws
       AbortProcessingException {
     //#0 - permission checking before proceeding - daisyf
-    // if it is anonymos login, let it pass 'cos there is no site and authz is
+    // if it is anonymous login, let it pass 'cos there is no site and authz is
     // about permission in a site
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
@@ -282,11 +281,18 @@ public class SelectActionListener implements ActionListener {
         .collect(Collectors.toList());
 
     Map<String, Double> averageScoreMap =
-    averageScoreAssessmentGradingList.stream()
-      .collect(Collectors.groupingBy(
-        DeliveryBeanie::getAssessmentId,
-        Collectors.averagingDouble(db -> Double.parseDouble(db.getFinalScore()))
-    ));
+      averageScoreAssessmentGradingList.stream()
+        .map(db -> {
+          if (NumberUtils.isParsable(db.getFinalScore())) {
+            return Map.entry(db.getAssessmentId(), Double.parseDouble(db.getFinalScore()));
+          }
+          return null;
+        })
+        .filter(Objects::nonNull)
+        .collect(Collectors.groupingBy(
+          Map.Entry::getKey,
+          Collectors.averagingDouble(Map.Entry::getValue)
+        ));
 
     /// --mustansar
     List<DeliveryBeanie> reviewableList = new ArrayList();
