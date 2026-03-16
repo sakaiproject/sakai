@@ -122,6 +122,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// Always refresh the published assessment before grading so a student
 			// cannot submit against stale answer hashes after an instructor republish.
 			PublishedAssessmentFacade publishedAssessment = publishedAssesmentService.getPublishedAssessment(delivery.getAssessmentId());
+			if (publishedAssessment == null) {
+				log.error("Unable to submit assessment {} for grading because no published assessment was found", delivery.getAssessmentId());
+				throw new DataException("Published assessment not found for assessmentId " + delivery.getAssessmentId());
+			}
 			delivery.setPublishedAssessment(publishedAssessment);
 			delivery.setPublishedItemHash(new HashMap());
 			delivery.setPublishedItemTextHash(new HashMap());
