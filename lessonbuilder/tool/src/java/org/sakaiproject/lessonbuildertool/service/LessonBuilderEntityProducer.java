@@ -781,7 +781,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 
 			// Create a new page in the destination site
-			SimplePage newPage = simplePageToolDao.makePage(toSiteId, null, orphanedPage.getTitle(), parentPageId, null);
+			SimplePage newPage = simplePageToolDao.makePage(toSiteId, toSiteId, orphanedPage.getTitle(), parentPageId, null);
 
 			// Copy essential properties
 			if (orphanedPage.getCssSheet() != null) {
@@ -1985,6 +1985,21 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					}
 				}
 			}
+			// Fill unresolved parents from XML attributes (safe fallback for partial or empty ref maps)
+			for (Map.Entry<Long, Element> pageEntry : pageElementMap.entrySet()) {
+				Long oldPageId = pageEntry.getKey();
+				if (calculatedParentMap.containsKey(oldPageId)) {
+					continue;
+				}
+				Element pageElement = pageEntry.getValue();
+				String parentAttr = pageElement.getAttribute("parent");
+				if (StringUtils.isNotEmpty(parentAttr)) {
+					long parentId = NumberUtils.toLong(parentAttr, 0L);
+					if (parentId > 0 && pageMap.containsKey(parentId) && pageMap.containsKey(oldPageId)) {
+						calculatedParentMap.put(oldPageId, parentId);
+					}
+				}
+			}
 
 			// Calculate top parents by walking up the tree
 			calculateTopParentMap(calculatedParentMap, calculatedTopParentMap);
@@ -2206,22 +2221,22 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				log.debug(result);
 				results.append(result);
 			}
-			
+
 			// Update toolIds for child pages
 			int toolIdUpdates = 0;
 			for (Map.Entry<Long, Long> entry : pageMap.entrySet()) {
 				Long oldPageId = entry.getKey();
 				Long newPageId = entry.getValue();
-				
+
 				// Only process child pages (those with topparent)
 				if (calculatedTopParentMap.containsKey(oldPageId)) {
 					Long oldTopParentId = calculatedTopParentMap.get(oldPageId);
 					Long newTopParentId = pageMap.get(oldTopParentId);
-					
+
 					if (newTopParentId != null) {
 						SimplePage page = simplePageToolDao.getPage(newPageId);
 						SimplePage topParentPage = simplePageToolDao.getPage(newTopParentId);
-						
+
 						if (page != null && topParentPage != null && topParentPage.getToolId() != null 
 							&& !topParentPage.getToolId().equals("0") && !topParentPage.getToolId().equals(page.getToolId())) {
 							page.setToolId(topParentPage.getToolId());
@@ -2232,11 +2247,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					}
 				}
 			}
-			
+
 			if (toolIdUpdates > 0) {
 				log.info("Updated toolIds for {} child pages", toolIdUpdates);
 			}
-			
+
 			results.append("merging lessonbuilder tool " + siteId + " (" + count + ") items.\n");
 		}
 		catch (DOMException e)
