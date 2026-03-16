@@ -1034,14 +1034,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			} catch (Exception impossible) {};
 		}
 
-		Site fromSite = null;
-		try {
-			fromSite = siteService.getSite(fromSiteId);
-		} catch (Exception impossible) {
-			fromSite = null;
-		};
+		Optional<Site> fromSite = siteService.getOptionalSite(fromSiteId);
 
-		boolean isSameServer = fromSite != null;
+		boolean isSameServer = fromSite.isPresent();
 
 		NodeList allChildrenNodes = element.getChildNodes();
 		int length = allChildrenNodes.getLength();
