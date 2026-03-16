@@ -568,7 +568,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Orphaned pages need not apply!
 		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
-		
+
 		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 
 		Set<Long> originalSelectedPageIds = new HashSet<>();
@@ -847,7 +847,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * This helps identify orphaned subpages that should be included in exports
 	 * but lack proper parent/topparent/toolid fields
 	 */
-	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
+	public Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
 		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
 		return findReferencedPagesByItems(siteId, allPages);
 	}
@@ -857,17 +857,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 */
 	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId, List<SimplePage> allPages) {
 		Map<Long, List<Long>> pageToReferencedPages = new HashMap<>();
-		
+
 		if (allPages == null || allPages.isEmpty()) {
 			return pageToReferencedPages;
 		}
-		
+
 		for (SimplePage page : allPages) {
 			if ("0".equals(page.getToolId())) {
 				log.debug("Skipping orphaned page {} with toolId='0'", page.getPageId());
 				continue;
 			}
-			
+
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
 			if (items != null) {
 				for (SimplePageItem item : items) {
@@ -889,7 +889,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 		}
-		
+
 		return pageToReferencedPages;
 	}
 
@@ -1975,7 +1975,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				for (Map.Entry<Long, Element> pageEntry : pageElementMap.entrySet()) {
 					Long oldPageId = pageEntry.getKey();
 					Element pageElement = pageEntry.getValue();
-					
+
 					String parentAttr = pageElement.getAttribute("parent");
 					if (StringUtils.isNotEmpty(parentAttr)) {
 						long parentId = NumberUtils.toLong(parentAttr, 0L);
@@ -2337,16 +2337,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Get orphan finder to identify problematic pages
 		SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(fromContext);
-		
+
 		List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
 		if (sitePages == null || sitePages.isEmpty()) {
 			return Collections.emptyList();
 		}
-		
+
 		// Find pages referenced by items, but only from valid (non-orphan) pages
 		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(fromContext, sitePages);
 		Set<Long> validReferencedPageIds = new HashSet<>();
-		
+
 		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
 			Long referencingPageId = entry.getKey();
 			// Only include references from pages that are not orphans
