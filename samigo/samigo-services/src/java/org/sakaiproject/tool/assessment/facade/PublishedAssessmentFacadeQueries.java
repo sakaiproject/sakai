@@ -1614,29 +1614,28 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return Collections.emptyMap();
 		}
 
-		try {
 			HibernateCallback<Map<Long, String>> hcb = session -> {
 				Query<Object[]> query = session.createQuery(
 						"select m.assessment.publishedAssessmentId, m.entry "
 								+ "from PublishedMetaData m "
 								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
-								+ "and m.label = :label",
+								+ "and m.label = :label "
+								+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
 						Object[].class);
-				query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
-				query.setParameter("label", label);
+			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
+			query.setParameter("label", label);
 
-				Map<Long, String> assessmentMetaDataEntries = new HashMap<>();
-				for (Object[] row : query.list()) {
-					assessmentMetaDataEntries.put((Long) row[0], (String) row[1]);
-				}
-				return assessmentMetaDataEntries;
-			};
+			return query.list().stream()
+				.collect(Collectors.toMap(
+					row -> (Long) row[0],
+					row -> (String) row[1],
+					// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
+					(existing, replacement) -> replacement,
+					LinkedHashMap::new
+				));
+		};
 
-			return getHibernateTemplate().execute(hcb);
-		} catch (DataAccessException e) {
-			log.error("Failed to get assessment metadata entries for assessments {} and label {}", publishedAssessmentIds, label, e);
-			return Collections.emptyMap();
-		}
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
