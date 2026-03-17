@@ -22,6 +22,7 @@
 package org.sakaiproject.test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.junit.AfterClass;
@@ -38,7 +39,8 @@ public class SakaiKernelTestBase {
 	/**
 	 * The configuration path of the components file for the kernel component
 	 */
-	private static String CONFIG = "../kernel-impl/src/main/webapp/WEB-INF/components.xml";
+	private static String[] CONFIG = {"../kernel-impl/src/main/webapp/WEB-INF/components.xml",
+			                          "src/test/resources/test-components.xml"};
 
 	/**
 	 * The test component manager container
@@ -84,11 +86,13 @@ public class SakaiKernelTestBase {
 		}
 		
 		if (additional != null) {
-			testComponentManagerContainer = new TestComponentManagerContainer(
-					CONFIG + ";" + additional, properties);
+			String[] additionalConfig = additional.split(";");
+			String[] allConfigs = new String[CONFIG.length + additionalConfig.length];
+			System.arraycopy(CONFIG, 0, allConfigs, 0, CONFIG.length);
+			System.arraycopy(additionalConfig, 0, allConfigs, CONFIG.length, additionalConfig.length);
+			testComponentManagerContainer = new TestComponentManagerContainer(allConfigs, properties);
 		} else {
-			testComponentManagerContainer = new TestComponentManagerContainer(
-					CONFIG, properties);
+			testComponentManagerContainer = new TestComponentManagerContainer(CONFIG, properties);
 		}
 	}
 	
