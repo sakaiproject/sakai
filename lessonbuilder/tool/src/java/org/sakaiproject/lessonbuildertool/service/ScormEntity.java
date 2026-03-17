@@ -264,18 +264,23 @@ public class ScormEntity implements LessonEntity {
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)
 	    return null;
-	Attempt latest = scormResultService.getNewstAttempt(contentPackage.getContentPackageId(), userId);
-	if (latest == null)
-	    return null;
-	// Check actual cmi.completion_status / cmi.success_status across all SCOs in this attempt
-	List<ActivitySummary> summaries = scormResultService.getActivitySummaries(
-	    contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
-	if (summaries.isEmpty()) return null;
-	for (ActivitySummary summary : summaries) {
-	    if (!"completed".equals(summary.getCompletionStatus()) && !"passed".equals(summary.getSuccessStatus()))
+	try {
+	    Attempt latest = scormResultService.getNewstAttempt(contentPackage.getContentPackageId(), userId);
+	    if (latest == null)
 		return null;
+	    // Check actual cmi.completion_status / cmi.success_status across all SCOs in this attempt
+	    List<ActivitySummary> summaries = scormResultService.getActivitySummaries(
+		contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
+	    if (summaries.isEmpty()) return null;
+	    for (ActivitySummary summary : summaries) {
+		if (!"completed".equals(summary.getCompletionStatus()) && !"passed".equals(summary.getSuccessStatus()))
+		    return null;
+	    }
+	    return new LessonSubmission(null);
+	} catch (Exception e) {
+	    log.warn("getSubmission: error querying SCORM result service for user {} package {}: {}", userId, id, e.getMessage());
+	    return null;
 	}
-	return new LessonSubmission(null);
     }
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
@@ -287,7 +292,12 @@ public class ScormEntity implements LessonEntity {
 	    contentPackage = getContentPackage(id);
 	if (contentPackage == null)
 	    return 0;
-	return scormResultService.countAttempts(contentPackage.getContentPackageId(), user);
+	try {
+	    return scormResultService.countAttempts(contentPackage.getContentPackageId(), user);
+	} catch (Exception e) {
+	    log.warn("getSubmissionCount: error querying SCORM result service for user {} package {}: {}", user, id, e.getMessage());
+	    return 0;
+	}
     }
 
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 

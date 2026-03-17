@@ -4022,7 +4022,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			switch (i.getType()) {
 				case SimplePageItem.ASSIGNMENT:
 					linkText = getLinkText(linkText, i.getSakaiId());
-					// fall through to ASSESSMENT to resolve entity and set review link
+					lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
+					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
+					break;
 				case SimplePageItem.ASSESSMENT:
 					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
