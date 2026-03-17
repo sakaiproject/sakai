@@ -366,7 +366,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
   private String getFormattedScore(Double score, String siteId) {
     String currentLocaleStr = null;
-    String userId = AgentFacade.getEid();
+    String userId = AgentFacade.getAgentString();
 
     try {
       Site site = siteService.getSite(siteId);
