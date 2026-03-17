@@ -127,6 +127,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				throw new DataException("Published assessment not found for assessmentId " + delivery.getAssessmentId());
 			}
 			delivery.setPublishedAssessment(publishedAssessment);
+			// Clear cached hashes so DeliveryBean lazily rebuilds them from the refreshed published assessment.
 			delivery.setPublishedItemHash(new HashMap<>());
 			delivery.setPublishedItemTextHash(new HashMap<>());
 			delivery.setPublishedAnswerHash(new HashMap<>());
