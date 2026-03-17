@@ -3916,7 +3916,7 @@ public class SimplePageBean {
 	       case SimplePageItem.ASSESSMENT:
 		   entity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	       case SimplePageItem.SCORM:
-		   entity = scormEntity.getEntity(i.getSakaiId(),this); break;
+		   entity = (scormEntity != null) ? scormEntity.getEntity(i.getSakaiId(),this) : null; break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.MULTIMEDIA:
@@ -4153,7 +4153,7 @@ public class SimplePageBean {
 	   case SimplePageItem.ASSESSMENT:
 	       lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	   case SimplePageItem.SCORM:
-	       lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
+	       lessonEntity = (scormEntity != null) ? scormEntity.getEntity(i.getSakaiId(),this) : null; break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.MULTIMEDIA:
@@ -4444,7 +4444,7 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return "permission-failed";
 
-		if (selectedScorm == null) {
+		if (selectedScorm == null || scormEntity == null) {
 			return "failure";
 		} else {
 			try {
@@ -4462,9 +4462,22 @@ public class SimplePageBean {
 				String ref = (existing != null) ? existing.getReference() : null;
 				// if same scorm package, nothing to do
 				if (existing == null || !ref.equals(selectedScorm)) {
-				    i.setSakaiId(selectedScorm);
-				    i.setName(selectedObject.getTitle());
-				    i.setDescription("");
+				    // if access controlled, release restriction from old package and add to new
+				    if (i.isPrerequisite()) {
+					if (existing != null) {
+					    i.setPrerequisite(false);
+					    checkControlGroup(i, false);
+					}
+					i.setSakaiId(selectedScorm);
+					i.setName(selectedObject.getTitle());
+					i.setDescription("");
+					i.setPrerequisite(true);
+					checkControlGroup(i, true);
+				    } else {
+					i.setSakaiId(selectedScorm);
+					i.setName(selectedObject.getTitle());
+					i.setDescription("");
+				    }
 				}
 				update(i);
 			    } else { // no, add new item
@@ -5727,7 +5740,7 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.SCORM:
-			    entity = scormEntity.getEntity(item.getSakaiId(), this);
+			    entity = (scormEntity != null) ? scormEntity.getEntity(item.getSakaiId(), this) : null;
 			    if (entity == null || entity.notPublished())
 				return false;
 			    break;
@@ -5944,6 +5957,7 @@ public class SimplePageBean {
 			    completeCache.put(itemId, false);
 			    return false;
 			}
+			if (scormEntity == null) { completeCache.put(itemId, false); return false; }
 			LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(), this);
 			if (scorm == null) {
 			    completeCache.put(itemId, false);

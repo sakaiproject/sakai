@@ -139,6 +139,8 @@ public class LessonsExport {
                     res = ccConfig.getSamigoMap().get(sakaiId);
                     break;
                 case SimplePageItem.SCORM:
+                    // SCORM packages cannot be represented in Common Cartridge; item is intentionally omitted from export
+                    log.debug("Skipping SCORM item {} during CC export - not supported by Common Cartridge format", item.getId());
                     break;
                 case SimplePageItem.TEXT:
                     res = ccConfig.getFileMap().get("/text/" + item.getId());

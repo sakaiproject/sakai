@@ -96,6 +96,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			simplePageBean.updatePageObject(params.getSendingPage());
 		    } catch (Exception e) {
 			log.warn("ScormPicker permission exception {}", e.toString());
+			showError(tofill, "simplepage.permissions-general");
 			return;
 		    }
 		}
@@ -130,7 +131,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
 
 			if (createLinks.isEmpty()) {
-			    showError(tofill, "simplepage.no_scorm_tool");
+			    showError(tofill, "simplepage.no_scorm_placement");
 			    return;
 			}
 

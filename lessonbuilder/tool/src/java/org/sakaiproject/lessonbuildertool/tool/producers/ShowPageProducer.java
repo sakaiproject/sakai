@@ -4303,9 +4303,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
-		    if (scormEntity != null && scormEntity.isAvailable()) {
+		    if (scormEntity != null && scormEntity.isServiceDeployed()) {
 			UIOutput.make(tofill, "scorm-li");
-			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm.tooltip");
+			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm");
 		    }
 
 		    //Adding 'Embed forum conversations' component

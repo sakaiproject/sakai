@@ -152,8 +152,8 @@ public interface LessonEntity {
     // checks to see if the underlying assignment, etc, actually exists
     public boolean objectExists();
 
-    // returns false if the backing service is not available (e.g. tool not deployed)
-    default public boolean isAvailable() {
+    // returns false if the backing service is not deployed (e.g. SCORM player not installed)
+    default public boolean isServiceDeployed() {
 	return true;
     }
 

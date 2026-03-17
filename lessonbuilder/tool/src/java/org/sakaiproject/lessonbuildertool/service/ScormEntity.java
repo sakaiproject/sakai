@@ -90,7 +90,7 @@ public class ScormEntity implements LessonEntity {
 	log.info("init() {}", scormContentService);
     }
 
-    public boolean isAvailable() {
+    public boolean isServiceDeployed() {
 	return scormContentService != null;
     }
 
@@ -270,11 +270,12 @@ public class ScormEntity implements LessonEntity {
 	// Check actual cmi.completion_status / cmi.success_status across all SCOs in this attempt
 	List<ActivitySummary> summaries = scormResultService.getActivitySummaries(
 	    contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
+	if (summaries.isEmpty()) return null;
 	for (ActivitySummary summary : summaries) {
-	    if ("completed".equals(summary.getCompletionStatus()) || "passed".equals(summary.getSuccessStatus()))
-		return new LessonSubmission(null);
+	    if (!"completed".equals(summary.getCompletionStatus()) && !"passed".equals(summary.getSuccessStatus()))
+		return null;
 	}
-	return null;
+	return new LessonSubmission(null);
     }
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
@@ -334,8 +335,9 @@ public class ScormEntity implements LessonEntity {
 	if (contentPackage == null) contentPackage = getContentPackage(id);
 	if (contentPackage == null) return true;
 	int status = scormContentService.getContentPackageStatus(contentPackage);
-	return status == ScormConstants.CONTENT_PACKAGE_STATUS_NOTYETOPEN
-	    || status == ScormConstants.CONTENT_PACKAGE_STATUS_CLOSED;
+	// OPEN and OVERDUE packages are accessible to learners; CLOSED and NOTYETOPEN are not
+	return status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN
+	    && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE;
     }
 
     // return the list of groups if the item is only accessible to specific groups
@@ -382,7 +384,8 @@ public class ScormEntity implements LessonEntity {
 	String realObjectId = objectid.substring(0, titleSlash); // "scorm/{id}"
 	String title = objectid.substring(titleSlash + 1);
 
-	String mapped = objectMap.get(realObjectId);
+	// sakaiId is stored with a leading slash (e.g. "/scorm/{id}"), so prefix before lookup
+	String mapped = objectMap.get("/" + realObjectId);
 	if (mapped != null)
 	    return "/" + mapped;
 
