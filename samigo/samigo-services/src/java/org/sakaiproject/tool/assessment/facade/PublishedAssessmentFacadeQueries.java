@@ -1625,12 +1625,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
 				query.setParameter("label", label);
 
-				Map<Long, String> assessmentMetaDataEntries = query.list().stream()
+				return query.list().stream()
 					.collect(Collectors.toMap(
 						row -> (Long) row[0],
-						row -> (String) row[1]
-				));
-				return assessmentMetaDataEntries;
+						row -> (String) row[1],
+						// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
+						(existing, replacement) -> replacement,
+						LinkedHashMap::new
+					));
 			};
 
 			return getHibernateTemplate().execute(hcb);
