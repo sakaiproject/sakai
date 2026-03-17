@@ -2,6 +2,7 @@
 #set( $H = '-' )
 #set( $T = 'T' )
 #rubricsRequirements
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
 <!-- Initialize the Bootstrap-multiselect plugin: -->
 <script>
     $(document).ready(function() {
@@ -610,7 +611,7 @@
 		</fieldset>
         </div>
         <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-            <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+            <sakai-lti-iframe iframe-name="sakai-lti-admin-iframe" launch-url="/library/image/sakai/spinner.gif" allow="$allowLtiAdminIframe" allow-resize="yes"></sakai-lti-iframe>
         </div>
 <style>
 .ui-widget-overlay.ui-front {
@@ -629,8 +630,6 @@ function showExternalIframe(title, doreload) {
         open: function() {
             $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
             $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            $('#sakai-lti-admin-iframe').attr('width', '100%');
-            $('#sakai-lti-admin-iframe').attr('height', '100%');
             // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
             $(this).parent().focus();
         },
@@ -638,7 +637,7 @@ function showExternalIframe(title, doreload) {
             if ( doreload ) {
                 location.reload();
             } else {
-                $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+                $('#external-modal-iframe-div sakai-lti-iframe').attr('launch-url','/library/image/sakai/spinner.gif');
             }
         }
     });
@@ -646,8 +645,6 @@ function showExternalIframe(title, doreload) {
     $(window).resize(function() {
         $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
         $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-        $('#sakai-lti-admin-iframe').attr('width', '100%');
-        $('#sakai-lti-admin-iframe').attr('height', '100%');
     });
 }
 //]]>

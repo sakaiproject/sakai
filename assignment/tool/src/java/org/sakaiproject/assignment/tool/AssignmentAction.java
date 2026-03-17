@@ -98,6 +98,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -3729,6 +3730,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 + "?panel=AssignmentsMain"
 				+ "&flow=assignment";
          context.put("findExternalToolUrl", contentReturn);
+
+         String allowLtiAdminIframe = StringEscapeUtils.escapeHtml4(serverConfigurationService.getBrowserFeatureAllowString());
+         context.put("allowLtiAdminIframe", allowLtiAdminIframe);
     } // setAssignmentFormContext
 
     /**

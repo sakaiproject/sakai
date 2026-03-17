@@ -10,6 +10,7 @@ export class SakaiLTIIframe extends SakaiElement {
     height: { attribute: "height", type: String },
     newWindowText: { attribute: "new-window-text", type: String },
     launchUrl: { attribute: "launch-url", type: String },
+    iframeName: { attribute: "iframe-name", type: String },
   };
 
   constructor() {
@@ -133,6 +134,8 @@ export class SakaiLTIIframe extends SakaiElement {
 
   render() {
 
+    const iframeId = `sakai-lti-iframe-${this.randomId}`;
+
     return html`
       <div class="sakai-iframe-launch-button" id="sakai-lti-button-${this.randomId}" style="display:none;">
         <p>
@@ -142,7 +145,8 @@ export class SakaiLTIIframe extends SakaiElement {
       <div class="sakai-iframe-launch">
         <iframe class="sakai-iframe-force-light"
             src="${this.launchUrl}"
-            id="sakai-lti-iframe-${this.randomId}"
+            id="${iframeId}"
+            name="${this.iframeName || iframeId}"
             style="width: 100%; height: ${this._heightStyle}; overflow: auto;"
             width="100%"
             aria-label="${this.newWindowText}"
