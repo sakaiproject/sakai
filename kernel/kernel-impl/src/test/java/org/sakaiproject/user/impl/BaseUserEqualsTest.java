@@ -22,8 +22,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.impl.BaseUserDirectoryService.BaseUserEdit;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -43,7 +41,7 @@ public class BaseUserEqualsTest {
 		final SessionManager sessionManager = mock(SessionManager.class);
 		when(sessionManager.getCurrentSessionUserId()).thenReturn("userId");
 		service = new PrecachingDbUserService();
-		service.setTimeService(() -> timeService);
+		service.setTimeService(timeService);
 		service.setSessionManager(sessionManager);
 	}
 

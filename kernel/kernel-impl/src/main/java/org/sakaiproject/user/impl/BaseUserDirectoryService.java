@@ -85,7 +85,6 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.beans.factory.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -533,7 +532,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	@Setter protected MemoryService memoryService;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected AuthzGroupService authzGroupService;
-	@Setter protected ObjectFactory<TimeService> timeService;
+	@Setter protected TimeService timeService;
 	@Setter protected IdManager idManager;
 	@Setter protected FormattedText formattedText;
 
@@ -2163,13 +2162,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
-				m_createdInstant = Instant.ofEpochMilli(timeService.getObject().newTimeGmt(time).getTime());
+				m_createdInstant = Instant.ofEpochMilli(timeService.newTimeGmt(time).getTime());
 			}
 
 			time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
-				m_lastModifiedInstant = Instant.ofEpochMilli(timeService.getObject().newTimeGmt(time).getTime());
+				m_lastModifiedInstant = Instant.ofEpochMilli(timeService.newTimeGmt(time).getTime());
 			}
 
 			// the children (roles, properties)

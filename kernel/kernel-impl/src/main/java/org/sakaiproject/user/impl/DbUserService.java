@@ -381,7 +381,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if ((attribUser == null) || (attribUser.length() == 0)) attribUser = (String) rv[0];
 
-				Time now = timeService.getObject().newTime();
+				Time now = timeService.newTime();
 				rv[1] = "";
 				rv[2] = "";
 				rv[3] = "";
