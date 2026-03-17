@@ -1614,13 +1614,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return Collections.emptyMap();
 		}
 
-		HibernateCallback<Map<Long, String>> hcb = session -> {
-			Query<Object[]> query = session.createQuery(
-					"select m.assessment.publishedAssessmentId, m.entry "
-							+ "from PublishedMetaData m "
-							+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
-							+ "and m.label = :label",
-					Object[].class);
+			HibernateCallback<Map<Long, String>> hcb = session -> {
+				Query<Object[]> query = session.createQuery(
+						"select m.assessment.publishedAssessmentId, m.entry "
+								+ "from PublishedMetaData m "
+								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
+								+ "and m.label = :label "
+								+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
+						Object[].class);
 			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
 			query.setParameter("label", label);
 

@@ -22,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -31,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PublishedAssessmentFacadeQueriesTest {
@@ -59,9 +61,13 @@ public class PublishedAssessmentFacadeQueriesTest {
 		Map<Long, String> entries = queries.getAssessmentMetaDataEntriesByLabel(
 			Arrays.asList(101L, 202L), "secureDeliveryModule");
 
+		ArgumentCaptor<String> hqlCaptor = ArgumentCaptor.forClass(String.class);
+		verify(session).createQuery(hqlCaptor.capture(), eq(Object[].class));
+
 		Assert.assertEquals(2, entries.size());
 		Assert.assertEquals("module-c", entries.get(101L));
 		Assert.assertEquals("module-b", entries.get(202L));
+		Assert.assertTrue(hqlCaptor.getValue().contains("order by m.assessment.publishedAssessmentId asc, m.id asc"));
 	}
 
 	@Test(expected = DataAccessResourceFailureException.class)
