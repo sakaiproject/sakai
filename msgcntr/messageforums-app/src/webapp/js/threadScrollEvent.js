@@ -24,7 +24,7 @@ window.addEventListener("load", () => {
 
 		updateBar(window.numRead, totalWidth);
 
-		const scroller = document.querySelector(".portal-main-container.container-fluid.pt-4")
+		const scroller = document.querySelector(".portal-main-container.container-fluid")
 		const scrollerfn = () => {
 			if (!ticking) {
 				// Throttle the event to "do something" every 2000ms
