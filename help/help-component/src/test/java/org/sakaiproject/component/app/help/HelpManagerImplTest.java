@@ -36,13 +36,11 @@ import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.api.app.help.TableOfContents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestContext.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 public class HelpManagerImplTest {
 
     @Autowired
