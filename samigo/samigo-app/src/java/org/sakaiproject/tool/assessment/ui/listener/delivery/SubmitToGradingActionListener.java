@@ -127,9 +127,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				throw new DataException("Published assessment not found for assessmentId " + delivery.getAssessmentId());
 			}
 			delivery.setPublishedAssessment(publishedAssessment);
-			delivery.setPublishedItemHash(new HashMap());
-			delivery.setPublishedItemTextHash(new HashMap());
-			delivery.setPublishedAnswerHash(new HashMap());
+			delivery.setPublishedItemHash(new HashMap<>());
+			delivery.setPublishedItemTextHash(new HashMap<>());
+			delivery.setPublishedAnswerHash(new HashMap<>());
 
 			for (ItemGradingData checkIGD : delivery.getAssessmentGrading().getItemGradingSet()) {
 				Long itemId = checkIGD.getPublishedItemId();
