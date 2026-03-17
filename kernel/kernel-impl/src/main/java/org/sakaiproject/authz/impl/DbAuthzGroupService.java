@@ -51,7 +51,6 @@ import org.sakaiproject.authz.api.MemberWithRoleId;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -59,8 +58,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -72,7 +69,6 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -1698,7 +1694,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 		protected void save_REALM_PROVIDER(AuthzGroup azg)
 		{
 			// we we are not provider, delete any for this realm
-			if ((azg.getProviderGroupId() == null) || (m_provider == null))
+			if ((azg.getProviderGroupId() == null) || (groupProvider == null))
 			{
 				String sql = dbAuthzGroupSql.getDeleteRealmProvider1Sql();
 				Object[] fields = new Object[1];
@@ -1709,7 +1705,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 			// add what we have in the azg, unless we see it in the db
 			final Set<String> toAdd = new HashSet<String>();
-			String[] ids = m_provider.unpackId(azg.getProviderGroupId());
+			String[] ids = groupProvider.unpackId(azg.getProviderGroupId());
 			if (ids != null)
 			{
 				for (String id : ids)
@@ -2683,7 +2679,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 		 */
 		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			if ((realm == null) || (m_provider == null)) return;
+			if ((realm == null) || (groupProvider == null)) return;
 			log.debug("Refreshing authz group: {}", realm);
 
 			boolean synchWithContainingRealm = serverConfigurationService.getBoolean("authz.synchWithContainingRealm", true);
@@ -2716,7 +2712,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
 
 			// get the latest userEid -> role name map from the provider
-			Map<String,String> target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
+			Map<String,String> target = groupProvider.getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
 			List<UserAndRole> grants = getGrants(realm);

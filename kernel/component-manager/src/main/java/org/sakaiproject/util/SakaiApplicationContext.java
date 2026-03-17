@@ -97,19 +97,11 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 	@Override
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		if (initialSingletonNames != null) {
-			for (int i = 0; i < initialSingletonNames.length; i++)	{
-				beanFactory.getBean(initialSingletonNames[i]);
-			}
+            for (String initialSingletonName : initialSingletonNames) {
+                beanFactory.getBean(initialSingletonName);
+            }
 		}
 		super.finishBeanFactoryInitialization(beanFactory);
-	}
-
-	protected void onRefresh() throws BeansException {
-		if (log.isDebugEnabled()) {
-			generateBeanDiGraph();
-			detectCycles();
-		}
-		super.onRefresh();
 	}
 
 	/**
@@ -118,12 +110,12 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 	 */
 	public void invokePostProcessorCreators(ConfigurableListableBeanFactory beanFactory) {
 		String[] postProcessorCreatorNames = beanFactory.getBeanNamesForType(BeanFactoryPostProcessorCreator.class, false, false);
-		for (int i = 0; i < postProcessorCreatorNames.length; i++) {
-			BeanFactoryPostProcessorCreator postProcessorCreator = (BeanFactoryPostProcessorCreator)beanFactory.getBean(postProcessorCreatorNames[i]);
-			for (BeanFactoryPostProcessor beanFactoryPostProcessor : postProcessorCreator.getBeanFactoryPostProcessors()) {
-				addBeanFactoryPostProcessor(beanFactoryPostProcessor);
-			}
-		}
+        for (String postProcessorCreatorName : postProcessorCreatorNames) {
+            BeanFactoryPostProcessorCreator postProcessorCreator = (BeanFactoryPostProcessorCreator) beanFactory.getBean(postProcessorCreatorName);
+            for (BeanFactoryPostProcessor beanFactoryPostProcessor : postProcessorCreator.getBeanFactoryPostProcessors()) {
+                addBeanFactoryPostProcessor(beanFactoryPostProcessor);
+            }
+        }
 	}
 
 	/**
@@ -139,139 +131,5 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 	 */
 	public void setConfigLocations(String[] configLocations) {
 		this.configLocations = configLocations;
-	}
-
-	/**
-	 * Prints a dependency graph of beans in the application context to the console and writes it to a DOT file.
-	 * @param ctx the application context to analyze
-	 */
-	public void generateBeanDiGraph() {
-		log.info("=== PRE-REFRESH BEAN DEPENDENCY GRAPH ===");
-
-		StringBuilder dot = new StringBuilder();
-		dot.append("digraph SakaiKernelBeans {\n");
-		dot.append("    rankdir=LR;\n");
-		dot.append("    node [shape=box];\n\n");
-
-		for (String beanName : getBeanDefinitionNames()) {
-			BeanDefinition bd = getBeanDefinition(beanName);
-
-			// collect all dependencies for this bean
-			Set<String> deps = new LinkedHashSet<>();
-
-			// explicit depends-on
-			if (bd.getDependsOn() != null) {
-				deps.addAll(Arrays.asList(bd.getDependsOn()));
-			}
-
-			// constructor-arg refs
-			for (ConstructorArgumentValues.ValueHolder holder :
-					bd.getConstructorArgumentValues().getGenericArgumentValues()) {
-				if (holder.getValue() instanceof RuntimeBeanReference ref) {
-					deps.add(ref.getBeanName());
-				}
-			}
-
-			// property refs
-			for (PropertyValue pv : bd.getPropertyValues().getPropertyValueList()) {
-				if (pv.getValue() instanceof RuntimeBeanReference ref) {
-					deps.add(ref.getBeanName());
-				}
-			}
-
-			// add to dot graph
-			String safeName = formatBeanName(beanName);
-			for (String dep : deps) {
-				dot.append("    ")
-						.append(safeName)
-						.append(" -> ")
-						.append(formatBeanName(dep))
-						.append(";\n");
-			}
-		}
-
-		dot.append("}");
-
-		try {
-			Files.writeString(Path.of("sakai-bean-graph.dot"), dot.toString());
-			log.info(">>> Graph written to sakai-bean-graph.dot");
-			log.info(">>> Paste contents at: https://dreampuf.github.io/GraphvizOnline");
-		} catch (IOException e) {
-			log.warn(">>> Failed to write graph: {}", e.toString());
-		}
-
-		log.info("=== END PRE-REFRESH GRAPH ===");
-	}
-
-	private String formatBeanName(String name) {
-		return "\"" + name + "\"";
-	}
-
-	public void detectCycles() {
-		log.info("=== CYCLE DETECTION ===");
-
-		// build adjacency map
-		Map<String, Set<String>> graph = new LinkedHashMap<>();
-
-		for (String beanName : getBeanDefinitionNames()) {
-			BeanDefinition bd = getBeanDefinition(beanName);
-			Set<String> deps = new LinkedHashSet<>();
-
-			if (bd.getDependsOn() != null) {
-				deps.addAll(Arrays.asList(bd.getDependsOn()));
-			}
-			for (PropertyValue pv : bd.getPropertyValues().getPropertyValueList()) {
-				if (pv.getValue() instanceof RuntimeBeanReference ref) {
-					deps.add(ref.getBeanName());
-				}
-			}
-			for (ConstructorArgumentValues.ValueHolder holder :
-					bd.getConstructorArgumentValues().getGenericArgumentValues()) {
-				if (holder.getValue() instanceof RuntimeBeanReference ref) {
-					deps.add(ref.getBeanName());
-				}
-			}
-			graph.put(beanName, deps);
-		}
-
-		// DFS cycle detection
-		Set<String> visited = new HashSet<>();
-		Set<String> inStack = new HashSet<>();
-		List<String> cycle = new ArrayList<>();
-
-		for (String bean : graph.keySet()) {
-			if (dfsCycleCheck(bean, graph, visited, inStack, cycle)) {
-				log.warn("CYCLE DETECTED: {}", String.join(" -> ", cycle));
-				cycle.clear();
-			}
-		}
-
-		log.info("=== END CYCLE DETECTION ===");
-	}
-
-	private boolean dfsCycleCheck(String bean,
-								  Map<String, Set<String>> graph,
-								  Set<String> visited,
-								  Set<String> inStack,
-								  List<String> cycle) {
-		if (inStack.contains(bean)) {
-			cycle.add(bean);
-			return true;
-		}
-		if (visited.contains(bean)) return false;
-
-		visited.add(bean);
-		inStack.add(bean);
-		cycle.add(bean);
-
-		for (String dep : graph.getOrDefault(bean, Collections.emptySet())) {
-			if (dfsCycleCheck(dep, graph, visited, inStack, cycle)) {
-				return true;
-			}
-		}
-
-		inStack.remove(bean);
-		cycle.remove(cycle.size() - 1);
-		return false;
 	}
 }

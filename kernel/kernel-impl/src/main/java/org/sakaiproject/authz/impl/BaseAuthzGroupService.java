@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -53,13 +52,10 @@ import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.MemoryService;
@@ -72,8 +68,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -95,12 +89,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
-
-	/** A provider of additional Abilities for a userId. */
-	protected GroupProvider m_provider = null;
-
-	/** A provider of additional roles for a userId. */
-	protected RoleProvider m_roleProvider = null;
 
  	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.AuthzImplProperties";
  	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.authzimpl.authz-impl";
@@ -214,33 +202,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		azGroup.m_lastModifiedTime = Instant.now();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Provider configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Configuration: set the azGroup provider helper service.
-	 * 
-	 * @param provider
-	 *        the azGroup provider helper service.
-	 */
-	public void setProvider(GroupProvider provider)
-	{
-		m_provider = provider;
-	}
-
-	/**
-	 * Configuration: set the az role provider helper service.
-	 * 
-	 * @param provider
-	 *        the az role provider helper service.
-	 */
-	public void setRoleProvider(RoleProvider provider)
-	{
-		m_roleProvider = provider;
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
+    /**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -258,6 +220,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	@Setter protected SqlService sqlService;
 	@Setter protected TimeService timeService;
 	@Setter protected MicrosoftMessagingService microsoftMessagingService;
+	@Setter protected GroupProvider groupProvider;
+	@Setter protected RoleProvider roleProvider;
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1080,7 +1045,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void refreshUser(String userId)
 	{
-		if ((m_provider == null) || (userId == null)) return;
+		if ((groupProvider == null) || (userId == null)) return;
 
 		try
 		{
@@ -1091,7 +1056,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			// http://article.gmane.org/gmane.comp.cms.sakai.devel/36245
 			// DRS / Univ of VA SAK-1590
 			if (!serverConfigurationService.getBoolean("suppressCMRefresh", false)) {
-				Map providerGrants = new ProviderMap(m_provider, m_provider.getGroupRolesForUser(eid));
+				Map providerGrants = new ProviderMap(groupProvider, groupProvider.getGroupRolesForUser(eid));
 
 				m_storage.refreshUser(userId, providerGrants);
 			}
@@ -1622,9 +1587,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			} else {
 				roles.add(AUTH_ROLE);
 				// Get additional roles from provider
-				if (m_roleProvider != null)
+				if (roleProvider != null)
 				{
-					roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+					roles.addAll((roleProvider.getAdditionalRoles(userId)));
 				}
 			}
 		}
@@ -1642,8 +1607,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  		if (isAllowedAuth()) {
  			roles.add(".auth");
  		}
- 		if (m_roleProvider != null) {
- 			roles.addAll(m_roleProvider.getAllAdditionalRoles());
+ 		if (roleProvider != null) {
+ 			roles.addAll(roleProvider.getAllAdditionalRoles());
  		}
  		return roles;
  	}
@@ -1665,8 +1630,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  			role = rb.getString("role.anon");
  		} else if (".auth".equals(roleId)) {
  			role = rb.getString("role.auth");
- 		} else if (m_roleProvider != null) {
- 			role = m_roleProvider.getDisplayName(roleId);
+ 		} else if (roleProvider != null) {
+ 			role = roleProvider.getDisplayName(roleId);
  		}
  		// Never return null 
  		return (role == null) ? roleId : role;
@@ -1680,8 +1645,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  		String name = null;
  		if ("".equals(roleGroupId)) {
  			name = rb.getString("generic.role.group");
- 		}else if (m_roleProvider != null) {
- 			name = m_roleProvider.getDisplayName(roleGroupId);
+ 		}else if (roleProvider != null) {
+ 			name = roleProvider.getDisplayName(roleGroupId);
  		}
  		// Never return null 
  		return (name == null) ? roleGroupId : name;

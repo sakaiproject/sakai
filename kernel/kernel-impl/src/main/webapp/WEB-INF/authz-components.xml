@@ -14,18 +14,20 @@
 			init-method="init"
 			destroy-method="destroy">
 
-		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
- 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
- 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-		<property name="schedulingService" ref="org.sakaiproject.scheduling.api.SchedulingService"/>
- 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="groupProvider" ref="org.sakaiproject.authz.api.GroupProvider"/>
 		<property name="microsoftMessagingService" ref="org.sakaiproject.messaging.api.MicrosoftMessagingService"/>
+		<property name="roleProvider" ref="org.sakaiproject.authz.api.RoleProvider"/>
+		<property name="schedulingService" ref="org.sakaiproject.scheduling.api.SchedulingService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+ 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+ 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+ 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="promoteUsersToProvided"><value>true</value></property>
