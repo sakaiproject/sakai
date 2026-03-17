@@ -22,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 
@@ -61,5 +62,17 @@ public class PublishedAssessmentFacadeQueriesTest {
 		Assert.assertEquals(2, entries.size());
 		Assert.assertEquals("module-c", entries.get(101L));
 		Assert.assertEquals("module-b", entries.get(202L));
+	}
+
+	@Test(expected = DataAccessResourceFailureException.class)
+	public void getAssessmentMetaDataEntriesByLabelPropagatesDataAccessExceptions() {
+		PublishedAssessmentFacadeQueries queries = new PublishedAssessmentFacadeQueries();
+		HibernateTemplate hibernateTemplate = mock(HibernateTemplate.class);
+		queries.setHibernateTemplate(hibernateTemplate);
+
+		when(hibernateTemplate.execute(any(HibernateCallback.class)))
+			.thenThrow(new DataAccessResourceFailureException("db failure"));
+
+		queries.getAssessmentMetaDataEntriesByLabel(Arrays.asList(101L), "secureDeliveryModule");
 	}
 }

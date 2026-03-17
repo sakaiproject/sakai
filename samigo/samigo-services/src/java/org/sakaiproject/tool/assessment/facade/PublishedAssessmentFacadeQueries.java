@@ -1614,32 +1614,27 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return Collections.emptyMap();
 		}
 
-		try {
-			HibernateCallback<Map<Long, String>> hcb = session -> {
-				Query<Object[]> query = session.createQuery(
-						"select m.assessment.publishedAssessmentId, m.entry "
-								+ "from PublishedMetaData m "
-								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
-								+ "and m.label = :label",
-						Object[].class);
-				query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
-				query.setParameter("label", label);
+		HibernateCallback<Map<Long, String>> hcb = session -> {
+			Query<Object[]> query = session.createQuery(
+					"select m.assessment.publishedAssessmentId, m.entry "
+							+ "from PublishedMetaData m "
+							+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
+							+ "and m.label = :label",
+					Object[].class);
+			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
+			query.setParameter("label", label);
 
-				return query.list().stream()
-					.collect(Collectors.toMap(
-						row -> (Long) row[0],
-						row -> (String) row[1],
-						// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
-						(existing, replacement) -> replacement,
-						LinkedHashMap::new
-					));
-			};
+			return query.list().stream()
+				.collect(Collectors.toMap(
+					row -> (Long) row[0],
+					row -> (String) row[1],
+					// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
+					(existing, replacement) -> replacement,
+					LinkedHashMap::new
+				));
+		};
 
-			return getHibernateTemplate().execute(hcb);
-		} catch (DataAccessException e) {
-			log.error("Failed to get assessment metadata entries for assessments {} and label {}", publishedAssessmentIds, label, e);
-			return Collections.emptyMap();
-		}
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
