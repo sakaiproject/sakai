@@ -3702,7 +3702,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             try {
                 announcementService.commitChannel(announcementService.addAnnouncementChannel(channelId));
                 return announcementService.getAnnouncementChannel(channelId);
-            } catch (IdUsedException | IdInvalidException | IdUnusedException | PermissionException ex) {
+            } catch (IdUsedException ex) {
+                try {
+                    return announcementService.getAnnouncementChannel(channelId);
+                } catch (IdUnusedException | PermissionException retryEx) {
+                    log.warn("Failed getting/creating announcement channel {} for site {}", channelId, contextId, retryEx);
+                }
+            } catch (IdInvalidException | IdUnusedException | PermissionException ex) {
                 log.warn("Failed getting/creating announcement channel {} for site {}", channelId, contextId, ex);
             }
         } catch (PermissionException e) {
@@ -4863,12 +4869,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
+                    updateAssignment(nAssignment);
+
                     if (!nAssignment.getDraft()) {
                         addImportedDueDateCalendarEvent(oAssignment, nAssignment, nProperties);
                         addImportedOpenDateAnnouncement(oAssignment, nAssignment, nProperties);
                     }
-
-                    updateAssignment(nAssignment);
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
