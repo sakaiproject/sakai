@@ -3676,17 +3676,40 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String channelId = serverConfigurationService.getString(announcementService.ANNOUNCEMENT_CHANNEL_PROPERTY, null);
         if (channelId == null) {
             channelId = announcementService.channelReference(contextId, siteService.MAIN_CONTAINER);
-            try {
-                channel = announcementService.getAnnouncementChannel(channelId);
-            } catch (IdUnusedException e) {
-                log.warn("No announcement channel found with id = {}", channelId);
-                channel = null;
-            } catch (PermissionException e) {
-                log.warn("Current user not authorized to delete announcement with id = {}", channelId, e);
-                channel = null;
-            }
+        }
+        try {
+            channel = announcementService.getAnnouncementChannel(channelId);
+        } catch (IdUnusedException e) {
+            log.warn("No announcement channel found with id = {}", channelId);
+            channel = null;
+        } catch (PermissionException e) {
+            log.warn("Current user not authorized to access announcement with id = {}", channelId, e);
+            channel = null;
         }
         return channel;
+    }
+
+    private AnnouncementChannel getOrCreateAnnouncementChannel(String contextId) {
+
+        String channelId = serverConfigurationService.getString(announcementService.ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+        if (channelId == null) {
+            channelId = announcementService.channelReference(contextId, siteService.MAIN_CONTAINER);
+        }
+
+        try {
+            return announcementService.getAnnouncementChannel(channelId);
+        } catch (IdUnusedException e) {
+            try {
+                announcementService.commitChannel(announcementService.addAnnouncementChannel(channelId));
+                return announcementService.getAnnouncementChannel(channelId);
+            } catch (IdUsedException | IdInvalidException | IdUnusedException | PermissionException ex) {
+                log.warn("Failed getting/creating announcement channel {} for site {}", channelId, contextId, ex);
+            }
+        } catch (PermissionException e) {
+            log.warn("Current user not authorized to access announcement with id = {}", channelId, e);
+        }
+
+        return null;
     }
 
     private void removeAssociatedAnnouncementItem(AnnouncementChannel channel, Assignment assignment) {
@@ -4668,11 +4691,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
-                    if (!nAssignment.getDraft()) {
-                        addImportedDueDateCalendarEvent(oAssignment, nAssignment, nProperties);
-                        addImportedOpenDateAnnouncement(oAssignment, nAssignment, nProperties);
-                    }
-
                     // gradebook-integration link
                     final String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                     // always clear the old assignments gradebook link
@@ -4835,8 +4853,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
-                    updateAssignment(nAssignment);
-
                     // review service
                     if (oAssignment.getContentReview()) {
                         nAssignment.setContentReview(true);
@@ -4844,9 +4860,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         if (StringUtils.isNotBlank(errorMsg)) {
                             log.warn("Error while copying old assignments and creating content review link: {}", errorMsg);
                             nAssignment.setDraft(true);
-                            updateAssignment(nAssignment);
                         }
                     }
+
+                    if (!nAssignment.getDraft()) {
+                        addImportedDueDateCalendarEvent(oAssignment, nAssignment, nProperties);
+                        addImportedOpenDateAnnouncement(oAssignment, nAssignment, nProperties);
+                    }
+
+                    updateAssignment(nAssignment);
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
@@ -4963,6 +4985,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             ? CalendarEvent.EventAccess.GROUPED
             : CalendarEvent.EventAccess.SITE;
         Collection<Group> importedEventGroups = getImportedAssignmentGroups(importedAssignment);
+        if (importedAssignment.getTypeOfAccess() == GROUP && CollectionUtils.isEmpty(importedEventGroups)) {
+            log.warn("No groups resolved for grouped imported assignment {} in site {}. "
+                    + "Skipping due date calendar event import to avoid creating a no-audience event.",
+                importedAssignment.getId(), importedAssignment.getContext());
+            return;
+        }
 
         Calendar toCalendar;
         String toCalendarId = calendarService.calendarReference(importedAssignment.getContext(), SiteService.MAIN_CONTAINER);
@@ -5060,55 +5088,59 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         try {
-            AnnouncementChannel channel = getAnnouncementChannel(importedAssignment.getContext());
+            AnnouncementChannel channel = getOrCreateAnnouncementChannel(importedAssignment.getContext());
             if (channel == null) {
                 return;
             }
 
-            AnnouncementMessageEdit message = channel.addAnnouncementMessage();
-            AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-            header.setDraft(false);
-            header.replaceAttachments(entityManager.newReferenceList());
-            message.getPropertiesEdit().addProperty(ASSIGNMENT_REFERENCE_PROPERTY,
-                AssignmentReferenceReckoner.reckoner().assignment(importedAssignment).reckon().getReference());
-            String subject = resourceLoader.getFormattedMessage("assig6", importedAssignment.getTitle());
-            if (subject == null) {
-                subject = importedAssignment.getTitle();
-            }
-            header.setSubject(subject);
+            AnnouncementMessageEdit message = null;
+            boolean committed = false;
+            try {
+                message = channel.addAnnouncementMessage();
+                AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+                header.setDraft(false);
+                header.replaceAttachments(entityManager.newReferenceList());
+                message.getPropertiesEdit().addProperty(ASSIGNMENT_REFERENCE_PROPERTY,
+                    AssignmentReferenceReckoner.reckoner().assignment(importedAssignment).reckon().getReference());
+                String subject = resourceLoader.getFormattedMessage("assig6", importedAssignment.getTitle());
+                if (subject == null) {
+                    subject = importedAssignment.getTitle();
+                }
+                header.setSubject(subject);
 
-            if (importedAssignment.getTypeOfAccess() == GROUP) {
-                try {
-                    Site site = siteService.getSite(importedAssignment.getContext());
-                    Collection<Group> groups = new ArrayList<>();
-                    for (String groupRef : importedAssignment.getGroups()) {
-                        Group group = site.getGroup(groupRef);
-                        if (group != null) {
-                            groups.add(group);
-                        }
+                if (importedAssignment.getTypeOfAccess() == GROUP) {
+                    Collection<Group> groups = getImportedAssignmentGroups(importedAssignment);
+                    if (CollectionUtils.isEmpty(groups)) {
+                        log.warn("No groups resolved for grouped imported assignment {} in site {}. "
+                                + "Canceling pending announcement edit to avoid creating a no-audience announcement.",
+                            importedAssignment.getId(), importedAssignment.getContext());
+                        channel.cancelMessage(message);
+                        message = null;
+                        return;
                     }
                     header.setGroupAccess(groups);
-                } catch (IdUnusedException e) {
-                    log.warn("Failed setting group access on imported announcement for assignment {}",
-                        importedAssignment.getId(), e);
+                } else {
                     header.clearGroupAccess();
                 }
-            } else {
-                header.clearGroupAccess();
+
+                String body = resourceLoader.getFormattedMessage("opedat",
+                    formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()),
+                    getUsersLocalDateTimeString(importedAssignment.getOpenDate()));
+                if (body == null) {
+                    body = importedAssignment.getTitle();
+                }
+                message.setBody("<p>" + body + "</p>");
+
+                channel.commitMessage(message, NotificationService.NOTI_NONE, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
+                committed = true;
+
+                importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+                importedProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+            } finally {
+                if (!committed && message != null) {
+                    channel.cancelMessage(message);
+                }
             }
-
-            String body = resourceLoader.getFormattedMessage("opedat",
-                formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()),
-                getUsersLocalDateTimeString(importedAssignment.getOpenDate()));
-            if (body == null) {
-                body = importedAssignment.getTitle();
-            }
-            message.setBody("<p>" + body + "</p>");
-
-            channel.commitMessage(message, NotificationService.NOTI_NONE, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
-
-            importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-            importedProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
         } catch (PermissionException e) {
             log.warn("Failed recreating open date announcement while importing assignment {} into {}",
                 sourceAssignment.getId(), importedAssignment.getId(), e);
