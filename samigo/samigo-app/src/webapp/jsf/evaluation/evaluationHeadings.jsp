@@ -84,5 +84,14 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
                 </span>
             </li>
         </h:panelGroup>
+        <h:panelGroup rendered="#{authorization.managePermissions}">
+            <li role="menuitem">
+                <span>
+                    <h:commandLink id="permissionsLink" accesskey="#{generalMessages.a_permissions}" title="#{generalMessages.t_permissions}" action="permissions" immediate="true">
+                        <h:outputText value="#{generalMessages.permissions}" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
     </ul>
 </h:panelGroup>

@@ -597,6 +597,10 @@
       <from-outcome>restoreAssessments</from-outcome>
       <to-view-id>/jsf/author/restoreAssessments.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>permissions</from-outcome>
+      <to-view-id>/jsf/author/permissions.jsp</to-view-id>
+    </navigation-case>
 
   <!-- ITEM AUTHORING -->
     <navigation-case>

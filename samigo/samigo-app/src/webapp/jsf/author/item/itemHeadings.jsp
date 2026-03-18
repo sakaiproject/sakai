@@ -116,6 +116,15 @@ function displayEMIHelp(){
             </h:commandLink>
         </span>
     </li>
+    <h:panelGroup rendered="#{authorization.managePermissions}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink id="permissionsLink" accesskey="#{generalMessages.a_permissions}" title="#{generalMessages.t_permissions}" action="permissions" immediate="true">
+                    <h:outputText value="#{generalMessages.permissions}" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
 </ul>
 
 <br/>

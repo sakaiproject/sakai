@@ -31,6 +31,7 @@ import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -119,6 +120,7 @@ public class AuthorizationBean implements Serializable {
     boolean p14 = canCreateTemplate(siteId);
     boolean p15 = canEditOwnTemplate(siteId);
     boolean p16 = canDeleteOwnTemplate(siteId);
+    canManagePermissions(siteId);
 
     // non admin functions
     canTakeAssessment(siteId);
@@ -237,6 +239,11 @@ public class AuthorizationBean implements Serializable {
     return addPrivilege("assessment.template.delete.own", siteId);
   }
 
+  public boolean canManagePermissions(String siteId)
+  {
+    return addPrivilege(SiteService.SECURE_UPDATE_SITE, siteId);
+  }
+
 
   public boolean addPrivilege(String functionName, String siteId){
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
@@ -330,6 +337,14 @@ public class AuthorizationBean implements Serializable {
   public boolean getDeleteOwnTemplate() {
     return getPrivilege("assessment.template.delete.own");
   } 
+
+  public boolean getManagePermissions() {
+    if (!this.initializedPerm) {
+      initializePermission();
+      this.initializedPerm = true;
+    }
+    return getPrivilege(SiteService.SECURE_UPDATE_SITE);
+  }
 
   public boolean getPrivilege(String functionName){
     return getPrivilege(functionName,null);

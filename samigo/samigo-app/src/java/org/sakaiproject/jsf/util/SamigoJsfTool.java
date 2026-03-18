@@ -219,7 +219,13 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
 
       //check direct URL permissions
       AuthorizationBean authBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
-      if (target.indexOf("/jsf/author/") > -1 && 
+      if (target.indexOf("/jsf/author/permissions") > -1 &&
+          !authBean.getManagePermissions()) {
+              log.debug("***4a0. dispatch, authorization error : path="+target);
+              target = computeDefaultTarget(false);
+      }
+      if (target.indexOf("/jsf/author/") > -1 &&
+          target.indexOf("/jsf/author/permissions") == -1 &&
           !authBean.getAdminPrivilege() &&
           !authBean.getCreateAssessment() &&
           !authBean.getEditAnyAssessment() &&

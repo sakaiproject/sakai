@@ -1,8 +1,8 @@
-<!-- $Id: assessmentHeading.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
+<!-- $Id: permissionsHeading.jsp $
 <%--
 ***********************************************************************************
 *
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+* Copyright (c) 2026 The Apereo Foundation.
 *
 * Licensed under the Educational Community License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
-* limitations under the License. 
+* limitations under the License.
 *
 **********************************************************************************/
 --%>
@@ -56,7 +56,7 @@
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink id="questionPoolsLink"  title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
+                    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
                         <h:outputText value="#{generalMessages.questionPool}" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
                     </h:commandLink>
@@ -85,17 +85,18 @@
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.managePermissions}">
             <li role="menuitem">
-                <span>
-                    <h:commandLink id="permissionsLink" accesskey="#{generalMessages.a_permissions}" title="#{generalMessages.t_permissions}" action="permissions" immediate="true">
-                        <h:outputText value="#{generalMessages.permissions}" />
-                    </h:commandLink>
+                <span class="current">
+                    <h:outputText value="#{generalMessages.permissions}" />
                 </span>
             </li>
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminAssessment}">
             <li role="menuitem">
-                <span class="current">
-                    <h:outputText value="#{generalMessages.restore_assessments}" />
+                <span>
+                    <h:commandLink id="restoreAssessments" accesskey="#{generalMessages.a_restore_assessments}" title="#{generalMessages.t_restore_assessments}" action="restoreAssessments" immediate="true">
+                        <h:outputText value="#{generalMessages.restore_assessments}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RestoreAssessmentsListener" />
+                    </h:commandLink>
                 </span>
             </li>
         </h:panelGroup>
