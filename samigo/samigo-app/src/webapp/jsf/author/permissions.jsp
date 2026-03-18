@@ -19,7 +19,7 @@
                         <h:outputText value="#{generalMessages.permissions}" />
                     </h1>
                 </div>
-                <sakai-permissions id="samigo-permissions" tool="assessment" bundle-key="org.sakaiproject.tool.assessment.bundle.GeneralMessages"></sakai-permissions>
+                <sakai-permissions id="samigo-permissions" tool="assessment"></sakai-permissions>
             </div>
           </div>
         </body>
