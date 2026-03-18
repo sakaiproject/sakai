@@ -1190,7 +1190,6 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	@Override
 	public SynchronizationStatus addUsersToTeamOrGroup(SiteSynchronization ss, List<MicrosoftUser> members, SynchronizationStatus status, LinkedList<String> roles) throws MicrosoftCredentialsException {
-		boolean res = false;
 		String teamId = ss.getTeamId();
 		String dataKey = roles.contains(MicrosoftUser.OWNER) ? "ownerId" : "memberId";
 		boolean generalError = false;
@@ -1242,7 +1241,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				continue;
 
 			for (MicrosoftUser pendingMember : pendingMembers) {
-				if (!res && status != SynchronizationStatus.ERROR) {
+				if (status != SynchronizationStatus.ERROR) {
 					//once ERROR status is set, do not check it again
 					status = (pendingMember != null && pendingMember.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
 				}
