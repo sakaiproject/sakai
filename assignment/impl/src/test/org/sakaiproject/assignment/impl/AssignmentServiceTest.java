@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
@@ -174,19 +173,24 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void addAssignmentLinkMappingsIncludesDeepLinkPatterns() throws Exception {
-        AssignmentServiceImpl assignmentServiceImpl = AopTestUtils.getTargetObject(assignmentService);
-        Map<String, String> transversalMap = new HashMap<>();
-
+    public void transferCopyEntitiesIncludesDeepLinkPatterns() throws Exception {
         String fromContext = "old-site";
         String toContext = "new-site";
-        String fromAssignmentId = "old-assignment-id";
-        String toAssignmentId = "new-assignment-id";
+        String userId = UUID.randomUUID().toString();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
+        when(securityService.unlock(anyString(), anyString())).thenReturn(true);
 
-        Method method = AssignmentServiceImpl.class.getDeclaredMethod("addAssignmentLinkMappings",
-                Map.class, String.class, String.class, String.class, String.class);
-        method.setAccessible(true);
-        method.invoke(assignmentServiceImpl, transversalMap, fromContext, toContext, fromAssignmentId, toAssignmentId);
+        Assignment sourceAssignment = assignmentService.addAssignment(fromContext);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        String fromAssignmentId = sourceAssignment.getId();
+        AssignmentServiceImpl assignmentServiceImpl = AopTestUtils.getTargetObject(assignmentService);
+
+        Map<String, String> transversalMap = assignmentServiceImpl.transferCopyEntities(fromContext, toContext,
+                Collections.singletonList(fromAssignmentId), Collections.emptyList());
+        String toAssignmentPath = transversalMap.get("assignment/" + fromAssignmentId);
+        Assert.assertNotNull(toAssignmentPath);
+        String toAssignmentId = toAssignmentPath.substring("assignment/".length());
 
         String fromReference = AssignmentReferenceReckoner.reckoner()
                 .context(fromContext).id(fromAssignmentId).reckon().getReference();
