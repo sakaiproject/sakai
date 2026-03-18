@@ -326,7 +326,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.navigate(courseUrl);
         sakai.toolClick("Tests");
 
-        clickFirstVisible(page.locator("#authorIndexForm a[id$='permissionsLink'], a[id$='permissionsLink'], a:has-text(\"Permissions\")"));
+        clickFirstVisible(page.locator("#authorIndexForm").locator("a[id$='permissionsLink'], a:has-text(\"Permissions\")"));
 
         Locator permissions = page.locator("#samigo-permissions");
         assertThat(permissions).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));

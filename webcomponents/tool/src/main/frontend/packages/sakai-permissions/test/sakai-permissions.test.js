@@ -6,10 +6,11 @@ import * as sinon from "sinon";
 import fetchMock from "fetch-mock";
 describe("sakai-permissions tests", () => {
 
-  window.top.portal = { siteId: data.siteId };
+  window.top.portal = { siteId: data.siteId, locale: "en_GB" };
 
   beforeEach(async () => {
     fetchMock.mockGlobal();
+    window.sessionStorage.clear();
 
 
     fetchMock
@@ -118,6 +119,22 @@ describe("sakai-permissions tests", () => {
 
     // Verify all checkboxes are unchecked again
     expect(el.querySelectorAll("#permissions-container input:checked").length).to.equal(0);
+  });
+
+  it ("reloads tool translations when an empty bundle was cached", async () => {
+
+    window.sessionStorage.setItem("en_GBtool", JSON.stringify({}));
+
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, data.perms);
+
+    const el = await fixture(html`
+      <sakai-permissions tool="tool">
+      </sakai-permissions>
+    `);
+
+    await waitUntil(() => el._i18n?.["tool.create"]);
+
+    expect(el.querySelector("button[data-perm='tool.create']").textContent).to.contain("Create");
   });
 
   it ("displays an error banner if the override ref is invalid", async () => {

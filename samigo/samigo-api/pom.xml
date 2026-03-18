@@ -44,17 +44,23 @@
       </dependency>
     </dependencies>
     
-	<build>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/java</directory>
-				<includes>
-					<include>**/*.dtd</include>
-					<include>**/*.xml</include>
-					<include>**/*.xsl</include>
-					<include>**/*.xsd</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
-</project>
+		<build>
+			<resources>
+				<resource>
+					<directory>${basedir}/src/java</directory>
+					<includes>
+						<include>**/*.dtd</include>
+						<include>**/*.xml</include>
+						<include>**/*.xsl</include>
+						<include>**/*.xsd</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>${basedir}/src/main/resources</directory>
+					<includes>
+						<include>**/*.properties</include>
+					</includes>
+				</resource>
+			</resources>
+		</build>
+	</project>

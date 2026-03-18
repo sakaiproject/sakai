@@ -26,14 +26,23 @@ export class SakaiPermissions extends SakaiElement {
     super();
     this._errorMessage = "";
 
-    this.loadTranslations("permissions-wc").then(i18n => {
+    this.loadTranslations("permissions-wc").then(async i18n => {
 
-      this.loadTranslations(this.bundleKey ? this.bundleKey : this.tool).then(tool => {
+      const bundle = this.bundleKey ? this.bundleKey : this.tool;
+      const cachedTool = await this.loadTranslations(bundle);
 
-        Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
-        this._i18n = i18n;
-      });
+      // Retry uncached once so a previously cached empty bundle doesn't permanently blank labels.
+      const tool = this._hasPermissionLabels(cachedTool)
+        ? cachedTool
+        : await this.loadTranslations({ bundle, cache: false });
+
+      Object.keys(tool || {}).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
+      this._i18n = i18n;
     });
+  }
+
+  _hasPermissionLabels(tool) {
+    return !!tool && Object.keys(tool).some(k => k.startsWith("perm-"));
   }
 
   connectedCallback() {

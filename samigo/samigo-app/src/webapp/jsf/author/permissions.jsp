@@ -14,8 +14,8 @@
                 <h:form id="permissionsForm">
                     <%@ include file="/jsf/author/permissionsHeadings.jsp" %>
                 </h:form>
-                <div class="page-header">
-                    <h1>
+                <div class="d-flex align-items-center mb-3">
+                    <h1 class="fs-3 mb-0">
                         <h:outputText value="#{generalMessages.permissions}" />
                     </h1>
                 </div>
