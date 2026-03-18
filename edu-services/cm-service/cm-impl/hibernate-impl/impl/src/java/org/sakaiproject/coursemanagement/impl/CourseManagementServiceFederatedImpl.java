@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

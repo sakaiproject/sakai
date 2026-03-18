@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
