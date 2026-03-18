@@ -39,13 +39,13 @@ public class IndexGenerator {
 	@Setter public ServerConfigurationService scs;
 	
 	public void init() {
-		if(log.isInfoEnabled()) log.info("init()");
+		log.info("init()");
 		if(scs.getBoolean("auto.ddl", true)) {
 			sqlService.ddl(this.getClass().getClassLoader(), "sakai_cm_index");
 		}
 	}
 	
 	public void destroy() {
-		if(log.isInfoEnabled()) log.info("destroy()");
+		log.info("destroy()");
 	}
 }
