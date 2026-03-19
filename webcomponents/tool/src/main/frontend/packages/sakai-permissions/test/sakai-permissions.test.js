@@ -132,7 +132,10 @@ describe("sakai-permissions tests", () => {
       </sakai-permissions>
     `);
 
-    await waitUntil(() => el._i18n?.["tool.create"]);
+    await waitUntil(() => {
+      const button = el.querySelector("button[data-perm='tool.create']");
+      return button?.textContent?.includes("Create");
+    });
 
     expect(el.querySelector("button[data-perm='tool.create']").textContent).to.contain("Create");
   });
