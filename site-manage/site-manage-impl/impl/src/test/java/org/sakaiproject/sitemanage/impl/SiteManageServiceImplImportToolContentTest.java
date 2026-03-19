@@ -70,8 +70,6 @@ public class SiteManageServiceImplImportToolContentTest {
         entityManager = mock(EntityManager.class);
 
         siteManageService.setSiteService(siteService);
-        siteManageService.setAuthzGroupService(authzGroupService);
-        siteManageService.setFunctionManager(functionManager);
         siteManageService.setServerConfigurationService(serverConfigurationService);
         siteManageService.setEntityManager(entityManager);
 
@@ -96,7 +94,7 @@ public class SiteManageServiceImplImportToolContentTest {
 
         doReturn(transferResultSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
-        siteManageService.importToolContent(oldSiteId, destinationSite, false);
+        siteManageService.importToolContent(oldSiteId, destinationSite, Collections.emptyMap(), false);
 
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(siteManageService, never()).transferSiteResource(oldSiteId, newSiteId, destinationSiteInfoUrl);
@@ -120,7 +118,7 @@ public class SiteManageServiceImplImportToolContentTest {
         // Simulate no update from transferSiteResource (non-resource URL case).
         doReturn(sourceSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
-        siteManageService.importToolContent(oldSiteId, destinationSite, false);
+        siteManageService.importToolContent(oldSiteId, destinationSite, Collections.emptyMap(), false);
 
         InOrder inOrder = inOrder(siteManageService, destinationSite, siteService);
         inOrder.verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
@@ -144,7 +142,7 @@ public class SiteManageServiceImplImportToolContentTest {
         // Simulate transfer failure after resolving a resource.
         doReturn("").when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
-        siteManageService.importToolContent(oldSiteId, destinationSite, false);
+        siteManageService.importToolContent(oldSiteId, destinationSite, Collections.emptyMap(), false);
 
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
@@ -187,7 +185,6 @@ public class SiteManageServiceImplImportToolContentTest {
             destinationSite,
             new ArrayList<>(List.of(SiteManageConstants.SITE_INFO_TOOL_ID)),
             importTools,
-            Collections.emptyMap(),
             Collections.emptyMap(),
             false
         );
@@ -234,7 +231,6 @@ public class SiteManageServiceImplImportToolContentTest {
             destinationSite,
             new ArrayList<>(List.of(SiteManageConstants.SITE_INFO_TOOL_ID)),
             importTools,
-            Collections.emptyMap(),
             Collections.emptyMap(),
             false
         );
