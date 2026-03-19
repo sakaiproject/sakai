@@ -101,7 +101,7 @@ class PollTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
-    void cannotSavePollWhenLimitsExceedAvailableOptions() {
+    void cannotSavePollWithInvalidMinMaxOptions() {
         createsSiteWithPolls();
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -115,18 +115,36 @@ class PollTest extends SakaiUiTestBase {
         page.locator("#poll-details").fill("Poll limits regression test");
 
         LocalDateTime now = LocalDateTime.now();
-        String openDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-        String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        page.locator("input[name=\"openDate\"]").fill(now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
+        page.locator("input[name=\"closeDate\"]").fill(now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
 
-        page.locator("input[name=\"openDate\"]").fill(openDateTime);
-        page.locator("input[name=\"closeDate\"]").fill(closeDateTime);
+        Locator saveButton = page.locator("form:visible").first().locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Add\"), button[type=\"submit\"]:has-text(\"Create\"), button[type=\"submit\"]:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Add\"], input[type=\"submit\"][value*=\"Create\"], input[type=\"submit\"][value*=\"Continue\"], .act button:has-text(\"Save\"), .act button:has-text(\"Add\"), .act button:has-text(\"Create\"), .act button:has-text(\"Continue\"), .act input[value*=\"Save\"], .act input[value*=\"Add\"], .act input[value*=\"Create\"], .act input[value*=\"Continue\"]").first();
 
+        // blank min — form re-renders on error, no new navigation needed for subsequent checks
+        page.locator("input[name=\"minOptions\"]").fill("");
+        page.locator("input[name=\"maxOptions\"]").fill("2");
+        saveButton.click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
+        assertThat(page.locator("body")).containsText(Pattern.compile("minimum number of options is a required field", Pattern.CASE_INSENSITIVE));
+
+        // blank max
+        page.locator("input[name=\"minOptions\"]").fill("1");
+        page.locator("input[name=\"maxOptions\"]").fill("");
+        saveButton.click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
+        assertThat(page.locator("body")).containsText(Pattern.compile("maximum number of options is a required field", Pattern.CASE_INSENSITIVE));
+
+        // min greater than max
+        page.locator("input[name=\"minOptions\"]").fill("5");
+        page.locator("input[name=\"maxOptions\"]").fill("2");
+        saveButton.click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("#min-options")).hasClass(Pattern.compile(".*is-invalid.*"));
+        assertThat(page.locator("body")).containsText(Pattern.compile("less than or equal to", Pattern.CASE_INSENSITIVE));
+
+        // fix min/max to values that will exceed the number of available options, then proceed
         page.locator("input[name=\"minOptions\"]").fill("6");
         page.locator("input[name=\"maxOptions\"]").fill("6");
-
-        page.locator("form:visible").first().locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Add\"), button[type=\"submit\"]:has-text(\"Create\"), button[type=\"submit\"]:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Add\"], input[type=\"submit\"][value*=\"Create\"], input[type=\"submit\"][value*=\"Continue\"], .act button:has-text(\"Save\"), .act button:has-text(\"Add\"), .act button:has-text(\"Create\"), .act button:has-text(\"Continue\"), .act input[value*=\"Save\"], .act input[value*=\"Add\"], .act input[value*=\"Create\"], .act input[value*=\"Continue\"]")
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
+        saveButton.click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("textarea")).isVisible();
 
@@ -150,8 +168,8 @@ class PollTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator(".sak-banner-success")).isVisible();
 
+        // min/max of 6 exceeds the 2 available options
         page.locator("button:has-text(\"Save\"), input[type=\"submit\"][value*=\"Save\"]").first().click(new Locator.ClickOptions().setForce(true));
-
         assertThat(page.locator("#max-options")).hasClass(Pattern.compile(".*is-invalid.*"));
         assertThat(page.locator("body")).containsText(Pattern.compile("add more answer options", Pattern.CASE_INSENSITIVE));
     }

@@ -191,13 +191,14 @@ public class PollEditorController {
         }
 
         if (pollForm.getMinOptions() == null || pollForm.getMaxOptions() == null) {
-            bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("poll_limits_required", null, locale)));
+            if (pollForm.getMinOptions() == null) bindingResult.addError(new FieldError("pollForm", "minOptions", messageSource.getMessage("minimum_options_required", null, locale)));
+            if (pollForm.getMaxOptions() == null) bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("maximum_options_required", null, locale)));
             populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
 
         if (pollForm.getMinOptions() > pollForm.getMaxOptions()) {
-            bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("min_greater_than_max", null, locale)));
+            bindingResult.addError(new FieldError("pollForm", "minOptions", messageSource.getMessage("min_greater_than_max", null, locale)));
             populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
             return "polls/edit";
         }
