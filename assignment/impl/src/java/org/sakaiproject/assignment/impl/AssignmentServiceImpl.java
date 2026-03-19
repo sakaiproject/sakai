@@ -4982,7 +4982,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Map<String, String> importedProperties) {
 
         Map<String, String> sourceProperties = sourceAssignment.getProperties();
-        if (!BooleanUtils.toBoolean(sourceProperties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE))) {
+        if (!BooleanUtils.toBoolean(sourceProperties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE))
+                || Boolean.TRUE.equals(importedAssignment.getHideDueDate())) {
             return;
         }
 
@@ -5036,7 +5037,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // Reuse timing/title/content from the source event while applying destination access/groups.
                 importedEvent = toCalendar.addEvent(fromEvent.getRange(), fromEvent.getDisplayName(),
                     fromEvent.getDescription(), fromEvent.getType(), fromEvent.getLocation(),
-                    importedEventAccess, importedEventGroups, fromEvent.getAttachments());
+                    importedEventAccess, importedEventGroups,
+                    copyImportedCalendarAttachments(fromEvent.getAttachments(), importedAssignment.getContext()));
             } catch (IdUnusedException | PermissionException e) {
                 log.warn("Failed copying calendar event {} while importing assignment {} into {}",
                     sourceCalendarEventId, sourceAssignment.getId(), importedAssignment.getId(), e);
@@ -5046,15 +5048,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (importedEvent == null && importedAssignment.getDueDate() != null) {
             try {
                 String dueTitle = resourceLoader.getString("gen.due");
-                String dueDescription = resourceLoader.getFormattedMessage("assign_due_event_desc", importedAssignment.getTitle(),
-                    getUsersLocalDateTimeString(importedAssignment.getDueDate()));
-                if (dueDescription == null) {
-                    dueDescription = importedAssignment.getTitle();
-                }
                 importedEvent = toCalendar.addEvent(
                     timeService.newTimeRange(importedAssignment.getDueDate().toEpochMilli(), 0),
                     dueTitle + " " + importedAssignment.getTitle(),
-                    dueDescription,
+                    importedAssignment.getTitle(),
                     "Deadline", "", importedEventAccess, importedEventGroups, null);
             } catch (PermissionException e) {
                 log.warn("Failed recreating due date calendar event while importing assignment {} into {}",
@@ -5067,6 +5064,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
             importedProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
         }
+    }
+
+    private List<Reference> copyImportedCalendarAttachments(List<?> sourceAttachments, String toContext) {
+
+        if (CollectionUtils.isEmpty(sourceAttachments)) {
+            return Collections.emptyList();
+        }
+
+        List<Reference> importedAttachments = new ArrayList<>();
+        for (Object attachmentObject : sourceAttachments) {
+            if (!(attachmentObject instanceof Reference attachmentReference)) {
+                continue;
+            }
+
+            String importedAttachmentReference = transferAttachment(null, toContext, attachmentReference.getId(), null);
+            if (StringUtils.isBlank(importedAttachmentReference)) {
+                continue;
+            }
+
+            Reference importedAttachment = entityManager.newReference(importedAttachmentReference);
+            if (importedAttachment != null) {
+                importedAttachments.add(importedAttachment);
+            }
+        }
+
+        return importedAttachments;
     }
 
     private Collection<Group> getImportedAssignmentGroups(Assignment importedAssignment) {
@@ -5137,13 +5160,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     header.clearGroupAccess();
                 }
 
-                String body = resourceLoader.getFormattedMessage("opedat",
-                    formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()),
-                    getUsersLocalDateTimeString(importedAssignment.getOpenDate()));
-                if (body == null) {
-                    body = importedAssignment.getTitle();
-                }
-                message.setBody("<p>" + body + "</p>");
+                // Avoid persisting importer-localized timestamps in shared announcement text.
+                message.setBody("<p>" + formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()) + "</p>");
 
                 channel.commitMessage(message, NotificationService.NOTI_NONE, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
                 committed = true;
