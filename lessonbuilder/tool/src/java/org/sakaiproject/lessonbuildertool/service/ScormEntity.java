@@ -323,10 +323,15 @@ public class ScormEntity implements LessonEntity {
 	if (scormContentService == null) return true;
 	if (contentPackage == null) contentPackage = getContentPackage(id);
 	if (contentPackage == null) return true;
-	int status = scormContentService.getContentPackageStatus(contentPackage);
-	// OPEN and OVERDUE packages are accessible to learners; CLOSED and NOTYETOPEN are not
-	return status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN
-	    && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE;
+	try {
+	    int status = scormContentService.getContentPackageStatus(contentPackage);
+	    // OPEN and OVERDUE packages are accessible to learners; CLOSED and NOTYETOPEN are not
+	    return status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN
+		&& status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE;
+	} catch (Exception e) {
+	    log.warn("notPublished: error retrieving status for SCORM package {}: {}", id, e.getMessage());
+	    return true;
+	}
     }
 
     public Collection<String> getGroups(boolean nocache) {

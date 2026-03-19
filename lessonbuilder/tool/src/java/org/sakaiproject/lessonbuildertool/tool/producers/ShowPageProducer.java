@@ -3830,6 +3830,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (scormUrl != null) {
 						UILink link = UILink.make(container, "link", scormUrl);
 						link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+						if (notDone)
+							link.decorate(new UIFreeAttributeDecorator("onclick",
+									"afterLink($(this)," + i.getId() + ") ; return true"));
 						link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 						if (!available)
 							fakeDisableLink(link, messageLocator);
