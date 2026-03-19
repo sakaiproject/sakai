@@ -5006,7 +5006,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             try {
                 calendarService.commitCalendar(calendarService.addCalendar(toCalendarId));
                 toCalendar = calendarService.getCalendar(toCalendarId);
-            } catch (IdUsedException | IdInvalidException | IdUnusedException | PermissionException e) {
+            } catch (IdUsedException e) {
+                try {
+                    toCalendar = calendarService.getCalendar(toCalendarId);
+                } catch (IdUnusedException | PermissionException retryException) {
+                    log.warn("Failed getting/creating calendar {} while importing assignment {} into {}",
+                        toCalendarId, sourceAssignment.getId(), importedAssignment.getId(), retryException);
+                    return;
+                }
+            } catch (IdInvalidException | IdUnusedException | PermissionException e) {
                 log.warn("Failed getting/creating calendar {} while importing assignment {} into {}",
                     toCalendarId, sourceAssignment.getId(), importedAssignment.getId(), e);
                 return;
