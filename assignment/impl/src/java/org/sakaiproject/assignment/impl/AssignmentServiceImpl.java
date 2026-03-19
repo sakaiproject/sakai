@@ -5027,6 +5027,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         CalendarEvent importedEvent = null;
+        List<Reference> importedAttachments = Collections.emptyList();
         String sourceCalendarEventId = StringUtils.trimToNull(
             sourceProperties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
         if (sourceCalendarEventId != null) {
@@ -5035,11 +5036,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Calendar fromCalendar = calendarService.getCalendar(fromCalendarId);
                 CalendarEvent fromEvent = fromCalendar.getEvent(sourceCalendarEventId);
                 // Reuse timing/title/content from the source event while applying destination access/groups.
+                importedAttachments = copyImportedCalendarAttachments(fromEvent.getAttachments(), importedAssignment.getContext());
                 importedEvent = toCalendar.addEvent(fromEvent.getRange(), fromEvent.getDisplayName(),
                     fromEvent.getDescription(), fromEvent.getType(), fromEvent.getLocation(),
-                    importedEventAccess, importedEventGroups,
-                    copyImportedCalendarAttachments(fromEvent.getAttachments(), importedAssignment.getContext()));
+                    importedEventAccess, importedEventGroups, importedAttachments);
             } catch (IdUnusedException | PermissionException e) {
+                cleanupImportedCalendarAttachments(importedAttachments);
                 log.warn("Failed copying calendar event {} while importing assignment {} into {}",
                     sourceCalendarEventId, sourceAssignment.getId(), importedAssignment.getId(), e);
             }
@@ -5092,6 +5094,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return importedAttachments;
     }
 
+    private void cleanupImportedCalendarAttachments(List<Reference> importedAttachments) {
+
+        if (CollectionUtils.isEmpty(importedAttachments)) {
+            return;
+        }
+
+        for (Reference importedAttachment : importedAttachments) {
+            if (importedAttachment == null || StringUtils.isBlank(importedAttachment.getId())) {
+                continue;
+            }
+
+            try {
+                contentHostingService.removeResource(importedAttachment.getId());
+            } catch (IdUnusedException | InUseException | PermissionException | TypeException e) {
+                log.warn("Failed cleaning up imported calendar attachment {} after calendar event import failure",
+                    importedAttachment.getId(), e);
+            }
+        }
+    }
+
     private Collection<Group> getImportedAssignmentGroups(Assignment importedAssignment) {
 
         if (importedAssignment.getTypeOfAccess() != GROUP || CollectionUtils.isEmpty(importedAssignment.getGroups())) {
@@ -5104,9 +5126,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (String groupRef : importedAssignment.getGroups()) {
                 // Imported assignment groups are already destination refs after transferCopyEntities group remap.
                 Group group = site.getGroup(groupRef);
-                if (group != null) {
-                    groups.add(group);
+                if (group == null) {
+                    log.warn("Failed resolving imported assignment group {} for assignment {} in site {}",
+                        groupRef, importedAssignment.getId(), importedAssignment.getContext());
+                    return Collections.emptyList();
                 }
+                groups.add(group);
             }
             return groups;
         } catch (IdUnusedException e) {
