@@ -13,6 +13,7 @@ This component provides an interface for managing permissions in Sakai. It handl
 - **on-refresh**: Allows to set the return page location. By default, it will refresh the current URL.
 - **group-reference**: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}".
 - **disable-groups**: Disables group permissions editing
+- **exclude-permissions**: Comma-separated list of permissions to omit from the rendered list
 
 ## Installation
 

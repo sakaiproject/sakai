@@ -330,9 +330,10 @@ class SamigoTest extends SakaiUiTestBase {
 
         Locator permissions = page.locator("#samigo-permissions");
         assertThat(permissions).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
-        assertThat(page.locator(".page-header")).containsText(Pattern.compile("Permissions", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".samigo-container h1")).containsText(Pattern.compile("Permissions", Pattern.CASE_INSENSITIVE));
         assertThat(permissions.locator(".permission-row").first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
         assertThat(permissions).containsText(Pattern.compile("Create assessments", Pattern.CASE_INSENSITIVE));
+        assertThat(permissions.locator("button[data-perm^='assessment.template.']")).hasCount(0);
     }
 
     private void addMultipleChoiceQuestion(String points, String questionText, List<String> choices, int correctIndex) {

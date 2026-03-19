@@ -19,7 +19,13 @@
                         <h:outputText value="#{generalMessages.permissions}" />
                     </h1>
                 </div>
-                <sakai-permissions id="samigo-permissions" tool="assessment"></sakai-permissions>
+                <h:panelGroup rendered="#{template.showAssessmentTypes}">
+                    <sakai-permissions id="samigo-permissions" tool="assessment"></sakai-permissions>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{!template.showAssessmentTypes}">
+                    <sakai-permissions id="samigo-permissions" tool="assessment"
+                        exclude-permissions="assessment.template.create,assessment.template.edit.own,assessment.template.delete.own"></sakai-permissions>
+                </h:panelGroup>
             </div>
           </div>
         </body>

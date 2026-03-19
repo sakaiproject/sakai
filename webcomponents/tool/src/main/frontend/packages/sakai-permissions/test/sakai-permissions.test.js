@@ -137,6 +137,26 @@ describe("sakai-permissions tests", () => {
     expect(el.querySelector("button[data-perm='tool.create']").textContent).to.contain("Create");
   });
 
+  it ("excludes configured permissions from the rendered list", async () => {
+
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, data.perms);
+
+    const el = await fixture(html`
+      <sakai-permissions tool="tool"
+          exclude-permissions="tool.create, tool.delete">
+      </sakai-permissions>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await waitUntil(() => el.roles);
+    await elementUpdated(el);
+
+    expect(el.available).to.deep.equal([ "tool.read" ]);
+    expect(el.querySelector("button[data-perm='tool.read']")).to.exist;
+    expect(el.querySelector("button[data-perm='tool.create']")).to.not.exist;
+    expect(el.querySelector("button[data-perm='tool.delete']")).to.not.exist;
+  });
+
   it ("displays an error banner if the override ref is invalid", async () => {
 
     const ref = "main_ref";

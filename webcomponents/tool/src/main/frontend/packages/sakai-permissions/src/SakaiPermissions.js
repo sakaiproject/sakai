@@ -10,6 +10,13 @@ export class SakaiPermissions extends SakaiElement {
     tool: { type: String },
     reference: { type: String },
     overrideReference: { attribute: "override-reference", type: String },
+    excludedPermissions: {
+      attribute: "exclude-permissions",
+      converter: {
+        fromAttribute: value => value?.split(",").map(v => v.trim()).filter(Boolean) || [],
+        toAttribute: value => Array.isArray(value) ? value.join(",") : value,
+      },
+    },
     disableGroups: { attribute: "disable-groups", type: Boolean },
     bundleKey: { attribute: "bundle-key", type: String },
     onRefresh: { attribute: "on-refresh", type: String },
@@ -24,6 +31,7 @@ export class SakaiPermissions extends SakaiElement {
   constructor() {
 
     super();
+    this.excludedPermissions = [];
     this._errorMessage = "";
 
     this.loadTranslations("permissions-wc").then(async i18n => {
@@ -250,7 +258,8 @@ export class SakaiPermissions extends SakaiElement {
 
         this.on = data.on;
         this.locked = data.locked;
-        this.available = data.available;
+        const excluded = new Set(this.excludedPermissions);
+        this.available = data.available.filter(perm => !excluded.has(perm));
         this.disabled = data.disabled;
         !this.disableGroups && (this.groups = data.groups);
         this.roleNameMappings = data.roleNameMappings;
