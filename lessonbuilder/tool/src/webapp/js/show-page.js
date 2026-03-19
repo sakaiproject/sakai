@@ -347,6 +347,8 @@ $(document).ready(function () {
       var row = $(this).closest('div.item');
       $("#change-assignment-p").hide();
       $("#change-quiz-p").hide();
+      $("#change-scorm-p").hide();
+      $("#configure-scorm-p").hide();
       $("#change-forum-p").hide();
       $("#change-resource-p").hide();
       $("#change-resource-version-p").hide();
@@ -1563,6 +1565,8 @@ $(document).ready(function () {
       $("#assignment-points-label").hide();
       $("#change-assignment-p").hide();
       $("#change-quiz-p").hide();
+      $("#change-scorm-p").hide();
+      $("#configure-scorm-p").hide();
       $("#change-forum-p").hide();
       $("#change-resource-p").hide();
       $("#change-blti-p").hide();
@@ -1572,6 +1576,8 @@ $(document).ready(function () {
       $(".pageItem").hide();
       $("#newwindowstuff").hide();
       $("#formatstuff").hide();
+      $("#format-inline").show();
+      $('label[for="format-inline"]').show();
       $("#edit-height").hide();
       $("#pathdiv").hide();
       $("#editgroups").after($("#grouplist"));
@@ -1811,6 +1817,39 @@ $(document).ready(function () {
           $("#edit-item-settings").attr("href",
             $("#edit-item-settings").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
           $("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
+
+        } else if (type === 's'){
+          // SCORM package
+          var height = row.find(".item-height").text();
+          $("#edit-height-value").val(height);
+          $("#edit-height").show();
+          $("#change-scorm-p").show();
+          $("#change-scorm").attr("href",
+                $("#change-scorm").attr("href").replace("itemId=-1", "itemId=" + itemid));
+          if ($("#configure-scorm").length > 0) {
+            $("#configure-scorm-p").show();
+          }
+          $("#require-label").text(msg("simplepage.require_completed_scorm"));
+
+          // format: page (iframe) or window (new tab); inline is not applicable for SCORM
+          if (format !== 'window') format = 'page';
+          $(".format").prop("checked", false);
+          $("#format-inline").hide();
+          $('label[for="format-inline"]').hide();
+          $("#format-" + format).prop("checked", true);
+          $("#formatstuff").show();
+
+          // subrequirement: any visit vs must complete/pass
+          $(".reqCheckbox").show();
+          $("#require-label2").show();
+          $("#require-label2").html(msg("simplepage.require_pass_scorm"));
+          $("#item-required2").show();
+          if (req !== "false") {
+            $("#item-required2").prop("checked", true);
+            $("#item-required2").attr("defaultChecked", true);
+          } else {
+            $("#item-required2").prop("checked", false);
+          }
 
         } else if (type === '8'){
           $("#change-forum-p").show();

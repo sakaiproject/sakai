@@ -53,6 +53,7 @@ public interface SimplePageItem {
     public static final int ANNOUNCEMENTS = 17;
     public static final int TWITTER = 18;
     public static final int CALENDAR = 19;
+    public static final int SCORM = 21;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";

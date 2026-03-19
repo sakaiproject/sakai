@@ -48,6 +48,7 @@
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletResponse" ref="httpServletResponse" />
@@ -164,6 +165,16 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ScormPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ResourcePickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
@@ -234,6 +245,7 @@
       <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
       <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
       <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+      <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
       <property name="httpServletRequest" ref="httpServletRequest" />
       <property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
@@ -305,6 +317,7 @@
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
 		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>

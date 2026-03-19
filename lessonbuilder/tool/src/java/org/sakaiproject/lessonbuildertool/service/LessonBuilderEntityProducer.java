@@ -180,6 +180,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	public final static String REF_LB_ASSIGNMENT = "lessonbuilder/fix/assignment/";
 	public final static String REF_LB_ASSESSMENT = "lessonbuilder/fix/assessment/";
 	public final static String REF_LB_FORUM = "lessonbuilder/fix/forum/";
+	public final static String REF_LB_SCORM = "lessonbuilder/fix/scorm/";
 
 
 	// other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
@@ -197,6 +198,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private LessonEntity quizEntity;
 	private LessonEntity assignmentEntity;
 	private LessonEntity bltiEntity;
+	private LessonEntity scormEntity;
 	private GradebookIfc gradebookIfc;
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
 	private MessageSource messageSource;
@@ -205,6 +207,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private LinkMigrationHelper linkMigrationHelper;
 	public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
 		lessonBuilderAccessAPI = l;
+	}
+
+	private LessonEntity entityForType(int type) {
+		if (type == SimplePageItem.FORUM) return forumEntity;
+		if (type == SimplePageItem.ASSESSMENT) return quizEntity;
+		if (type == SimplePageItem.SCORM) return scormEntity;
+		return assignmentEntity;
 	}
 
 
@@ -421,15 +430,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				addAttr(doc, itemElement, "type", Integer.valueOf(item.getType()).toString());
 				addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
 				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
-					if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
-						LessonEntity e = null;
-						if (item.getType() == SimplePageItem.FORUM)
-							e = forumEntity;
-						else if (item.getType() == SimplePageItem.ASSESSMENT)
-							e = quizEntity;
-						else
-							e = assignmentEntity;
-						e = e.getEntity(item.getSakaiId());
+					if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM) {
+						LessonEntity e = entityForType(item.getType()).getEntity(item.getSakaiId());
 						if (e != null) {
 							String title = e.getTitle();
 							if (title != null && !title.equals(""))
@@ -515,15 +517,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Collection<Group> siteGroups = site.getGroups();
 				addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
 
-				if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
-					LessonEntity e = null;
-					if (item.getType() == SimplePageItem.FORUM)
-						e = forumEntity;
-					else if (item.getType() == SimplePageItem.ASSESSMENT)
-						e = quizEntity;
-					else
-						e = assignmentEntity;
-					e = e.getEntity(item.getSakaiId());
+				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId()) && (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT || item.getType() == SimplePageItem.SCORM)) {
+					LessonEntity e = entityForType(item.getType()).getEntity(item.getSakaiId());
 					if (e != null) {
 						String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary
 						if (objectid!= null)
@@ -967,7 +962,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					sakaiId = newPageId.toString();
 			}
 
-			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.SCORM) {
 				sakaiId = SimplePageItem.DUMMY;
 				needFix = true;
 			}
@@ -1026,7 +1021,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 
 			// save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
-			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.SCORM) {
 				item.setAlt(itemElement.getAttribute("objectid"));
 			}
 
@@ -1127,7 +1122,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			simplePageToolDao.syncQRTotals(item);
 
-			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.SCORM) {
 				String objectid = itemElement.getAttribute("objectid");
 				if (objectid != null) {
 					String entityid = null;
@@ -1135,6 +1130,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						entityid = REF_LB_ASSIGNMENT + item.getId();
 					else if (type == SimplePageItem.ASSESSMENT)
 						entityid = REF_LB_ASSESSMENT + item.getId();
+					else if (type == SimplePageItem.SCORM)
+						entityid = REF_LB_SCORM + item.getId();
 					else
 						entityid = REF_LB_FORUM + item.getId();
 					if (entityMap != null)
@@ -2156,6 +2153,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			} else if (entityid.startsWith(REF_LB_ASSESSMENT)) {
 				e = quizEntity;
 				itemstring = entityid.substring(REF_LB_ASSESSMENT.length());
+			} else if (entityid.startsWith(REF_LB_SCORM)) {
+				e = scormEntity;
+				itemstring = entityid.substring(REF_LB_SCORM.length());
 			} else {
 				e = forumEntity;
 				itemstring = entityid.substring(REF_LB_FORUM.length());
@@ -2270,6 +2270,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				entityid = REF_LB_ASSIGNMENT + item.getId();
 			else if (type == SimplePageItem.ASSESSMENT)
 				entityid = REF_LB_ASSESSMENT + item.getId();
+			else if (type == SimplePageItem.SCORM)
+				entityid = REF_LB_SCORM + item.getId();
 			else
 				entityid = REF_LB_FORUM + item.getId();
 			entityMap.put(entityid, item.getAlt());
@@ -2433,6 +2435,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	public void setBltiEntity (LessonEntity e) {
 		bltiEntity = (LessonEntity)e;
+	}
+
+	public void setScormEntity (LessonEntity e) {
+		scormEntity = (LessonEntity)e;
 	}
 
 	public void setGradebookIfc(GradebookIfc g) {
