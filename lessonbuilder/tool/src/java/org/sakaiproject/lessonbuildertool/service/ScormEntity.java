@@ -356,14 +356,8 @@ public class ScormEntity implements LessonEntity {
 	return null;
     }
   
-    // set the item to be accessible only to the specific groups.
-    // null to make it accessible to the whole site
-    //
-    // We can't access the A2 support code, because it's inside the component,with no
-    // external API. This code was written before I figured out how to use the DAO.
-    // I may be able to rewrite it that way. Note that Oracle needs slightly diffferent
-    // code, so we use a loadable class for some of the SQL statements
-    //
+    // SCORM content packages are not access-controlled at the Sakai groups level;
+    // prerequisite enforcement for SCORM items is handled at the Lessons UI layer only.
     public void setGroups(Collection<String> tgroups) {
 
     }
@@ -413,11 +407,11 @@ public class ScormEntity implements LessonEntity {
 	return null;
     }
 
+    // SCORM packages cannot be imported from a Common Cartridge resource reference;
+    // site-copy resolution is handled by findObject() using title-based matching.
     public String importObject(String title, String href, String mime, boolean hide){
-
 	return null;
     }
-
 
     public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide) {
 	return null;

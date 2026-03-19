@@ -3336,6 +3336,7 @@ public class SimplePageBean {
 			} else if (i.getType() == SimplePageItem.SCORM) {
 			    String scormHeight = StringUtils.isBlank(height) ? "" : height.replace("px", "").trim();
 			    i.setHeight(scormHeight.matches("\\d+") ? scormHeight : "");
+			    i.setFormat("window".equals(format) ? "window" : "page");
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -4486,7 +4487,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    log.error(ex.getMessage(), ex);
+			    log.warn("Could not add selected scorm item to page: {}, {}", selectedScorm, ex.toString());
 			    return "failure";
 			} finally {
 			    selectedScorm = null;

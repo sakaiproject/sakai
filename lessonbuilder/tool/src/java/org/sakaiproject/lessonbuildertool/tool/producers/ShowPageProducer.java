@@ -1266,7 +1266,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				
 				if (!simplePageBean.isItemVisible(i, currentPage)) continue;
 
-				// Resolve once per item to avoid repeated DAO lookups across metadata, group, and render blocks
+				// Resolve once per item to avoid repeated getEntity calls within the metadata and group blocks below.
+				// Note: makeLink() is a separate method and resolves its own entity independently.
 				LessonEntity resolvedScormEntity = (i.getType() == SimplePageItem.SCORM && !SimplePageItem.DUMMY.equals(i.getSakaiId()))
 				    ? scormEntity.getEntity(i.getSakaiId(), simplePageBean) : null;
 
@@ -1611,6 +1612,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = simplePageBean.getItemGroupString(i, resolvedScormEntity, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
 								if (i.getHeight() != null) UIOutput.make(tableRow, "item-height", i.getHeight());
+								UIOutput.make(tableRow, "item-format", i.getFormat() != null ? i.getFormat() : "page");
 								if (!resolvedScormEntity.objectExists())
 								    entityDeleted = true;
 							}
@@ -3822,13 +3824,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			LessonEntity lessonEntity = SimplePageItem.DUMMY.equals(i.getSakaiId()) ? null : scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
-				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-				view.setSendingPage(currentPage.getPageId());
-				view.setItemId(i.getId());
-				UILink link = UIInternalLink.make(container, "link", view);
-				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-				if (!available)
-					fakeDisableLink(link, messageLocator);
+				if ("window".equals(i.getFormat())) {
+					// Open SCORM player directly in a new window
+					String scormUrl = lessonEntity.getUrl();
+					if (scormUrl != null) {
+						UILink link = UILink.make(container, "link", scormUrl);
+						link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+						link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+						if (!available)
+							fakeDisableLink(link, messageLocator);
+					} else {
+						fake = true;
+					}
+				} else {
+					// "page" (default) — render inside ShowItemProducer iframe
+					GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+					view.setSendingPage(currentPage.getPageId());
+					view.setItemId(i.getId());
+					UILink link = UIInternalLink.make(container, "link", view);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+					if (!available)
+						fakeDisableLink(link, messageLocator);
+				}
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);

@@ -1576,6 +1576,8 @@ $(document).ready(function () {
       $(".pageItem").hide();
       $("#newwindowstuff").hide();
       $("#formatstuff").hide();
+      $("#format-inline").show();
+      $('label[for="format-inline"]').show();
       $("#edit-height").hide();
       $("#pathdiv").hide();
       $("#editgroups").after($("#grouplist"));
@@ -1828,6 +1830,26 @@ $(document).ready(function () {
             $("#configure-scorm-p").show();
           }
           $("#require-label").text(msg("simplepage.require_completed_scorm"));
+
+          // format: page (iframe) or window (new tab); inline is not applicable for SCORM
+          if (format !== 'window') format = 'page';
+          $(".format").prop("checked", false);
+          $("#format-inline").hide();
+          $('label[for="format-inline"]').hide();
+          $("#format-" + format).prop("checked", true);
+          $("#formatstuff").show();
+
+          // subrequirement: any visit vs must complete/pass
+          $(".reqCheckbox").show();
+          $("#require-label2").show();
+          $("#require-label2").html(msg("simplepage.require_pass_scorm"));
+          $("#item-required2").show();
+          if (req !== "false") {
+            $("#item-required2").prop("checked", true);
+            $("#item-required2").attr("defaultChecked", true);
+          } else {
+            $("#item-required2").prop("checked", false);
+          }
 
         } else if (type === '8'){
           $("#change-forum-p").show();
