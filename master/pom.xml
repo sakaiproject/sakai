@@ -938,13 +938,13 @@
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>6.1.7.Final</version>
+        <version>6.2.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator-annotation-processor</artifactId>
-        <version>6.1.7.Final</version>
+        <version>6.2.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
