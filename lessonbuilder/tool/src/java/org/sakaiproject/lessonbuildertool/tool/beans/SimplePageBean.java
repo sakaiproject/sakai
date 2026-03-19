@@ -4434,9 +4434,6 @@ public class SimplePageBean {
 		}
 	}
 
-    // called by add scorm dialog. Create a new item that points to a SCORM package
-    // or update an existing item, depending upon whether itemid is set
-
 	public String addScorm() {
 		if (!itemOk(itemId))
 		    return "permission-failed";
@@ -4453,15 +4450,13 @@ public class SimplePageBean {
 			    if (selectedObject == null)
 				return "failure";
 
-			    // editing existing item?
 			    SimplePageItem i;
 			    if (itemId != null && itemId != -1) {
 				i = findItem(itemId);
 				if (i == null) return "failure";
-				// do getEntity/getReference to normalize, in case sakaiid is old format
+				// normalize sakaiId in case it is in an old format
 				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
 				String ref = (existing != null) ? existing.getReference() : null;
-				// if same scorm package, nothing to do
 				if (existing == null || !ref.equals(selectedScorm)) {
 				    // if access controlled, release restriction from old package and add to new
 				    if (i.isPrerequisite()) {
@@ -4481,7 +4476,7 @@ public class SimplePageBean {
 				    }
 				}
 				update(i);
-			    } else { // no, add new item
+			    } else {
 				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.SCORM);
 				saveItem(i);
 			    }

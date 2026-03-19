@@ -95,13 +95,9 @@ public class ScormEntity implements LessonEntity {
     }
 
 
-    // to create bean. the bean is used only to call the pseudo-static
-    // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
-
     protected ScormEntity() {
     }
 
-    /* id is a string containing a long in this case */
     protected ScormEntity(int type, String id, int level) 
 	throws NumberFormatException {
 	this.type = type;
@@ -120,15 +116,11 @@ public class ScormEntity implements LessonEntity {
 	return "sakai.scorm.tool";
     }
 
-    // the underlying object, something Sakaiish
     protected Long id;
     protected int type;
     protected int level;
-    // not required fields. If we need to look up
-    // the actual objects, lets us cache them
     protected ContentPackage contentPackage;
 
-    // ref looks like /scorm/id
     public ContentPackage getContentPackage(Long id) {
 	try {
 	    return scormContentService.getContentPackage(id);
@@ -138,7 +130,6 @@ public class ScormEntity implements LessonEntity {
 	}
     }
 
-    // type of the underlying object
     public int getType() {
 	return type;
     }
@@ -159,7 +150,6 @@ public class ScormEntity implements LessonEntity {
 	return "";
     }
 
-  // hack for forums. not used for assessments, so always ok
     public boolean isUsable() {
 	return true;
     }
@@ -172,7 +162,6 @@ public class ScormEntity implements LessonEntity {
 	return getEntitiesInSite(null);
     }
 
-    // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite(final SimplePageBean bean) {
 
 	if (scormContentService == null) {
@@ -219,7 +208,7 @@ public class ScormEntity implements LessonEntity {
 	String idString = ref.substring(i+1);
 
 	if (typeString.equals(SCORM)) {
-	    ScormEntity entity = new ScormEntity(TYPE_SCORM, idString, 1); // 
+	    ScormEntity entity = new ScormEntity(TYPE_SCORM, idString, 1);
 	    entity.setSimplePageBean(bean);
 	    return entity;
 	} else if (nextEntity != null) {
@@ -229,7 +218,6 @@ public class ScormEntity implements LessonEntity {
     }
 	
 
-    // properties of entities
     public String getTitle() {
 	if (scormContentService == null)
 	    return null;
@@ -283,8 +271,6 @@ public class ScormEntity implements LessonEntity {
 	}
     }
 
-// we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
-// I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.
     public int getSubmissionCount(String user) {
 	if (scormContentService == null)
 	    return 0;
@@ -300,8 +286,6 @@ public class ScormEntity implements LessonEntity {
 	}
     }
 
-    // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
-    // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
 	List<UrlItem> list = new ArrayList<>();
 	if (scormContentService == null)
@@ -315,15 +299,10 @@ public class ScormEntity implements LessonEntity {
     }
 
 
-    // URL to edit an existing entity.                                                                                                       
-    // Can be null if we can't get one or it isn't needed                                                                                    
     public String editItemUrl(SimplePageBean bean) {
 	return null;
     }
 
-
-    // for most entities editItem is enough, however tests allow separate editing of                                                         
-    // contents and settings. This will be null except in that situation                                                                     
     public String editItemSettingsUrl(SimplePageBean bean) {
 	return null;
     }
@@ -350,8 +329,6 @@ public class ScormEntity implements LessonEntity {
 	    && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE;
     }
 
-    // return the list of groups if the item is only accessible to specific groups
-    // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
 	return null;
     }
@@ -385,7 +362,7 @@ public class ScormEntity implements LessonEntity {
 	if (titleSlash <= 0)
 	    return null;
 
-	String realObjectId = objectid.substring(0, titleSlash); // "scorm/{id}"
+	String realObjectId = objectid.substring(0, titleSlash);
 	String title = objectid.substring(titleSlash + 1);
 
 	// sakaiId is stored with a leading slash (e.g. "/scorm/{id}"), so prefix before lookup

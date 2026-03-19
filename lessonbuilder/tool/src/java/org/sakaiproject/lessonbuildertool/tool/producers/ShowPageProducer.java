@@ -1612,7 +1612,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = simplePageBean.getItemGroupString(i, resolvedScormEntity, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
 								if (i.getHeight() != null) UIOutput.make(tableRow, "item-height", i.getHeight());
-								UIOutput.make(tableRow, "item-format", i.getFormat() != null ? i.getFormat() : "page");
+								// SCORM only supports "window" and "page"; normalize anything else (e.g. stale "inline" from DB) to "page"
+							UIOutput.make(tableRow, "item-format", "window".equals(i.getFormat()) ? "window" : "page");
 								if (!resolvedScormEntity.objectExists())
 								    entityDeleted = true;
 							}
@@ -3825,7 +3826,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			LessonEntity lessonEntity = SimplePageItem.DUMMY.equals(i.getSakaiId()) ? null : scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 				if ("window".equals(i.getFormat())) {
-					// Open SCORM player directly in a new window
 					String scormUrl = lessonEntity.getUrl();
 					if (scormUrl != null) {
 						UILink link = UILink.make(container, "link", scormUrl);
@@ -3837,7 +3837,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						fake = true;
 					}
 				} else {
-					// "page" (default) — render inside ShowItemProducer iframe
+					// "page" (default) — render inside ShowItemProducer iframe.
+					// "inline" is not supported for SCORM (the player requires its own page context)
+					// and is normalised to "page" at both save time (editItem) and metadata output time.
 					GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					view.setSendingPage(currentPage.getPageId());
 					view.setItemId(i.getId());
@@ -4487,7 +4489,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.viewID = ScormPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-scorm", messageLocator.getMessage("simplepage.change_scorm"), params);
 
-		// Configure SCORM package link - points to SCORM Player tool
 		String scormTool = simplePageBean.getCurrentTool("sakai.scorm.tool");
 		if (scormTool != null) {
 		    String scormToolUrl = ServerConfigurationService.getToolUrl() + "/" + scormTool;
