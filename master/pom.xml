@@ -83,7 +83,7 @@
     <handlebars4.version>4.4.0</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
-    <sakai.nimbus.jose.jwt.version>9.37.2</sakai.nimbus.jose.jwt.version>
+    <sakai.nimbus.jose.jwt.version>9.37.4</sakai.nimbus.jose.jwt.version>
     <sakai.io.jsonwebtoken.version>0.11.5</sakai.io.jsonwebtoken.version>
 
     <!-- Set the source encoding to avoid maven warnings -->
