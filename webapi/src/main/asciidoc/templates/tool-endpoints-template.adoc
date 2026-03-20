@@ -6,13 +6,54 @@
 
 This controller handles all endpoints for the Example Tool.
 
-include::endpoint-info-template.adoc[]
+=== POST /example/tool/do-something
+This endpoint performs a hypothetical action for demonstration purposes.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+[IMPORTANT]
+====
+This is a sample endpoint. Adjust the authentication, consumes, and produces fields according to your real API.
+====
 
 ===== Request Body Parameters
-include::endpoint-params-template.adoc[]
+[cols="1,1,1,3", options="header"]
+|===
+| Parameter     | Type    | Required | Description
+| userId        | String  | Yes      | ID of the user performing the action
+| actionType    | String  | Yes      | Type of action to execute (e.g., start, stop)
+| optionalNote  | String  | No       | Additional notes
+|===
 
 ===== Responses
-include::endpoint-response-template.adoc[]
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Description of successful action execution.
+| 400 Bad Request | Error | Description of what was wrong with the request (e.g., missing parameters).
+| 401 Unauthorized | Error | Description of authentication failure (e.g., invalid token).
+| 500 Internal Error | Error | Description of server error (e.g., database connection failure).
+|===
+
+===== Example Success Response
+[source,json]
+----
+{
+  "status": "success",
+  "message": "Action executed successfully",
+  "timestamp": "2026-03-17T10:00:00Z"
+}
+----
 
 ===== Example Request
-include::endpoint-request-template.adoc[]
+[source,bash]
+----
+curl -X POST "https://your-sakai.edu/api/example/tool/do-something" \
+     -H "Authorization: Bearer <token>" \
+     -d '{"userId":"12345","actionType":"start","optionalNote":"testing"}'
+----

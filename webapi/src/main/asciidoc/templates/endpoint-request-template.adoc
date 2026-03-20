@@ -1,6 +1,0 @@
-[source,bash]
-----
-curl -X POST "https://your-sakai.edu/api/example/tool/do-something" \
-     -H "Authorization: Bearer <token>" \
-     -d '{"userId":"12345","actionType":"start","optionalNote":"testing"}'
-----

@@ -1,7 +1,0 @@
-[cols="1,1,1,3", options="header"]
-|===
-| Parameter     | Type    | Required | Description
-| userId        | String  | Yes      | ID of the user performing the action
-| actionType    | String  | Yes      | Type of action to execute (e.g., start, stop)
-| optionalNote  | String  | No       | Additional notes
-|===

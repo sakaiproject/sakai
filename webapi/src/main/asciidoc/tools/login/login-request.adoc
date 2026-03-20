@@ -1,6 +1,0 @@
-[source,bash]
-----
-curl -X POST "https://your-sakai.edu/api/login" \
-     -d "username=admin" \
-     -d "password=sakai"
-----
