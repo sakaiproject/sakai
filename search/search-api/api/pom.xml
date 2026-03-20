@@ -50,6 +50,11 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <version>${sakai.opensearch.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
     </dependency>
