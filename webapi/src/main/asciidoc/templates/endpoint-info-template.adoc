@@ -1,0 +1,14 @@
+=== POST /example/tool/do-something
+This endpoint performs a hypothetical action for demonstration purposes.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+[IMPORTANT]
+====
+This is a sample endpoint. Adjust the authentication, consumes, and produces fields according to your real API.
+====

@@ -11,7 +11,7 @@ call login with curl, storing the cookie in a jar file, then you would just use 
 the remainder of the api calls.
 
 The login HTTP request:
-include::{snippets}/login/http-request.adoc[]
+include::login-api.adoc[]
 
 Make the login request with curl (you will need to add your cookie jar file to this cUrl command with the -c option):
 include::{snippets}/login/curl-request.adoc[]

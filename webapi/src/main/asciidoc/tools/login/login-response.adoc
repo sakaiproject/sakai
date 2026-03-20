@@ -1,0 +1,18 @@
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns the **Session ID** (String). A `JSESSIONID` cookie is attached to the response headers.
+| 400 Bad Request | Error | `"username and password are required"` if fields are missing or empty.
+| 401 Unauthorized | Error | Thrown by `AuthenticationManager` if credentials fail.
+| 500 Internal Error | Error | `"Unable to establish session"` if the session manager fails to initialize.
+|===
+
+===== Example Success Response
+[source,text]
+----
+HTTP/1.1 200 OK
+Set-Cookie: JSESSIONID=abc12345.sakai; Path=/; HttpOnly
+Content-Type: text/plain
+
+abc12345
+----

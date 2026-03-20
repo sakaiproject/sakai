@@ -1,0 +1,18 @@
+= Sakai API: Example Tool
+:sectnums:
+:toc: left
+
+== Example Controller
+
+This controller handles all endpoints for the Example Tool.
+
+include::endpoint-info-template.adoc[]
+
+===== Request Body Parameters
+include::endpoint-params-template.adoc[]
+
+===== Responses
+include::endpoint-response-template.adoc[]
+
+===== Example Request
+include::endpoint-request-template.adoc[]

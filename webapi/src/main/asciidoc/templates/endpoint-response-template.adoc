@@ -1,0 +1,8 @@
+[source,json]
+----
+{
+  "status": "success",
+  "message": "Action executed successfully",
+  "timestamp": "2026-03-17T10:00:00Z"
+}
+----
