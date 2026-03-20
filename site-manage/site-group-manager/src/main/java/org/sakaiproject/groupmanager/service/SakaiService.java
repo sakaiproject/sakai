@@ -36,7 +36,6 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -49,10 +48,10 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.LocaleService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,9 +69,6 @@ public class SakaiService  {
     private SiteService siteService;
 
     @Inject
-    private PreferencesService preferencesService;
-
-    @Inject
     private ServerConfigurationService serverConfigurationService;
 
     @Inject
@@ -80,6 +76,9 @@ public class SakaiService  {
 
     @Inject
     private ToolManager toolManager;
+
+    @Inject
+    private LocaleService localeService;
 
     @Inject
     private UserDirectoryService userDirectoryService;
@@ -96,16 +95,31 @@ public class SakaiService  {
 
     private final String STATE_SITE_ID = "site.instance.id";
 
-    public Optional<Site> getCurrentSite() {
-        String siteId;
-
-        // Try to get site ID from session context first
+    private String getCurrentSiteIdFromContext() {
+        // Try to get site ID from session context first.
         try {
-            siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID).toString();
+            Object siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID);
+            if (siteId != null) {
+                return siteId.toString();
+            }
         } catch (NullPointerException ex) {
-            // Site ID wasn't set in the helper call, get the current site ID
+            // Ignore and fall back to placement context.
+        }
+
+        // Site ID wasn't set in the helper call, get the current site ID from placement.
+        try {
             log.debug("Site ID not found in session data");
-            siteId = toolManager.getCurrentPlacement().getContext();
+            return toolManager.getCurrentPlacement().getContext();
+        } catch (Exception ex) {
+            log.error("Unable to determine current site id from placement.");
+            return null;
+        }
+    }
+
+    public Optional<Site> getCurrentSite() {
+        String siteId = getCurrentSiteIdFromContext();
+        if (StringUtils.isBlank(siteId)) {
+            return Optional.empty();
         }
 
         try {
@@ -117,29 +131,8 @@ public class SakaiService  {
     }
 
     public Locale getLocaleForCurrentSiteAndUser() {
-        Locale locale = null;
-
-        // First try to get site locale
-        Optional<Site> currentSite = getCurrentSite();
-        if (currentSite.isPresent()) {
-            ResourceProperties siteProperties = currentSite.get().getProperties();
-            String siteLocale = (String) siteProperties.get("locale_string");
-            if (StringUtils.isNotBlank(siteLocale)) {
-                locale = serverConfigurationService.getLocaleFromString(siteLocale);
-            }
-        }
-
-        // If there is not site locale defined, get user default locale
-        if (locale == null) {
-            locale = getCurrentUserLocale();
-        }
-
-        return locale;
-    }
-
-    public Locale getCurrentUserLocale() {
-        String userId = sessionManager.getCurrentSessionUserId();
-        return StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        String siteId = getCurrentSiteIdFromContext();
+        return localeService.getLocaleForSiteAndUser(siteId, getCurrentUserId());
     }
 
     public String getCurrentUserId() {

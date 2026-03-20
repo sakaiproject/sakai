@@ -25,6 +25,7 @@
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 		<property name="samigoAvailableNotificationService" ref="org.sakaiproject.samigo.api.SamigoAvailableNotificationService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 		<property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.datemanager"/>
 	</bean>
 

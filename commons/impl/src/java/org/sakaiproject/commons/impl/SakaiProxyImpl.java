@@ -110,31 +110,8 @@ public class SakaiProxyImpl implements SakaiProxy {
         return site;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getCurrentSiteLocale() {
-
-        String siteId = toolManager.getCurrentPlacement().getContext();
-
-        Site currentSite = getSiteOrNull(siteId);
-
-        if (currentSite != null) {
-            String locale = currentSite.getProperties().getProperty("locale_string");
-            if (locale != null) {
-                return locale;
-            }
-        }
-
-        return null;
-    }
-
     public Tool getCurrentTool() {
         return toolManager.getCurrentTool();
-    }
-
-    public String getCurrentToolId() {
-        return toolManager.getCurrentPlacement().getId();
     }
 
     public String getCurrentUserId() {
@@ -230,18 +207,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public void postEvent(String event, String reference, String siteId) {
         eventTrackingService.post(eventTrackingService.newEvent(event, reference, siteId, true, NotificationService.NOTI_OPTIONAL));
-    }
-
-    public Set<String> getSiteUsers(String siteId) {
-
-        try {
-            Site site = siteService.getSite(siteId);
-            return site.getUsers();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return null;
     }
 
     public String getCommonsToolId(String siteId) {

@@ -5,6 +5,7 @@
 
     <bean id="org.sakaiproject.feedback.util.SakaiProxy" class="org.sakaiproject.feedback.util.SakaiProxy">
         <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService" /></property>
+        <property name="localeService"><ref bean="org.sakaiproject.util.api.LocaleService" /></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
         <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
         <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>

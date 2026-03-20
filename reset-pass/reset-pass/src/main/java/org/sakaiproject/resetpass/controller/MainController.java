@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,13 +53,11 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.util.api.LocaleService;
 
 @Slf4j
 @Controller
@@ -73,13 +70,10 @@ public class MainController {
     private ServerConfigurationService serverConfigurationService;
 
     @Autowired
-    private PreferencesService preferencesService;
+    private LocaleService localeService;
 
     @Autowired
     private MessageSource messageSource;
-
-    @Autowired
-    private SessionManager sessionManager;
 
     @Autowired
     private EmailService emailService;
@@ -96,9 +90,6 @@ public class MainController {
     @Autowired
     private SecurityService securityService;
 
-    @Autowired
-    private SiteService siteService;
-
     private static final String SECURE_UPDATE_USER_ANY = org.sakaiproject.user.api.UserDirectoryService.SECURE_UPDATE_USER_ANY;
     private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
     private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
@@ -106,17 +97,12 @@ public class MainController {
 
     private Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
-        Placement placement = toolManager.getCurrentPlacement();
-        String context = placement != null ? placement.getContext() : null;
-
-        Locale loc = Optional.ofNullable(context)
-                .filter(StringUtils::isNotBlank)
-                .flatMap(c -> siteService.getSiteLocale(c))
-                .orElseGet(() -> StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault());
+        Locale loc = localeService.getLocaleForCurrentSiteAndUser();
 
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
-        localeResolver.setLocale(request, response, loc);
+        if (localeResolver != null) {
+            localeResolver.setLocale(request, response, loc);
+        }
 
         return loc;
     }

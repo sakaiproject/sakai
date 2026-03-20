@@ -49,7 +49,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * <code>RosterTool</code> performs basic checks and outputs a prebuilt startup
@@ -64,6 +64,7 @@ public class RosterTool extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private SakaiProxy sakaiProxy;
+    private LocaleService localeService;
 
     public void init(ServletConfig config) throws ServletException {
 
@@ -73,6 +74,7 @@ public class RosterTool extends HttpServlet {
             ApplicationContext context
                 = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
             sakaiProxy = (SakaiProxy) context.getBean("org.sakaiproject.roster.api.SakaiProxy");
+            localeService = (LocaleService) context.getBean("org.sakaiproject.util.api.LocaleService");
         } catch (Throwable t) {
             throw new ServletException("Failed to initialise RosterTool servlet.", t);
         }
@@ -83,30 +85,7 @@ public class RosterTool extends HttpServlet {
 
 		String userId = sakaiProxy.getCurrentUserId();
 
-        String siteLanguage = sakaiProxy.getCurrentSiteLocale();
-
-        Locale locale = null;
-        ResourceLoader rl = null;
-
-        if (siteLanguage != null) {
-            String[] parts = siteLanguage.split("_");
-            if (parts.length == 1) {
-                locale = new Locale(parts[0]);
-            } else if (parts.length == 2) {
-                locale = new Locale(parts[0], parts[1]);
-            } else if (parts.length == 3) {
-                locale = new Locale(parts[0], parts[1], parts[2]);
-            }
-            rl = new ResourceLoader("roster");
-            rl.setContextLocale(locale);
-        } else {
-            rl = new ResourceLoader(userId, "roster");
-            locale = rl.getLocale();
-        }
-
-        if (locale == null || rl == null) {
-            log.error("Failed to load the site or user messages bundle");
-        }
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
 
         String language = locale.getLanguage();
 

@@ -87,7 +87,7 @@ public class AutoGroupsController {
         
         // Display an error if the selected role list is empty.
         if (autoGroupsForm.getSelectedRoleList() == null || autoGroupsForm.getSelectedRoleList().isEmpty()) {
-            model.addAttribute("step1ErrorMessage", messageSource.getMessage("autogroups.step1.error.emptyroles", null, sakaiService.getCurrentUserLocale()));
+            model.addAttribute("step1ErrorMessage", messageSource.getMessage("autogroups.step1.error.emptyroles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showStep1(model, autoGroupsForm);
         }
 
@@ -140,13 +140,13 @@ public class AutoGroupsController {
 
         // Display an error if 'use sections' option has been selected and the list is empty.
         if (GroupManagerConstants.SECTIONS_OPTION_USE_SECTIONS == autoGroupsForm.getSectionsOption() && autoGroupsForm.getSelectedSectionList().isEmpty() && !autoGroupsForm.isUseManuallyAddedUsers()) {
-            model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptysections", null, sakaiService.getCurrentUserLocale()));
+            model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptysections", null, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showStep2(model, autoGroupsForm);
         }
 
         // At least one of the lists, roles or sections, should have a value, perform a validation.
         if (autoGroupsForm.getSelectedRoleList().isEmpty() && autoGroupsForm.getSelectedSectionList().isEmpty() && !autoGroupsForm.isUseManuallyAddedUsers()) {
-            model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptylists", null, sakaiService.getCurrentUserLocale()));
+            model.addAttribute("step2ErrorMessage", messageSource.getMessage("autogroups.step2.error.emptylists", null, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showStep2(model, autoGroupsForm);
         }
 
@@ -194,7 +194,7 @@ public class AutoGroupsController {
         }
 
         // Variable definition
-        Locale userLocale = sakaiService.getCurrentUserLocale();
+        Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
 
         // Avoid duplicates
         autoGroupsForm.setSelectedRoleList(autoGroupsForm.getSelectedRoleList().stream().distinct().collect(Collectors.toList()));
