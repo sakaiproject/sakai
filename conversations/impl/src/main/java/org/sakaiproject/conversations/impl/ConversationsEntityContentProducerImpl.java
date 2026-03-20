@@ -20,10 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jsoup.Jsoup;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.conversations.api.ConversationsEvents;
+import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import static org.sakaiproject.conversations.api.ConversationsReferenceReckoner.ConversationsReference;
 import org.sakaiproject.conversations.api.ConversationsService;
@@ -70,15 +68,15 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     public void init() {
 
         if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            addingEvents.add(ConversationsEvents.TOPIC_CREATED.label);
-            addingEvents.add(ConversationsEvents.TOPIC_UPDATED.label);
-            addingEvents.add(ConversationsEvents.POST_CREATED.label);
-            addingEvents.add(ConversationsEvents.POST_UPDATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_CREATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_UPDATED.label);
-            deletingEvents.add(ConversationsEvents.TOPIC_DELETED.label);
-            deletingEvents.add(ConversationsEvents.POST_DELETED.label);
-            deletingEvents.add(ConversationsEvents.COMMENT_DELETED.label);
+            addingEvents.add(ConversationsEvent.TOPIC_CREATED.label);
+            addingEvents.add(ConversationsEvent.TOPIC_UPDATED.label);
+            addingEvents.add(ConversationsEvent.POST_CREATED.label);
+            addingEvents.add(ConversationsEvent.POST_UPDATED.label);
+            addingEvents.add(ConversationsEvent.COMMENT_CREATED.label);
+            addingEvents.add(ConversationsEvent.COMMENT_UPDATED.label);
+            deletingEvents.add(ConversationsEvent.TOPIC_DELETED.label);
+            deletingEvents.add(ConversationsEvent.POST_DELETED.label);
+            deletingEvents.add(ConversationsEvent.COMMENT_DELETED.label);
             addingEvents.forEach(searchService::registerFunction);
             deletingEvents.forEach(searchService::registerFunction);
 
@@ -257,7 +255,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                 ConversationsTopic topic = topicRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
                 if (!topic.getDraft() && !topic.getHidden()) {
-                    sb.append(Jsoup.parse(topic.getMessage()).text());
+                    sb.append(topic.getMessage());
                     topic.getTagIds().forEach(tagId -> {
                         tagRepository.findById(tagId).ifPresent(t -> sb.append(" ").append(t.getLabel()));
                     });
@@ -267,13 +265,13 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                 ConversationsPost post = postRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
                 if (!post.getDraft() && !post.getHidden()) {
-                    sb.append(Jsoup.parse(post.getMessage()).text());
+                    sb.append(post.getMessage());
                 }
                 break;
             case "c":
                 ConversationsComment comment = commentRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
-                sb.append(Jsoup.parse(comment.getMessage()).text());
+                sb.append(comment.getMessage());
                 break;
             default:
         }

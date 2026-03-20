@@ -39,12 +39,14 @@ import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
  * @author bbailla2
  */
 @Slf4j
+@Transactional
 public class AnonymousManagerImpl extends HibernateDaoSupport implements AnonymousManager
 {
 

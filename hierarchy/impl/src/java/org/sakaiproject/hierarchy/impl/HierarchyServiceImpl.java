@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.db.api.SqlService;
@@ -68,36 +69,15 @@ import org.sakaiproject.memory.api.MemoryService;
 @Slf4j
 public class HierarchyServiceImpl implements HierarchyService {
 
+    private static final String CACHE_NAME = "org.sakaiproject.hierarchy.cache";
     private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
+
+    @Setter private HierarchyDao dao;
+    @Setter private SqlService sqlService;
+    @Setter private MemoryService memoryService;
+    @Setter private Cache cache;
+
     private boolean oracle = false;
-
-    private HierarchyDao dao;
-
-    public void setDao(HierarchyDao dao) {
-        this.dao = dao;
-    }
-
-    private SqlService sqlService;
-
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
-    }
-    
-    private MemoryService memoryService;
-    public void setMemoryService(MemoryService memoryService){
-    	this.memoryService = memoryService;
-    }
-    
-    private Cache cache;
-    public void setCache(Cache cache){
-        this.cache = cache;
-    }
-    private final String CACHE_NAME = "org.sakaiproject.hierarchy.cache";
-
-    // private SessionManager sessionManager;
-    // public void setSessionManager(SessionManager sessionManager) {
-    // this.sessionManager = sessionManager;
-    // }
 
     public void init() {
         log.info("init");

@@ -147,6 +147,35 @@ public class UserMessagingServiceTests extends SakaiTests {
     }
 
     @Test
+    public void countsOnlyUnviewedNotifications() {
+
+        switchToStudent();
+
+        assertEquals("The alerts count should be empty", 0, userMessagingService.getUnviewedNotificationsCount());
+
+        userNotification1.setViewed(false);
+        userNotificationRepository.save(userNotification1);
+
+        userNotification2.setViewed(true);
+        userNotificationRepository.save(userNotification2);
+
+        UserNotification broadcastNotification = new UserNotification();
+        broadcastNotification.setToUser("broadcast");
+        broadcastNotification.setFromUser(instructor);
+        broadcastNotification.setTitle("Broadcast Notification");
+        broadcastNotification.setEvent("notification3.event");
+        broadcastNotification.setEventDate(Instant.now());
+        broadcastNotification.setEndDate(Instant.now().plusSeconds(3600));
+        broadcastNotification.setRef("/notification/three");
+        broadcastNotification.setUrl("/portal/site/bogus/tool/xyz");
+        broadcastNotification.setBroadcast(true);
+        broadcastNotification.setViewed(false);
+        userNotificationRepository.save(broadcastNotification);
+
+        assertEquals("There should be 2 unviewed alerts", 2, userMessagingService.getUnviewedNotificationsCount());
+    }
+
+    @Test
     public void subscribeToPush() {
 
         switchToInstructor();

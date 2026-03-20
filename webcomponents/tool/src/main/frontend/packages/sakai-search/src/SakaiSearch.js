@@ -186,7 +186,7 @@ export class SakaiSearch extends SakaiElement {
                     </div>
                     <div>
                       <span class="search-result-title-label">${this._i18n.search_result_title}</span>
-                      <span class="search-result-title">${r.title}</span>
+                      <span class="search-result-title">${unsafeHTML(r.title)}</span>
                     </div>
                     <div class="search-result">${unsafeHTML(r.searchResult)}</div>
                   </div>

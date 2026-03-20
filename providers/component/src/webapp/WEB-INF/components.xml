@@ -76,36 +76,26 @@
 		aggressive caching.
 	-->
 	<bean id="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		lazy-init="true">
-		<property name="transactionManager">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-		</property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
-			</props>
-		</property>
-		<property name="target">
-			<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
-				init-method="init"
-				destroy-method="destroy">
-				<property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
-				<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
-				<property name="roleResolvers">
-					<list>
-						<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver" init-method="init">
-							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
-						</bean>
-						<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver" init-method="init">
-							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
-						</bean>
-						<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver" init-method="init">
-							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
-						</bean>
-					</list>
-				</property>
-			</bean>
+		  class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+		<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+		<property name="roleResolvers">
+			<list>
+				<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver"
+					  init-method="init">
+					<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+				</bean>
+				<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver"
+					  init-method="init">
+					<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+				</bean>
+				<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver"
+					  init-method="init">
+					<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+				</bean>
+			</list>
 		</property>
 	</bean>
 
@@ -198,6 +188,16 @@
   		</property>
   	</bean>
  -->
+
+	<bean id="org.sakaiproject.authz.api.RoleProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.RoleProvider}" />
+		<property name="proxyInterfaces">
+			<list>
+				<value>org.sakaiproject.authz.api.RoleProvider</value>
+			</list>
+		</property>
+	</bean>
+
 
 	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
 		  class="org.sakaiproject.user.detail.ValueEncryptionUtilities"

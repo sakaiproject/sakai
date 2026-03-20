@@ -25,8 +25,8 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sakaiproject.authz.impl.AuthzGroupServiceTest;
 import org.sakaiproject.authz.impl.BaseAuthzGroupService;
+import org.sakaiproject.authz.impl.DbAuthzGroupService;
 import org.sakaiproject.entity.api.Reference;
 
 
@@ -46,7 +46,7 @@ public class AuthzTestEntityParsing {
 
 	@Before
 	public void setUp() {
-		authz = new AuthzGroupServiceTest();
+		authz = new DbAuthzGroupService();
 		ref = context.mock(Reference.class);
 	}
 

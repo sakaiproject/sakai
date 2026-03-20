@@ -34,13 +34,14 @@ import org.sakaiproject.component.common.manager.PersistableHelper;
 import org.sakaiproject.id.api.IdManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
  */
 @Slf4j
-public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
-{
+@Transactional
+public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager {
 	private static final String ID = "id";
 
 	private static final String FINDTYPEBYID = "findTypeById";

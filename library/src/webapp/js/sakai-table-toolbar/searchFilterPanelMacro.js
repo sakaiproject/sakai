@@ -1,44 +1,62 @@
 // scripts for the #searchFilterPanel velocity macro (see VM_chef_library.vm in the velocity project)
-// will use SPNR (spinner.js) if it is already loaded
-var VM_SFP = VM_SFP || {};
+(() => {
 
-VM_SFP.spinButton = VM_SFP.spinButton || function(buttonElement)
-{
-    // if SPNR is available, use it
-    if (typeof SPNR !== "undefined")
-    {
-        // if variable "escapeList" is defined on the page, use it
-        var escape = typeof escapeList === "undefined" ? null : escapeList;
-        SPNR.disableControlsAndSpin(buttonElement, escape);
-    }
-};
+    document.querySelectorAll('.sakai-table-searchFilter-searchField[data-search-url]').forEach(field => {
+        const clearBtn = field.nextElementSibling;
+        let debounceTimer;
 
-VM_SFP.keyupListener = VM_SFP.keyupListener || function(event)
-{
-    if (event.keyCode === 13) // Enter
-    {
-        // immediate nextSibling is an empty text node 
-        event.currentTarget.nextSibling.nextSibling.click();
-    }
-};
+        const doFetch = async (url) => {
+            if (!url) return;
+            field._ac?.abort();
+            field._ac = new AbortController();
+            try {
+                const resp = await fetch(url, { credentials: 'same-origin', signal: field._ac.signal });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const tmp = document.createElement('div');
+                tmp.innerHTML = await resp.text();
 
-var searchFields = document.getElementsByClassName("sakai-table-searchFilter-searchField");
-Array.prototype.forEach.call(searchFields, function(field) {
-    field.addEventListener("keyup", VM_SFP.keyupListener);
-});
+                // Update each named table's body by matching on table id
+                document.querySelectorAll('table[id] tbody').forEach(tbody => {
+                    const fresh = tmp.querySelector('#' + CSS.escape(tbody.closest('table').id) + ' tbody');
+                    tbody.innerHTML = fresh?.innerHTML ?? '';
+                });
 
-VM_SFP.doSearch = VM_SFP.doSearch || function(url, buttonElementId, textElementId)
-{
-    var buttonElement = document.getElementById(buttonElementId);
-    VM_SFP.spinButton(buttonElement);
-    var searchText = document.getElementById(textElementId).value;
-    location = encodeURI(url + "&search=" + searchText);
-    return true;
-};
+                // Update pager containers by position (template always renders them in the same order)
+                const newPagers = tmp.querySelectorAll('.sakai-table-pagerContainer');
+                document.querySelectorAll('.sakai-table-pagerContainer').forEach((el, i) => {
+                    el.innerHTML = newPagers[i]?.innerHTML ?? '';
+                });
 
-VM_SFP.doClearSearch = VM_SFP.doClearSearch || function(url, buttonElement)
-{
-    VM_SFP.spinButton(buttonElement);
-    location = encodeURI(url);
-    return false;
-};
+                history.replaceState(null, '', url);
+                document.dispatchEvent(new CustomEvent('sfp:updated'));
+            } catch (e) {
+                if (e.name !== 'AbortError') location = url;
+            }
+        };
+
+        const updateClearBtn = () => clearBtn && (clearBtn.style.display = field.value ? '' : 'none');
+
+        const search = () => {
+            if (!field.value) return doFetch(field.dataset.clearUrl);
+            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(field.value)}`);
+        };
+
+        field.addEventListener('input', () => {
+            updateClearBtn();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(search, 400);
+        });
+
+        field.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(debounceTimer); search(); }
+        });
+
+        clearBtn?.addEventListener('click', () => {
+            clearTimeout(debounceTimer);
+            field.value = '';
+            updateClearBtn();
+            search();
+        });
+    });
+
+})();

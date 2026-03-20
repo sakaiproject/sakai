@@ -1,10 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <!-- dao beans -->
-    <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget"
+    <tx:advice id="entityBrokerDaoTxAdvice"
+               transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager">
+        <tx:attributes>
+            <tx:method name="find*"  propagation="REQUIRED" read-only="true"/>
+            <tx:method name="get*"   propagation="REQUIRED" read-only="true"/>
+            <tx:method name="can*"   propagation="REQUIRED" read-only="true"/>
+            <tx:method name="check*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="count*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*"      propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:advisor
+                advice-ref="entityBrokerDaoTxAdvice"
+                pointcut="execution(* org.sakaiproject.entitybroker.dao.EntityBrokerDao.*(..))
+                       || execution(* org.sakaiproject.genericdao.api.GenericDao.*(..))"/>
+
+    </aop:config>
+
+    <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
         class="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl">
         <property name="dataSource" ref="javax.sql.DataSource" />
         <property name="autoDDL" ref="sakaiAutoDDL" />
@@ -40,26 +63,4 @@
             </list>
         </property>
     </bean>
-
-    <!-- This wraps our DAO so that the transactions are managed -->
-    <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
-        class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
-        <property name="transactionManager"
-            ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        <property name="target">
-            <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="can*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="check*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-                <!--           <prop key="*">PROPAGATION_REQUIRED,+java.lang.RuntimeException</prop>-->
-            </props>
-        </property>
-    </bean>
-
 </beans>

@@ -93,6 +93,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -103,6 +104,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@Transactional
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager, Observer {
 
 	/** Spring bean members */

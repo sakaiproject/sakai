@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Properties;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.api.ecmascript.APIErrorCodes;
@@ -69,12 +70,13 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public abstract class ScormApplicationServiceImpl implements ScormApplicationService
-{
-	public static class CmiData
-	{
+@Transactional
+public class ScormApplicationServiceImpl implements ScormApplicationService {
+
+	public static class CmiData {
 		public boolean setPrimaryObjSuccess = false;
 		public boolean setPrimaryObjScore = false;
 		public double normalScore = -1.0;
@@ -88,19 +90,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		public CmiData() {}
 	}
 
-	// Local utility bean (also dependency injected by lookup method)
-	protected abstract ADLConsultant adlManager();
-
-	// Data access objects (also dependency injected by lookup method)
-	protected abstract AttemptDao attemptDao();
-
-	// Sequencing service
-	protected abstract ScormSequencingService scormSequencingService();
-
-	protected abstract DataManagerDao dataManagerDao();
-	public abstract GradingService gradingService();
-	protected abstract LearnerDao learnerDao();
-	protected abstract LearningManagementSystem lms();
+	@Setter protected ADLConsultant adlManager; // Local utility bean (also dependency injected by lookup method)
+	@Setter protected AttemptDao attemptDao; // Data access objects (also dependency injected by lookup method)
+	@Setter protected ScormSequencingService scormSequencingService; // Sequencing service
+	@Setter protected DataManagerDao dataManagerDao;
+	@Setter public GradingService gradingService;
+	@Setter protected LearnerDao learnerDao;
+	@Setter protected LearningManagementSystem lms;
 
 	IValidatorFactory validatorFactory = new ValidatorFactory();
 
@@ -192,9 +188,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			}
 			else
 			{
-				IDataManager dataManager = adlManager().getDataManager(sessionBean, scoBean);
-				ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
-				ISequencer sequencer = adlManager().getSequencer(tree);
+				IDataManager dataManager = adlManager.getDataManager(sessionBean, scoBean);
+				ISeqActivityTree tree = adlManager.getActivityTree(sessionBean);
+				ISequencer sequencer = adlManager.getSequencer(tree);
 				IValidRequests validRequests = commit(sessionBean, dataManager, sequencer);
 
 				if (validRequests == null)
@@ -237,13 +233,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		if (sessionBean.isCloseOnNextTerminate())
 		{
-			scormSequencingService().navigate(SeqNavRequests.NAV_SUSPENDALL, sessionBean, agent, null);
+			scormSequencingService.navigate(SeqNavRequests.NAV_SUSPENDALL, sessionBean, agent, null);
 			Attempt attempt = sessionBean.getAttempt();
 			if (attempt != null)
 			{
 				attempt.setSuspended(true);
 				attempt.setNotExited(true);
-				attemptDao().save(attempt);
+				attemptDao.save(attempt);
 			}
 		}
 	}
@@ -256,7 +252,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			String courseId = sessionBean.getContentPackage().getResourceId();
 			String learnerId = sessionBean.getLearnerId();
 			long attemptNumber = sessionBean.getAttemptNumber();
-			attempt = attemptDao().find(courseId, learnerId, attemptNumber);
+			attempt = attemptDao.find(courseId, learnerId, attemptNumber);
 
 			if (attempt == null)
 			{
@@ -270,7 +266,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				attempt.setBeginDate(new Date());
 				try
 				{
-					Learner learner = learnerDao().load(learnerId);
+					Learner learner = learnerDao.load(learnerId);
 					if (learner != null)
 					{
 						attempt.setLearnerName(learner.getDisplayName());
@@ -290,7 +286,6 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 	private IDataManager getDataManager(ScoBean scoBean)
 	{
-		DataManagerDao dataManagerDao = dataManagerDao();
 		return dataManagerDao.load(scoBean.getDataManagerId());
 	}
 
@@ -409,7 +404,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			int dmErrorCode = 0;
 			IDataManager dataManager = getDataManager(scoBean);
 			dmErrorCode = DMInterface.processGetValue(parameter, false, dataManager, dmInfo);
-			dataManagerDao().update(dataManager);
+			dataManagerDao.update(dataManager);
 
 			// Set the LMS Error Manager from the Data Model Error Manager
 			errorManager.setCurrentErrorCode(dmErrorCode);
@@ -469,7 +464,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// First, check to see if we have a ScoDataManager persisted
 		if (dataManagerId != null && dataManagerId != -1)
 		{
-			dm = dataManagerDao().load(dataManagerId);
+			dm = dataManagerDao.load(dataManagerId);
 		}
 
 		if (dm == null)
@@ -489,7 +484,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			Learner learner = null;
 			try
 			{
-				learner = learnerDao().load(learnerId);
+				learner = learnerDao.load(learnerId);
 			}
 			catch (Exception exc)
 			{
@@ -617,7 +612,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		}
 
 		attempt.setDataManagerId(scoId, dm.getId());
-		attemptDao().save(attempt);
+		attemptDao.save(attempt);
 		return dm;
 	}
 
@@ -859,7 +854,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		{
 			SCORM_2004_NAV_DM navDM = (SCORM_2004_NAV_DM) scoDataManager.getDataModel("adl");
 			navDM.setValidRequests(validRequests);
-			dataManagerDao().save(scoDataManager);
+			dataManagerDao.save(scoDataManager);
 		}
 		else
 		{
@@ -1180,7 +1175,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		int dmErrorCode = 0;
 		IDataManager dataManager = getDataManager(scoBean);
 		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, dataManager, validatorFactory);
-		dataManagerDao().update(dataManager);
+		dataManagerDao.update(dataManager);
 
 		// Set the LMS Error Manager from the DataModel Manager
 		errorManager.setCurrentErrorCode(dmErrorCode);
@@ -1349,7 +1344,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					Attempt attempt = sessionBean.getAttempt();
 					attempt.setSuspended(false);
 					attempt.setNotExited(false);
-					attemptDao().save(attempt);
+					attemptDao.save(attempt);
 				}
 
 				// handle if sco set nav.request
@@ -1376,7 +1371,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		if (dataManager != null)
 		{
-			dataManagerDao().update(dataManager);
+			dataManagerDao.update(dataManager);
 		}
 
 		log.debug("API Terminate (result): {}", isSuccessful);
@@ -1389,7 +1384,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		{
 			SCORM_2004_NAV_DM navDM = (SCORM_2004_NAV_DM) scoDataManager.getDataModel("adl");
 			navDM.setValidRequests(validRequests);
-			dataManagerDao().update(scoDataManager);
+			dataManagerDao.update(scoDataManager);
 		}
 		else
 		{
@@ -1406,13 +1401,11 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	 */
 	protected void updateGradebook(OptionalDouble score, String context, String learnerID, String externalAssessmentID)
 	{
-		GradingService gbService = gradingService();
-
 		// Gradebook item exists, carry on...
-		if (gbService.isExternalAssignmentDefined(context, externalAssessmentID))
+		if (gradingService.isExternalAssignmentDefined(context, externalAssessmentID))
 		{
-			long internalAssessmentID = gbService.getExternalAssignment(context, externalAssessmentID).getId();
-			CommentDefinition cd = gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
+			long internalAssessmentID = gradingService.getExternalAssignment(context, externalAssessmentID).getId();
+			CommentDefinition cd = gradingService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
 			String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
 			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
 
@@ -1422,13 +1415,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				double rawScore = score.getAsDouble() * 100d;
 
 				// We don't care about the presence of an existing grade; push the new/updated one
-				gbService.updateExternalAssessmentScore(context, context, externalAssessmentID, learnerID, "" + rawScore);
+				gradingService.updateExternalAssessmentScore(context, context, externalAssessmentID, learnerID, "" + rawScore);
 
 				// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
 				if (existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
-					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
+					gradingService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 			else // Module did not record a score...
@@ -1437,7 +1430,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				if (!existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = moduleNoScoreRecorded + " " + existingComment;
-					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
+					gradingService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 		}

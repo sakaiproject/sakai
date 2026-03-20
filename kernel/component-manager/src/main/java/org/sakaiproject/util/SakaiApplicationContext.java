@@ -17,10 +17,25 @@
 package org.sakaiproject.util;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -28,12 +43,15 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Hook some Sakai-specific operations into the normal ApplicationContext
  * refresh cycle: read component manager configuration files, give creators of
  * PostProcessor objects (e.g., SakaiProperties) a chance to do their work,
  * and load a few central components before the rest.
  */
+@Slf4j
 public class SakaiApplicationContext extends GenericApplicationContext {
 	private String[] initialSingletonNames;
 	private String[] configLocations;
@@ -75,17 +93,15 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 		invokePostProcessorCreators(beanFactory);
 		super.postProcessBeanFactory(beanFactory);
 	}
-	
-	/**
-	 * Load initial beans before going through the default logic.
-	 */
-	protected void onRefresh() throws BeansException {
+
+	@Override
+	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		if (initialSingletonNames != null) {
-			for (int i = 0; i < initialSingletonNames.length; i++)	{
-				getBean(initialSingletonNames[i]);
-			}
+            for (String initialSingletonName : initialSingletonNames) {
+                beanFactory.getBean(initialSingletonName);
+            }
 		}
-		super.onRefresh();
+		super.finishBeanFactoryInitialization(beanFactory);
 	}
 
 	/**
@@ -94,12 +110,12 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 	 */
 	public void invokePostProcessorCreators(ConfigurableListableBeanFactory beanFactory) {
 		String[] postProcessorCreatorNames = beanFactory.getBeanNamesForType(BeanFactoryPostProcessorCreator.class, false, false);
-		for (int i = 0; i < postProcessorCreatorNames.length; i++) {
-			BeanFactoryPostProcessorCreator postProcessorCreator = (BeanFactoryPostProcessorCreator)beanFactory.getBean(postProcessorCreatorNames[i]);
-			for (BeanFactoryPostProcessor beanFactoryPostProcessor : postProcessorCreator.getBeanFactoryPostProcessors()) {
-				addBeanFactoryPostProcessor(beanFactoryPostProcessor);
-			}
-		}
+        for (String postProcessorCreatorName : postProcessorCreatorNames) {
+            BeanFactoryPostProcessorCreator postProcessorCreator = (BeanFactoryPostProcessorCreator) beanFactory.getBean(postProcessorCreatorName);
+            for (BeanFactoryPostProcessor beanFactoryPostProcessor : postProcessorCreator.getBeanFactoryPostProcessors()) {
+                addBeanFactoryPostProcessor(beanFactoryPostProcessor);
+            }
+        }
 	}
 
 	/**

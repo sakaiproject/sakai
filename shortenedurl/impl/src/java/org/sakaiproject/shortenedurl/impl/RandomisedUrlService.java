@@ -36,6 +36,7 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
+@Transactional
 public class RandomisedUrlService extends HibernateDaoSupport implements ShortenedUrlService {
 
 	//Hibernate stored queries

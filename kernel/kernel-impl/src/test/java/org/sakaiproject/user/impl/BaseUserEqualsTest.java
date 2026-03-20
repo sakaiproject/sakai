@@ -40,14 +40,9 @@ public class BaseUserEqualsTest {
 		when(timeService.newTime()).thenReturn(Mockito.<Time>mock(Time.class));
 		final SessionManager sessionManager = mock(SessionManager.class);
 		when(sessionManager.getCurrentSessionUserId()).thenReturn("userId");
-		service = new ConcreteUserDirectoryService(){
-			protected TimeService timeService() {
-				return timeService;
-			}
-			protected SessionManager sessionManager() {
-				return sessionManager;
-			}
-		};
+		service = new PrecachingDbUserService();
+		service.setTimeService(timeService);
+		service.setSessionManager(sessionManager);
 	}
 
 	protected void assertSymetric(Object o1, Object o2, boolean same) {

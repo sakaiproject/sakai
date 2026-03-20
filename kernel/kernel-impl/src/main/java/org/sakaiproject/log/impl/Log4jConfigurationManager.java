@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,7 @@ import org.sakaiproject.log.api.LogPermissionException;
  * </p>
  */
 @Slf4j
-public abstract class Log4jConfigurationManager implements LogConfigurationManager {
+public class Log4jConfigurationManager implements LogConfigurationManager {
 
 	// Configuration: enable special log handling or not.
 	protected boolean enabled = true;
@@ -61,8 +62,8 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	// Log4j logger context
 	private LoggerContext loggerContext;
 
-	protected abstract ServerConfigurationService serverConfigurationService();
-	protected abstract SecurityService securityService();
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected SecurityService securityService;
 
 	public void setEnabled(String enabled) {
 		this.enabled = Boolean.parseBoolean(enabled);
@@ -81,7 +82,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 				loggerContext = LoggerContext.getContext(false);
 			}
 		    // Load optional log4j.properties file from sakai home
-		    String log4jConfigFilePath = serverConfigurationService().getSakaiHomePath() + "log4j2.properties";
+		    String log4jConfigFilePath = serverConfigurationService.getSakaiHomePath() + "log4j2.properties";
 		    if (StringUtils.isNotEmpty(log4jConfigFilePath)) {
 		    	loggerContext.setConfigLocation(new File(log4jConfigFilePath).toURI());
 		    }
@@ -100,7 +101,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 			// log.config.1 = ALL.org.sakaiproject.log.impl
 			// log.config.2 = OFF.org.sakaiproject
 			// log.config.3 = DEBUG.org.sakaiproject.db.impl
-			String[] configs = serverConfigurationService().getStrings("log.config");
+			String[] configs = serverConfigurationService.getStrings("log.config");
 			if (configs != null) {
 				for (String config : configs) {
 					String[] parts = StringUtils.split(config, ".", 2);
@@ -151,7 +152,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	@Override
 	public void setLogLevel(String level, String loggerName) throws LogPermissionException {
 		// check that this is a "super" user with the security service
-		if (!securityService().isSuperUser()) {
+		if (!securityService.isSuperUser()) {
 			throw new LogPermissionException();
 		}
 

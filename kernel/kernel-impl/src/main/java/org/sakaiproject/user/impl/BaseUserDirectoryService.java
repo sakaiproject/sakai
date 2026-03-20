@@ -90,6 +90,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -189,11 +190,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	        }
 	        // If all else failed, manually instantiate default implementation
 	        if ( m_passwordPolicyProvider == null ) {
-	            m_passwordPolicyProvider = new PasswordPolicyProviderDefaultImpl(serverConfigurationService());
+	            m_passwordPolicyProvider = new PasswordPolicyProviderDefaultImpl(serverConfigurationService);
 	        }
 	    }
 	    PasswordPolicyProvider ppp = m_passwordPolicyProvider;
-	    if (!serverConfigurationService().getBoolean("user.password.policy", false)) {
+	    if (!serverConfigurationService.getBoolean("user.password.policy", false)) {
 	        ppp = null; // don't send back a policy if disabled
 	    }
 	    return ppp;
@@ -208,7 +209,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -274,7 +275,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!securityService().unlock(lock, resource))
+		if (!securityService.unlock(lock, resource))
 		{
 			return false;
 		}
@@ -297,7 +298,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		while(locksIterator.hasNext()) {
 
-			if(securityService().unlock(locksIterator.next(), resource))
+			if(securityService.unlock(locksIterator.next(), resource))
 					return true;
 
 		}
@@ -318,9 +319,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
-		if (!securityService().unlock(lock1, resource))
+		if (!securityService.unlock(lock1, resource))
 		{
-			if (!securityService().unlock(lock2, resource))
+			if (!securityService.unlock(lock2, resource))
 			{
 				return false;
 			}
@@ -345,7 +346,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		if (!unlockCheck(lock, resource))
 		{
-			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
+			throw new UserPermissionException(sessionManager.getCurrentSessionUserId(), lock, resource);
 		}
 
 	    return lock;
@@ -367,7 +368,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		if (!unlockCheck2(lock1, lock2, resource))
 		{
-			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
+			throw new UserPermissionException(sessionManager.getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
 		}
 	}
 
@@ -407,7 +408,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		if (locksSucceeded.size() < 1) {
-			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), locksFailedSb.toString(), resource);
+			throw new UserPermissionException(sessionManager.getCurrentSessionUserId(), locksFailedSb.toString(), resource);
 		}
 
 		return locksSucceeded;
@@ -432,7 +433,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// TODO: let the provider have a chance to set this? -ggolden
 
 		// allocate a uuid
-		id = idManager().createUuid();
+		id = idManager.createUuid();
 
 		return id;
 	}
@@ -523,60 +524,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
-
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract MemoryService memoryService();
-
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
-	protected abstract EventTrackingService eventTrackingService();
-
-	/**
-	 * @return the AuthzGroupService collaborator.
-	 */
-	protected abstract AuthzGroupService authzGroupService();
-
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
-	/**
-	 * @return the IdManager collaborator.
-	 */
-	protected abstract IdManager idManager();
-
-	/**
-	 * @return the FormattedTextProcessor collaborator
-	 */
-    protected abstract FormattedText formattedText();
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected EntityManager entityManager;
+	@Setter protected SecurityService securityService;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected SessionManager sessionManager;
+	@Setter protected MemoryService memoryService;
+	@Setter protected EventTrackingService eventTrackingService;
+	@Setter protected AuthzGroupService authzGroupService;
+	@Setter protected TimeService timeService;
+	@Setter protected IdManager idManager;
+	@Setter protected FormattedText formattedText;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -608,29 +566,29 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
             // caching for users
-            m_userCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService");
-            m_callCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
+            m_userCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService");
+            m_callCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
             if (!m_callCache.isDistributed()) {
                 // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
                 log.info("Creating user callCache observer for event based cache expiration (for local caches)");
                 m_userCacheObserver = new UserCacheObserver();
-                eventTrackingService().addObserver(m_userCacheObserver);
+                eventTrackingService.addObserver(m_userCacheObserver);
             }
 
 			// register as an entity producer
-			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			functionManager().registerFunction(SECURE_ADD_USER);
-			functionManager().registerFunction(SECURE_REMOVE_USER);
-			functionManager().registerFunction(SECURE_UPDATE_USER_OWN);
-			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_NAME);
-			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_EMAIL);
-			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
-			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
-			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
-			functionManager().registerFunction(SECURE_VIEW_USER_ANY);
-			functionManager().registerFunction("user.studentnumber.visible");
+			functionManager.registerFunction(SECURE_ADD_USER);
+			functionManager.registerFunction(SECURE_REMOVE_USER);
+			functionManager.registerFunction(SECURE_UPDATE_USER_OWN);
+			functionManager.registerFunction(SECURE_UPDATE_USER_OWN_NAME);
+			functionManager.registerFunction(SECURE_UPDATE_USER_OWN_EMAIL);
+			functionManager.registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
+			functionManager.registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
+			functionManager.registerFunction(SECURE_UPDATE_USER_ANY);
+			functionManager.registerFunction(SECURE_VIEW_USER_ANY);
+			functionManager.registerFunction("user.studentnumber.visible");
 			
 
 			// if no provider was set, see if we can find one
@@ -651,7 +609,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				m_pwdService = new PasswordService();
 			}
 
-			m_passwordPolicyProviderName = serverConfigurationService().getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
+			m_passwordPolicyProviderName = serverConfigurationService.getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
 			if (StringUtils.isEmpty(m_passwordPolicyProviderName)) {
 			    m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
 			    log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
@@ -1029,7 +987,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public User getCurrentUser()
 	{
-		String id = sessionManager().getCurrentSessionUserId();
+		String id = sessionManager.getCurrentSessionUserId();
 
 		User rv = null;
 
@@ -1055,7 +1013,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id == null) return false;
 
 		// is this the user's own?
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			ArrayList<String> locks = new ArrayList<String>();
 			locks.add(SECURE_UPDATE_USER_OWN);
@@ -1086,7 +1044,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id == null) return false;
 
 		//		 is this the user's own?
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			ArrayList<String> locks = new ArrayList<String>();
 			locks.add(SECURE_UPDATE_USER_OWN);
@@ -1116,7 +1074,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id == null) return false;
 
 		//		 is this the user's own?
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			ArrayList<String> locks = new ArrayList<String>();
 			locks.add(SECURE_UPDATE_USER_OWN);
@@ -1146,7 +1104,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id == null) return false;
 
 		//		 is this the user's own?
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			ArrayList<String> locks = new ArrayList<String>();
 			locks.add(SECURE_UPDATE_USER_OWN);
@@ -1177,7 +1135,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id == null) return false;
 
 		//		 is this the user's own?
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			ArrayList<String> locks = new ArrayList<String>();
 			locks.add(SECURE_UPDATE_USER_OWN);
@@ -1210,7 +1168,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// is this the user's own?
 		List<String> locksSucceeded = new ArrayList<String>();
 		String function = null;
-		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		if (id.equals(sessionManager.getCurrentSessionUserId()))
 		{
 			// own or any
 			List<String> locks = new ArrayList<String>();
@@ -1271,7 +1229,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		
 		//only a super user should ever be able to edit the EID
-		if (!securityService().isSuperUser()) {
+		if (!securityService.isSuperUser()) {
 			user.restrictEditEid();
 		}
 
@@ -1306,7 +1264,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		String ref = user.getReference();
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) user).getEvent(), ref, true));
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseUserEdit) user).getEvent(), ref, true));
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
@@ -1572,7 +1530,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) edit).getEvent(), edit.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseUserEdit) edit).getEvent(), edit.getReference(), true));
 
 		// close the edit object
 		((BaseUserEdit) edit).closeEdit();
@@ -1651,7 +1609,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_storage.remove(user);
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_USER, ref, true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_USER, ref, true));
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
@@ -1659,7 +1617,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// remove any realm defined for this resource
 		try
 		{
-			authzGroupService().removeAuthzGroup(authzGroupService().getAuthzGroup(ref));
+			authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(ref));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -1783,7 +1741,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected void addLiveProperties(BaseUserEdit edit)
 	{
-		String current = sessionManager().getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 
 		edit.m_createdUserId = current;
 		edit.m_lastModifiedUserId = current;
@@ -1797,7 +1755,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected void addLiveUpdateProperties(BaseUserEdit edit)
 	{
-		String current = sessionManager().getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 
 		edit.m_lastModifiedUserId = current;
 		edit.m_lastModifiedInstant = Instant.now();
@@ -2204,13 +2162,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
-				m_createdInstant = Instant.ofEpochMilli(timeService().newTimeGmt(time).getTime());
+				m_createdInstant = Instant.ofEpochMilli(timeService.newTimeGmt(time).getTime());
 			}
 
 			time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
-				m_lastModifiedInstant = Instant.ofEpochMilli(timeService().newTimeGmt(time).getTime());
+				m_lastModifiedInstant = Instant.ofEpochMilli(timeService.newTimeGmt(time).getTime());
 			}
 
 			// the children (roles, properties)
@@ -2780,7 +2738,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 		    if(!m_restrictedFirstName) {
 		        // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_firstName = formattedText().convertFormattedTextToPlaintext(name);
+		    	m_firstName = formattedText.convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
@@ -2792,7 +2750,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if(!m_restrictedLastName) {
                 // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_lastName = formattedText().convertFormattedTextToPlaintext(name);
+		    	m_lastName = formattedText.convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}

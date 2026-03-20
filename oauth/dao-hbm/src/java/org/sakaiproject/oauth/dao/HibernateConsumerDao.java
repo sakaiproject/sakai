@@ -21,9 +21,11 @@ package org.sakaiproject.oauth.dao;
 
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.sakaiproject.oauth.domain.Consumer;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
+@Transactional
 public class HibernateConsumerDao extends HibernateDaoSupport implements ConsumerDao {
     @Override
     public void create(final Consumer consumer) {

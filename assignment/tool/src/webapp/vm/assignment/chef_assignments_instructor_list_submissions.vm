@@ -830,7 +830,7 @@ function printView(url) {
 	var escapeList = [ 'toggleModel' ];
 	$(document).ready(function () {
 
-		$('#submissionList input:checkbox').click(function () {
+		$('#submissionList').on('click', 'input:checkbox', function () {
 
 			var feedbackPanel = document.getElementById("sendFeedbackPanelContent");
 			var resubPanel = document.getElementById("allowResubmissionPanelContent");

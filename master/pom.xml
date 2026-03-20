@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.42</sakai.lombok.version>
+    <sakai.lombok.version>1.18.44</sakai.lombok.version>
     <sakai.lucene.version>9.12.3</sakai.lucene.version>
     <sakai.netty.version>4.1.131.Final</sakai.netty.version>
     <sakai.node.version>v22.14.0</sakai.node.version>
@@ -73,7 +73,7 @@
     <sakai.poi.version>5.5.1</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.14.0</joda.time.version>
+    <joda.time.version>2.14.1</joda.time.version>
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>

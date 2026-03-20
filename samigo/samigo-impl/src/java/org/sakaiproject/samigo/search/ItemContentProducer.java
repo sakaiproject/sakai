@@ -16,8 +16,6 @@
 
 package org.sakaiproject.samigo.search;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +38,6 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.htmlparser.jericho.Source;
 
 @Slf4j
 public class ItemContentProducer implements EntityContentProducer, EntityContentProducerEvents {
@@ -179,21 +176,11 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
 
         try {
             ItemFacade item = (ItemFacade)qhp.getEntity(er);
-            String content = qhp.content(item);
-            //We will filter the HTML here just before send to the index
-            Source parseContent = new Source(content);
-            return parseContent.getTextExtractor().toString();
+            return qhp.content(item);
         } catch (Exception e) {
             throw new RuntimeException(" Failed to get item content ", e);
         }
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Reader getContentReader(String reference) {
-        return new StringReader(getContent(reference));
     }
 
     /**
@@ -358,13 +345,6 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
      */
     public String getUrl(String reference) {
         return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isContentFromReader(String reference) {
-        return false;
     }
 
     /**

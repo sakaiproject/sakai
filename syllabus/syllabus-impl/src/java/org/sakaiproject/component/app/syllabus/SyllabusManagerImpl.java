@@ -60,6 +60,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +73,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version $Id:
  */
 @Slf4j
+@Transactional
 public class SyllabusManagerImpl extends HibernateDaoSupport implements SyllabusManager
 {
   private ContentHostingService contentHostingService;

@@ -52,7 +52,7 @@ public class TestComponentManagerContainer {
 	private SpringCompMgr componentManager;
 
 
-	public TestComponentManagerContainer(String configPaths) throws IOException {
+	public TestComponentManagerContainer(String[] configPaths) throws IOException {
 		this(configPaths, null);
 	}
 
@@ -61,7 +61,7 @@ public class TestComponentManagerContainer {
 	 * @param configPaths a ';' seperated list of xml bean config files
 	 * @throws IOException
 	 */
-	public TestComponentManagerContainer(String configPaths, Properties props)  throws IOException {
+	public TestComponentManagerContainer(String[] configPaths, Properties props)  throws IOException {
 		// we assume that all the jars are in the same classloader, so this will
 		// not check for
 		// incorrect bindings and will not fully replicate the tomcat
@@ -71,18 +71,11 @@ public class TestComponentManagerContainer {
 		// to generate the dep list.
 		if ( ComponentManager.m_componentManager != null ) {
 			log.info("Closing existing Component Manager ");
-			/*			
- 			try {
-				ComponentManager.m_componentManager.close();
-			} catch ( Throwable t ) {
-				log.warn("Close Failed with message, safe to ignore "+t.getMessage());
-			}
-			*/
 			log.info("Closing Complete ");
 			ComponentManager.m_componentManager = null;
 		}
 		
-		log.info("Starting Component Manager with ["+configPaths+"]");
+		log.info("Starting Component Manager with [{}]", configPaths);
 		ComponentManager.setLateRefresh(true);
 
 		componentManager = (SpringCompMgr) ComponentManager.getInstance();
@@ -100,10 +93,9 @@ public class TestComponentManagerContainer {
 		// rather than from
 		// the filesystem
 
-		List<Resource> config = new ArrayList<Resource>();
-		String[] configPath = configPaths.split(";");
-		for ( String p : configPath) {
-			File xml = new File(p);
+		List<Resource> config = new ArrayList<>();
+		for (String path : configPaths) {
+			File xml = new File(path);
 			config.add(new FileSystemResource(xml.getCanonicalPath()));
 		}
 		loadComponent(ac, config, classLoader);

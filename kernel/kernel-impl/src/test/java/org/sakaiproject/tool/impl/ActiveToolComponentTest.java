@@ -74,39 +74,7 @@ public class ActiveToolComponentTest {
 		functionManager = context.mock(FunctionManager.class);
 		serverConfigurationService = new BasicConfigurationService();
 		serverConfigurationService.setThreadLocalManager(threadLocalComponent);
-		serverConfigurationService.setSessionManager(sessionManager);
-		ActiveToolComponent activeToolComponent = new ActiveToolComponent() {
-			
-			@Override
-			protected ThreadLocalManager threadLocalManager() {
-				return threadLocalComponent;
-			}
-			
-			@Override
-			protected SecurityService securityService() {
-				return securityService;
-			}
-			
-			@Override
-			protected SessionManager sessionManager() {
-				return sessionManager;
-			}
-
-			@Override
-			protected SiteService siteService() {
-				return siteService;
-			}
-			
-			@Override
-			protected FunctionManager functionManager() {
-				return functionManager;
-			}
-			
-			@Override
-			protected ServerConfigurationService serverConfigurationService() {
-				return serverConfigurationService;
-			}
-		};
+		ActiveToolComponent activeToolComponent = new ActiveToolComponent();
 		activeToolComponent.init();
 		this.activeToolManager = activeToolComponent;
 	}

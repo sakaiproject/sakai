@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -38,6 +36,7 @@ import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 public class ConditionServiceImpl implements ConditionService {

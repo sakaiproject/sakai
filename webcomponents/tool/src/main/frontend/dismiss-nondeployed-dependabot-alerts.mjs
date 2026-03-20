@@ -218,8 +218,8 @@ async function dismissAlert(token, owner, repo, alertNumber, comment) {
     method: "PATCH",
     body: JSON.stringify({
       state: "dismissed",
-      dismissal_reason: "not_used",
-      dismissal_comment: comment,
+      dismissed_reason: "not_used",
+      dismissed_comment: comment,
     }),
     headers: {
       "Content-Type": "application/json",

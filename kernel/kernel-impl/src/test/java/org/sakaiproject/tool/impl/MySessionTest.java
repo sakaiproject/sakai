@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.lang3.mutable.MutableLong;
-import org.jmock.Expectations;
+import org.junit.Test;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ContextSession;
@@ -42,6 +42,9 @@ import org.sakaiproject.tool.api.SessionAttributeListener;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.ToolSession;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Verifies behavior of {@link MySession}, which
@@ -83,8 +86,8 @@ import org.sakaiproject.tool.api.ToolSession;
  *
  */
 public class MySessionTest extends BaseSessionComponentTest {
-	
-	
+
+	@Test
 	public void testCreatedInExpectedState() throws Exception {
 		final String sessionId = "SESSION_ID";
 		doTestCreatedInExpectedState(sessionId, new Callable<MySession>() {
@@ -94,6 +97,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		});
 	}
 
+	@Test
 	public void testCreatedInExpectedStateWithClientSpecifiedId()
 			throws Exception {
 		final String sessionId = "SESSION_ID";
@@ -121,10 +125,11 @@ public class MySessionTest extends BaseSessionComponentTest {
 	 * {@link MySession#invalidate()} should behave like
 	 * {@link MySession#clear()} but with extra logic for unsetting itself as
 	 * the "current" session.
-	 * 
+	 *
 	 * @see #doTestSessionClear(org.sakaiproject.tool.impl.MySessionTest.MyTestableSession,
 	 *      Runnable)
 	 */
+	@Test
 	public void testInvalidateClearsSessionAndUnsetsItselfAsCurrent() {
 		allowToolCheck("simple.unit.test");
 		allowPlacementCheck("sakai-context-1");
@@ -140,9 +145,10 @@ public class MySessionTest extends BaseSessionComponentTest {
 	/**
 	 * Exactly the same as {@link #testInvalidateClearsSessionAndUnsetsItselfAsCurrent()}
 	 * except that the session's currentness should not be affected.
-	 * 
+	 *
 	 * @see #doTestSessionClear(org.sakaiproject.tool.impl.MySessionTest.MyTestableSession, Runnable)
 	 */
+	@Test
 	public void testClearUnbindsAttributes() {
 		allowToolCheck("simple.unit.test");
 		allowPlacementCheck("sakai-context-1");
@@ -189,6 +195,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 	 * {@link ContextSession} attributes are wiped away by virtue of a call to
 	 * {@link Session#clear()}.
 	 */
+	@Test
 	public void testClearExceptFiltersSessionAttribsButClearsAllToolAndContextSessionAttribs() {
 		MyTestableSession session = createSession();
 		ContextSession contextSession = getContextSession(session, "CONTEXT_SESSION_ID");
@@ -215,7 +222,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertHasNoAttributes(contextSession);
 		
 	}
-	
+
+	@Test
 	public void testRemoveAttributeReleasesAttributeAndFiresUnbind() {
 		MyTestableSession session = createSession();
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
@@ -228,7 +236,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 			put(sessionAttribKey, sessionAttribValue);
 		}}, session.unbindInvokedWith);
 	}
-	
+
+	@Test
 	public void testSetAndRemoveAttributeDoNotUpdateLastAccessedTime() 
 	throws InterruptedException {
 		MyTestableSession session = createSession();
@@ -240,7 +249,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		session.removeAttribute(sessionAttribKey);
 		assertEquals(origLastAccessed, session.getLastAccessedTime());
 	}
-	
+
+	@Test
 	public void testSettingNullAttributeValueReleasesAttributeAndFiresUnbind() {
 		MyTestableSession session = createSession();
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
@@ -253,7 +263,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 			put(sessionAttribKey, sessionAttribValue);
 		}}, session.unbindInvokedWith);
 	}
-	
+
+	@Test
 	public void testSetAttributeCachesAttributeAndFiresBind() {
 		MyTestableSession session = createSession();
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
@@ -265,7 +276,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 			put(sessionAttribKey, sessionAttribValue);
 		}}, session.bindInvokedWith);
 	}
-	
+
+	@Test
 	public void testSetAttributeOverwritesExistingAttributeAndFiresBindAndUnbind() {
 		MyTestableSession session = createSession();
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
@@ -282,8 +294,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 			put(sessionAttribKey, sessionAttribValue2);
 		}}, session.bindInvokedWith);
 	}
-	
-	
+
+	@Test
 	public void testLazilyCreatesToolSessionInExpectedState() {
 		MySession session = createSession();
 		session.setUserEid("USER_EID");
@@ -301,7 +313,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEquals(session.getUserId(), toolSession.getUserId());
 		assertHasNoAttributes(toolSession);
 	}
-	
+
+	@Test
 	public void testLazilyCreatesContextSessionInExpectedState() {
 		MySession session = createSession();
 		session.setUserEid("USER_EID");
@@ -317,8 +330,9 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEquals(session.getUserId(), contextSession.getUserId());
 		assertHasNoAttributes(contextSession);
 	}
-	
+
 	// note this is part of the protected API
+	@Test
 	public void testIsInactive() throws InterruptedException {
 		//return ((m_inactiveInterval > 0) && (System.currentTimeMillis() > (m_accessed + (m_inactiveInterval * 1000))));
 		MySession session = createSession();
@@ -328,7 +342,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		Thread.sleep(inactivityThreshold * 2000);
 		assertTrue(session.isInactive());
 	}
-	
+
+	@Test
 	public void testNeverInactiveIfMaxInactiveIntervalLteZero() {
 		MySession session = createSession();
 		session.setMaxInactiveInterval(0);
@@ -336,7 +351,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		session.setMaxInactiveInterval(-1);
 		assertFalse(session.isInactive());
 	}
-	
+
+	@Test
 	public void testSetActiveDoesNotUpdateTimeExpirationSuggestion() {
 		// inactivity in seconds
 		int inactivityThreshold = 30;
@@ -353,7 +369,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		// by asserting the original and new value are the same
 		assertEquals(originalValue, newValue);
 	}
-	
+
+	@Test
 	public void testSetActiveUpdatesTimeExpirationSuggestion() {
 		// inactivity in seconds
 		int inactivityThreshold = 30;
@@ -388,7 +405,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 	public long now() {
 		return System.currentTimeMillis();
 	}
-	
+
+	@Test
 	public void testEqualsMatchesAnySessionImplementorHavingSameId() {
 		// attributes added in for a little noise, to be "extra sure" we only care about IDs.
 		final MySession session1 = createSession();
@@ -398,13 +416,11 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEquals(session1, session2);
 		// now lets see if it cares about a sibling implementation
 		final Session session3 = mock(Session.class);
-		checking(new Expectations(){{
-			one(session3).getId();
-			will(returnValue(session1.getId()));
-		}});
+		when(session3.getId()).thenReturn(session1.getId());
 		assertEquals(session1, session3);
 	}
-	
+
+	@Test
 	public void testUnbindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
 		ListeningAttribValue attribValue = new ListeningAttribValue();
@@ -414,6 +430,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 	}
 
+	@Test
 	public void testUnbindNotifiesValueIfIsHttpSessionBindingListener() {
 		MySession session = createSession();
 		ListeningAttribValue attribValue = new ListeningAttribValue();
@@ -422,7 +439,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		HttpSessionBindingEvent event = attribValue.httpSessionValueUnboundInvokedWith.get(0);
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 	}
-	
+
+	@Test
 	public void testBindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
 		ListeningAttribValue attribValue = new ListeningAttribValue();
@@ -432,6 +450,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 	}
 
+	@Test
 	public void testBindNotifiesValueIfIsHttpSessionBindingListener() {
 		MySession session = createSession();
 		ListeningAttribValue attribValue = new ListeningAttribValue();
@@ -441,6 +460,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 	}
 
+	@Test
 	public void testNonPortableAttributesStoreAndRetrieve() {
 		MySession session = createSession();
 		String value = "VALUE";
@@ -451,7 +471,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEquals(value,session.getAttribute("SESSION_KEY"));
 		assertEquals(value,session.getAttribute("SESSION_KEY_2"));
 	}
-	
+
+	@Test
 	public void testNonPortableBindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
 		System.setProperty("sakai.cluster.terracotta","true");
@@ -462,7 +483,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 		System.setProperty("sakai.cluster.terracotta","false");
 	}
-	
+
+	@Test
 	public void testNonPortableUnbindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
 		System.setProperty("sakai.cluster.terracotta","true");
@@ -473,7 +495,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEventState(event, "SESSION_KEY", session, attribValue);
 		System.setProperty("sakai.cluster.terracotta","false");
 	}
-	
+
+	@Test
 	public void testNonPortableRemoveAttributeReleasesAttributeAndFiresUnbind() {
 		System.setProperty("sakai.cluster.terracotta","true");
 		MyTestableSession session = createSession();
@@ -490,6 +513,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		System.setProperty("sakai.cluster.terracotta","false");
 	}
 
+	@Test
 	public void testNonPortableClearUnbindsAttributes() {
 		final MyTestableSession session = createSession();
 		System.setProperty("sakai.cluster.terracotta","true");
@@ -502,7 +526,63 @@ public class MySessionTest extends BaseSessionComponentTest {
 		});
 		System.setProperty("sakai.cluster.terracotta","false");
 	}
-	
+
+	@Test
+	public void testConcurrentInvalidation() {
+		final MyTestableSession session = createSession();
+		Collection<ListeningAttribValue> attribValues =
+			new ArrayList<ListeningAttribValue>();
+		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_1"));
+		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_2"));
+		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_3"));
+		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_4"));
+		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_5"));
+		final Set<Throwable> failures = Collections.synchronizedSet(new HashSet<Throwable>());
+		final int workersCnt = 5;
+		final CyclicBarrier invalidateBarrier = new CyclicBarrier(workersCnt);
+		final CyclicBarrier testExitBarrier = new CyclicBarrier(workersCnt + 1);
+		class Worker extends Thread {
+			public void run() {
+				try {
+					invalidateBarrier.await(10, TimeUnit.SECONDS);
+					session.invalidate();
+				} catch ( Throwable t ) {
+					failures.add(t);
+				} finally {
+					try {
+						testExitBarrier.await();
+					} catch ( Throwable t ) {}
+				}
+			}
+		}
+		allowGetAndUnsetCurrentSession(session);
+		Worker[] workers = new Worker[workersCnt];
+		for ( int p = 0; p < workersCnt; p++) {
+			workers[p] = new Worker();
+			workers[p].start();
+		}
+		try {
+			testExitBarrier.await();
+		} catch ( InterruptedException e ) {
+		} catch ( BrokenBarrierException e ) {}
+
+		// Wait for all worker threads to complete deterministically
+		for (Worker worker : workers) {
+			try {
+				worker.join();
+			} catch (InterruptedException e) {
+				// Re-throw as RuntimeException to fail the test immediately on interruption
+				throw new RuntimeException("Test interrupted while waiting for worker thread completion", e);
+			}
+		}
+
+		assertEquals(Collections.synchronizedSet(new HashSet<Throwable>()), failures);
+		for ( ListeningAttribValue attribValue : attribValues ) {
+			assertEquals(1, attribValue.httpSessionValueUnboundInvokedWith.size());
+			assertEquals(1, attribValue.sessionValueUnboundInvokedWith.size());
+		}
+	}
+
 	protected void assertEventState(SessionBindingEvent event, String name,
 			MySession session, Object value) {
 		assertEquals(name, event.getName());
@@ -595,72 +675,6 @@ public class MySessionTest extends BaseSessionComponentTest {
 	
 	protected void assertHasNoAttributes(MySession session) {
 		assertFalse(session.getAttributeNames().hasMoreElements());
-	}
-
-	/**
-	 * Verifies that multiple {@link MySession#invalidate()} calls can proceed
-	 * concurrently without error and with the session properly invalidated
-	 * after all threads return. This turns out to be quite difficult to test
-	 * reliably, even with knowledge of the implementation. In fact, you can't get
-	 * the following test to fail, even if you remove all explicit concurrency
-	 * precautions in <code>MySession.invalidate()</code>. It will fail, though,
-	 * if sleep times are injected after taking a local copies of the attribute
-	 * map, though. So, at best this test will catch truly gross errors, but
-	 * for the most part is dead-weight.
-	 */
-	public void testConcurrentInvalidation() {
-		final MyTestableSession session = createSession();
-		Collection<ListeningAttribValue> attribValues =
-			new ArrayList<ListeningAttribValue>();
-		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_1"));
-		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_2"));
-		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_3"));
-		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_4"));
-		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_5"));
-		final Set<Throwable> failures = Collections.synchronizedSet(new HashSet<Throwable>());
-		final int workersCnt = 5;
-		final CyclicBarrier invalidateBarrier = new CyclicBarrier(workersCnt);
-		final CyclicBarrier testExitBarrier = new CyclicBarrier(workersCnt + 1);
-		class Worker extends Thread {
-			public void run() {
-				try {
-					invalidateBarrier.await(10, TimeUnit.SECONDS);
-					session.invalidate();
-				} catch ( Throwable t ) {
-					failures.add(t);
-				} finally {
-					try {
-						testExitBarrier.await();
-					} catch ( Throwable t ) {}
-				}
-			}
-		}
-		allowGetAndUnsetCurrentSession(session);
-		Worker[] workers = new Worker[workersCnt];
-		for ( int p = 0; p < workersCnt; p++) {
-			workers[p] = new Worker();
-			workers[p].start();
-		}
-		try {
-			testExitBarrier.await();
-		} catch ( InterruptedException e ) {
-		} catch ( BrokenBarrierException e ) {}
-		
-		// Wait for all worker threads to complete deterministically
-		for (Worker worker : workers) {
-			try {
-				worker.join();
-			} catch (InterruptedException e) {
-				// Re-throw as RuntimeException to fail the test immediately on interruption
-				throw new RuntimeException("Test interrupted while waiting for worker thread completion", e);
-			}
-		}
-		
-		assertEquals(Collections.synchronizedSet(new HashSet<Throwable>()), failures);
-		for ( ListeningAttribValue attribValue : attribValues ) {
-			assertEquals(1, attribValue.httpSessionValueUnboundInvokedWith.size());
-			assertEquals(1, attribValue.sessionValueUnboundInvokedWith.size());
-		}
 	}
 
 	private static class MyTestableSession extends MySession {

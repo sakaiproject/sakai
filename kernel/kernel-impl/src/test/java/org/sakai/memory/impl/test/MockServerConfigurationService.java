@@ -192,11 +192,6 @@ public class MockServerConfigurationService implements
 		return null;
 	}
 
-	public String getUserHomeUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public String getRawProperty(String name) {
 		// TODO Auto-generated method stub
 		return null;

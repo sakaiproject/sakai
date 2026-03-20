@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +111,9 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-@Setter @Slf4j
+@Setter
+@Slf4j
+@Transactional
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao, PortalSubPageNavProvider {
 
 	private AuthzGroupService authzGroupService;
@@ -1709,7 +1712,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
 	    final Map<String,String> objectMap = new HashMap<String, String>();
-	    sqlService.dbRead("select a.sakaiId,a.alt from lesson_builder_items a, lesson_builder_pages b where a.pageId=b.pageId and b.siteId=? and a.type in (3,4,8)", fields, new SqlReader() {
+	    sqlService.dbRead("select a.sakaiId,a.alt from lesson_builder_items a, lesson_builder_pages b where a.pageId=b.pageId and b.siteId=? and a.type in (3,4,8,21)", fields, new SqlReader() {
 		    public Object readSqlResultRecord(ResultSet result) {
     			try {
 			    String newObject = result.getString(1);

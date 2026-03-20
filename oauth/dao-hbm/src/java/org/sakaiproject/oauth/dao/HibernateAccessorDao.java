@@ -25,7 +25,9 @@ import java.util.List;
 
 import org.sakaiproject.oauth.domain.Accessor;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class HibernateAccessorDao extends HibernateDaoSupport implements AccessorDao {
     @Override
     public void create(final Accessor accessor) {

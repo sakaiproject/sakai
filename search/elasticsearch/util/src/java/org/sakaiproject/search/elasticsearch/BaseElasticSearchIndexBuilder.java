@@ -96,6 +96,7 @@ import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.springframework.util.Assert;
@@ -803,7 +804,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                                          EntityContentProducer ecp,
                                          boolean includeContent) throws NoContentException, IOException {
         if (includeContent || testMode) {
-            String content = ecp.getContent(resourceName);
+            String content = SearchUtils.stripHtml(ecp.getContent(resourceName));
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
             if (StringUtils.isNotBlank(content)) {
                 contentSourceBuilder

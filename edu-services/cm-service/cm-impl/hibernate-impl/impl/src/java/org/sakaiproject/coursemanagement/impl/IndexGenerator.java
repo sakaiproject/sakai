@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -33,18 +34,18 @@ import org.sakaiproject.db.api.SqlService;
  *
  */
 @Slf4j
-public abstract class IndexGenerator {
-	public abstract SqlService sqlService();
-	public abstract ServerConfigurationService scs();
+public class IndexGenerator {
+	@Setter public SqlService sqlService;
+	@Setter public ServerConfigurationService scs;
 	
 	public void init() {
-		if(log.isInfoEnabled()) log.info("init()");
-		if(scs().getBoolean("auto.ddl", true)) {
-			sqlService().ddl(this.getClass().getClassLoader(), "sakai_cm_index");
+		log.info("init()");
+		if(scs.getBoolean("auto.ddl", true)) {
+			sqlService.ddl(this.getClass().getClassLoader(), "sakai_cm_index");
 		}
 	}
 	
 	public void destroy() {
-		if(log.isInfoEnabled()) log.info("destroy()");
+		log.info("destroy()");
 	}
 }

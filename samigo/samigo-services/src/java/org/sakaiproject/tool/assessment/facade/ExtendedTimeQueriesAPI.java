@@ -66,6 +66,16 @@ public interface ExtendedTimeQueriesAPI {
     List<ExtendedTime> getEntriesForPub(PublishedAssessmentIfc pub);
 
     /**
+     * Gets relevant extended-time entries for a batch of published assessments.
+     *
+     * @param publishedAssessmentIds the published assessment ids
+     * @param userId the user id
+     * @param groupIds the user's site group ids
+     * @return the matching entries
+     */
+    List<ExtendedTime> getEntriesForPublishedAssessments(List<Long> publishedAssessmentIds, String userId, List<String> groupIds);
+
+    /**
      * Gets an extended-time entry for a published assessment and user.
      *
      * @param pub the published assessment

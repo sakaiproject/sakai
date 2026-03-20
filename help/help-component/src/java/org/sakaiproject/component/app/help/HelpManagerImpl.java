@@ -86,13 +86,15 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -102,6 +104,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@Transactional(transactionManager = "helpTransactionManager")
 public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 {
 
@@ -122,7 +125,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	private static String HELP_BASENAME = "help";
 	private static String DEFAULT_LOCALE = "default";
 
-	private RestConfiguration restConfiguration;
 
 	// Map which contains all localized help toc
 	private Map<String, TableOfContentsBean> toc;
@@ -133,28 +135,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	private Boolean initialized = Boolean.FALSE;
 	private Object initializedLock = new Object();
 
-	private String supportEmailAddress;
+    @Getter @Setter private String supportEmailAddress;
 
-	private ToolManager toolManager;
-	private HibernateTransactionManager txManager;
+    @Setter private PreferencesService  preferencesService;
+    @Getter @Setter private RestConfiguration restConfiguration;
+	@Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private ToolManager toolManager;
+    @Setter private UserDirectoryService userDirectoryService;
 
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService s)
-	{
-		serverConfigurationService = s;
-	}
-
-	private PreferencesService  preferencesService;
-	public void setPreferencesService(PreferencesService preferencesService) {
-		this.preferencesService = preferencesService;
-	}
-
-	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	/**
+    /**
 	 * Store resource
 	 * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.app.help.Resource)
 	 */
@@ -600,67 +589,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 	}
 
-	/**
-	 * Get Support Email Address.
-	 * @see org.sakaiproject.api.app.help.HelpManager#getSupportEmailAddress()
-	 */
-	public String getSupportEmailAddress()
-	{
-		return supportEmailAddress;
-	}
-
-	/**
-	 * set Support Email Address.
-	 * @param email
-	 */
-	public void setSupportEmailAddress(String email)
-	{
-		this.supportEmailAddress = email;
-	}
-
-	/**
-	 * get tool manager
-	 * @return Returns the toolManager.
-	 */
-	public ToolManager getToolManager()
-	{
-		return toolManager;
-	}
-
-	/**
-	 * set tool manager
-	 * @param toolManager The toolManager to set.
-	 */
-	public void setToolManager(ToolManager toolManager)
-	{
-		this.toolManager = toolManager;
-	}
-
-	/**
-	 * @param txManager The txManager to set.
-	 */
-	public void setTxManager(HibernateTransactionManager txManager)
-	{
-		this.txManager = txManager;
-	}
-
-	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#getRestConfiguration()
-	 */
-	public RestConfiguration getRestConfiguration()
-	{
-		return restConfiguration;
-	}
-
-	/**
-	 * set REST configuration
-	 * @param restConfiguration
-	 */
-	public void setRestConfiguration(RestConfiguration restConfiguration)
-	{
-		this.restConfiguration = restConfiguration;
-	}
-
 
 	/**
 	 * Reinitialize help content from UI
@@ -730,11 +658,17 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	private void dropExistingContent() {
-		log.debug("Delete existing content from SAKAI_HELP_CATEGORY_T");
-		new TransactionTemplate(txManager).executeWithoutResult((status) ->
-			getHibernateTemplate().execute(session -> session
-					.createQuery("delete CategoryBean")
-					.executeUpdate()));
+		log.debug("Delete existing content from SAKAI_HELP_RESOURCE_T and SAKAI_HELP_CATEGORY_T");
+		getHibernateTemplate().execute(session -> {
+			// Delete resources first due to foreign key constraint
+			session.createQuery("delete ResourceBean").executeUpdate();
+			session.createQuery("delete CategoryBean").executeUpdate();
+			return null;
+		});
+
+		initialized = Boolean.FALSE;
+		toc = null;
+		locales = null;
 	}
 
 	/**

@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,7 @@ import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
+
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -141,29 +140,14 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		return o;
 	}
 
-	public boolean isContentFromReader(String cr)
-	{
-		return false;
-	}
-
-	public Reader getContentReader(String reference)
-	{
-		return null;
-	}
-
 	public String getContent(String reference)
 	{
-		
+
 		long id = idFromRef(reference);
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 		if (item != null) {
-			StringBuilder sb = new StringBuilder();
-			for (HTMLParser hp = new HTMLParser(item.getHtml()); hp.hasNext();)
-			{
-				SearchUtils.appendCleanString(hp.next(), sb);
-			}
-			return sb.toString();
+			return item.getHtml();
         }
 		else {
 			log.info("Could not getContent for reference  "+id);

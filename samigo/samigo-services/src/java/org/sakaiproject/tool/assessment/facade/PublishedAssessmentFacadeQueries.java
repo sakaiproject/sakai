@@ -84,11 +84,13 @@ import org.springframework.context.annotation.DeferredImportSelector.Group.Entry
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
 
 	@Setter private SiteService siteService;
@@ -1606,6 +1608,37 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
         }
         return null;
     }
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label) {
+		if (publishedAssessmentIds == null || publishedAssessmentIds.isEmpty() || org.apache.commons.lang3.StringUtils.isBlank(label)) {
+			return Collections.emptyMap();
+		}
+
+			HibernateCallback<Map<Long, String>> hcb = session -> {
+				Query<Object[]> query = session.createQuery(
+						"select m.assessment.publishedAssessmentId, m.entry "
+								+ "from PublishedMetaData m "
+								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
+								+ "and m.label = :label "
+								+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
+						Object[].class);
+			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
+			query.setParameter("label", label);
+
+			return query.list().stream()
+				.collect(Collectors.toMap(
+					row -> (Long) row[0],
+					row -> (String) row[1],
+					// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
+					(existing, replacement) -> replacement,
+					LinkedHashMap::new
+				));
+		};
+
+		return getHibernateTemplate().execute(hcb);
+	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();

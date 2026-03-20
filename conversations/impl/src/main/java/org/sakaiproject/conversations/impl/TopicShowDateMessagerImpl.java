@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.conversations.api.ConversationsEvents;
+import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.Permissions;
@@ -86,7 +86,7 @@ public class TopicShowDateMessagerImpl implements TopicShowDateMessager {
 
         String reference = ConversationsReferenceReckoner.reckoner().siteId(topic.getSiteId()).type("t").id(topic.getId()).reckon().getReference();
 
-        ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
+        ConversationsEvent event = isNew ? ConversationsEvent.TOPIC_CREATED : ConversationsEvent.TOPIC_UPDATED;
         eventTrackingService.post(eventTrackingService.newEvent(event.label, reference, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
 
         try {

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
 
     <bean id="testPropertiesConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -20,43 +24,13 @@
 	</bean>
 
     <bean id="assessmentGradingFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="proxyTargetClass" value="true"/>
-        <property name="transactionManager">
-            <bean class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-                <property name="sessionFactory" ref="sessionFactory"/>
-            </bean>
-        </property>
-        <property name="target">
-            <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
-                <property name="sessionFactory" ref="sessionFactory"/>
-            </bean>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
+          class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
     <bean id="itemFacadeQueries"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="proxyTargetClass" value="true"/>
-        <property name="transactionManager">
-            <bean class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-                <property name="sessionFactory" ref="sessionFactory"/>
-            </bean>
-        </property>
-        <property name="target">
-            <bean class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
-                <property name="sessionFactory" ref="sessionFactory"/>
-            </bean>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
+          class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
     <bean id="sessionFactory"
@@ -85,6 +59,11 @@
                 <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
 </beans>

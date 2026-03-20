@@ -28,37 +28,13 @@
     </bean>
 
     <bean id="org.sakaiproject.oauth.dao.AccessorDao"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager"
-                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-        <property name="target">
-            <bean class="org.sakaiproject.oauth.dao.HibernateAccessorDao">
-                <property name="sessionFactory"
-                          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-            </bean>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
+          class="org.sakaiproject.oauth.dao.HibernateAccessorDao">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="org.sakaiproject.oauth.dao.ConsumerDao"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager"
-                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-        <property name="target">
-            <bean class="org.sakaiproject.oauth.dao.HibernateConsumerDao">
-                <property name="sessionFactory"
-                          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-            </bean>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
+          class="org.sakaiproject.oauth.dao.HibernateConsumerDao">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="org.sakaiproject.oauth.service.OAuthHttpService" class="org.sakaiproject.oauth.service.OAuthHttpServiceImpl">
@@ -76,18 +52,19 @@
         </property>
     </bean>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject">
-            <bean class="org.sakaiproject.oauth.service.Util"/>
-        </property>
-        <property name="targetMethod" value="importConsumers"/>
-        <property name="arguments">
-            <list>
-                <bean class="org.sakaiproject.oauth.dao.ServerConfigConsumerDao">
-                    <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-                </bean>
-                <ref bean="org.sakaiproject.oauth.dao.ConsumerDao"/>
-            </list>
-        </property>
+    <bean id="org.sakaiproject.oauth.service.Util"
+          class="org.sakaiproject.oauth.service.Util"/>
+
+    <bean id="org.sakaiproject.oauth.dao.ServerConfigConsumerDao"
+          class="org.sakaiproject.oauth.dao.ServerConfigConsumerDao">
+        <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="oauthConsumerImporter"
+          class="org.sakaiproject.oauth.service.OAuthConsumerImporter"
+          init-method="init"
+          depends-on="org.sakaiproject.oauth.dao.ConsumerDao">
+        <property name="serverConfigConsumerDao" ref="org.sakaiproject.oauth.dao.ServerConfigConsumerDao"/>
+        <property name="consumerDao" ref="org.sakaiproject.oauth.dao.ConsumerDao"/>
     </bean>
 </beans>

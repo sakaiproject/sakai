@@ -119,6 +119,19 @@ public class SubmitToGradingActionListener implements ActionListener {
 			DeliveryBean delivery = (DeliveryBean) ContextUtil
 					.lookupBean("delivery");
 
+			// Always refresh the published assessment before grading so a student
+			// cannot submit against stale answer hashes after an instructor republish.
+			PublishedAssessmentFacade publishedAssessment = publishedAssesmentService.getPublishedAssessment(delivery.getAssessmentId());
+			if (publishedAssessment == null) {
+				log.error("Unable to submit assessment {} for grading because no published assessment was found", delivery.getAssessmentId());
+				throw new DataException("Published assessment not found for assessmentId " + delivery.getAssessmentId());
+			}
+			delivery.setPublishedAssessment(publishedAssessment);
+			// Clear cached hashes so DeliveryBean lazily rebuilds them from the refreshed published assessment.
+			delivery.setPublishedItemHash(new HashMap<>());
+			delivery.setPublishedItemTextHash(new HashMap<>());
+			delivery.setPublishedAnswerHash(new HashMap<>());
+
 			for (ItemGradingData checkIGD : delivery.getAssessmentGrading().getItemGradingSet()) {
 				Long itemId = checkIGD.getPublishedItemId();
 				ItemDataIfc item = (ItemDataIfc) delivery.getPublishedItemHash().get(itemId);
@@ -132,16 +145,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 							.equals(ContextUtil.lookupParam("showfeedbacknow")) || delivery
 					.getActionMode() == DeliveryBean.PREVIEW_ASSESSMENT))
 				delivery.setForGrade(false);
-			
-			// get assessment
-			PublishedAssessmentFacade publishedAssessment;
-			if (delivery.getPublishedAssessment() != null)
-				publishedAssessment = delivery.getPublishedAssessment();
-			else {
-				publishedAssessment = publishedAssesmentService
-						.getPublishedAssessment(delivery.getAssessmentId());
-				delivery.setPublishedAssessment(publishedAssessment);
-			}
 			
 			Map invalidFINMap = new HashMap();
 			List invalidSALengthList = new ArrayList();

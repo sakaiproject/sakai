@@ -152,6 +152,11 @@ public interface LessonEntity {
     // checks to see if the underlying assignment, etc, actually exists
     public boolean objectExists();
 
+    // returns false if the backing service is not deployed (e.g. SCORM player not installed)
+    default public boolean isServiceDeployed() {
+	return true;
+    }
+
     // currently used only for Samigo. What's different about Samigo's
     // unpublished items is that they don't exist as published assessments
     // at all, so we can't produce a reference to it.

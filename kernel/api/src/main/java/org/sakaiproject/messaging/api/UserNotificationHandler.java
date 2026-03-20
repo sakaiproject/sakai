@@ -34,6 +34,9 @@ import org.sakaiproject.event.api.Event;
  */
 public interface UserNotificationHandler {
 
-    public List<String> getHandledEvents();
-    public Optional<List<UserNotificationData>> handleEvent(Event e);
+    List<String> getHandledEvents();
+    Optional<List<UserNotificationData>> handleEvent(Event e);
+    default String getTitle(String event, String reference) {
+      return "";
+    }
 }

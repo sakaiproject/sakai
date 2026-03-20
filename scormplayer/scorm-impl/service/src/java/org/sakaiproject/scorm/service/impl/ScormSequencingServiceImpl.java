@@ -17,6 +17,7 @@ package org.sakaiproject.scorm.service.impl;
 
 import javax.swing.tree.TreeModel;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.api.ecmascript.APIErrorManager;
@@ -49,27 +50,24 @@ import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public abstract class ScormSequencingServiceImpl implements ScormSequencingService
-{
-	// Data access objects (also dependency injected by lookup method)
-	protected abstract ActivityTreeHolderDao activityTreeHolderDao();
-	protected abstract AttemptDao attemptDao();
-	protected abstract DataManagerDao dataManagerDao();
+@Transactional
+public class ScormSequencingServiceImpl implements ScormSequencingService {
 
-	// Local utility bean (also dependency injected by lookup method)
-	protected abstract ADLConsultant adlManager();
-
-	// Dependency injection lookup methods
-	protected abstract LearningManagementSystem lms();
-	protected abstract ScormContentService scormContentService();
+	@Setter protected ActivityTreeHolderDao activityTreeHolderDao;
+	@Setter protected AttemptDao attemptDao;
+	@Setter protected DataManagerDao dataManagerDao;
+	@Setter protected ADLConsultant adlManager;
+	@Setter protected LearningManagementSystem lms;
+	@Setter protected ScormContentService scormContentService;
 
 	IValidatorFactory validatorFactory = new ValidatorFactory();
 
 	private ISeqActivity getActivity(SessionBean sessionBean)
 	{
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+		ISeqActivityTree tree = adlManager.getActivityTree(sessionBean);
 		if (tree != null)
 		{
 			String activityId = sessionBean.getActivityId();
@@ -177,7 +175,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			log.error("Session bean should be populated with content package and learner id");
 		}
 
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+		ISeqActivityTree tree = adlManager.getActivityTree(sessionBean);
 		if (tree.getSuspendAll() != null && request == SeqNavRequests.NAV_START)
 		{
 			request = SeqNavRequests.NAV_RESUMEALL;
@@ -188,18 +186,18 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			ScoBean displayingSco = sessionBean.getDisplayingSco();
 			if (displayingSco != null)
 			{
-				IDataManager dataManager = dataManagerDao().load(displayingSco.getDataManagerId());
+				IDataManager dataManager = dataManagerDao.load(displayingSco.getDataManagerId());
 				if (dataManager != null)
 				{
 					DMInterface.processSetValue("adl.nav.request", "_none_", true, dataManager, validatorFactory);
-					dataManagerDao().update(dataManager);
+					dataManagerDao.update(dataManager);
 				}
 			}
 		}
 
-		ISequencer sequencer = adlManager().getSequencer(tree);
+		ISequencer sequencer = adlManager.getSequencer(tree);
 		ILaunch launch = sequencer.navigate(request);
-		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager.getManifest(sessionBean);
 
 		update(sessionBean, sequencer, launch, manifest);
 		String result = launch.getLaunchStatusNoContent();
@@ -278,7 +276,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 
 		if (attempt != null)
 		{
-			attemptDao().save(attempt);
+			attemptDao.save(attempt);
 		}
 
 		// Very important, call AFTER session bean values are set!
@@ -301,10 +299,10 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 
 		log.debug("navigate ({})", choiceRequest);
 
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
-		ISequencer sequencer = adlManager().getSequencer(tree);
+		ISeqActivityTree tree = adlManager.getActivityTree(sessionBean);
+		ISequencer sequencer = adlManager.getSequencer(tree);
 		ILaunch launch = sequencer.navigate(choiceRequest);
-		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager.getManifest(sessionBean);
 
 		update(sessionBean, sequencer, launch, manifest);
 
@@ -317,14 +315,14 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	@Override
 	public void navigateToActivity(String activityId, SessionBean sessionBean, INavigable agent, Object target)
 	{
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
-		ISequencer sequencer = adlManager().getSequencer(tree);
+		ISeqActivityTree tree = adlManager.getActivityTree(sessionBean);
+		ISequencer sequencer = adlManager.getSequencer(tree);
 		sessionBean.setActivityId(activityId);
 
 		log.debug("navigate ({})", sessionBean.getActivityId());
 
 		ILaunch launch = sequencer.navigate(sessionBean.getActivityId());
-		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager.getManifest(sessionBean);
 
 		update(sessionBean, sequencer, launch, manifest);
 
@@ -337,7 +335,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	@Override
 	public SessionBean newSessionBean(ContentPackage contentPackage)
 	{
-		String learnerId = lms().currentLearnerId();
+		String learnerId = lms.currentLearnerId();
 		SessionBean sessionBean = new SessionBean(learnerId, contentPackage);
 		IErrorManager errorManager = new APIErrorManager(IErrorManager.SCORM_2004_API);
 		sessionBean.setErrorManager(errorManager);
@@ -390,6 +388,6 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			log.debug("Activity is null!!!");
 		}
 
-		activityTreeHolderDao().save(treeHolder);
+		activityTreeHolderDao.save(treeHolder);
 	}
 }

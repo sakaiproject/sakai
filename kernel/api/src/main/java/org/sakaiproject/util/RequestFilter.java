@@ -70,6 +70,10 @@ public class RequestFilter implements Filter
 	/** The request attribute name used to ask the RequestFilter to output
 	 * a client cookie at the end of the request cycle. */
 	public static final String ATTR_SET_COOKIE = "sakai.set.cookie";
+	/** Request attribute storing Tomcat request parameter parse failure reason. */
+	public static final String ATTR_PARAMETER_PARSE_FAILED_REASON = "sakai.request.parameterParseFailedReason";
+	/** Request attribute flag indicating Tomcat parse failure has already been reported for this request. */
+	public static final String ATTR_PARAMETER_PARSE_FAILED_REPORTED = "sakai.request.parameterParseFailedReported";
 	/** The request attribute name (and value) used to indicated that the request has been filtered. */
 	public static final String ATTR_FILTERED = "sakai.filtered";
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
@@ -98,20 +102,12 @@ public class RequestFilter implements Filter
 	 */
 	public static final String CONFIG_UPLOAD_ENABLED = "upload.enabled";
 	/**
-	 * Config parameter to control the maximum allowed upload size (in MEGABYTES) from the browser.<br />
-	 * If defined on the filter, overrides the system property. Default is 1 (one megabyte).<br />
-	 * This is an aggregate limit on the sum of all files included in a single request.<br />
-	 * Also used as a per-request request parameter, encoded in the URL, to set the max for that particular request.
-	 */
-	public static final String CONFIG_UPLOAD_MAX = "upload.max";
-	/**
 	 * System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This
 	 * is an aggregate limit on the sum of all files included in a single request.
 	 */
 	public static final String SYSTEM_UPLOAD_MAX = "sakai.content.upload.max";
 	/**
-	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request
-	 * filter, or per-request.
+	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method.
 	 */
 	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
 	/**
@@ -201,7 +197,10 @@ public class RequestFilter implements Filter
 
 	/** The name of the Sakai property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
-
+	/** Tomcat request attribute indicating request parameter parsing failed. */
+	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED = "org.apache.catalina.parameter_parse_failed";
+	/** Tomcat request attribute indicating reason request parameter parsing failed. */
+	protected static final String TOMCAT_ATTR_PARAMETER_PARSE_FAILED_REASON = "org.apache.catalina.parameter_parse_failed_reason";
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
 
@@ -466,6 +465,7 @@ public class RequestFilter implements Filter
 
 					// make sure we have a session
 					Session s = assureSession(req, resp);
+					surfaceTomcatParameterParseFailure(req);
 
 					// pre-process request
 					req = preProcessRequest(s, req);
@@ -489,20 +489,34 @@ public class RequestFilter implements Filter
 					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
 					if (TERRACOTTA_CLUSTER) {
 						synchronized(s) {
-							// Pass control on to the next filter or the servlet
-							chain.doFilter(req, resp);
+							try {
+								// Pass control on to the next filter or the servlet
+								chain.doFilter(req, resp);
 
-							// post-process response
-							postProcessResponse(s, req, resp);
+								// post-process response
+								postProcessResponse(s, req, resp);
+							} finally {
+								// Tomcat may only set these attributes once form parameters are parsed downstream.
+								surfaceTomcatParameterParseFailure(req);
+							}
 						}
 					} else {
 						// Pass control on to the next filter or the servlet
 						try {
-							chain.doFilter(req, resp);
+							try {
+								chain.doFilter(req, resp);
 
-							// post-process response
-							postProcessResponse(s, req, resp);
+								// post-process response
+								postProcessResponse(s, req, resp);
+							} finally {
+								// Tomcat may only set these attributes once form parameters are parsed downstream.
+								surfaceTomcatParameterParseFailure(req);
+							}
 						} catch (Exception e) {
+							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
+									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
+							log.debug("Unhandled exception request diagnostics: hasQuery={}",
+									req.getQueryString() != null && !req.getQueryString().isEmpty());
 							if (log.isDebugEnabled()) throw e;
 						}
 					}
@@ -584,6 +598,37 @@ public class RequestFilter implements Filter
 				log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
+	}
+
+	protected void surfaceTomcatParameterParseFailure(HttpServletRequest req)
+	{
+		if (req.getAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED) != null)
+		{
+			return;
+		}
+
+		Object parseFailed = req.getAttribute(TOMCAT_ATTR_PARAMETER_PARSE_FAILED);
+		if (!isTomcatParseFailure(parseFailed))
+		{
+			return;
+		}
+
+		Object reasonObj = req.getAttribute(TOMCAT_ATTR_PARAMETER_PARSE_FAILED_REASON);
+		String reason = reasonObj == null ? "UNKNOWN" : reasonObj.toString();
+
+		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REASON, reason);
+		log.error("CRITICAL: Tomcat request parameter parsing failed: reason={}, method={}, uri={}. "
+				+ "Review Tomcat request parsing limits, especially maxPartCount for multipart submissions.",
+				reason, req.getMethod(), req.getRequestURI());
+		log.debug("Tomcat parse-failure diagnostics: hasQuery={}, hasRemoteAddr={}",
+				req.getQueryString() != null && !req.getQueryString().isEmpty(),
+				req.getRemoteAddr() != null && !req.getRemoteAddr().isEmpty());
+		req.setAttribute(ATTR_PARAMETER_PARSE_FAILED_REPORTED, Boolean.TRUE);
+	}
+
+	protected boolean isTomcatParseFailure(Object parseFailed)
+	{
+		return Boolean.parseBoolean(String.valueOf(parseFailed));
 	}
 
 	/**
@@ -789,12 +834,6 @@ public class RequestFilter implements Filter
 			m_uploadCeiling = m_uploadMaxSize;
 		}
 
-		// if the maximum allowed upload size is configured on the filter, it overrides the system property
-		if (filterConfig.getInitParameter(CONFIG_UPLOAD_MAX) != null)
-		{
-			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX).trim()).longValue() * 1024L * 1024L;
-		}
-
 		// get the upload max ceiling that limits any other upload max, if defined
 		if (System.getProperty(SYSTEM_UPLOAD_CEILING) != null)
 		{
@@ -936,21 +975,6 @@ public class RequestFilter implements Filter
 		// set the max upload size
 		long uploadMax = -1;
 		if (m_uploadMaxSize > 0) uploadMax = m_uploadMaxSize;
-
-		// check for request-scoped override to upload.max (value in megs)
-		String override = req.getParameter(CONFIG_UPLOAD_MAX);
-		if (override != null)
-		{
-			try
-			{
-				// get the max in bytes
-				uploadMax = Long.parseLong(override) * 1024L * 1024L;
-			}
-			catch (NumberFormatException e)
-			{
-				log.warn(CONFIG_UPLOAD_MAX + " set to non-numeric: " + override);
-			}
-		}
 
 		// limit to the ceiling
 		if (uploadMax > m_uploadCeiling)

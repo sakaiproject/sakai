@@ -42,6 +42,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
@@ -52,6 +53,7 @@ import lombok.Setter;
  * This class is an implementation of the auto site removal service interface.
  */
 @Slf4j
+@Transactional
 public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements CourseSiteRemovalService {
 
    // class members

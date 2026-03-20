@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.LoadState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -91,15 +93,22 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#modifyPartForm\\:title").fill("Second Part");
         clickSubmit("Save");
 
-        page.locator("#assessmentForm\\:parts a[title=\"Remove Part\"]").last().click(new Locator.ClickOptions().setForce(true));
-        clickSubmit("Remove");
+        clickAndConfirmRemove(
+            page.locator("#assessmentForm\\:parts a[title=\"Remove Part\"]").last(),
+            "removing a part"
+        );
 
-        assertThat(page.locator("label[for=\"assessmentForm\\:parts\\:1\\:number\"]")).hasCount(0);
-        assertThat(page.getByText("Second Part")).hasCount(0);
+        assertThat(page.locator("label[for=\"assessmentForm\\:parts\\:1\\:number\"]"))
+            .hasCount(0, new LocatorAssertions.HasCountOptions().setTimeout(15_000));
+        assertThat(page.getByText("Second Part"))
+            .hasCount(0, new LocatorAssertions.HasCountOptions().setTimeout(15_000));
 
-        page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:deleteitem").click(new Locator.ClickOptions().setForce(true));
-        clickSubmit("Remove");
-        assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(1);
+        clickAndConfirmRemove(
+            page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:deleteitem"),
+            "removing a question"
+        );
+        assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout"))
+            .hasCount(1, new LocatorAssertions.HasCountOptions().setTimeout(15_000));
 
         selectQuestionType(Pattern.compile("calculated", Pattern.CASE_INSENSITIVE));
         page.locator("#itemForm\\:answerptr").fill("10.00");
@@ -132,7 +141,7 @@ class SamigoTest extends SakaiUiTestBase {
         clickFirstVisible(
             page.locator("button:has-text(\"Save Settings and Publish\"), input[type=\"submit\"][value*=\"Save Settings and Publish\"], input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")")
         );
-        maybeClickFirstVisible(
+        clickFirstVisibleIfPresent(
             page.locator("input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Republish\"], button:has-text(\"Republish\")")
         );
 
@@ -144,10 +153,10 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForAssessment();
         assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(2);
 
-        maybeClickFirstVisible(
+        clickFirstVisibleIfPresent(
             page.locator("input[type=\"submit\"][value*=\"Republish\"], button:has-text(\"Republish\"), input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")")
         );
-        maybeClickFirstVisible(
+        clickFirstVisibleIfPresent(
             page.locator("input[type=\"submit\"][value*=\"Republish\"], button:has-text(\"Republish\"), input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")")
         );
     }
@@ -177,9 +186,9 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator(".navViewAction").filter(new Locator.FilterOptions().setHasText("Preview")).first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        maybeClickFirstVisible(page.locator("input[type=\"submit\"][value*=\"Begin Assessment\"]"));
+        clickFirstVisibleIfPresent(page.locator("input[type=\"submit\"][value*=\"Begin Assessment\"]"));
 
-        if (!maybeClickFirstVisible(page.locator(".exit-preview-button, button:has-text(\"Exit\"), a:has-text(\"Exit\"), a:has-text(\"Assessments\")"))) {
+        if (!clickFirstVisibleIfPresent(page.locator(".exit-preview-button, button:has-text(\"Exit\"), a:has-text(\"Exit\"), a:has-text(\"Assessments\")"))) {
             page.navigate(testsUrl);
         }
 
@@ -219,7 +228,7 @@ class SamigoTest extends SakaiUiTestBase {
         saveQuestionAndWaitForAssessment();
 
         clickFirstVisible(page.locator("a:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")"));
-        maybeClickFirstVisible(page.locator("#publishAssessmentForm\\:publish, input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")"));
+        clickFirstVisibleIfPresent(page.locator("#publishAssessmentForm\\:publish, input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")"));
         assertThat(page.locator("body")).containsText(Pattern.compile("Essay with Rubric", Pattern.CASE_INSENSITIVE));
     }
 
@@ -234,8 +243,32 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.toolClick("Tests");
 
         assertThat(page.locator("body")).containsText(Pattern.compile("Assessments|Tests", Pattern.CASE_INSENSITIVE));
-        assertThat(page.locator("body")).containsText(Pattern.compile("Playwright Quiz", Pattern.CASE_INSENSITIVE));
-        assertThat(page.locator("body")).containsText(Pattern.compile("Essay with Rubric", Pattern.CASE_INSENSITIVE));
+        Locator availableAssessmentsTable = page.locator("#selectIndexForm\\:selectTable");
+        assertThat(availableAssessmentsTable).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        Locator availableAssessmentTitles = availableAssessmentsTable.locator("a[id$=':takeAssessment'] .spanValue");
+        assertThat(availableAssessmentTitles.first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+
+        List<String> titles = availableAssessmentTitles.allTextContents().stream()
+            .map(String::trim)
+            .toList();
+        if (!titles.contains(SAMIGO_TITLE) || !titles.contains(ESSAY_TITLE)) {
+            throw new AssertionError("Expected assessment titles not found. Available titles: " + titles);
+        }
+
+        Locator samigoTitle = availableAssessmentTitles.filter(
+            new Locator.FilterOptions().setHasText(SAMIGO_TITLE)
+        );
+        assertThat(samigoTitle).hasCount(1);
+
+        Locator takeAssessmentLink = samigoTitle.locator("xpath=ancestor::a[1]");
+        assertThat(takeAssessmentLink).hasCount(1);
+        takeAssessmentLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+
+        Locator takeAssessmentForm = page.locator("#takeAssessmentForm");
+        assertThat(takeAssessmentForm).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(takeAssessmentForm).containsText(SAMIGO_TITLE);
+        assertThat(takeAssessmentForm).containsText("Begin Assessment");
     }
 
     @Test
@@ -320,10 +353,51 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(page.locator("#editform\\:questionpool-questions")).isVisible();
     }
 
+    private void clickAndConfirmRemove(Locator trigger, String actionDescription) {
+        assertThat(trigger).isVisible();
+        trigger.click();
+
+        if (clickSubmitIfPresent("Remove", 10_000)) {
+            return;
+        }
+
+        // Retry once if the first click landed during UI settling and did not submit.
+        try {
+            trigger.evaluate("el => el.click()");
+        } catch (PlaywrightException ignored) {
+            // Ignore detached element errors; a navigation may already be in progress.
+        }
+
+        if (!clickSubmitIfPresent("Remove", 10_000)) {
+            throw new AssertionError("Expected Remove confirmation submit after " + actionDescription);
+        }
+    }
+
     private void clickSubmit(String label) {
-        Locator submit = page.locator("input[type=\"submit\"][value*=\"" + label + "\"]:visible, button:has-text(\"" + label + "\"):visible").first();
-        assertThat(submit).isVisible();
-        submit.click(new Locator.ClickOptions().setForce(true));
+        if (!clickSubmitIfPresent(label, 10_000)) {
+            throw new AssertionError("No visible submit button found for label: " + label);
+        }
+    }
+
+    private boolean clickSubmitIfPresent(String label) {
+        return clickSubmitIfPresent(label, 5_000);
+    }
+
+    private boolean clickSubmitIfPresent(String label, double timeoutMs) {
+        Locator submit = page.locator("input[type=\"submit\"][value*=\"" + label + "\"], button:has-text(\"" + label + "\")");
+        int submitCount = (int) submit.count();
+        for (int index = 0; index < submitCount; index += 1) {
+            Locator candidate = submit.nth(index);
+            if (!isVisible(candidate, timeoutMs)) {
+                continue;
+            }
+
+            candidate.click(new Locator.ClickOptions().setForce(true));
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            return true;
+        }
+
+        return false;
     }
 
     private void selectQuestionType(Pattern labelPattern) {
@@ -360,14 +434,14 @@ class SamigoTest extends SakaiUiTestBase {
             return;
         }
 
-        maybeClickFirstVisible(page.locator("a:has-text(\"Assessments\")"));
+        clickFirstVisibleIfPresent(page.locator("a:has-text(\"Assessments\")"));
         if (isVisible(assessmentsTable, 10_000)) {
             return;
         }
 
         page.navigate(testsUrl);
         sakai.toolClick("Tests");
-        maybeClickFirstVisible(page.locator("a:has-text(\"Assessments\")"));
+        clickFirstVisibleIfPresent(page.locator("a:has-text(\"Assessments\")"));
         assertThat(assessmentsTable).isVisible();
     }
 
@@ -398,7 +472,7 @@ class SamigoTest extends SakaiUiTestBase {
             ).first();
         }
         clickFirstVisible(editLink);
-        maybeClickFirstVisible(page.locator("input[type=\"submit\"][value*=\"Edit\"], button:has-text(\"Edit\")"));
+        clickFirstVisibleIfPresent(page.locator("input[type=\"submit\"][value*=\"Edit\"], button:has-text(\"Edit\")"));
     }
 
     private void clickFirstVisible(Locator locator) {
@@ -407,14 +481,20 @@ class SamigoTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
-    private boolean maybeClickFirstVisible(Locator locator) {
-        Locator first = locator.first();
-        if (!isVisible(first, 5_000)) {
-            return false;
+    private boolean clickFirstVisibleIfPresent(Locator locator) {
+        int count = (int) locator.count();
+        for (int index = 0; index < count; index += 1) {
+            Locator candidate = locator.nth(index);
+            if (!isVisible(candidate, 5_000)) {
+                continue;
+            }
+
+            candidate.click(new Locator.ClickOptions().setForce(true));
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            return true;
         }
-        first.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        return true;
+
+        return false;
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {

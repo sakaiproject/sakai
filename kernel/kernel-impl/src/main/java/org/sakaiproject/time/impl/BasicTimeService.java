@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.time.api.Time;
@@ -78,36 +80,12 @@ public class BasicTimeService implements TimeService
 	// Map of Timezone/Locales to LocalTzFormat objects
 	private Hashtable<String, LocalTzFormat> M_localeTzMap = new Hashtable<String, LocalTzFormat>();
 
+	@Setter private UserTimeService userTimeService;
+    @Setter private UserLocaleServiceImpl userLocaleService;
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-	private UserTimeService userTimeService;
+    // Can be injected for testing
+	@Getter @Setter private Clock clock = Clock.systemDefaultZone();
 
-	public void setUserTimeService(UserTimeService userTimeService) {
-		this.userTimeService = userTimeService;
-	}
-
-	private UserLocaleServiceImpl userLocaleService;
-
-	public void setUserLocaleService(UserLocaleServiceImpl userLocaleService) {
-		this.userLocaleService = userLocaleService;
-	}
-
-	// Can be injected for testing
-	private Clock clock = Clock.systemDefaultZone();
-
-	public void setClock(Clock clock) {
-		this.clock = clock;
-	}
-
-	public Clock getClock() {
-		return clock;
-	}
-
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
 	public void init()
 	{
 		Objects.requireNonNull(userLocaleService);
@@ -139,9 +117,6 @@ public class BasicTimeService implements TimeService
 
 	}
 
-	/**
-	 * Final cleanup.
-	 */
 	public void destroy()
 	{
 		log.info("destroy()");

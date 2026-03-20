@@ -16,7 +16,10 @@
 package org.sakaiproject.component.app.help;
 
 
-import org.mockito.Mockito;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Properties;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Tool;
@@ -26,26 +29,19 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Properties;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Profile("test")
 @Configuration
+@EnableTransactionManagement
 @ImportResource(locations = {"/datastore.xml", "/help-manager.xml"})
 public class TestContext {
 
     @Bean("org.sakaiproject.user.api.UserDirectoryService")
-    @Primary
     public UserDirectoryService userDirectoryService() {
         UserDirectoryService userDirectoryService =  mock(UserDirectoryService.class);
         User user = mock(User.class);
@@ -55,7 +51,6 @@ public class TestContext {
     }
 
     @Bean("org.sakaiproject.tool.api.ActiveToolManager")
-    @Primary
     public ActiveToolManager activeToolManager() {
         ActiveToolManager toolManager = mock(ActiveToolManager.class);
         Tool tool = mock(Tool.class);
@@ -68,7 +63,6 @@ public class TestContext {
     }
 
     @Bean("org.sakaiproject.component.api.ServerConfigurationService")
-    @Primary
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
         when(serverConfigurationService.getString("help.location")).thenReturn("");
@@ -81,7 +75,6 @@ public class TestContext {
     }
 
     @Bean("org.sakaiproject.user.api.PreferencesService")
-    @Primary
     public PreferencesService preferencesService() {
         PreferencesService preferencesService =  mock(PreferencesService.class);
         when(preferencesService.getLocale("userId")).thenReturn(Locale.ENGLISH);

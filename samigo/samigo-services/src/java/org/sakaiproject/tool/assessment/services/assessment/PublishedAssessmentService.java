@@ -174,6 +174,19 @@ public class PublishedAssessmentService extends AssessmentService{
 		}
 	}
 
+	public Map<Long, String> getAssessmentMetaDataEntriesByLabel(List<Long> publishedAssessmentIds, String label) {
+		if (publishedAssessmentIds == null || publishedAssessmentIds.isEmpty() || StringUtils.isBlank(label)) {
+			return Collections.emptyMap();
+		}
+		try {
+			return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+					.getAssessmentMetaDataEntriesByLabel(publishedAssessmentIds, label);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId, boolean withGroupsInfo) {
 	    try {
 	      return PersistenceService.getInstance().
@@ -1049,5 +1062,34 @@ public class PublishedAssessmentService extends AssessmentService{
 	public void restorePublishedAssessment(Long publishedAssessmentId) {
 		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().restorePublishedAssessment(publishedAssessmentId);
 	}
+
+  /**
+    * Get the list of updated assessments for a given agent and site.
+    * @param agentId the agent id
+    * @param siteId the site id
+    * @return a map contains two sets:
+      * The first set is the list of assessment that are updated and need resubmit
+      * The second set is the list of assessment that are updated but do not need resubmit.
+  */
+  public Map<String, Set<Long>> getUpdatedAssessmentLists(String agentId, String siteId) {
+        GradingService gradingService = new GradingService();
+        // It contains two lists:
+        // The first one is the list of assessment that are updated and need resubmit
+        // The second one is the list of assessment that are updated but do not need resubmit
+        List<Set<Long>> updatedAssessmentList = gradingService.getUpdatedAssessmentList(agentId, siteId);
+
+        Set<Long> needResubmit = new LinkedHashSet<>();
+        Set<Long> updated = new LinkedHashSet<>();
+        if (updatedAssessmentList != null && updatedAssessmentList.size() == 2) {
+            needResubmit = updatedAssessmentList.get(0);
+            updated = updatedAssessmentList.get(1);
+        }
+
+        // Return the two sets in a map
+        Map<String, Set<Long>> map = new HashMap<>();
+        map.put("needResubmit", needResubmit);
+        map.put("updated", updated);
+        return map;
+  }
 
 }

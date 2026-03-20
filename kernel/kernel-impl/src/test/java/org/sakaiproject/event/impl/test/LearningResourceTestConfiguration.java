@@ -15,7 +15,11 @@
  */
 package org.sakaiproject.event.impl.test;
 
+import static org.hibernate.cfg.AvailableSettings.*;
+import static org.hibernate.cfg.AvailableSettings.DIALECT;
+import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -39,11 +43,15 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.event.impl.ActivityServiceImpl;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.log.api.LogConfigurationManager;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -96,20 +104,13 @@ public class LearningResourceTestConfiguration {
 
     @Bean
     public Properties hibernateProperties() {
-        return new Properties() {
-            /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			{
-                setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
-                setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
-                setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
-                setProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE, environment.getProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE));
-                setProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS, environment.getProperty(org.hibernate.cfg.Environment.CURRENT_SESSION_CONTEXT_CLASS));
-            }
-        };
+        Properties properties = new Properties();
+        properties.setProperty(DIALECT, environment.getProperty(DIALECT, HSQLDialect.class.getName()));
+        properties.setProperty(HBM2DDL_AUTO, environment.getProperty(HBM2DDL_AUTO));
+        properties.setProperty(ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(ENABLE_LAZY_LOAD_NO_TRANS, "true"));
+        properties.setProperty(USE_SECOND_LEVEL_CACHE, environment.getProperty(USE_SECOND_LEVEL_CACHE));
+        properties.setProperty(CURRENT_SESSION_CONTEXT_CLASS, environment.getProperty(CURRENT_SESSION_CONTEXT_CLASS));
+        return properties;
     }
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -134,14 +135,11 @@ public class LearningResourceTestConfiguration {
         return mock(EntityManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.event.api.EventTrackingService")
-    public EventTrackingService eventTrackingService() {
-        return mock(EventTrackingService.class);
-    }
-
     @Bean(name = "org.sakaiproject.db.api.SqlService")
     public SqlService sqlService() {
-        return mock(SqlService.class);
+        SqlService sqlService = mock(SqlService.class);
+        when(sqlService.getVendor()).thenReturn("hsqldb");
+        return sqlService;
     }
     
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
@@ -156,12 +154,9 @@ public class LearningResourceTestConfiguration {
     
     @Bean(name = "org.sakaiproject.memory.api.MemoryService")
     public MemoryService memoryService() {
-        return mock(MemoryService.class);
-    }
-    
-    @Bean(name = "org.sakaiproject.event.api.ActivityService")
-    public ActivityService activityService() {
-        return mock(ActivityService.class);
+        MemoryService memoryService = mock(MemoryService.class);
+        when(memoryService.getCache(ActivityServiceImpl.USER_ACTIVITY_CACHE_NAME)).thenReturn(mock(Cache.class));
+        return memoryService;
     }
     
     @Bean(name = "org.sakaiproject.event.api.NotificationService")
@@ -182,8 +177,12 @@ public class LearningResourceTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
-        Mockito.when(scs.getBoolean("lrs.enabled", true)).thenReturn(true);
-        Mockito.when(scs.getInt("lrs.max.threadPool", 10)).thenReturn(2);
+        when(scs.getServerName()).thenReturn("localhost");
+        when(scs.getServerId()).thenReturn("localhost");
+        when(scs.getServerUrl()).thenReturn("http://localhost:8080/");
+        when(scs.getPortalUrl()).thenReturn("http://localhost:8080/portal");
+        when(scs.getBoolean("lrs.enabled", true)).thenReturn(true);
+        when(scs.getInt("lrs.max.threadPool", 10)).thenReturn(2);
         return scs;
     }
 
@@ -200,5 +199,15 @@ public class LearningResourceTestConfiguration {
     @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
     public SchedulingService schedulingService() {
         return mock(SchedulingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.id.api.IdManager")
+    public IdManager idManager() {
+        return mock(IdManager.class);
     }
 }

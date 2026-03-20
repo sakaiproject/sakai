@@ -88,6 +88,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 
 /**
@@ -95,6 +96,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
  * @author plukasew, bjones86, bbailla2
  */
 @Slf4j
+@Transactional
 public class DetailedEventsManagerImpl extends HibernateDaoSupport implements DetailedEventsManager
 {
 	private static final String USER_ID_COL = "userId";

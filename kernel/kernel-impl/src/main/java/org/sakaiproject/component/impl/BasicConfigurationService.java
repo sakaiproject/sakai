@@ -44,6 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -94,20 +95,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * Dependencies
      *********************************************************************************************************************************************************************************************************************************************************/
 
-    /**
-     * the ThreadLocalManager collaborator.
-     */
-    @Setter
-    private ThreadLocalManager threadLocalManager;
-
-    /**
-     * the SessionManager collaborator.
-     */
-    @Setter
-    private SessionManager sessionManager;
-
-    @Setter
-    private SakaiProperties sakaiProperties;
+    @Setter private ThreadLocalManager threadLocalManager;
+    @Setter private SakaiProperties sakaiProperties;
 
     /**********************************************************************************************************************************************************************************************************************************************************
      * Configuration
@@ -362,37 +351,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     public String getToolUrl()
     {
         return getServerUrl() + getConfig("toolPath", "/portal/tool"); //(String) properties.get("toolPath");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getUserHomeUrl()
-    {
-        // get the configured URL (the text "#UID#" will be repalced with the current logged in user id
-        // NOTE: this is relative to the server root
-        String rv = getConfig("userHomeUrl", null); //(String) properties.get("userHomeUrl");
-
-        // form a site based portal id if not configured
-        if (rv == null)
-        {
-            rv = getConfig("portalPath", "/portal") + "/site/~#UID#"; // (String) properties.get("portalPath") + "/site/~#UID#"
-        }
-
-        // check for a logged in user
-        String user = sessionManager.getCurrentSessionUserId();
-        boolean loggedIn = (user != null);
-
-        // if logged in, replace the UID in the pattern
-        if (loggedIn)
-        {
-            rv = rv.replaceAll("#UID#", user);
-        }
-
-        // make it full, adding the server root
-        rv = getServerUrl() + rv;
-
-        return rv;
     }
 
     /**
