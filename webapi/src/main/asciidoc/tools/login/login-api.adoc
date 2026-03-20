@@ -1,7 +1,3 @@
-= Sakai API: Authentication
-:sectnums:
-:toc: left
-
 == Login Controller
 
 This controller handles manual login for external clients or integrations that require an active Sakai session.
