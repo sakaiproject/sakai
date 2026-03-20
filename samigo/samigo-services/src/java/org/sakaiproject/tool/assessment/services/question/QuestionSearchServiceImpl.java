@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.opensearch.action.search.SearchResponse;
@@ -50,11 +51,12 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
     @Setter
     private SiteService siteService;
 
+    // Instantiated with new following samigo convention; @Setter allows overriding in tests
     @Setter
-    private QuestionPoolService questionPoolService;
+    private QuestionPoolService questionPoolService = new QuestionPoolService();
 
     @Setter
-    private AssessmentService assessmentService;
+    private AssessmentService assessmentService = new AssessmentService();
 
     @Override
     public List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic) {
@@ -145,61 +147,11 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return "";
         }
         try {
-            if (result.isFromQuestionPool()) {
-                String cacheKey = "qp:" + result.getQuestionPoolId();
-                if (titleCache != null && titleCache.containsKey(cacheKey)) {
-                    return titleCache.get(cacheKey);
-                }
-                QuestionPoolFacade pool = questionPoolService.getPool(
-                        Long.parseLong(result.getQuestionPoolId()), AgentFacade.getAgentString());
-                if (pool == null) {
-                    return "";
-                }
-                String title = pool.getTitle();
-                if (titleCache != null) {
-                    titleCache.put(cacheKey, title);
-                }
-                return title;
-            }
-
-            if (result.isFromAssessment()) {
-                String siteCacheKey = "site:" + result.getSiteId();
-                String assessmentCacheKey = "assessment:" + result.getAssessmentId();
-
-                String siteTitle;
-                if (titleCache != null && titleCache.containsKey(siteCacheKey)) {
-                    siteTitle = titleCache.get(siteCacheKey);
-                } else {
-                    try {
-                        siteTitle = siteService.getSite(result.getSiteId()).getTitle();
-                        if (titleCache != null) {
-                            titleCache.put(siteCacheKey, siteTitle);
-                        }
-                    } catch (Exception ex) {
-                        return "";
-                    }
-                }
-
-                String assessmentTitle;
-                if (titleCache != null && titleCache.containsKey(assessmentCacheKey)) {
-                    assessmentTitle = titleCache.get(assessmentCacheKey);
-                } else {
-                    AssessmentFacade assessment = assessmentService.getAssessment(result.getAssessmentId());
-                    if (assessment == null) {
-                        return "";
-                    }
-                    assessmentTitle = assessment.getTitle();
-                    if (titleCache != null) {
-                        titleCache.put(assessmentCacheKey, assessmentTitle);
-                    }
-                }
-
-                return siteTitle + " : " + assessmentTitle;
-            }
+            return resolveTitle(result.getQuestionPoolId(), result.getAssessmentId(), result.getSiteId(), titleCache);
         } catch (Exception ex) {
             log.debug("Could not resolve origin for question {}: {}", result.getId(), ex.getMessage());
+            return "";
         }
-        return "";
     }
 
     private Map<String, String> buildBaseSearchParams(boolean andLogic) {
@@ -235,9 +187,9 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
                     String typeId = hit.field("typeId").getValue();
                     String qText = hit.field("qText").getValue();
 
-                    var tags = hit.field("tags") != null
+                    Set<String> tags = hit.field("tags") != null
                             ? hit.field("tags").getValues().stream().map(Object::toString).collect(Collectors.toSet())
-                            : java.util.Set.of();
+                            : Set.of();
 
                     String questionPoolId = getFieldValue(hit, "questionPoolId");
                     String assessmentId = getFieldValue(hit, "assessmentId");
@@ -257,61 +209,68 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
 
     private String extractOrigin(SearchHit hit, Map<String, String> titleCache) {
         try {
-            String qpId = getFieldValue(hit, "questionPoolId");
-            if (qpId != null) {
-                String cacheKey = "qp:" + qpId;
-                if (titleCache != null && titleCache.containsKey(cacheKey)) {
-                    return titleCache.get(cacheKey);
-                }
-                QuestionPoolFacade pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
-                if (pool == null) {
-                    return "";
-                }
-                String title = pool.getTitle();
-                if (titleCache != null) {
-                    titleCache.put(cacheKey, title);
-                }
-                return title;
-            }
-
-            String assessmentId = getFieldValue(hit, "assessmentId");
-            String siteId = getFieldValue(hit, "site");
-            if (assessmentId != null && siteId != null) {
-                String siteCacheKey = "site:" + siteId;
-                String siteTitle;
-                if (titleCache != null && titleCache.containsKey(siteCacheKey)) {
-                    siteTitle = titleCache.get(siteCacheKey);
-                } else {
-                    try {
-                        siteTitle = siteService.getSite(siteId).getTitle();
-                        if (titleCache != null) {
-                            titleCache.put(siteCacheKey, siteTitle);
-                        }
-                    } catch (Exception ex) {
-                        return "";
-                    }
-                }
-
-                String assessmentCacheKey = "assessment:" + assessmentId;
-                String assessmentTitle;
-                if (titleCache != null && titleCache.containsKey(assessmentCacheKey)) {
-                    assessmentTitle = titleCache.get(assessmentCacheKey);
-                } else {
-                    AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-                    if (assessment == null) {
-                        return "";
-                    }
-                    assessmentTitle = assessment.getTitle();
-                    if (titleCache != null) {
-                        titleCache.put(assessmentCacheKey, assessmentTitle);
-                    }
-                }
-
-                return siteTitle + " : " + assessmentTitle;
-            }
+            return resolveTitle(
+                    getFieldValue(hit, "questionPoolId"),
+                    getFieldValue(hit, "assessmentId"),
+                    getFieldValue(hit, "site"),
+                    titleCache);
         } catch (Exception ex) {
             log.debug("Could not extract origin: {}", ex.getMessage());
+            return "";
         }
+    }
+
+    private String resolveTitle(String questionPoolId, String assessmentId, String siteId, Map<String, String> titleCache) {
+        if (questionPoolId != null) {
+            String cacheKey = "qp:" + questionPoolId;
+            if (titleCache != null && titleCache.containsKey(cacheKey)) {
+                return titleCache.get(cacheKey);
+            }
+            QuestionPoolFacade pool = questionPoolService.getPool(Long.parseLong(questionPoolId), AgentFacade.getAgentString());
+            if (pool == null) {
+                return "";
+            }
+            String title = pool.getTitle();
+            if (titleCache != null) {
+                titleCache.put(cacheKey, title);
+            }
+            return title;
+        }
+
+        if (assessmentId != null && siteId != null) {
+            String siteCacheKey = "site:" + siteId;
+            String siteTitle;
+            if (titleCache != null && titleCache.containsKey(siteCacheKey)) {
+                siteTitle = titleCache.get(siteCacheKey);
+            } else {
+                try {
+                    siteTitle = siteService.getSite(siteId).getTitle();
+                    if (titleCache != null) {
+                        titleCache.put(siteCacheKey, siteTitle);
+                    }
+                } catch (Exception ex) {
+                    return "";
+                }
+            }
+
+            String assessmentCacheKey = "assessment:" + assessmentId;
+            String assessmentTitle;
+            if (titleCache != null && titleCache.containsKey(assessmentCacheKey)) {
+                assessmentTitle = titleCache.get(assessmentCacheKey);
+            } else {
+                AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+                if (assessment == null) {
+                    return "";
+                }
+                assessmentTitle = assessment.getTitle();
+                if (titleCache != null) {
+                    titleCache.put(assessmentCacheKey, assessmentTitle);
+                }
+            }
+
+            return siteTitle + " : " + assessmentTitle;
+        }
+
         return "";
     }
 

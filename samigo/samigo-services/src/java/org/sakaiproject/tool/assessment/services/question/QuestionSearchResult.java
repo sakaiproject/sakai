@@ -20,9 +20,9 @@ package org.sakaiproject.tool.assessment.services.question;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class QuestionSearchResult {
     private String id;
