@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.microsoft.api.data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
@@ -36,8 +37,8 @@ public class SakaiMembersCollection extends GenericMembersCollection{
 			return false;
 		}
 
-		Set<String> sakaiMembers = getMemberIds();
-		Set<String> sakaiOwners = getOwnerIds();
+		Set<String> sakaiMembers = new HashSet<>(getMemberIds());
+		Set<String> sakaiOwners = new HashSet<>(getOwnerIds());
 		Set<String> guestIds = mmc.getGuestIds();
 
 		sakaiMembers.removeAll(guestIds);
