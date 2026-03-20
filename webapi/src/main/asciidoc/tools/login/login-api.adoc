@@ -6,7 +6,7 @@
 
 This controller handles manual login for external clients or integrations that require an active Sakai session.
 
-=== POST /login
+=== POST /api/login
 Authenticates a user and establishes a Sakai session (`JSESSIONID`).
 
 [cols="1h,3", grid=rows, frame=topbot]
