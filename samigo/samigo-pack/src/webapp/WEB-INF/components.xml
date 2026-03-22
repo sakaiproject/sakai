@@ -204,6 +204,12 @@
     class="org.sakaiproject.tool.assessment.services.qti.QTIService">
   </bean>
 
+  <bean id="org.sakaiproject.tool.assessment.shared.impl.assessment.AssessmentPermissionsRegistrar"
+      class="org.sakaiproject.tool.assessment.shared.impl.assessment.AssessmentPermissionsRegistrar"
+      init-method="init">
+    <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+  </bean>
+
   <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
       class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
       init-method="init">
@@ -456,4 +462,3 @@
     </bean>
 
 </beans>
-

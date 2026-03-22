@@ -265,6 +265,37 @@ describe("sakai-permissions tests", () => {
     expect(params.get("access:tool.delete")).to.equal("false");
   });
 
+  it ("displays an error banner when saving permissions fails", async () => {
+
+    const unsetPerms = { ...data.perms, on: { "maintain": [], "access": [] } };
+
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, unsetPerms);
+    fetchMock.post(`/api/sites/${data.siteId}/permissions`, {
+      status: 403,
+      body: "The function tool.create cannot be updated by the current user",
+    });
+
+    const consoleErrorStub = sinon.stub(console, "error");
+
+    const el = await fixture(html`
+      <sakai-permissions tool="tool">
+      </sakai-permissions>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await waitUntil(() => el.roles);
+    await elementUpdated(el);
+
+    el.querySelector("input[data-perm='tool.create'][data-role='maintain']").checked = true;
+    el.querySelector(".act input[type='button'].active").click();
+
+    await waitUntil(() => !!el.querySelector(".sak-banner-error"));
+
+    expect(el.querySelector(".sak-banner-error").textContent).to.contain("The function tool.create cannot be updated by the current user");
+
+    consoleErrorStub.restore();
+  });
+
   it ("loads group permissions correctly", async () => {
 
     const initialRef = `/site/${data.siteId}`;

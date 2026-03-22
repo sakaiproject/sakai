@@ -26,6 +26,7 @@ export class SakaiPermissions extends SakaiElement {
     groups: { state: true },
     error: { state: true },
     _errorMessage: { state: true },
+    _saveErrorMessage: { state: true },
   };
 
   constructor() {
@@ -33,6 +34,7 @@ export class SakaiPermissions extends SakaiElement {
     super();
     this.excludedPermissions = [];
     this._errorMessage = "";
+    this._saveErrorMessage = "";
 
     this.loadTranslations("permissions-wc").then(async i18n => {
 
@@ -222,10 +224,15 @@ export class SakaiPermissions extends SakaiElement {
           `)}
         </div>
 
+        ${this._saveErrorMessage ? html`
+          <div class="sak-banner-error" role="alert" aria-live="polite">
+            ${this._saveErrorMessage}
+          </div>
+        ` : nothing}
+
         <div class="act">
           <input type="button" class="active" .value=${this._i18n["gen.sav"]} aria-label="${this._i18n["gen.sav"]}" @click=${this._savePermissions} />
           <input type="button" .value="${this._i18n["gen.can"]}" aria-label="${this._i18n["gen.can"]}" @click=${this._completePermissions} />
-          <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this._i18n["per.error.save"]}</span>
         </div>
       `;
     } else if (this.error) {
@@ -271,6 +278,7 @@ export class SakaiPermissions extends SakaiElement {
   _savePermissions() {
 
     document.body.style.cursor = "wait";
+    this._saveErrorMessage = "";
 
     const boxes = this.querySelectorAll("#permissions-container input[type=\"checkbox\"]");
     const params = new URLSearchParams();
@@ -290,21 +298,16 @@ export class SakaiPermissions extends SakaiElement {
       if (res.ok) {
         this._completePermissions();
       } else {
-        const failureMessage = document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`);
         const message = (await res.text())?.trim();
-        if (failureMessage) {
-          const fallbackMessage = this._i18n?.["per.error.save"] || "";
-          failureMessage.textContent = message || fallbackMessage;
-          failureMessage.style.display = "inline-block";
-        }
+        const fallbackMessage = this._i18n?.["per.error.save"] || "";
+        this._saveErrorMessage = message || fallbackMessage;
         throw new Error(`Permissions save failed with status ${res.status}${message ? `: ${message}` : ""}`);
       }
     })
     .catch(error => {
 
-      const failureMessage = document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`);
-      if (failureMessage && failureMessage.style.display !== "inline-block") {
-        failureMessage.style.display = "inline-block";
+      if (!this._saveErrorMessage) {
+        this._saveErrorMessage = this._i18n?.["per.error.save"] || "";
       }
       console.error(`Failed to save permissions for tool ${this.tool}`, error);
     })
