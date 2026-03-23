@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.microsoft.api.data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
@@ -26,32 +27,33 @@ public class SakaiMembersCollection extends GenericMembersCollection{
 	public void addMember(String identifier, User member) {
 		super.addMember(identifier, member);
 	}
-	
+
 	public void addOwner(String identifier, User owner) {
 		super.addOwner(identifier, owner);
 	}
-	
+
 	public Boolean compareWith(MicrosoftMembersCollection mmc, boolean forced) {
-		if(mmc != null) {
-			Set<String> sakaiMembers = getMemberIds();
-			Set<String> sakaiOwners = getOwnerIds();
-			if(forced) {
-				sakaiMembers.removeAll(mmc.getGuestIds());
-				sakaiOwners.removeAll(mmc.getGuestIds());
-				return sakaiMembers.equals(mmc.getMemberIds()) && sakaiOwners.equals(mmc.getOwnerIds());
-			} else {
-				sakaiMembers.removeAll(mmc.getMemberIds());
-				sakaiMembers.removeAll(mmc.getGuestIds());
-				
-				sakaiOwners.removeAll(mmc.getOwnerIds());
-				sakaiOwners.removeAll(mmc.getGuestIds());
-				
-				return sakaiMembers.size() == 0 && sakaiOwners.size() == 0;
-			}
+		if (mmc == null) {
+			return false;
 		}
-		return false;
+
+		Set<String> sakaiMembers = new HashSet<>(getMemberIds());
+		Set<String> sakaiOwners = new HashSet<>(getOwnerIds());
+		Set<String> guestIds = mmc.getGuestIds();
+
+		sakaiMembers.removeAll(guestIds);
+		sakaiOwners.removeAll(guestIds);
+
+		if(forced) {
+			return sakaiMembers.equals(mmc.getMemberIds()) && sakaiOwners.equals(mmc.getOwnerIds());
+		}
+
+		sakaiMembers.removeAll(mmc.getMemberIds());
+		sakaiOwners.removeAll(mmc.getOwnerIds());
+
+		return sakaiMembers.isEmpty() && sakaiOwners.isEmpty();
 	}
-	
+
 	public SakaiMembersCollection diffWith(MicrosoftMembersCollection mmc) {
 		SakaiMembersCollection ret = new SakaiMembersCollection();
 		ret.initFrom(this);

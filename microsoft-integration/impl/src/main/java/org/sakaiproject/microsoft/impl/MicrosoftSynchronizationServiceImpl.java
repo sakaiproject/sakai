@@ -956,7 +956,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			if(!errorUsers.isEmpty()) {
 				ret=SynchronizationStatus.ERROR;
 				errorUsers.forEach(user -> {
-					microsoftCommonService.addGroupUserErrors(ss.getSite().getGroup(gs.getGroupId()).getId(), user);
+					microsoftCommonService.addGroupUserErrors(g.getId(), user);
 					groupMembers.removeMember(user.getEmail());
 					groupMembers.removeOwner(user.getEmail());
 				});
