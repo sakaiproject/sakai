@@ -297,6 +297,8 @@
             renderToc();
 
             if (responseState === 'DENIED' || responseState === 'ERROR') {
+                if (frame) frame.hidden = true;
+                if (message) message.classList.add('scorm-rest-launcher__message--error');
                 showMessage(response.message || (responseState === 'DENIED' ? 'Unable to launch this SCORM package.' : 'Unable to continue this SCORM session.'));
                 return false;
             }
@@ -613,8 +615,12 @@
         }
 
         const started = await openSession();
-        if (!started && (!message || message.hidden || message.textContent === '')) {
-            showMessage('Failed to start SCORM session.');
+        if (!started) {
+            if (frame) frame.hidden = true;
+            if (message) message.classList.add('scorm-rest-launcher__message--error');
+            if (!message || message.hidden || message.textContent === '') {
+                showMessage('Failed to start SCORM session.');
+            }
         }
 
         function adjustFrameHeight() {
