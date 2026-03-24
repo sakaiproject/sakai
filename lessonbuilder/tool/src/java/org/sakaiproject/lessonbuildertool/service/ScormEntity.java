@@ -261,6 +261,9 @@ public class ScormEntity implements LessonEntity {
 		contentPackage.getContentPackageId(), userId, latest.getAttemptNumber());
 	    if (summaries.isEmpty()) return null;
 	    for (ActivitySummary summary : summaries) {
+		// An explicit failure always disqualifies, even if completionStatus is "completed"
+		if ("failed".equals(summary.getSuccessStatus()))
+		    return null;
 		if (!"completed".equals(summary.getCompletionStatus()) && !"passed".equals(summary.getSuccessStatus()))
 		    return null;
 	    }

@@ -141,7 +141,17 @@ span.tree-content a.selected {
 }
 
 .scorm-rest-launcher__message {
-    margin-top: 1rem;
+    margin: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.scorm-rest-launcher__message--error {
+    border-color: #f5c6cb;
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 .scorm-rest-launcher__toc {
