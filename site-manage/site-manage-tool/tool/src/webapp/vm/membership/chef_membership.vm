@@ -115,13 +115,6 @@
 
 		#if ($unjoinableSites.size() > 10 && $pagesizeInt > 10)
 			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
-				<div class="sakai-table-filterContainer">
-					#searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
-				</div>
-				<div class="sakai-table-buttonContainer">
-					<input type="button" class="unjoin" value="$tlang.getString('mb.unjoin')" disabled="disabled" onclick="unjoin(this);" />
-					<input type="button" class="reset" value="$tlang.getString('mb.clear')" disabled="disabled" onclick="utils.clearSelections();" />
-				</div>
 				<div class="sakai-table-pagerContainer">
 					#pagerPanel("pager2")
 				</div>

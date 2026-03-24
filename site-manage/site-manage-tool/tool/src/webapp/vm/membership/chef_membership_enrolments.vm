@@ -111,9 +111,6 @@
 
         #if( $enrolments.size() > 10 && $pagesizeInt > 10 )
             <div class="sakai-table-toolBar sakai-table-toolBar-bottom">
-                <div class="sakai-table-filterContainer">
-                    #searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
-                </div>
                 <div class="sakai-table-pagerContainer">
                     #pagerPanel("pager2")
                 </div>
