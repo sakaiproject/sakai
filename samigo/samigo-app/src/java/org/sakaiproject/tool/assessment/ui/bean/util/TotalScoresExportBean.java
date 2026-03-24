@@ -70,7 +70,9 @@ public class TotalScoresExportBean implements Serializable {
 	}
 
 	public void writeWorkbookToStream(String assessmentName, List agentResults, OutputStream out) throws IOException {
-		getAsWorkbook(buildHeaderList(), agentResults).write(out);
+		try (XSSFWorkbook workbook = getAsWorkbook(buildHeaderList(), agentResults)) {
+			workbook.write(out);
+		}
 	}
 
 	private List<String> buildHeaderList() {
@@ -93,11 +95,13 @@ public class TotalScoresExportBean implements Serializable {
 
 	private void writeDataToResponse(List<String> headerList, List dataList, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+		response.setHeader("Content-disposition", "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(fileName, java.nio.charset.StandardCharsets.UTF_8));
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
-			getAsWorkbook(headerList, dataList).write(out);
+			try (XSSFWorkbook workbook = getAsWorkbook(headerList, dataList)) {
+				workbook.write(out);
+			}
 			out.flush();
 		} catch (IOException e) {
 			if (log.isErrorEnabled()) log.error(e.getMessage());

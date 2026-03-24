@@ -1016,8 +1016,7 @@ public class AuthorBean implements Serializable {
     List<PublishedAssessmentFacade> assessWithSubmissions = getSelectedPublishedAssessmentsWithSubmissions();
 
     if (assessWithSubmissions.isEmpty()) {
-      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
-          authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
       return null;
     }
 
@@ -1025,7 +1024,7 @@ public class AuthorBean implements Serializable {
     response.reset();
     response.setHeader("Cache-Control", "no-store");
     response.setContentType("application/zip");
-    response.setHeader("Content-disposition", "attachment; filename=" + getDownloadZipFilename());
+    response.setHeader("Content-disposition", "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(getDownloadZipFilename(), java.nio.charset.StandardCharsets.UTF_8));
 
     try {
       return exportAllScoresCsvZipBatch(assessWithSubmissions, response);
@@ -1150,7 +1149,7 @@ public class AuthorBean implements Serializable {
 
       return agents;
     } catch (Exception e) {
-      log.warn("Failed to process scores for assessment " + assessment.getAssessmentId(), e);
+      log.warn("Failed to process scores for assessment {}", assessment.getAssessmentId(), e);
       return null;
     }
   }
