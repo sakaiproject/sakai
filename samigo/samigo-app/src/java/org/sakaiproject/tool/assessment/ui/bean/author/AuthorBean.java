@@ -1104,25 +1104,42 @@ public class AuthorBean implements Serializable {
   }
 
   private Map<String, PublishedAssessmentFacade> batchLoadAssessments(List<String> assessmentIds) {
-    Map<String, PublishedAssessmentFacade> result = new HashMap<>();
-    for (String id : assessmentIds) {
-      PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(id);
-      if (assessment != null) {
-        result.put(id, assessment);
-      }
-    }
-    return result;
+    return assessmentIds.parallelStream()
+        .collect(Collectors.toConcurrentMap(
+            id -> id,
+            id -> {
+              try {
+                return publishedAssessmentService.getPublishedAssessment(id);
+              } catch (Exception e) {
+                log.warn("Failed to load assessment {}", id, e);
+                return null;
+              }
+            }
+        ))
+        .entrySet().stream()
+        .filter(entry -> entry.getValue() != null)
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue
+        ));
   }
 
   private Map<String, List> batchLoadAllScores(List<String> assessmentIds) {
-    Map<String, List> result = new HashMap<>();
     GradingService gradingService = new GradingService();
 
-    for (String id : assessmentIds) {
-      List scores = gradingService.getTotalScores(id, TotalScoresBean.LAST_SUBMISSION, false);
-      result.put(id, scores != null ? scores : new ArrayList());
-    }
-    return result;
+    return assessmentIds.parallelStream()
+        .collect(Collectors.toConcurrentMap(
+            id -> id,
+            id -> {
+              try {
+                List scores = gradingService.getTotalScores(id, TotalScoresBean.LAST_SUBMISSION, false);
+                return scores != null ? scores : new ArrayList();
+              } catch (Exception e) {
+                log.warn("Failed to load scores for assessment {}", id, e);
+                return new ArrayList();
+              }
+            }
+        ));
   }
 
   private List processAssessmentScores(PublishedAssessmentFacade assessment, List allScores, Map useridMap, TotalScoreListener totalScoreListener) {
