@@ -109,17 +109,25 @@
                             "sortAscending": sortAscendingText,
                             "sortDescending": sortDescendingText,
                         }
-                    }
+                    },
+                    "stateSave": true,
+                    "stateDuration": -1
               });
 
               $(document).ready(function() {
                   const table = $('#selectIndexForm\\:selectTable').DataTable();
                   const searchInput = document.querySelector('#selectIndexForm\\:selectTable_filter input');
-                  
+
                   if (table && searchInput && !searchInput.hasCustomSearch) {
                       searchInput.hasCustomSearch = true;
 
                       let lastSearchTerm = '';
+
+                      const savedState = table.state.loaded();
+                      if (savedState && savedState.search && savedState.search.search) {
+                        lastSearchTerm = savedState.search.search;
+                        searchInput.value = lastSearchTerm;
+                      }
 
                       $(searchInput).off();
                       searchInput.removeAttribute('data-dt-search');
@@ -149,6 +157,7 @@
 
                       const handleSearch = function() {
                           lastSearchTerm = this.value;
+                          table.search(lastSearchTerm);
                           table.draw();
                       };
 
@@ -199,7 +208,9 @@
                             "sortAscending": sortAscendingText,
                             "sortDescending": sortDescendingText,
                         }
-                    }
+                    },
+                    "stateSave": true,
+                    "stateDuration": -1
                 });
 
                 const searchInput = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
@@ -210,6 +221,12 @@
                     searchInput.hasCustomSearch = true;
 
                     let lastSearchTerm = '';
+
+                    const savedState = table.state.loaded();
+                    if (savedState && savedState.search && savedState.search.search) {
+                        lastSearchTerm = savedState.search.search;
+                        searchInput.value = lastSearchTerm;
+                    }
 
                     $(searchInput).off();
                     searchInput.removeAttribute('data-dt-search');
@@ -239,6 +256,7 @@
 
                     const handleSearch = function() {
                         lastSearchTerm = this.value;
+                        table.search(lastSearchTerm);
                         table.draw();
                     };
 
@@ -281,7 +299,9 @@
                             "sortAscending": sortAscendingText,
                             "sortDescending": sortDescendingText,
                         }
-                    }
+                    },
+                    "stateSave": true,
+                    "stateDuration": -1
                 });
 
                 const searchInput2 = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
@@ -292,6 +312,12 @@
                     searchInput2.hasCustomSearch = true;
 
                     let lastSearchTerm2 = '';
+
+                    const savedState = table.state.loaded();
+                    if (savedState && savedState.search && savedState.search.search) {
+                        lastSearchTerm2 = savedState.search.search;
+                        searchInput2.value = lastSearchTerm2;
+                    }
 
                     $(searchInput2).off();
                     searchInput2.removeAttribute('data-dt-search');
@@ -321,6 +347,7 @@
 
                     const handleSearch2 = function() {
                         lastSearchTerm2 = this.value;
+                        table.search(lastSearchTerm2);
                         table.draw();
                     };
 

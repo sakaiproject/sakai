@@ -105,7 +105,9 @@
                     "fnDrawCallback": function(oSettings) {
                         $(".select-checkbox").prop("checked", false);
                         updateRemoveButton();
-                    }
+                    },
+                    "stateSave": true,
+                    "stateDuration": -1
                 });
 
                 const searchInput = document.querySelector('#authorIndexForm\\:coreAssessments_filter input');
@@ -116,6 +118,12 @@
                     searchInput.hasCustomSearch = true;
 
                     let lastSearchTerm = '';
+
+                    const savedState = table.state.loaded();
+                    if (savedState && savedState.search && savedState.search.search) {
+                        lastSearchTerm = savedState.search.search;
+                        searchInput.value = lastSearchTerm;
+                    }
 
                     $(searchInput).off();
                     searchInput.removeAttribute('data-dt-search');
@@ -145,6 +153,7 @@
 
                     const handleSearch = function() {
                         lastSearchTerm = this.value;
+                        table.search(lastSearchTerm);
                         table.draw();
                     };
 
