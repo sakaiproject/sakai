@@ -269,56 +269,6 @@
 
 		#if ($sites.size() > 10 && $pagesizeInt > 10)
 			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
-				<div class="sakai-table-filterContainer">
-
-					<form name="viewForm" class="worksiteSetupViewAndTermFilterForm" method="post" action="#toolForm("SiteAction")">
-						<div class="sakai-table-viewFilter">
-							<label for="view-bottom">$tlang.getString("list.view")</label>
-							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select id="view-bottom" name="view">
-								#foreach($view in $viewKeys)
-									<option value="$view" #if($view == $viewSelected) selected="selected" #end>$views.get($view)</option>
-								#end
-							</select>
-							<input type="hidden" name="eventSubmit_doView_sites" value="view" />
-						</div>
-
-						<div class="sakai-table-viewFilter">
-							<label for="termview-bottom">$tlang.getString("list.selectTerm")</label>
-							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select id="termview-bottom" name="termview">
-								#foreach($view in $termViewKeys)
-									<option value="$view" #if($view == $viewTermSelected) selected="selected" #end>$termViews.get($view)</option>
-								#end
-							</select>
-							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							<input type="submit" class="button" value="$tlang.getString("list.submit")" />
-						</div>
-					</form>
-
-					## hide search form when in normal user login and in my workspace sites view
-					#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
-						#searchFilterPanel("searchFilter2", $searchString, "doSite_search", "doSite_search_clear")
-					#end
-				</div>
-
-				#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
-					<div class="sakai-table-buttonContainer actionButtons act">
-						<input type="button" id="btnEdit2" name="btnEdit2" class="actionButton active" value="$tlang.getString("java.revise")" disabled="disabled"
-							onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />
-						<input type="button" id="btnSoftDelete2" name="btnSoftDelete2" class="actionButton" value="$tlang.getString("java.delete")" disabled="disabled"
-							onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" />
-						#if( $superUser || $canDelSoftDel )
-							<input type="button" id="btnHardDelete2" name="btnHardDelete2" class="actionButton" value="$tlang.getString("java.delete.hard")" disabled="disabled"
-								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" />
-						#end
-						#if( $showRestore )
-							<input type="button" id="btnRestore2" name="btnRestore2" class="actionButton" value="$tlang.getString("java.restore")" disabled="disabled"
-								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" />
-						#end
-					</div>
-				#end
-
 				<div class="sakai-table-pagerContainer">
 					#pagerPanel("pager2")
 				</div>
