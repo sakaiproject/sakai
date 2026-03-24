@@ -243,6 +243,11 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>
 
+    <div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+        <div class="sakai-table-pagerContainer">
+            #pagerPanel("pager2")
+        </div>
+    </div>
 
     <hr>
     <h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
