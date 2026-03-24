@@ -59,6 +59,10 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
@@ -1023,25 +1027,48 @@ public class AuthorBean implements Serializable {
     response.setContentType("application/zip");
     response.setHeader("Content-disposition", "attachment; filename=" + getDownloadZipFilename());
 
-    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    try {
+      return exportAllScoresCsvZipBatch(assessWithSubmissions, response);
+    } catch (IOException e) {
+      log.warn("Could not generate bulk scores zip", e);
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, authorFrontDoor.getString("assessment_export_zip_error"), null));
+      return null;
+    }
+  }
+
+  private String exportAllScoresCsvZipBatch(List<PublishedAssessmentFacade> assessWithSubmissions, HttpServletResponse response) throws IOException {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+
+    String currentSiteId = AgentFacade.getCurrentSiteId();
+
+    List<String> assessmentIds = assessWithSubmissions.stream()
+        .map(a -> a.getPublishedAssessmentId().toString())
+        .collect(Collectors.toList());
+
+    if (assessmentIds.isEmpty()) {
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      return null;
+    }
+
+    Map useridMap = getUserIdMapForSite(currentSiteId, assessmentIds.get(0));
+    Map<String, PublishedAssessmentFacade> assessmentMap = batchLoadAssessments(assessmentIds);
+    Map<String, List> assessmentScoresMap = batchLoadAllScores(assessmentIds);
+
     TotalScoresExportBean totalScoresExportBean = (TotalScoresExportBean) ContextUtil.lookupBean("totalScoresExportBean");
     TotalScoreListener totalScoreListener = new TotalScoreListener();
 
     int exportedCount = 0;
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream(), StandardCharsets.UTF_8)) {
       for (PublishedAssessmentFacade basicAssessment : assessWithSubmissions) {
-        PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(
-            basicAssessment.getPublishedAssessmentId().toString());
+        String assessmentId = basicAssessment.getPublishedAssessmentId().toString();
+        PublishedAssessmentFacade assessment = assessmentMap.get(assessmentId);
+
         if (assessment == null) {
           continue;
         }
 
-        totalScoresBean.setAssessmentGradingList(null);
-        if (!totalScoreListener.totalScores(assessment, totalScoresBean, false)) {
-          continue;
-        }
+        List agentResults = processAssessmentScores(assessment, assessmentScoresMap.get(assessmentId), useridMap, totalScoreListener);
 
-        List agentResults = totalScoresBean.getAllAgentsDirect();
         if (agentResults == null || agentResults.isEmpty()) {
           continue;
         }
@@ -1056,21 +1083,76 @@ public class AuthorBean implements Serializable {
         exportedCount++;
       }
       zipOutputStream.finish();
-    } catch (IOException e) {
-      log.warn("Could not generate bulk scores zip", e);
-      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-          authorFrontDoor.getString("assessment_export_zip_error"), null));
-      return null;
     }
 
     if (exportedCount == 0) {
-      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
-          authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
       return null;
     }
 
     facesContext.responseComplete();
     return null;
+  }
+
+  private Map getUserIdMapForSite(String siteId, String firstAssessmentId) {
+    PublishedAssessmentFacade firstAssessment = publishedAssessmentService.getPublishedAssessment(firstAssessmentId);
+    if (firstAssessment != null) {
+      TotalScoresBean tempBean = new TotalScoresBean();
+      tempBean.setPublishedAssessment((PublishedAssessmentData) firstAssessment.getData());
+      return tempBean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER, siteId);
+    }
+    return new HashMap();
+  }
+
+  private Map<String, PublishedAssessmentFacade> batchLoadAssessments(List<String> assessmentIds) {
+    Map<String, PublishedAssessmentFacade> result = new HashMap<>();
+    for (String id : assessmentIds) {
+      PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(id);
+      if (assessment != null) {
+        result.put(id, assessment);
+      }
+    }
+    return result;
+  }
+
+  private Map<String, List> batchLoadAllScores(List<String> assessmentIds) {
+    Map<String, List> result = new HashMap<>();
+    GradingService gradingService = new GradingService();
+
+    for (String id : assessmentIds) {
+      List scores = gradingService.getTotalScores(id, TotalScoresBean.LAST_SUBMISSION, false);
+      result.put(id, scores != null ? scores : new ArrayList());
+    }
+    return result;
+  }
+
+  private List processAssessmentScores(PublishedAssessmentFacade assessment, List allScores, Map useridMap, TotalScoreListener totalScoreListener) {
+    try {
+      TotalScoresBean tempBean = new TotalScoresBean();
+      tempBean.setAssessmentGradingList(allScores);
+
+      List scores = new ArrayList();
+      List students_not_submitted = new ArrayList();
+
+      totalScoreListener.getFilteredList(tempBean, allScores, scores, students_not_submitted, useridMap);
+
+      if (scores.isEmpty() && students_not_submitted.isEmpty()) {
+        return null;
+      }
+
+      List agents = new ArrayList();
+      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      List agentUserIds = totalScoreListener.getAgentIds(useridMap);
+      Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
+
+      totalScoreListener.prepareAgentResult((PublishedAssessmentData) assessment.getData(), scores.iterator(), agents, userRoles);
+      totalScoreListener.prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
+
+      return agents;
+    } catch (Exception e) {
+      log.warn("Failed to process scores for assessment " + assessment.getAssessmentId(), e);
+      return null;
+    }
   }
 
   private List<PublishedAssessmentFacade> getSelectedPublishedAssessmentsWithSubmissions() {
