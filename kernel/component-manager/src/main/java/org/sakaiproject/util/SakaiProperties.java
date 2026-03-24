@@ -32,10 +32,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DefaultPropertiesPersister;
@@ -74,6 +76,15 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
     }
 
     public void afterPropertiesSet() throws Exception {
+        // Load demo properties when sakai.demo=true
+        if ("true".equalsIgnoreCase(System.getProperty("sakai.demo"))) {
+            Resource demoProperties = new ClassPathResource("org/sakaiproject/config/bundle/demo.sakai.properties");
+            if (demoProperties.exists()) {
+                log.info("Loading demo properties from {}", demoProperties.getFilename());
+                propertiesFactoryBean.addLocation(demoProperties);
+            }
+        }
+
         // Connect properties to configurers.
         propertiesFactoryBean.afterPropertiesSet();
         propertyPlaceholderConfigurer.setProperties((Properties)propertiesFactoryBean.getObject());
@@ -302,6 +313,10 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
 
         public void setPropertiesArray(Properties[] propertiesArray) { // unused
             this.localProperties = propertiesArray;
+        }
+
+        public void addLocation(Resource location) {
+            this.locations = ArrayUtils.add(locations, location);
         }
 
         public void setLocation(Resource location) { // unused

@@ -6,23 +6,6 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
 	<!--
-		Proxy pointing to whichever Group Provider implementation has been assigned
-		the property name "org.sakaiproject.authz.api.GroupProvider". By default, it points to
-		"org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider".
-		If you use a different Group Provider, there's no need to edit this file.
-		Instead, just use your "sakai.properties" file to point the property to your
-		implementation.
-	-->
-	<bean id="org.sakaiproject.authz.api.GroupProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="targetName" value="${org.sakaiproject.authz.api.GroupProvider}" />
-		<property name="proxyInterfaces">
-			<list>
-                <value>org.sakaiproject.authz.api.GroupProvider</value>
-			</list>
-		</property>
-	</bean>
-
-	<!--
 		Configuration object which can safely be overridden by a deployment's
 		sakai-configuration.xml file.
 	-->
@@ -188,16 +171,6 @@
   		</property>
   	</bean>
  -->
-
-	<bean id="org.sakaiproject.authz.api.RoleProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="targetName" value="${org.sakaiproject.authz.api.RoleProvider}" />
-		<property name="proxyInterfaces">
-			<list>
-				<value>org.sakaiproject.authz.api.RoleProvider</value>
-			</list>
-		</property>
-	</bean>
-
 
 	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
 		  class="org.sakaiproject.user.detail.ValueEncryptionUtilities"

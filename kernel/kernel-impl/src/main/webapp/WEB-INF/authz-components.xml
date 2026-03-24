@@ -68,4 +68,25 @@
 			destroy-method="destroy">
 	</bean>
 
+	<!--
+    Proxy pointing to whichever Group Provider implementation has been assigned
+    the property name "org.sakaiproject.authz.api.GroupProvider". By default, it points to
+    "org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider".
+    If you use a different Group Provider, there's no need to edit this file.
+    Instead, just use your "sakai.properties" file to point the property to your
+    implementation.
+    -->
+
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+		  class="org.sakaiproject.util.OptionalProviderFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.GroupProvider}" />
+		<property name="proxyInterface" value="org.sakaiproject.authz.api.GroupProvider"/>
+	</bean>
+
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		  class="org.sakaiproject.util.OptionalProviderFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.RoleProvider}" />
+		<property name="proxyInterface" value="org.sakaiproject.authz.api.RoleProvider"/>
+	</bean>
+
 </beans>

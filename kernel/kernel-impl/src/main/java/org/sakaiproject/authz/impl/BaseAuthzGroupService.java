@@ -1587,10 +1587,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			} else {
 				roles.add(AUTH_ROLE);
 				// Get additional roles from provider
-				if (roleProvider != null)
-				{
-					roles.addAll((roleProvider.getAdditionalRoles(userId)));
-				}
+				roles.addAll((roleProvider.getAdditionalRoles(userId)));
 			}
 		}
 		return roles;
@@ -1607,9 +1604,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  		if (isAllowedAuth()) {
  			roles.add(".auth");
  		}
- 		if (roleProvider != null) {
- 			roles.addAll(roleProvider.getAllAdditionalRoles());
- 		}
+		roles.addAll(roleProvider.getAllAdditionalRoles());
  		return roles;
  	}
  
@@ -1630,7 +1625,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  			role = rb.getString("role.anon");
  		} else if (".auth".equals(roleId)) {
  			role = rb.getString("role.auth");
- 		} else if (roleProvider != null) {
+ 		} else {
  			role = roleProvider.getDisplayName(roleId);
  		}
  		// Never return null 
