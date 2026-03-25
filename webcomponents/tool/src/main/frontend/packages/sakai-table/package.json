@@ -1,0 +1,38 @@
+{
+  "name": "@sakai-ui/sakai-table",
+  "version": "1.0.0",
+  "description": "A reusable data table web component for Sakai",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-table#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-table"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "wtr"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-table.js": "./sakai-table.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-icon": "file:../sakai-icon",
+    "@sakai-ui/sakai-pager": "file:../sakai-pager"
+  }
+}

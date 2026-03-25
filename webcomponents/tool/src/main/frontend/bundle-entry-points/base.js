@@ -1,4 +1,5 @@
 import "@sakai-ui/sakai-date-picker/sakai-date-picker.js";
+import "@sakai-ui/sakai-table/sakai-table.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
 import "imagesloaded";
 import "@sakai-ui/sakai-profile/sakai-profile.js";

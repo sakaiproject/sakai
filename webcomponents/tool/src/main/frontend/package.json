@@ -53,6 +53,7 @@
     "@sakai-ui/sakai-pronunciation-player": "workspace:*",
     "@sakai-ui/sakai-rubrics": "workspace:*",
     "@sakai-ui/sakai-search": "workspace:*",
+    "@sakai-ui/sakai-table": "workspace:*",
     "@sakai-ui/sakai-submission-messager": "workspace:*",
     "@sakai-ui/sakai-tasks": "workspace:*",
     "@sakai-ui/sakai-user-photo": "workspace:*",

@@ -37,6 +37,7 @@
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon",
     "@sakai-ui/sakai-pager": "file:../sakai-pager",
+    "@sakai-ui/sakai-table": "file:../sakai-table",
     "@sakai-ui/sakai-permissions": "file:../sakai-permissions",
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
     "@sakai-ui/sakai-search": "file:../sakai-search",
