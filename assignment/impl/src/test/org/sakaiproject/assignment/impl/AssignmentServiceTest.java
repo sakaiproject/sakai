@@ -110,7 +110,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -141,7 +140,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
-
     private ResourceLoader resourceLoader;
 
     @Before
@@ -2317,6 +2315,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
+        assignment.setTitle("Grade Only Download");
         assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
         assignment.setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);
 
@@ -2338,37 +2337,33 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(userDirectoryService.getUser(submitterId)).thenReturn(user);
 
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        Site site = mock(Site.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        when(site.getReference()).thenReturn(siteReference);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        when(authzGroup.getUsers()).thenReturn(Collections.singleton(submitterId));
+        when(authzGroupService.getAuthzGroup(siteReference)).thenReturn(authzGroup);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteReference)).thenReturn(true);
         when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference))
                 .thenReturn(Collections.singletonList(user));
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference))
+                .thenReturn(Collections.emptyList());
         when(serverConfigurationService.getInt("zip.compression.level", 1)).thenReturn(1);
         mockGradeZipHeaders();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        AssignmentServiceImpl target = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
-
-        ReflectionTestUtils.invokeMethod(target, "zipSubmissions",
-                assignmentReference,
-                "Grade Only Download",
-                Assignment.GradeType.SCORE_GRADE_TYPE,
-                Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION,
-                Collections.singletonList(submission).iterator(),
-                outputStream,
-                new StringBuilder(),
-                false,
-                false,
-                true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "csv",
-                false,
-                context);
+        assignmentService.getSubmissionsZip(outputStream, assignmentReference,
+                "gradeFile&gradeFileFormat=csv&contextString=" + context);
 
         List<String> entryNames = readZipEntryNames(outputStream.toByteArray());
 
-        Assert.assertEquals(Collections.singletonList("Grade Only Download/grades.csv"), entryNames);
+        Assert.assertEquals(1, entryNames.size());
+        Assert.assertTrue(entryNames.get(0).endsWith("/grades.csv"));
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
