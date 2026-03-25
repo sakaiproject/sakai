@@ -43,11 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class PrivateMessageUserNotificationHandler extends AbstractUserNotificationHandler{
+public class PrivateMessageUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private PrivateMessageManager privateMessageManager;
-	
+
     @Resource
     private SiteService siteService;
 
@@ -57,7 +57,8 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
     @Override
     public List<String> getHandledEvents() {
         return Arrays.asList(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT,
-                DiscussionForumService.EVENT_MESSAGES_ADD);
+                DiscussionForumService.EVENT_MESSAGES_ADD,
+                DiscussionForumService.EVENT_MESSAGES_RESPONSE);
     }
 
     @Override
@@ -82,6 +83,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
                 case DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT:
                     return Optional.of(handleReadReceipt(from, siteId, pvtMessage.getCreatedBy(), pvtMessage));
                 case DiscussionForumService.EVENT_MESSAGES_ADD:
+                case DiscussionForumService.EVENT_MESSAGES_RESPONSE:
                     return Optional.of(handleAdd(from, siteId, pvtMessage));
                 default:
                     return Optional.empty();

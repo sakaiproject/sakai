@@ -86,7 +86,7 @@ describe("sakai-notifications tests", () => {
 
     const assignmentNotification = {
       event: "asn.new.assignment",
-      fromUser: "instructor",
+      from: "instructor",
       fromDisplayName: "Instructor Example",
       formattedEventDate: "15 Oct, 2025",
       id: "noti-assignment",
@@ -115,5 +115,21 @@ describe("sakai-notifications tests", () => {
     const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const siteTitleOccurrences = (decoratedTitle.match(new RegExp(escapeRe(assignmentNotification.siteTitle), "g")) || []).length;
     expect(siteTitleOccurrences).to.equal(1);
+  });
+
+  it ("uses the notification from field for the user photo", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.loadNotifications();
+    await waitUntil(() => el.notifications?.length);
+
+    const userIds = Array.from(el.querySelectorAll("sakai-user-photo")).map(photo => photo.getAttribute("user-id"));
+    expect(userIds).to.include.members(data.notifications.map(notification => notification.from));
   });
 });

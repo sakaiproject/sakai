@@ -21,6 +21,7 @@ import java.time.Instant;
 
 public class UserNotificationTransferBean {
 
+    public Long id;
     public String from;
     public String to;
     public String event;
@@ -40,6 +41,7 @@ public class UserNotificationTransferBean {
     public static UserNotificationTransferBean of(UserNotification un) {
 
         UserNotificationTransferBean bean = new UserNotificationTransferBean();
+        bean.id = un.getId();
         bean.from = un.getFromUser();
         bean.to = un.getToUser();
         bean.event = un.getEvent();
@@ -57,6 +59,7 @@ public class UserNotificationTransferBean {
     public static UserNotificationTransferBean of(UserNotificationTransferBean from) {
 
         UserNotificationTransferBean to = new UserNotificationTransferBean();
+        to.id = from.id;
         to.from = from.from;
         to.to = from.to;
         to.event = from.event;

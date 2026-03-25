@@ -254,15 +254,19 @@ export class SakaiNotifications extends SakaiElement {
 
   _clearNotification(e) {
 
-    const notificationId = e.target.dataset.notificationId;
+    const notificationId = e.currentTarget.dataset.notificationId;
+
+    if (!notificationId) {
+      console.error("Cannot clear notification: missing notification id");
+      return;
+    }
 
     const url = `/api/users/me/notifications/${notificationId}/clear`;
     fetch(url, { method: "POST", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
-          const index = this.notifications.findIndex(a => a.id == notificationId);
-          this.notifications.splice(index, 1);
+          this.notifications = this.notifications.filter(a => String(a.id) !== notificationId);
           this._fireLoadedEvent();
           this._filterIntoToolNotifications();
         } else {
@@ -413,7 +417,7 @@ export class SakaiNotifications extends SakaiElement {
               ${notifications.map(noti => html`
               <li class="toast fade show mt-2 shadow-sm">
                 <div class="toast-header">
-                  <sakai-user-photo user-id="${noti.fromUser}" classes="mh-100 me-2" profile-popup="on"></sakai-user-photo>
+                  <sakai-user-photo user-id="${noti.from}" classes="mh-100 me-2" profile-popup="on"></sakai-user-photo>
                   <strong class="me-auto">${noti.fromDisplayName}</strong>
                   <small>${noti.formattedEventDate}</small>
                   ${prefix !== "motd" && prefix !== "test" ? html`

@@ -1861,6 +1861,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
     pMsg.setExternalEmail(booleanEmailOut);
     pMsg.setScheduler(booleanSchedulerSend);
     Map<User, Boolean> recipients = getRecipients();
+
+    LRS_Statement statement = null;
+    if (null != learningResourceStoreService) {
+    	try{
+    		statement = getStatementForUserSentPvtMsg(pMsg.getTitle(), SAKAI_VERB.shared);
+    	}catch(Exception e){
+    		log.error(e.getMessage(), e);
+    	}
+    }
     
     if(booleanSchedulerSend) {
 	    pMsg.setScheduledDate(openDate);
@@ -1870,6 +1879,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    PrivateMessageSchedulerService.removeScheduledReminder(pMsg.getId());
 	    Long msgId = prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail, booleanReadReceipt);
 	    manageTagAssociation(msgId);
+
+	    if (msgId != null) {
+	    	String eventMessage = prtMsgManager.getEventMessage(pMsg, toolManager.getCurrentTool().getId(), getUserId(), getSiteId());
+	    	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, eventMessage, getSiteId(), true,
+	    			NotificationService.NOTI_OPTIONAL, statement);
+	    	eventTrackingService.post(event);
+	    } else {
+	    	log.warn("Private message send returned a null message id; skipping {} event", DiscussionForumService.EVENT_MESSAGES_ADD);
+	    }
     }
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
@@ -1886,20 +1904,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     //reset contents
     resetComposeContents();
-    
-    LRS_Statement statement = null;
-    if (null != learningResourceStoreService) {
-    	try{
-    		statement = getStatementForUserSentPvtMsg(pMsg.getTitle(), SAKAI_VERB.shared);
-    	}catch(Exception e){
-    		log.error(e.getMessage(), e);
-    	}
-    }
 
-    String eventMessage = getEventMessage(pMsg) + "/sendEmail=" + String.valueOf(isSendEmail);
-    Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, eventMessage, null, true, NotificationService.NOTI_OPTIONAL, statement);
-    eventTrackingService.post(event);
-    
     if(StringUtils.isNotEmpty(fromMainOrHp)) {
     	String tmpBackPage = fromMainOrHp;
     	fromMainOrHp = "";
@@ -2518,7 +2523,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	    	}
     	    }
     	    
-    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(getDetailMsg().getMsg()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+    		String eventMessage = prtMsgManager.getEventMessage(getDetailMsg().getMsg(), toolManager.getCurrentTool().getId(), getUserId(), getSiteId());
+    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, eventMessage, getSiteId(), true, NotificationService.NOTI_OPTIONAL, statement);
     	    eventTrackingService.post(event);
     	}
     	//reset contents
