@@ -800,7 +800,7 @@ import org.sakaiproject.util.api.FormattedText;
 					{
 						try
 						{
-							return formattedText.escapeHtml(sr.getTitle(), false);
+							return sr.getTitle();
 						}
 						catch (Exception ex)
 						{
