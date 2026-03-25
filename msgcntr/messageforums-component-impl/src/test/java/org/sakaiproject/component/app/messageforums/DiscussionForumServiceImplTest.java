@@ -24,8 +24,12 @@ import org.junit.Test;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.tool.api.SessionManager;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -55,19 +59,20 @@ public class DiscussionForumServiceImplTest {
     @Test
     public void updateEntityReferencesClearsImportedDiscussionGradebookLinksWithoutGradebookMapping() {
 
-        DiscussionForum forum = mock(DiscussionForum.class);
-        DiscussionTopic topic = mock(DiscussionTopic.class);
+        DiscussionForum forum = new DiscussionForumImpl();
+        forum.setId(20L);
+        forum.setExtendedDescription(null);
+        forum.setDefaultAssignName("2");
+        forum.setDraft(Boolean.FALSE);
 
-        when(forum.getId()).thenReturn(20L);
-        when(forum.getExtendedDescription()).thenReturn(null);
-        when(forum.getDefaultAssignName()).thenReturn("2");
-        when(forum.getDraft()).thenReturn(Boolean.FALSE);
-        when(forum.getTopics()).thenReturn(List.of(topic));
+        DiscussionTopic topic = new DiscussionTopicImpl();
+        topic.setId(30L);
+        topic.setSortIndex(Integer.valueOf(1));
+        topic.setExtendedDescription(null);
+        topic.setDefaultAssignName("3");
+        topic.setDraft(Boolean.FALSE);
 
-        when(topic.getId()).thenReturn(30L);
-        when(topic.getExtendedDescription()).thenReturn(null);
-        when(topic.getDefaultAssignName()).thenReturn("3");
-        when(topic.getDraft()).thenReturn(Boolean.FALSE);
+        forum.setTopics(List.of(topic));
 
         when(dfManager.getDiscussionForumsByContextId(SITE_ID)).thenReturn(List.of(forum));
         when(dfManager.saveForum(forum, Boolean.FALSE, SITE_ID, false, USER_ID)).thenReturn(forum);
@@ -79,35 +84,36 @@ public class DiscussionForumServiceImplTest {
 
         service.updateEntityReferences(SITE_ID, transversalMap);
 
-        verify(forum).setDefaultAssignName(null);
+        assertNull(forum.getDefaultAssignName());
         verify(dfManager).saveForum(forum, Boolean.FALSE, SITE_ID, false, USER_ID);
-        verify(topic).setDefaultAssignName(null);
+        assertNull(topic.getDefaultAssignName());
         verify(dfManager).saveTopic(topic, Boolean.FALSE, null, USER_ID);
     }
 
     @Test
     public void updateEntityReferencesLeavesExistingDiscussionGradebookLinksAloneWithoutImportMapping() {
 
-        DiscussionForum forum = mock(DiscussionForum.class);
-        DiscussionTopic topic = mock(DiscussionTopic.class);
+        DiscussionForum forum = new DiscussionForumImpl();
+        forum.setId(20L);
+        forum.setExtendedDescription(null);
+        forum.setDefaultAssignName("2");
 
-        when(forum.getId()).thenReturn(20L);
-        when(forum.getExtendedDescription()).thenReturn(null);
-        when(forum.getDefaultAssignName()).thenReturn("2");
-        when(forum.getTopics()).thenReturn(List.of(topic));
+        DiscussionTopic topic = new DiscussionTopicImpl();
+        topic.setId(30L);
+        topic.setSortIndex(Integer.valueOf(1));
+        topic.setExtendedDescription(null);
+        topic.setDefaultAssignName("3");
 
-        when(topic.getId()).thenReturn(30L);
-        when(topic.getExtendedDescription()).thenReturn(null);
-        when(topic.getDefaultAssignName()).thenReturn("3");
+        forum.setTopics(List.of(topic));
 
         when(dfManager.getDiscussionForumsByContextId(SITE_ID)).thenReturn(List.of(forum));
         when(dfManager.getTopicById(30L)).thenReturn(topic);
 
         service.updateEntityReferences(SITE_ID, Map.of("foo", "bar"));
 
-        verify(forum, never()).setDefaultAssignName(null);
+        assertEquals("2", forum.getDefaultAssignName());
         verify(dfManager, never()).saveForum(forum, Boolean.FALSE, SITE_ID, false, USER_ID);
-        verify(topic, never()).setDefaultAssignName(null);
+        assertEquals("3", topic.getDefaultAssignName());
         verify(dfManager, never()).saveTopic(topic, Boolean.FALSE, null, USER_ID);
     }
 }
