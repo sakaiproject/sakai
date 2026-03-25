@@ -5,4 +5,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
     <context:property-placeholder location="classpath:test.properties"/>
+
+    <bean id="org.sakaiproject.api.app.messageforums.PrivateMessageUserNotificationHandler"
+          class="org.sakaiproject.api.app.messageforums.PrivateMessageUserNotificationHandler"
+          lazy-init="true"/>
 </beans>
