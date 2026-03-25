@@ -3704,6 +3704,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         ZipOutputStream out = null;
 
         boolean isAdditionalNotesEnabled = false;
+        final boolean includePerSubmissionEntries = shouldIncludePerSubmissionEntries(withStudentSubmissionText,
+                withStudentSubmissionAttachment, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withRubrics);
         Site st = null;
         try {
             st = siteService.getSite(siteId);
@@ -3837,7 +3839,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 sheet.addRow(params);
                             }
 
-                            if (StringUtils.trimToNull(submittersString) != null) {
+                            if (includePerSubmissionEntries && StringUtils.trimToNull(submittersString) != null) {
                                 submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
                                 submittedText = s.getSubmittedText();
 
@@ -4031,6 +4033,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     // TODO zipSubmissions and zipGroupSubmissions should be combined
     protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
+        final boolean includePerSubmissionEntries = shouldIncludePerSubmissionEntries(withStudentSubmissionText,
+                withStudentSubmissionAttachment, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withRubrics);
         try {
             out = new ZipOutputStream(outputStream);
             out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
@@ -4102,7 +4106,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): StringUtils.EMPTY, latenessStatus);
 
 
-                        if (StringUtils.trimToNull(groupTitle) != null) {
+                        if (includePerSubmissionEntries && StringUtils.trimToNull(groupTitle) != null) {
                             submittersName.append(StringUtils.trimToNull(groupTitle)).append(" (").append(s.getGroupId()).append(")");
                             final String submittedText = s.getSubmittedText();
 
@@ -4217,6 +4221,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
             }
         }
+    }
+
+    private boolean shouldIncludePerSubmissionEntries(boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment,
+                                                      boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment,
+                                                      boolean withRubrics) {
+        return withStudentSubmissionText
+                || withStudentSubmissionAttachment
+                || withFeedbackText
+                || withFeedbackComment
+                || withFeedbackAttachment
+                || withRubrics;
     }
 
 	private void createTextZipEntry(ZipOutputStream out, final String zipEntryName, final String textEntryString)
