@@ -2,6 +2,7 @@ var DTMN = DTMN || {};
 
 DTMN.toolList = [ "assignments", "assessments", "signup", "gradebook", "resources", "calendar", "forums", "announcements", "lessons" ];
 DTMN.collapseElements = [ ];
+DTMN.bulkFields = [ "open_date", "due_date", "accept_until", "feedback_start", "feedback_end", "signup_begins", "signup_deadline" ];
 DTMN.nextIndex = -1;
 
 DTMN.initDatePicker = function(updates, notModified) {
@@ -31,8 +32,18 @@ DTMN.initDatePicker = function(updates, notModified) {
       }, 25); // delay 25ms to give browser time to render the spinner
     });
 
-    collapseElement.addEventListener("shown.bs.collapse", () => DTMN.validateShiftInput());
-    collapseElement.addEventListener("hidden.bs.collapse", () => DTMN.validateShiftInput());
+    collapseElement.addEventListener("shown.bs.collapse", () => {
+      DTMN.validateShiftInput();
+      if (DTMN.validateBulkInputs) {
+        DTMN.validateBulkInputs();
+      }
+    });
+    collapseElement.addEventListener("hidden.bs.collapse", () => {
+      DTMN.validateShiftInput();
+      if (DTMN.validateBulkInputs) {
+        DTMN.validateBulkInputs();
+      }
+    });
   });
 };
 
@@ -59,6 +70,49 @@ DTMN.initShifter = function(updates, notModified) {
   DTMN.shiftVisibleBtn.addEventListener("click", function() {
     DTMN.handleShiftButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
   }, false);
+};
+
+DTMN.initBulkSetter = function(updates, notModified) {
+
+  DTMN.bulkErrorBanner = document.getElementById("dateBulkSetterError");
+  DTMN.bulkAllBtn = document.getElementById("applyAllDates");
+  DTMN.bulkVisibleBtn = document.getElementById("applyVisibleDates");
+  DTMN.bulkInputs = Array.from(document.querySelectorAll(".bulk-date-input"));
+
+  DTMN.initBulkDatePickers();
+
+  DTMN.bulkAllBtn.addEventListener("click", function() {
+    DTMN.handleBulkButtonClick(this, DTMN.collapseElements, updates, notModified);
+  }, false);
+
+  DTMN.bulkVisibleBtn.addEventListener("click", function() {
+    DTMN.handleBulkButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
+  }, false);
+
+  DTMN.validateBulkInputs();
+};
+
+DTMN.initBulkDatePickers = function() {
+  DTMN.bulkFields.forEach(function(field) {
+    const input = document.getElementById("bulk_" + field);
+    const hidden = document.getElementById("bulk_hidden_" + field);
+
+    if (!input || !hidden) {
+      return;
+    }
+
+    hidden.addEventListener("change", () => DTMN.validateBulkInputs(), false);
+
+    localDatePicker({
+      input,
+      useTime: 1,
+      parseFormat: 'YYYY-MM-DDTHH:mm:ss',
+      allowEmptyDate: true,
+      ashidden: {
+        iso8601: hidden.id,
+      }
+    });
+  });
 };
 
 DTMN.attachDatePicker = function (selector, updates, notModified) {
@@ -204,6 +258,36 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
   }, 25);
 };
 
+DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModified)
+{
+  const hasValue = DTMN.bulkFields.some(function(field) {
+    const hidden = document.getElementById("bulk_hidden_" + field);
+    return hidden && hidden.value !== "";
+  });
+
+  if (!hasValue) {
+    DTMN.showBulkError();
+    DTMN.disableBulkButtons();
+    return;
+  }
+
+  DTMN.hideBulkError();
+  DTMN.disableBulkControls(button);
+  window.setTimeout(function()
+  {
+    if (collapseElements.length === 0)
+    {
+      DTMN.enableBulkControls(button);
+      return;
+    }
+
+    for (let i = 0; i < collapseElements.length; i++)
+    {
+      window.setTimeout(function() { DTMN.applyBulkDates(updates, notModified, collapseElements[i].id, button, i === collapseElements.length - 1); }, 10);
+    }
+  }, 25);
+};
+
 DTMN.validateShiftInput = function()
 {
   const val = DTMN.shiftInput.value;
@@ -233,6 +317,25 @@ DTMN.findExpandedSections = function()
   return DTMN.collapseElements.filter(function (e) { return e.classList.contains("show") === true; });
 };
 
+DTMN.validateBulkInputs = function()
+{
+  if (!DTMN.bulkAllBtn || !DTMN.bulkVisibleBtn) {
+    return;
+  }
+
+  const hasValue = DTMN.bulkFields.some(function(field) {
+    const hidden = document.getElementById("bulk_hidden_" + field);
+    return hidden && hidden.value !== "";
+  });
+
+  if (hasValue) {
+    DTMN.hideBulkError();
+  }
+
+  DTMN.bulkAllBtn.disabled = !hasValue;
+  DTMN.bulkVisibleBtn.disabled = !hasValue || DTMN.findExpandedSections().length === 0;
+};
+
 DTMN.hideShiftError = function()
 {
   DTMN.shiftErrorBanner.classList.add("d-none");
@@ -243,6 +346,18 @@ DTMN.showShiftError = function()
 {
   DTMN.shiftErrorBanner.classList.remove("d-none");
   DTMN.shiftErrorBanner.setAttribute("role", "alert");
+};
+
+DTMN.hideBulkError = function()
+{
+  DTMN.bulkErrorBanner.classList.add("d-none");
+  DTMN.bulkErrorBanner.removeAttribute("role");
+};
+
+DTMN.showBulkError = function()
+{
+  DTMN.bulkErrorBanner.classList.remove("d-none");
+  DTMN.bulkErrorBanner.setAttribute("role", "alert");
 };
 
 DTMN.disableShiftControls = function(button)
@@ -258,11 +373,35 @@ DTMN.disableShiftButtons = function()
   DTMN.shiftVisibleBtn.disabled = true;
 };
 
+DTMN.disableBulkControls = function(button)
+{
+  DTMN.bulkInputs.forEach(function(input) {
+    input.disabled = true;
+  });
+  DTMN.disableBulkButtons();
+  button.classList.add("spinButton");
+};
+
+DTMN.disableBulkButtons = function()
+{
+  DTMN.bulkAllBtn.disabled = true;
+  DTMN.bulkVisibleBtn.disabled = true;
+};
+
 DTMN.enableShiftControls = function(button)
 {
   button.classList.remove("spinButton");
   DTMN.validateShiftInput();
   DTMN.shiftInput.disabled = false;
+};
+
+DTMN.enableBulkControls = function(button)
+{
+  button.classList.remove("spinButton");
+  DTMN.bulkInputs.forEach(function(input) {
+    input.disabled = false;
+  });
+  DTMN.validateBulkInputs();
 };
 
 DTMN.clearChangedDateIndication = function() {
@@ -338,5 +477,50 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   if (enableButton)
   {
     DTMN.enableShiftControls(button);
+  }
+};
+
+DTMN.applyBulkDates = function (updates, notModified, rootElementId, button, enableButton) {
+
+  const rootElement = "#" + rootElementId;
+
+  DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
+
+  DTMN.bulkFields.forEach(function(field) {
+    const bulkHidden = document.getElementById("bulk_hidden_" + field);
+
+    if (!bulkHidden || bulkHidden.value === "") {
+      return;
+    }
+
+    const bulkDate = moment(bulkHidden.value, 'YYYY-MM-DDTHH:mm:ss');
+
+    if (!bulkDate.isValid()) {
+      return;
+    }
+
+    const hiddenFields = document.querySelectorAll(rootElement + ' input[type=hidden][data-field="' + field + '"]');
+    hiddenFields.forEach(function(hiddenField) {
+      const td = hiddenField.closest('td');
+      const datepicker = td ? td.querySelector('input.datepicker') : null;
+
+      if (!datepicker || datepicker.disabled) {
+        return;
+      }
+
+      const dataTool = hiddenField.dataset.tool;
+      const dateFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm:ss';
+      const displayFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss';
+
+      datepicker.value = bulkDate.format(displayFormat);
+      hiddenField.value = bulkDate.format(dateFormat);
+      hiddenField.dispatchEvent(new Event('change', {bubbles: true}));
+      datepicker.classList.add('border-warning');
+    });
+  });
+
+  if (enableButton)
+  {
+    DTMN.enableBulkControls(button);
   }
 };
