@@ -1713,7 +1713,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		protected void save_REALM_PROVIDER(AuthzGroup azg)
 		{
 			// we we are not provider, delete any for this realm
-			if ((azg.getProviderGroupId() == null) || (m_provider == null))
+			if ((azg.getProviderGroupId() == null) || (groupProvider() == null))
 			{
 				String sql = dbAuthzGroupSql.getDeleteRealmProvider1Sql();
 				Object[] fields = new Object[1];
@@ -1724,7 +1724,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			// add what we have in the azg, unless we see it in the db
 			final Set<String> toAdd = new HashSet<String>();
-			String[] ids = m_provider.unpackId(azg.getProviderGroupId());
+			String[] ids = groupProvider().unpackId(azg.getProviderGroupId());
 			if (ids != null)
 			{
 				for (String id : ids)
@@ -2698,7 +2698,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 */
 		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			if ((realm == null) || (m_provider == null)) return;
+			if (realm == null) return;
 			log.debug("Refreshing authz group: {}", realm);
 
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
@@ -2731,7 +2731,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
 
 			// get the latest userEid -> role name map from the provider
-			Map<String,String> target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
+			Map<String,String> target = groupProvider().getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
 			List<UserAndRole> grants = getGrants(realm);

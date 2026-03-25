@@ -25,6 +25,10 @@ import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.OptionalProviderFactoryBean;
+import org.sakaiproject.authz.api.RoleProvider;
+import org.sakaiproject.authz.api.GroupProvider;
+
 
 /** Just checks we don't need any missing methods as the main implementation is abstract.*/
 public class ContreteAuthzGroupService extends BaseAuthzGroupService {
@@ -89,4 +93,15 @@ public class ContreteAuthzGroupService extends BaseAuthzGroupService {
 		return null;
 	}
 
+	@Override
+	protected GroupProvider groupProvider() {
+		// TODO Auto-generated method stub
+		return (GroupProvider) new OptionalProviderFactoryBean();
+	}
+	
+    @Override
+	protected RoleProvider roleProvider() {
+		// TODO Auto-generated method stub
+		return (RoleProvider) new OptionalProviderFactoryBean();
+	}
 }

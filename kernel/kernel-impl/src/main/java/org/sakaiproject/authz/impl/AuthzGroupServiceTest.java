@@ -31,6 +31,8 @@ import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.authz.api.GroupProvider;
+import org.sakaiproject.authz.api.RoleProvider;
 
 import java.util.Set;
 
@@ -125,6 +127,16 @@ public class AuthzGroupServiceTest extends DbAuthzGroupService
 
 	@Override
 	protected MicrosoftMessagingService microsoftMessagingService() {
+		return null;
+	}
+
+	@Override
+	protected GroupProvider groupProvider() {
+		return null;
+	}
+
+	@Override
+	protected RoleProvider  roleProvider() {
 		return null;
 	}
 }

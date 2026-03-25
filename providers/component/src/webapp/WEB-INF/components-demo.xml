@@ -23,8 +23,8 @@
 		<property name="toolManager"> <ref bean="org.sakaiproject.tool.api.ToolManager"/> </property>
 		<property name="valueEncryptionUtilities" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
 	</bean>
-	
-	<bean id="org.sakaiproject.authz.api.RoleProvider"
+
+	<bean id="demoRoleProvider"
 		class="org.sakaiproject.unboundid.UserAttributeRoleProvider"
 		init-method="init">
 		<property name="userDirectoryService">

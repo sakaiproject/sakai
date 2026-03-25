@@ -24,6 +24,8 @@
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
  		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="microsoftMessagingService" bean="org.sakaiproject.messaging.api.MicrosoftMessagingService" />
+		<lookup-method name="groupProvider" bean="org.sakaiproject.authz.api.GroupProvider" />
+		<lookup-method name="roleProvider" bean="org.sakaiproject.authz.api.RoleProvider" />
  		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
@@ -63,6 +65,27 @@
 			class="org.sakaiproject.authz.impl.FunctionManagerComponent"
 			init-method="init"
 			destroy-method="destroy">
+	</bean>
+
+	<!--
+    Proxy pointing to whichever Group Provider implementation has been assigned
+    the property name "org.sakaiproject.authz.api.GroupProvider". By default, it points to
+    "org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider".
+    If you use a different Group Provider, there's no need to edit this file.
+    Instead, just use your "sakai.properties" file to point the property to your
+    implementation.
+    -->
+
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+		  class="org.sakaiproject.util.OptionalProviderFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.GroupProvider}" />
+		<property name="proxyInterface" value="org.sakaiproject.authz.api.GroupProvider"/>
+	</bean>
+
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		  class="org.sakaiproject.util.OptionalProviderFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.RoleProvider}" />
+		<property name="proxyInterface" value="org.sakaiproject.authz.api.RoleProvider"/>
 	</bean>
 
 </beans>

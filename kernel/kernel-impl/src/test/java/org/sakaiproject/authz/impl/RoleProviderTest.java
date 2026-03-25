@@ -61,28 +61,6 @@ public class RoleProviderTest extends SakaiKernelTestBase {
 		
 		BaseAuthzGroupService authzGroupService = (BaseAuthzGroupService) getService(AuthzGroupService.class);
 
-		RoleProvider roleProvider = new RoleProvider() {
-			
-			public String getDisplayName(String role) {
-				return null;
-			}
-			
-			public Collection<String> getAllAdditionalRoles() {
-				return Collections.emptyList();
-			}
-			
-			public Set<String> getAdditionalRoles(String userId) {
-                /*
-				if ("user3".equals(userId)) {
-					return Collections.singleton(".other");
-				}
-                */
-				return Collections.emptySet();
-			}
-		};
-		
-		authzGroupService.setRoleProvider(roleProvider);
-		
 		UserEdit user1 = userService.addUser("user1", "user1");
 		userService.commitEdit(user1);
 		UserEdit user2 = userService.addUser("user2", "user2");
