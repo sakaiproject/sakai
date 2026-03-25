@@ -2321,8 +2321,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         String submitterId = UUID.randomUUID().toString();
         AssignmentSubmission submission = createNewSubmission(context, submitterId, assignment);
-        submission.getAssignment().setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
-        submission.getAssignment().setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);
         submission.setSubmitted(true);
         submission.setUserSubmission(true);
         submission.setDateSubmitted(Instant.parse("2026-03-25T12:00:00Z"));
