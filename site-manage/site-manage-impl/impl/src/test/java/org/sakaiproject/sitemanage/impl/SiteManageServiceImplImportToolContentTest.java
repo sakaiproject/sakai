@@ -39,10 +39,6 @@ import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.tool.api.Tool;
 import org.tsugi.lti13.LTICustomVars;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
