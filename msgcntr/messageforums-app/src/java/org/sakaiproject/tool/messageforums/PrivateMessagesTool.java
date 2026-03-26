@@ -1863,12 +1863,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     Map<User, Boolean> recipients = getRecipients();
 
     LRS_Statement statement = null;
-    if (null != learningResourceStoreService) {
-    	try{
-    		statement = getStatementForUserSentPvtMsg(pMsg.getTitle(), SAKAI_VERB.shared);
-    	}catch(Exception e){
-    		log.error(e.getMessage(), e);
-    	}
+    if (learningResourceStoreService != null) {
+        try {
+            statement = getStatementForUserSentPvtMsg(pMsg.getTitle(), SAKAI_VERB.shared);
+        } catch (Exception e) {
+            log.error("Unable to build LRS statement for shared private message '{}'", pMsg.getTitle(), e);
+        }
     }
     
     if(booleanSchedulerSend) {
