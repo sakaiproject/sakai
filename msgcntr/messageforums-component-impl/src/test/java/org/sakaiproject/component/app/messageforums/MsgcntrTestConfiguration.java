@@ -40,6 +40,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -318,5 +319,10 @@ public class MsgcntrTestConfiguration {
     @Bean(name = "org.sakaiproject.lti.api.LTIService")
     public LTIService ltiService() {
         return mock(LTIService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
     }
 }
