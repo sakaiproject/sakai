@@ -46,20 +46,14 @@
     <constructor-arg value="lessons" />
   </bean>
 
-  <bean id="addLessonsCommentUserNotificationHandler"
-      class="org.sakaiproject.lessonbuildertool.impl.AddLessonsCommentUserNotificationHandlerImpl">
-    <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.lessons"/>
-    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
-  </bean>
+  <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.addLessonsComment"
+        class="org.sakaiproject.lessonbuildertool.messaging.AddLessonsCommentUserNotificationHandlerImpl"/>
 
   <bean id="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"
       class="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" init-method="init" lazy-init="false">
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
     <property name="autoDdl" value="${auto.ddl}" />
     <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-    <property name="userMessagingService" ref="org.sakaiproject.messaging.api.UserMessagingService" />
-    <property name="userNotificationHandler" ref="addLessonsCommentUserNotificationHandler" />
   </bean>
 
 </beans>

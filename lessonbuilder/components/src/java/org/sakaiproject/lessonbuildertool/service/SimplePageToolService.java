@@ -32,8 +32,6 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.ToolApi;
-import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.messaging.api.UserNotificationHandler;
 
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -61,8 +59,6 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
     private ResourceLoader resourceLoader;
     private SqlService sqlService;
     private ToolApi toolApi;
-    private UserMessagingService userMessagingService;
-    private UserNotificationHandler userNotificationHandler;
 
     public SimplePageToolService() {}
 
@@ -81,8 +77,6 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
         if (!registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL)) {
             functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
         }
-
-        userMessagingService.registerHandler(this.userNotificationHandler);
 
         if (autoDdl) {
             try {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lessonbuildertool.impl;
+package org.sakaiproject.lessonbuildertool.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,21 +27,20 @@ import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.UserNotificationData;
-import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Setter
-public class AddLessonsCommentUserNotificationHandlerImpl implements UserNotificationHandler {
+public class AddLessonsCommentUserNotificationHandlerImpl extends AbstractUserNotificationHandler {
 
-    private ResourceLoader resourceLoader;
-    private SimplePageToolDao simplePageToolDao;
-    private SecurityService securityService;
+    @Autowired private ResourceLoader resourceLoader;
+    @Autowired private SimplePageToolDao simplePageToolDao;
+    @Autowired private SecurityService securityService;
 
     @Override
     public List<String> getHandledEvents() {

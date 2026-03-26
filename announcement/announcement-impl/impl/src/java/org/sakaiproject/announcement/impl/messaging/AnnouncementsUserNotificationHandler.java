@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.announcement.api;
+package org.sakaiproject.announcement.impl.messaging;
 
 import static java.util.function.Predicate.not;
 
@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -37,20 +36,23 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.user.api.UserDirectoryService;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -60,42 +62,29 @@ import org.hibernate.SessionFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 public class AnnouncementsUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private AnnouncementService announcementService;
-
-    @Resource
-    private EntityManager entityManager;
-
-    @Resource
-    private ServerConfigurationService serverConfigurationService;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
-
-    @Resource
-    private SiteService siteService;
-
-    @Resource
-    private UserDirectoryService userDirectoryService;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    private PlatformTransactionManager transactionManager;
-
     private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
+
+    @Autowired private AnnouncementService announcementService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private SiteService siteService;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    @Autowired private PlatformTransactionManager transactionManager;
+
 
     private int motdTTLHours;
 
     @PostConstruct
-    private void init() {
+    public void init() {
         motdTTLHours = serverConfigurationService.getInt("announcement.motd.notification.ttlhours", 24);
     }
 
     @Override
     public List<String> getHandledEvents() {
-
         return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD,
                 AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY,
                 AnnouncementService.SECURE_ANNC_REMOVE_OWN, AnnouncementService.SECURE_ANNC_REMOVE_ANY,

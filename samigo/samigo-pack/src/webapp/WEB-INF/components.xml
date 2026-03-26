@@ -461,4 +461,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.samigo"
+          class="org.sakaiproject.samigo.impl.messaging.SamigoUserNotificationHandler"/>
+
 </beans>

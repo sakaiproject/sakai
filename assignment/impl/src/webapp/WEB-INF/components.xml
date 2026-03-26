@@ -286,4 +286,14 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
+
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.assignments.add"
+          class="org.sakaiproject.assignment.impl.messaging.AddAssignmentUserNotificationHandler"/>
+
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.assignments.grade"
+          class="org.sakaiproject.assignment.impl.messaging.GradeAssignmentUserNotificationHandler"/>
+
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.assignments.remove"
+          class="org.sakaiproject.assignment.impl.messaging.RemoveAssignmentUserNotificationHandler"/>
+
 </beans>

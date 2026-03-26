@@ -81,5 +81,8 @@
      <property name="overrideBySite"><value>false</value></property>
      <property name="expandByDefault"><value>true</value></property>
    </bean>
-	
+
+	<bean id="org.sakaiproject.messaging.api.UserNotificationHandler.announcements"
+		  class="org.sakaiproject.announcement.impl.messaging.AnnouncementsUserNotificationHandler"/>
+
 </beans>

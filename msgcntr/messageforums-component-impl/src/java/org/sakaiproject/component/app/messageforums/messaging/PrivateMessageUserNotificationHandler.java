@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.api.app.messageforums;
+package org.sakaiproject.component.app.messageforums.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -37,24 +36,17 @@ import org.sakaiproject.site.api.SiteService;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
-public class PrivateMessageUserNotificationHandler extends AbstractUserNotificationHandler{
+public class PrivateMessageUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private PrivateMessageManager privateMessageManager;
-	
-    @Resource
-    private SiteService siteService;
+    @Autowired private PrivateMessageManager privateMessageManager;
+    @Autowired private SiteService siteService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
-    @Resource
-    private ServerConfigurationService serverConfigurationService;
-
-    @Override
     public List<String> getHandledEvents() {
         return Arrays.asList(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT,
                 DiscussionForumService.EVENT_MESSAGES_ADD);

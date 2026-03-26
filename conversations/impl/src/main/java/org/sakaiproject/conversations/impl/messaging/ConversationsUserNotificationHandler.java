@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conversations.impl;
+package org.sakaiproject.conversations.impl.messaging;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,44 +22,30 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Resource;
-
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.UserNotificationHandler;
-import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ConversationsUserNotificationHandler implements UserNotificationHandler{
+public class ConversationsUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private ConversationsService conversationsService;
-
-    @Resource
-    private SiteService siteService;
-
-    @Resource
-    private UserMessagingService userMessagingService;
-
-    @Resource
-    private UserDirectoryService userDirectoryService;
-
-    @Resource(name = "org.sakaiproject.util.ResourceLoader.conversations")
-    private ResourceLoader resourceLoader;
-
-    public void init() {
-        userMessagingService.registerHandler(this);
-    }
+    @Autowired private ConversationsService conversationsService;
+    @Autowired private SiteService siteService;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Qualifier("org.sakaiproject.util.ResourceLoader.conversations")
+    @Autowired private ResourceLoader resourceLoader;
 
     @Override
     public List<String> getHandledEvents() {

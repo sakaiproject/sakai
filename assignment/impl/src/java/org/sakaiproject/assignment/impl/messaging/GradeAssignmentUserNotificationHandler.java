@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.assignment.api;
+package org.sakaiproject.assignment.impl.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Resource;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
@@ -34,24 +34,21 @@ import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.model.UserNotification;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 public class GradeAssignmentUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private AssignmentService assignmentService;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    private PlatformTransactionManager transactionManager;
+    @Autowired private AssignmentService assignmentService;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Autowired private SessionFactory sessionFactory;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    @Autowired private PlatformTransactionManager transactionManager;
 
     @Override
     public List<String> getHandledEvents() {

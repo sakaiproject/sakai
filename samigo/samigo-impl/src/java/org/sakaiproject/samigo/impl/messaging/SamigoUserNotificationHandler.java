@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.tool.assessment;
+package org.sakaiproject.samigo.impl.messaging;
 
 import java.time.Instant;
 import java.util.*;
@@ -44,48 +44,31 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.Resource;
-
 import static org.sakaiproject.samigo.util.SamigoConstants.*;
 
-
-
-/*
- *   Note: Restoring of soft deleted Assessments does not recreate bullhorn alerts!
- */
-
 @Slf4j
-@Component
-public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotificationHandler {
+public class SamigoUserNotificationHandler extends AbstractUserNotificationHandler {
 
     public static Pattern idPattern = Pattern.compile("siteId=(\\S*),\\s*\\S*\\s*publishedAssessmentId=(\\S*)", Pattern.CASE_INSENSITIVE);
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-    @Resource
-    private SiteService siteService;
-
-    @Resource
-    private AuthzGroupService authzGroupService;
-
-    @Resource
-    private SessionManager sessionManager;
-
-    @Resource
-    private UserDirectoryService userDirectoryService;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    private PlatformTransactionManager transactionManager;
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
-    private EventTrackingService eventTrackingService;
+    @Autowired private SiteService siteService;
+    @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private SessionManager sessionManager;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    @Autowired private PlatformTransactionManager transactionManager;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private EventTrackingService eventTrackingService;
 
 
-    public TestsAndQuizzesUserNotificationHandler(){
-        super();
+    public SamigoUserNotificationHandler(){
         eventTrackingService = ComponentManager.get(EventTrackingService.class);
     }
 
@@ -122,6 +105,7 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
 
         if (!releaseTo.equals("Anonymous Users")) {
             try {
+                // Note: Restoring of soft deleted Assessments does not recreate bullhorn alerts!
                 switch (e.getEvent()) {
                     case EVENT_ASSESSMENT_AVAILABLE:
                         checkForDelays(pub, extendedTimes,siteId, e.getUserId());

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.commons.api;
+package org.sakaiproject.commons.impl.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Resource;
-
+import org.sakaiproject.commons.api.CommonsConstants;
+import org.sakaiproject.commons.api.CommonsEvents;
+import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -31,23 +32,16 @@ import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 public class CommonsCommentUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private CommonsManager commonsManager;
-
-    @Resource
-    private ServerConfigurationService serverConfigurationService;
-
-    @Resource
-    private SiteService siteService;
+    @Autowired private CommonsManager commonsManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private SiteService siteService;
 
     @Override
     public List<String> getHandledEvents() {

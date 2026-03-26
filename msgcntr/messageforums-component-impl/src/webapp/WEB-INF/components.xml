@@ -413,4 +413,8 @@
         <property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
+
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.private.message"
+          class="org.sakaiproject.component.app.messageforums.messaging.PrivateMessageUserNotificationHandler"/>
+
 </beans>

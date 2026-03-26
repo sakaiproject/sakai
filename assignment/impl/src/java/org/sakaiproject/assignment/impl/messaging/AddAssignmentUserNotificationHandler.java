@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.assignment.api;
+package org.sakaiproject.assignment.impl.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import java.time.Instant;
-
-import javax.annotation.Resource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.type.StringType;
@@ -35,6 +32,8 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_A
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
@@ -45,33 +44,24 @@ import org.sakaiproject.site.api.SiteService;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 public class AddAssignmentUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    @Resource
-    private AssignmentService assignmentService;
-
-    @Resource
-    private AuthzGroupService authzGroupService;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    private PlatformTransactionManager transactionManager;
-
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
-
-    @Resource
-    private SiteService siteService;
-
-    @Resource
-    private UserDirectoryService userDirectoryService;
+    @Autowired private AssignmentService assignmentService;
+    @Autowired private AuthzGroupService authzGroupService;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    @Autowired private PlatformTransactionManager transactionManager;
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private SiteService siteService;
+    @Autowired private UserDirectoryService userDirectoryService;
 
     @Override
     public List<String> getHandledEvents() {

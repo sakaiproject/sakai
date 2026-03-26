@@ -37,8 +37,8 @@
     <constructor-arg value="conversations"/>
   </bean>
 
-  <bean id="org.sakaiproject.conversations.impl.ConversationsUserNotificationHandler"
-      class="org.sakaiproject.conversations.impl.ConversationsUserNotificationHandler" init-method="init">
+  <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.conversations"
+        class="org.sakaiproject.conversations.impl.messaging.ConversationsUserNotificationHandler">
   </bean>
 
   <bean id="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository"

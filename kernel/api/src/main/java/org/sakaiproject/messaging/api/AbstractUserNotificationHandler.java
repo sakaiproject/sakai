@@ -15,32 +15,31 @@
  */
 package org.sakaiproject.messaging.api;
 
-import java.util.Arrays;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
+import java.util.Arrays;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.messaging.api.SelfRegisteringUserNotificationHandler;
-import org.sakaiproject.messaging.api.UserMessagingService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractUserNotificationHandler implements SelfRegisteringUserNotificationHandler {
+import lombok.extern.slf4j.Slf4j;
 
-    @Resource
-    protected SecurityService securityService;
+@Slf4j
+public abstract class AbstractUserNotificationHandler implements UserNotificationHandler {
 
-    @Resource
-    protected UserMessagingService userMessagingService;
+    @Autowired protected SecurityService securityService;
+    @Autowired protected UserMessagingService userMessagingService;
 
     @PostConstruct
     protected void registerForEvents() {
+        log.info("Registering notification handler: {}", this.getName());
         userMessagingService.registerHandler(this);
     }
 
     @PreDestroy
     protected void unregisterForEvents() {
+        log.info("Unregistering notification handler: {}", this.getName());
         userMessagingService.unregisterHandler(this);
     }
 

@@ -65,4 +65,7 @@
         </property>
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.commons.comment"
+          class="org.sakaiproject.commons.impl.messaging.CommonsCommentUserNotificationHandler"/>
+
 </beans>
