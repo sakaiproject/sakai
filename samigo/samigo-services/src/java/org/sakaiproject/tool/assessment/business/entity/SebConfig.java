@@ -137,9 +137,11 @@ public class SebConfig {
     public enum AllowUploadsState { ENABLED, DISABLED, UNREADABLE }
 
     private ServerConfigurationService serverConfigurationService;
+    private ContentHostingService contentHostingService;
 
     public SebConfig() {
         this.serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+        this.contentHostingService = ComponentManager.get(ContentHostingService.class);
     }
 
     public static SebConfig of(HashMap<String, String> assessmentMetaDataMap) {
@@ -323,14 +325,13 @@ public class SebConfig {
      * @param configResourceId The resource ID of the uploaded SEB configuration file in ContentHostingService
      * @return ENABLED if allowUploads is true, DISABLED if false, UNREADABLE if the file cannot be read/parsed
      */
-    public static AllowUploadsState getAllowUploadsState(String configResourceId) {
+    public AllowUploadsState getAllowUploadsState(String configResourceId) {
         if (StringUtils.isBlank(configResourceId)) {
             log.debug("Config resource ID is blank, returning UNREADABLE for allowUploads");
             return AllowUploadsState.UNREADABLE;
         }
 
         try {
-            ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);
             org.sakaiproject.content.api.ContentResource configResource = contentHostingService.getResource(configResourceId);
 
             Parameters parameters = new Parameters();
@@ -338,7 +339,7 @@ public class SebConfig {
                     new FileBasedConfigurationBuilder<>(XMLPropertyListConfiguration.class)
                             .configure(parameters.fileBased());
             XMLPropertyListConfiguration config = configBuilder.getConfiguration();
-            org.apache.commons.configuration2.io.FileHandler fileHandler = new org.apache.commons.configuration2.io.FileHandler(config);
+            FileHandler fileHandler = new FileHandler(config);
             fileHandler.setEncoding(CONFIG_ENCODING);
             fileHandler.load(configResource.streamContent());
 
@@ -348,7 +349,7 @@ public class SebConfig {
 
             return allowUploads ? AllowUploadsState.ENABLED : AllowUploadsState.DISABLED;
         } catch (Exception e) {
-            log.error("Error reading allowUploads from SEB config file: {}", e.getMessage(), e);
+            log.error("Error reading allowUploads from SEB config file: {}", e.toString(), e);
             return AllowUploadsState.UNREADABLE;
         }
     }

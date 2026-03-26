@@ -467,7 +467,8 @@ public class ConfirmPublishAssessmentListener
                     String sebConfigMode = assessmentSettings.getSebConfigMode();
                     if ("UPLOAD".equals(sebConfigMode)) {
                         String configUploadId = assessmentSettings.getSebConfigUploadId();
-                        SebConfig.AllowUploadsState allowUploadsState = SebConfig.getAllowUploadsState(configUploadId);
+                        SebConfig sebConfig = new SebConfig();
+                        SebConfig.AllowUploadsState allowUploadsState = sebConfig.getAllowUploadsState(configUploadId);
                         isUploadModeWithUploadsEnabled = SebConfig.AllowUploadsState.ENABLED.equals(allowUploadsState);
                         isSebConfigUnreadable = SebConfig.AllowUploadsState.UNREADABLE.equals(allowUploadsState);
                         log.debug("SEB config mode is UPLOAD. Config file allowUploads state: {}", allowUploadsState);
