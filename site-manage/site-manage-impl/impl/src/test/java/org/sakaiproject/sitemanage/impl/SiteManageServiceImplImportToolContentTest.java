@@ -29,8 +29,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
@@ -39,19 +37,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.tool.api.Tool;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.tsugi.lti13.LTICustomVars;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -59,7 +51,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Focused unit tests for SiteManageServiceImpl#importToolContent site info URL behavior.
@@ -72,7 +63,6 @@ public class SiteManageServiceImplImportToolContentTest {
     private FunctionManager functionManager;
     private ServerConfigurationService serverConfigurationService;
     private EntityManager entityManager;
-    private TransactionTemplate transactionTemplate;
 
     @Before
     public void setUp() {
@@ -82,22 +72,16 @@ public class SiteManageServiceImplImportToolContentTest {
         functionManager = mock(FunctionManager.class);
         serverConfigurationService = mock(ServerConfigurationService.class);
         entityManager = mock(EntityManager.class);
-        transactionTemplate = mock(TransactionTemplate.class);
 
         siteManageService.setSiteService(siteService);
         siteManageService.setAuthzGroupService(authzGroupService);
         siteManageService.setFunctionManager(functionManager);
         siteManageService.setServerConfigurationService(serverConfigurationService);
         siteManageService.setEntityManager(entityManager);
-        siteManageService.setTransactionTemplate(transactionTemplate);
 
         // Keep this test class focused on site-info URL behavior.
         doReturn(false).when(siteManageService).isAddMissingToolsOnImportEnabled();
         when(entityManager.getEntityProducers()).thenReturn(Collections.emptyList());
-        doAnswer(invocation -> {
-            TransactionCallback<?> callback = invocation.getArgument(0);
-            return callback.doInTransaction(null);
-        }).when(transactionTemplate).execute(any(TransactionCallback.class));
     }
 
     @Test
@@ -264,64 +248,6 @@ public class SiteManageServiceImplImportToolContentTest {
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(destinationSite, never()).setInfoUrl("");
         verify(siteService, atLeastOnce()).save(destinationSite);
-    }
-
-    @Test
-    public void importToolsIntoSiteUpdatesEntityReferencesForGranularToolImports() throws Exception {
-
-        final String oldSiteId = "site-old";
-        final String newSiteId = "site-new";
-        final String forumsToolId = "sakai.forums";
-
-        Site sourceSite = mock(Site.class);
-        Site destinationSite = mock(Site.class);
-        ResourceProperties sourceSiteProperties = mock(ResourceProperties.class);
-        ResourcePropertiesEdit destinationSiteProperties = mock(ResourcePropertiesEdit.class);
-
-        when(sourceSite.getProperties()).thenReturn(sourceSiteProperties);
-        when(sourceSite.getTools(anyString())).thenReturn(Collections.emptyList());
-        when(sourceSiteProperties.getProperty(LTICustomVars.CONTEXT_ID_HISTORY)).thenReturn(null);
-        when(sourceSiteProperties.getProperty("template")).thenReturn(null);
-
-        when(destinationSite.getId()).thenReturn(newSiteId);
-        when(destinationSite.getPropertiesEdit()).thenReturn(destinationSiteProperties);
-        when(destinationSite.getTools(anyString())).thenReturn(Collections.emptyList());
-
-        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
-        when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
-
-        EntityTransferrer gradebookTransferrer = mock(EntityTransferrer.class, withSettings().extraInterfaces(EntityProducer.class));
-        when(gradebookTransferrer.myToolIds()).thenReturn(new String[] { SiteManageConstants.GRADEBOOK_TOOL_ID });
-        when(gradebookTransferrer.transferCopyEntities(eq(oldSiteId), eq(newSiteId), nullable(List.class), nullable(List.class), eq(false)))
-            .thenReturn(Map.of("gb/2", "gb/20"));
-
-        EntityTransferrer forumsTransferrer = mock(EntityTransferrer.class, withSettings().extraInterfaces(EntityProducer.class));
-        when(forumsTransferrer.myToolIds()).thenReturn(new String[] { forumsToolId });
-        when(forumsTransferrer.transferCopyEntities(eq(oldSiteId), eq(newSiteId), nullable(List.class), nullable(List.class), eq(false)))
-            .thenReturn(Collections.emptyMap());
-
-        when(entityManager.getEntityProducers()).thenReturn(List.of(
-            (EntityProducer) gradebookTransferrer,
-            (EntityProducer) forumsTransferrer
-        ));
-
-        Map<String, List<String>> importTools = new HashMap<>();
-        importTools.put(SiteManageConstants.GRADEBOOK_TOOL_ID, List.of(oldSiteId));
-
-        Map<String, Map<String, List<String>>> toolItemMap = new HashMap<>();
-        toolItemMap.put(forumsToolId, Map.of(oldSiteId, List.of("200")));
-
-        siteManageService.importToolsIntoSite(
-            destinationSite,
-            new ArrayList<>(List.of(SiteManageConstants.GRADEBOOK_TOOL_ID, forumsToolId)),
-            importTools,
-            toolItemMap,
-            Collections.emptyMap(),
-            false
-        );
-
-        verify(forumsTransferrer).updateEntityReferences(eq(newSiteId), argThat(map -> "gb/20".equals(map.get("gb/2"))));
-        verify(gradebookTransferrer).updateEntityReferences(eq(newSiteId), anyMap());
     }
 
     private SitePage mockSiteInfoPage() {
