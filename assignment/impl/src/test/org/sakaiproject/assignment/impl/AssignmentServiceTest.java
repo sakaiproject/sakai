@@ -159,6 +159,15 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
         when(resourceLoader.getString("listsub.nosub")).thenReturn("No Submission");
         when(resourceLoader.getString("gen.notsta")).thenReturn("Not Started");
+        when(formattedText.getDecimalSeparator()).thenReturn(".");
+        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
+        when(resourceLoader.getString("grades.id")).thenReturn("ID");
+        when(resourceLoader.getString("grades.eid")).thenReturn("EID");
+        when(resourceLoader.getString("grades.lastname")).thenReturn("Last Name");
+        when(resourceLoader.getString("grades.firstname")).thenReturn("First Name");
+        when(resourceLoader.getString("grades.grade")).thenReturn("Grade");
+        when(resourceLoader.getString("grades.submissionTime")).thenReturn("Submission Time");
+        when(resourceLoader.getString("grades.late")).thenReturn("Late");
         ((AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService)).setResourceLoader(resourceLoader);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
@@ -2352,8 +2361,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference))
                 .thenReturn(Collections.emptyList());
         when(serverConfigurationService.getInt("zip.compression.level", 1)).thenReturn(1);
-        mockGradeZipHeaders();
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         assignmentService.getSubmissionsZip(outputStream, assignmentReference,
                 "gradeFile&gradeFileFormat=csv&contextString=" + context);
@@ -2494,18 +2501,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         nf.setMinimumFractionDigits(dec);
         nf.setGroupingUsed(false);
         when(formattedText.getNumberFormat(dec, dec, false)).thenReturn(nf);
-    }
-
-    private void mockGradeZipHeaders() {
-        when(formattedText.getDecimalSeparator()).thenReturn(".");
-        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
-        when(resourceLoader.getString("grades.id")).thenReturn("ID");
-        when(resourceLoader.getString("grades.eid")).thenReturn("EID");
-        when(resourceLoader.getString("grades.lastname")).thenReturn("Last Name");
-        when(resourceLoader.getString("grades.firstname")).thenReturn("First Name");
-        when(resourceLoader.getString("grades.grade")).thenReturn("Grade");
-        when(resourceLoader.getString("grades.submissionTime")).thenReturn("Submission Time");
-        when(resourceLoader.getString("grades.late")).thenReturn("Late");
     }
 
     private List<String> readZipEntryNames(byte[] zipBytes) throws Exception {
