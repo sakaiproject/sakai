@@ -377,66 +377,78 @@ public class ScormContentServiceImpl implements ScormContentService {
 	 */
 	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding, boolean createContentPackage) throws ResourceStorageException
 	{
-		File file = createFile(resourceService.getArchiveStream(resourceId));
-		int result = VALIDATION_SUCCESS;
-		if (!file.exists())
+		File file = null;
+		try
 		{
-			return VALIDATION_NOFILE;
-		}
-
-		IValidator validator = validate(file, isManifestOnly, isValidateToSchema, encoding);
-		IValidatorOutcome validatorOutcome = validator.getADLValidatorOutcome();
-
-		if (!validatorOutcome.getDoesIMSManifestExist())
-		{
-			return VALIDATION_NOMANIFEST;
-		}
-
-		if (!validatorOutcome.getIsWellformed())
-		{
-			result = VALIDATION_NOTWELLFORMED;
-		}
-
-		if (!validatorOutcome.getIsValidRoot())
-		{
-			result = VALIDATION_NOTVALIDROOT;
-		}
-
-		if (isValidateToSchema)
-		{
-			if (!validatorOutcome.getIsValidToSchema())
+			file = createFile(resourceService.getArchiveStream(resourceId));
+			int result = VALIDATION_SUCCESS;
+			if (!file.exists())
 			{
-				result = VALIDATION_NOTVALIDSCHEMA;
+				return VALIDATION_NOFILE;
 			}
 
-			if (!validatorOutcome.getIsValidToApplicationProfile())
+			IValidator validator = validate(file, isManifestOnly, isValidateToSchema, encoding);
+			IValidatorOutcome validatorOutcome = validator.getADLValidatorOutcome();
+
+			if (!validatorOutcome.getDoesIMSManifestExist())
 			{
-				result = VALIDATION_NOTVALIDPROFILE;
+				return VALIDATION_NOMANIFEST;
 			}
 
-			if (!validatorOutcome.getDoRequiredCPFilesExist())
+			if (!validatorOutcome.getIsWellformed())
 			{
-				result = VALIDATION_MISSINGREQUIREDFILES;
+				result = VALIDATION_NOTWELLFORMED;
 			}
+
+			if (!validatorOutcome.getIsValidRoot())
+			{
+				result = VALIDATION_NOTVALIDROOT;
+			}
+
+			if (isValidateToSchema)
+			{
+				if (!validatorOutcome.getIsValidToSchema())
+				{
+					result = VALIDATION_NOTVALIDSCHEMA;
+				}
+
+				if (!validatorOutcome.getIsValidToApplicationProfile())
+				{
+					result = VALIDATION_NOTVALIDPROFILE;
+				}
+
+				if (!validatorOutcome.getDoRequiredCPFilesExist())
+				{
+					result = VALIDATION_MISSINGREQUIREDFILES;
+				}
+			}
+
+			if (createContentPackage)
+			{
+				try
+				{
+					convertToContentPackage(resourceId, validator, validatorOutcome);
+				}
+				catch (InvalidArchiveException iae)
+				{
+					return VALIDATION_WRONGMIMETYPE;
+				}
+				catch (Exception e)
+				{
+					log.error("Failed to convert content package for resourceId: {}", resourceId, e);
+					return VALIDATION_CONVERTFAILED;
+				}
+			}
+
+			return result;
 		}
-
-		if (createContentPackage)
+		finally
 		{
-			try
+			if (file != null && file.exists() && !file.delete())
 			{
-				convertToContentPackage(resourceId, validator, validatorOutcome);
+				log.debug("Unable to remove temporary SCORM validation file {}", file.getAbsolutePath());
 			}
-			catch (InvalidArchiveException iae)
-			{
-				return VALIDATION_WRONGMIMETYPE;
-			}
-			catch (Exception e)
-			{
-				log.error("Failed to convert content package for resourceId: {}", resourceId, e);
-				return VALIDATION_CONVERTFAILED;
-			}
+			resourceService.removeArchive(resourceId);
 		}
-
-		return result;
 	}
 }
