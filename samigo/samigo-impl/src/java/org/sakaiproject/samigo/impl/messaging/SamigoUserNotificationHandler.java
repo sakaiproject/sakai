@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -66,11 +65,6 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     @Autowired private SessionFactory sessionFactory;
     @Autowired private EventTrackingService eventTrackingService;
-
-
-    public SamigoUserNotificationHandler(){
-        eventTrackingService = ComponentManager.get(EventTrackingService.class);
-    }
 
     @Override
     public List<String> getHandledEvents() {
