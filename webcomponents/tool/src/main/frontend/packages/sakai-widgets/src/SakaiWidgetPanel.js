@@ -278,7 +278,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "picker":
         return this.editing ? html`
-          <div>
+          <div class="widget-col">
             <sakai-widget-picker @remove=${this.removeWidget}
                 id="picker"
                 state="remove">
@@ -361,9 +361,9 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         margin-bottom: var(--sakai-widget-panel-gutter-width, 1rem);
       }
       @supports (font: -apple-system-body) {
-      .widget-col {
-        display: inline-block;
-      }
+        .widget-col {
+          display: inline-block;
+        }
     }
     `
   ];
