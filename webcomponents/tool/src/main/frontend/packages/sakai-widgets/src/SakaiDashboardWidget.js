@@ -145,7 +145,6 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
       #container {
         display: flex;
         flex-flow: column;
-        height: 100%;
         background-color: var(--sakai-dashboard-widget-bg-color, white);
         border-radius: var(--sakai-course-card-border-radius, 4px);
         border: solid;
