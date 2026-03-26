@@ -38,27 +38,13 @@ public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, L
     Optional<PinnedSite> findByUserIdAndSiteId(String userId, String siteId);
     List<PinnedSite> findBySiteId(String siteId);
 
-    /**
-     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
-     * methods so locking is applied.
-     */
+    // Internal portal navigation mutations should go through PortalServiceImpl
+    // so portal navigation locking is applied consistently.
     Integer deleteByUserId(String userId);
 
-    /**
-     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
-     * methods so locking is applied.
-     */
     Integer deleteBySiteId(String siteId);
 
-    /**
-     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
-     * methods so locking is applied.
-     */
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
 
-    /**
-     * @deprecated Internal portal navigation mutation. Use {@code PortalServiceImpl}
-     * methods so locking is applied.
-     */
     Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }
