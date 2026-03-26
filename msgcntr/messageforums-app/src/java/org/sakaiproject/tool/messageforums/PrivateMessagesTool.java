@@ -2508,25 +2508,35 @@ public void processChangeSelectView(ValueChangeEvent eve)
             msgId = prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
         }
 
-    	manageTagAssociation(msgId);
+        if (msgId != null && msgId.longValue() > 0L) {
+            PrivateMessage persistedReply = (PrivateMessage) prtMsgManager.getMessageById(msgId);
 
-    	if(!rrepMsg.getDraft()){
-    		prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
-    		incrementSynopticToolInfo(recipients.keySet(), false);
-    		
-    		LRS_Statement statement = null;
-    	    if (null != learningResourceStoreService) {
-    	    	try{
-    	    		statement = getStatementForUserSentPvtMsg(getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded);
-    	    	}catch(Exception e){
-    	    		log.error(e.getMessage(), e);
-    	    	}
-    	    }
-    	    
-    		String eventMessage = prtMsgManager.getEventMessage(getDetailMsg().getMsg(), toolManager.getCurrentTool().getId(), getUserId(), getSiteId());
-    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, eventMessage, getSiteId(), true, NotificationService.NOTI_OPTIONAL, statement);
-    	    eventTrackingService.post(event);
-    	}
+            if (persistedReply != null) {
+                manageTagAssociation(msgId);
+
+                if(!rrepMsg.getDraft()){
+                    prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
+                    incrementSynopticToolInfo(recipients.keySet(), false);
+
+                    LRS_Statement statement = null;
+                    if (null != learningResourceStoreService) {
+                        try{
+                            statement = getStatementForUserSentPvtMsg(getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded);
+                        }catch(Exception e){
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+
+                    String eventMessage = prtMsgManager.getEventMessage(persistedReply, toolManager.getCurrentTool().getId(), getUserId(), getSiteId());
+                    Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, eventMessage, getSiteId(), true, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
+                }
+            } else {
+                log.warn("Private message reply send returned id {} but no persisted reply was found; skipping reply side effects", msgId);
+            }
+        } else {
+            log.warn("Private message reply send returned an invalid message id; skipping reply side effects");
+        }
     	//reset contents
     	resetComposeContents();
     	
