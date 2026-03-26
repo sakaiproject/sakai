@@ -638,12 +638,34 @@ public abstract class SakaiResourceService extends AbstractResourceService
 
 	private boolean isTemporaryArchive(String resourceId)
 	{
-		return StringUtils.startsWith(resourceId, TEMP_ARCHIVE_PREFIX);
+		if (!StringUtils.startsWith(resourceId, TEMP_ARCHIVE_PREFIX))
+		{
+			return false;
+		}
+
+		getTemporaryArchivePath(resourceId);
+		return true;
 	}
 
 	private File getTemporaryArchiveFile(String resourceId)
 	{
-		return new File(resourceId.substring(TEMP_ARCHIVE_PREFIX.length()));
+		return new File(getTemporaryArchivePath(resourceId));
+	}
+
+	private String getTemporaryArchivePath(String resourceId)
+	{
+		if (!StringUtils.startsWith(resourceId, TEMP_ARCHIVE_PREFIX))
+		{
+			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
+		}
+
+		String archivePath = resourceId.substring(TEMP_ARCHIVE_PREFIX.length());
+		if (StringUtils.isBlank(archivePath))
+		{
+			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
+		}
+
+		return archivePath;
 	}
 
 	@Override
@@ -670,7 +692,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 		}
 		catch (Exception e)
 		{
-			log.debug("Unable to remove temporary SCORM upload {} after conversion: {}", resourceId, e.getMessage());
+			log.debug("Unable to remove SCORM archive {} after conversion: {}", resourceId, e.getMessage());
 		}
 	}
 
