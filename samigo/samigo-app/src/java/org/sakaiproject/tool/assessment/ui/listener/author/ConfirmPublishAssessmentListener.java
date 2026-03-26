@@ -461,18 +461,22 @@ public class ConfirmPublishAssessmentListener
                 if (TypeIfc.FILE_UPLOAD.equals(itemFacade.getType().getTypeId())) {
                     // Check if the SEB configuration allows file uploads
                     boolean isUploadModeWithUploadsEnabled = false;
+                    boolean isSebConfigUnreadable = false;
 
                     // If config mode is UPLOAD, check if the uploaded file has allowUploads enabled
                     String sebConfigMode = assessmentSettings.getSebConfigMode();
                     if ("UPLOAD".equals(sebConfigMode)) {
                         String configUploadId = assessmentSettings.getSebConfigUploadId();
-                        isUploadModeWithUploadsEnabled = SebConfig.isAllowUploadsEnabled(configUploadId);
-                        log.debug("SEB config mode is UPLOAD. Config file allowUploads: {}", isUploadModeWithUploadsEnabled);
+                        SebConfig.AllowUploadsState allowUploadsState = SebConfig.getAllowUploadsState(configUploadId);
+                        isUploadModeWithUploadsEnabled = SebConfig.AllowUploadsState.ENABLED.equals(allowUploadsState);
+                        isSebConfigUnreadable = SebConfig.AllowUploadsState.UNREADABLE.equals(allowUploadsState);
+                        log.debug("SEB config mode is UPLOAD. Config file allowUploads state: {}", allowUploadsState);
                     }
 
                     // Only show error if NOT in UPLOAD mode with allowUploads enabled
                     if (!isUploadModeWithUploadsEnabled) {
-                        String sebUpload_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "seb_file_upload_error");
+                        String sebErrorKey = isSebConfigUnreadable ? "seb_config_unreadable_error" : "seb_file_upload_error";
+                        String sebUpload_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , sebErrorKey);
                         context.addMessage(null,new FacesMessage(sebUpload_err));
                         sebFileUploadError=true;
                         break;

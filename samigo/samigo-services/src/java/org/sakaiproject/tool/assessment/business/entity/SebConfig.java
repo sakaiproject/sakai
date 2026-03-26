@@ -134,6 +134,7 @@ public class SebConfig {
     public static final String CONFIG_ENCODING = "UTF-8";
 
     public enum ConfigMode { MANUAL, UPLOAD, CLIENT }
+    public enum AllowUploadsState { ENABLED, DISABLED, UNREADABLE }
 
     private ServerConfigurationService serverConfigurationService;
 
@@ -320,12 +321,12 @@ public class SebConfig {
      * Reads the allowUploads property from a SEB configuration file uploaded to ContentHostingService.
      *
      * @param configResourceId The resource ID of the uploaded SEB configuration file in ContentHostingService
-     * @return true if allowUploads is enabled in the configuration file, false otherwise or if the file cannot be read
+     * @return ENABLED if allowUploads is true, DISABLED if false, UNREADABLE if the file cannot be read/parsed
      */
-    public static boolean isAllowUploadsEnabled(String configResourceId) {
+    public static AllowUploadsState getAllowUploadsState(String configResourceId) {
         if (StringUtils.isBlank(configResourceId)) {
-            log.debug("Config resource ID is blank, returning false for allowUploads");
-            return false;
+            log.debug("Config resource ID is blank, returning UNREADABLE for allowUploads");
+            return AllowUploadsState.UNREADABLE;
         }
 
         try {
@@ -341,14 +342,14 @@ public class SebConfig {
             fileHandler.setEncoding(CONFIG_ENCODING);
             fileHandler.load(configResource.streamContent());
 
-            // Read the allowUploads property
+            // Read the allowUploads policy value from a valid and readable config.
             Boolean allowUploads = config.getBoolean(ALLOW_UPLOADS_KEY, false);
             log.debug("allowUploads property from SEB config file: {}", allowUploads);
 
-            return allowUploads;
+            return allowUploads ? AllowUploadsState.ENABLED : AllowUploadsState.DISABLED;
         } catch (Exception e) {
             log.error("Error reading allowUploads from SEB config file: {}", e.getMessage(), e);
-            return false;
+            return AllowUploadsState.UNREADABLE;
         }
     }
 
