@@ -26,6 +26,8 @@ import java.util.zip.ZipInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -65,6 +67,8 @@ public abstract class SakaiResourceService extends AbstractResourceService
 {
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";
+	private static final String UPLOADS_DIRECTORY_NAME = "uploads";
+	private static final String UPLOADS_DIRECTORY = ROOT_DIRECTORY + UPLOADS_DIRECTORY_NAME + "/";
 	private static final String ROOT_DIRECTORY_RESOURCE = "/content" + ROOT_DIRECTORY;
 
 	protected abstract ServerConfigurationService configurationService();
@@ -114,6 +118,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 			throw new ResourceStorageException("Unable to rename the root collection for " + uuid + " to " + title + ", reason: " + e.getMessage(), e);
 		}
 
+		removeArchiveQuietly(resourceId);
 		return uuid;
 	}
 
@@ -560,7 +565,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) throws PermissionException, IdUniquenessException, IdLengthException,
                                                                                                                 IdInvalidException, IdUnusedException, OverQuotaException, ServerOverloadException
 	{
-		String collectionId = getRootDirectoryPath();
+		String collectionId = getUploadCollectionPath();
 		String fileName = name;
 		int extIndex = fileName.lastIndexOf('.');
 		String basename = fileName.substring(0, extIndex);
@@ -593,6 +598,55 @@ public abstract class SakaiResourceService extends AbstractResourceService
 			}
 
 			throw e;
+		}
+	}
+
+	private String getCurrentContext()
+	{
+		try
+		{
+			if (toolManager() != null && toolManager().getCurrentPlacement() != null)
+			{
+				return toolManager().getCurrentPlacement().getContext();
+			}
+		}
+		catch (Exception e)
+		{
+			log.debug("Unable to determine current SCORM context for upload staging: {}", e.getMessage());
+		}
+
+		return null;
+	}
+
+	private String getUploadCollectionPath() throws ResourceStorageException
+	{
+		String context = getCurrentContext();
+		if (StringUtils.isBlank(context))
+		{
+			return getRootDirectoryPath();
+		}
+
+		String uploadRootCollectionId = UPLOADS_DIRECTORY;
+		String contextCollectionId = uploadRootCollectionId + Validator.escapeResourceName(context) + "/";
+		ensureCollection(uploadRootCollectionId, UPLOADS_DIRECTORY_NAME);
+		ensureCollection(contextCollectionId, context);
+		return contextCollectionId;
+	}
+
+	private void removeArchiveQuietly(String resourceId)
+	{
+		if (StringUtils.isBlank(resourceId))
+		{
+			return;
+		}
+
+		try
+		{
+			contentService().removeResource(resourceId);
+		}
+		catch (Exception e)
+		{
+			log.debug("Unable to remove temporary SCORM upload {} after conversion: {}", resourceId, e.getMessage());
 		}
 	}
 
