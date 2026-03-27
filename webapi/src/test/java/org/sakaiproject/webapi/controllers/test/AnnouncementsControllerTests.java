@@ -162,6 +162,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         var url1 = "url1";
         var ref1 = "/ref/" + UUID.randomUUID().toString();
         AnnouncementMessage am1 = createAnnouncementMessage(site1Id, subject1, author1, releaseDate1, ref1, url1);
+        when(announcementService.isMessageViewable(am1)).thenReturn(true);
 
         when(announcementService.getMessages(site1ChannelRef, null, false, false)).thenReturn(List.of(am1));
 
@@ -171,6 +172,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         var url2 = "url2";
         var ref2 = "/ref/" + UUID.randomUUID().toString();
         var am2 = createAnnouncementMessage(site2Id, subject2, author2, releaseDate2, ref2, url2);
+        when(announcementService.isMessageViewable(am2)).thenReturn(true);
 
         when(announcementService.getMessages(site2ChannelRef, null, false, false)).thenReturn(List.of(am2));
 
@@ -191,6 +193,66 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.announcements[1].url", is(url2)))
             .andExpect(jsonPath("$.announcements[1].date", is(releaseDate2.toEpochMilli())))
             .andDo(document("get-user-announcements", preprocessor));
+    }
+
+    @Test
+    public void testGetUsersAnnouncementsFiltersNonViewableMessages() throws Exception {
+
+        String siteId = UUID.randomUUID().toString();
+        String siteTitle = "Site 1";
+
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn(siteId);
+        when(site.getTitle()).thenReturn(siteTitle);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        String siteChannelRef = "/main/" + siteId;
+        when(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER)).thenReturn(siteChannelRef);
+
+        when(portalService.getPinnedSites()).thenReturn(List.of(siteId));
+
+        AnnouncementMessage visibleMessage = createAnnouncementMessage(
+            siteId,
+            "Visible announcement",
+            faker.name().fullName(),
+            Instant.now().minus(1, ChronoUnit.DAYS),
+            "/ref/" + UUID.randomUUID(),
+            "visible-url"
+        );
+
+        AnnouncementMessage draftMessage = createAnnouncementMessage(
+            siteId,
+            "Draft announcement",
+            faker.name().fullName(),
+            Instant.now().minus(2, ChronoUnit.DAYS),
+            "/ref/" + UUID.randomUUID(),
+            "draft-url"
+        );
+
+        AnnouncementMessage futureMessage = createAnnouncementMessage(
+            siteId,
+            "Future announcement",
+            faker.name().fullName(),
+            Instant.now().plus(2, ChronoUnit.DAYS),
+            "/ref/" + UUID.randomUUID(),
+            "future-url"
+        );
+
+        when(announcementService.getMessages(siteChannelRef, null, false, false))
+            .thenReturn(List.of(visibleMessage, draftMessage, futureMessage));
+
+        when(announcementService.isMessageViewable(visibleMessage)).thenReturn(true);
+        when(announcementService.isMessageViewable(draftMessage)).thenReturn(false);
+        when(announcementService.isMessageViewable(futureMessage)).thenReturn(false);
+
+        mockMvc.perform(get("/users/me/announcements"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.announcements.length()", is(1)))
+            .andExpect(jsonPath("$.announcements[0].id", is(visibleMessage.getId())))
+            .andExpect(jsonPath("$.announcements[0].subject", is("Visible announcement")));
+
+        verify(announcementService).isMessageViewable(visibleMessage);
+        verify(announcementService).isMessageViewable(draftMessage);
+        verify(announcementService).isMessageViewable(futureMessage);
     }
 
     @Test
