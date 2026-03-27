@@ -27,6 +27,7 @@ public class Archive implements Serializable
 	@Setter @Getter private String resourceId;
 	@Setter @Getter private String title;
 	@Setter @Getter private String mimeType;
+	// Logical archive metadata only. Never store an absolute server filesystem path here.
 	@Setter @Getter private String path;
 	@Setter @Getter private boolean isHidden;
 	@Setter @Getter private boolean isValidated;

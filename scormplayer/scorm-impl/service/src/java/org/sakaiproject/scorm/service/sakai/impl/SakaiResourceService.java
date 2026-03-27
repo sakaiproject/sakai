@@ -21,8 +21,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -61,6 +64,7 @@ import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.service.impl.AbstractResourceService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 
@@ -73,8 +77,10 @@ public abstract class SakaiResourceService extends AbstractResourceService
 	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";
 	private static final String ROOT_DIRECTORY_RESOURCE = "/content" + ROOT_DIRECTORY;
 	private static final String TEMP_ARCHIVE_PREFIX = "tmp:";
+	private static final String TEMP_ARCHIVE_DIRECTORY = "temp/scorm-uploads";
 	private static final String TEMP_ARCHIVE_FILE_PREFIX = "sakai-scorm-upload-";
 	private static final String TEMP_ARCHIVE_FILE_SUFFIX = ".zip";
+	private static final Pattern TEMP_ARCHIVE_TOKEN_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$");
 
 	protected abstract ServerConfigurationService configurationService();
 	protected abstract ContentHostingService contentService();
@@ -278,7 +284,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 			Archive archive = new Archive(resourceId, archiveFile.getName());
 			archive.setHidden(false);
 			archive.setMimeType("application/zip");
-			archive.setPath(archiveFile.getAbsolutePath());
+			archive.setPath(resourceId);
 			return archive;
 		}
 
@@ -599,10 +605,26 @@ public abstract class SakaiResourceService extends AbstractResourceService
                                                                                                                 IdInvalidException, IdUnusedException, OverQuotaException, ServerOverloadException
 	{
 		File archiveFile = null;
+		String resourceId = null;
 		try
 		{
-			archiveFile = File.createTempFile(TEMP_ARCHIVE_FILE_PREFIX, TEMP_ARCHIVE_FILE_SUFFIX);
-			archiveFile.deleteOnExit();
+			Files.createDirectories(getTemporaryArchiveDirectory().toPath());
+
+			for (int attempt = 0; attempt < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS; attempt++)
+			{
+				resourceId = TEMP_ARCHIVE_PREFIX + UUID.randomUUID();
+				archiveFile = getTemporaryArchiveFile(resourceId);
+				if (archiveFile.createNewFile())
+				{
+					break;
+				}
+			}
+
+			if (archiveFile == null || !archiveFile.isFile())
+			{
+				throw new IOException("Unable to create a unique temporary SCORM archive");
+			}
+
 			try (FileOutputStream fileOutputStream = new FileOutputStream(archiveFile))
 			{
 				byte[] buffer = new byte[1024];
@@ -613,9 +635,9 @@ public abstract class SakaiResourceService extends AbstractResourceService
 				}
 			}
 
-			return TEMP_ARCHIVE_PREFIX + archiveFile.getAbsolutePath();
+			return resourceId;
 		}
-		catch (IOException e)
+		catch (IOException | IllegalArgumentException | IllegalStateException e)
 		{
 			if (archiveFile != null && archiveFile.exists() && !archiveFile.delete())
 			{
@@ -643,29 +665,85 @@ public abstract class SakaiResourceService extends AbstractResourceService
 			return false;
 		}
 
-		getTemporaryArchivePath(resourceId);
+		getTemporaryArchiveToken(resourceId);
 		return true;
 	}
 
 	private File getTemporaryArchiveFile(String resourceId)
 	{
-		return new File(getTemporaryArchivePath(resourceId));
+		String token = getTemporaryArchiveToken(resourceId);
+		File siteTempDir = getTemporaryArchiveDirectory();
+		Path siteTempPath = siteTempDir.toPath().toAbsolutePath().normalize();
+		Path archivePath = siteTempPath.resolve(TEMP_ARCHIVE_FILE_PREFIX + token + TEMP_ARCHIVE_FILE_SUFFIX).normalize();
+		if (!archivePath.startsWith(siteTempPath))
+		{
+			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
+		}
+
+		try
+		{
+			File canonicalSiteTempDir = siteTempDir.getCanonicalFile();
+			File canonicalArchiveFile = archivePath.toFile().getCanonicalFile();
+			String canonicalSiteTempPath = canonicalSiteTempDir.getPath() + File.separator;
+			if (!canonicalArchiveFile.getPath().startsWith(canonicalSiteTempPath))
+			{
+				throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
+			}
+			return canonicalArchiveFile;
+		}
+		catch (IOException e)
+		{
+			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId, e);
+		}
 	}
 
-	private String getTemporaryArchivePath(String resourceId)
+	protected File getTemporaryArchiveDirectory()
+	{
+		String sakaiHomePath = configurationService().getSakaiHomePath();
+		File tempRootDirectory;
+		if (StringUtils.isBlank(sakaiHomePath))
+		{
+			tempRootDirectory = new File(System.getProperty("java.io.tmpdir"), "sakai-scorm-uploads");
+		}
+		else
+		{
+			tempRootDirectory = new File(sakaiHomePath, TEMP_ARCHIVE_DIRECTORY);
+		}
+
+		String siteId = Validator.escapeResourceName(getTemporaryArchiveSiteId());
+		if (StringUtils.isBlank(siteId))
+		{
+			throw new IllegalStateException("Unable to resolve current site context for temporary SCORM archive");
+		}
+
+		return new File(tempRootDirectory, siteId);
+	}
+
+	protected String getTemporaryArchiveSiteId()
+	{
+		Placement placement = toolManager().getCurrentPlacement();
+		if (placement == null || StringUtils.isBlank(placement.getContext()))
+		{
+			throw new IllegalStateException("Unable to resolve current site context for temporary SCORM archive");
+		}
+
+		return placement.getContext();
+	}
+
+	private String getTemporaryArchiveToken(String resourceId)
 	{
 		if (!StringUtils.startsWith(resourceId, TEMP_ARCHIVE_PREFIX))
 		{
 			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
 		}
 
-		String archivePath = resourceId.substring(TEMP_ARCHIVE_PREFIX.length());
-		if (StringUtils.isBlank(archivePath))
+		String token = resourceId.substring(TEMP_ARCHIVE_PREFIX.length());
+		if (StringUtils.isBlank(token) || !TEMP_ARCHIVE_TOKEN_PATTERN.matcher(token).matches())
 		{
 			throw new IllegalArgumentException("Invalid temporary SCORM archive resourceId: " + resourceId);
 		}
 
-		return archivePath;
+		return token;
 	}
 
 	@Override
