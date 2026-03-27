@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -137,6 +138,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
 import javax.persistence.PersistenceException;
+
+import static org.sakaiproject.tasks.api.AssignationType.site;
 
 @Slf4j
 @Setter
@@ -358,83 +361,57 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     public Optional<String> getTopicPortalUrl(String topicId) {
+        log.debug("Construct a portal url from topicId: {}", topicId);
+        if (StringUtils.isBlank(topicId)) return Optional.empty();
 
-        return topicRepository.findById(topicId).map(t -> {
+        ConversationsTopic topic = topicRepository.findById(topicId).orElse(null);
+        if (topic == null) return Optional.empty();
 
-            try {
-                Site site = siteService.getSite(t.getSiteId());
-
-                return new StringBuilder(serverConfigurationService.getPortalUrl())
-                    .append("/site/")
-                    .append(t.getSiteId())
-                    .append("/tool/")
-                    .append(site.getToolForCommonId(TOOL_ID).getId())
-                    .append("/topics/")
-                    .append(topicId).toString();
-            } catch (IdUnusedException iue) {
-                log.error("No site for id {}", t.getSiteId());
-                return null;
-            }
-        });
+        return siteService.getOptionalSite(topic.getSiteId())
+                .map(site -> site.getToolForCommonId(TOOL_ID))
+                .map(toolConfig -> serverConfigurationService.getPortalUrl()
+                + "/site/" + topic.getSiteId()
+                + "/tool/" + toolConfig.getId()
+                + "/topics/" + topic.getId());
     }
 
     public Optional<String> getPostPortalUrl(String topicId, String postId) {
+        log.debug("Construct a portal url from topicId: {}, postId: {}", topicId, postId);
 
-        if (StringUtils.isBlank(topicId)) {
-            topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
-                .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
-        }
+        ConversationsTopic topic = StringUtils.isBlank(topicId)
+                ? postRepository.findById(postId).map(ConversationsPost::getTopic).orElse(null)
+                : topicRepository.findById(topicId).orElse(null);
 
-        return topicRepository.findById(topicId).map(t -> {
+        if (topic == null) return Optional.empty();
 
-            try {
-                Site site = siteService.getSite(t.getSiteId());
-
-                return new StringBuilder(serverConfigurationService.getPortalUrl())
-                    .append("/site/")
-                    .append(t.getSiteId())
-                    .append("/tool/")
-                    .append(site.getToolForCommonId(TOOL_ID).getId())
-                    .append("/topics/")
-                    .append(t.getId())
-                    .append("/posts/")
-                    .append(postId).toString();
-            } catch (IdUnusedException iue) {
-                log.error("No site for id {}", t.getSiteId());
-                return null;
-            }
-        });
+        return siteService.getOptionalSite(topic.getSiteId())
+                .map(site -> site.getToolForCommonId(TOOL_ID))
+                .map(toolConfig -> serverConfigurationService.getPortalUrl()
+                + "/site/" + topic.getSiteId()
+                + "/tool/" + toolConfig.getId()
+                + "/topics/" + topic.getId()
+                + "/posts/" + postId);
     }
 
     public Optional<String> getCommentPortalUrl(String commentId) {
+        log.debug("Construct a portal url from comment: {}", commentId);
+        if (StringUtils.isBlank(commentId)) return Optional.empty();
 
-        String postId = commentRepository.findById(commentId).map(c -> c.getPost().getId())
-            .orElseThrow(() -> new IllegalArgumentException("No comment for id: " + commentId));
+        ConversationsComment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment == null) return Optional.empty();
 
-        String topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
-            .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
+        ConversationsTopic topic = comment.getTopic();
+        ConversationsPost post = comment.getPost();
+        if (topic == null || post == null) return Optional.empty();
 
-        return topicRepository.findById(topicId).map(t -> {
-
-            try {
-                Site site = siteService.getSite(t.getSiteId());
-
-                return new StringBuilder(serverConfigurationService.getPortalUrl())
-                    .append("/site/")
-                    .append(t.getSiteId())
-                    .append("/tool/")
-                    .append(site.getToolForCommonId(TOOL_ID).getId())
-                    .append("/topics/")
-                    .append(topicId)
-                    .append("/posts/")
-                    .append(postId)
-                    .append("/comments/")
-                    .append(commentId).toString();
-            } catch (IdUnusedException iue) {
-                log.error("No site for id {}", t.getSiteId());
-                return null;
-            }
-        });
+        return siteService.getOptionalSite(topic.getSiteId())
+                .map(site -> site.getToolForCommonId(TOOL_ID))
+                .map(toolConfig -> serverConfigurationService.getPortalUrl()
+                + "/site/" + topic.getSiteId()
+                + "/tool/" + toolConfig.getId()
+                + "/topics/" + topic.getId()
+                + "/posts/" + post.getId()
+                + "/comments/" + comment.getId());
     }
 
     @Transactional
