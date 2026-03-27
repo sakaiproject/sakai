@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -138,8 +137,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
 import javax.persistence.PersistenceException;
-
-import static org.sakaiproject.tasks.api.AssignationType.site;
 
 @Slf4j
 @Setter
