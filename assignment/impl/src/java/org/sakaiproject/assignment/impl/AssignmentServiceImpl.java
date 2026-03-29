@@ -1791,9 +1791,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     /**
-     * When a submitted group submission is loaded, sync persisted submitter rows to the site's current
-     * group roster if they differ. Fixes stale links after members move teams (e.g. SAK-52459) without
-     * requiring another submission update; uses the same roster rules as post-time reconciliation.
+     * When a submitted group submission is loaded, sync persisted submitter rows only if the site's group
+     * roster (active members, excluding graders) no longer matches persisted submitters. Addresses team
+     * membership moves (SAK-52459) without rewriting history on unrelated permission changes: drift detection
+     * deliberately does not use {@link #isSubmitterEligibleForGroup} (asn.submit). Rows are still added or
+     * removed using that eligibility check inside {@link #reconcileGroupSubmissionSubmittersToRoster}.
      */
     private void maybeReconcileGroupSubmissionSubmittersOnRead(AssignmentSubmission submission) {
         if (!isGroupSubmittedSubmissionRosterOutOfSync(submission)) {
@@ -1810,6 +1812,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    /**
+     * True when persisted submitters disagree with the current site-group roster used for SAK-52459 read checks.
+     * Compares against active group members who are not graders only — not {@link #isSubmitterEligibleForGroup},
+     * so later asn.submit / asn.grade permission tweaks alone do not count as roster drift.
+     */
     private boolean isGroupSubmittedSubmissionRosterOutOfSync(AssignmentSubmission submission) {
         if (submission == null || submission.getAssignment() == null || !submission.getAssignment().getIsGroup()
                 || !Boolean.TRUE.equals(submission.getSubmitted())) {
@@ -1826,18 +1833,33 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (group == null || !assignment.getGroups().contains(group.getReference())) {
                 return false;
             }
-            Set<String> expected = group.getMembers().stream()
-                    .filter(member -> isSubmitterEligibleForGroup(member, group))
+            Set<String> currentRosterUserIds = group.getMembers().stream()
+                    .filter(member -> countsAsGroupMemberForSubmitterRosterDrift(member, group))
                     .map(Member::getUserId)
+                    .filter(StringUtils::isNotBlank)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             Set<String> actual = submission.getSubmitters().stream()
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .filter(StringUtils::isNotBlank)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
-            return !expected.equals(actual);
+            return !currentRosterUserIds.equals(actual);
         } catch (IdUnusedException e) {
             log.debug("Could not compare group roster for submission {}: {}", submission.getId(), e.toString());
             return false;
         }
+    }
+
+    /**
+     * Active site-group participants counted for read-time roster drift (team membership), excluding users
+     * who can grade. Does not require asn.submit, unlike {@link #isSubmitterEligibleForGroup}, so permission-only
+     * submission-right changes do not trigger read reconciliation.
+     */
+    private boolean countsAsGroupMemberForSubmitterRosterDrift(Member member, Group group) {
+        if (member == null || group == null || member.getRole() == null || !member.isActive()) {
+            return false;
+        }
+        return !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                && !group.isAllowed(member.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION);
     }
 
     private void reconcileGroupSubmissionSubmittersToRoster(AssignmentSubmission submission, String assignmentReference,
