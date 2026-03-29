@@ -1885,6 +1885,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return;
             }
 
+            Optional<String> priorSubmitteeUserId = Optional.empty();
+            if (!enforceStudentSubmitteeRules) {
+                priorSubmitteeUserId = submission.getSubmitters().stream()
+                        .filter(ass -> Boolean.TRUE.equals(ass.getSubmittee()))
+                        .map(AssignmentSubmissionSubmitter::getSubmitter)
+                        .filter(StringUtils::isNotBlank)
+                        .findFirst();
+            }
+
             // The selected group is fixed in the UI, but the persisted submitter rows may still
             // be stale by the time a real post happens. Group submissions can exist as drafts or
             // instructor-created grading records before posting, and membership can change in the
@@ -1929,24 +1938,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
             }
 
-            // Read-time reconciliation may leave no submittee when the viewer is not a member;
-            // pick one for display/gradebook consistency. Post/student updates keep prior behavior
-            // (no submittee row required when a grader updates on behalf of the group).
-            if (!enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
+            // Read-time: if no submittee (e.g. instructor opened), restore the historical submittee when
+            // that row still exists after roster sync; otherwise pick a stable default — not the current viewer.
+            if (!enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(ass -> Boolean.TRUE.equals(ass.getSubmittee()))
                     && !submission.getSubmitters().isEmpty()) {
-                Optional<AssignmentSubmissionSubmitter> asCurrent = submission.getSubmitters().stream()
-                        .filter(s -> StringUtils.equals(s.getSubmitter(), currentUserId))
-                        .findFirst();
-                if (asCurrent.isPresent()) {
-                    asCurrent.get().setSubmittee(true);
+                Optional<AssignmentSubmissionSubmitter> priorRow = priorSubmitteeUserId
+                        .flatMap(uid -> submission.getSubmitters().stream()
+                                .filter(s -> StringUtils.equals(uid, s.getSubmitter()))
+                                .findFirst());
+                if (priorRow.isPresent()) {
+                    priorRow.get().setSubmittee(true);
                 } else {
-                    submission.getSubmitters().iterator().next().setSubmittee(true);
+                    submission.getSubmitters().stream()
+                            .min(Comparator.comparing(AssignmentSubmissionSubmitter::getSubmitter, Comparator.nullsLast(String::compareTo)))
+                            .ifPresent(s -> s.setSubmittee(true));
                 }
             }
 
             // When a student posts, one current group member must resolve as the submittee. A
             // grading user may update on behalf of the group without being one of the submitters.
-            if (enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
+            if (enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(ass -> Boolean.TRUE.equals(ass.getSubmittee()))
                     && !allowGradeSubmission(assignmentReference)) {
                 throw new PermissionException(currentUserId, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
             }
