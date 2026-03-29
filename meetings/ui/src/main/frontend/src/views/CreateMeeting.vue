@@ -149,6 +149,7 @@
 
 <script>
 import dayjs from "dayjs";
+import { nowInUserTimezone } from "../resources/portal-dayjs.js";
 import SakaiAccordionItem from "../components/sakai-accordion-item.vue";
 import SakaiAccordion from "../components/sakai-accordion.vue";
 import SakaiInputLabelled from "../components/sakai-input-labelled.vue";
@@ -379,18 +380,14 @@ export default {
       this.formdata.description = this.storedData.description;
     }
     if (this.storedData.dateOpen) {
-      this.formdata.dateOpen = dayjs(this.storedData.dateOpen).format(
-        "YYYY-MM-DDTHH:mm:ss"
-      );
+      this.formdata.dateOpen = dayjs(this.storedData.dateOpen).toISOString();
     } else {
-      this.formdata.dateOpen = dayjs().format("YYYY-MM-DDTHH:mm") + ":00";
+      this.formdata.dateOpen = nowInUserTimezone().toISOString();
     }
     if (this.storedData.dateClose) {
-      this.formdata.dateClose = dayjs(this.storedData.dateClose).format(
-        "YYYY-MM-DDTHH:mm:ss"
-      );
+      this.formdata.dateClose = dayjs(this.storedData.dateClose).toISOString();
     } else {
-      this.formdata.dateClose = dayjs().add(1, "hour").format("YYYY-MM-DDTHH:mm") + ":00";
+      this.formdata.dateClose = nowInUserTimezone().add(1, "hour").toISOString();
     }
     if(this.storedData.participantOption){
       this.formdata.participantOption = this.storedData.participantOption;

@@ -18,8 +18,12 @@
 </template>
 
 <script>
-import dayjs from "dayjs";
 import validationMixin from "../mixins/validation-mixin.js";
+import {
+  formatForDatetimeLocalControl,
+  formatPickerInitial,
+  parseControlValueToIso,
+} from "../resources/portal-dayjs.js";
 
 export default {
   name: "SakaiLangDatepickerInput",
@@ -75,23 +79,12 @@ export default {
     this.$nextTick(() => this.initPicker());
   },
   methods: {
-    toPickerValString(val) {
-      if (!val) {
-        return dayjs().format("YYYY-MM-DD HH:mm");
-      }
-      const d = dayjs(val);
-      return d.isValid() ? d.format("YYYY-MM-DD HH:mm") : dayjs().format("YYYY-MM-DD HH:mm");
-    },
     syncControlFromModel() {
       const el = this.$refs.field;
       if (!el || !this.pickerReady) {
         return;
       }
-      const d = dayjs(this.modelValue);
-      if (!d.isValid()) {
-        return;
-      }
-      const formatted = d.format("YYYY-MM-DDTHH:mm");
+      const formatted = formatForDatetimeLocalControl(this.modelValue);
       if (el.value !== formatted) {
         el.value = formatted;
       }
@@ -101,7 +94,7 @@ export default {
       if (!el) {
         return;
       }
-      const val = this.toPickerValString(this.modelValue);
+      const val = formatPickerInitial(this.modelValue);
       if (typeof window.localDatePicker === "function") {
         window.localDatePicker({
           input: el,
@@ -111,9 +104,7 @@ export default {
         });
       } else {
         el.type = "datetime-local";
-        el.value = dayjs(val.replace(" ", "T")).isValid()
-          ? dayjs(val.replace(" ", "T")).format("YYYY-MM-DDTHH:mm")
-          : dayjs().format("YYYY-MM-DDTHH:mm");
+        el.value = formatForDatetimeLocalControl(this.modelValue);
       }
       el.step = "60";
       this.pickerReady = true;
@@ -123,11 +114,7 @@ export default {
       if (!el) {
         return;
       }
-      const raw = el.value;
-      const parsed = dayjs(raw);
-      const out = parsed.isValid()
-        ? parsed.format("YYYY-MM-DDTHH:mm") + ":00"
-        : "";
+      const out = parseControlValueToIso(el.value);
       this.$emit("update:modelValue", out);
       this.$emit("update:value", out);
       if (!this.hadInput && this.hasValidation) {
