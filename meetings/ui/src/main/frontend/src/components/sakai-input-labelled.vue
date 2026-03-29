@@ -21,6 +21,16 @@
       v-model="value"
       @change="$emit('update:value', this.value)"
     />
+    <SakaiLangDatepickerInput
+      v-else-if="type === 'sakai-datetime'"
+      v-model="value"
+      :id="inputId"
+      :disabled="disabled"
+      :required="required"
+      :checklabel="title"
+      :validate="validate"
+      @validation="$emit('validation', $event)"
+    />
     <SakaiInput
       v-else
       v-model="value"
@@ -47,6 +57,7 @@
 <script>
 import { v4 as uuid } from "uuid";
 import SakaiInput from "./sakai-input.vue";
+import SakaiLangDatepickerInput from "./sakai-lang-datepicker-input.vue";
 import SakaiSelect from "./sakai-select.vue";
 import SakaiTextarea from "./sakai-textarea.vue";
 import { validateProp } from "../mixins/validation-mixin.js";
@@ -59,6 +70,7 @@ export default {
   },
   components: {
     SakaiInput,
+    SakaiLangDatepickerInput,
     SakaiSelect,
     SakaiTextarea
   },

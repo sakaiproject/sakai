@@ -83,9 +83,8 @@
           <div class="row align-items-md-end mb-3">
             <SakaiInputLabelled
               :title="i18n.open_date"
-              type="datetime-local"
+              type="sakai-datetime"
               v-model="formdata.dateOpen"
-              @update:value.once="!this.hadDateInput"
               @validation="setValidation('dateOpen', $event)"
               :required="true"
             />
@@ -93,7 +92,7 @@
           <div class="row align-items-md-end mb-3">
             <SakaiInputLabelled
               :title="i18n.close_date"
-              type="datetime-local"
+              type="sakai-datetime"
               v-model="formdata.dateClose"
               @validation="setValidation('dateClose', $event)"
               :required="true"
