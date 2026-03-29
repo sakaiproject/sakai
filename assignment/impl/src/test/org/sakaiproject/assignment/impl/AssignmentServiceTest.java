@@ -983,6 +983,113 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
     }
 
+    /**
+     * SAK-52459: after a group submits and an instructor change makes {@code dateModified} strictly after
+     * {@code dateSubmitted}, roster reconciliation on update was skipped; loading the submission must still
+     * drop users no longer in the group.
+     */
+    @Test
+    public void groupSubmissionReconcilesStaleSubmittersOnReadWhenPostReconcileWasSkippedAfterGrading() {
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-1";
+        String studentA = "student0011";
+        String studentB = "student0012";
+        String instructorId = "instructor001";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        assignment.setAuthor(instructorId);
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> bothStudents = new HashSet<>(Arrays.asList(
+                buildGroupMember(studentA),
+                buildGroupMember(studentB)));
+        Set<Member> onlyStudentA = new HashSet<>(Collections.singletonList(buildGroupMember(studentA)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure mocks for read-time submitter reconciliation test\n" + e);
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        // First two lookups (create + grade reconciliation) see both members; after "move" only A remains on team.
+        when(group.getMembers()).thenReturn(bothStudents, bothStudents, onlyStudentA);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(instructorId);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment\n" + e);
+        }
+
+        AssignmentSubmission submission;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e);
+            return;
+        }
+        Assert.assertNotNull(submission);
+
+        Instant submittedAt = Instant.now().minusSeconds(3600);
+        submission.setSubmitted(true);
+        submission.setUserSubmission(true);
+        submission.setDateSubmitted(submittedAt);
+        submission.setDateModified(submittedAt);
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        try {
+            Optional<AssignmentSubmissionSubmitter> bRow = submission.getSubmitters().stream()
+                    .filter(s -> studentB.equals(s.getSubmitter()))
+                    .findFirst();
+            Assert.assertTrue(bRow.isPresent());
+            bRow.get().setGrade("70");
+            submission.setDateModified(submittedAt.plusSeconds(120));
+            assignmentService.updateSubmission(submission);
+        } catch (Exception e) {
+            Assert.fail("Could not simulate instructor grade after submit\n" + e);
+        }
+
+        Assert.assertTrue(submission.getSubmitters().stream().anyMatch(s -> studentB.equals(s.getSubmitter())));
+
+        try {
+            AssignmentSubmission loaded = assignmentService.getSubmission(submission.getId());
+            Assert.assertNotNull(loaded);
+            Assert.assertFalse("Moved student should be removed from Team 1 submitters on read",
+                    loaded.getSubmitters().stream().anyMatch(s -> studentB.equals(s.getSubmitter())));
+            Assert.assertTrue(loaded.getSubmitters().stream().anyMatch(s -> studentA.equals(s.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Read-time reconciliation failed\n" + e);
+        }
+    }
+
     @Test
     public void ambiguousGroupUserLookupFindsMatchingSubmissionAndCanSubmit() {
         String context = UUID.randomUUID().toString();

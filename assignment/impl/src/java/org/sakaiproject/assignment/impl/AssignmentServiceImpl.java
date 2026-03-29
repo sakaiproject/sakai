@@ -1787,6 +1787,62 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return;
         }
 
+        reconcileGroupSubmissionSubmittersToRoster(submission, assignmentReference, submissionReference, true);
+    }
+
+    /**
+     * When a submitted group submission is loaded, sync persisted submitter rows to the site's current
+     * group roster if they differ. Fixes stale links after members move teams (e.g. SAK-52459) without
+     * requiring another submission update; uses the same roster rules as post-time reconciliation.
+     */
+    private void maybeReconcileGroupSubmissionSubmittersOnRead(AssignmentSubmission submission) {
+        if (!isGroupSubmittedSubmissionRosterOutOfSync(submission)) {
+            return;
+        }
+        try {
+            Assignment assignment = submission.getAssignment();
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            reconcileGroupSubmissionSubmittersToRoster(submission, assignmentReference, submissionReference, false);
+        } catch (PermissionException e) {
+            log.warn("Unexpected permission failure while reconciling group submitters on read for submission {}: {}",
+                    submission.getId(), e.toString());
+        }
+    }
+
+    private boolean isGroupSubmittedSubmissionRosterOutOfSync(AssignmentSubmission submission) {
+        if (submission == null || submission.getAssignment() == null || !submission.getAssignment().getIsGroup()
+                || !Boolean.TRUE.equals(submission.getSubmitted())) {
+            return false;
+        }
+        String groupId = StringUtils.trimToNull(submission.getGroupId());
+        if (groupId == null) {
+            return false;
+        }
+        try {
+            Assignment assignment = submission.getAssignment();
+            Site site = siteService.getSite(assignment.getContext());
+            Group group = site.getGroup(groupId);
+            if (group == null || !assignment.getGroups().contains(group.getReference())) {
+                return false;
+            }
+            Set<String> expected = group.getMembers().stream()
+                    .filter(member -> isSubmitterEligibleForGroup(member, group))
+                    .map(Member::getUserId)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            Set<String> actual = submission.getSubmitters().stream()
+                    .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            return !expected.equals(actual);
+        } catch (IdUnusedException e) {
+            log.debug("Could not compare group roster for submission {}: {}", submission.getId(), e.toString());
+            return false;
+        }
+    }
+
+    private void reconcileGroupSubmissionSubmittersToRoster(AssignmentSubmission submission, String assignmentReference,
+            String submissionReference, boolean enforceStudentSubmitteeRules) throws PermissionException {
+
         String groupId = StringUtils.trimToNull(submission.getGroupId());
         if (groupId == null) {
             log.warn("Cannot reconcile submitters for group submission {} without a group id", submission.getId());
@@ -1851,9 +1907,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
             }
 
+            // Read-time reconciliation may leave no submittee when the viewer is not a member;
+            // pick one for display/gradebook consistency. Post/student updates keep prior behavior
+            // (no submittee row required when a grader updates on behalf of the group).
+            if (!enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
+                    && !submission.getSubmitters().isEmpty()) {
+                Optional<AssignmentSubmissionSubmitter> asCurrent = submission.getSubmitters().stream()
+                        .filter(s -> StringUtils.equals(s.getSubmitter(), currentUserId))
+                        .findFirst();
+                if (asCurrent.isPresent()) {
+                    asCurrent.get().setSubmittee(true);
+                } else {
+                    submission.getSubmitters().iterator().next().setSubmittee(true);
+                }
+            }
+
             // When a student posts, one current group member must resolve as the submittee. A
             // grading user may update on behalf of the group without being one of the submitters.
-            if (submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
+            if (enforceStudentSubmitteeRules && submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
                     && !allowGradeSubmission(assignmentReference)) {
                 throw new PermissionException(currentUserId, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
             }
@@ -1864,14 +1935,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private boolean shouldReconcileGroupSubmissionSubmittersOnPost(AssignmentSubmission submission) {
-        if (submission == null || submission.getAssignment() == null || !submission.getAssignment().getIsGroup()
-                || !Boolean.TRUE.equals(submission.getSubmitted())) {
-            return false;
-        }
-
-        Instant dateSubmitted = submission.getDateSubmitted();
-        Instant dateModified = submission.getDateModified();
-        return dateSubmitted == null || dateModified == null || !dateSubmitted.isBefore(dateModified);
+        return submission != null && submission.getAssignment() != null && submission.getAssignment().getIsGroup()
+                && Boolean.TRUE.equals(submission.getSubmitted());
     }
 
     private boolean isSubmitterEligibleForGroup(Member member, Group group) {
@@ -2025,6 +2090,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
                 String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
                 if (allowGetSubmission(reference)) {
+                    maybeReconcileGroupSubmissionSubmittersOnRead(submission);
                     return submission;
                 } else {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
@@ -2068,6 +2134,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
                 String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
                 if (allowGetSubmission(reference)) {
+                    maybeReconcileGroupSubmissionSubmittersOnRead(submission);
                     return submission;
                 } else {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
