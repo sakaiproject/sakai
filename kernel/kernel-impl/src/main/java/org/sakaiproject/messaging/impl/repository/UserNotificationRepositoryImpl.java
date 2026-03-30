@@ -16,11 +16,18 @@
 package org.sakaiproject.messaging.impl.repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import java.util.List;
 import java.time.Instant;
+import java.time.Instant;
+import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<UserNotification, Long> implements UserNotificationRepository {
 
     public List<UserNotification> findByToUser(String userId) {
@@ -151,4 +159,105 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         cu.set("deferred", deferred).where(cb.equal(un.get("siteId"), siteId));
         return session.createQuery(cu).executeUpdate();
     }
+
+
+
+
+
+
+
+    @Override
+    @Transactional( readOnly = true)
+    public List<Long> getIdsToDeleteByUserIdAndToolPrefix(String userId, int toDeleteCount, String toolPrefix) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> idQuery = cb.createQuery(Long.class);
+        Root<UserNotification> un = idQuery.from(UserNotification.class);
+
+        idQuery.select(un.get("id"));
+        idQuery.where(
+                cb.and(
+                    cb.like(un.get("event"), toolPrefix + "%"),
+                    cb.equal(un.get("toUser"), userId),
+                    cb.equal(un.get("deferred"), false)
+                )
+        );
+        idQuery.orderBy(cb.asc(un.get("eventDate")), cb.asc(un.get("id")));
+
+        return session.createQuery(idQuery)
+                .setMaxResults(toDeleteCount)
+                .list();
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countAllByToUserAndByToolAndNotDeferredOverThreshold(String toUser, String toolPrefix, int threshold) {
+        Session session = sessionFactory.getCurrentSession();
+
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+        Root<UserNotification> un = query.from(UserNotification.class);
+
+        Expression<Long> count = cb.count(un);
+
+        query.multiselect(
+                un.get("toUser").alias("userId"),
+                count.alias("count")
+        );
+        query.where(
+                cb.and(
+                    cb.equal(un.get("deferred"), false),
+                    cb.like(un.get("event"), toolPrefix  + "%"),
+                    cb.equal(un.get("toUser"), toUser)
+                )
+        );
+        query.groupBy(un.get("toUser"));
+        query.having(cb.gt(count, threshold));
+
+
+        List<Tuple> rows = session.createQuery(query).getResultList();
+        if (rows.isEmpty()) {
+            return 0L;
+        }
+        return rows.get(0).get("count", Long.class);
+    }
+
+
+    @Override
+    @Transactional
+    public int deleteNotificationsInList(List<Long> idsToDelete) {
+        if (idsToDelete == null || idsToDelete.isEmpty()) return 0;
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder db = session.getCriteriaBuilder();
+        CriteriaDelete<UserNotification> delete = db.createCriteriaDelete(UserNotification.class);
+
+        Root<UserNotification> un = delete.from(UserNotification.class);
+        delete.where(un.get("id").in(idsToDelete));
+
+        return session.createQuery(delete).executeUpdate();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> findAllDistinctToUser() {
+        Session session  = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<String> query = cb.createQuery(String.class);
+        Root<UserNotification> un = query.from(UserNotification.class);
+        query.select(un.get("toUser"));
+        query.distinct(true);
+        return session.createQuery(query).list();
+    }
+
+
+
+
+
 }

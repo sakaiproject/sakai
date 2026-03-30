@@ -119,6 +119,21 @@
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
         </dependency>
+
+        <!-- needed by mockito to mock SpringRepository -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>${sakai.spring.data.commons.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-impl</artifactId>
+            <version>${sakai.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

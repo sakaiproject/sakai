@@ -16,6 +16,7 @@
 package org.sakaiproject.messaging.api.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.messaging.api.model.UserNotification;
 
@@ -31,4 +32,10 @@ public interface UserNotificationRepository extends SpringCrudRepository<UserNot
     int deleteExpiredNotifications();
     int setAllNotificationsViewed(String userId, String siteId, String toolId);
     int setDeferredBySiteId(String siteId, boolean deferred);
+
+
+    int deleteNotificationsInList(List<Long> idsToDelete);
+    List<Long> getIdsToDeleteByUserIdAndToolPrefix(String userId, int toDeleteCount, String toolPrefix);
+    long countAllByToUserAndByToolAndNotDeferredOverThreshold(String toUser, String toolPrefix, int threshold) ;
+    List<String> findAllDistinctToUser();
 }
