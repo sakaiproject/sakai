@@ -132,25 +132,32 @@ public class SitesController extends AbstractSakaiApiController {
         }
     }
 
-    @PostMapping(value = "/sites/{siteId}/card-config")
-    public void postCardConfig(HttpServletRequest req, @PathVariable String siteId, @RequestParam String mode, @RequestParam(required = false) String background, @RequestParam(required = false) String foreground) throws Exception {
+    @PostMapping(value = "/sites/{siteId}/card-config", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> postCardConfig(HttpServletRequest req, @PathVariable String siteId, @RequestParam String mode, @RequestParam(required = false) String background, @RequestParam(required = false) String foreground) throws Exception {
 
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
+        Map<String, String> result = new HashMap<>();
+
         try {
             Site site = siteService.getSite(siteId);
             if ("image".equals(mode)) {
                 saveSiteImage(req, site, foreground);
+                result.put("imageUrl", site.getProperties().getProperty(Site.PROP_COURSE_IMAGE_URL));
+                result.put("foreground", foreground);
             } else if ("color".equals(mode)) {
                 site.getProperties().addProperty(Site.PROP_COURSE_CARD_BACKGROUND_COLOR, background);
+                result.put("background", background);
                 site.getProperties().addProperty(Site.PROP_COURSE_CARD_FOREGROUND_COLOR, foreground);
+                result.put("foreground", foreground);
                 site.getProperties().removeProperty(Site.PROP_COURSE_IMAGE_URL);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unrecognized mode: " + mode);
             }
             siteService.save(site);
+            return result;
         } catch (Exception e) {
             log.error("Failed to update card config for site {}: {}", siteId, e.toString());
             throw e;

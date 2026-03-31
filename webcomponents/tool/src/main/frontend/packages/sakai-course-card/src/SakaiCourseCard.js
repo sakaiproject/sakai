@@ -1,12 +1,11 @@
-import { html, nothing } from "lit";
+import { css, html, nothing } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
-import { SakaiElement } from "@sakai-ui/sakai-element";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { markNotificationsViewed } from "@sakai-ui/sakai-notifications";
 import "@sakai-ui/sakai-course-card/course-card-settings.js";
-import "@sakai-ui/sakai-icon";
 
-export class SakaiCourseCard extends SakaiElement {
+export class SakaiCourseCard extends SakaiShadowElement {
 
   static properties = {
     courseData: { type: Object },
@@ -49,6 +48,15 @@ export class SakaiCourseCard extends SakaiElement {
 
     } else {
       this._init();
+    }
+  }
+
+  disconnectedCallback() {
+
+    super.disconnectedCallback();
+
+    if (this._lastBackgroundImageUrl) {
+      URL.revokeObjectURL(this._lastBackgroundImageUrl);
     }
   }
 
@@ -102,32 +110,45 @@ export class SakaiCourseCard extends SakaiElement {
     this.requestUpdate();
   }
 
-  _imageEdited(e) {
+  _imageSelected(e) {
 
     this._styles.backgroundImage = `linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${e.detail.url})`;
     this.requestUpdate();
   }
 
-  _openSettings() {
-    this.querySelector("course-card-settings").open();
+  _openSettingsModal() {
+
+    const el = this.shadowRoot.querySelector("course-card-settings");
+    el.showModal();
+  }
+
+  _save() {
+    document.querySelector(`course-card-settings[course-id='${this.courseData.siteId}']`)._save();
   }
 
   shouldUpdate() {
     return this._i18n && this.courseData;
   }
 
-  render() {
+  _renderSettingsModal() {
 
     return html`
-      <course-card-settings course-id="${this.courseData.siteId}"
+      <course-card-settings id="card-settings-dialog-${this.courseData.siteId}" course-id="${this.courseData.siteId}"
           course-title="${this.courseData.title}"
           background-color="${this.courseData.courseCardBackgroundColor}"
           foreground-color="${this.courseData.courseCardForegroundColor}"
-          course-image="${this.courseData.image}"
-          @image-edited=${this._imageEdited}
+          image-url="${this.courseData.image}"
+          @image-selected=${this._imageSelected}
           @background-color-changed=${this._backgroundColorChanged}
           @foreground-color-changed=${this._foregroundColorChanged}>
       </course-card-settings>
+    `;
+  }
+
+  render() {
+
+    return html`
+      ${this._renderSettingsModal()}
       <div class="info-block" style=${styleMap(this._styles)}>
         <div class="d-flex">
           <div>
@@ -152,7 +173,10 @@ export class SakaiCourseCard extends SakaiElement {
           ` : nothing}
           ${this.courseData.canEdit ? html`
           <div class="ms-auto">
-            <button type="button" class="btn btn-icon settings-button" title="${this._i18n.settings_tooltip}" @click=${this._openSettings}>
+            <button type="button"
+                class="btn btn-icon settings-button"
+                title="${this._i18n.settings_tooltip}"
+                @click=${this._openSettingsModal}>
               <i class="bi bi-three-dots-vertical fs-6" style=${styleMap(this._styles)}></i>
             </button>
           </div>
@@ -172,4 +196,73 @@ export class SakaiCourseCard extends SakaiElement {
       </div>
     `;
   }
+
+  static styles = [
+    SakaiShadowElement.styles,
+    css`
+      :host {
+        display: block;
+        width: 100%;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      .info-block {
+        height: 110px;
+        background-repeat: no-repeat;
+        background-color: var(--sakai-background-color-2);
+        background-size: cover;
+        background-position: center;
+        color: var(--sakai-text-color-inverse, white);
+        font-weight: bold;
+        padding: 1rem;
+        border-top-left-radius: var(--bs-border-radius);
+        border-top-right-radius: var(--bs-border-radius);
+        border: solid 1px var(--sakai-border-color);
+
+        a {
+          color: var(--sakai-text-color-inverse, white);
+          &:hover {
+            color: var(--sakai-text-color-inverse, white);
+          }
+
+          &.no-background {
+            color: var(--link-color);
+            &:hover {
+              color: var(--link-color);
+            }
+          }
+        }
+
+        i {
+          font-size: 20px;
+        }
+      }
+      .code-block {
+        color: var(--sakai-text-color-inverse);
+        font-size: 12px;
+      }
+
+      .tool-alerts-block {
+        height: 40px;
+        border-color: var(--sakai-border-color);
+        color: var(--sakai-text-color-1);
+        background-color: var(--sakai-background-color-3);
+        display: flex;
+        align-items: center;
+        border-bottom-right-radius: var(--bs-border-radius);
+        border-bottom-left-radius: var(--bs-border-radius);
+        padding: 0.5rem;
+
+        .portal-notifications-indicator {
+          top: 2px;
+          right: 2%;
+          padding: 0.25rem;
+          border-radius: 50%;
+        }
+      }
+    `,
+  ];
 }
