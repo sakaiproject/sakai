@@ -52,6 +52,7 @@
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+		<property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletResponse" ref="httpServletResponse" />
@@ -118,6 +119,16 @@
  			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
  		</property>
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+ 	</bean>
+
+ 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.VideoTrainingPickerProducer" >
+ 		<property name="messageLocator" ref="messageLocator"/>
+ 		<property name="simplePageBean" ref="simplePageBean" />
+ 		<property name="simplePageToolDao">
+ 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+ 		</property>
+ 		<property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
 		<property name="localeGetter" ref="requestLocaleProxy" />
  	</bean>
 
@@ -269,6 +280,7 @@
       <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
       <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
       <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+		<property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
       <property name="httpServletRequest" ref="httpServletRequest" />
       <property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
@@ -363,6 +375,7 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="videoTrainingEntity" ref="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"/>
 	</bean>
 	
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->

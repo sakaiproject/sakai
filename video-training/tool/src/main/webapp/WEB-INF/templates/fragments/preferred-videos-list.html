@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="preferredVideosPage">
+    <div class="portletBody sakai-video-training vt-page-shell">
+        <div th:replace="~{fragments/common :: menu(${currentMenu}, ${canManage}, ${canAnalytics}, ${canView})}"></div>
+        <div th:replace="~{fragments/common :: messages(${success}, ${error})}"></div>
+
+        <div class="vt-page-header">
+            <h1 class="h3" th:text="${title}">Videos</h1>
+        </div>
+
+        <form class="vt-search-view-toolbar" method="get" th:action="@{${listPath}}">
+            <div class="vt-search-field">
+                <label class="form-label" for="q" th:text="#{video.training.search.label}">Search</label>
+                <input class="form-control" id="q" name="q" type="search" th:value="${q}" th:placeholder="#{video.training.search.placeholder}">
+            </div>
+            <div class="vt-search-actions">
+                <button class="btn btn-outline-primary" type="submit" th:text="#{video.training.search.submit}">Search</button>
+                <a class="btn btn-outline-secondary" th:if="${!#strings.isEmpty(q)}" th:href="@{${listPath}(viewMode=${viewMode},size=${size},sortBy=${sortBy},sortDir=${sortDir})}" th:text="#{video.training.search.clear}">Clear</a>
+            </div>
+            <input type="hidden" name="viewMode" th:value="${viewMode}">
+            <input type="hidden" name="size" th:value="${size}">
+            <input type="hidden" name="sortBy" th:value="${sortBy}">
+            <input type="hidden" name="sortDir" th:value="${sortDir}">
+        </form>
+
+        <div class="vt-toolbar-secondary" th:if="${!#lists.isEmpty(videos)}">
+            <div class="vt-toolbar-secondary-content">
+                <div class="vt-view-switch" th:if="${!#lists.isEmpty(videos)}">
+                    <form method="get" class="vt-view-toggle-form" th:action="@{${listPath}}">
+                        <input type="hidden" name="q" th:value="${q}">
+                        <input type="hidden" name="size" th:value="${size}">
+                        <input type="hidden" name="sortBy" th:value="${sortBy}">
+                        <input type="hidden" name="sortDir" th:value="${sortDir}">
+                        <button type="submit" name="viewMode" value="cards" class="btn vt-icon-toggle" th:classappend="${isCardsView} ? 'btn-primary' : 'btn-outline-secondary'" title="Cards view" aria-label="Cards view">
+                            <span class="bi bi-grid"></span>
+                        </button>
+                        <button type="submit" name="viewMode" value="table" class="btn vt-icon-toggle" th:classappend="${isTableView} ? 'btn-primary' : 'btn-outline-secondary'" title="Table view" aria-label="Table view">
+                            <span class="bi bi-view-list"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/video-library :: videoCards}"></div>
+        <div th:replace="~{fragments/video-library :: videoTable}"></div>
+
+        <div class="sak-banner-info" role="status" th:if="${#lists.isEmpty(videos)}" th:text="${emptyMessage}">No videos yet.</div>
+
+        <div class="vt-pagination" id="vt-pagination">
+            <div class="vt-pagination-inner">
+                <div th:insert="~{fragments/pager-controls :: pagerControls}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
