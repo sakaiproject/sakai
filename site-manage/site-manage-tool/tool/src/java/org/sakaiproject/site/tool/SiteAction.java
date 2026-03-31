@@ -1312,6 +1312,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		SubNavEnabler.removeFromState(state);
 
+		MicrosoftSynchronizationEnabler.removeFromState(state);
+
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1860,6 +1862,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				SubNavEnabler.addToContext(context, site);
+				MicrosoftSynchronizationEnabler.addToContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
@@ -2426,6 +2429,7 @@ public class SiteAction extends PagedResourceActionII {
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			context.put("isGradebookGroupEnabledForSite", GradebookGroupEnabler.isEnabledForSite(site));
 			SubNavEnabler.addToContext(context, site);
+			MicrosoftSynchronizationEnabler.addToContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2586,6 +2590,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			SubNavEnabler.addToContext(context, site);
 
+			MicrosoftSynchronizationEnabler.addToContext(context, site, state);
+
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
 			/*
@@ -2656,6 +2662,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			SubNavEnabler.addToContext(context, site);
+			MicrosoftSynchronizationEnabler.addToContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2679,6 +2686,7 @@ public class SiteAction extends PagedResourceActionII {
 			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384
 			GradebookGroupEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
 			SubNavEnabler.addStateToEditToolsConfirmationContext(context, state);
+			MicrosoftSynchronizationEnabler.addStateToEditToolsConfirmationContext(context, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -8018,6 +8026,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			GradebookGroupEnabler.removeFromState(state);
 			SubNavEnabler.removeFromState(state);
+			MicrosoftSynchronizationEnabler.removeFromState(state);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -8880,6 +8889,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		GradebookGroupEnabler.prepareSiteForSave(Site, state);
 
 		SubNavEnabler.prepareSiteForSave(Site, state);
+
+		MicrosoftSynchronizationEnabler.prepareSiteForSave(Site, state);
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -12289,6 +12300,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
 		updateSite = GradebookGroupEnabler.prepareSiteForSave(site, state) || updateSite;
 		updateSite = SubNavEnabler.prepareSiteForSave(site, state) || updateSite;
+		updateSite = MicrosoftSynchronizationEnabler.prepareSiteForSave(site, state) || updateSite;
+		if (state.getAttribute("alertMessage") != null) {
+			return;
+		}
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -13174,6 +13189,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 		GradebookGroupEnabler.removeFromState(state);
 		SubNavEnabler.removeFromState(state);
+		MicrosoftSynchronizationEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13382,6 +13398,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
 			SubNavEnabler.applySettingsToState(state, params);
+			MicrosoftSynchronizationEnabler.applySettingsToState(state, params, site);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
@@ -15927,6 +15944,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// continue with site information edit
 
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
+			SubNavEnabler.applySettingsToState(state, params);
+			Site site = getStateSite(state);
+			MicrosoftSynchronizationEnabler.applySettingsToState(state, params, site);
 
 			doContinue(data);
 		}

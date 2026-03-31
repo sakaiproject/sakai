@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.GroupCollectionPage;
@@ -147,7 +148,9 @@ import com.microsoft.graph.models.OnlineMeetingPresenters;
 import com.microsoft.graph.models.OnlineMeetingRole;
 import com.microsoft.graph.models.Permission;
 import com.microsoft.graph.models.PermissionGrantParameterSet;
+import com.microsoft.graph.models.Site;
 import com.microsoft.graph.models.Team;
+import com.microsoft.graph.models.TeamArchiveParameterSet;
 import com.microsoft.graph.models.TeamVisibilityType;
 import com.microsoft.graph.models.ThumbnailSet;
 import com.microsoft.graph.models.UploadSession;
@@ -1006,6 +1009,87 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		} catch(Exception ex){
 			log.debug("Error deleting Microsoft group: id={}", teamId);
+		}
+		return false;
+	}
+
+	public boolean archiveTeam(String teamId) throws MicrosoftCredentialsException {
+		try {
+			// 1. Archive team without shouldSetSpoSiteReadOnlyForMembers (no supported in app-only)
+			TeamArchiveParameterSet requestBody = TeamArchiveParameterSet
+				.newBuilder()
+				.withShouldSetSpoSiteReadOnlyForMembers(false)
+				.build();
+
+			getGraphClient().teams(teamId)
+				.archive(requestBody)
+				.buildRequest()
+				.post();
+
+			// 2. Obtain the associated SharePoint site to ensure the team is fully archived before setting it to read-only
+			Site site = getGraphClient().groups(teamId)
+				.sites("root")
+				.buildRequest()
+				.get();
+
+			if (site == null || site.id == null) {
+				log.error("Could not retrieve SharePoint site for team: {}, site will not be set to read-only", teamId);
+				return false;
+			}
+
+			// 3. Set SharePoint site to read-only (as a backup in case the archive operation did not set it correctly)
+			JsonObject jsonBody = new JsonObject();
+			jsonBody.addProperty("lockState", "readOnly");
+
+			getGraphClient().customRequest("/sites/" + site.id)
+				.buildRequest()
+				.patch(jsonBody);
+
+			log.info("Team archived and SharePoint site set to read-only: teamId={}", teamId);
+
+			return true;
+		} catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception ex){
+			log.error("Error archiving Microsoft team: id={}", teamId, ex);
+		}
+		return false;
+	}
+
+	public boolean unarchiveTeam(String teamId) throws MicrosoftCredentialsException {
+		try {
+			//1. Unarchive team
+			getGraphClient().teams(teamId)
+				.unarchive()
+				.buildRequest()
+				.post();
+
+			// 2. Obtain the associated SharePoint site to ensure the team is fully unarchived before returning
+			Site site = getGraphClient().groups(teamId)
+				.sites("root")
+				.buildRequest()
+				.get();
+
+			if (site == null || site.id == null) {
+				log.error("Could not retrieve SharePoint site for team: {}, site will remain read-only", teamId);
+				return false;
+			}
+
+			//3. Set SharePoint site to unlocked (as a backup in case the unarchive operation did not set it correctly)
+			JsonObject jsonBody = new JsonObject();
+			jsonBody.addProperty("lockState", "unlocked");
+
+			getGraphClient().customRequest("/sites/" + site.id)
+				.buildRequest()
+				.patch(jsonBody);
+
+			log.info("Team unarchived and SharePoint site unlocked: teamId={}", teamId);
+
+			return true;
+		} catch (MicrosoftCredentialsException e) {
+			throw e;
+		} catch (Exception ex) {
+			log.error("Error unarchiving Microsoft team: id={}", teamId, ex);
 		}
 		return false;
 	}

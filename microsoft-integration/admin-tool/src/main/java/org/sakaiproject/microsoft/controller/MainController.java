@@ -334,7 +334,24 @@ public class MainController {
 
 		return ret;
 	}
-	
+
+	//called by AJAX - returns JSON
+	@PostMapping(path = {"/setDisabled-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public AjaxResponse updateSiteSynchronizationDisabled(@PathVariable String id, @RequestParam Boolean disabled, Model model) {
+		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
+		AjaxResponse ret = new AjaxResponse();
+		ret.setStatus(false);
+		ret.setError(rb.getString("error.changing_synchronization_status"));
+		if(ss != null) {
+			ss.setDisabled(disabled);
+			microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+			ret.setStatus(true);
+			ret.setError("");
+		}
+		return ret;
+	}
+
 	//called by AJAX - returns JSON
 	@GetMapping(path = {"/setDate-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

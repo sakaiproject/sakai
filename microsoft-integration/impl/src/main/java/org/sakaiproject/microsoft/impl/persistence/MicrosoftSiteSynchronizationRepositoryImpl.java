@@ -47,6 +47,14 @@ public class MicrosoftSiteSynchronizationRepositoryImpl extends BasicSerializabl
 	}
 	
 	@Override
+	public List<SiteSynchronization> findAllEnabled() {
+		return (List<SiteSynchronization>) startCriteriaQuery()
+				.addOrder(Order.asc("status"))
+				.add(Restrictions.eq("disabled", false))
+				.list();
+	}
+	
+	@Override
 	public Optional<SiteSynchronization> findById(String id) {
 		SiteSynchronization siteSynchronization = (SiteSynchronization) startCriteriaQuery().add(Restrictions.eq("id", id)).uniqueResult();
 		return Optional.ofNullable(siteSynchronization);

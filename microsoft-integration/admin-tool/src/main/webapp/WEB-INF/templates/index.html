@@ -113,6 +113,35 @@
 				}
 			}
 
+			async function toggleDisabled(elem) {
+				let baseURL = "[(@{/setDisabled-siteSynchronization/})]";
+				let rowId = elem.closest('.table-row').id.replace('row_', '');
+				let icon = elem.querySelector('i');
+				let isDisabled = icon.classList.contains('fa-toggle-off');
+
+				let url = baseURL + rowId + "?disabled=" + !isDisabled;
+
+				let response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				});
+				let data = await response.json();
+
+				if (data.status == false) {
+					showAjaxError(data.error);
+				} else {
+					if (!isDisabled) {
+						icon.classList.replace('fa-toggle-on', 'fa-toggle-off');
+						elem.title = /*[[#{index.enable}]]*/ '';
+					} else {
+						icon.classList.replace('fa-toggle-off', 'fa-toggle-on');
+						elem.title = /*[[#{index.disable}]]*/ '';
+					}
+				}
+			}
+
 			var dateTimeout = null;
 			async function changeDate(input) {
 				if(dateTimeout != null){

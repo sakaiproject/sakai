@@ -92,6 +92,12 @@
 		<a th:href="@{/editGroupSynchronization/{id}(id=${row.id})}" th:title="#{index.edit_groups}" th:classappend="${teamsMap[row.teamId]} == null ? 'hidden'" >
 			<i class="fa fa-users"></i>
 		</a>
+		<!-- Disable/Enable -->
+		<a href="#" onclick="toggleDisabled(this); return false;" th:title="${row.disabled} ? #{index.enable} : #{index.disable}"
+			th:aria-label="${row.disabled} ? #{index.enable} : #{index.disable}">
+			<i th:class="${row.disabled} ? 'fa fa-toggle-off' : 'fa fa-toggle-on'"></i>
+			<span class="sr-only" th:text="${row.disabled} ? #{index.enable} : #{index.disable}"></span>
+		</a>
 	</div>
 	<div class="col-lg-1 multi-button" th:if="${row.teamId == null || row.teamId == ''}">
 	</div>

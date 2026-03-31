@@ -74,8 +74,9 @@ public class SiteSynchronization {
 	@Convert(converter = JpaConverterSynchronizationStatus.class)
 	private SynchronizationStatus status = SynchronizationStatus.NONE;
 	
-	@Column(name = "forced")
-	private boolean forced;
+	@Column(name = "forced", nullable = false)
+	@Builder.Default
+	private boolean forced = false;
 	
 	@Column(name = "date_from")
 	private ZonedDateTime syncDateFrom;
@@ -85,6 +86,10 @@ public class SiteSynchronization {
 	
 	@Column(name = "status_updated_at")
 	private ZonedDateTime statusUpdatedAt;
+	
+	@Column(name = "disabled", nullable = false)
+	@Builder.Default
+	private boolean disabled = false;
 	
 	@OneToMany(mappedBy = "siteSynchronization", fetch = FetchType.LAZY, orphanRemoval = true)
 	@Cascade(CascadeType.ALL)

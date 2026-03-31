@@ -120,8 +120,8 @@ public class AutoConfigController {
 		
 		if(!autoConfigSessionBean.isRunning()) {
 			
-			//get all synchronizations
-			List<SiteSynchronization> ssList = microsoftSynchronizationService.getAllSiteSynchronizations(false);
+			//get all enabled synchronizations
+			List<SiteSynchronization> ssList = microsoftSynchronizationService.getAllEnabledSiteSynchronizations(false);
 			
 			//get (filtered) sites
 			List<Site> sitesList = sakaiProxy.getSakaiSites(requestBody.getFilter());
