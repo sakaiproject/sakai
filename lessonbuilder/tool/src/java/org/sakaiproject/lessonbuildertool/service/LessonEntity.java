@@ -77,6 +77,9 @@ public interface LessonEntity {
 
     // 3x is blti, etc
     public final static int TYPE_BLTI=31;
+    
+    // 4x is video tools
+    public final static int TYPE_VIDEO_TRAINING=40;
 
     // prefixes. Use the /direct prefixes where  possible
     public final static String ASSIGNMENT = "assignment";
@@ -96,6 +99,8 @@ public interface LessonEntity {
     public final static String YAFT_TOPIC = "yaft_topic";
 
     public final static String BLTI="blti";
+    
+    public final static String VIDEO_TRAINING="video-training";
 
     // find entities
     public List<LessonEntity> getEntitiesInSite(SimplePageBean bean);

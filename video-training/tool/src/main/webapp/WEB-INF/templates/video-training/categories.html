@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head(${title})}"></head>
+<body class="Mrphs-toolBody sakai-video-training">
+<div class="Mrphs-sakai-video-training portletBody sakai-video-training vt-page-shell">
+    <div th:replace="~{fragments/common :: menu('categories', ${canManage}, ${canAnalytics}, ${canView})}"></div>
+    <div th:replace="~{fragments/common :: messages(${success}, ${error})}"></div>
+
+    <div class="vt-page-header">
+        <h1 class="h3" th:text="#{video.training.categories.title}">Categories</h1>
+        <p class="vt-page-subtitle" th:text="#{video.training.categories.subtitle}">Manage the two-level category tree used by the video library.</p>
+    </div>
+
+    <form class="vt-search-view-toolbar" method="get">
+        <div class="vt-search-field">
+            <label class="form-label" for="q" th:text="#{video.training.categories.search.label}">Search categories</label>
+            <input class="form-control" id="q" name="q" type="search" th:value="${q}" th:placeholder="#{video.training.categories.search.placeholder}">
+        </div>
+        <div class="vt-search-actions">
+            <button class="btn" type="submit" th:text="#{video.training.search.submit}">Search</button>
+            <a class="btn" th:if="${!#strings.isEmpty(q)}" th:href="@{/categories(page=${page},size=${size})}" th:text="#{video.training.search.clear}">Clear</a>
+        </div>
+        <input type="hidden" name="size" th:value="${size}">
+    </form>
+
+    <div class="vt-toolbar-secondary">
+        <div class="vt-toolbar-secondary-content">
+            <span class="vt-page-subtitle" th:text="#{video.training.categories.count(${allMsgNumber})}">0 categories</span>
+        </div>
+    </div>
+
+    <div class="card mb-4 vt-category-create-card" th:if="${canManageCategories}">
+        <div class="card-body">
+            <h2 class="h5" th:text="#{video.training.categories.add}">Add category</h2>
+            <form method="post" th:action="@{/categories}" class="vt-category-form">
+                <input type="hidden" name="q" th:value="${q}">
+                <input type="hidden" name="page" th:value="${page}">
+                <input type="hidden" name="size" th:value="${size}">
+
+                <div class="vt-form-grid">
+                    <div class="vt-form-section">
+                        <label class="form-label" for="categoryName" th:text="#{video.training.form.title}">Name</label>
+                        <input class="form-control" id="categoryName" name="name" type="text" required>
+                    </div>
+                    <div class="vt-form-section">
+                        <label class="form-label" for="parentCategoryId" th:text="#{video.training.categories.parent}">Parent category</label>
+                        <select class="form-select" id="parentCategoryId" name="parentCategoryId">
+                            <option value="" th:text="#{video.training.categories.parent.root}">Top level</option>
+                            <option th:each="parent : ${categoryTree}"
+                                    th:value="${parent.id}"
+                                    th:text="${parent.name}">Parent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="vt-form-actions">
+                    <button class="btn btn-primary" type="submit" th:text="#{video.training.form.submit}">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="vt-category-sort-tree" id="vt-category-root-body" th:attr="data-reorder-url=@{/categories/reorder}">
+        <div class="text-muted" th:if="${#lists.isEmpty(categoryTree)}" th:text="#{video.training.categories.empty}">No categories are available yet.</div>
+
+        <div class="vt-category-node" th:each="root : ${categoryTree}" th:attr="data-category-id=${root.id},data-has-children=${!#lists.isEmpty(root.children)}">
+            <div class="vt-category-row">
+                <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" aria-label="Drag category">
+                    <span class="bi bi-grip-vertical" aria-hidden="true"></span>
+                </button>
+                <div class="vt-category-row-main">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <strong class="vt-category-name" th:text="${root.name}">Category</strong>
+                        <span class="badge text-bg-secondary" th:if="${root.videoCount != null}" th:text="${root.videoCount}">0</span>
+                    </div>
+                    <div class="text-muted small">
+                        <span th:text="${root.modifiedBy}">modifiedBy</span>
+                        <span  th:text="${#dates.format(root.modifiedOn)}">modifiedOn</span>
+                    </div>
+                </div>
+                <div class="vt-category-actions btn-group-sm">
+                    <button type="button"
+                        class="btn btn-sm btn-outline-secondary vt-category-edit-trigger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#vtCategoryModal"
+                        th:attr="data-category-id=${root.id},data-category-name=${root.name},data-category-parent-id=${root.parentCategoryId},aria-label=#{video.training.categories.edit.aria}">
+                        <span class="bi bi-pencil" aria-hidden="true"></span>
+                    </button>
+                    <a class="btn btn-sm btn-outline-danger ms-1" th:href="@{/categories/{id}/delete(id=${root.id},q=${q},page=${page},size=${size})}" th:attr="aria-label=#{video.training.categories.delete.aria}">
+                        <span class="bi bi-trash" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="vt-category-children">
+                <div class="vt-category-node" th:each="child : ${root.children}" th:attr="data-category-id=${child.id},data-has-children=${!#lists.isEmpty(child.children)}">
+                    <div class="vt-category-row">
+                        <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" aria-label="Drag category">
+                            <span class="bi bi-grip-vertical" aria-hidden="true"></span>
+                        </button>
+                        <div class="vt-category-row-main">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="fw-semibold" th:text="${child.name}">Child</span>
+                                <span class="badge text-bg-secondary" th:if="${child.videoCount != null}" th:text="${child.videoCount}">0</span>
+                            </div>
+                            <div class="text-muted small">
+                                <span th:text="${child.modifiedBy}">modifiedBy</span>
+                                <span  th:text="${#dates.format(child.modifiedOn)}">modifiedOn</span>
+                            </div>
+                        </div>
+                        <div class="vt-category-actions btn-group-sm">
+                            <button type="button"
+                                class="btn btn-sm btn-outline-secondary vt-category-edit-trigger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#vtCategoryModal"
+                                th:attr="data-category-id=${child.id},data-category-name=${child.name},data-category-parent-id=${child.parentCategoryId},aria-label=#{video.training.categories.edit.aria}">
+                                <span class="bi bi-pencil" aria-hidden="true"></span>
+                            </button>
+                            <a class="btn btn-sm btn-outline-danger ms-1" th:href="@{/categories/{id}/delete(id=${child.id},q=${q},page=${page},size=${size})}" th:attr="aria-label=#{video.training.categories.delete.aria}">
+                                <span class="bi bi-trash" aria-hidden="true"></span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="vt-category-children"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="vt-pagination" id="vt-pagination">
+        <div class="vt-pagination-inner">
+            <div th:insert="~{fragments/pager-controls :: pagerControls}"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="vtCategoryModal" tabindex="-1" aria-labelledby="vtCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <form method="post" th:action="@{/categories}" id="vt-category-modal-form">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="vtCategoryModalLabel" th:text="#{video.training.categories.edit}">Edit category</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="vt-category-modal-id">
+                        <input type="hidden" name="q" th:value="${q}">
+                        <input type="hidden" name="page" th:value="${page}">
+                        <input type="hidden" name="size" th:value="${size}">
+
+                        <div class="vt-form-grid">
+                            <div class="vt-form-section">
+                                <label class="form-label" for="vt-category-modal-name" th:text="#{video.training.form.title}">Name</label>
+                                <input class="form-control" id="vt-category-modal-name" name="name" type="text" required>
+                            </div>
+                            <div class="vt-form-section">
+                                <label class="form-label" for="vt-category-modal-parent" th:text="#{video.training.categories.parent}">Parent category</label>
+                                <select class="form-select" id="vt-category-modal-parent" name="parentCategoryId">
+                                    <option value="" th:text="#{video.training.categories.parent.root}">Top level</option>
+                                    <option th:each="parent : ${categoryTree}"
+                                            th:value="${parent.id}"
+                                            th:text="${parent.name}">Parent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal" th:text="#{video.training.cancel}">Cancel</button>
+                        <button class="btn btn-primary" type="submit" th:text="#{video.training.form.submit}">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/common :: jQuery}"></div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script th:src="@{/js/video-training-categories.js}"></script>
+</body>
+</html>

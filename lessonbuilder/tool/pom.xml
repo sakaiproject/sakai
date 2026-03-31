@@ -226,6 +226,19 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.videotraining</groupId>
+            <artifactId>video-training-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.videotraining</groupId>
+            <artifactId>video-training-impl</artifactId>
+            <version>${project.version}</version>
+            <classifier>classes</classifier>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

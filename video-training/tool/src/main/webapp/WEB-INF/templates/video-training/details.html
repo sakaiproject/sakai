@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head(#{video.training.details})}"></head>
+<body class="Mrphs-toolBody sakai-video-training">
+<div class="Mrphs-sakai-video-training portletBody container-fluid sakai-video-training" th:if="${video}">
+    <div th:replace="~{fragments/common :: menu('list', ${canManage}, ${canAnalytics}, ${canView})}"></div>
+    <div th:replace="~{fragments/common :: messages(${success}, ${error})}"></div>
+
+    <div class="vt-page-header">
+        <h1 class="h3" th:text="${video.title}">Video title</h1>
+        <div class="vt-video-category-badges" th:if="${video.sourceDeleted}">
+            <span class="badge rounded-pill text-bg-danger" th:text="#{video.training.source.deleted.badge}"></span>
+        </div>
+    </div>
+
+    <div class="vt-player-wrap">
+        <div class="sak-banner-info" role="status" th:if="${isProcessingUpload}" th:text="#{video.training.hls.processing}">The upload is still being processed.</div>
+
+        <div th:if="${isNativeVideo && !isProcessingUpload}">
+            <video id="vt-main-player"
+                class="vt-player"
+                playsinline
+                controls
+                preload="auto"
+                th:attr="data-playback-url=${nativePlaybackUrl},data-content-type=${nativeContentType},data-portal-url=${portalUrl},data-video-provider=${video.providerType != null ? video.providerType.name() : 'NATIVE'}"
+                th:src="${nativePlaybackUrl}">
+            </video>
+        </div>
+
+        <div class="ratio ratio-16x9" th:if="${!isNativeVideo}">
+            <iframe th:src="${externalEmbedUrl}"
+                    title="Video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="mb-4 gap-1" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:with="status=${video.publicationStatus != null ? video.publicationStatus.name() : 'DRAFT'}, moderationEnabledSafe=${moderationEnabled != null ? moderationEnabled : false}">
+        <form class="vt-inline-form" method="post" th:if="${status == 'DRAFT' && (!moderationEnabledSafe || canApprove)}" th:action="@{/videos/{id}/publish(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.publish}">Publish</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${(status == 'DRAFT' || status == 'WITHDRAWN') && moderationEnabledSafe && !canApprove}" th:action="@{/videos/{id}/submit-approval(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.submitApproval}">Submit for approval</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'PENDING_APPROVAL' && canApprove}" th:action="@{/videos/{id}/publish(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.approve}">Approve</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'PENDING_APPROVAL' && canApprove}" th:action="@{/videos/{id}/reject-approval(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.rejectApproval}">Reject</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'WITHDRAWN' && (!moderationEnabledSafe || canApprove)}" th:action="@{/videos/{id}/publish(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.publish}">Publish</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'PUBLISHED'}" th:action="@{/videos/{id}/withdraw(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.withdraw}">Withdraw</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'PUBLISHED'}" th:action="@{/videos/{id}/archive(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.archive}">Archive</button>
+        </form>
+        <form class="vt-inline-form" method="post" th:if="${status == 'ARCHIVED'}" th:action="@{/videos/{id}/restore-draft(id=${video.id})}">
+            <button class="btn btn-primary" type="submit" th:text="#{video.training.restoreDraft}">Restore to draft</button>
+        </form>
+        <a class="btn ms-2" th:href="@{/videos/{id}/edit(id=${video.id})}" th:aria-label="#{video.training.edit}">
+            <span class="bi bi-pencil-fill" aria-hidden="true"></span>
+        </a>
+        <form class="vt-inline-form" method="post" th:action="@{/videos/{id}/delete(id=${video.id})}">
+            <button class="btn" type="submit" th:aria-label="#{video.training.delete}">
+                <span class="bi bi-trash-fill" aria-hidden="true"></span>
+                <span class="visually-hidden" th:text="#{video.training.delete}">Delete</span>
+            </button>
+        </form>
+    </div>
+
+    <dl class="row vt-metadata">
+        <dt class="col-sm-3" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="#{video.training.form.provider}">Provider</dt>
+        <dd class="col-sm-9" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="${video.providerType}">NATIVE</dd>
+        <dt class="col-sm-3" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="#{video.training.form.visibilityScope}">Visibility scope</dt>
+        <dd class="col-sm-9" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="${video.visibilityScope != null ? video.visibilityScope : 'COURSE'}">COURSE</dd>
+        <dt class="col-sm-3" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="#{video.training.form.publicationStatus}">Publication status</dt>
+        <dd class="col-sm-9" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="${video.publicationStatus != null ? video.publicationStatus : 'DRAFT'}">DRAFT</dd>
+        <dt class="col-sm-3" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="#{video.training.form.source}">Source</dt>
+        <dd class="col-sm-9" th:if="${canManage and !(param.embedded != null and param.embedded[0] == 'true')}" th:text="${video.sourceReference}">reference</dd>
+        <dt class="col-sm-3" th:if="${video.sourceDeleted}" th:text="#{video.training.source.state}">Source state</dt>
+        <dd class="col-sm-9" th:if="${video.sourceDeleted}" th:text="#{video.training.source.deleted.title}">Deleted</dd>
+        <dt class="col-sm-3" th:if="${video.releaseDate != null}" th:text="#{video.training.form.releaseDate}">Release date</dt>
+        <dd class="col-sm-9" th:if="${video.releaseDate != null}" th:text="${releaseDateDisplay}">-</dd>
+        <dt class="col-sm-3" th:if="${video.retractDate != null}" th:text="#{video.training.form.retractDate}">Retract date</dt>
+        <dd class="col-sm-9" th:if="${video.retractDate != null}" th:text="${retractDateDisplay}">-</dd>
+    </dl>
+
+    <p class="vt-video-subtitle" th:text="${video.description}">Description</p>
+
+    <a th:unless="${param.embedded != null and param.embedded[0] == 'true'}" class="btn btn-primary" th:href="@{/videos}" th:text="#{video.training.back}">Back</a>
+
+    <div id="pip-overlay" class="vt-pip-overlay" aria-hidden="true">
+        <div class="vt-pip-overlay-content">
+            <span class="bi bi-box-arrow-up-right vt-pip-overlay-icon" aria-hidden="true"></span>
+            <p class="vt-pip-overlay-message" th:text="#{video.training.pip.overlay.message}">The platform has opened in a new tab.</p>
+            <p class="vt-pip-overlay-warning" th:text="#{video.training.pip.overlay.warning}">Do not close this window to keep the floating video playing. You can continue browsing the platform in the new window.</p>
+            <p id="pip-popup-blocked-warning" class="vt-pip-overlay-warning vt-pip-overlay-popup-warning vt-is-hidden" th:text="#{video.training.pip.overlay.popupBlocked}">Your browser blocked the new tab. To keep browsing the platform while PiP is active, allow pop-ups for this site and try again.</p>
+        </div>
+    </div>
+
+</div>
+<div th:replace="~{fragments/common :: jQuery}"></div>
+<script th:if="${video.providerType != null && video.providerType.name() == 'HLS_UPLOAD'}" src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script th:src="@{/js/video-training-details.js}"></script>
+</body>
+</html>
