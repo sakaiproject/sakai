@@ -646,6 +646,9 @@
     --sakai-scrollbar-background-color: var(--sakai-border-color);
     --sakai-scrollbar-thumb-color: var(--sakai-brand);
     --sakai-scrollbar-thumb-hover-color: var(--sakai-brand--lighter-3);
+
+    --sakai-course-card-gradient-start: rgba(0, 0, 0, 0.5);
+    --sakai-course-card-gradient-end: rgba(0, 0, 0, 0.5);
 }
 
 // Tables

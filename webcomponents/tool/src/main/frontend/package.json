@@ -1,8 +1,7 @@
 {
   "name": "sakai-ui",
   "version": "1.0.0",
-  "description": "Sakai Element",
-  "main": "js/sakai-element.js",
+  "description": "Sakai User Interface elements",
   "workspaces": [
     "./packages/*"
   ],

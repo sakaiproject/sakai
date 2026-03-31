@@ -1,6 +1,5 @@
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import "@sakai-ui/sakai-icon/sakai-icon.js";
 import "@sakai-ui/sakai-course-card/sakai-course-card.js";
 
 export class SakaiCourseList extends SakaiElement {

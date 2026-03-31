@@ -1,0 +1,36 @@
+{
+  "name": "@sakai-ui/sakai-dialog",
+  "version": "3.0.6",
+  "description": "The Sakai dialog component",
+  "main": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "wtr"
+  },
+  "module": "index.js",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-dialog"
+  },
+  "keywords": [
+    "sakai"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-dialog#readme",
+  "dependencies": {
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./define": "./index.js",
+    "./test-utils": "./test-utils.js"
+  }
+}
