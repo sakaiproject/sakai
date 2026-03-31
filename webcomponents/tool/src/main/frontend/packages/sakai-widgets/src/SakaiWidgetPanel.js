@@ -177,7 +177,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     switch (r) {
       case "tasks":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-tasks-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : "")}"
@@ -194,7 +194,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "grades":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-grades-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
@@ -211,7 +211,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "announcements":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-announcements-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
@@ -228,7 +228,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "calendar":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-calendar-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
@@ -245,7 +245,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "courses":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-courses-widget
               id="${r}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
@@ -261,7 +261,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "forums":
         return html`
-          <div class="${this.state === "add" ? "faded" : ""}">
+          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
             <sakai-forums-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
@@ -278,7 +278,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
         `;
       case "picker":
         return this.editing ? html`
-          <div>
+          <div class="widget-col">
             <sakai-widget-picker @remove=${this.removeWidget}
                 id="picker"
                 state="remove">
@@ -348,10 +348,23 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
       }
 
       #grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 320px), 1fr));
-        grid-gap: var(--sakai-widget-panel-gutter-width, 1rem);
+        column-width: var(--sakai-widget-panel-min-widget-width, 350px);
+        column-gap: var(--sakai-widget-panel-gutter-width, 1rem);
+        -webkit-column-width: var(--sakai-widget-panel-min-widget-width, 350px);
+        -webkit-column-gap: var(--sakai-widget-panel-gutter-width, 1rem);
       }
+
+      .widget-col {
+        break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+        width: 100%;
+        margin-bottom: var(--sakai-widget-panel-gutter-width, 1rem);
+      }
+      @supports (font: -apple-system-body) {
+        .widget-col {
+          display: inline-block;
+        }
+    }
     `
   ];
 }
