@@ -109,6 +109,8 @@ public interface MicrosoftCommonService {
 	void createTeamFromGroupAsync(String groupId) throws MicrosoftCredentialsException;
 	
 	boolean deleteTeam(String teamId) throws MicrosoftCredentialsException;
+	boolean archiveTeam(String teamId) throws MicrosoftCredentialsException;
+	boolean unarchiveTeam(String teamId) throws MicrosoftCredentialsException;
 
 	MicrosoftMembersCollection getTeamMembers(String id, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException;
 	MicrosoftUser checkUserInTeam(String identifier, String teamId, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException;

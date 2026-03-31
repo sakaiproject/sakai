@@ -197,8 +197,8 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	}
 	
 	@Override
-	public List<SiteSynchronization> getAllSiteSynchronizations(boolean fillSite) {
-		List<SiteSynchronization> result = StreamSupport.stream(microsoftSiteSynchronizationRepository.findAll().spliterator(), false)
+	public List<SiteSynchronization> getAllEnabledSiteSynchronizations(boolean fillSite) {
+		List<SiteSynchronization> result = StreamSupport.stream(microsoftSiteSynchronizationRepository.findAllEnabled().spliterator(), false)
 				.map(ss -> {
 					if(fillSite) {
 						ss.setSite(sakaiProxy.getSite(ss.getSiteId()));

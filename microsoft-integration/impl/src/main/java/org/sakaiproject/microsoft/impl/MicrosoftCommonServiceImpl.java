@@ -1010,6 +1010,36 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return false;
 	}
 
+	public boolean archiveTeam(String teamId) throws MicrosoftCredentialsException {
+		try {
+			getGraphClient().teams(teamId)
+				.archive(null)
+				.buildRequest()
+				.post();
+			return true;
+		} catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception ex){
+			log.debug("Error archiving Microsoft team: id={}", teamId);
+		}
+		return false;
+	}
+
+	public boolean unarchiveTeam(String teamId) throws MicrosoftCredentialsException {
+		try {
+			getGraphClient().teams(teamId)
+				.unarchive()
+				.buildRequest()
+				.post();
+			return true;
+		} catch (MicrosoftCredentialsException e) {
+			throw e;
+		} catch (Exception ex) {
+			log.debug("Error unarchiving Microsoft team: id={}", teamId);
+		}
+		return false;
+	}
+
 	@Override
 	public MicrosoftMembersCollection getTeamMembers(String id, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException {
 		MicrosoftMembersCollection ret = new MicrosoftMembersCollection();

@@ -24,6 +24,7 @@ import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.serialization.SerializableRepository;
 
 public interface MicrosoftSiteSynchronizationRepository extends SerializableRepository<SiteSynchronization, String> {
+	List<SiteSynchronization> findAllEnabled();
 	Optional<SiteSynchronization> findById(String id);
 	Optional<SiteSynchronization> findBySiteTeam(String siteId, String teamId);
 	List<SiteSynchronization> findBySite(String siteId);

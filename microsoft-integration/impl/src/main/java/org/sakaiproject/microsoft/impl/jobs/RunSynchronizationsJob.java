@@ -81,7 +81,7 @@ public class RunSynchronizationsJob implements Job {
 			session.setAttribute("origin", MicrosoftLogInvokers.JOB.getCode());
 			SakaiSiteFilter siteFilter = microsoftConfigurationService.getJobSiteFilter();
 			
-			List<SiteSynchronization> list = microsoftSynchronizationService.getAllSiteSynchronizations(true);
+			List<SiteSynchronization> list = microsoftSynchronizationService.getAllEnabledSiteSynchronizations(true);
 			for(SiteSynchronization ss : list) {
 				int retryCount = 0;
 				while (retryCount < MAX_RETRIES) {
@@ -91,7 +91,7 @@ public class RunSynchronizationsJob implements Job {
 						}
 
 						if(ss.getSite() == null || !siteFilter.match(ss.getSite())) {
-							log.debug("Site with id={} skipped due to filter restrinctions", ss.getSiteId());
+							log.debug("Site with id={} skipped due to filter restrictions", ss.getSiteId());
 							break;
 						}
 

@@ -246,6 +246,12 @@
         </p>
     #end
 
+    #if($!isMicrosoftSynchronizationEnabled)
+        <p class="instruction">
+            $tlang.getString("sinfo.synchronization.microsoft.confirmEnabled")
+        </p>
+    #end
+
     <form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
 		<input type="hidden" name="back" value="$!backIndex" />

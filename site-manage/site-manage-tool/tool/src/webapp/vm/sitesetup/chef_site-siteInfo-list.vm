@@ -285,6 +285,17 @@
             </tr>
             #end
 
+            #if ($isMicrosoftSynchronizationEnabled)
+            <tr class="summary-subnav-enabled">
+                <th>
+                $tlang.getString("sinfo.synchronization.microsoft.name")
+                </th>
+                <td>
+                $tlang.getString("sinfo.synchronization.microsoft.enabled")
+                </td>
+            </tr>
+            #end
+
 		#if ($siteJoinable && $allowUnjoin)
 			<tr>
 				<th>

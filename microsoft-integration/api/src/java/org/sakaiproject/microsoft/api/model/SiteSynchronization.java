@@ -86,6 +86,9 @@ public class SiteSynchronization {
 	@Column(name = "status_updated_at")
 	private ZonedDateTime statusUpdatedAt;
 	
+	@Column(name = "disabled")
+	private boolean disabled;
+	
 	@OneToMany(mappedBy = "siteSynchronization", fetch = FetchType.LAZY, orphanRemoval = true)
 	@Cascade(CascadeType.ALL)
 	@OnDelete(action = OnDeleteAction.CASCADE)

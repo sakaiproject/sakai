@@ -28,7 +28,7 @@ import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 public interface MicrosoftSynchronizationService {
 	
 	// ------------ Site Synchronization ---------------------------
-	List<SiteSynchronization> getAllSiteSynchronizations(boolean fillSite);
+	List<SiteSynchronization> getAllEnabledSiteSynchronizations(boolean fillSite);
 	List<SiteSynchronization> getFilteredSiteSynchronizations(boolean fillSite, SakaiSiteFilter filter, ZonedDateTime fromDate, ZonedDateTime toDate);
 
 	SiteSynchronization getSiteSynchronization(SiteSynchronization ss);

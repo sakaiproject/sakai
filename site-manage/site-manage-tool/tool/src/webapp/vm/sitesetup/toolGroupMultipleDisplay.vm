@@ -199,6 +199,16 @@
           <input type="checkbox" name="isSubPageNavEnabled" class="onoffswitch-checkbox" id="isSubPageNavEnabled" #if($isSubPageNavEnabled)checked="checked"#end>
       </div>
     </div>
+    #if($isMicrosoftSynchronizationAllowed)
+    <div class="microsoftSynchronizationArea">
+      <label class="onoffswitch-label" for="isMicrosoftSynchronizationEnabled">
+          $tlang.getString("sinfo.synchronization.microsoft.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isMicrosoftSynchronizationEnabled" class="onoffswitch-checkbox" id="isMicrosoftSynchronizationEnabled" #if($isMicrosoftSynchronizationEnabled)checked="checked"#end>
+      </div>
+    </div>
+    #end
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->
