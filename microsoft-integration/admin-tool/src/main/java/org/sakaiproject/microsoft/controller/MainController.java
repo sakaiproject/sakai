@@ -336,7 +336,7 @@ public class MainController {
 	}
 
 	//called by AJAX - returns JSON
-	@GetMapping(path = {"/setDisabled-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = {"/setDisabled-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public AjaxResponse updateSiteSynchronizationDisabled(@PathVariable String id, @RequestParam Boolean disabled, Model model) {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());

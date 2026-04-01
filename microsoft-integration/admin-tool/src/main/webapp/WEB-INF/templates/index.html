@@ -121,7 +121,12 @@
 
 				let url = baseURL + rowId + "?disabled=" + !isDisabled;
 
-				let response = await fetch(url);
+				let response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				});
 				let data = await response.json();
 
 				if (data.status == false) {

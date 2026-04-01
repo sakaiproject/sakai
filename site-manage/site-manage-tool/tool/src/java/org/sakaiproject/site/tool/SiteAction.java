@@ -15941,6 +15941,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// continue with site information edit
 
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
+			SubNavEnabler.applySettingsToState(state, params);
+			Site site = getStateSite(state);
+			MicrosoftSynchronizationEnabler.applySettingsToState(state, params, site);
 
 			doContinue(data);
 		}
