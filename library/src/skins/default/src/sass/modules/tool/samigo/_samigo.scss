@@ -933,6 +933,22 @@
 	.toggle_link_container_for_richtextarea {
 		text-align: left;
 	}
+	.samlite-card-separator {
+		margin-bottom: 0.5rem;
+	}
+	.samlite-button-group-spacing {
+		margin-top: 0.5rem;
+		margin-bottom: 2rem;
+	}
+	.samlite-accordion-item .card-body {
+		font-size: 0.95rem;
+	}
+	.samlite-instructions {
+		margin-bottom: 2rem;;
+	}
+	.samlite-input-textarea {
+		width: 100%;
+	}
 	.toggle_link {
 		font-size: 85%;
 		border-right: 1px solid var(--sakai-border-color);

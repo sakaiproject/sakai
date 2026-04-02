@@ -317,6 +317,15 @@ button.icon-button {
   background-color: var(--sakai-background-color-1);
 }
 
+.accordion-body {
+	padding: $standard-spacing;
+}
+@media #{$phone} {
+  .accordion-body {
+    padding: calc(#{$standard-spacing} / 2);
+  }
+}
+
 // Changed hidden class in Bootstrap 5 to d-none.
 // I updated all instances, but may have missed some.
 // Adding this to ensure all hidden classes are hidden.
