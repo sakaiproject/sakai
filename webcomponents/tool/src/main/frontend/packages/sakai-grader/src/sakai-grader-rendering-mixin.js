@@ -831,6 +831,12 @@ export const graderRenderingMixin = Base => class extends Base {
                 <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
               ` : nothing }
             </div>
+            ${this._submission.autoSubmitted ? html`
+              <span class="badge bg-info" title="${this._i18n.auto.auto_submit_indicator}">
+                <span class="bi bi-clock-history me-1" aria-hidden="true"></span>
+                ${this._i18n.auto_submit_indicator}
+              </span>
+            ` : nothing}
             ${this._submission.groupId && this._submission.hasSubmittedDate ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
             <div class="attachments">
               ${this._submission.submittedText

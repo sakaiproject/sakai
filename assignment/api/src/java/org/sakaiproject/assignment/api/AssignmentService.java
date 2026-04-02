@@ -32,6 +32,8 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.SimpleAssignmentAutoSubmit;
+import org.sakaiproject.assignment.api.model.SimpleSubmissionDraft;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -897,4 +899,22 @@ public interface AssignmentService extends EntityProducer {
      * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
      */
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
+
+    /**
+     * Get the list of assignments that have auto-submit enabled for a given context.
+     */
+    List<SimpleAssignmentAutoSubmit> getAutoSubmitAssignmentsForContext(String context);
+
+    /**
+     * Get the list of draft submissions for a given assignment.
+     */
+    List<SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId);
+
+    /**
+     * Get draft submissions that are eligible for auto-submit across all sites.
+     * @param limit maximum number of results to return
+     * @param offset number of results to skip
+     * @return a list of eligible SimpleSubmissionDraft DTOs bounded by limit and offset
+     */
+    List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions(int limit, int offset);
 }
