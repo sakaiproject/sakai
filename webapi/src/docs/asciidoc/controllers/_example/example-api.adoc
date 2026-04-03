@@ -1,0 +1,37 @@
+== Sakai API: Example Endpoint
+:sectnums:
+:toc: left
+
+=== POST /api/example/do-something
+This endpoint performs a hypothetical action for demonstration purposes.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+[IMPORTANT]
+====
+This is a sample endpoint. Adjust the authentication, consumes, and produces fields according to your real API.
+====
+
+==== Request Body Parameters
+include::{snippets}/example/request-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/example/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Description of successful action execution.
+| 400 Bad Request | Error | Description of what was wrong with the request (e.g., missing parameters).
+| 401 Unauthorized | Error | Description of authentication failure (e.g., invalid token).
+| 500 Internal Server Error | Error | Description of server error (e.g., database connection failure).
+|===
+
+==== Example Success Response
+include::{snippets}/example/http-response.adoc[]

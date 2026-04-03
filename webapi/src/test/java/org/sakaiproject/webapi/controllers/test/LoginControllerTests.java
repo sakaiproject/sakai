@@ -15,12 +15,11 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,9 +51,6 @@ import org.mockito.MockitoAnnotations;
 public class LoginControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
-
-    @Rule
-    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -88,9 +83,7 @@ public class LoginControllerTests extends BaseControllerTests {
 
         controller.setUsageSessionService(usageSessionService);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .apply(documentationConfiguration(this.restDocumentation))
-            .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}
 
     @After
@@ -117,7 +110,10 @@ public class LoginControllerTests extends BaseControllerTests {
                 .param("username", username)
                 .param("password", password))
             .andExpect(status().isOk())
-            .andDo(document("login", preprocessor))
+            .andDo(document("login", requestParameters(
+                parameterWithName("username").description("The user's EID (username)"),
+                parameterWithName("password").description("The user's password")
+            )))
             .andReturn();
 
         String sessionId = result.getResponse().getContentAsString();

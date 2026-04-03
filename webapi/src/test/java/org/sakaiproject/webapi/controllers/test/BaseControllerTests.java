@@ -15,54 +15,38 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+
+import org.springframework.restdocs.mockmvc.UriConfigurer;
 
 import java.net.URI;
 import java.util.Collection;
 
+import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.operation.OperationRequest;
 import org.springframework.restdocs.operation.OperationRequestPart;
 import org.springframework.restdocs.operation.Parameters;
 import org.springframework.restdocs.operation.RequestCookie;
-import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor;
 
-import static org.mockito.Mockito.*;
+import org.junit.Rule;
 
 public abstract class BaseControllerTests {
 
-    protected OperationRequestPreprocessor preprocessor;
+    @Rule
+    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
+
+    protected UriConfigurer configurer;
 
     public BaseControllerTests() {
 
-        preprocessor = new OperationRequestPreprocessor() {
-
-            public OperationRequest preprocess(OperationRequest request) {
-
-                URI uri = request.getUri();
-
-                return new OperationRequest() {
-
-                    public byte[] getContent() { return request.getContent(); }
-                    public String getContentAsString() { return request.getContentAsString(); }
-                    public Collection<RequestCookie> getCookies() { return request.getCookies(); }
-                    public org.springframework.http.HttpHeaders getHeaders() { return request.getHeaders(); }
-                    public org.springframework.http.HttpMethod getMethod() { return request.getMethod(); }
-                    public Parameters getParameters() { return request.getParameters(); }
-                    public Collection<OperationRequestPart> getParts() { return request.getParts(); }
-
-                    public URI getUri() {
-                        try {
-                            return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), "/api" + uri.getPath(), uri.getQuery(), uri.getFragment());
-                        } catch (Exception e) {
-                        }
-                        return uri;
-                    }
-                };
-            }
-        };
+        configurer = documentationConfiguration(this.restDocumentation)
+            .operationPreprocessors()
+            .withRequestDefaults(prettyPrint())
+            .withResponseDefaults(prettyPrint())
+            .and()
+            .uris()
+            .withHost("your-sakai.edu")
+            .withPort(80);
     }
 }

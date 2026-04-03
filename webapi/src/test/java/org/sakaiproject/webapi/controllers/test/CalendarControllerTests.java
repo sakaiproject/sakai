@@ -16,9 +16,9 @@
 package org.sakaiproject.webapi.controllers.test;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,9 +67,6 @@ public class CalendarControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
 
-    @Rule
-    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
-
     @Mock
     private ContentHostingService contentHostingService;
 
@@ -115,9 +112,7 @@ public class CalendarControllerTests extends BaseControllerTests {
         controller.setSiteService(siteService);
         controller.setContentHostingService(contentHostingService);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .apply(documentationConfiguration(this.restDocumentation))
-            .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}
 
     @After
@@ -170,7 +165,7 @@ public class CalendarControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.sites[0].title", is("Site 1")))
             .andExpect(jsonPath("$.sites[1].siteId", is("site2")))
             .andExpect(jsonPath("$.sites[1].title", is("Site 2")))
-            .andDo(document("get-user-calendar", preprocessor));
+            .andDo(document("get-user-calendar"));
     }
 
     @Test
@@ -217,7 +212,7 @@ public class CalendarControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.events[0].attachments[0].url", is(attachment1Resource.getUrl())))
             .andExpect(jsonPath("$.events[0].recurrence.count", is(event.getRecurrenceRule().getCount())))
             .andExpect(jsonPath("$.events[0].recurrence.interval", is(event.getRecurrenceRule().getInterval())))
-            .andDo(document("get-site-calendar", preprocessor));
+            .andDo(document("get-site-calendar"));
     }
 
     private CalendarEvent createEvent(String siteId, String siteTitle, String title, String description, long start, long duration) {

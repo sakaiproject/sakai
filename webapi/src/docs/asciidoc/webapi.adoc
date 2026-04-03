@@ -1,0 +1,13 @@
+= Sakai REST API
+:toc:
+
+[IMPORTANT]
+Before you can use any of the apis, you need to login
+
+include::controllers/login/login-api.adoc[]
+
+include::controllers/announcement/announcement-api.adoc[]
+
+include::controllers/calendar/calendar-api.adoc[]
+
+include::controllers/scorm/scorm-api.adoc[]

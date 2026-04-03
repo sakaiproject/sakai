@@ -1,0 +1,49 @@
+== Calendar
+
+__See the login api about session cookies__
+
+=== GET /api/users/current/calendar
+Returns calendar events for the currently authenticated user across all their sites.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-user-calendar/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns a calendar object containing a list of calendar events.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-user-calendar/response-body.adoc[]
+
+=== GET /api/sites/{siteId}/calendar
+Returns calendar events for a specific site.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-calendar/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns a calendar object containing a list of calendar events for the site.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-calendar/response-body.adoc[]

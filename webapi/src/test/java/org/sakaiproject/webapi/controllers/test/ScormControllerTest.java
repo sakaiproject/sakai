@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -71,9 +71,6 @@ public class ScormControllerTest extends BaseControllerTests {
     private MockMvc mockMvc;
     private ScormLaunchService scormLaunchService;
 
-    @Rule
-    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
-
     @Before
     public void setUp() {
 
@@ -91,9 +88,7 @@ public class ScormControllerTest extends BaseControllerTests {
         controller.setPortalService(mock(PortalService.class));
         controller.setSiteService(mock(SiteService.class));
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .apply(documentationConfiguration(this.restDocumentation))
-            .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
     }
 
     @Test
@@ -110,7 +105,7 @@ public class ScormControllerTest extends BaseControllerTests {
             .andExpect(jsonPath("$.contentPackageId").value(7))
             .andExpect(jsonPath("$.state").value("READY"))
             .andExpect(jsonPath("$.launchPath").value("contentpackages/resourceName/demo/index.html"))
-            .andDo(document("create-scorm-session", preprocessor));
+            .andDo(document("create-scorm-session"));
     }
 
     @Test
@@ -134,7 +129,7 @@ public class ScormControllerTest extends BaseControllerTests {
             .andExpect(jsonPath("$.errorCode").value("0"))
             .andExpect(jsonPath("$.launchPath").doesNotExist())
             .andExpect(jsonPath("$.sessionEnded").value(false))
-            .andDo(document("initialize-runtime", preprocessor));
+            .andDo(document("initialize-runtime"));
 
         ScormRuntimeInvocation captured = invocationCaptor.getValue();
         assertEquals("sco-1", captured.getScoId());

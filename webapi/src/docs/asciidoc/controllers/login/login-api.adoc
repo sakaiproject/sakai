@@ -1,0 +1,43 @@
+== Login
+
+Logging in with the login API will return the session id to you, if successful. It will also set a
+session cookie containing that session id, and that cookie can be supplied in all subsequent
+requests to any Sakai api calls. So, if you were making a sequence of api calls, you would typically
+call login with curl, storing the cookie in a jar file, then you would just use that jar file for
+the remainder of the calls.
+
+=== POST /api/login
+Authenticates a user and establishes a Sakai session (`JSESSIONID`).
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | None (Public Entry Point)
+| Consumes | application/x-www-form-urlencoded
+| Produces | text/plain (Session ID)
+|===
+
+[IMPORTANT]
+====
+The response includes a cookie with a suffix defined by `sakai.serverId`.
+If this property is missing, `.sakai` is used by default.
+Ensure your HTTP client is configured to handle cookies for subsequent requests.
+====
+
+==== Request Body Parameters
+include::{snippets}/login/request-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/login/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns the **Session ID** (String). A `JSESSIONID` cookie is attached to the response headers.
+| 400 Bad Request | Error | `"username and password are required"` if fields are missing or empty.
+| 401 Unauthorized | Error | Thrown by `AuthenticationManager` if credentials fail.
+| 500 Internal Server Error | Error | `"Unable to establish session"` if the session manager fails to initialize.
+|===
+
+==== Example Success Response
+include::{snippets}/login/http-response.adoc[]

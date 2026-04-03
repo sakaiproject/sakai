@@ -15,10 +15,10 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -70,9 +70,6 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
 
-    @Rule
-    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
-
     @Mock
     private ContentHostingService contentHostingService;
 
@@ -119,9 +116,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         controller.setSiteService(siteService);
         controller.setEntityManager(entityManager);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .apply(documentationConfiguration(this.restDocumentation))
-            .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}
 
     @After
@@ -190,7 +185,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.announcements[1].author", is(author2)))
             .andExpect(jsonPath("$.announcements[1].url", is(url2)))
             .andExpect(jsonPath("$.announcements[1].date", is(releaseDate2.toEpochMilli())))
-            .andDo(document("get-user-announcements", preprocessor));
+            .andDo(document("get-user-announcements"));
     }
 
     @Test
@@ -233,7 +228,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.announcements[0].author", is(author)))
             .andExpect(jsonPath("$.announcements[0].url", is(url)))
             .andExpect(jsonPath("$.announcements[0].date", is(releaseDate.toEpochMilli())))
-            .andDo(document("get-site-announcements", preprocessor));
+            .andDo(document("get-site-announcements"));
     }
 
     private AnnouncementMessage createAnnouncementMessage(String siteId, String subject, String author, Instant releaseDate, String ref, String url) throws Exception {

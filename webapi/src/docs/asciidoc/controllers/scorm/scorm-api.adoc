@@ -1,0 +1,54 @@
+== Scorm
+
+__See the login api about session cookies__
+
+=== POST /api/scorm/sessions
+Creates a new SCORM launch session for the given content package.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/create-scorm-session/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns a SCORM session response containing launch context details.
+| 400 Bad Request | Error | `"contentPackageId must be positive"` if the id is invalid, or `IllegalArgumentException` from the launch service.
+| 401 Unauthorized | Error | User is not authenticated.
+| 409 Conflict | Error | A session already exists and cannot be created (`IllegalStateException` from the launch service).
+|===
+
+==== Example Success Response
+include::{snippets}/create-scorm-session/response-body.adoc[]
+
+=== POST /api/scorm/sessions/{sessionId}/runtime
+Sends a SCORM runtime method call (e.g. `Initialize`, `GetValue`, `SetValue`, `Commit`, `Terminate`) for the given session.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/initialize-runtime/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Body / Details
+| 200 OK | Success | Returns a SCORM runtime response with the result value, error code, and diagnostic information.
+| 400 Bad Request | Error | `"Runtime method is required"` if the method field is blank, or `IllegalArgumentException` from the runtime handler.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/initialize-runtime/response-body.adoc[]
