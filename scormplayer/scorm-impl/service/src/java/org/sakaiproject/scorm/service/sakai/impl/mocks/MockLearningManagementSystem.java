@@ -16,6 +16,8 @@
 package org.sakaiproject.scorm.service.sakai.impl.mocks;
 
 
+import java.util.Set;
+
 import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -87,6 +89,12 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	public String currentContext()
 	{
 		return "context1";
+	}
+
+	@Override
+	public Set<String> getViewableLearnerIds(String context)
+	{
+		return null;
 	}
 
 	@Override

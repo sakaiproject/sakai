@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -338,12 +340,20 @@ public class ScormResultServiceImpl implements ScormResultService {
 		return interaction;
 	}
 
+	private List<Learner> filterLearnersByVisibility(List<Learner> learners, String context)
+	{
+		Set<String> viewableIds = lms.getViewableLearnerIds(context);
+		return viewableIds == null ? learners : learners.stream()
+				.filter(l -> viewableIds.contains(l.getId()))
+				.collect(Collectors.toList());
+	}
+
 	@Override
 	public List<LearnerExperience> getLearnerExperiences(long contentPackageId)
 	{
 		List<LearnerExperience> experiences = new LinkedList<>();
 		String context = lms.currentContext();
-		List<Learner> learners = learnerDao.find(context);
+		List<Learner> learners = filterLearnersByVisibility(learnerDao.find(context), context);
 
 		for (int i = 0; i < learners.size(); i++)
 		{
@@ -440,7 +450,7 @@ public class ScormResultServiceImpl implements ScormResultService {
 		{
 			// We just have the above ids
 			String context = lms.currentContext();
-			List<Learner> learners = learnerDao.find(context);
+			List<Learner> learners = filterLearnersByVisibility(learnerDao.find(context), context);
 			Collections.sort(learners);
 
 			for (int i = 0; i < learners.size(); i++)

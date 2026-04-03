@@ -293,4 +293,9 @@ public class MockServerConfigurationService implements ServerConfigurationServic
     public String getSmtpPort() {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
+
+    @Override
+    public String getUserHomeUrl() {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
 }

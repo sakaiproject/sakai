@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.service.api;
 
+import java.util.Set;
+
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
@@ -45,6 +47,13 @@ public interface LearningManagementSystem
 	public boolean canViewResults(String context);
 
 	public String currentContext();
+
+	/**
+	 * Returns the set of user IDs visible to the current user when viewing results.
+	 * Returns null if the current user can see all learners (instructor or admin).
+	 * Returns a set of user IDs restricted to the current user's group members if they are a TA.
+	 */
+	public Set<String> getViewableLearnerIds(String context);
 
 	public String currentLearnerId();
 
