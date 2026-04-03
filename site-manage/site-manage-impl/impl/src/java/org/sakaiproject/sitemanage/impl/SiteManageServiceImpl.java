@@ -628,7 +628,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// Update entity references
 		if (!transversalMap.isEmpty() && !toolIds.isEmpty()) {
 			for (String toolId : toolIds) {
-				if (importTools.containsKey(toolId)) {
+				if (importTools.containsKey(toolId) || toolItemMap.containsKey(toolId) || toolOptions.containsKey(toolId)) {
 					updateEntityReferences(toolId, toSiteId, transversalMap, site);
 				}
 			}
