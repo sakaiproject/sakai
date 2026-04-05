@@ -46,7 +46,12 @@
             activeScoId: null,
             pendingScoId: null,
             runtimeInstalled: false,
+            pageUnloading: false,
         };
+
+        window.addEventListener('beforeunload', function () {
+            state.pageUnloading = true;
+        }, { once: true });
 
         root.dataset.initialized = 'true';
 
@@ -436,6 +441,21 @@
 
             const request = createRuntimeRequest(payload);
             console.debug('[SCORM REST] runtime request', payload);
+
+            // During page dismissal, synchronous XHR is blocked by browsers (Chromium feature/4664843055398912).
+            // For write calls use fetch keepalive (fire-and-forget); for read-only diagnostics return safe defaults.
+            if (state.pageUnloading && method !== 'Terminate') {
+                const writeMethod = method === 'SetValue' || method === 'Commit';
+                if (writeMethod) {
+                    dispatchTerminateRequest(request, scoId);
+                    return 'true';
+                }
+                // GetLastError / GetErrorString / GetDiagnostic — return no-error defaults so callers don't cascade
+                if (method === 'GetLastError') return '0';
+                if (method === 'GetErrorString') return '';
+                if (method === 'GetDiagnostic') return '';
+                return '';
+            }
 
             if (method === 'Terminate') {
                 const dispatched = dispatchTerminateRequest(request, scoId);
