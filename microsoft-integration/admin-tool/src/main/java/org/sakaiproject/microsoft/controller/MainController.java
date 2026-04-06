@@ -342,7 +342,7 @@ public class MainController {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
 		AjaxResponse ret = new AjaxResponse();
 		ret.setStatus(false);
-		ret.setError(rb.getString("error.set_disabled_synchronization"));
+		ret.setError(rb.getString("error.changing_synchronization_status"));
 		if(ss != null) {
 			ss.setDisabled(disabled);
 			microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
