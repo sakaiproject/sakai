@@ -16,6 +16,7 @@
 package org.sakaiproject.scorm.service.sakai.impl.mocks;
 
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
@@ -92,9 +93,9 @@ public class MockLearningManagementSystem implements LearningManagementSystem
 	}
 
 	@Override
-	public Set<String> getViewableLearnerIds(String context)
+	public Optional<Set<String>> getViewableLearnerIds(String context)
 	{
-		return null;
+		return Optional.empty();
 	}
 
 	@Override

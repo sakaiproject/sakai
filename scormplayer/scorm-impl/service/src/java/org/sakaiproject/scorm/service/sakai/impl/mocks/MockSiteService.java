@@ -305,12 +305,6 @@ public class MockSiteService implements SiteService
     }
 
     @Override
-    public List<String> getSiteIds( SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId )
-    {
-        return Collections.emptyList();
-    }
-
-    @Override
     public Optional<Locale> getSiteLocale( String siteId )
     {
         return Optional.empty();

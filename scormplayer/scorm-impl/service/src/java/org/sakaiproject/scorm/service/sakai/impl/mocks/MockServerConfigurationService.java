@@ -294,8 +294,4 @@ public class MockServerConfigurationService implements ServerConfigurationServic
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
-    @Override
-    public String getUserHomeUrl() {
-        throw new UnsupportedOperationException( "Not supported yet." );
-    }
 }

@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
-import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -255,25 +255,25 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	}
 
 	@Override
-	public Set<String> getViewableLearnerIds(String context)
+	public Optional<Set<String>> getViewableLearnerIds(String context)
 	{
 		String siteRef = siteService().siteReference(context);
-		if (unlockCheck("section.role.instructor", siteRef) || securityService().unlock("site.upd", siteRef))
+		if (unlockCheck("section.role.instructor", siteRef) || unlockCheck("site.upd", siteRef))
 		{
-			return null;
+			return Optional.empty();
 		}
 
 		try
 		{
-			return siteService().getSite(context).getGroupsWithMember(currentLearnerId()).stream()
+			return Optional.of(siteService().getSite(context).getGroupsWithMember(currentLearnerId()).stream()
 					.flatMap(g -> g.getMembers().stream())
 					.map(Member::getUserId)
-					.collect(Collectors.toSet());
+					.collect(Collectors.toSet()));
 		}
 		catch (IdUnusedException e)
 		{
 			log.warn("Could not find site for context {}", context, e);
-			return Collections.emptySet();
+			return Optional.of(Set.of());
 		}
 	}
 }

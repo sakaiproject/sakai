@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -342,10 +343,11 @@ public class ScormResultServiceImpl implements ScormResultService {
 
 	private List<Learner> filterLearnersByVisibility(List<Learner> learners, String context)
 	{
-		Set<String> viewableIds = lms.getViewableLearnerIds(context);
-		return viewableIds == null ? learners : learners.stream()
-				.filter(l -> viewableIds.contains(l.getId()))
-				.collect(Collectors.toList());
+		Optional<Set<String>> viewableIds = lms.getViewableLearnerIds(context);
+		return viewableIds.map(ids -> learners.stream()
+				.filter(l -> ids.contains(l.getId()))
+				.collect(Collectors.toList()))
+				.orElse(learners);
 	}
 
 	@Override
