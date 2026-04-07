@@ -43,7 +43,8 @@ export class SakaiUserPhoto extends SakaiElement {
   }
 
   refresh() {
-    this.url = `/api/users/${this.userId}/profile/image/${this.official ? "official" : "thumb"}?_=${Date.now()}`;
+    const uid = this.userId?.trim() || "blank";
+    this.url = `/api/users/${uid}/profile/image/${this.official ? "official" : "thumb"}?_=${Date.now()}`;
   }
 
   close() {
@@ -56,8 +57,10 @@ export class SakaiUserPhoto extends SakaiElement {
       if (this.blank) {
         this.url = "/api/users/blank/profile/image";
       } else {
-        this.url = `/api/users/${this.userId}/profile/image/${this.official ? "official" : "thumb"}`
-                    + (getSiteId() ? `?siteId=${getSiteId()}` : "");
+        const uid = this.userId?.trim() || "blank";
+        const sid = this.siteId?.trim() || getSiteId();
+        const thumb = this.official ? "official" : "thumb";
+        this.url = `/api/users/${uid}/profile/image/${thumb}` + (sid ? `?siteId=${sid}` : "");
       }
     }
   }
@@ -97,9 +100,10 @@ export class SakaiUserPhoto extends SakaiElement {
       `;
     }
 
+    const uid = this.userId?.trim() || "blank";
     return html`
-      <div data-user-id="${this.userId}"
-          class="sakai-user-photo ${this.classes}"
+      <div data-user-id="${uid}"
+          class="sakai-user-photo ${this.classes ?? "large-thumbnail"}"
           data-bs-toggle="popover"
           data-bs-trigger="click"
           aria-label="${ifDefined(this.label)}"
@@ -112,7 +116,7 @@ export class SakaiUserPhoto extends SakaiElement {
         ` : nothing}
       </div>
       <div class="d-none">
-        <sakai-profile user-id="${this.userId}"></sakai-profile>
+        <sakai-profile user-id="${uid}"></sakai-profile>
       </div>
     `;
   }

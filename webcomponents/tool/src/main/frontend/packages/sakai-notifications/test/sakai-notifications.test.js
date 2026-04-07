@@ -116,4 +116,65 @@ describe("sakai-notifications tests", () => {
     const siteTitleOccurrences = (decoratedTitle.match(new RegExp(escapeRe(assignmentNotification.siteTitle), "g")) || []).length;
     expect(siteTitleOccurrences).to.equal(1);
   });
+
+  it ("skips user photo fetch when notification has no fromUser", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    const noSenderNotification = {
+      event: "annc.new",
+      fromDisplayName: "System",
+      formattedEventDate: "15 Oct, 2025",
+      id: "noti-no-sender",
+      siteTitle: "Biology 101",
+      title: "Announcement",
+      url: "http://example.com/announcements/1",
+    };
+
+    setRoutes([noSenderNotification]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.loadNotifications();
+    await waitUntil(() => el._filteredNotifications.get("annc")?.length);
+
+    const photo = el.querySelector("sakai-user-photo");
+    expect(photo).to.exist;
+    expect(photo.getAttribute("user-id")).to.equal("blank");
+    expect(photo.getAttribute("profile-popup")).to.equal("on");
+  });
+
+  it ("uses from when fromUser is not present", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    const fromOnlyNotification = {
+      event: "annc.new",
+      from: "instructor1",
+      fromDisplayName: "Instructor Example",
+      formattedEventDate: "15 Oct, 2025",
+      id: "noti-from-only",
+      siteTitle: "Biology 101",
+      title: "Announcement",
+      url: "http://example.com/announcements/1",
+    };
+
+    setRoutes([fromOnlyNotification]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.loadNotifications();
+    await waitUntil(() => el._filteredNotifications.get("annc")?.length);
+
+    const photo = el.querySelector("sakai-user-photo");
+    expect(photo).to.exist;
+    expect(photo.getAttribute("user-id")).to.equal("instructor1");
+    expect(photo.getAttribute("profile-popup")).to.equal("on");
+  });
 });

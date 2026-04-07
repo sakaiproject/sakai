@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.profile2.api.ProfileConstants;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -209,16 +212,10 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   }
 
 	private String getProfileImageURL(String authorId) {
-
-		if (null == authorId || authorId.trim().length() == 0 ) {
-			return null;
-		}
-		StringBuffer sb = new StringBuffer();
-		sb.append(serverConfigurationService.getServerUrl());
-		sb.append("/api/users/");
-		sb.append(authorId);
-		sb.append("/profile/image/thumb");
-		return sb.toString();
+		return serverConfigurationService.getServerUrl()
+				+ "/api/users/"
+				+ StringUtils.defaultIfBlank(authorId, ProfileConstants.BLANK)
+				+ "/profile/image/thumb";
 	}
 
 

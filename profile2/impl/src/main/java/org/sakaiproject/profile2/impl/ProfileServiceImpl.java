@@ -171,7 +171,9 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
         //if we have a siteId and it's not a my workspace site, check if the current user has permissions to view the image
         if (StringUtils.isNotBlank(siteId)) {
-            if (!sakaiProxy.isUserMyWorkspace(siteId)) {
+            if (sakaiProxy.isUserMyWorkspace(siteId)) {
+                allowed = sakaiProxy.isUserMemberOfSite(currentUserUuid, siteId);
+            } else {
                 log.debug("checking if user: {} has permissions in site: {}", currentUserUuid, siteId);
                 allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId) ||
                     sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PROFILE, siteId);
@@ -466,16 +468,11 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     @Override
     public String getProfileImageEntityUrl(String userId, int size) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(sakaiProxy.getServerUrl());
-        sb.append("/api/users/");
-        sb.append(userId);
-        sb.append("/profile/image/");
-        if (size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
-            sb.append("thumb/");
-        }
-        return sb.toString();
+        return sakaiProxy.getServerUrl()
+                + "/api/users/"
+                + StringUtils.defaultIfBlank(userId, ProfileConstants.BLANK)
+                + "/profile/image/"
+                + (size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL ? "thumb/" : "");
     }
 
     /**
@@ -952,11 +949,9 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     @Override
     public String getProfileImageURL(String userId, boolean thumbnail) {
-
-        if (userId == null) {
-            return thumbnail ? ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL : ProfileConstants.UNAVAILABLE_IMAGE_FULL;
-        }
-
-        return "/api/users/" + userId + "/profile/image" + (thumbnail ? "/thumb" : "");
+        return "/api/users/"
+                + StringUtils.defaultIfBlank(userId, ProfileConstants.BLANK)
+                + "/profile/image"
+                + (thumbnail ? "/thumb" : "");
     }
 }

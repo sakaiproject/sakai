@@ -25,13 +25,15 @@ export class SakaiProfile extends SakaiShadowElement {
     this.loadTranslations("profile-wc");
 
     const siteId = getSiteId();
-    this._imageUrl = `/api/users/${this.userId}/profile/image/${siteId ? `?siteId=${siteId}` : ""}`;
+    const uid = this.userId?.trim() || "blank";
+    this._imageUrl = `/api/users/${uid}/profile/image/${siteId ? `?siteId=${siteId}` : ""}`;
   }
 
   fetchProfileData() {
 
     const siteId = getSiteId();
-    const url = `/api/users/${this.userId}/profile${siteId ? `?siteId=${siteId}` : ""}`;
+    const uid = this.userId?.trim() || "blank";
+    const url = `/api/users/${uid}/profile${siteId ? `?siteId=${siteId}` : ""}`;
     fetch(url)
       .then(r => {
 

@@ -36,8 +36,8 @@
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{message.message.authorId}/profile/image/thumb" alt="#{message.message.author}" 
-					    styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}" />
+					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{empty message.message.authorId ? 'blank' : message.message.authorId}/profile/image/thumb" alt="#{message.message.author}"
+					                styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}" />
 						<%-- message has been submitted and has bene denied  approval by moderator--%>
 					<h:outputText value="#{msgs.cdfm_msg_denied_label}"  styleClass="messageDenied"  rendered="#{message.msgDenied}" />
 					<%-- message has been submitted and is pending approval by moderator--%> 

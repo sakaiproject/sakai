@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -153,9 +154,7 @@ public class ProfileController extends AbstractSakaiApiController {
 
         String currentUserId = checkSakaiSession().getUserId();
 
-        ProfileImage image = null;
         final boolean wantsThumbnail = StringUtils.equals("thumb", imageType);
-        
         final boolean wantsOfficial = StringUtils.equals("official", imageType);
 
         log.debug("wantsThumbnail:{}", wantsThumbnail);
@@ -171,6 +170,9 @@ public class ProfileController extends AbstractSakaiApiController {
                 // No sites in common, so serving a blank image
                 wantsBlank = true;
             }
+        } else if (siteId.startsWith("~")) {
+            // users my workspace
+            wantsBlank = !isUserMemberOfSite(currentUserId, siteId);
         } else {
             // Site id is specified, checking if both users are members of that site
             if (!isUserMemberOfSite(currentUserId, siteId)) {
@@ -183,6 +185,7 @@ public class ProfileController extends AbstractSakaiApiController {
             }
         }
 
+        ProfileImage image = null;
         if(wantsBlank) {
             image = profileService.getBlankProfileImage();
         } else {
@@ -212,6 +215,20 @@ public class ProfileController extends AbstractSakaiApiController {
             HttpHeaders headers = new HttpHeaders();
             headers.setCacheControl(CacheControl.noCache().getHeaderValue());
             return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+        }
+
+        // 302 for images that are URL-backed, not binary-backed.
+        final String url = image.getUrl();
+        if (StringUtils.isNotBlank(url)) {
+            try {
+                URI redirectUri = URI.create(url);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setCacheControl(CacheControl.noStore().getHeaderValue());
+                headers.setLocation(redirectUri);
+                return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            } catch (Exception e) {
+                log.warn("Invalid profile image URL for user {}: {}", userId, e.getMessage());
+            }
         }
         
         return ResponseEntity.badRequest().build();

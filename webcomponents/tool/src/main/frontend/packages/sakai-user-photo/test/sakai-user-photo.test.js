@@ -38,6 +38,16 @@ describe("sakai-user-photo tests", () => {
     expect(div.dataset.userId).to.equal(data.userId);
   });
 
+  it ("uses large-thumbnail as default class", async () => {
+
+    let el = await fixture(html`<sakai-user-photo user-id="${data.userId}"></sakai-user-photo>`);
+    await elementUpdated(el);
+
+    const div = el.querySelector("div");
+    expect(div).to.exist;
+    expect(div.classList.contains("large-thumbnail")).to.be.true;
+  });
+
   it ("renders for print correctly", async () => {
  
     let el = await fixture(html`<sakai-user-photo user-id="${data.userId}" print></sakai-user-photo>`);
@@ -55,5 +65,14 @@ describe("sakai-user-photo tests", () => {
 
     await elementUpdated(el);
     await expect(el).to.be.accessible();
+  });
+
+  it ("skips profile image URL creation when user-id is missing", async () => {
+
+    let el = await fixture(html`<sakai-user-photo profile-popup="on"></sakai-user-photo>`);
+    await elementUpdated(el);
+
+    const div = el.querySelector("div");
+    expect(div.dataset.userId).to.equal("blank");
   });
 });

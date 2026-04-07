@@ -2,8 +2,11 @@ sakai-user-photo > div:first-child {
   float: left;
   position: relative;
   background-position: 50%;
-  background-size: auto 100%;
+  background-size: cover;
   border-radius: 50%;
+  min-width: 30px;
+  max-width: 30px;
+  height: 30px;
 
   &.large {
     min-width: 300px;

@@ -123,7 +123,8 @@ export class SakaiPictureChanger extends SakaiElement {
 
     const d = new Date();
 
-    const imageUrl = `/api/users/${this.userId}/profile/image?${d.getTime()}`;
+    const uid = this.userId?.trim() || "blank";
+    const imageUrl = `/api/users/${uid}/profile/image?${d.getTime()}`;
     console.log(imageUrl);
 
     if (this.userId === getUserId()) {
@@ -136,7 +137,8 @@ export class SakaiPictureChanger extends SakaiElement {
 
   _loadExisting() {
 
-    const url = `/api/users/${this.userId}/profile/image/details?_=${Date.now()}`;
+    const uid = this.userId?.trim() || "blank";
+    const url = `/api/users/${uid}/profile/image/details?_=${Date.now()}`;
     fetch(url).then(r => r.json()).then(json => {
 
       if (json.status == "SUCCESS") {
@@ -156,7 +158,12 @@ export class SakaiPictureChanger extends SakaiElement {
     const postBody = new URLSearchParams();
     postBody.append("base64", base64);
 
-    const url = `/api/users/${this.userId}/profile/image`;
+    const uid = this.userId?.trim();
+    if (!uid) {
+      this._uploadError = true;
+      return;
+    }
+    const url = `/api/users/${uid}/profile/image`;
 
     fetch(url, {
       headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
@@ -192,7 +199,11 @@ export class SakaiPictureChanger extends SakaiElement {
 
   _remove() {
 
-    const url = `/api/users/${this.userId}/profile/image`;
+    const uid = this.userId?.trim();
+    if (!uid) {
+      return;
+    }
+    const url = `/api/users/${uid}/profile/image`;
     fetch(url, { method: "DELETE" })
     .then(r => {
 
@@ -260,7 +271,7 @@ export class SakaiPictureChanger extends SakaiElement {
               </div>
             </div>
             <div class="d-flex mt-3">
-              <button class="btn btn-primary me-1" @click=${this._save} ?disabled=${!this._needsSave}>${this._i18n.save}</button>
+              <button class="btn btn-primary me-1" @click=${this._save} ?disabled=${!this._needsSave || !this.userId?.trim()}>${this._i18n.save}</button>
               <button class="btn btn-secondary" @click=${this._cancel}>${this._i18n.cancel}</button>
               <button class="btn btn-secondary ms-auto" @click=${this._remove}>${this._i18n.remove}</button>
             </div>

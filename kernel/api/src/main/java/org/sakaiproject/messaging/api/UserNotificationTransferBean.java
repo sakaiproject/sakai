@@ -48,9 +48,9 @@ public class UserNotificationTransferBean {
         bean.siteId = un.getSiteId();
         bean.url = un.getUrl();
         bean.eventDate = un.getEventDate();
-        bean.viewed = un.getViewed();
+        bean.viewed = un.getViewed() != null && un.getViewed();
         bean.tool = un.getTool();
-        bean.broadcast = un.getBroadcast();
+        bean.broadcast = un.getBroadcast() != null && un.getBroadcast();
         return bean;
     }
 
