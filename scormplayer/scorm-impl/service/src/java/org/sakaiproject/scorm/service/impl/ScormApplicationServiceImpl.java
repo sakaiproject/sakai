@@ -1346,7 +1346,7 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 					attempt.setNotExited(false);
 					attemptDao.save(attempt);
 				}
-				else if (!exitValue.equals("suspend"))
+				else if (!exitValue.equals("suspend") && event != SeqNavRequests.NAV_ABANDON && event != SeqNavRequests.NAV_ABANDONALL)
 				{
 					// Normal exit (empty string or "normal") - SCO terminated cleanly without suspending.
 					// Mark the attempt as properly exited so the next launch starts a new attempt (SAK-51829).
