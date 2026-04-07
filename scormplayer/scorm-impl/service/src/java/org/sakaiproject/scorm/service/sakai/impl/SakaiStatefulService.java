@@ -15,13 +15,19 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.Attempt;
@@ -246,5 +252,28 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 		}
 
 		return isAllowed;
+	}
+
+	@Override
+	public Optional<Set<String>> getViewableLearnerIds(String context)
+	{
+		String siteRef = siteService().siteReference(context);
+		if (unlockCheck("section.role.instructor", siteRef) || unlockCheck("site.upd", siteRef))
+		{
+			return Optional.empty();
+		}
+
+		try
+		{
+			return Optional.of(siteService().getSite(context).getGroupsWithMember(currentLearnerId()).stream()
+					.flatMap(g -> g.getMembers().stream())
+					.map(Member::getUserId)
+					.collect(Collectors.toSet()));
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("Could not find site for context {}", context, e);
+			return Optional.of(Set.of());
+		}
 	}
 }
