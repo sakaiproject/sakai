@@ -1135,6 +1135,18 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 						return;
 					}
 
+					if(microsoftCommonService.existsTeamWithName(site.getTitle())) {
+						log.warn("A Team with the name '{}' already exists. Skipping team creation for siteId={}", site.getTitle(), siteId);
+						microsoftLoggingRepository.save(MicrosoftLog.builder()
+								.event(MicrosoftLog.ERROR_TEAM_NAME_ALREADY_EXISTS)
+								.status(MicrosoftLog.Status.KO)
+								.addData("origin", sakaiProxy.getActionOrigin())
+								.addData("siteId", siteId)
+								.addData("siteTitle", site.getTitle())
+								.build());
+						return;
+					}
+
 					teamId = microsoftCommonService.createTeam(site.getTitle(), credentials.getEmail());
 					if(teamId != null) {
 						long syncDuration = microsoftConfigRepository.getSyncDuration();

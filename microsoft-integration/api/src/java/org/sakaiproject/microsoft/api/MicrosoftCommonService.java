@@ -127,7 +127,9 @@ public interface MicrosoftCommonService {
 	boolean removeUserFromGroup(String userId, String groupId) throws MicrosoftCredentialsException;
 	boolean removeMemberFromTeam(String memberId, String teamId) throws MicrosoftCredentialsException;
 	boolean removeAllMembersFromTeam(String teamId) throws MicrosoftCredentialsException;
-	
+
+	boolean existsTeamWithName(String name) throws MicrosoftCredentialsException;
+
 	// ------------------------------------------ CHANNELS ----------------------------------------------------
 	MicrosoftChannel getChannel(String teamId, String channelId) throws MicrosoftCredentialsException;
 	MicrosoftChannel getChannel(String teamId, String channelId, boolean force) throws MicrosoftCredentialsException;

@@ -106,6 +106,8 @@ public class MicrosoftLog {
 
 	public static final String[] MICROSOFT_ERRORS = {EVENT_TOO_MANY_REQUESTS};
 
+	public static final String ERROR_TEAM_NAME_ALREADY_EXISTS = "error.team_name_already_exists";
+
 	public enum Status {
 		KO, OK
 	}

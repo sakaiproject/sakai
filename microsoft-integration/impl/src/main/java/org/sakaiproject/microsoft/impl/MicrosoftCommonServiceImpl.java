@@ -1380,7 +1380,14 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			return false;
 		}
 	}
-	
+
+	public boolean existsTeamWithName(String name) throws MicrosoftCredentialsException {
+		String truncatedName = processMicrosoftTeamName(name);
+		Map<String, MicrosoftTeam> teams = getTeams();
+		return teams.values().stream()
+				.anyMatch(t -> t.getName().equalsIgnoreCase(truncatedName));
+	}
+
 	// ------------------------------------------ CHANNELS ----------------------------------------------------
 	@Override
 	public MicrosoftChannel getChannel(String teamId, String channelId) throws MicrosoftCredentialsException {

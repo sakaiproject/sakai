@@ -138,6 +138,13 @@ public class SiteSynchronizationController {
 		for(String siteId: payload.getSelectedSiteIds()) {
 			for(String teamId: payload.getSelectedTeamIds()) {
 				if(teamId.equals(NEW) && teamCreatedId == null) {
+
+					//check if team name already exists
+					if(microsoftCommonService.existsTeamWithName(payload.getNewTeamName())) {
+						redirectAttributes.addFlashAttribute("exception_error", MessageFormat.format(rb.getString("error.team_name_already_exists"), payload.getNewTeamName()));
+						return REDIRECT_NEW_SITE_SYNCH_TEMPLATE;
+					}
+
 					teamCreatedId = microsoftCommonService.createTeam(payload.getNewTeamName(), microsoftConfigurationService.getCredentials().getEmail());
 					if(teamCreatedId == null) {
 						redirectAttributes.addFlashAttribute("exception_error", MessageFormat.format(rb.getString("error.creating_team_param"), payload.getNewTeamName()));
