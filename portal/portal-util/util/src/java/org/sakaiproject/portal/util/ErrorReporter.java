@@ -69,6 +69,8 @@ public class ErrorReporter
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-util");
 	private static final ResourceBundle rbDefault = ResourceBundle.getBundle("portal-util", Locale.getDefault());
+	private static final String TOMCAT_CLIENT_ABORT_EXCEPTION_CLASS = "org.apache.catalina.connector.ClientAbortException";
+	private static final Class<?> TOMCAT_CLIENT_ABORT_EXCEPTION = loadTomcatClientAbortException();
 
 	private Map<String, String> censoredHeaders = new HashMap<String, String>();
 
@@ -83,6 +85,18 @@ public class ErrorReporter
 		censoredParameters.put("javax.faces.ViewState", "javax.faces.ViewState");
 		censoredHeaders.put("cookie","cookie");
 		censoredHeaders.put("authorization","authorization");
+	}
+
+	private static Class<?> loadTomcatClientAbortException()
+	{
+		try
+		{
+			return Class.forName(TOMCAT_CLIENT_ABORT_EXCEPTION_CLASS);
+		}
+		catch (ClassNotFoundException e)
+		{
+			return null;
+		}
 	}
 
 	/** Following two methods borrowed from RWikiObjectImpl.java * */
@@ -214,6 +228,33 @@ public class ErrorReporter
 		if ((rv != null) && (rv == t)) rv = null;
 
 		return rv;
+	}
+
+	protected boolean isClientAbort(Throwable t)
+	{
+		Throwable current = t;
+
+		while (current != null)
+		{
+			if (isTomcatClientAbort(current))
+			{
+				return true;
+			}
+
+			Throwable cause = getCause(current);
+			if (cause == current)
+			{
+				break;
+			}
+			current = cause;
+		}
+
+		return false;
+	}
+
+	private boolean isTomcatClientAbort(Throwable t)
+	{
+		return TOMCAT_CLIENT_ABORT_EXCEPTION != null && TOMCAT_CLIENT_ABORT_EXCEPTION.isInstance(t);
 	}
 
 	/**
@@ -404,6 +445,12 @@ public class ErrorReporter
 	public void report(HttpServletRequest req, HttpServletResponse res, 
 		Throwable t, boolean fullPage)
 	{
+		if (isClientAbort(t))
+		{
+			log.debug("Ignoring client abort for request [{}]: {}", req.getRequestURI(), t.toString());
+			return;
+		}
+
 		String bugId = ComponentManager.get(IdManager.class).createUuid(); 
 				 
 		String headInclude = (String) req.getAttribute("sakai.html.head");
