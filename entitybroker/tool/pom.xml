@@ -118,6 +118,7 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-impl</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
             <classifier>classes</classifier>
             <scope>test</scope>
         </dependency>
