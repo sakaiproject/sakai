@@ -1454,7 +1454,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	 */
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
 		if(transversalMap != null && transversalMap.size() > 0){
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
+			Set<String> importedReferences = new HashSet<>(transversalMap.values());
 
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();
@@ -1465,6 +1466,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				{
 					boolean updateForum = false;
 					DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
+					boolean importedForum = importedReferences.contains("forum/" + fromForum.getId());
 					
 					//check long Desc:
 					String fLongDesc = fromForum.getExtendedDescription();
@@ -1476,10 +1478,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						}
 					}
 					
-					if(fromForum.getDefaultAssignName()!=null && transversalMap.get("gb/"+fromForum.getDefaultAssignName()) != null){
-						fromForum.setDefaultAssignName(transversalMap.get("gb/"+fromForum.getDefaultAssignName()).substring(3));
-						updateForum = true;
-					}
+					updateForum = updateForumDefaultAssignName(fromForum, importedForum, transversalMap) || updateForum;
 
 					if(updateForum){
 						//update forum
@@ -1492,6 +1491,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						for(int currTopic = 0; currTopic < topics.size(); currTopic++){
 							boolean updateTopic = false;
 							DiscussionTopic topic = dfManager.getTopicById(((DiscussionTopic) topics.get(currTopic)).getId());
+							boolean importedTopic = importedReferences.contains("forum_topic/" + topic.getId());
 
 							//check long Desc:
 							String tLongDesc = topic.getExtendedDescription();
@@ -1503,10 +1503,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								}
 							}
 
-							if(topic.getDefaultAssignName()!=null && transversalMap.get("gb/"+topic.getDefaultAssignName()) != null){
-								topic.setDefaultAssignName(transversalMap.get("gb/"+topic.getDefaultAssignName()).substring(3));
-								updateTopic = true;
-							}
+							updateTopic = updateTopicDefaultAssignName(topic, importedTopic, transversalMap) || updateTopic;
 
 							if(updateTopic){
 								//update forum
@@ -1517,6 +1514,46 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				}
 			}
 		}
+	}
+
+	private boolean updateForumDefaultAssignName(DiscussionForum forum, boolean importedForum, Map<String, String> transversalMap) {
+		String defaultAssignName = forum.getDefaultAssignName();
+		if (defaultAssignName == null) {
+			return false;
+		}
+
+		String mappedAssignName = transversalMap.get("gb/" + defaultAssignName);
+		if (mappedAssignName != null) {
+			forum.setDefaultAssignName(mappedAssignName.substring(3));
+			return true;
+		}
+
+		if (importedForum) {
+			forum.setDefaultAssignName(null);
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean updateTopicDefaultAssignName(DiscussionTopic topic, boolean importedTopic, Map<String, String> transversalMap) {
+		String defaultAssignName = topic.getDefaultAssignName();
+		if (defaultAssignName == null) {
+			return false;
+		}
+
+		String mappedAssignName = transversalMap.get("gb/" + defaultAssignName);
+		if (mappedAssignName != null) {
+			topic.setDefaultAssignName(mappedAssignName.substring(3));
+			return true;
+		}
+
+		if (importedTopic) {
+			topic.setDefaultAssignName(null);
+			return true;
+		}
+
+		return false;
 	}
 
 	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet) {
