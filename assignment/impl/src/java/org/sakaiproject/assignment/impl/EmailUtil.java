@@ -59,10 +59,11 @@ public class EmailUtil {
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
 
-    public Map<String, Object> getReleaseGradeReplacements(Assignment a, String siteId) {
+    public Map<String, Object> getReleaseGradeReplacements(AssignmentSubmission submission, String siteId) {
 
         Map<String, Object> map = new HashMap<>();
         try {
+            Assignment a = submission.getAssignment();
             Site site = siteService.getSite(siteId);
             map.put("siteTitle", site.getTitle());
             map.put("siteUrl", site.getUrl());
