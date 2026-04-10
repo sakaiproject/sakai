@@ -1217,17 +1217,30 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 			// (passed, failed, unknown)
 			String successStatus = getValueAsString(CMI_SUCCESS_STATUS, dataManager);
 
-			OptionalDouble score = OptionalDouble.empty();
-			score = getRealValue(CMI_SCORE_SCALED, dataManager);
+			OptionalDouble score = getRealValue(CMI_SCORE_SCALED, dataManager);
 			boolean hasScore = score.isPresent();
 			boolean hasCompletion = "completed".equals(completionStatus);
 			boolean hasFinalSuccessState = "passed".equals(successStatus) || "failed".equals(successStatus);
 
-			if (hasCompletion || hasFinalSuccessState || hasScore)
+			// If no numeric score, derive one from terminal success/completion signals.
+			if (!hasScore)
 			{
-				// Some packages never flip completion or success to a terminal state before the window closes
-				// (Chrome suppresses unload async work). If we already have a scaled score, push it immediately
-				// rather than waiting for completion metadata that may never arrive.
+				if ("passed".equals(successStatus))
+				{
+					score = OptionalDouble.of(1.0);
+				}
+				else if ("failed".equals(successStatus))
+				{
+					score = OptionalDouble.of(0.0);
+				}
+				else if (hasCompletion)
+				{
+					score = OptionalDouble.of(1.0);
+				}
+			}
+
+			if (hasCompletion || hasFinalSuccessState || score.isPresent())
+			{
 				String context = sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getContext() : null;
 				if (StringUtils.isBlank(context))
 				{
@@ -1237,10 +1250,13 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 				String learnerID = sessionBean.getLearnerId();
 				String assessmentExternalId = "" + sessionBean.getContentPackage().getContentPackageId() + ":" + dataManager.getScoId();
 
-				// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to +1.0, inclusive.
-				// Logic to update score and/or comment lives in below method, pass the necessary data
+				log.debug("synchResultWithGradebook: updating gradebook score={}", score.isPresent() ? score.getAsDouble() : "none");
 				updateGradebook(score, context, learnerID, assessmentExternalId);
 			}
+		}
+		else
+		{
+			log.debug("synchResultWithGradebook: skipping — mode={} credit={}", mode, credit);
 		}
 	}
 
@@ -1392,13 +1408,6 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 		}
 	}
 
-	/**
-	 * Handles all aspects of updating the gradebook when a user completes a module.
-	 * @param score contains the scaled score if one was recorded, otherwise empty Optional
-	 * @param context the current site ID/gradebook ID
-	 * @param learnerID the ID of the user who completed the module
-	 * @param externalAssessmentID the ID of the gradebook item to sync with
-	 */
 	protected void updateGradebook(OptionalDouble score, String context, String learnerID, String externalAssessmentID)
 	{
 		// Gradebook item exists, carry on...

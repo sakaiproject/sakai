@@ -116,7 +116,10 @@ public class ScormController extends AbstractSakaiApiController {
         ScormRuntimeInvocation invocation = new ScormRuntimeInvocation(
             payload.getMethod(),
             Optional.ofNullable(payload.getArguments()).orElse(List.of()),
-            payload.getScoId());
+            payload.getScoId(),
+            payload.getHintScoreScaled(),
+            payload.getHintCompletionStatus(),
+            payload.getHintSuccessStatus());
 
         try {
             ScormRuntimeResult result = scormLaunchService.runtime(sessionId, invocation);
@@ -216,6 +219,9 @@ public class ScormController extends AbstractSakaiApiController {
         private String method;
         private List<String> arguments;
         private String scoId;
+        private String hintScoreScaled;
+        private String hintCompletionStatus;
+        private String hintSuccessStatus;
     }
 
     @Data
