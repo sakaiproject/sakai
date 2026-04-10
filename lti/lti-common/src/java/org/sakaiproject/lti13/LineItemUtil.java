@@ -270,6 +270,15 @@ public class LineItemUtil {
 		Assignment gradebookColumn = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( gradebookColumn == null ) return null;
 
+		log.debug("gb item id: {}; is gb item externally maintained: {}; gb item externally maintained by: {}; gb item external id: {}",
+			  gradebookColumn.getId(), gradebookColumn.getExternallyMaintained(), gradebookColumn.getExternalAppName(),
+			  gradebookColumn.getExternalId());
+		if ( gradebookColumn.getExternallyMaintained() && ! StringUtils.equals(gradebookColumn.getExternalAppName(), GB_EXTERNAL_APP_NAME) ) {
+		    log.warn("Attempted line item update failed for non-LTI controlled GB item id: {}. GB item externally managed instead by: {}",
+			     gradebookColumn.getId(), gradebookColumn.getExternalAppName());
+		    return gradebookColumn; // Return the gradebookColumn unchanged; it will be returned to the external tool.
+		}
+
 		/*
 			{
 			  "scoreMaximum": 0,
