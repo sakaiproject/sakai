@@ -32,7 +32,7 @@ include::{snippets}/login/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Returns the **Session ID** (String). A `JSESSIONID` cookie is attached to the response headers.
 | 400 Bad Request | Error | `"username and password are required"` if fields are missing or empty.
 | 401 Unauthorized | Error | Thrown by `AuthenticationManager` if credentials fail.

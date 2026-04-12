@@ -26,7 +26,7 @@ include::{snippets}/example/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Description of successful action execution.
 | 400 Bad Request | Error | Description of what was wrong with the request (e.g., missing parameters).
 | 401 Unauthorized | Error | Description of authentication failure (e.g., invalid token).

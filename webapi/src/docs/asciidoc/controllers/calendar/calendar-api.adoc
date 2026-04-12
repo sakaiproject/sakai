@@ -17,7 +17,7 @@ include::{snippets}/get-user-calendar/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Returns a calendar object containing a list of calendar events.
 | 401 Unauthorized | Error | User is not authenticated.
 |===
@@ -40,7 +40,7 @@ include::{snippets}/get-site-calendar/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Returns a calendar object containing a list of calendar events for the site.
 | 401 Unauthorized | Error | User is not authenticated.
 |===

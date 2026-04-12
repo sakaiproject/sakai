@@ -18,7 +18,7 @@ include::{snippets}/create-scorm-session/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Returns a SCORM session response containing launch context details.
 | 400 Bad Request | Error | `"contentPackageId must be positive"` if the id is invalid, or `IllegalArgumentException` from the launch service.
 | 401 Unauthorized | Error | User is not authenticated.
@@ -44,7 +44,7 @@ include::{snippets}/initialize-runtime/curl-request.adoc[]
 ==== Responses
 [cols="1,2,2", options="header"]
 |===
-| Status Code | Status | Body / Details
+| Status Code | Status | Details
 | 200 OK | Success | Returns a SCORM runtime response with the result value, error code, and diagnostic information.
 | 400 Bad Request | Error | `"Runtime method is required"` if the method field is blank, or `IllegalArgumentException` from the runtime handler.
 | 401 Unauthorized | Error | User is not authenticated.

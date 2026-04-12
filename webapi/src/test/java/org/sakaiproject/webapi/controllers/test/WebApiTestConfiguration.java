@@ -18,5 +18,4 @@ package org.sakaiproject.webapi.controllers.test;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class WebApiTestConfiguration {
-}
+public class WebApiTestConfiguration { }

@@ -13,8 +13,11 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -37,10 +40,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +57,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Setter
 @RestController
 public class GradesController extends AbstractSakaiApiController {
 
@@ -68,9 +72,6 @@ public class GradesController extends AbstractSakaiApiController {
 
     @Resource
     private SecurityService securityService;
-
-    @Resource
-    private UserDirectoryService userDirectoryService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
@@ -242,10 +243,10 @@ public class GradesController extends AbstractSakaiApiController {
     public List<GradebookRestBean> getSiteItems(@PathVariable String siteId, @PathVariable String appName, @PathVariable Optional<String> gbUid,
         @PathVariable Optional<String> userId) throws UserNotDefinedException {
 
-        checkSakaiSession();
+        String currentUserId = checkSakaiSession().getUserId();
 
         List<GradebookRestBean> gbWithItems = new ArrayList<>();
-        String user = userDirectoryService.getCurrentUser().getId();
+        String user = currentUserId;
         if (userId.isPresent()) {
             user = userId.get();
         }
@@ -260,7 +261,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                 Optional<Group> foundedGroup = groupList.stream().filter(group -> group.getId().equals(gbUid.get())).findFirst();
 
-                boolean isInstructor = userId.get().equals(userDirectoryService.getCurrentUser().getId()) && (securityService.isSuperUser() || securityService.unlock("section.role.instructor", site.getReference()));
+                boolean isInstructor = userId.get().equals(currentUserId) && (securityService.isSuperUser() || securityService.unlock("section.role.instructor", site.getReference()));
                 List<String> groupIds = site.getGroupsWithMember(userId.get()).stream().map(Group::getId).collect(Collectors.toList());
 
                 if (foundedGroup.isPresent() && (isInstructor || groupIds.contains(foundedGroup.get().getId()))) {
@@ -304,11 +305,11 @@ public class GradesController extends AbstractSakaiApiController {
     @GetMapping(value = "/sites/{siteId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradebookRestBean> getGroupCategoriesList(@PathVariable String siteId) throws UserNotDefinedException {
 
-        checkSakaiSession();
+        String userId = checkSakaiSession().getUserId();
 
         List<GradebookRestBean> gbWithItems = new ArrayList<>();
 
-        Map<String, String> gradebookGroupMap = returnFoundGradebooks(siteId, userDirectoryService.getCurrentUser().getId());
+        Map<String, String> gradebookGroupMap = returnFoundGradebooks(siteId, userId);
 
         for (Map.Entry<String, String> entry : gradebookGroupMap.entrySet()) {
             List<GradebookItemRestBean> gbItems = new ArrayList<>();
@@ -335,6 +336,8 @@ public class GradesController extends AbstractSakaiApiController {
 
     private Map<String, String> returnFoundGradebooks(String siteId, String userId) {
 
+        String currentUserId = checkSakaiSession().getUserId();
+
         try {
             List<Gradebook> gradebookList = gradingService.getGradebookGroupInstances(siteId);
             Map<String, String> gradebookGroupMap = new HashMap<>();
@@ -343,7 +346,7 @@ public class GradesController extends AbstractSakaiApiController {
             Collection<Group> groupList = site.getGroups();
 
             // a specific user id is sent in some cases like forums
-            boolean isInstructor = userId.equals(userDirectoryService.getCurrentUser().getId()) && (securityService.isSuperUser() || securityService.unlock("section.role.instructor", site.getReference()));
+            boolean isInstructor = userId.equals(currentUserId) && (securityService.isSuperUser() || securityService.unlock("section.role.instructor", site.getReference()));
             List<String> groupIds = site.getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
 
             gradebookList.forEach(gradebook -> {
@@ -364,5 +367,4 @@ public class GradesController extends AbstractSakaiApiController {
             return new HashMap<>();
         }
     }
-
 }

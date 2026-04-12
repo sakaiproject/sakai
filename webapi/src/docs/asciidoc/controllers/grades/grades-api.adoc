@@ -1,0 +1,198 @@
+== Grades
+
+__See the login api about session cookies__
+
+=== GET /api/users/me/grades
+Returns grades for any assignments that the current user can view, across all of their pinned
+sites. If the user has grading permissions on any of their pinned sites then the grades for all
+users in that site will be returned.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-user-grades/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the sites and viewable grades for the current user
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-user-grades/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/grades
+Returns grades for any assignments that the current user can view, in the supplied site. If the
+current user has grading permissions on the site, then the grades for all the users in the supplied
+site will be returned.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-grades/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the viewable grades in the supplied site, for the current user
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-grades/response-body.adoc[]
+
+
+=== POST /api/sites/{siteId}/grades/{gradingItemId}/{userId}
+Grade the supplied user against the supplied grading item in the supplied site.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+|===
+
+==== Example Request
+include::{snippets}/grade-user/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns nothing.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/grade-user/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/grading/item-data
+Returns the items and categories for the supplied site
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-item-data/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the item and category data for the supplied site
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-item-data/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/categories
+Returns the group categories
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-group-categories/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the group categories for the supplied site
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-group-categories/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/items/{appName}
+Returns the externally maintained items (assignments) for a site and application
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-items-for-app/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the application maintained assignments for the site
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-items-for-app/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/items{appName}/{userId}
+Returns the items (assignments) for a site, application and user
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-items-for-app-user/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the application maintained assignments for the supplied site and user
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-items-for-app-user/response-body.adoc[]
+
+
+=== GET /api/sites/{siteId}/items/{appName}/{userId}/{groupId}
+Returns the items (assignments) for a site and application
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-items-for-app-user-group/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the application maintained assignments for the supplied site, user and group
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-items-for-app-user-group/response-body.adoc[]
