@@ -28,6 +28,7 @@ export class SakaiUserPhoto extends SakaiElement {
     profilePopup: { attribute: "profile-popup", type: String },
     official: { type: Boolean },
     blank: { type: Boolean },
+    siteId: { attribute: "site-id", type: String },
     label: { type: String },
     print: { type: Boolean },
     online: { type: Boolean },
@@ -43,8 +44,11 @@ export class SakaiUserPhoto extends SakaiElement {
   }
 
   refresh() {
-    const uid = this.userId?.trim() || "blank";
-    this.url = `/api/users/${uid}/profile/image/${this.official ? "official" : "thumb"}?_=${Date.now()}`;
+    if (this.blank) {
+      this.url = "/api/users/blank/profile/image";
+    } else {
+      this.url = this.getImageUrl();
+    }
   }
 
   close() {
@@ -52,17 +56,21 @@ export class SakaiUserPhoto extends SakaiElement {
   }
 
   willUpdate(changedProperties) {
-
-    if (changedProperties.has("userId") || changedProperties.has("official") || changedProperties.has("blank")) {
+    if (changedProperties.has("userId") || changedProperties.has("official") || changedProperties.has("blank") || changedProperties.has("siteId")) {
       if (this.blank) {
         this.url = "/api/users/blank/profile/image";
       } else {
-        const uid = this.userId?.trim() || "blank";
-        const sid = this.siteId?.trim() || getSiteId();
-        const thumb = this.official ? "official" : "thumb";
-        this.url = `/api/users/${uid}/profile/image/${thumb}` + (sid ? `?siteId=${sid}` : "");
+        this.url = this.getImageUrl();
       }
     }
+  }
+
+  getImageUrl() {
+    const uid = this.userId?.trim() || "blank";
+    const sid = this.siteId?.trim() || getSiteId();
+    const imageType = this.official ? "official" : "thumb";
+
+    return `/api/users/${uid}/profile/image/${imageType}` + (sid ? `?siteId=${sid}&_=${Date.now()}` : `?_=${Date.now()}`);
   }
 
   firstUpdated() {

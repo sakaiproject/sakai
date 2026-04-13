@@ -103,10 +103,15 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Override
     public ProfileImage getOfficialProfileImage(String userUuid, String siteId) {
 
+        String currentUserId = sakaiProxy.getCurrentUserId();
+
+        if (shouldServeBlankImage(currentUserId, userUuid, siteId)) {
+            return getBlankProfileImage();
+        }
+
         ProfileImage profileImage = new ProfileImage();
         profileImage.setDefault(false); //will be overridden if required
 
-        String currentUserId = sakaiProxy.getCurrentUserId();
         String defaultImageUrl = getUnavailableImageURL();
 
         //check permissions. if not allowed, set default and return
@@ -136,8 +141,13 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Override
     public ProfileImage getProfileImage(String userUuid, int size, String siteId) {
 
+        String currentUserUuid = sakaiProxy.getCurrentUserId();
+
+        if (shouldServeBlankImage(currentUserUuid, userUuid, siteId)) {
+            return getBlankProfileImage();
+        }
+
         ProfileImage image = new ProfileImage();
-        boolean allowed = false;
         boolean isSameUser = false;
 
         image.setDefault(false); //will be overridden if it is actually a default image
@@ -149,8 +159,6 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             defaultImageUrl = getUnavailableImageURL();
         }
 
-        //get current user
-        String currentUserUuid = sakaiProxy.getCurrentUserId();
         if (StringUtils.equals(userUuid, currentUserUuid)) {
             isSameUser = true;
         }
@@ -162,21 +170,14 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             throw new SecurityException("Must be logged in to request a profile image.");
         }
 
-        //check if same user
-        if (isSameUser) {
-            allowed = true;
-        }
-
-        if (sakaiProxy.isSuperUser()) allowed = true;
-
-        //if we have a siteId and it's not a my workspace site, check if the current user has permissions to view the image
-        if (StringUtils.isNotBlank(siteId)) {
+        boolean allowed = isSameUser || sakaiProxy.isSuperUser();
+        if (!allowed && StringUtils.isNotBlank(siteId)) {
             if (sakaiProxy.isUserMyWorkspace(siteId)) {
                 allowed = sakaiProxy.isUserMemberOfSite(currentUserUuid, siteId);
             } else {
                 log.debug("checking if user: {} has permissions in site: {}", currentUserUuid, siteId);
-                allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId) ||
-                    sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PROFILE, siteId);
+                allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId)
+                        || sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PROFILE, siteId);
             }
         }
 
@@ -237,6 +238,26 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         }
 
         return image;
+    }
+
+    private boolean shouldServeBlankImage(String currentUserId, String userUuid, String siteId) {
+
+        if (sakaiProxy.isSuperUser()) {
+            return false;
+        }
+
+        boolean roleSwappedOrBlankUser = StringUtils.equals(userUuid, ProfileConstants.BLANK) || sakaiProxy.isUserRoleSwapped();
+
+        if (StringUtils.isBlank(siteId)) {
+            return roleSwappedOrBlankUser || !sakaiProxy.areUsersMembersOfSameSite(currentUserId, userUuid);
+        }
+
+        if (siteId.startsWith("~")) {
+            return roleSwappedOrBlankUser || !sakaiProxy.isUserMemberOfSite(currentUserId, siteId);
+        }
+
+        return roleSwappedOrBlankUser || !sakaiProxy.isUserMemberOfSite(currentUserId, siteId)
+                || !sakaiProxy.isUserMemberOfSite(userUuid, siteId);
     }
 
     /**

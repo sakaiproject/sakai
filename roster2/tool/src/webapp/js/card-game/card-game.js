@@ -271,7 +271,7 @@ export default class CardGame extends BaseGame {
         const allUsersCount = this.state.learnableUsers.length;
         const learnedUsersCount = allUsersCount - this.state.learnUsers.length;
 
-        const userId = currentUser?.id?.trim() ? currentUser.id : "blank";
+        const userId = currentUser?.id?.trim() || "blank";
         const imageType = this.config.showOfficialPhoto ? "official" : "";
         const imageSrc = `/api/users/${userId}/profile/image${imageType ? `/${imageType}` : ""}?siteId=${this.siteId}`;
 

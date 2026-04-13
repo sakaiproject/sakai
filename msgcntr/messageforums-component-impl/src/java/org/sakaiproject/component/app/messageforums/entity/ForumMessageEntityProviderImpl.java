@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -214,7 +215,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 	private String getProfileImageURL(String authorId) {
 		return serverConfigurationService.getServerUrl()
 				+ "/api/users/"
-				+ StringUtils.defaultIfBlank(authorId, ProfileConstants.BLANK)
+				+ Objects.toString(StringUtils.trimToNull(authorId), ProfileConstants.BLANK)
 				+ "/profile/image/thumb";
 	}
 

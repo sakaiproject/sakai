@@ -97,12 +97,12 @@
         </div>
         #if( $allowAddAssignment && $showStudentPhoto )
 	        #if (!$!assignment.IsGroup && !$value_CheckAnonymousGrading)
-                #if(!$submitterId || $submitterId.trim() == "")
-                    #set($sId = "blank")
+                #if($submitterId && $submitterId.trim() != "")
+                    #set($sId = $submitterId.trim())
                 #else
-                    #set($sId = $submitterId)
+                    #set( $sId = "blank" )
                 #end
-                <span class="student-picture" role="presentation" style="background-image:url('/api/users/$sId/profile/image/official?siteId=$!assignment.Context');"></span>
+              <span class="student-picture" role="presentation" style="background-image:url('/api/users/$sId/profile/image/official?siteId=$!assignment.Context');"></span>
 	        #end
         #end
         ## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic

@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -36,8 +37,10 @@
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{empty message.message.authorId ? 'blank' : message.message.authorId}/profile/image/thumb" alt="#{message.message.author}"
-					                styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}" />
+					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{empty fn:trim(message.message.authorId) ? 'blank' : fn:trim(message.message.authorId)}/profile/image/thumb"
+									alt="#{message.message.author}"
+					                styleClass="authorImage"
+									rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}" />
 						<%-- message has been submitted and has bene denied  approval by moderator--%>
 					<h:outputText value="#{msgs.cdfm_msg_denied_label}"  styleClass="messageDenied"  rendered="#{message.msgDenied}" />
 					<%-- message has been submitted and is pending approval by moderator--%> 

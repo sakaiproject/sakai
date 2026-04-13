@@ -145,6 +145,7 @@ describe("sakai-notifications tests", () => {
     expect(photo).to.exist;
     expect(photo.getAttribute("user-id")).to.equal("blank");
     expect(photo.getAttribute("profile-popup")).to.equal("on");
+    expect(photo.getAttribute("site-id")).to.equal(data.siteId);
   });
 
   it ("uses from when fromUser is not present", async () => {
@@ -176,5 +177,6 @@ describe("sakai-notifications tests", () => {
     expect(photo).to.exist;
     expect(photo.getAttribute("user-id")).to.equal("instructor1");
     expect(photo.getAttribute("profile-popup")).to.equal("on");
+    expect(photo.getAttribute("site-id")).to.equal(data.siteId);
   });
 });

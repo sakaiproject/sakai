@@ -14,11 +14,8 @@
 package org.sakaiproject.webapi.controllers;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.profile2.api.MimeTypeByteArray;
@@ -26,8 +23,6 @@ import org.sakaiproject.profile2.api.ProfileImage;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.profile2.api.ProfileTransferBean;
 import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
@@ -74,8 +69,6 @@ public class ProfileController extends AbstractSakaiApiController {
     @Autowired private ProfileService profileService;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    @Autowired private SecurityService securityService;
-    @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
 
     // Permission constants for Roster tool
@@ -149,59 +142,21 @@ public class ProfileController extends AbstractSakaiApiController {
     @GetMapping(path = { "/users/{userId}/profile/image", "/users/{userId}/profile/image/{imageType}" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> getProfileImage(@PathVariable String userId, @PathVariable(required = false) String imageType, @RequestParam(required = false) String siteId) {
 
-        // A role swapped user is not "real" so just use the blank image
-        boolean wantsBlank = userId.equals(ProfileConstants.BLANK) || securityService.isUserRoleSwapped();
-
         String currentUserId = checkSakaiSession().getUserId();
 
-        final boolean wantsThumbnail = StringUtils.equals("thumb", imageType);
-        final boolean wantsOfficial = StringUtils.equals("official", imageType);
-
-        log.debug("wantsThumbnail:{}", wantsThumbnail);
-        log.debug("wantsOfficial: {}", wantsOfficial);
-        log.debug("wantsBlank: {}", wantsBlank);
-        
-        // First of all, check if the current user is admin. If current user is admin, show all the pictures always
-        if (securityService.isSuperUser()) {
-            wantsBlank = false;
-        } else if (StringUtils.isBlank(siteId)) {
-            // No site id is specified, checking if both users have any site in common
-            if (!areUsersMembersOfSameSite(currentUserId, userId)) {
-                // No sites in common, so serving a blank image
-                wantsBlank = true;
-            }
-        } else if (siteId.startsWith("~")) {
-            // users my workspace
-            wantsBlank = !isUserMemberOfSite(currentUserId, siteId);
-        } else {
-            // Site id is specified, checking if both users are members of that site
-            if (!isUserMemberOfSite(currentUserId, siteId)) {
-                // Current user is not a member of the specified site, so serving a blank image
-                wantsBlank = true;
-            }
-            if (!isUserMemberOfSite(userId, siteId)) {
-                // Requested user is not a member of the specified site, so serving a blank image
-                wantsBlank = true;
-            }
+        if (StringUtils.isNotBlank(imageType)
+                && !StringUtils.equals("thumb", imageType)
+                && !StringUtils.equals("official", imageType)) {
+            return ResponseEntity.badRequest().build();
         }
 
-        ProfileImage image = null;
-        if(wantsBlank) {
-            image = profileService.getBlankProfileImage();
-        } else {
-            //get thumb or avatar if requested - or fallback
-            if(wantsThumbnail) {
-                image = profileService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
-            } 
-            if(!wantsThumbnail) {
-                image = profileService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
-            }
-            if(wantsOfficial) {
-                image = profileService.getOfficialProfileImage(userId, siteId);
-            }
-        }
+        ProfileImage image = StringUtils.equals("official", imageType)
+                ? profileService.getOfficialProfileImage(userId, siteId)
+                : profileService.getProfileImage(userId,
+                        StringUtils.equals("thumb", imageType) ? ProfileConstants.PROFILE_IMAGE_THUMBNAIL : ProfileConstants.PROFILE_IMAGE_MAIN,
+                        siteId);
         
-        if(image == null) {
+        if (image == null) {
             return ResponseEntity.notFound().build();
         }
 
@@ -209,7 +164,7 @@ public class ProfileController extends AbstractSakaiApiController {
 		    eventTrackingService.post(this.eventTrackingService.newEvent(ProfileConstants.EVENT_IMAGE_REQUEST, "/profile/" + currentUserId + "/imagerequest/", false));
         }
 
-        //check for binary
+        // check for binary
         final byte[] bytes = image.getBinary();
         if (bytes != null && bytes.length > 0) {
             HttpHeaders headers = new HttpHeaders();
@@ -310,31 +265,5 @@ public class ProfileController extends AbstractSakaiApiController {
         profileService.removePronunciationRecording(userId);
         return ResponseEntity.ok().build();
     }
-
-    private boolean areUsersMembersOfSameSite(String userId1, String userId2){
-
-		if (StringUtils.equals(userId1, userId2)) {
-			return true;
-		}
-		
-		try {
-			List<Site> sitesUser1 = siteService.getUserSites(false, userId1);
-			List<Site> sitesUser2 = siteService.getUserSites(false, userId2);
-			List<Site> coincidences = new ArrayList<>(sitesUser1);
-			coincidences.retainAll(sitesUser2);
-			return coincidences.size() > 0;
-		} catch (Exception ex) {
-			return false;
-		}
-	}
-
-	private boolean isUserMemberOfSite(String userId, String siteId){
-
-		try {
-			return siteService.getSite(siteId).getUserRole(userId) != null;
-		} catch (Exception e) {
-			return false;
-		}
-	}
 
 }

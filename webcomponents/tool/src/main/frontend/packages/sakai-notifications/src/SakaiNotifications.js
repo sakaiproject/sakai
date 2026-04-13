@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
 import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback, PUSH_PERMISSION_STATES } from "@sakai-ui/sakai-push-utils";
-import { getServiceName } from "@sakai-ui/sakai-portal-utils";
+import { getServiceName, getSiteId } from "@sakai-ui/sakai-portal-utils";
 import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO, PWA_INSTALL_INFO } from "./states.js";
 import { markNotificationsViewed } from "./utils.js";
 
@@ -359,7 +359,7 @@ export class SakaiNotifications extends SakaiElement {
   _showNotifications() { this._state = NOTIFICATIONS; }
 
   _getNotificationUserId(noti) {
-    return (noti.fromUser || noti.from || "blank")?.trim();
+    return noti.fromUser?.trim() || noti.from?.trim() || "blank";
   }
 
   _enablePush() {
@@ -416,11 +416,13 @@ export class SakaiNotifications extends SakaiElement {
             <ul class="list-unstyled d-flex flex-column align-items-center py-2">
               ${notifications.map(noti => {
       const userId = this._getNotificationUserId(noti);
+      const siteId = getSiteId();
       return html`
         <li class="toast fade show mt-2 shadow-sm">
           <div class="toast-header">
             <sakai-user-photo user-id="${userId}" classes="mh-100 me-2"
-                              profile-popup="on"></sakai-user-photo>
+                              profile-popup="on"
+                              site-id="${siteId}"></sakai-user-photo>
             <strong class="me-auto">${noti.fromDisplayName}</strong>
             <small>${noti.formattedEventDate}</small>
             ${prefix !== "motd" && prefix !== "test" ? html`
