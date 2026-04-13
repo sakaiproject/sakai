@@ -108,7 +108,46 @@ var blankRubricRow;
 // Note from Chuck S. - Is there a strong reason to do this before ready()?
 // $(function () {
 $(document).ready(function () {
-  
+  const layoutDialog = document.getElementById('layout-dialog');
+  if (layoutDialog) {
+    const sectionLayoutPane = document.getElementById('sectionlayout');
+    const pageLayoutPane = document.getElementById('pagelayout');
+    const syncLayoutDialogTabInert = function (targetSel) {
+      if (!sectionLayoutPane || !pageLayoutPane) {
+        return;
+      }
+      const pageActive = targetSel === '#pagelayout';
+      pageLayoutPane.toggleAttribute('inert', !pageActive);
+      sectionLayoutPane.toggleAttribute('inert', pageActive);
+    };
+    layoutDialog.addEventListener('shown.bs.tab', function (e) {
+      const target = e.target.getAttribute('data-bs-target');
+      if (target === '#sectionlayout' || target === '#pagelayout') {
+        syncLayoutDialogTabInert(target);
+      }
+    });
+    layoutDialog.addEventListener('shown.bs.modal', function () {
+      const activeTab = layoutDialog.querySelector('[data-bs-toggle="tab"].nav-link.active');
+      const targetSel = activeTab && activeTab.getAttribute('data-bs-target');
+      syncLayoutDialogTabInert(targetSel || '#sectionlayout');
+    });
+    layoutDialog.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab' || e.shiftKey) {
+        return;
+      }
+      const el = document.activeElement;
+      if (!el || !layoutDialog.contains(el) || !el.closest('[data-lb-layout-cancel]')) {
+        return;
+      }
+      const closeBtn = layoutDialog.querySelector('.modal-header .btn-close');
+      if (!closeBtn) {
+        return;
+      }
+      e.preventDefault();
+      closeBtn.focus();
+    }, true);
+  }
+
   maxFileUploadSize = $("#mm-max-file-upload-size").text();
   accumulatedFileSize = 0;
   // if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
