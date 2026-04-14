@@ -52,7 +52,7 @@ public class PasswordFactoryImpl implements PasswordFactory {
     CharacterRule splCharRule = new CharacterRule(specialChars, 2);
     PasswordGenerator gen = new PasswordGenerator(10, splCharRule, lowerCaseRule,
             upperCaseRule, digitRule);
-    String password = gen.toString();
+    String password = gen.generate().toString();
     log.debug("password: {}", password);
     return password;
   }
