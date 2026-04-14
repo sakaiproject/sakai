@@ -242,11 +242,14 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     private boolean shouldServeBlankImage(String currentUserId, String userUuid, String siteId) {
 
-        if (sakaiProxy.isSuperUser()) {
+        boolean superUser = sakaiProxy.isSuperUser();
+
+        if (superUser && !StringUtils.equals(userUuid, ProfileConstants.BLANK)) {
             return false;
         }
 
-        boolean roleSwappedOrBlankUser = StringUtils.equals(userUuid, ProfileConstants.BLANK) || sakaiProxy.isUserRoleSwapped();
+        boolean roleSwappedOrBlankUser = StringUtils.equals(userUuid, ProfileConstants.BLANK)
+                || (!superUser && sakaiProxy.isUserRoleSwapped());
 
         if (StringUtils.isBlank(siteId)) {
             return roleSwappedOrBlankUser || !sakaiProxy.areUsersMembersOfSameSite(currentUserId, userUuid);

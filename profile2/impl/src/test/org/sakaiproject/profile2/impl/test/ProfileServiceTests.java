@@ -120,6 +120,21 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void getProfileImageReturnsBlankImageForBlankUserWhenSuperUser() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(securityService.isUserRoleSwapped()).thenReturn(true);
+        when(securityService.isSuperUser()).thenReturn(true);
+
+        ProfileImage image = profileService.getProfileImage(ProfileConstants.BLANK, ProfileConstants.PROFILE_IMAGE_MAIN, null);
+
+        assertNotNull(image);
+        assertTrue(image.isDefault());
+        assertNull(image.getAltText());
+        assertNotNull(image.getUrl());
+    }
+
+    @Test
     public void getUsersOwnProfile() {
 
         Exception exception = assertThrows(SecurityException.class, () -> profileService.getUserProfile(user1Id));
