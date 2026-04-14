@@ -56,6 +56,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private UserDirectoryService userDirectoryService;
 
     private String user1Id = UUID.randomUUID().toString();
+    private String user2Id = UUID.randomUUID().toString();
     private String site1Id = UUID.randomUUID().toString();
     private User user1;
 
@@ -107,16 +108,18 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void getProfileImageSuperUserBypassesRoleSwappedBlanking() {
+    public void getProfileImageSuperUserBypassesRoleSwappedBlanking() throws UserNotDefinedException {
 
-        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
         when(securityService.isUserRoleSwapped()).thenReturn(true);
         when(securityService.isSuperUser()).thenReturn(true);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
 
         ProfileImage image = profileService.getProfileImage(user1Id, ProfileConstants.PROFILE_IMAGE_MAIN, null);
 
         assertNotNull(image);
         assertNotNull(image.getAltText());
+        assertFalse(image.getAltText().isBlank());
     }
 
     @Test
