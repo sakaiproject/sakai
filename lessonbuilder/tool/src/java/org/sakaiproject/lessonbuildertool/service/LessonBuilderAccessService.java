@@ -212,10 +212,10 @@ public class LessonBuilderAccessService {
 	    bltiEntity = (LessonEntity)e;
         }
 
-        LessonEntity scormEntity = null;
-        public void setScormEntity(Object e) {
-	    scormEntity = (LessonEntity)e;
-        }
+	LessonEntity scormEntity = null;
+	public void setScormEntity(LessonEntity e) {
+		scormEntity = e;
+	}
 
 	static MemoryService memoryService = null;
 
