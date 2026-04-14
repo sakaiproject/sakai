@@ -354,11 +354,12 @@ simplePageBean.addForumSummary,
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+    <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 
   </bean>
-  
+
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
 		<constructor-arg>
 			<map>
