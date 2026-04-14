@@ -40,14 +40,25 @@ public class ScormRuntimeInvocation
     /** SCO identifier to target for this runtime call (optional). */
     private final String scoId;
 
+    /** Score/completion hints embedded at Terminate (Xerte workaround for beforeunload XHR blocking). */
+    private final String hintScoreScaled;
+    private final String hintCompletionStatus;
+    private final String hintSuccessStatus;
+
     @JsonCreator
     public ScormRuntimeInvocation(
         @JsonProperty("method") @NonNull String method,
         @JsonProperty("arguments") @NonNull List<String> arguments,
-        @JsonProperty("scoId") String scoId)
+        @JsonProperty("scoId") String scoId,
+        @JsonProperty("hintScoreScaled") String hintScoreScaled,
+        @JsonProperty("hintCompletionStatus") String hintCompletionStatus,
+        @JsonProperty("hintSuccessStatus") String hintSuccessStatus)
     {
         this.method = method;
         this.arguments = List.copyOf(arguments);
         this.scoId = scoId;
+        this.hintScoreScaled = hintScoreScaled;
+        this.hintCompletionStatus = hintCompletionStatus;
+        this.hintSuccessStatus = hintSuccessStatus;
     }
 }

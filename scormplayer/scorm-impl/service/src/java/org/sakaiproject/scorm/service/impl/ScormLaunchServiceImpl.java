@@ -229,7 +229,7 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 			}
 			try
 			{
-				result = executeRuntimeCall(sessionBean, navigator, methodName, args);
+				result = executeRuntimeCall(sessionBean, navigator, invocation);
 			}
 			finally
 			{
@@ -268,9 +268,35 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 		}
 	}
 
-    private String executeRuntimeCall(SessionBean sessionBean, RestResourceNavigator navigator, String methodName, List<String> args)
+    // Applies score/completion hints embedded in the Terminate payload (Xerte workaround for
+    // browsers blocking synchronous XHR during beforeunload). Only terminal states are written.
+    private void applyScoreHints(ScormRuntimeInvocation invocation, SessionBean sessionBean, ScoBean scoBean)
     {
-        String operation = StringUtils.trimToEmpty(methodName);
+        String hintScore = invocation.getHintScoreScaled();
+        String hintCompletion = invocation.getHintCompletionStatus();
+        String hintSuccess = invocation.getHintSuccessStatus();
+
+        if (StringUtils.isNotBlank(hintScore))
+        {
+            log.debug("applyScoreHints: score={} completion={} success={}", hintScore, hintCompletion, hintSuccess);
+            scormApplicationService.setValue("cmi.score.scaled", hintScore, sessionBean, scoBean);
+        }
+
+        if ("completed".equals(hintCompletion))
+        {
+            scormApplicationService.setValue("cmi.completion_status", hintCompletion, sessionBean, scoBean);
+        }
+
+        if ("passed".equals(hintSuccess) || "failed".equals(hintSuccess))
+        {
+            scormApplicationService.setValue("cmi.success_status", hintSuccess, sessionBean, scoBean);
+        }
+    }
+
+    private String executeRuntimeCall(SessionBean sessionBean, RestResourceNavigator navigator, ScormRuntimeInvocation invocation)
+    {
+        String operation = StringUtils.trimToEmpty(invocation.getMethod());
+        List<String> args = invocation.getArguments();
         ScoBean scoBean = sessionBean.getDisplayingSco();
 
         switch (operation)
@@ -284,6 +310,7 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
             case "Terminate":
             {
                 String parameter = args.isEmpty() ? "" : args.get(0);
+                applyScoreHints(invocation, sessionBean, scoBean);
                 INavigationEvent navigationEvent = scormApplicationService.newNavigationEvent();
                 boolean ok = scormApplicationService.terminate(parameter, navigationEvent, sessionBean, scoBean);
                 if (ok)
@@ -312,7 +339,7 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
             }
             case "SetValue":
             {
-                String element = args.size() > 0 ? args.get(0) : "";
+                String element = args.isEmpty() ? "" : args.get(0);
                 String value = args.size() > 1 ? args.get(1) : "";
                 boolean ok = scormApplicationService.setValue(element, value, sessionBean, scoBean);
                 return ok ? "true" : "false";
@@ -335,8 +362,8 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
                 return diagnostic != null ? diagnostic : "";
             }
             default:
-                log.warn("Unsupported SCORM runtime method: {}", methodName);
-                throw new IllegalArgumentException("Unsupported SCORM runtime method: " + methodName);
+                log.warn("Unsupported SCORM runtime method: {}", operation);
+                throw new IllegalArgumentException("Unsupported SCORM runtime method: " + operation);
         }
     }
 
