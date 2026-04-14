@@ -445,9 +445,13 @@
             // During page dismissal, synchronous XHR is blocked by browsers (Chromium feature/4664843055398912).
             // For write calls use fetch keepalive (fire-and-forget); for read-only diagnostics return safe defaults.
             if (state.pageUnloading && method !== 'Terminate') {
-                const writeMethod = method === 'SetValue' || method === 'Commit';
-                if (writeMethod) {
-                    dispatchTerminateRequest(request, scoId);
+                if (method === 'SetValue' || method === 'Commit') {
+                    const sent = sendKeepalive(request);
+                    if (sent) {
+                        sent.catch(() => {});
+                    } else {
+                        console.warn('[SCORM REST] keepalive unavailable for', method, 'during page dismissal; data may be lost');
+                    }
                     return 'true';
                 }
                 // GetLastError / GetErrorString / GetDiagnostic — return no-error defaults so callers don't cascade
@@ -458,7 +462,7 @@
             }
 
             if (method === 'Terminate') {
-                const dispatched = dispatchTerminateRequest(request, scoId);
+                const dispatched = dispatchTerminate(request, scoId);
                 if (dispatched) {
                     console.debug('[SCORM REST] runtime terminate dispatched asynchronously');
                     markTerminateComplete(scoId, { refreshAfter: 750 });
@@ -474,7 +478,7 @@
 
                 if (fallback.aborted) {
                     console.warn('[SCORM REST] runtime terminate sync aborted; attempting keepalive');
-                    const keepalive = dispatchTerminateKeepalive(request, scoId);
+                    const keepalive = dispatchTerminate(request, scoId);
                     markTerminateComplete(scoId, { refreshAfter: keepalive ? 750 : 1200 });
                     return 'true';
                 }
@@ -506,16 +510,33 @@
             return state.activeScoId || state.currentScoId || null;
         }
 
-        function dispatchTerminateKeepalive(request, scoId) {
+        // Sends request via fetch keepalive; returns the Promise so callers can attach handlers,
+        // or null when keepalive is unavailable (fetch missing or synchronous throw).
+        function sendKeepalive(request) {
+            if (!request || typeof fetch !== 'function') {
+                return null;
+            }
             try {
-                return dispatchTerminateRequest(request, scoId);
+                const headers = new Headers();
+                Object.entries(request.headers).forEach(([name, value]) => {
+                    if (typeof value === 'string') {
+                        headers.append(name, value);
+                    }
+                });
+                return fetch(request.url, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'same-origin',
+                    body: request.body,
+                    keepalive: true,
+                });
             } catch (err) {
-                console.warn('[SCORM REST] terminate keepalive dispatch failed', err);
-                return false;
+                console.warn('[SCORM REST] keepalive dispatch failed', err);
+                return null;
             }
         }
 
-        function dispatchTerminateRequest(request, scoId) {
+        function dispatchTerminate(request, scoId) {
             if (!request) {
                 return false;
             }
@@ -525,47 +546,34 @@
                 return false;
             }
 
-            try {
-                const headers = new Headers();
-                Object.entries(request.headers).forEach(([name, value]) => {
-                    if (typeof value === 'string') {
-                        headers.append(name, value);
-                    }
-                });
-
-                fetch(request.url, {
-                    method: 'POST',
-                    headers,
-                    credentials: 'same-origin',
-                    body: request.body,
-                    keepalive: true,
-                })
-                    .then(async (response) => {
-                        const text = await response.text().catch(() => '');
-                        const data = text ? safeParse(text) : {};
-                        if (!response.ok || data === null) {
-                            console.warn('[SCORM REST] terminate keepalive response not OK', response.status);
-                            afterRuntimeCall('Terminate', { value: 'true' }, scoId, { refreshAfter: 750 });
-                            return;
-                        }
-                        processRuntimeResponse('Terminate', data || {}, scoId);
-                    })
-                    .catch((err) => {
-                        console.warn('[SCORM REST] terminate keepalive rejected', err);
-                        window.setTimeout(() => {
-                            if (ensureSession()) {
-                                refreshSessionState();
-                            }
-                        }, 750);
-                    });
-
-                console.debug('[SCORM REST] terminate keepalive dispatched (fetch)');
-
-                return true;
-            } catch (err) {
-                console.warn('[SCORM REST] terminate keepalive fetch error', err);
+            const promise = sendKeepalive(request);
+            if (!promise) {
                 return false;
             }
+
+            promise
+                .then(async (response) => {
+                    const text = await response.text().catch(() => '');
+                    const data = text ? safeParse(text) : {};
+                    if (!response.ok || data === null) {
+                        console.warn('[SCORM REST] terminate keepalive response not OK', response.status);
+                        afterRuntimeCall('Terminate', { value: 'true' }, scoId, { refreshAfter: 750 });
+                        return;
+                    }
+                    processRuntimeResponse('Terminate', data || {}, scoId);
+                })
+                .catch((err) => {
+                    console.warn('[SCORM REST] terminate keepalive rejected', err);
+                    window.setTimeout(() => {
+                        if (ensureSession()) {
+                            refreshSessionState();
+                        }
+                    }, 750);
+                });
+
+            console.debug('[SCORM REST] terminate keepalive dispatched (fetch)');
+
+            return true;
         }
 
         function processRuntimeResponse(method, response, scoId) {
