@@ -1351,6 +1351,18 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					attempt.setNotExited(false);
 					attemptDao().save(attempt);
 				}
+				else if (!exitValue.equals("suspend") && event != SeqNavRequests.NAV_ABANDON && event != SeqNavRequests.NAV_ABANDONALL)
+				{
+					// Normal exit (empty string or "normal") - SCO terminated cleanly without suspending.
+					// Mark the attempt as properly exited so the next launch starts a new attempt (SAK-51829).
+					Attempt attempt = sessionBean.getAttempt();
+					if (attempt != null)
+					{
+						attempt.setSuspended(false);
+						attempt.setNotExited(false);
+						attemptDao.save(attempt);
+					}
+				}
 
 				// handle if sco set nav.request
 				if (!scoBean.isSuspended() && event != SeqNavRequests.NAV_NONE)
