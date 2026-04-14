@@ -507,13 +507,22 @@
 
                 const hints = {};
                 if (typeof fw.state.getScaledScore === 'function') {
-                    hints.hintScoreScaled = String(fw.state.getScaledScore());
+                    const score = fw.state.getScaledScore();
+                    if (score != null && Number.isFinite(Number(score))) {
+                        hints.hintScoreScaled = String(score);
+                    }
                 }
                 if (typeof fw.state.getCompletionStatus === 'function') {
-                    hints.hintCompletionStatus = String(fw.state.getCompletionStatus());
+                    const status = fw.state.getCompletionStatus();
+                    if (status != null) {
+                        hints.hintCompletionStatus = String(status);
+                    }
                 }
                 if (typeof fw.state.getSuccessStatus === 'function') {
-                    hints.hintSuccessStatus = String(fw.state.getSuccessStatus());
+                    const status = fw.state.getSuccessStatus();
+                    if (status != null) {
+                        hints.hintSuccessStatus = String(status);
+                    }
                 }
                 console.debug('[SCORM REST] Xerte score hints:', JSON.stringify(hints));
                 return Object.keys(hints).length ? hints : null;
