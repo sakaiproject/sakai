@@ -42,7 +42,7 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
         CriteriaQuery<RecentSite> query = cb.createQuery(RecentSite.class);
         Root<RecentSite> recentSite = query.from(RecentSite.class);
         query.where(cb.equal(recentSite.get("userId"), userId));
-        query.orderBy(cb.desc(recentSite.get("created")));
+        query.orderBy(cb.desc(recentSite.get("created")), cb.asc(recentSite.get("siteId")));
 
         return session.createQuery(query).list();
     }

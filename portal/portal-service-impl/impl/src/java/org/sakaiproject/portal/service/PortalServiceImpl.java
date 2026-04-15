@@ -140,6 +140,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	private Map<String, UserPortalNavContext> portalNavContexts = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 	private ScheduledFuture<?> portalNavContextEvictionTask;
+	private volatile boolean destroyed;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 	public static final int DEFAULT_MAX_PINNED_SITES = 100;
@@ -148,6 +149,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	private static final int PORTAL_NAV_CONTEXT_IDLE_MS = 15 * 60 * 1000;
 
 	public void init() {
+		destroyed = false;
 		try {
 			// configure the parser for castor, before anything else get a chance
 			Properties castorProperties = LocalConfiguration.getDefault();
@@ -165,6 +167,9 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 	@Override
 	public void afterSingletonsInstantiated() {
+		if (destroyed) {
+			return;
+		}
 		portalNavContextEvictionTask = schedulingService.scheduleWithFixedDelay(this::evictIdlePortalNavContexts,
 				PORTAL_NAV_CONTEXT_IDLE_MS,
 				PORTAL_NAV_CONTEXT_IDLE_MS,
@@ -173,6 +178,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 	@Override
 	public void destroy() {
+		destroyed = true;
 		if (eventTrackingService != null) {
 			eventTrackingService.deleteObserver(this);
 		}
@@ -960,6 +966,10 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	}
 
 	private void schedulePortalNavFlush(UserPortalNavContext context, int delayMs) {
+		if (destroyed) {
+			return;
+		}
+
 		boolean flushNow = delayMs <= 0 || schedulingService == null;
 		synchronized (context) {
 			context.lastAccess = System.currentTimeMillis();
@@ -1064,7 +1074,11 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				nextDelay = PORTAL_NAV_FLUSH_RETRY_DELAY_MS;
 			}
 
-			if (context.dirty || context.flushRequested) {
+			if (destroyed) {
+				context.flushRequested = false;
+				context.evictAfterFlush = false;
+				removeContext = true;
+			} else if (context.dirty || context.flushRequested) {
 				context.flushRequested = false;
 				scheduleAnotherFlush = true;
 			} else if (context.evictAfterFlush) {
@@ -1418,7 +1432,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	@Transactional
 	@Override
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
-		if (StringUtils.isBlank(userId)) return;
+		if (StringUtils.isBlank(userId) || siteIds == null) return;
 
 		mutatePortalNavState(userId, true, portalNavState -> {
 			List<String> siteIdsToPersist = siteIds;

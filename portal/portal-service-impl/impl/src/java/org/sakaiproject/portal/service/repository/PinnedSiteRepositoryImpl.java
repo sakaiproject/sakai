@@ -43,7 +43,7 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
         CriteriaQuery<PinnedSite> query = cb.createQuery(PinnedSite.class);
         Root<PinnedSite> pinnedSite = query.from(PinnedSite.class);
         query.where(cb.equal(pinnedSite.get("userId"), userId))
-                .orderBy(cb.asc(pinnedSite.get("hasBeenUnpinned")), cb.asc(pinnedSite.get("position")));
+                .orderBy(cb.asc(pinnedSite.get("hasBeenUnpinned")), cb.asc(pinnedSite.get("position")), cb.asc(pinnedSite.get("siteId")));
 
         return session.createQuery(query).list();
     }

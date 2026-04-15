@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -412,6 +413,34 @@ public class PortalServiceTests extends SakaiTests {
         Assert.assertEquals(site1Id, unpinnedSites.get(0));
     }
 
+    @Test
+    public void testReorderPinnedSitesSkipsNullPayload() {
+        portalService.savePinnedSites(user1, List.of(site1Id, "site2"));
+
+        portalService.reorderPinnedSites(user1, null);
+
+        Assert.assertEquals(List.of(site1Id, "site2"), portalService.getPinnedSites(user1));
+        Assert.assertTrue(recentSiteRepository.findByUserId(user1).isEmpty());
+    }
+
+    @Test
+    public void testReadPortalNavStateRestoresDeterministicPinnedAndRecentOrder() {
+        String restoredUserId = "restore-" + UUID.randomUUID();
+        pinnedSiteRepository.save(pinnedSite(restoredUserId, "site-b", 0, false));
+        pinnedSiteRepository.save(pinnedSite(restoredUserId, "site-a", 0, false));
+        pinnedSiteRepository.save(pinnedSite(restoredUserId, "site-d", PinnedSite.UNPINNED_POSITION, true));
+        pinnedSiteRepository.save(pinnedSite(restoredUserId, "site-c", PinnedSite.UNPINNED_POSITION, true));
+
+        Instant tiedCreated = Instant.parse("2026-01-01T00:00:00Z");
+        recentSiteRepository.save(recentSite(restoredUserId, "site-b", tiedCreated));
+        recentSiteRepository.save(recentSite(restoredUserId, "site-a", tiedCreated));
+        recentSiteRepository.save(recentSite(restoredUserId, "site-z", Instant.parse("2026-01-01T00:00:01Z")));
+
+        Assert.assertEquals(List.of("site-a", "site-b"), portalService.getPinnedSites(restoredUserId));
+        Assert.assertEquals(List.of("site-c", "site-d"), portalService.getUnpinnedSites(restoredUserId));
+        Assert.assertEquals(List.of("site-z", "site-a", "site-b"), portalService.getRecentSites(restoredUserId));
+    }
+
     private PinnedSite getPinnedSite(List<PinnedSite> pinnedSites, String siteId) {
         for (PinnedSite pinnedSite : pinnedSites) {
             if (siteId.equals(pinnedSite.getSiteId())) {
@@ -421,6 +450,23 @@ public class PortalServiceTests extends SakaiTests {
 
         Assert.fail("Missing pinned site " + siteId);
         return null;
+    }
+
+    private PinnedSite pinnedSite(String userId, String siteId, int position, boolean hasBeenUnpinned) {
+        PinnedSite pinnedSite = new PinnedSite();
+        pinnedSite.setUserId(userId);
+        pinnedSite.setSiteId(siteId);
+        pinnedSite.setPosition(position);
+        pinnedSite.setHasBeenUnpinned(hasBeenUnpinned);
+        return pinnedSite;
+    }
+
+    private RecentSite recentSite(String userId, String siteId, Instant created) {
+        RecentSite recentSite = new RecentSite();
+        recentSite.setUserId(userId);
+        recentSite.setSiteId(siteId);
+        recentSite.setCreated(created);
+        return recentSite;
     }
 
     @Test
