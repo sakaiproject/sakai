@@ -24,10 +24,10 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 /**
  * Repository for recent site rows.
  *
- * Recent site mutations must be coordinated with portal navigation locking in
- * {@code PortalServiceImpl}. External callers should use
- * {@code PortalServiceImpl} for mutating operations to preserve lock-based
- * consistency with in-memory portal navigation state.
+ * Recent site mutations must be coordinated with the in-memory portal
+ * navigation state managed by {@code PortalServiceImpl}. External callers
+ * should use {@code PortalServiceImpl} for mutating operations so state and
+ * persistence remain consistent.
  */
 public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, Long> {
 

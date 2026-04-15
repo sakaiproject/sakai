@@ -57,6 +57,7 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,11 +84,17 @@ public class PortalServiceTests extends SakaiTests {
     public void setup() {
         super.setup();
         reset(serverConfigurationService);
+        when(serverConfigurationService.getInt("portal.nav.flush.delay.ms", 250)).thenReturn(0);
+        when(serverConfigurationService.getInt("portal.nav.flush.retry.delay.ms", 1000)).thenReturn(100);
+        when(serverConfigurationService.getInt("portal.nav.context.idle.ms", 15 * 60 * 1000)).thenReturn(15 * 60 * 1000);
         when(serverConfigurationService.getInt("portal.max.recent.sites", PortalServiceImpl.DEFAULT_MAX_RECENT_SITES))
                 .thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
         when(serverConfigurationService.getInt("portal.max.pinned.sites", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
                 .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
+        PortalServiceImpl portalServiceImpl = AopTestUtils.getUltimateTargetObject(portalService);
+        portalServiceImpl.destroy();
+        portalServiceImpl.init();
     }
 
     @Test
