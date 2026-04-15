@@ -46,7 +46,6 @@ import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
 import org.sakaiproject.portal.api.repository.RecentSiteRepository;
-import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTests;
@@ -59,7 +58,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,7 +71,6 @@ public class PortalServiceTests extends SakaiTests {
     @Autowired private PreferencesService preferencesService;
     @Autowired private RecentSiteRepository recentSiteRepository;
     @Autowired private SecurityService securityService;
-    @Autowired private SchedulingService schedulingService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
 
@@ -93,10 +90,9 @@ public class PortalServiceTests extends SakaiTests {
                 .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
         PortalServiceImpl portalServiceImpl = AopTestUtils.getUltimateTargetObject(portalService);
-        ReflectionTestUtils.setField(portalServiceImpl, "schedulingService", schedulingService);
         portalServiceImpl.destroy();
         portalServiceImpl.init();
-        ReflectionTestUtils.setField(portalServiceImpl, "schedulingService", null);
+        portalServiceImpl.afterSingletonsInstantiated();
     }
 
     @Test
