@@ -24,9 +24,15 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -40,6 +46,8 @@ import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FileConversionService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
@@ -63,7 +71,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import java.lang.reflect.Method;
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.format.FormatStyle;
+import java.util.HashMap;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AssignmentActionTest {
@@ -205,5 +218,57 @@ public class AssignmentActionTest {
         Assert.assertEquals("7000", scaledGrade);
         Assert.assertNull(state.getAttribute(AssignmentAction.STATE_MESSAGE));
         state.clear();
+    }
+
+    @Test
+    public void testIntegrateWithAnnouncementPublishesLinkedDraftImport() throws Exception {
+        SessionState state = new SessionStateFake();
+        AnnouncementChannel channel = Mockito.mock(AnnouncementChannel.class);
+        AnnouncementMessage existingMessage = Mockito.mock(AnnouncementMessage.class);
+        AnnouncementMessageHeader existingHeader = Mockito.mock(AnnouncementMessageHeader.class);
+        AnnouncementMessageEdit editMessage = Mockito.mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit editHeader = Mockito.mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit editProperties = Mockito.mock(ResourcePropertiesEdit.class);
+        Assignment assignment = Mockito.mock(Assignment.class);
+        Map<String, String> properties = new HashMap<>();
+        Instant openTime = Instant.parse("2026-04-14T16:00:00Z");
+
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        properties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, "draft-announcement-id");
+
+        state.setAttribute("announcement_channel", channel);
+
+        Mockito.when(assignment.getProperties()).thenReturn(properties);
+        Mockito.when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
+        Mockito.when(assignment.getId()).thenReturn("assignment-id");
+        Mockito.when(channel.getAnnouncementMessage("draft-announcement-id")).thenReturn(existingMessage);
+        Mockito.when(existingMessage.getId()).thenReturn("draft-announcement-id");
+        Mockito.when(existingMessage.getAnnouncementHeader()).thenReturn(existingHeader);
+        Mockito.when(existingHeader.getDraft()).thenReturn(true);
+        Mockito.when(existingHeader.getSubject()).thenReturn("Open Assignment Imported Assignment");
+        Mockito.when(existingHeader.getAccess()).thenReturn(org.sakaiproject.message.api.MessageHeader.MessageAccess.CHANNEL);
+        Mockito.when(existingMessage.getBody()).thenReturn("<p>Open Date Body</p>");
+        Mockito.when(channel.editAnnouncementMessage("draft-announcement-id")).thenReturn(editMessage);
+        Mockito.when(editMessage.getAnnouncementHeaderEdit()).thenReturn(editHeader);
+        Mockito.when(editMessage.getPropertiesEdit()).thenReturn(editProperties);
+        Mockito.when(editMessage.getId()).thenReturn("draft-announcement-id");
+        Mockito.when(entityManager.newReferenceList()).thenReturn(new java.util.ArrayList());
+        Mockito.when(formattedText.convertPlaintextToFormattedText("Imported Assignment")).thenReturn("Imported Assignment");
+        Mockito.when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+        Mockito.when(assignmentService.getUsersLocalDateTimeString(openTime)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+
+        Method method = AssignmentAction.class.getDeclaredMethod("integrateWithAnnouncement", SessionState.class,
+                String.class, Assignment.class, String.class, Instant.class, String.class, String.class, Instant.class);
+        method.setAccessible(true);
+        method.invoke(assignmentAction, state, "Imported Assignment", assignment, "Imported Assignment", openTime,
+                Boolean.TRUE.toString(), org.sakaiproject.assignment.api.AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE, openTime);
+
+        Mockito.verify(channel).editAnnouncementMessage("draft-announcement-id");
+        Mockito.verify(editHeader).setDraft(false);
+        Mockito.verify(channel).commitMessage(editMessage, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertEquals("draft-announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        Mockito.verify(assignmentService).updateAssignment(assignment);
     }
 }

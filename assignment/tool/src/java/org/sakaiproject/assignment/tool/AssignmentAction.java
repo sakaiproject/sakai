@@ -10014,26 +10014,27 @@ public class AssignmentAction extends PagedResourceActionII {
                 boolean updatedTitle = false;
                 boolean updatedOpenDate = false;
                 boolean updateAccess = false;
+                boolean linkedDraftAnnouncement = false;
 
                 String openDateAnnounced = StringUtils.trimToNull(assignment.getProperties().get(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
                 String openDateAnnouncementId = StringUtils.trimToNull(assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
-                if (openDateAnnounced != null && openDateAnnouncementId != null) {
-                    AnnouncementMessage message = null;
-
+                AnnouncementMessage existingMessage = null;
+                if (openDateAnnouncementId != null) {
                     try {
-                        message = channel.getAnnouncementMessage(openDateAnnouncementId);
-                        if (!message.getAnnouncementHeader().getSubject().contains(title))/*whether title has been changed*/ {
+                        existingMessage = channel.getAnnouncementMessage(openDateAnnouncementId);
+                        linkedDraftAnnouncement = existingMessage.getAnnouncementHeader().getDraft();
+                        if (!existingMessage.getAnnouncementHeader().getSubject().contains(title))/*whether title has been changed*/ {
                             updatedTitle = true;
                         }
-                        if (!message.getBody().contains(assignmentService.getUsersLocalDateTimeString(openTime))) /*whether open date has been changed*/ {
+                        if (!existingMessage.getBody().contains(assignmentService.getUsersLocalDateTimeString(openTime))) /*whether open date has been changed*/ {
                             updatedOpenDate = true;
                         }
-                        if ((message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !assignment.getTypeOfAccess().equals(Assignment.Access.SITE))
-                                || (!message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && assignment.getTypeOfAccess().equals(Assignment.Access.SITE))) {
+                        if ((existingMessage.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !assignment.getTypeOfAccess().equals(Assignment.Access.SITE))
+                                || (!existingMessage.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && assignment.getTypeOfAccess().equals(Assignment.Access.SITE))) {
                             updateAccess = true;
                         } else if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
                             Collection<String> assnGroups = assignment.getGroups();
-                            Collection<String> anncGroups = message.getAnnouncementHeader().getGroups();
+                            Collection<String> anncGroups = existingMessage.getAnnouncementHeader().getGroups();
                             if (!assnGroups.equals(anncGroups)) {
                                 updateAccess = true;
                             }
@@ -10045,17 +10046,30 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (updateAccess) {
                         try {
                             // if the access level has changed in assignment, remove the original announcement
-                            channel.removeAnnouncementMessage(message.getId());
+                            channel.removeAnnouncementMessage(existingMessage.getId());
+                            existingMessage = null;
+                            linkedDraftAnnouncement = false;
                         } catch (PermissionException e) {
-                            log.warn("PermissionException for remove message id={} for assignment id={}, {}", message.getId(), assignment.getId(), e.getMessage());
+                            log.warn("PermissionException for remove message id={} for assignment id={}, {}", openDateAnnouncementId, assignment.getId(), e.getMessage());
                         }
                     }
                 }
 
+                boolean previouslyPublishedAnnouncement = openDateAnnounced != null && !linkedDraftAnnouncement;
                 // need to create announcement message if assignment is added or assignment has been updated
-                if (openDateAnnounced == null || updatedTitle || updatedOpenDate || updateAccess) {
+                if (openDateAnnounced == null || updatedTitle || updatedOpenDate || updateAccess || linkedDraftAnnouncement) {
                     try {
-                        AnnouncementMessageEdit message = channel.addAnnouncementMessage();
+                        AnnouncementMessageEdit message = null;
+                        if (linkedDraftAnnouncement && existingMessage != null) {
+                            try {
+                                message = channel.editAnnouncementMessage(existingMessage.getId());
+                            } catch (IdUnusedException | InUseException e) {
+                                log.warn(this + ":integrateWithAnnouncement " + e.getMessage());
+                            }
+                        }
+                        if (message == null) {
+                            message = channel.addAnnouncementMessage();
+                        }
                         if (message != null) {
                             AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
 
@@ -10065,7 +10079,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             header.setDraft(/* draft */false);
                             header.replaceAttachments(/* attachment */entityManager.newReferenceList());
 
-                            if (openDateAnnounced == null) {
+                            if (!previouslyPublishedAnnouncement) {
                                 // making new announcement
                                 header.setSubject(/* subject */rb.getFormattedMessage("assig6", title));
                             } else {
@@ -10074,7 +10088,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
 
                             String formattedOpenTime = userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG);
-                            if (updatedOpenDate) {
+                            if (updatedOpenDate && previouslyPublishedAnnouncement) {
                                 // revised assignment open date
                                 message.setBody(/* body */ "<p>" + rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), formattedOpenTime) + "</p>");
                             } else {
@@ -10121,7 +10135,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
 
                             Instant now = Instant.now();
-                            if (openDateAnnounced != null && now.isBefore(oldOpenTime)) {
+                            if (previouslyPublishedAnnouncement && now.isBefore(oldOpenTime)) {
                                 message.getPropertiesEdit().addProperty("notificationLevel", notification);
                                 message.getPropertiesEdit().addPropertyToList("noti_history", now.toString() + "_" + notiLevel + "_" + openDateAnnounced);
                             } else {

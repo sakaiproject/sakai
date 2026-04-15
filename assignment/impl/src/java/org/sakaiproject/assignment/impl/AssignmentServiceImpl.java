@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4873,8 +4874,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     if (!nAssignment.getDraft()) {
                         addImportedDueDateCalendarEvent(oAssignment, nAssignment, nProperties);
-                        addImportedOpenDateAnnouncement(oAssignment, nAssignment, nProperties);
                     }
+                    addImportedOpenDateAnnouncement(oAssignment, nAssignment, nProperties);
+                    assignmentRepository.merge(nAssignment);
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
@@ -5141,11 +5143,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    private boolean shouldImportOpenDateAnnouncement(Map<String, String> sourceProperties, Assignment importedAssignment) {
+
+        return importedAssignment.getOpenDate() != null
+            && (BooleanUtils.toBoolean(sourceProperties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE))
+                || BooleanUtils.toBoolean(sourceProperties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED))
+                || StringUtils.isNotBlank(sourceProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID)));
+    }
+
     private void addImportedOpenDateAnnouncement(Assignment sourceAssignment, Assignment importedAssignment,
             Map<String, String> importedProperties) {
 
-        if (!BooleanUtils.toBoolean(sourceAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE))
-                || importedAssignment.getOpenDate() == null) {
+        if (!shouldImportOpenDateAnnouncement(sourceAssignment.getProperties(), importedAssignment)) {
             return;
         }
 
@@ -5155,12 +5164,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return;
             }
 
+            boolean draftAnnouncement = Boolean.TRUE.equals(importedAssignment.getDraft());
             AnnouncementMessageEdit message = null;
             boolean committed = false;
             try {
                 message = channel.addAnnouncementMessage();
                 AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-                header.setDraft(false);
+                header.setDraft(draftAnnouncement);
                 header.replaceAttachments(entityManager.newReferenceList());
                 message.getPropertiesEdit().addProperty(ASSIGNMENT_REFERENCE_PROPERTY,
                     AssignmentReferenceReckoner.reckoner().assignment(importedAssignment).reckon().getReference());
@@ -5185,13 +5195,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     header.clearGroupAccess();
                 }
 
-                // Avoid persisting importer-localized timestamps in shared announcement text.
-                message.setBody("<p>" + formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()) + "</p>");
+                String formattedOpenTime = userTimeService.dateTimeFormat(importedAssignment.getOpenDate(),
+                    FormatStyle.MEDIUM, FormatStyle.LONG);
+                String body = resourceLoader.getFormattedMessage("opedat",
+                    formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()), formattedOpenTime);
+                if (body == null) {
+                    body = formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle());
+                }
+                message.setBody("<p>" + body + "</p>");
 
                 channel.commitMessage(message, NotificationService.NOTI_NONE, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
                 committed = true;
 
-                importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+                importedProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+                if (draftAnnouncement) {
+                    importedProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
+                } else {
+                    importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+                }
                 importedProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
             } finally {
                 if (!committed && message != null) {
