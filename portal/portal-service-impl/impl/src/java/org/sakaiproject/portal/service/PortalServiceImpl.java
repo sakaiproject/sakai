@@ -38,8 +38,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -88,6 +86,7 @@ import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
 import org.sakaiproject.portal.api.repository.RecentSiteRepository;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -98,6 +97,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -111,7 +111,7 @@ import lombok.extern.slf4j.Slf4j;
  * repositories.
  */
 @Slf4j
-public class PortalServiceImpl implements PortalService, Observer, DisposableBean
+public class PortalServiceImpl implements PortalService, Observer, DisposableBean, SmartInitializingSingleton
 {
 	/**
 	 * Parameter to force state reset
@@ -125,6 +125,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	@Setter private PinnedSiteRepository pinnedSiteRepository;
 	@Setter private PreferencesService preferencesService;
 	@Setter private RecentSiteRepository recentSiteRepository;
+	@Setter private SchedulingService schedulingService;
 	@Setter private SecurityService securityService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SessionManager sessionManager;
@@ -138,12 +139,12 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Map<String, UserPortalNavContext> portalNavContexts = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
-	private ScheduledExecutorService portalNavScheduler;
+	private ScheduledFuture<?> portalNavContextEvictionTask;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 	public static final int DEFAULT_MAX_PINNED_SITES = 100;
-	private static final int PORTAL_NAV_FLUSH_DELAY_MS = 5 * 1000;
-	private static final int PORTAL_NAV_FLUSH_RETRY_DELAY_MS = 5 * 1000;
+	private static final int PORTAL_NAV_FLUSH_DELAY_MS = 60 * 1000;
+	private static final int PORTAL_NAV_FLUSH_RETRY_DELAY_MS = 60 * 1000;
 	private static final int PORTAL_NAV_CONTEXT_IDLE_MS = 15 * 60 * 1000;
 
 	public void init() {
@@ -158,17 +159,16 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		} catch (Exception ex) {
 			log.warn("Failed to configure Castor, {}", ex.toString());
 		}
-		portalNavScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-			Thread thread = new Thread(r, "portal-nav-state");
-			thread.setDaemon(true);
-			return thread;
-		});
-		portalNavScheduler.scheduleWithFixedDelay(this::evictIdlePortalNavContexts,
+		eventTrackingService.addLocalObserver(this);
+		portalSubPageNavProviders = new HashSet<>();
+	}
+
+	@Override
+	public void afterSingletonsInstantiated() {
+		portalNavContextEvictionTask = schedulingService.scheduleWithFixedDelay(this::evictIdlePortalNavContexts,
 				PORTAL_NAV_CONTEXT_IDLE_MS,
 				PORTAL_NAV_CONTEXT_IDLE_MS,
 				TimeUnit.MILLISECONDS);
-		eventTrackingService.addLocalObserver(this);
-		portalSubPageNavProviders = new HashSet<>();
 	}
 
 	@Override
@@ -176,12 +176,12 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		if (eventTrackingService != null) {
 			eventTrackingService.deleteObserver(this);
 		}
+		if (portalNavContextEvictionTask != null) {
+			portalNavContextEvictionTask.cancel(false);
+			portalNavContextEvictionTask = null;
+		}
 		portalNavContexts.values().forEach(context -> flushPortalNavContext(context, true));
 		portalNavContexts.clear();
-		if (portalNavScheduler != null) {
-			portalNavScheduler.shutdownNow();
-			portalNavScheduler = null;
-		}
 	}
 
 	@Override
@@ -934,7 +934,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	}
 
 	private void schedulePortalNavFlush(UserPortalNavContext context, int delayMs) {
-		boolean flushNow = delayMs <= 0 || portalNavScheduler == null;
+		boolean flushNow = delayMs <= 0 || schedulingService == null;
 		synchronized (context) {
 			context.lastAccess = System.currentTimeMillis();
 			if (!context.dirty) {
@@ -949,7 +949,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				context.scheduledFlush = null;
 			}
 			if (!flushNow) {
-				context.scheduledFlush = portalNavScheduler.schedule(() -> flushPortalNavContext(context, false), delayMs, TimeUnit.MILLISECONDS);
+				context.scheduledFlush = schedulingService.schedule(() -> flushPortalNavContext(context, false), delayMs, TimeUnit.MILLISECONDS);
 				return;
 			}
 		}
@@ -970,6 +970,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 	private void flushPortalNavContext(UserPortalNavContext context, boolean evictAfterFlush) {
 		PortalNavState portalNavState;
+		boolean removeFavoriteSiteDataAfterFlush;
 		long version;
 
 		synchronized (context) {
@@ -994,6 +995,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			context.flushInProgress = true;
 			version = context.version;
 			portalNavState = copyPortalNavState(context.portalNavState);
+			removeFavoriteSiteDataAfterFlush = context.removeFavoriteSiteDataAfterFlush;
 		}
 
 		boolean success = false;
@@ -1002,6 +1004,15 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			success = true;
 		} catch (Exception e) {
 			log.warn("Could not persist portal navigation state for user [{}], {}", context.userId, e.toString(), e);
+		}
+		boolean favoriteSiteDataRemoved = false;
+		if (success && removeFavoriteSiteDataAfterFlush) {
+			try {
+				removeFavoriteSiteData(context.userId);
+				favoriteSiteDataRemoved = true;
+			} catch (Exception e) {
+				log.warn("Could not clear legacy favorite site data for user [{}], {}", context.userId, e.toString(), e);
+			}
 		}
 
 		boolean scheduleAnotherFlush = false;
@@ -1013,6 +1024,14 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				mergePersistedStateIdentifiers(context.portalNavState, portalNavState);
 				if (context.version == version) {
 					context.dirty = false;
+				}
+				if (removeFavoriteSiteDataAfterFlush) {
+					if (favoriteSiteDataRemoved) {
+						context.removeFavoriteSiteDataAfterFlush = false;
+					} else {
+						context.dirty = true;
+						nextDelay = PORTAL_NAV_FLUSH_RETRY_DELAY_MS;
+					}
 				}
 			} else {
 				context.dirty = true;
@@ -1458,14 +1477,25 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	public void syncUserSitesWithPortalNav(final String userId) {
 		if (StringUtils.isBlank(userId) || securityService.isSuperUser(userId)) return;
 
-		mutatePortalNavState(userId, true, portalNavState -> syncUserSitesWithPortalNavInternal(userId, portalNavState));
+		UserPortalNavContext context = getOrCreatePortalNavContext(userId);
+		synchronized (context) {
+			context.lastAccess = System.currentTimeMillis();
+			if (syncUserSitesWithPortalNavInternal(userId, context.portalNavState)) {
+				context.removeFavoriteSiteDataAfterFlush = true;
+			}
+			context.dirty = true;
+			context.version++;
+		}
+
+		schedulePortalNavFlush(context);
 	}
 
-	private void syncUserSitesWithPortalNavInternal(final String userId, PortalNavState portalNavState) {
+	private boolean syncUserSitesWithPortalNavInternal(final String userId, PortalNavState portalNavState) {
 
 		List<String> excludedSites = Collections.emptyList();
 		List<String> favoriteSiteIds = Collections.emptyList();
 		List<String> seenSiteIds = Collections.emptyList();
+		boolean removeFavoriteSiteDataAfterFlush = false;
 
 		// get all site data from preferences
 		Preferences prefs = preferencesService.getPreferences(userId);
@@ -1501,8 +1531,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 			log.debug("Adding {} sites from unseen to unpinned sites for user [{}]", seenSiteIds.size(), userId);
 			combinedSiteIds.addAll(sitesToUnpin);
-
-			removeFavoriteSiteData(userId);
+			removeFavoriteSiteDataAfterFlush = true;
 		}
 
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
@@ -1535,6 +1564,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				.forEach(sitesToRemove::add);
 
 		removeSitesFromPortalNavState(new ArrayList<>(sitesToRemove), portalNavState);
+		return removeFavoriteSiteDataAfterFlush;
 	}
 
 	private static PinnedSite copyPinnedSite(PinnedSite pinnedSite) {
@@ -1610,6 +1640,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		private final PortalNavState portalNavState;
 		private long lastAccess = System.currentTimeMillis();
 		private boolean dirty;
+		private boolean removeFavoriteSiteDataAfterFlush;
 		private boolean flushInProgress;
 		private boolean flushRequested;
 		private boolean evictAfterFlush;

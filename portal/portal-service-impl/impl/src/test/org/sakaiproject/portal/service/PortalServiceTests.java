@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Observer;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +46,7 @@ import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
 import org.sakaiproject.portal.api.repository.RecentSiteRepository;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTests;
@@ -73,6 +73,7 @@ public class PortalServiceTests extends SakaiTests {
     @Autowired private PreferencesService preferencesService;
     @Autowired private RecentSiteRepository recentSiteRepository;
     @Autowired private SecurityService securityService;
+    @Autowired private SchedulingService schedulingService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
 
@@ -92,14 +93,10 @@ public class PortalServiceTests extends SakaiTests {
                 .thenReturn(PortalServiceImpl.DEFAULT_MAX_PINNED_SITES);
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
         PortalServiceImpl portalServiceImpl = AopTestUtils.getUltimateTargetObject(portalService);
+        ReflectionTestUtils.setField(portalServiceImpl, "schedulingService", schedulingService);
         portalServiceImpl.destroy();
         portalServiceImpl.init();
-        ScheduledExecutorService portalNavScheduler =
-                (ScheduledExecutorService) ReflectionTestUtils.getField(portalServiceImpl, "portalNavScheduler");
-        if (portalNavScheduler != null) {
-            portalNavScheduler.shutdownNow();
-            ReflectionTestUtils.setField(portalServiceImpl, "portalNavScheduler", null);
-        }
+        ReflectionTestUtils.setField(portalServiceImpl, "schedulingService", null);
     }
 
     @Test

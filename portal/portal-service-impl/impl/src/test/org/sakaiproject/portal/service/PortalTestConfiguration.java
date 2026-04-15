@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -69,6 +70,11 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.thread_local.api.ThreadLocalManager")
     public ThreadLocalManager threadLocalManager() {
         return mock(ThreadLocalManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
     }
 
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
