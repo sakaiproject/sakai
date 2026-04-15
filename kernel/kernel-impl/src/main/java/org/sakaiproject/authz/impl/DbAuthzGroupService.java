@@ -864,7 +864,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				Map<String, Role> roles = new HashMap<String, Role>();
 				
 				// dehydrate to SimpleRoles, which can be stored in a distributed Terracotta cache
-				for (java.util.Map.Entry<String, SimpleRole> mapEntry : cachedRoleProperties.entrySet()) {
+				for (Map.Entry<String, SimpleRole> mapEntry : cachedRoleProperties.entrySet()) {
 					roles.put(mapEntry.getKey(), new BaseRole(mapEntry.getValue()));
 				}
 				Map<String, Member> userGrants = new HashMap<String, Member>();
@@ -997,7 +997,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				Map<String, Map> payLoad = new HashMap<String, Map>();
 				// rehydrate from SimpleRole, which can be stored in a Terracotta cache
 				Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
-				for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
+				for (Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
 					roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());
 				}
 				Map<String, MemberWithRoleId> membersWithRoleIds = getMemberWithRoleIdMap(realm.m_userGrants);
