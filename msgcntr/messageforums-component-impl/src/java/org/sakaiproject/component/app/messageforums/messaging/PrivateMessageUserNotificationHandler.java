@@ -49,7 +49,8 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
 
     public List<String> getHandledEvents() {
         return Arrays.asList(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT,
-                DiscussionForumService.EVENT_MESSAGES_ADD);
+                DiscussionForumService.EVENT_MESSAGES_ADD,
+                DiscussionForumService.EVENT_MESSAGES_RESPONSE);
     }
 
     @Override
@@ -74,6 +75,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
                 case DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT:
                     return Optional.of(handleReadReceipt(from, siteId, pvtMessage.getCreatedBy(), pvtMessage));
                 case DiscussionForumService.EVENT_MESSAGES_ADD:
+                case DiscussionForumService.EVENT_MESSAGES_RESPONSE:
                     return Optional.of(handleAdd(from, siteId, pvtMessage));
                 default:
                     return Optional.empty();
