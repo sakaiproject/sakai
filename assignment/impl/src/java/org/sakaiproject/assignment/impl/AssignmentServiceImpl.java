@@ -4772,51 +4772,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                     } catch (org.sakaiproject.grading.api.ConflictingAssignmentNameException e) {
-                                        // Assignment name conflicts with existing gradebook item
-                                        // Generate a unique title and retry
-                                        log.warn("Assignment '{}' conflicts with existing gradebook item in site {}. Attempting to rename. oAssignmentId={} nAssignmentId={}",
+                                        // Draft assignments must not be added to the gradebook;
+                                        log.warn("Assignment '{}' conflicts with existing gradebook item in site {}. Renaming and setting to draft. oAssignmentId={} nAssignmentId={}",
                                                 nAssignment.getTitle(), nAssignment.getContext(), oAssignmentId, nAssignmentId);
 
                                         String uniqueTitle = generateUniqueAssignmentTitle(nAssignment.getTitle(), nAssignment.getContext());
                                         nAssignment.setTitle(uniqueTitle);
-                                        nAssignment.setDraft(true); // Set to draft so user can review the renamed assignment
-                                        // Use direct repository merge to avoid duplicate task/notification creation
-                                        // The final updateAssignment() call at the end of this method will handle side effects
+                                        nAssignment.setDraft(true);
+
+                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                                         nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
                                         assignmentRepository.merge(nAssignment);
-
-                                        try {
-                                            // Retry with unique title
-                                            gradingService.addExternalAssessment(
-                                                    nAssignment.getContext(),
-                                                    nAssignment.getContext(),
-                                                    nAssignmentRef,
-                                                    null,
-                                                    uniqueTitle,
-                                                    nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
-                                                    Date.from(nAssignment.getDueDate()),
-                                                    this.getToolId(),
-                                                    null,
-                                                    false,
-                                                    categoryId,
-                                                    null);
-                                            if (StringUtils.isNotBlank(nAssignmentRef)) {
-                                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
-                                            }
-                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-                                            log.info("Successfully imported assignment with renamed title '{}' in site {}", uniqueTitle, nAssignment.getContext());
-                                        } catch (Exception retryException) {
-                                            // If retry also fails, set to draft and disable gradebook integration
-                                            log.error("Failed to import assignment even after renaming. Setting to draft. Title='{}' oAssignmentId={} nAssignmentId={} Error: {}",
-                                                    uniqueTitle, oAssignmentId, nAssignmentId, retryException.getMessage());
-                                            nAssignment.setDraft(true);
-                                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                                            // Use direct repository merge to avoid duplicate task/notification creation
-                                            // The final updateAssignment() call at the end of this method will handle side effects
-                                            nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
-                                            assignmentRepository.merge(nAssignment);
-                                        }
+                                        log.info("Renamed duplicate assignment to '{}' and set to draft in site {}. Will be added to GB on publish.", uniqueTitle, nAssignment.getContext());
                                     }
                                 } else {
                                     // internal gradebook items should have already been created and are linked using a Long or a title
