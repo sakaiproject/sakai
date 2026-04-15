@@ -103,7 +103,7 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         when(formattedText.convertPlaintextToFormattedText(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
         when(entityManager.newReferenceList()).thenReturn(Collections.emptyList());
         when(serverConfigurationService.getBoolean("import.importAsDraft", true)).thenReturn(true);
-        when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
+        when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
         when(securityService.unlockUsers(anyString(), anyString())).thenReturn(Collections.emptyList());
 
         User currentUser = mock(User.class);
