@@ -142,15 +142,9 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 	public static final int DEFAULT_MAX_PINNED_SITES = 100;
-	private static final int DEFAULT_PORTAL_NAV_FLUSH_DELAY_MS = 250;
-	private static final int DEFAULT_PORTAL_NAV_FLUSH_RETRY_DELAY_MS = 1000;
-	private static final int DEFAULT_PORTAL_NAV_CONTEXT_IDLE_MS = 15 * 60 * 1000;
-	private static final String PORTAL_NAV_FLUSH_DELAY_MS_PROP = "portal.nav.flush.delay.ms";
-	private static final String PORTAL_NAV_FLUSH_RETRY_DELAY_MS_PROP = "portal.nav.flush.retry.delay.ms";
-	private static final String PORTAL_NAV_CONTEXT_IDLE_MS_PROP = "portal.nav.context.idle.ms";
-	private int portalNavFlushDelayMs = DEFAULT_PORTAL_NAV_FLUSH_DELAY_MS;
-	private int portalNavFlushRetryDelayMs = DEFAULT_PORTAL_NAV_FLUSH_RETRY_DELAY_MS;
-	private int portalNavContextIdleMs = DEFAULT_PORTAL_NAV_CONTEXT_IDLE_MS;
+	private static final int PORTAL_NAV_FLUSH_DELAY_MS = 5 * 1000;
+	private static final int PORTAL_NAV_FLUSH_RETRY_DELAY_MS = 5 * 1000;
+	private static final int PORTAL_NAV_CONTEXT_IDLE_MS = 15 * 60 * 1000;
 
 	public void init() {
 		try {
@@ -164,17 +158,14 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		} catch (Exception ex) {
 			log.warn("Failed to configure Castor, {}", ex.toString());
 		}
-		portalNavFlushDelayMs = serverConfigurationService.getInt(PORTAL_NAV_FLUSH_DELAY_MS_PROP, DEFAULT_PORTAL_NAV_FLUSH_DELAY_MS);
-		portalNavFlushRetryDelayMs = serverConfigurationService.getInt(PORTAL_NAV_FLUSH_RETRY_DELAY_MS_PROP, DEFAULT_PORTAL_NAV_FLUSH_RETRY_DELAY_MS);
-		portalNavContextIdleMs = serverConfigurationService.getInt(PORTAL_NAV_CONTEXT_IDLE_MS_PROP, DEFAULT_PORTAL_NAV_CONTEXT_IDLE_MS);
 		portalNavScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
 			Thread thread = new Thread(r, "portal-nav-state");
 			thread.setDaemon(true);
 			return thread;
 		});
 		portalNavScheduler.scheduleWithFixedDelay(this::evictIdlePortalNavContexts,
-				portalNavContextIdleMs,
-				portalNavContextIdleMs,
+				PORTAL_NAV_CONTEXT_IDLE_MS,
+				PORTAL_NAV_CONTEXT_IDLE_MS,
 				TimeUnit.MILLISECONDS);
 		eventTrackingService.addLocalObserver(this);
 		portalSubPageNavProviders = new HashSet<>();
@@ -939,7 +930,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	}
 
 	private void schedulePortalNavFlush(UserPortalNavContext context) {
-		schedulePortalNavFlush(context, portalNavFlushDelayMs);
+		schedulePortalNavFlush(context, PORTAL_NAV_FLUSH_DELAY_MS);
 	}
 
 	private void schedulePortalNavFlush(UserPortalNavContext context, int delayMs) {
@@ -967,7 +958,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	}
 
 	private void evictIdlePortalNavContexts() {
-		long idleBefore = System.currentTimeMillis() - portalNavContextIdleMs;
+		long idleBefore = System.currentTimeMillis() - PORTAL_NAV_CONTEXT_IDLE_MS;
 		portalNavContexts.values().forEach(context -> {
 			synchronized (context) {
 				if (context.lastAccess < idleBefore) {
@@ -1015,7 +1006,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 		boolean scheduleAnotherFlush = false;
 		boolean removeContext = false;
-		int nextDelay = portalNavFlushDelayMs;
+		int nextDelay = PORTAL_NAV_FLUSH_DELAY_MS;
 		synchronized (context) {
 			context.flushInProgress = false;
 			if (success) {
@@ -1025,7 +1016,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				}
 			} else {
 				context.dirty = true;
-				nextDelay = portalNavFlushRetryDelayMs;
+				nextDelay = PORTAL_NAV_FLUSH_RETRY_DELAY_MS;
 			}
 
 			if (context.dirty || context.flushRequested) {
