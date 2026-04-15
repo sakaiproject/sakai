@@ -37,13 +37,6 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
     @Override
     @Transactional(readOnly = true)
     public List<PinnedSite> findByUserId(String userId) {
-        return findByUserIdOrderByHasBeenUnpinnedAscPosition(userId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PinnedSite> findByUserIdOrderByHasBeenUnpinnedAscPosition(String userId) {
-
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();

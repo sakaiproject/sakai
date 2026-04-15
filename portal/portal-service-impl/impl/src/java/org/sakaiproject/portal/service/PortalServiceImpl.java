@@ -818,7 +818,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	private PortalNavState loadPortalNavState(String userId) {
 
-		List<PinnedSite> pinnedSiteRows = pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(userId);
+		List<PinnedSite> pinnedSiteRows = pinnedSiteRepository.findByUserId(userId);
 		Map<String, PinnedSite> pinnedSitesBySiteId = new HashMap<>();
 		List<String> pinnedSiteIds = new ArrayList<>();
 		List<String> unpinnedSiteIds = new ArrayList<>();

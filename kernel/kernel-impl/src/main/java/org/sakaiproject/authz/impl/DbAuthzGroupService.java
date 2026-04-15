@@ -2495,8 +2495,9 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 							return null;
 						}
-						catch (SQLException ignore)
+						catch (SQLException e)
 						{
+							log.warn("getRoleFunctions.readSqlResultRecord: failed to read role functions row", e);
 							return null;
 						}
 					}

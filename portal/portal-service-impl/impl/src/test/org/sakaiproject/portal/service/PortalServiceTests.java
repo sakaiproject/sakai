@@ -295,12 +295,12 @@ public class PortalServiceTests extends SakaiTests {
     public void testSavePinnedSitesSkipsUnchangedPinnedRows() {
         portalService.savePinnedSites(user1, List.of(site1Id, "site2"));
 
-        List<PinnedSite> before = pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(user1);
+        List<PinnedSite> before = pinnedSiteRepository.findByUserId(user1);
         Assert.assertEquals(2, before.size());
 
         portalService.savePinnedSites(user1, List.of(site1Id, "site2"));
 
-        List<PinnedSite> after = pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(user1);
+        List<PinnedSite> after = pinnedSiteRepository.findByUserId(user1);
         Assert.assertEquals(2, after.size());
         Assert.assertEquals(before.get(0).getId(), after.get(0).getId());
         Assert.assertEquals(before.get(0).getSiteId(), after.get(0).getSiteId());
@@ -365,7 +365,7 @@ public class PortalServiceTests extends SakaiTests {
 
         portalService.reorderPinnedSites(user1, List.of("site2"));
 
-        List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByHasBeenUnpinnedAscPosition(user1);
+        List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserId(user1);
         Assert.assertEquals(2, pinnedSites.size());
 
         PinnedSite pinnedSite = pinnedSites.get(0);
