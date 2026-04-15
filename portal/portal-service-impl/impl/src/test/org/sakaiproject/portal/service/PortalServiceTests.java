@@ -300,12 +300,12 @@ public class PortalServiceTests extends SakaiTests {
     public void testSavePinnedSitesSkipsUnchangedPinnedRows() {
         portalService.savePinnedSites(user1, List.of(site1Id, "site2"));
 
-        List<PinnedSite> before = pinnedSiteRepository.findByUserId(user1);
+        List<PinnedSite> before = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
         Assert.assertEquals(2, before.size());
 
         portalService.savePinnedSites(user1, List.of(site1Id, "site2"));
 
-        List<PinnedSite> after = pinnedSiteRepository.findByUserId(user1);
+        List<PinnedSite> after = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
         Assert.assertEquals(2, after.size());
         Assert.assertEquals(before.get(0).getId(), after.get(0).getId());
         Assert.assertEquals(before.get(0).getSiteId(), after.get(0).getSiteId());
@@ -373,12 +373,12 @@ public class PortalServiceTests extends SakaiTests {
         List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserId(user1);
         Assert.assertEquals(2, pinnedSites.size());
 
-        PinnedSite pinnedSite = pinnedSites.get(0);
+        PinnedSite pinnedSite = getPinnedSite(pinnedSites, "site2");
         Assert.assertEquals("site2", pinnedSite.getSiteId());
         Assert.assertEquals(0, pinnedSite.getPosition());
         Assert.assertFalse(pinnedSite.getHasBeenUnpinned());
 
-        PinnedSite unpinnedSite = pinnedSites.get(1);
+        PinnedSite unpinnedSite = getPinnedSite(pinnedSites, site1Id);
         Assert.assertEquals(site1Id, unpinnedSite.getSiteId());
         Assert.assertEquals(PinnedSite.UNPINNED_POSITION, unpinnedSite.getPosition());
         Assert.assertTrue(unpinnedSite.getHasBeenUnpinned());
@@ -386,6 +386,41 @@ public class PortalServiceTests extends SakaiTests {
         List<RecentSite> recentSites = recentSiteRepository.findByUserId(user1);
         Assert.assertEquals(1, recentSites.size());
         Assert.assertEquals(site1Id, recentSites.get(0).getSiteId());
+    }
+
+    @Test
+    public void testReorderPinnedSitesNormalizesPayloadLikeSavePinnedSites() {
+        String specialSiteId = "!special";
+        String userSiteId = "~" + user1;
+        when(siteService.isSpecialSite(specialSiteId)).thenReturn(true);
+        when(siteService.isUserSite(userSiteId)).thenReturn(true);
+
+        portalService.savePinnedSites(user1, List.of(site1Id, "site2", "site3"));
+
+        when(serverConfigurationService.getInt("portal.max.pinned.sites", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES))
+                .thenReturn(2);
+
+        portalService.reorderPinnedSites(user1, List.of(site1Id, "site2", "site2", specialSiteId, userSiteId, "site3"));
+
+        List<String> pinnedSites = portalService.getPinnedSites(user1);
+        Assert.assertEquals(2, pinnedSites.size());
+        Assert.assertEquals("site2", pinnedSites.get(0));
+        Assert.assertEquals("site3", pinnedSites.get(1));
+
+        List<String> unpinnedSites = portalService.getUnpinnedSites(user1);
+        Assert.assertEquals(1, unpinnedSites.size());
+        Assert.assertEquals(site1Id, unpinnedSites.get(0));
+    }
+
+    private PinnedSite getPinnedSite(List<PinnedSite> pinnedSites, String siteId) {
+        for (PinnedSite pinnedSite : pinnedSites) {
+            if (siteId.equals(pinnedSite.getSiteId())) {
+                return pinnedSite;
+            }
+        }
+
+        Assert.fail("Missing pinned site " + siteId);
+        return null;
     }
 
     @Test

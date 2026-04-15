@@ -17,16 +17,25 @@ package org.sakaiproject.test;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.sakaiproject.scheduling.api.SchedulingService;
+import org.springframework.beans.factory.DisposableBean;
 
 /**
- * Test SchedulingService that executes one-shot work immediately and suppresses recurring work.
+ * Test SchedulingService that executes one-shot work immediately and uses a private scheduler for recurring work.
  */
-public class ImmediateSchedulingService implements SchedulingService {
+public class ImmediateSchedulingService implements SchedulingService, DisposableBean {
+
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "immediate-scheduling-service");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
@@ -36,12 +45,17 @@ public class ImmediateSchedulingService implements SchedulingService {
 
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        return new CompletedScheduledFuture();
+        return executor.scheduleAtFixedRate(command, initialDelay, delay, unit);
     }
 
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        return new CompletedScheduledFuture();
+        return executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+    }
+
+    @Override
+    public void destroy() {
+        executor.shutdownNow();
     }
 
     private static final class CompletedScheduledFuture implements ScheduledFuture<Object> {
