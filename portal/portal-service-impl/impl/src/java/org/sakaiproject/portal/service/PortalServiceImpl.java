@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -151,6 +152,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	private static final int PORTAL_NAV_FLUSH_DELAY_MS = 60 * 1000;
 	private static final int PORTAL_NAV_FLUSH_RETRY_DELAY_MS = 60 * 1000;
 	private static final int PORTAL_NAV_CONTEXT_IDLE_MS = 15 * 60 * 1000;
+	private static final int PORTAL_NAV_DESTROY_DRAIN_TIMEOUT_MS = 5 * 1000;
 
 	public void init() {
 		destroyed = false;
@@ -190,8 +192,39 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			portalNavContextEvictionTask.cancel(false);
 			portalNavContextEvictionTask = null;
 		}
-		portalNavContexts.values().forEach(context -> flushPortalNavContext(context, true));
+		List<UserPortalNavContext> contextsToDrain = new ArrayList<>(portalNavContexts.values());
+		contextsToDrain.forEach(this::drainPortalNavContextOnDestroy);
 		portalNavContexts.clear();
+	}
+
+	private void drainPortalNavContextOnDestroy(UserPortalNavContext context) {
+		cancelScheduledPortalNavFlush(context);
+		long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(PORTAL_NAV_DESTROY_DRAIN_TIMEOUT_MS);
+		while (true) {
+			if (!waitForPortalNavFlush(context, deadlineNanos)) {
+				log.warn("Timed out waiting for in-flight portal navigation flush during shutdown for user [{}]", context.userId);
+				return;
+			}
+			if (!hasPendingPortalNavFlush(context)) {
+				return;
+			}
+			if (System.nanoTime() >= deadlineNanos) {
+				log.warn("Timed out draining portal navigation state during shutdown for user [{}]", context.userId);
+				return;
+			}
+			flushPortalNavContext(context, true);
+		}
+	}
+
+	private boolean waitForPortalNavFlush(UserPortalNavContext context, long deadlineNanos) {
+		while (context.flushInProgress.get()) {
+			long remainingNanos = deadlineNanos - System.nanoTime();
+			if (remainingNanos <= 0) {
+				return false;
+			}
+			LockSupport.parkNanos(Math.min(TimeUnit.MILLISECONDS.toNanos(1), remainingNanos));
+		}
+		return true;
 	}
 
 	@Override
@@ -1080,7 +1113,6 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		context.flushInProgress.set(false);
 
 		if (destroyed) {
-			portalNavContexts.remove(context.userId, context);
 			return;
 		}
 
