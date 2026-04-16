@@ -1070,7 +1070,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 					clearRemoveFavoriteSiteDataAfterFlush(context);
 				} else {
 					nextDelay = PORTAL_NAV_FLUSH_RETRY_DELAY_MS;
-					incrementPortalNavContextVersion(context, true);
+					markPortalNavFlushRetryNeeded(context, true);
 				}
 			}
 		} else {
@@ -1149,7 +1149,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				.forEach(recentSite -> recentSiteRepository.deleteByUserIdAndSiteId(userId, recentSite.getSiteId()));
 	}
 
-	private void addRecentSite(String userId, String siteId, MutablePortalNavState portalNavState) {
+	private void addRecentSite(String userId, String siteId, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 
 		if (StringUtils.isAnyBlank(userId, siteId)
 				|| siteService.isUserSite(siteId)
@@ -1165,7 +1165,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			return;
 		}
 
-		portalNavState.recentSitesBySiteId.put(siteId, new RecentNavSite(Instant.now()));
+		portalNavState.recentSitesBySiteId.put(siteId, new RecentNavSite(recentSiteTimestamp));
 		portalNavState.recentSiteIds.add(0, siteId);
 		while (portalNavState.recentSiteIds.size() > maxRecentSites) {
 			String removedSiteId = portalNavState.recentSiteIds.remove(portalNavState.recentSiteIds.size() - 1);
@@ -1190,7 +1190,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		portalNavState.pinnedSiteIds.addAll(pinnedSiteIds);
 	}
 
-	private void markSitesUnpinned(String userId, List<String> desiredPinnedSiteIds, MutablePortalNavState portalNavState) {
+	private void markSitesUnpinned(String userId, List<String> desiredPinnedSiteIds, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 
 		List<String> sitesToUnpin = new ArrayList<>(portalNavState.pinnedSiteIds);
 		sitesToUnpin.removeIf(desiredPinnedSiteIds::contains);
@@ -1200,17 +1200,17 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			if (!portalNavState.unpinnedSiteIds.contains(siteId)) {
 				portalNavState.unpinnedSiteIds.add(siteId);
 			}
-			addRecentSite(userId, siteId, portalNavState);
+			addRecentSite(userId, siteId, recentSiteTimestamp, portalNavState);
 		}
 	}
 
-	private void addPinnedSite(String userId, String siteId, boolean isPinned, MutablePortalNavState portalNavState) {
+	private void addPinnedSite(String userId, String siteId, boolean isPinned, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 		List<String> pinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
 
 		if (isPinned) {
 			pinnedSiteIds.remove(siteId);
 			pinnedSiteIds.add(siteId);
-			savePinnedSites(userId, pinnedSiteIds, portalNavState);
+			savePinnedSites(userId, pinnedSiteIds, recentSiteTimestamp, portalNavState);
 			return;
 		}
 
@@ -1221,7 +1221,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			portalNavState.unpinnedSiteIds.add(siteId);
 		}
 		persistPinnedSiteOrder(userId, pinnedSiteIds, portalNavState);
-		addRecentSite(userId, siteId, portalNavState);
+		addRecentSite(userId, siteId, recentSiteTimestamp, portalNavState);
 	}
 
 	private void addPinnedSite(String userId, String siteId, boolean isPinned, boolean createContextIfAbsent) {
@@ -1229,10 +1229,12 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			return;
 		}
 
-		mutatePortalNavState(userId, createContextIfAbsent, portalNavState -> addPinnedSite(userId, siteId, isPinned, portalNavState));
+		Instant recentSiteTimestamp = Instant.now();
+		mutatePortalNavState(userId, createContextIfAbsent,
+				portalNavState -> addPinnedSite(userId, siteId, isPinned, recentSiteTimestamp, portalNavState));
 	}
 
-	private void unpinSites(String userId, Collection<String> siteIds, MutablePortalNavState portalNavState) {
+	private void unpinSites(String userId, Collection<String> siteIds, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 
 		List<String> pinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
 		List<String> newlyUnpinnedSiteIds = new ArrayList<>();
@@ -1256,10 +1258,10 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		}
 
 		persistPinnedSiteOrder(userId, pinnedSiteIds, portalNavState);
-		newlyUnpinnedSiteIds.forEach(siteId -> addRecentSite(userId, siteId, portalNavState));
+		newlyUnpinnedSiteIds.forEach(siteId -> addRecentSite(userId, siteId, recentSiteTimestamp, portalNavState));
 	}
 
-	private void savePinnedSites(String userId, List<String> siteIds, MutablePortalNavState portalNavState) {
+	private void savePinnedSites(String userId, List<String> siteIds, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 		List<String> desiredPinnedSiteIds = normalizePinnedSiteIds(siteIds);
 
 		List<String> currentPinnedSiteIds = new ArrayList<>(portalNavState.pinnedSiteIds);
@@ -1271,13 +1273,13 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				.filter(Predicate.not(finalPinnedSiteIds::contains))
 				.forEach(finalPinnedSiteIds::add);
 
-		markSitesUnpinned(userId, desiredPinnedSiteIds, portalNavState);
+		markSitesUnpinned(userId, desiredPinnedSiteIds, recentSiteTimestamp, portalNavState);
 		persistPinnedSiteOrder(userId, finalPinnedSiteIds, portalNavState);
 	}
 
-	private void savePinnedSitesForUser(String userId, List<String> siteIds, MutablePortalNavState portalNavState) {
+	private void savePinnedSitesForUser(String userId, List<String> siteIds, Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 		List<String> desiredPinnedSiteIds = normalizePinnedSiteIds(siteIds);
-		markSitesUnpinned(userId, desiredPinnedSiteIds, portalNavState);
+		markSitesUnpinned(userId, desiredPinnedSiteIds, recentSiteTimestamp, portalNavState);
 		persistPinnedSiteOrder(userId, desiredPinnedSiteIds, portalNavState);
 	}
 
@@ -1379,7 +1381,9 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	public void savePinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId) || siteIds == null) return;
 
-		mutatePortalNavState(userId, true, portalNavState -> savePinnedSites(userId, siteIds, portalNavState));
+		Instant recentSiteTimestamp = Instant.now();
+		mutatePortalNavState(userId, true,
+				portalNavState -> savePinnedSites(userId, siteIds, recentSiteTimestamp, portalNavState));
 	}
 
 	@Transactional
@@ -1387,6 +1391,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId) || siteIds == null) return;
 
+		Instant recentSiteTimestamp = Instant.now();
 		mutatePortalNavState(userId, true, portalNavState -> {
 			List<String> siteIdsToPersist = siteIds;
 			if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
@@ -1394,7 +1399,7 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 				Collections.reverse(reversedSiteIds);
 				siteIdsToPersist = reversedSiteIds;
 			}
-			savePinnedSitesForUser(userId, siteIdsToPersist, portalNavState);
+			savePinnedSitesForUser(userId, siteIdsToPersist, recentSiteTimestamp, portalNavState);
 		});
 	}
 
@@ -1448,7 +1453,9 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			return;
 		}
 
-		mutatePortalNavState(userId, true, portalNavState -> addRecentSite(userId, siteId, portalNavState));
+		Instant recentSiteTimestamp = Instant.now();
+		mutatePortalNavState(userId, true,
+				portalNavState -> addRecentSite(userId, siteId, recentSiteTimestamp, portalNavState));
 	}
 
 	@Transactional
@@ -1478,26 +1485,21 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		if (StringUtils.isBlank(userId) || securityService.isSuperUser(userId)) return;
 
 		UserPortalNavContext context = getOrCreatePortalNavContext(userId);
-		if (mutatePortalNavContextWithFlushFlag(context, portalNavState -> syncUserSitesWithPortalNavInternal(userId, portalNavState))) {
+		PortalNavSyncInputs syncInputs = readPortalNavSyncInputs(userId);
+		Instant recentSiteTimestamp = Instant.now();
+		if (mutatePortalNavContextWithFlushFlag(context,
+				portalNavState -> syncUserSitesWithPortalNavInternal(userId, syncInputs, recentSiteTimestamp, portalNavState))) {
 			schedulePortalNavFlush(context);
 		}
 	}
 
-	private boolean syncUserSitesWithPortalNavInternal(final String userId, MutablePortalNavState portalNavState) {
+	private boolean syncUserSitesWithPortalNavInternal(final String userId, PortalNavSyncInputs syncInputs,
+			Instant recentSiteTimestamp, MutablePortalNavState portalNavState) {
 
-		List<String> excludedSites = Collections.emptyList();
-		List<String> favoriteSiteIds = Collections.emptyList();
-		List<String> seenSiteIds = Collections.emptyList();
+		List<String> excludedSites = syncInputs.excludedSites();
+		List<String> favoriteSiteIds = syncInputs.favoriteSiteIds();
+		List<String> seenSiteIds = syncInputs.seenSiteIds();
 		boolean removeFavoriteSiteDataAfterFlush = false;
-
-		// get all site data from preferences
-		Preferences prefs = preferencesService.getPreferences(userId);
-		if (prefs != null) {
-			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-			excludedSites = Optional.ofNullable(props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY)).orElse(excludedSites);
-			favoriteSiteIds = Optional.ofNullable(props.getPropertyList(FAVORITES_PROPERTY)).orElse(favoriteSiteIds);
-			seenSiteIds = Optional.ofNullable(props.getPropertyList(SEEN_SITES_PROPERTY)).orElse(seenSiteIds);
-		}
 
 		List<String> pinnedSites = new ArrayList<>(portalNavState.pinnedSiteIds);
 		List<String> unPinnedSites =  new ArrayList<>(portalNavState.unpinnedSiteIds);
@@ -1527,12 +1529,10 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			removeFavoriteSiteDataAfterFlush = true;
 		}
 
-		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-				null, SiteService.SortType.NONE, null, userId);
+		List<String> userSiteIds = syncInputs.userSiteIds();
 		combinedSiteIds.addAll(userSiteIds);
 
-		Set<String> accessibleSiteIds = new HashSet<>(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
-				null, SiteService.SortType.NONE, null, userId));
+		Set<String> accessibleSiteIds = syncInputs.accessibleSiteIds();
 		for (String id : favoriteSiteIds) {
 			if (accessibleSiteIds.contains(id) && !sitesToUnpin.contains(id) && pinnedSiteIds.add(id)) {
 				pinnedList.add(id);
@@ -1547,10 +1547,10 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 			else sitesToRemove.add(id);
 		}
 
-		savePinnedSites(userId, pinnedList, portalNavState);
+		savePinnedSites(userId, pinnedList, recentSiteTimestamp, portalNavState);
 
 		sitesToUnpin.removeAll(portalNavState.unpinnedSiteIds);
-		unpinSites(userId, sitesToUnpin, portalNavState);
+		unpinSites(userId, sitesToUnpin, recentSiteTimestamp, portalNavState);
 
 		combinedSiteIds.stream()
 				.filter(siteService::isSpecialSite)
@@ -1558,6 +1558,32 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 
 		removeSitesFromPortalNavState(new ArrayList<>(sitesToRemove), portalNavState);
 		return removeFavoriteSiteDataAfterFlush;
+	}
+
+	private PortalNavSyncInputs readPortalNavSyncInputs(String userId) {
+		List<String> excludedSites = Collections.emptyList();
+		List<String> favoriteSiteIds = Collections.emptyList();
+		List<String> seenSiteIds = Collections.emptyList();
+
+		Preferences prefs = preferencesService.getPreferences(userId);
+		if (prefs != null) {
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+			excludedSites = Optional.ofNullable(props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY)).orElse(excludedSites);
+			favoriteSiteIds = Optional.ofNullable(props.getPropertyList(FAVORITES_PROPERTY)).orElse(favoriteSiteIds);
+			seenSiteIds = Optional.ofNullable(props.getPropertyList(SEEN_SITES_PROPERTY)).orElse(seenSiteIds);
+		}
+
+		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
+				null, SiteService.SortType.NONE, null, userId);
+		Set<String> accessibleSiteIds = new HashSet<>(siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
+				null, SiteService.SortType.NONE, null, userId));
+
+		return new PortalNavSyncInputs(
+				Collections.unmodifiableList(new ArrayList<>(excludedSites)),
+				Collections.unmodifiableList(new ArrayList<>(favoriteSiteIds)),
+				Collections.unmodifiableList(new ArrayList<>(seenSiteIds)),
+				Collections.unmodifiableList(new ArrayList<>(userSiteIds)),
+				Collections.unmodifiableSet(accessibleSiteIds));
 	}
 
 	private void touchPortalNavContext(UserPortalNavContext context) {
@@ -1587,7 +1613,8 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 		}
 	}
 
-	private void incrementPortalNavContextVersion(UserPortalNavContext context, boolean removeFavoriteSiteDataAfterFlush) {
+	// Force a subsequent flush cycle even when the in-memory nav snapshot is unchanged.
+	private void markPortalNavFlushRetryNeeded(UserPortalNavContext context, boolean removeFavoriteSiteDataAfterFlush) {
 		while (true) {
 			PortalNavContextState current = context.portalNavContextState.get();
 			PortalNavContextState updated = new PortalNavContextState(
@@ -1698,6 +1725,9 @@ public class PortalServiceImpl implements PortalService, Observer, DisposableBea
 	private record PinnedNavSite(int position, boolean hasBeenUnpinned) {}
 
 	private record RecentNavSite(Instant created) {}
+
+	private record PortalNavSyncInputs(List<String> excludedSites, List<String> favoriteSiteIds, List<String> seenSiteIds,
+			List<String> userSiteIds, Set<String> accessibleSiteIds) {}
 
 	private static final class PortalNavContextState {
 
