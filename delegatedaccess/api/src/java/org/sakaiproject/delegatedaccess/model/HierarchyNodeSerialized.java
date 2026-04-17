@@ -42,14 +42,13 @@ public class HierarchyNodeSerialized implements Serializable {
 
 	public HierarchyNodeSerialized(HierarchyNode hierarchyNode){
 		if(hierarchyNode != null){
-			this.title = hierarchyNode.title;
-			this.description = hierarchyNode.description;
-			this.id = hierarchyNode.id;
-			this.directChildNodeIds = hierarchyNode.directChildNodeIds;
-			this.childNodeIds = hierarchyNode.childNodeIds;
-			this.permKey = hierarchyNode.permToken;
-			this.directParentNodeIds = hierarchyNode.directParentNodeIds;
-			this.parentNodeIds = hierarchyNode.parentNodeIds;
+			this.title = hierarchyNode.getTitle() != null ? hierarchyNode.getTitle() : "";
+			this.description = hierarchyNode.getDescription() != null ? hierarchyNode.getDescription() : "";
+			this.id = hierarchyNode.getId().toString();
+			this.directChildNodeIds = new HashSet<String>(hierarchyNode.getDirectChildNodeIds());
+			this.directParentNodeIds = new HashSet<String>(hierarchyNode.getDirectParentNodeIds());
+			this.permKey = hierarchyNode.getPermToken() != null ? hierarchyNode.getPermToken() : "";
+			// childNodeIds and parentNodeIds (transitive closure) are no longer pre-computed on the entity
 		}
 	}
 }

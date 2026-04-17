@@ -303,6 +303,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.SCODataManager.dataModels"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode"/>
+                </bean>
             </list>
         </constructor-arg>
     </bean>

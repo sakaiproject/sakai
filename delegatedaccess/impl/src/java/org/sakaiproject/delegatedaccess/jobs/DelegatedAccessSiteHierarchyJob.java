@@ -99,10 +99,10 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				// create the hierarchy if it is not there already
 				rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.HIERARCHY_ID);
 				String rootTitle = sakaiProxy.getRootName();
-				hierarchyService.saveNodeMetaData(rootNode.id, rootTitle, rootTitle, null);
+				hierarchyService.saveNodeMetaData(rootNode.getId().toString(), rootTitle, rootTitle, null);
 				log.info("Created the root node for the delegated access hierarchy: " + DelegatedAccessConstants.HIERARCHY_ID);
 			}else{
-				hierarchyJobLastRunDate = projectLogic.getHierarchyJobLastRunDate(rootNode.id);
+				hierarchyJobLastRunDate = projectLogic.getHierarchyJobLastRunDate(rootNode.getId().toString());
 			}
 
 			//get hierarchy structure:
@@ -162,7 +162,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 						}
 
 
-						if(!rootNode.id.equals(siteParentNode.id)){
+						if(!rootNode.getId().equals(siteParentNode.getId())){
 							//save the site under the parent hierarchy if any data was found
 							//Site
 							checkAndAddNode(siteParentNode, site.getReference(), site.getTitle(), props.getProperty(sakaiProxy.getTermField()));
@@ -211,7 +211,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				//to ensure that any modifications made while
 				//this job was running will be picked up by the
 				//next job run.
-				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.id);
+				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.getId().toString());
 			}
 
 			projectLogic.clearNodeCache();
@@ -236,7 +236,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			String childNodeId = "";
 			if(nodeIds != null && nodeIds.containsKey(title) && nodeIds.get(title).size() > 0){
 				for(String id : nodeIds.get(title)){
-					if(parentNode.directChildNodeIds.contains(id)){
+					if(parentNode.getDirectChildNodeIds().contains(id)){
 						hasChild = true;
 						childNodeId = id;
 					}else if(title.startsWith("/site/")){
@@ -248,18 +248,18 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}
 			if(!hasChild){
 				//if this parent/child relationship hasn't been created, create it
-				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentNode.id);
-				hierarchyService.saveNodeMetaData(newNode.id, title, description, term);
-				hierarchyService.addChildRelation(parentNode.id, newNode.id);
+				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentNode.getId().toString());
+				hierarchyService.saveNodeMetaData(newNode.getId().toString(), title, description, term);
+				hierarchyService.addChildRelation(parentNode.getId().toString(), newNode.getId().toString());
 				node = newNode;
-				//since we don't want to keep lookup up the parent id after every child is added,
-				//(b/c the data is stale), just add this id to the set
-				parentNode.directChildNodeIds.add(node.id);
+				//since we don't want to keep look up the parent id after every child is added,
+				//(b/c the data is stale), just add this node to the in-memory directChildren set
+				parentNode.getChildren().add(node);
 			}else{
 				//just grab the node
 				node = hierarchyService.getNodeById(childNodeId);
-				if(!node.description.equals(description) || !node.title.equals(title)){
-					node = hierarchyService.saveNodeMetaData(node.id, title, description, term);
+				if(!node.getDescription().equals(description) || !node.getTitle().equals(title)){
+					node = hierarchyService.saveNodeMetaData(node.getId().toString(), title, description, term);
 				}
 			}
 		}

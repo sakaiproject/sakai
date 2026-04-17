@@ -850,7 +850,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			HierarchyNode hierarchyRoot = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 			String hierarchyRootId = "-1";
 			if(hierarchyRoot != null){
-				hierarchyRootId = hierarchyRoot.id;
+				hierarchyRootId = hierarchyRoot.getId().toString();
 			}
 			for (Iterator iterator = l1.iterator(); iterator.hasNext();) {
 				List list = (List) iterator.next();
@@ -1639,21 +1639,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	public void removeNode(HierarchyNode node){
 		if(node != null){
-			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
-				//we can delete this, otherwise, delete the children first the children
-				for(String childId : node.childNodeIds){		
-					removeNode(hierarchyService.getNodeById(childId));
+			String nodeId = node.getId().toString();
+			Set<HierarchyNode> directChildren = hierarchyService.getChildNodes(nodeId, true);
+			if(directChildren != null && !directChildren.isEmpty()){
+				//delete the children first
+				for(HierarchyNode child : directChildren){
+					removeNode(child);
 				}
 			}
 			//all the children nodes have been deleted, now its safe to delete
-			hierarchyService.removeNode(node.id);
-			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{node.id}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
+			hierarchyService.removeNode(nodeId);
+			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{nodeId}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
 			for(String userId : userIds){
-				removeAllUserPermissions(node.id, userId);
+				removeAllUserPermissions(nodeId, userId);
 			}
 			//since the hierarchy service doesn't really delete the nodes,
 			//we need to distinguish between deleted nodes
-			hierarchyService.setNodeDisabled(node.id, true);
+			hierarchyService.setNodeDisabled(nodeId, true);
 		}
 	}
 	
@@ -1866,10 +1868,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				Set<String> subSetNodeIds = new HashSet<String>();
 				if(siteNodes != null){
 					for(HierarchyNode node : siteNodes.values()){
-						subSetNodeIds.add(node.id);
-						if(node.parentNodeIds != null){
-							for(String pId : node.parentNodeIds){
-								subSetNodeIds.add(pId);
+						String nId = node.getId().toString();
+						subSetNodeIds.add(nId);
+						Set<HierarchyNode> ancestors = hierarchyService.getParentNodes(nId, false);
+						if(ancestors != null){
+							for(HierarchyNode a : ancestors){
+								subSetNodeIds.add(a.getId().toString());
 							}
 						}
 					}
@@ -1948,8 +1952,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 								}else{
 									Set<String> parentIds = null;
 									if(siteNodes != null && siteNodes.containsKey(nodeId)){
-										//we've already spent the time looking this up in bulk
-										parentIds = siteNodes.get(nodeId).parentNodeIds;
+										//use service to compute ancestors for this node
+										parentIds = hierarchyService.getParentNodes(nodeId, false).stream().map(n -> n.getId().toString()).collect(java.util.stream.Collectors.toSet());
 									}else{
 										parentIds = getCachedNode(nodeId).parentNodeIds;
 									}
@@ -2453,7 +2457,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public String getAddDAMyworkspaceJobStatus(){
 		HierarchyNode root = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 		if(root != null){
-			Set<String> perms = hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{root.id});
+			Set<String> perms = hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{root.getId().toString()});
 			return getAddDAMyworkspaceJobStatus(perms);
 		}
 		return null;
@@ -2474,11 +2478,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(root != null){
 			String currentStatus = getAddDAMyworkspaceJobStatus();
 			if(currentStatus != null){
-				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + currentStatus, false);
+				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.getId().toString(), DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + currentStatus, false);
 			}
-			
+
 			//add new status:
-			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, 
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.getId().toString(),
 					DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + status, false);
 		}
 	}
@@ -2647,8 +2651,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			if(includeLowerPerms){
 				//we want to look at the lowest level and find all users who have access at that level or below
 				HierarchyNode searchNode = hierarchyService.getNodeById(nodeSelectOrder.get(nodeSelectOrder.size() - 1));
-				searchNodes.add(searchNode.id);
-				searchNodes.addAll(searchNode.childNodeIds);
+				String searchNodeId = searchNode.getId().toString();
+				searchNodes.add(searchNodeId);
+				searchNodes.addAll(hierarchyService.getChildNodes(searchNodeId, false).stream().map(n -> n.getId().toString()).collect(java.util.stream.Collectors.toSet()));
 			}
 			//we also want to audit as well, so include the hierarchy node ids above the last 
 			searchNodes.addAll(nodeSelectOrder);
@@ -2796,7 +2801,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN);
 		for(String nodeId : nodeIds){
 			for(HierarchyNode node : nodes){
-				if(nodeId.equals(node.id) || node.childNodeIds.contains(nodeId)){
+				String nId = node.getId().toString();
+				boolean isDescendant = hierarchyService.getChildNodes(nId, false).stream().anyMatch(n -> n.getId().toString().equals(nodeId));
+				if(nodeId.equals(nId) || isDescendant){
 					returnNodes.add(nodeId);
 					break;
 				}
