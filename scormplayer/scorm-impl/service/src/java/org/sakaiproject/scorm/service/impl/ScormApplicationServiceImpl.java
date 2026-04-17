@@ -1360,7 +1360,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					{
 						attempt.setSuspended(false);
 						attempt.setNotExited(false);
-						attemptDao.save(attempt);
+						attemptDao().save(attempt);
 					}
 				}
 
