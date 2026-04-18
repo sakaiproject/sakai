@@ -107,6 +107,10 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Lob
     private String externalData;
 
+    @Column(name = "LINEITEM_METADATA")
+    @Lob
+    private String lineItemMetadata;
+
     @Column(name = "RELEASED")
     private Boolean released = Boolean.FALSE;
 
