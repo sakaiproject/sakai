@@ -330,6 +330,7 @@ public class GradingServiceImpl implements GradingService {
         assignmentDefinition.setExternalAppName(internalAssignment.getExternalAppName());
         assignmentDefinition.setExternalId(internalAssignment.getExternalId());
         assignmentDefinition.setExternalData(internalAssignment.getExternalData());
+        assignmentDefinition.setLineItemMetadata(internalAssignment.getLineItemMetadata());
         assignmentDefinition.setReleased(internalAssignment.getReleased());
         assignmentDefinition.setId(internalAssignment.getId());
         assignmentDefinition.setExtraCredit(internalAssignment.getExtraCredit());
@@ -408,6 +409,7 @@ public class GradingServiceImpl implements GradingService {
             asn.setExternallyMaintained(assignmentDefinition.getExternallyMaintained());
             asn.setExternalId(assignmentDefinition.getExternalId());
             asn.setExternalAppName(assignmentDefinition.getExternalAppName());
+            asn.setLineItemMetadata(assignmentDefinition.getLineItemMetadata());
         }
 
         return asn;
@@ -701,8 +703,9 @@ public class GradingServiceImpl implements GradingService {
 			if (!copyOnlySettings) {
 				// create the assignment for the current category
 				try {
+					Assignment transferAssignment = buildTransferAssignmentDefinition(a);
 					Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), taskName, a.getPoints(),
-										 a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder(), null);
+										 a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder(), transferAssignment);
 					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
 				} catch (final ConflictingAssignmentNameException e) {
 					// assignment already exists. Could be from a merge.
@@ -756,7 +759,8 @@ public class GradingServiceImpl implements GradingService {
 					: a.getName();
 
 				try {
-					Long newId = createAssignment(gradebook.getId(), taskName, a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder(), null);
+					Assignment transferAssignment = buildTransferAssignmentDefinition(a);
+					Long newId = createAssignment(gradebook.getId(), taskName, a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder(), transferAssignment);
 					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
 				} catch (final ConflictingAssignmentNameException e) {
 					// assignment already exists. Could be from a merge.
@@ -801,6 +805,12 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return transversalMap;
+    }
+
+    private Assignment buildTransferAssignmentDefinition(final Assignment sourceAssignment) {
+        Assignment transferAssignment = new Assignment();
+        transferAssignment.setLineItemMetadata(sourceAssignment.getLineItemMetadata());
+        return transferAssignment;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -917,6 +927,10 @@ public class GradingServiceImpl implements GradingService {
         assignment.setExternallyMaintained(assignmentDefinition.getExternallyMaintained());
         assignment.setExternalId(assignmentDefinition.getExternalId());
         assignment.setExternalData(assignmentDefinition.getExternalData());
+        // Only overwrite when the definition carries a value; null means omitted so we keep persisted LTI line-item metadata.
+        if (assignmentDefinition.getLineItemMetadata() != null) {
+            assignment.setLineItemMetadata(assignmentDefinition.getLineItemMetadata());
+        }
 
         assignment.setLineItem(assignmentDefinition.getLineItem());
 

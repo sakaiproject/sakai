@@ -102,6 +102,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private String externalData;
 
     /**
+     * Metadata associated with an LTI line item, or null if none.
+     */
+    private String lineItemMetadata;
+
+    /**
      * true if the assignment has been released for view to students
      */
     @JsonProperty(value = "released")
