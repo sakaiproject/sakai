@@ -45,7 +45,7 @@
             activeScoId: null,
             pendingScoId: null,
             runtimeInstalled: false,
-            lastRuntimeValues: {},
+            perScoRuntimeValues: {},
         };
 
         root.dataset.initialized = 'true';
@@ -434,18 +434,22 @@
                 payload.scoId = scoId;
             }
 
-            if (method === 'SetValue' && args.length >= 2) {
+            if (method === 'SetValue' && args.length >= 2 && scoId) {
                 const elem = args[0];
                 if (elem === 'cmi.score.scaled' || elem === 'cmi.completion_status' || elem === 'cmi.success_status') {
-                    state.lastRuntimeValues[elem] = args[1];
+                    if (!state.perScoRuntimeValues[scoId]) {
+                        state.perScoRuntimeValues[scoId] = {};
+                    }
+                    state.perScoRuntimeValues[scoId][elem] = args[1];
                 }
             }
 
-            if (method === 'Terminate') {
-                const v = state.lastRuntimeValues;
+            if (method === 'Terminate' && scoId) {
+                const v = state.perScoRuntimeValues[scoId] || {};
                 if (v['cmi.score.scaled'] != null)      payload.hintScoreScaled      = v['cmi.score.scaled'];
                 if (v['cmi.completion_status'] != null)  payload.hintCompletionStatus = v['cmi.completion_status'];
                 if (v['cmi.success_status'] != null)     payload.hintSuccessStatus    = v['cmi.success_status'];
+                delete state.perScoRuntimeValues[scoId];
             }
 
             const request = createRuntimeRequest(payload);
