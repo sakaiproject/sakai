@@ -780,20 +780,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     },
     frozen: true,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
-    sorter: function(a, b) {
-      const a_percent = parseFloat(a[1]);
-      const b_percent = parseFloat(b[1]);
-      const aIsNaN = isNaN(a_percent);
-      const bIsNaN = isNaN(b_percent);
+    sorter: (a, b) => {
+      const parse = (val) => {
+        if (val == null || val === "") return -Infinity;
+        const n = GbGradeTable.localizedStringToNumber(String(val));
+        return isNaN(n) ? -Infinity : n;
+      };
 
-      // treat NaN as less than real numbers
-      if (a_percent > b_percent || (!aIsNaN && bIsNaN)) {
-          return 1;
-      }
-      if (a_percent < b_percent || (aIsNaN && !bIsNaN)) {
-          return -1;
-      }
-      return 0;
+      return parse(a[1]) - parse(b[1]);
     }
   });
 
@@ -1869,6 +1863,15 @@ GbGradeTable.getFilteredColumns = function() {
         formatterParams: { _data_: column },
         titleFormatter: GbGradeTable.headerFormatter(null, column),
         width: 180,
+        sorter: (a, b) => {
+          const parse = (val) => {
+            if (val == null || val === "") return -Infinity;
+            const n = GbGradeTable.localizedStringToNumber(String(val));
+            return isNaN(n) ? -Infinity : n;
+          };
+
+          return parse(a) - parse(b);
+        },
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
       }))
   );
