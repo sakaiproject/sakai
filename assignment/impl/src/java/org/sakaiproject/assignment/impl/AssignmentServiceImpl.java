@@ -4825,15 +4825,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     if (oModelAnswerItem != null) {
                         AssignmentModelAnswerItem nModelAnswerItem = assignmentSupplementItemService.newModelAnswer();
                         nModelAnswerItem.setAssignmentId(nAssignmentId);
-                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
                         nModelAnswerItem.setText(oModelAnswerItem.getText());
                         nModelAnswerItem.setShowTo(oModelAnswerItem.getShowTo());
-                        Set<AssignmentSupplementItemAttachment> oModelAnswerItemAttachments = oModelAnswerItem.getAttachmentSet();
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
                         Set<AssignmentSupplementItemAttachment> nModelAnswerItemAttachments = new HashSet<>();
-                        for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
+                        List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(oModelAnswerItem);
+                        for (String attachmentID : attachmentIDs) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachmentId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
+                            Reference oRef = entityManager.newReference(attachmentID);
+                            String cleanResourceId = oRef.getId(); 
+                            String nAttachmentId = transferAttachment(fromContext, toContext, cleanResourceId, null);
                             if (StringUtils.isNotEmpty(nAttachmentId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
                                 nAttachment.setAttachmentId(nAttachmentId);
