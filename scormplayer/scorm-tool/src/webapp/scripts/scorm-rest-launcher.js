@@ -45,6 +45,7 @@
             activeScoId: null,
             pendingScoId: null,
             runtimeInstalled: false,
+            perScoRuntimeValues: {},
         };
 
         root.dataset.initialized = 'true';
@@ -433,15 +434,22 @@
                 payload.scoId = scoId;
             }
 
-            if (method === 'Terminate') {
-                // Modern browsers block synchronous XHR during beforeunload, so
-                // finishTracking()'s SetValue calls never reach the server. Read
-                // the score from Xerte's in-memory JS state instead and embed it
-                // as hint fields so the server can write it before gradebook sync.
-                const hints = tryReadXerteScoreHints();
-                if (hints) {
-                    Object.assign(payload, hints);
+            if (method === 'SetValue' && args.length >= 2 && scoId) {
+                const elem = args[0];
+                if (elem === 'cmi.score.scaled' || elem === 'cmi.completion_status' || elem === 'cmi.success_status') {
+                    if (!state.perScoRuntimeValues[scoId]) {
+                        state.perScoRuntimeValues[scoId] = {};
+                    }
+                    state.perScoRuntimeValues[scoId][elem] = args[1];
                 }
+            }
+
+            if (method === 'Terminate' && scoId) {
+                const v = state.perScoRuntimeValues[scoId] || {};
+                if (v['cmi.score.scaled'] != null)      payload.hintScoreScaled      = v['cmi.score.scaled'];
+                if (v['cmi.completion_status'] != null)  payload.hintCompletionStatus = v['cmi.completion_status'];
+                if (v['cmi.success_status'] != null)     payload.hintSuccessStatus    = v['cmi.success_status'];
+                delete state.perScoRuntimeValues[scoId];
             }
 
             const request = createRuntimeRequest(payload);
@@ -489,48 +497,6 @@
             return typeof response.value === 'string' ? response.value : '';
         }
 
-        function tryReadXerteScoreHints() {
-            try {
-                if (!frame || !frame.contentWindow) { return null; }
-                const fw = frame.contentWindow;
-                if (!fw.state) { return null; }
-
-                // x_endPageTracking updates completedPages in-memory even when sync XHR
-                // is blocked — call it so the current page is counted in the score.
-                if (typeof fw.x_endPageTracking === 'function') {
-                    try {
-                        fw.x_endPageTracking(false, -1);
-                    } catch (e) {
-                        console.debug('[SCORM REST] x_endPageTracking failed (non-fatal)', e);
-                    }
-                }
-
-                const hints = {};
-                if (typeof fw.state.getScaledScore === 'function') {
-                    const score = fw.state.getScaledScore();
-                    if (score != null && Number.isFinite(Number(score))) {
-                        hints.hintScoreScaled = String(score);
-                    }
-                }
-                if (typeof fw.state.getCompletionStatus === 'function') {
-                    const status = fw.state.getCompletionStatus();
-                    if (status != null) {
-                        hints.hintCompletionStatus = String(status);
-                    }
-                }
-                if (typeof fw.state.getSuccessStatus === 'function') {
-                    const status = fw.state.getSuccessStatus();
-                    if (status != null) {
-                        hints.hintSuccessStatus = String(status);
-                    }
-                }
-                console.debug('[SCORM REST] Xerte score hints:', JSON.stringify(hints));
-                return Object.keys(hints).length ? hints : null;
-            } catch (e) {
-                console.debug('[SCORM REST] could not read Xerte score hints', e);
-                return null;
-            }
-        }
 
         function resolveRuntimeScoId(method) {
             if (method === 'Initialize') {
