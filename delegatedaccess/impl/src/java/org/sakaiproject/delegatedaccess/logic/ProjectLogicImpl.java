@@ -1653,9 +1653,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			for(String userId : userIds){
 				removeAllUserPermissions(nodeId, userId);
 			}
-			//since the hierarchy service doesn't really delete the nodes,
-			//we need to distinguish between deleted nodes
-			hierarchyService.setNodeDisabled(nodeId, true);
+
 		}
 	}
 	

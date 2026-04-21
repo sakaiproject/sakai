@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.hierarchy.model.HierarchyNodePermission;
@@ -28,18 +29,19 @@ public class HierarchyServiceImpl implements HierarchyService {
 
     public void init() {
         log.info("init");
-        nodeRepository.fixupDatabase();
     }
 
     public HierarchyNode createHierarchy(String hierarchyId) {
-        if (hierarchyId.isEmpty() || hierarchyId.length() > 250) {
-            throw new IllegalArgumentException("Invalid hierarchyId (" + hierarchyId
+        if (StringUtils.isBlank(hierarchyId) || hierarchyId.length() > 250) {
+            throw new IllegalArgumentException("Invalid hierarchyId ("
+                    + hierarchyId
                     + "): length must be 1 to 250 chars");
         }
 
         long count = nodeRepository.countByHierarchyId(hierarchyId);
         if (count > 0) {
-            throw new IllegalArgumentException("Invalid hierarchyId (" + hierarchyId
+            throw new IllegalArgumentException("Invalid hierarchyId ("
+                    + hierarchyId
                     + "): this id is already in use, you must use a unique id when creating a new hierarchy");
         }
 
@@ -264,7 +266,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Invalid childNodeId: " + childNodeId);
         }
 
-        if (!pNode.getDirectChildNodeIds().contains(childNodeId)) {
+        if (!pNode.getChildren().contains(addPNode)) {
             Set<String> descendantIds = nodeRepository.findAllDescendants(pNode.getId())
                     .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
             Set<String> ancestorIds = nodeRepository.findAllAncestors(pNode.getId())
@@ -306,7 +308,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Invalid childNodeId: " + childNodeId);
         }
 
-        if (pNode.getDirectChildNodeIds().contains(childNodeId)) {
+        if (pNode.getChildren().contains(removePNode)) {
             if (removePNode.getParents().size() <= 1) {
                 throw new IllegalArgumentException("Cannot remove "
                         + childNodeId

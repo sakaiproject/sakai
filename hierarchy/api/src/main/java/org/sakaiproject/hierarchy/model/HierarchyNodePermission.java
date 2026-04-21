@@ -36,6 +36,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Records that a specific user holds a named permission on a specific hierarchy node.
+ * The combination of {@link #userId}, {@link #nodeId}, and {@link #permission} is the natural key;
+ * the surrogate {@link #id} exists only for JPA identity.
+ *
+ * <p>Equality and hashing are based on {@link #userId}, {@link #nodeId}, and {@link #permission}.</p>
+ */
 @Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -65,6 +72,7 @@ public class HierarchyNodePermission implements PersistableEntity<Long>, Seriali
     @ToString.Include
     private String userId;
 
+    /** String FK to {@link HierarchyNode#getId()} — stored as a string despite the node id being a Long. */
     @Column(name = "NODEID", length = 255, nullable = false)
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -77,7 +85,7 @@ public class HierarchyNodePermission implements PersistableEntity<Long>, Seriali
 
     public HierarchyNodePermission(String userId, String nodeId, String permission) {
         if (StringUtils.isAnyBlank(userId, nodeId, permission)) {
-            throw new IllegalArgumentException("None of the inputs can be null or blank: type=" + userId + ":id=" + nodeId + ":eid=" + permission);
+            throw new IllegalArgumentException("None of the inputs can be null or blank: userId=" + userId + ":nodeId=" + nodeId + ":permission=" + permission);
         }
         this.userId = userId;
         this.nodeId = nodeId;

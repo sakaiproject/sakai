@@ -64,6 +64,16 @@ public class HierarchyServiceImplTest {
         return new String[]{root.getId().toString(), orphan.getId().toString(), child.getId().toString()};
     }
 
+    private Set<String> directChildIds(String nodeId) {
+        return hierarchyService.getChildNodes(nodeId, true).stream()
+                .map(n -> n.getId().toString()).collect(Collectors.toSet());
+    }
+
+    private Set<String> directParentIds(String nodeId) {
+        return hierarchyService.getParentNodes(nodeId, true).stream()
+                .map(n -> n.getId().toString()).collect(Collectors.toSet());
+    }
+
     @Test
     public void testValidTestData() {
         assertEquals(Long.valueOf(1), tdp.pNode1.getId());
@@ -76,10 +86,8 @@ public class HierarchyServiceImplTest {
         HierarchyNode node = hierarchyService.createHierarchy("hierarchyC");
         assertNotNull(node);
         assertEquals("hierarchyC", node.getHierarchyId());
-        assertNotNull(node.getDirectParentNodeIds());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertTrue(node.getDirectParentNodeIds().isEmpty());
-        assertTrue(node.getDirectChildNodeIds().isEmpty());
+        assertTrue(directParentIds(node.getId().toString()).isEmpty());
+        assertTrue(directChildIds(node.getId().toString()).isEmpty());
 
         try {
             hierarchyService.createHierarchy(TestDataPreload.HIERARCHYA);
@@ -300,25 +308,24 @@ public class HierarchyServiceImplTest {
         assertNotNull(node);
         String newNodeId = node.getId().toString();
         assertNotNull(newNodeId);
-        assertNotNull(node.getDirectParentNodeIds());
-        assertEquals(1, node.getDirectParentNodeIds().size());
-        assertTrue(node.getDirectParentNodeIds().contains(nodesA[1]));
+        Set<String> newNodeDirectParents = directParentIds(newNodeId);
+        assertEquals(1, newNodeDirectParents.size());
+        assertTrue(newNodeDirectParents.contains(nodesA[1]));
         Set<String> allParentIds = hierarchyService.getParentNodes(newNodeId, false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(allParentIds);
         assertEquals(2, allParentIds.size());
         assertTrue(allParentIds.contains(nodesA[1]));
         assertTrue(allParentIds.contains(nodesA[0]));
-        assertNotNull(node.getDirectChildNodeIds());
-        assertTrue(node.getDirectChildNodeIds().isEmpty());
+        assertTrue(directChildIds(newNodeId).isEmpty());
         assertTrue(hierarchyService.getChildNodes(newNodeId, false).isEmpty());
 
         node = hierarchyService.getNodeById(nodesA[1]);
         assertNotNull(node);
         assertEquals(nodesA[1], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(1, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(newNodeId));
+        Set<String> c1DirectChildIds = directChildIds(nodesA[1]);
+        assertEquals(1, c1DirectChildIds.size());
+        assertTrue(c1DirectChildIds.contains(newNodeId));
         Set<String> c1AllChildIds = hierarchyService.getChildNodes(nodesA[1], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(c1AllChildIds);
@@ -328,11 +335,11 @@ public class HierarchyServiceImplTest {
         node = hierarchyService.getNodeById(nodesA[0]);
         assertNotNull(node);
         assertEquals(nodesA[0], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(3, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[1]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[2]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[3]));
+        Set<String> rootDirectChildIds = directChildIds(nodesA[0]);
+        assertEquals(3, rootDirectChildIds.size());
+        assertTrue(rootDirectChildIds.contains(nodesA[1]));
+        assertTrue(rootDirectChildIds.contains(nodesA[2]));
+        assertTrue(rootDirectChildIds.contains(nodesA[3]));
         Set<String> rootAllChildIds = hierarchyService.getChildNodes(nodesA[0], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(rootAllChildIds);
@@ -353,9 +360,9 @@ public class HierarchyServiceImplTest {
         assertNotNull(node);
         newNodeId = node.getId().toString();
         assertNotNull(newNodeId);
-        assertNotNull(node.getDirectParentNodeIds());
-        assertEquals(1, node.getDirectParentNodeIds().size());
-        assertTrue(node.getDirectParentNodeIds().contains(nodesB[2]));
+        Set<String> newNodeBDirectParents = directParentIds(newNodeId);
+        assertEquals(1, newNodeBDirectParents.size());
+        assertTrue(newNodeBDirectParents.contains(nodesB[2]));
         Set<String> newNodeAllParents = hierarchyService.getParentNodes(newNodeId, false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(newNodeAllParents);
@@ -363,16 +370,15 @@ public class HierarchyServiceImplTest {
         assertTrue(newNodeAllParents.contains(nodesB[2]));
         assertTrue(newNodeAllParents.contains(nodesB[0]));
         assertTrue(newNodeAllParents.contains(nodesB[1]));
-        assertNotNull(node.getDirectChildNodeIds());
-        assertTrue(node.getDirectChildNodeIds().isEmpty());
+        assertTrue(directChildIds(newNodeId).isEmpty());
         assertTrue(hierarchyService.getChildNodes(newNodeId, false).isEmpty());
 
         node = hierarchyService.getNodeById(nodesB[2]);
         assertNotNull(node);
         assertEquals(nodesB[2], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(1, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(newNodeId));
+        Set<String> childBDirectChildIds = directChildIds(nodesB[2]);
+        assertEquals(1, childBDirectChildIds.size());
+        assertTrue(childBDirectChildIds.contains(newNodeId));
         Set<String> childAllChildIds = hierarchyService.getChildNodes(nodesB[2], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(childAllChildIds);
@@ -382,9 +388,9 @@ public class HierarchyServiceImplTest {
         node = hierarchyService.getNodeById(nodesB[0]);
         assertNotNull(node);
         assertEquals(nodesB[0], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(1, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesB[2]));
+        Set<String> rootBDirectChildIds = directChildIds(nodesB[0]);
+        assertEquals(1, rootBDirectChildIds.size());
+        assertTrue(rootBDirectChildIds.contains(nodesB[2]));
         Set<String> rootBAllChildIds = hierarchyService.getChildNodes(nodesB[0], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(rootBAllChildIds);
@@ -395,9 +401,9 @@ public class HierarchyServiceImplTest {
         node = hierarchyService.getNodeById(nodesB[1]);
         assertNotNull(node);
         assertEquals(nodesB[1], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(1, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesB[2]));
+        Set<String> orphanBDirectChildIds = directChildIds(nodesB[1]);
+        assertEquals(1, orphanBDirectChildIds.size());
+        assertTrue(orphanBDirectChildIds.contains(nodesB[2]));
         Set<String> orphanAllChildIds = hierarchyService.getChildNodes(nodesB[1], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(orphanAllChildIds);
@@ -409,26 +415,25 @@ public class HierarchyServiceImplTest {
         assertNotNull(node);
         newNodeId = node.getId().toString();
         assertNotNull(newNodeId);
-        assertNotNull(node.getDirectParentNodeIds());
-        assertEquals(1, node.getDirectParentNodeIds().size());
-        assertTrue(node.getDirectParentNodeIds().contains(nodesA[2]));
+        Set<String> newNodeA2DirectParents = directParentIds(newNodeId);
+        assertEquals(1, newNodeA2DirectParents.size());
+        assertTrue(newNodeA2DirectParents.contains(nodesA[2]));
         Set<String> newNodeParents2 = hierarchyService.getParentNodes(newNodeId, false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(newNodeParents2);
         assertEquals(2, newNodeParents2.size());
         assertTrue(newNodeParents2.contains(nodesA[2]));
         assertTrue(newNodeParents2.contains(nodesA[0]));
-        assertNotNull(node.getDirectChildNodeIds());
-        assertTrue(node.getDirectChildNodeIds().isEmpty());
+        assertTrue(directChildIds(newNodeId).isEmpty());
         assertTrue(hierarchyService.getChildNodes(newNodeId, false).isEmpty());
 
         node = hierarchyService.getNodeById(nodesA[2]);
         assertNotNull(node);
         assertEquals(nodesA[2], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(newNodeId));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[4]));
+        Set<String> c2DirectChildIds = directChildIds(nodesA[2]);
+        assertEquals(2, c2DirectChildIds.size());
+        assertTrue(c2DirectChildIds.contains(newNodeId));
+        assertTrue(c2DirectChildIds.contains(nodesA[4]));
         Set<String> c2AllChildIds = hierarchyService.getChildNodes(nodesA[2], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(c2AllChildIds);
@@ -461,19 +466,19 @@ public class HierarchyServiceImplTest {
 
         HierarchyNode node = hierarchyService.removeNode(nodesA[7]);
         assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[5]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[6]));
+        Set<String> c3AfterRemove = directChildIds(nodesA[3]);
+        assertEquals(2, c3AfterRemove.size());
+        assertTrue(c3AfterRemove.contains(nodesA[5]));
+        assertTrue(c3AfterRemove.contains(nodesA[6]));
 
         node = hierarchyService.getNodeById(nodesA[0]);
         assertNotNull(node);
         assertEquals(nodesA[0], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(3, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[1]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[2]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[3]));
+        Set<String> rootAfterFirstRemove = directChildIds(nodesA[0]);
+        assertEquals(3, rootAfterFirstRemove.size());
+        assertTrue(rootAfterFirstRemove.contains(nodesA[1]));
+        assertTrue(rootAfterFirstRemove.contains(nodesA[2]));
+        assertTrue(rootAfterFirstRemove.contains(nodesA[3]));
         Set<String> rootAllChildIds = hierarchyService.getChildNodes(nodesA[0], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(rootAllChildIds);
@@ -487,8 +492,8 @@ public class HierarchyServiceImplTest {
 
         node = hierarchyService.removeNode(nodesA[1]);
         assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
+        Set<String> rootAfterSecondRemove = directChildIds(nodesA[0]);
+        assertEquals(2, rootAfterSecondRemove.size());
         Set<String> rootAllChildIds2 = hierarchyService.getChildNodes(nodesA[0], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertTrue(rootAllChildIds2.contains(nodesA[2]));
@@ -497,10 +502,10 @@ public class HierarchyServiceImplTest {
         node = hierarchyService.getNodeById(nodesA[0]);
         assertNotNull(node);
         assertEquals(nodesA[0], node.getId().toString());
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[2]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[3]));
+        Set<String> rootDirectAfterBothRemoves = directChildIds(nodesA[0]);
+        assertEquals(2, rootDirectAfterBothRemoves.size());
+        assertTrue(rootDirectAfterBothRemoves.contains(nodesA[2]));
+        assertTrue(rootDirectAfterBothRemoves.contains(nodesA[3]));
         Set<String> rootAllChildIds3 = hierarchyService.getChildNodes(nodesA[0], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(rootAllChildIds3);
@@ -610,34 +615,31 @@ public class HierarchyServiceImplTest {
 
         HierarchyNode node = hierarchyService.addChildRelation(nodes[1], nodes[5]);
         assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(1, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[5]));
+        Set<String> c1After = directChildIds(nodes[1]);
+        assertEquals(1, c1After.size());
+        assertTrue(c1After.contains(nodes[5]));
         Set<String> c1AllChildIds = hierarchyService.getChildNodes(nodes[1], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(c1AllChildIds);
         assertEquals(1, c1AllChildIds.size());
         assertTrue(c1AllChildIds.contains(nodes[5]));
 
-        node = hierarchyService.addChildRelation(nodes[2], nodes[6]);
-        assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[4]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[6]));
+        hierarchyService.addChildRelation(nodes[2], nodes[6]);
+        Set<String> c2After1 = directChildIds(nodes[2]);
+        assertEquals(2, c2After1.size());
+        assertTrue(c2After1.contains(nodes[4]));
+        assertTrue(c2After1.contains(nodes[6]));
 
-        node = hierarchyService.addChildRelation(nodes[2], nodes[4]);
-        assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[4]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[6]));
+        hierarchyService.addChildRelation(nodes[2], nodes[4]);
+        Set<String> c2After2 = directChildIds(nodes[2]);
+        assertEquals(2, c2After2.size());
+        assertTrue(c2After2.contains(nodes[4]));
+        assertTrue(c2After2.contains(nodes[6]));
 
-        node = hierarchyService.addChildRelation(nodes[3], nodes[6]);
-        assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(3, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodes[5]));
+        hierarchyService.addChildRelation(nodes[3], nodes[6]);
+        Set<String> c3After = directChildIds(nodes[3]);
+        assertEquals(3, c3After.size());
+        assertTrue(c3After.contains(nodes[5]));
 
         try {
             hierarchyService.addChildRelation(nodes[6], nodes[6]);
@@ -708,8 +710,7 @@ public class HierarchyServiceImplTest {
 
         HierarchyNode node = hierarchyService.removeChildRelation(nodesB[1], nodesB[2]);
         assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(0, node.getDirectChildNodeIds().size());
+        assertTrue(directChildIds(nodesB[1]).isEmpty());
         Set<String> orphanAllChildIds = hierarchyService.getChildNodes(nodesB[1], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(orphanAllChildIds);
@@ -717,10 +718,10 @@ public class HierarchyServiceImplTest {
 
         node = hierarchyService.removeChildRelation(nodesA[3], nodesA[5]);
         assertNotNull(node);
-        assertNotNull(node.getDirectChildNodeIds());
-        assertEquals(2, node.getDirectChildNodeIds().size());
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[6]));
-        assertTrue(node.getDirectChildNodeIds().contains(nodesA[7]));
+        Set<String> c3AfterRemove = directChildIds(nodesA[3]);
+        assertEquals(2, c3AfterRemove.size());
+        assertTrue(c3AfterRemove.contains(nodesA[6]));
+        assertTrue(c3AfterRemove.contains(nodesA[7]));
         Set<String> c3AllChildIds = hierarchyService.getChildNodes(nodesA[3], false)
                 .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
         assertNotNull(c3AllChildIds);

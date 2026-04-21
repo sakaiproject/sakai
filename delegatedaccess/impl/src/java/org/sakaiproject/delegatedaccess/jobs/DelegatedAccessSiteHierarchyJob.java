@@ -234,9 +234,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
 			boolean hasChild = false;
 			String childNodeId = "";
-			if(nodeIds != null && nodeIds.containsKey(title) && nodeIds.get(title).size() > 0){
-				for(String id : nodeIds.get(title)){
-					if(parentNode.getDirectChildNodeIds().contains(id)){
+			if (nodeIds != null && nodeIds.containsKey(title) && !nodeIds.get(title).isEmpty()) {
+				for (String id : nodeIds.get(title)) {
+					if (hierarchyService.getChildNodes(parentNode.getId().toString(), true).stream().anyMatch(c -> c.getId().toString().equals(id))) {
 						hasChild = true;
 						childNodeId = id;
 					}else if(title.startsWith("/site/")){

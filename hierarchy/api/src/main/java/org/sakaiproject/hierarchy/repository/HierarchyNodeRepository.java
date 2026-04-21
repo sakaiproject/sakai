@@ -35,10 +35,6 @@ public interface HierarchyNodeRepository extends SpringCrudRepository<HierarchyN
 
     List<HierarchyNode> findByHierarchyIdAndPermToken(String hierarchyId, String permToken);
 
-    long countByIsDisabledIsNull();
-
-    void fixupDatabase();
-
     Set<HierarchyNode> findAllAncestors(Long nodeId);
 
     Set<HierarchyNode> findAllDescendants(Long nodeId);

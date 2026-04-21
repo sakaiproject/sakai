@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.hierarchy.impl.repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 
 import lombok.extern.slf4j.Slf4j;
@@ -152,91 +152,6 @@ public class HierarchyNodeRepositoryImpl
 
     @Override
     @Transactional(readOnly = true)
-    public long countByIsDisabledIsNull() {
-        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<HierarchyNode> root = query.from(HierarchyNode.class);
-
-        query.select(cb.count(root))
-                .where(root.get("isDisabled").isNull());
-
-        return sessionFactory.getCurrentSession()
-                .createQuery(query)
-                .uniqueResult();
-    }
-
-    @Override
-    public void fixupDatabase() {
-        long count = countByIsDisabledIsNull();
-        if (count > 0) {
-            CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-            CriteriaUpdate<HierarchyNode> update = cb.createCriteriaUpdate(HierarchyNode.class);
-            Root<HierarchyNode> root = update.from(HierarchyNode.class);
-            update.set(root.get("isDisabled"), Boolean.FALSE)
-                    .where(root.get("isDisabled").isNull());
-            int updated = sessionFactory.getCurrentSession().createQuery(update).executeUpdate();
-            log.info("Updated {} HierarchyNode.isDisabled fields from null to false", updated);
-        }
-        migrateEncodedParentIds();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void migrateEncodedParentIds() {
-        // Check whether old encoded-string column still exists using JDBC metadata (avoids SQL error logging)
-        boolean hasOldColumn = Boolean.TRUE.equals(sessionFactory.getCurrentSession().doReturningWork(conn -> {
-            try (java.sql.ResultSet rs = conn.getMetaData().getColumns(null, null, "HIERARCHY_NODE", "DIRECTPARENTIDS")) {
-                if (rs.next()) return true;
-            }
-            // Some databases store names in lowercase; try that too
-            try (java.sql.ResultSet rs = conn.getMetaData().getColumns(null, null, "hierarchy_node", "directparentids")) {
-                return rs.next();
-            }
-        }));
-
-        if (!hasOldColumn) return;
-
-        List<Object[]> rows = sessionFactory.getCurrentSession()
-                .createNativeQuery("SELECT ID, DIRECTPARENTIDS FROM HIERARCHY_NODE" +
-                                   " WHERE DIRECTPARENTIDS IS NOT NULL AND DIRECTPARENTIDS <> ''")
-                .getResultList();
-
-        int migrated = 0;
-        for (Object[] row : rows) {
-            Long nodeId = ((Number) row[0]).longValue();
-            String encoded = (String) row[1];
-            if (encoded == null || encoded.isEmpty()) continue;
-            for (String part : encoded.split(":")) {
-                if (part.isEmpty()) continue;
-                try {
-                    Long parentId = Long.parseLong(part);
-                    sessionFactory.getCurrentSession()
-                            .createNativeQuery("INSERT INTO HIERARCHY_NODE_PARENTS" +
-                                               " (NODE_ID, PARENT_NODE_ID) VALUES (:n, :p)")
-                            .setParameter("n", nodeId)
-                            .setParameter("p", parentId)
-                            .executeUpdate();
-                    migrated++;
-                } catch (Exception ex) {
-                    log.warn("Skipping parent '{}' for node {} during migration: {}", part, nodeId, ex.getMessage());
-                }
-            }
-        }
-        log.info("Migrated {} parent relationships from encoded strings to HIERARCHY_NODE_PARENTS", migrated);
-
-        // Drop obsolete columns
-        for (String col : new String[]{"DIRECTPARENTIDS", "PARENTIDS", "DIRECTCHILDIDS", "CHILDIDS"}) {
-            try {
-                sessionFactory.getCurrentSession()
-                        .createNativeQuery("ALTER TABLE HIERARCHY_NODE DROP COLUMN " + col)
-                        .executeUpdate();
-            } catch (Exception ex) {
-                log.debug("Could not drop column {} (may not exist): {}", col, ex.getMessage());
-            }
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public Set<HierarchyNode> findAllAncestors(Long nodeId) {
         List<Object> ids = sessionFactory.getCurrentSession()
@@ -268,10 +183,18 @@ public class HierarchyNodeRepositoryImpl
     @Override
     public void deleteRelationsByNodeIds(Collection<Long> nodeIds) {
         if (nodeIds == null || nodeIds.isEmpty()) return;
-        String inClause = nodeIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-        sessionFactory.getCurrentSession()
-                .createNativeQuery("DELETE FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (" + inClause +
-                                   ") OR PARENT_NODE_ID IN (" + inClause + ")")
-                .executeUpdate();
+        List<Long> ids = new ArrayList<>(nodeIds);
+        int chunkSize = HibernateCriterionUtils.MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
+        for (int i = 0; i < ids.size(); i += chunkSize) {
+            List<Long> chunk = ids.subList(i, Math.min(i + chunkSize, ids.size()));
+            sessionFactory.getCurrentSession()
+                    .createNativeQuery("DELETE FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:ids)")
+                    .setParameterList("ids", chunk)
+                    .executeUpdate();
+            sessionFactory.getCurrentSession()
+                    .createNativeQuery("DELETE FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:ids)")
+                    .setParameterList("ids", chunk)
+                    .executeUpdate();
+        }
     }
 }

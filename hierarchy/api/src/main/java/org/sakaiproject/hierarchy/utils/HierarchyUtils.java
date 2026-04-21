@@ -61,7 +61,7 @@ public class HierarchyUtils {
             s.add(hierarchyNode.getId().toString());
          }
          if (directOnly) {
-            s.addAll(hierarchyNode.getDirectChildNodeIds());
+            hierarchyNode.getChildren().forEach(n -> s.add(n.getId().toString()));
          } else {
             collectDescendantIds(hierarchyNode, s);
          }
@@ -79,7 +79,7 @@ public class HierarchyUtils {
             s.add(hierarchyNode.getId().toString());
          }
          if (directOnly) {
-            s.addAll(hierarchyNode.getDirectParentNodeIds());
+            hierarchyNode.getParents().forEach(n -> s.add(n.getId().toString()));
          } else {
             collectAncestorIds(hierarchyNode, s);
          }

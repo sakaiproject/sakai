@@ -17,7 +17,6 @@ package org.sakaiproject.hierarchy.model;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -41,12 +41,24 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * A single node in a named hierarchy. Nodes are linked via a self-referential many-to-many
+ * relationship: a node may have multiple direct parents and multiple direct children, allowing
+ * DAG-shaped hierarchies in addition to simple trees.
+ *
+ * <p>Equality and hashing are based solely on {@link #id}.</p>
+ *
+ * <p>The {@link #parents} and {@link #children} collections are lazily loaded and must only be
+ * accessed within an active transaction.</p>
+ */
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "HIERARCHY_NODE")
+@Table(name = "HIERARCHY_NODE", indexes = {
+    @Index(name = "IDX_HN_HIERARCHYID", columnList = "HIERARCHYID")
+})
 public class HierarchyNode implements PersistableEntity<Long> {
 
     @Id
@@ -72,31 +84,49 @@ public class HierarchyNode implements PersistableEntity<Long> {
     @Column(name = "DESCRIPTION")
     private String description;
 
+    /** Token used to group nodes that share a permission boundary. */
     @Column(name = "PERMTOKEN", length = 255)
     private String permToken;
 
     @Column(name = "ISDISABLED", nullable = false)
     private Boolean isDisabled = false;
 
+    /**
+     * The set of parent nodes in the hierarchy that this node is a child of.
+     * This represents the owning side of the many-to-many relationship between child and parent nodes.
+     * A node can have multiple parents, allowing for complex hierarchical structures beyond simple trees.
+     * The collection is lazily loaded and uses non-strict read-write caching for performance optimization.
+     * The relationship is persisted in the HIERARCHY_NODE_PARENTS join table. This field is excluded from
+     * toString() to prevent circular references.
+     *
+     * <p>Since these are fetched lazily, they should only be iterated on while the entity is not detached.</p>
+     * 
+     * @see #children
+     */
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "HIERARCHY_NODE_PARENTS",
         joinColumns = @JoinColumn(name = "NODE_ID"),
-        inverseJoinColumns = @JoinColumn(name = "PARENT_NODE_ID"))
+        inverseJoinColumns = @JoinColumn(name = "PARENT_NODE_ID"),
+        indexes = @Index(name = "IDX_HNP_PARENT_NODE_ID", columnList = "PARENT_NODE_ID"))
     @ToString.Exclude
     private Set<HierarchyNode> parents = new HashSet<>();
 
+    /**
+     * The set of child nodes in the hierarchy that have this node as their parent.
+     * This represents the inverse side of the many-to-many relationship between parent and child nodes,
+     * mapped by the parents collection. The collection is lazily loaded and uses non-strict read-write
+     * caching for performance optimization. This field is excluded from toString() to prevent circular
+     * references.
+     *
+     * <p>Since these are fetched lazily, they should only be iterated on while the entity is not detached.</p>
+     *
+     * @see #parents
+     */
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(mappedBy = "parents", fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<HierarchyNode> children = new HashSet<>();
 
-    public Set<String> getDirectParentNodeIds() {
-        return parents.stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
-    }
-
-    public Set<String> getDirectChildNodeIds() {
-        return children.stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
-    }
 }
