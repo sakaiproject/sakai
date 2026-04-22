@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.microsoft.provider;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -34,7 +35,8 @@ import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.microsoft.aad.msal4j.ITenantProfile;
 import com.microsoft.aad.msal4j.RefreshTokenParameters;
 import com.microsoft.aad.msal4j.SilentParameters;
-import com.microsoft.graph.authentication.IAuthenticationProvider;
+import com.microsoft.kiota.authentication.AccessTokenProvider;
+import com.microsoft.kiota.authentication.AllowedHostsValidator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DelegatedAuthProvider implements IAuthenticationProvider {
+public class DelegatedAuthProvider implements AccessTokenProvider {
 
 	private MicrosoftAuthorizationService authorizationService;
 	private String sakaiUserId;
@@ -99,17 +101,15 @@ public class DelegatedAuthProvider implements IAuthenticationProvider {
 	}
 	
 	@Override
-	public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
-		CompletableFuture<String> token = new CompletableFuture<>();
+	public String getAuthorizationToken(URI requestUri, Map<String, Object> additionalAuthenticationContext) {
 		try {
 			IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
 			
-			token.complete(result.accessToken());
+			return result.accessToken();
 		} catch (Exception e) {
 			log.error("Exception retrieving token from Microsoft Graph Auth Provider");
 			throw new IllegalArgumentException("Exception retrieving token from Microsoft Graph Auth Provider");
 		}
-		return token;
 	}
 
 	/**
@@ -168,5 +168,10 @@ public class DelegatedAuthProvider implements IAuthenticationProvider {
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public AllowedHostsValidator getAllowedHostsValidator() {
+		return new AllowedHostsValidator("graph.microsoft.com");
 	}
 }

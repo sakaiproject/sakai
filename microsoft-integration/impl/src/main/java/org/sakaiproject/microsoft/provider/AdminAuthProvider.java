@@ -15,20 +15,23 @@
  */
 package org.sakaiproject.microsoft.provider;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
-import com.microsoft.graph.authentication.IAuthenticationProvider;
+import com.microsoft.kiota.authentication.AccessTokenProvider;
+import com.microsoft.kiota.authentication.AllowedHostsValidator;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AdminAuthProvider implements IAuthenticationProvider {
+public class AdminAuthProvider implements AccessTokenProvider {
 
 	private String authority;
 	private String clientId;
@@ -36,26 +39,27 @@ public class AdminAuthProvider implements IAuthenticationProvider {
 	private String scope;
 	private ConfidentialClientApplication app;
 
+	private final AllowedHostsValidator allowedHostsValidator;
+
 	
 	public AdminAuthProvider(String authority, String clientId, String secret, String scope) {
 		this.authority = authority;
 		this.clientId = clientId;
 		this.secret = secret;
 		this.scope = scope;
+		this.allowedHostsValidator = new AllowedHostsValidator("graph.microsoft.com");
 	}
 	
 	@Override
-	public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
-		CompletableFuture<String> token = new CompletableFuture<>();
+	public String getAuthorizationToken(URI requestUri, Map<String, Object> additionalAuthenticationContext) {
 		try {
 			buildConfidentialClientObject();
 			IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
-			token.complete(result.accessToken());
+			return result.accessToken();
 		} catch (Exception e) {
 			log.error("Exception retrieving token from Microsoft Graph Auth Provider");
 			throw new IllegalArgumentException("Exception retrieving token from Microsoft Graph Auth Provider");
 		}
-		return token;
 	}
 	
 	/**
@@ -85,5 +89,9 @@ public class AdminAuthProvider implements IAuthenticationProvider {
 		CompletableFuture<IAuthenticationResult> future = app.acquireToken(clientCredentialParam);
 		return future.get();
 	}
-	
+
+	@Override
+	public AllowedHostsValidator getAllowedHostsValidator() {
+		return allowedHostsValidator;
+	}
 }

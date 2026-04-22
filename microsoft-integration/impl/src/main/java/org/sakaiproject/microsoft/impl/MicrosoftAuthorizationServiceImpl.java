@@ -45,7 +45,9 @@ import com.microsoft.aad.msal4j.AuthorizationCodeParameters;
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
-import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.kiota.ApiException;
+import com.microsoft.kiota.authentication.BaseBearerTokenAuthenticationProvider;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -105,10 +107,7 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 						.microsoftAccessToken(accessToken)
 						.build();
 				
-				client = GraphServiceClient
-						.builder()
-						.authenticationProvider(authProvider)
-						.buildClient();
+				client = new GraphServiceClient(new BaseBearerTokenAuthenticationProvider(authProvider));
 			} else {
 				throw new MicrosoftNoCredentialsException();
 			}
@@ -128,7 +127,14 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 		try {
 			log.debug("Validating Delegated Client....");
 			//validate credentials (we don't care about the result)
-			client.me().buildRequest().get();
+			client.me().get();
+		} catch(ApiException e) {
+			if (e.getResponseStatusCode() == 401) {
+				log.info("ERROR invalid token for user: {}", userId);
+				throw new MicrosoftInvalidTokenException();
+			}
+			log.warn("Unexpected Graph error validating client/token for user: {}", userId);
+			throw new MicrosoftInvalidCredentialsException();
 		} catch(IllegalArgumentException e) {
 			log.info("ERROR invalid token for user: {}", userId);
 			throw new MicrosoftInvalidTokenException();
