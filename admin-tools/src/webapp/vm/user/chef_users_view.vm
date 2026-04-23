@@ -55,7 +55,7 @@
                             <tr>
                                 <td><label>$tlang.getString("useedi.cre")</label></td>
                                 <td>$userTimeService.dateTimeFormat($user.CreatedDate, $tlang.Locale, 2)</td>
-                            </div>
+                            </tr>
                             <tr>
                                 <td><label>$tlang.getString("useedi.modby")</label></td>
                                 <td>$formattedText.escapeHtml($user.ModifiedBy.DisplayName)</td>
