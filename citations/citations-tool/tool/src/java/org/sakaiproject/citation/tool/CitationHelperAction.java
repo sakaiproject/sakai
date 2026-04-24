@@ -3443,6 +3443,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					irs = BOMInputStream.builder().setInputStream(risImportStream).get();
 				} catch (IOException e) {
 					log.warn("Unable to construct BOMInputStream for RIS import", e);
+					try { risImportStream.close(); } catch (IOException ignored) { /* best-effort */ }
 					return;
 				}
 		
