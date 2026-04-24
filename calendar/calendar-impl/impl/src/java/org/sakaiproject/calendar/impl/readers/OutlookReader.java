@@ -40,13 +40,11 @@ import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.ResourceLoader;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * This class parses a comma (or other separator other than a double-quote) delimited
  * file.
  */
-@Slf4j
+
 public class OutlookReader extends CSVReader
 {
 	private static final ResourceLoader rb = new ResourceLoader("calendar");
