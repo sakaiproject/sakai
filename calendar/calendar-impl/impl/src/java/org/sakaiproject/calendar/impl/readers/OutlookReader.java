@@ -40,10 +40,13 @@ import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.ResourceLoader;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This class parses a comma (or other separator other than a double-quote) delimited
  * file.
  */
+@Slf4j
 public class OutlookReader extends CSVReader
 {
 	private static final ResourceLoader rb = new ResourceLoader("calendar");
@@ -157,14 +160,22 @@ public class OutlookReader extends CSVReader
 	 */
 	protected BufferedReader getReader(InputStream stream) {
 		//Detect and exclude all BOM
-		BOMInputStream bomIn = new BOMInputStream(stream, false, ByteOrderMark.UTF_8,
-				ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE,
-				ByteOrderMark.UTF_32BE);
+		BOMInputStream bomIn;
+		try {
+			bomIn = new BOMInputStream(stream, false, ByteOrderMark.UTF_8,
+					ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE,
+					ByteOrderMark.UTF_32BE);
+		
 
 		InputStreamReader inputStream = new InputStreamReader(bomIn);
 		BufferedReader bufferedReader = new BufferedReader(inputStream);
 
 		return bufferedReader;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/* (non-Javadoc)
