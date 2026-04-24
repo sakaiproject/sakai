@@ -88,7 +88,12 @@ public class CSVReader extends Reader
 		InputStream stream,
 		ReaderImportRowHandler handler) throws ImportException
 	{
-		BufferedReader bufferedReader = getReader(stream);
+		BufferedReader bufferedReader; 
+		try {
+			bufferedReader = getReader(stream);
+		} catch (IOException e) {
+			throw new ImportException(e);
+		}
 
 		ColumnHeader columnDescriptionArray[] = null;
 
