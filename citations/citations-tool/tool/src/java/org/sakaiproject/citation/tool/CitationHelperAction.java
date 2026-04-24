@@ -3438,7 +3438,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	      InputStream risImportStream = risImport.getInputStream();
 
 			// Attempt to detect the encoding of the file.
-			BOMInputStream irs = new BOMInputStream(risImportStream);
+			BOMInputStream irs;
+			try {
+				irs = new BOMInputStream(risImportStream);
+			} catch (IOException e) {
+				log.warn(e.getMessage(), e);
+				return;
+			}
 		
 			// below is needed if UTF-8 above is commented out
 			Reader isr = null;
