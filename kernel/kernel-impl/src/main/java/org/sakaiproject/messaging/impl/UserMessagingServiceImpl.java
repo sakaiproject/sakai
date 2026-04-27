@@ -384,15 +384,21 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 final boolean finalDeferred = deferred;
 
                 String[] pathParts = ref.split("/");
-                String from = e.getUserId();
+                String eventFrom = e.getUserId();
                 try {
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
                         handler.handleEvent(e).ifPresent(notifications ->
                             notifications.forEach(und -> {
 
+                                // Try to use the handler specified from user rather than the event
+                                // supplied one. This may be important in the case of events fired
+                                // by cron jobs where the job is running under the admin user.
+                                String handlerFrom = und.getFrom();
+                                if (StringUtils.isBlank(handlerFrom)) handlerFrom = eventFrom;
+
                                 UserNotificationTransferBean bean
-                                    = UserNotificationTransferBean.of(doInsert(from,
+                                    = UserNotificationTransferBean.of(doInsert(handlerFrom,
                                         und,
                                         event,
                                         ref,

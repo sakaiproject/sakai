@@ -129,7 +129,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
             return pvtMessage.getRecipients()
                 .stream()
                 .filter(r -> !StringUtils.equals(r.getUserId(), from))
-                .map(r -> new UserNotificationData(from, r.getUserId(), siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null))
+                .map(r -> new UserNotificationData(pvtMessage.getAuthorId(), r.getUserId(), siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null))
                 .collect(Collectors.toList());
         } catch (IdUnusedException idEx) {
             log.error("No site for id {}", siteId, idEx);
