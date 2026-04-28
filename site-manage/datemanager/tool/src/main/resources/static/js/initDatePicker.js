@@ -308,13 +308,13 @@ DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModi
 
   if (!hasValue) {
     DTMN.showBulkError();
-    DTMN.disableBulkButtons();
+    DTMN.validateBulkInputs();
     return;
   }
 
   if (DTMN.hasDateOnlyBulkConflict(collapseElements)) {
     DTMN.showBulkError("dateonly");
-    DTMN.disableBulkButtons();
+    DTMN.validateBulkInputs();
     return;
   }
 
