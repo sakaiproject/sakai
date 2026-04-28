@@ -125,14 +125,28 @@ DTMN.getBulkHiddenId = function(field)
   return "bulk-hidden-" + field.replaceAll("_", "-");
 };
 
+DTMN.getUserTimeZone = function()
+{
+  return sakai.locale.userTimeZone;
+};
+
 DTMN.getDatePickerInputValue = function(date, useTime)
 {
-  return useTime ? date.format("YYYY-MM-DDTHH:mm") : date.format("YYYY-MM-DD");
+  const userTimeZone = DTMN.getUserTimeZone();
+  const userDate = moment.tz && userTimeZone ? date.clone().tz(userTimeZone) : date;
+  return useTime ? userDate.format("YYYY-MM-DDTHH:mm") : userDate.format("YYYY-MM-DD");
 };
 
 DTMN.parseDatePickerInputValue = function(value, useTime)
 {
-  return moment(value, useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm"] : "YYYY-MM-DD");
+  const formats = useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm"] : "YYYY-MM-DD";
+  const userTimeZone = DTMN.getUserTimeZone();
+  return moment.tz && userTimeZone ? moment.tz(value, formats, userTimeZone) : moment(value, formats);
+};
+
+DTMN.hasTime = function(date)
+{
+  return date.hours() !== 0 || date.minutes() !== 0 || date.seconds() !== 0;
 };
 
 DTMN.setDatePickerValue = function(datepicker, date, useTime)
@@ -298,6 +312,12 @@ DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModi
     return;
   }
 
+  if (DTMN.hasDateOnlyBulkConflict(collapseElements)) {
+    DTMN.showBulkError("dateonly");
+    DTMN.disableBulkButtons();
+    return;
+  }
+
   DTMN.hideBulkError();
   DTMN.disableBulkControls(button);
   window.setTimeout(function()
@@ -363,6 +383,25 @@ DTMN.validateBulkInputs = function()
   DTMN.bulkVisibleBtn.disabled = !hasValue || DTMN.findExpandedSections().length === 0;
 };
 
+DTMN.hasDateOnlyBulkConflict = function(collapseElements)
+{
+  const bulkInput = document.getElementById(DTMN.getBulkInputId("due_date"));
+  const bulkHidden = document.getElementById(DTMN.getBulkHiddenId("due_date"));
+
+  if (!bulkInput || !bulkHidden || bulkHidden.value === "") {
+    return false;
+  }
+
+  const bulkDate = DTMN.parseDatePickerInputValue(bulkInput.value, true);
+  if (!bulkDate.isValid() || !DTMN.hasTime(bulkDate)) {
+    return false;
+  }
+
+  return collapseElements.some(function(collapseElement) {
+    return collapseElement.querySelector('input[type=hidden][data-tool="gradebookItems"][data-field="due_date"]') !== null;
+  });
+};
+
 DTMN.hideShiftError = function()
 {
   DTMN.shiftErrorBanner.classList.add("d-none");
@@ -381,8 +420,12 @@ DTMN.hideBulkError = function()
   DTMN.bulkErrorBanner.removeAttribute("role");
 };
 
-DTMN.showBulkError = function()
+DTMN.showBulkError = function(errorType)
 {
+  errorType = errorType || "empty";
+  DTMN.bulkErrorBanner.querySelectorAll("[data-error]").forEach(function(error) {
+    error.classList.toggle("d-none", error.dataset.error !== errorType);
+  });
   DTMN.bulkErrorBanner.classList.remove("d-none");
   DTMN.bulkErrorBanner.setAttribute("role", "alert");
 };
