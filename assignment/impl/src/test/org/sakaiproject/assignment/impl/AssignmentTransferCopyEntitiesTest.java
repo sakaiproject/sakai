@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -102,7 +103,8 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         when(resourceLoader.getFormattedMessage(eq("opedat"), any(), any())).thenReturn("Open Date Body");
         when(formattedText.convertPlaintextToFormattedText(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
         when(entityManager.newReferenceList()).thenReturn(Collections.emptyList());
-        when(serverConfigurationService.getBoolean("import.importAsDraft", true)).thenReturn(true);
+        when(serverConfigurationService.getBoolean(eq("import.importAsDraft"), anyBoolean())).thenReturn(true);
+        when(serverConfigurationService.getBoolean(eq("assignment.import.importAsDraft"), anyBoolean())).thenReturn(true);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
         when(securityService.unlockUsers(anyString(), anyString())).thenReturn(Collections.emptyList());
 

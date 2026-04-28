@@ -4595,7 +4595,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         nAssignment.setDraft(true);
                     } else if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
                         nAssignment.setDraft(false);
-                    } else if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
+                    } else if (importAsDraft()) {
                         nAssignment.setDraft(true);
                     } else {
                         nAssignment.setDraft(oAssignment.getDraft());
@@ -4948,6 +4948,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         return transversalMap;
+    }
+
+    private boolean importAsDraft() {
+        boolean importAsDraft = serverConfigurationService.getBoolean("import.importAsDraft", true);
+        return serverConfigurationService.getBoolean(getLabel() + ".import.importAsDraft", importAsDraft);
     }
 
     private void addImportedDueDateCalendarEvent(Assignment sourceAssignment, Assignment importedAssignment,

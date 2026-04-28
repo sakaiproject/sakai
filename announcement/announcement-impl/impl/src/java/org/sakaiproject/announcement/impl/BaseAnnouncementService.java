@@ -1593,13 +1593,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						nMessageHeader.setDate(oMessageHeader.getDate());
 						nMessageHeader.setMessage_order(oMessageHeader.getMessage_order());
 						// when importing, refer to property to determine draft status
-						if (!serverConfigurationService.getBoolean("import.importAsDraft", true))
-						{
-							nMessageHeader.setDraft(oMessageHeader.getDraft());
-						}
-						else
-						{
+						if (importAsDraft()) {
 							nMessageHeader.setDraft(true);
+						} else {
+							nMessageHeader.setDraft(oMessageHeader.getDraft());
 						}
 
 						nMessageHeader.setFrom(oMessageHeader.getFrom());
@@ -1807,7 +1804,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 	@Override
 	public boolean importAsDraft() {
-		return true; // Always import as a draft
+		boolean importAsDraft = super.importAsDraft();
+		return serverConfigurationService.getBoolean(getLabel() + ".import.importAsDraft", importAsDraft);
 	}
 
 	@Override
