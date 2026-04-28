@@ -3446,7 +3446,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					try {
 					    risImportStream.close();
 					} catch (IOException risIoe) {
-					    log.warn("Attempted to close RIS import, {}", risIoe.toString())
+					    log.warn("Attempted to close RIS import, {}", risIoe.toString());
 					}
 					return;
 				}
