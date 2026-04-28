@@ -130,10 +130,26 @@ DTMN.getUserTimeZone = function()
   return sakai.locale.userTimeZone;
 };
 
+DTMN.warnDatePickerTimeZoneFallback = function(functionName, value, useTime)
+{
+  const warningFlag = "_" + functionName + "TimeZoneFallbackWarned";
+  if (DTMN[warningFlag]) {
+    return;
+  }
+
+  DTMN[warningFlag] = true;
+  console.warn(functionName + " falling back to browser timezone because moment-timezone or sakai.locale.userTimeZone is unavailable.", {value, useTime});
+};
+
 DTMN.getDatePickerInputValue = function(date, useTime)
 {
   const userTimeZone = DTMN.getUserTimeZone();
-  const userDate = moment.tz && userTimeZone ? date.clone().tz(userTimeZone) : date;
+  let userDate = date;
+  if (moment.tz && userTimeZone) {
+    userDate = date.clone().tz(userTimeZone);
+  } else {
+    DTMN.warnDatePickerTimeZoneFallback("getDatePickerInputValue", date && date.format ? date.format() : date, useTime);
+  }
   return useTime ? userDate.format("YYYY-MM-DDTHH:mm") : userDate.format("YYYY-MM-DD");
 };
 
@@ -141,7 +157,12 @@ DTMN.parseDatePickerInputValue = function(value, useTime)
 {
   const formats = useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm"] : "YYYY-MM-DD";
   const userTimeZone = DTMN.getUserTimeZone();
-  return moment.tz && userTimeZone ? moment.tz(value, formats, userTimeZone) : moment(value, formats);
+  if (moment.tz && userTimeZone) {
+    return moment.tz(value, formats, userTimeZone);
+  }
+
+  DTMN.warnDatePickerTimeZoneFallback("parseDatePickerInputValue", value, useTime);
+  return moment(value, formats);
 };
 
 DTMN.hasTime = function(date)
