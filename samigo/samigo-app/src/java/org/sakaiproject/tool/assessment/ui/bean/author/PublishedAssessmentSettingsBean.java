@@ -1946,7 +1946,9 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       }
       accessControl.setRetractDate(this.retractDate);
       this.extendedTime.syncDates(accessControl);
-      if (new ExtendedTimeValidator().validateEntry(entry, context, this)) {
+      List<ExtendedTime> extendedTimesTempList = new ArrayList<ExtendedTime>(extendedTimes);
+      extendedTimesTempList.add(entry);
+      if (new ExtendedTimeValidator().validateEntries(extendedTimesTempList, context, this)) {
           this.extendedTimes.add(this.extendedTime);
           resetExtendedTime();
       }
