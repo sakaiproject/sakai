@@ -79,6 +79,9 @@ public class MicrosoftCredentials {
 	}
 
 	public String getTenantId() {
+		if (StringUtils.isBlank(authority)) {
+			return null;
+		}
 		String trimmed = StringUtils.stripEnd(authority, "/");
 		return trimmed.substring(trimmed.lastIndexOf('/') + 1);
 	}
