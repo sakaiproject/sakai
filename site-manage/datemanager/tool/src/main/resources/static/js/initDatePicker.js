@@ -397,7 +397,7 @@ DTMN.validateBulkInputs = function()
   });
 
   if (DTMN.activeBulkError === "dateonly") {
-    if (!DTMN.hasDateOnlyBulkConflict(DTMN.collapseElements)) {
+    if (!DTMN.hasDateOnlyBulkConflict(DTMN.findExpandedSections())) {
       DTMN.hideBulkError();
     }
   } else if (hasValue) {
