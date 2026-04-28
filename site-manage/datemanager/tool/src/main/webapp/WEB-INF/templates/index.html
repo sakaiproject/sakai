@@ -32,7 +32,7 @@
         </div>
         <label>
           <span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
-          <input id="dateShifterDays" type="text"></input>
+          <input id="dateShifterDays" type="text" />
           <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
         </label>
       </p>
@@ -49,39 +49,39 @@
       <p th:text="#{datesetter.instructions}">Enter one or more dates below, then apply them to all items or expanded sections only. Remember to click Save Changes at the bottom of the page to save your adjustments.</p>
       <div class="row g-3">
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_open_date" th:text="#{column.open.date}">Open Date</label>
-          <input id="bulk_open_date" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_open_date" type="hidden" data-field="open_date" />
+          <label class="form-label" for="bulk-open-date" th:text="#{column.open.date}">Open Date</label>
+          <input id="bulk-open-date" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-open-date" type="hidden" data-field="open_date" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_due_date" th:text="#{column.due.date}">Due Date</label>
-          <input id="bulk_due_date" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_due_date" type="hidden" data-field="due_date" />
+          <label class="form-label" for="bulk-due-date" th:text="#{column.due.date}">Due Date</label>
+          <input id="bulk-due-date" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-due-date" type="hidden" data-field="due_date" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_accept_until" th:text="#{column.accept.until}">Accept Until Date</label>
-          <input id="bulk_accept_until" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_accept_until" type="hidden" data-field="accept_until" />
+          <label class="form-label" for="bulk-accept-until" th:text="#{column.accept.until}">Accept Until Date</label>
+          <input id="bulk-accept-until" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-accept-until" type="hidden" data-field="accept_until" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_feedback_start" th:text="#{column.feedback.start.date}">Show Feedback On</label>
-          <input id="bulk_feedback_start" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_feedback_start" type="hidden" data-field="feedback_start" />
+          <label class="form-label" for="bulk-feedback-start" th:text="#{column.feedback.start.date}">Show Feedback On</label>
+          <input id="bulk-feedback-start" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-feedback-start" type="hidden" data-field="feedback_start" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_feedback_end" th:text="#{column.feedback.end.date}">Show Feedback Until</label>
-          <input id="bulk_feedback_end" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_feedback_end" type="hidden" data-field="feedback_end" />
+          <label class="form-label" for="bulk-feedback-end" th:text="#{column.feedback.end.date}">Show Feedback Until</label>
+          <input id="bulk-feedback-end" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-feedback-end" type="hidden" data-field="feedback_end" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_signup_begins" th:text="#{column.signup.begins.date}">Sign-up Begin Date</label>
-          <input id="bulk_signup_begins" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_signup_begins" type="hidden" data-field="signup_begins" />
+          <label class="form-label" for="bulk-signup-begins" th:text="#{column.signup.begins.date}">Sign-up Begin Date</label>
+          <input id="bulk-signup-begins" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-signup-begins" type="hidden" data-field="signup_begins" />
         </div>
         <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk_signup_deadline" th:text="#{column.signup.deadline.date}">Sign-up End Date</label>
-          <input id="bulk_signup_deadline" type="text" class="form-control bulk-date-input"></input>
-          <input id="bulk_hidden_signup_deadline" type="hidden" data-field="signup_deadline" />
+          <label class="form-label" for="bulk-signup-deadline" th:text="#{column.signup.deadline.date}">Sign-up End Date</label>
+          <input id="bulk-signup-deadline" type="text" class="form-control bulk-date-input" />
+          <input id="bulk-hidden-signup-deadline" type="hidden" data-field="signup_deadline" />
         </div>
       </div>
       <button class="btn btn-link m-2" id="applyAllDates" th:text="#{datesetter.all.button}" disabled></button>

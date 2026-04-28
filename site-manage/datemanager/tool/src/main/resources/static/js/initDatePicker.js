@@ -94,8 +94,8 @@ DTMN.initBulkSetter = function(updates, notModified) {
 
 DTMN.initBulkDatePickers = function() {
   DTMN.bulkFields.forEach(function(field) {
-    const input = document.getElementById("bulk_" + field);
-    const hidden = document.getElementById("bulk_hidden_" + field);
+    const input = document.getElementById(DTMN.getBulkInputId(field));
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
 
     if (!input || !hidden) {
       return;
@@ -113,6 +113,33 @@ DTMN.initBulkDatePickers = function() {
       }
     });
   });
+};
+
+DTMN.getBulkInputId = function(field)
+{
+  return "bulk-" + field.replaceAll("_", "-");
+};
+
+DTMN.getBulkHiddenId = function(field)
+{
+  return "bulk-hidden-" + field.replaceAll("_", "-");
+};
+
+DTMN.getDatePickerInputValue = function(date, useTime)
+{
+  return useTime ? date.format("YYYY-MM-DDTHH:mm") : date.format("YYYY-MM-DD");
+};
+
+DTMN.parseDatePickerInputValue = function(value, useTime)
+{
+  return moment(value, useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm"] : "YYYY-MM-DD");
+};
+
+DTMN.setDatePickerValue = function(datepicker, date, useTime)
+{
+  datepicker.value = DTMN.getDatePickerInputValue(date, useTime);
+  datepicker.dispatchEvent(new Event("change", {bubbles: true}));
+  datepicker.classList.add("border-warning");
 };
 
 DTMN.attachDatePicker = function (selector, updates, notModified) {
@@ -261,7 +288,7 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
 DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModified)
 {
   const hasValue = DTMN.bulkFields.some(function(field) {
-    const hidden = document.getElementById("bulk_hidden_" + field);
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
     return hidden && hidden.value !== "";
   });
 
@@ -324,7 +351,7 @@ DTMN.validateBulkInputs = function()
   }
 
   const hasValue = DTMN.bulkFields.some(function(field) {
-    const hidden = document.getElementById("bulk_hidden_" + field);
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
     return hidden && hidden.value !== "";
   });
 
@@ -433,7 +460,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
 
     // Find the associated hidden field using modern DOM traversal
     const td = datepicker.closest('td');
-    const hiddenField = td.querySelector('input[type=hidden]');
+    const hiddenField = td ? td.querySelector('input[type=hidden]') : null;
 
     if (!hiddenField) {
       console.warn('No hidden field found for datepicker', datepicker);
@@ -443,12 +470,11 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
     const dataTool = hiddenField.dataset.tool;
 
     // Determine the correct date format based on the tool type
-    const dateFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm:ss';
-    const displayFormat = (dataTool === 'gradebookItems') ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm:ss";
+    const useTime = dataTool !== 'gradebookItems';
 
     try {
       // Parse the date string and add days
-      const currentDate = moment(dateValue, dateFormat);
+      const currentDate = DTMN.parseDatePickerInputValue(dateValue, useTime);
 
       if (!currentDate.isValid()) {
         console.warn('Invalid date format:', dateValue);
@@ -457,17 +483,8 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
 
       const newDate = currentDate.clone().add(days, 'days');
 
-      // Update the hidden field with the formatted date
-      hiddenField.value = newDate.format(dateFormat);
-
-      // Trigger change event on the hidden field
-      hiddenField.dispatchEvent(new Event('change', {bubbles: true}));
-
-      // Update the visible input field
-      datepicker.value = newDate.format(displayFormat);
-
-      // Add visual indication that the field has been changed
-      datepicker.classList.add('border-warning');
+      // Let SakaiDateTimePicker synchronize its hidden input via its change listener.
+      DTMN.setDatePickerValue(datepicker, newDate, useTime);
 
     } catch (error) {
       console.error('Error processing date:', dateValue, error);
@@ -487,13 +504,14 @@ DTMN.applyBulkDates = function (updates, notModified, rootElementId, button, ena
   DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
 
   DTMN.bulkFields.forEach(function(field) {
-    const bulkHidden = document.getElementById("bulk_hidden_" + field);
+    const bulkInput = document.getElementById(DTMN.getBulkInputId(field));
+    const bulkHidden = document.getElementById(DTMN.getBulkHiddenId(field));
 
-    if (!bulkHidden || bulkHidden.value === "") {
+    if (!bulkInput || !bulkHidden || bulkHidden.value === "") {
       return;
     }
 
-    const bulkDate = moment(bulkHidden.value, 'YYYY-MM-DDTHH:mm:ss');
+    const bulkDate = DTMN.parseDatePickerInputValue(bulkInput.value, true);
 
     if (!bulkDate.isValid()) {
       return;
@@ -509,13 +527,9 @@ DTMN.applyBulkDates = function (updates, notModified, rootElementId, button, ena
       }
 
       const dataTool = hiddenField.dataset.tool;
-      const dateFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm:ss';
-      const displayFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss';
+      const useTime = dataTool !== 'gradebookItems';
 
-      datepicker.value = bulkDate.format(displayFormat);
-      hiddenField.value = bulkDate.format(dateFormat);
-      hiddenField.dispatchEvent(new Event('change', {bubbles: true}));
-      datepicker.classList.add('border-warning');
+      DTMN.setDatePickerValue(datepicker, bulkDate, useTime);
     });
   });
 
