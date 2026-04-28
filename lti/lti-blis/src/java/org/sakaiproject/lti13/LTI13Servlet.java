@@ -1416,6 +1416,7 @@ public class LTI13Servlet extends HttpServlet {
 			Map<String, String> defaultRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
 				SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
 			);
+			log.debug("toolRoleMap={}; propRoleMap={}; defaultRoleMap={}", toolRoleMap, propRoleMap, defaultRoleMap);
 
 			Map<String, String> propLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
 				ServerConfigurationService.getString(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP)
@@ -1486,7 +1487,12 @@ public class LTI13Servlet extends HttpServlet {
 
 				JSONArray roles = new JSONArray();
 				if ( StringUtils.isNotBlank(outboundRole) ) {
-					roles.add(outboundRole);
+					for (String roleValue : StringUtils.split(outboundRole, ",")) {
+					    String trimmed = StringUtils.trim(roleValue);
+					    if (StringUtils.isNotBlank(trimmed)) {
+						roles.add(trimmed);
+					    }
+					}
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
@@ -1542,6 +1548,9 @@ public class LTI13Servlet extends HttpServlet {
 						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
 						out.println(" \"context\" : ");
+						if (log.isDebugEnabled()) {
+						    log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
+						}
 						out.print(JacksonUtil.prettyPrint(context_obj));
 						out.println(",");
 						out.println(" \"members\": [");
@@ -1549,6 +1558,9 @@ public class LTI13Servlet extends HttpServlet {
 						out.println(",");
 				}
 
+				if (log.isDebugEnabled()) {
+				    log.debug("jo={}", JacksonUtil.prettyPrint(jo));
+				}
 				out.print(JacksonUtil.prettyPrint(jo));
 				current++;
 
