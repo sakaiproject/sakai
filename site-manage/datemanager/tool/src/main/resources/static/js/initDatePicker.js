@@ -314,7 +314,6 @@ DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModi
 
   if (DTMN.hasDateOnlyBulkConflict(collapseElements)) {
     DTMN.showBulkError("dateonly");
-    DTMN.validateBulkInputs();
     return;
   }
 
