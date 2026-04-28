@@ -82,11 +82,11 @@ DTMN.initBulkSetter = function(updates, notModified) {
   DTMN.initBulkDatePickers();
 
   DTMN.bulkAllBtn.addEventListener("click", function() {
-    DTMN.handleBulkButtonClick(this, DTMN.collapseElements, updates, notModified);
+    DTMN.handleBulkButtonClick(this, DTMN.collapseElements, "all", updates, notModified);
   }, false);
 
   DTMN.bulkVisibleBtn.addEventListener("click", function() {
-    DTMN.handleBulkButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
+    DTMN.handleBulkButtonClick(this, DTMN.findExpandedSections(), "visible", updates, notModified);
   }, false);
 
   DTMN.validateBulkInputs();
@@ -127,7 +127,11 @@ DTMN.getBulkHiddenId = function(field)
 
 DTMN.getUserTimeZone = function()
 {
-  return sakai.locale.userTimeZone;
+  const userTimeZone = globalThis.sakai?.locale?.userTimeZone;
+  if (!userTimeZone && DTMN.warnDatePickerTimeZoneFallback) {
+    DTMN.warnDatePickerTimeZoneFallback("getUserTimeZone");
+  }
+  return userTimeZone || null;
 };
 
 DTMN.warnDatePickerTimeZoneFallback = function(functionName, value, useTime)
@@ -320,7 +324,7 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
   }, 25);
 };
 
-DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModified)
+DTMN.handleBulkButtonClick = function(button, collapseElements, bulkErrorSource, updates, notModified)
 {
   const hasValue = DTMN.bulkFields.some(function(field) {
     const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
@@ -334,7 +338,7 @@ DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModi
   }
 
   if (DTMN.hasDateOnlyBulkConflict(collapseElements)) {
-    DTMN.showBulkError("dateonly");
+    DTMN.showBulkError("dateonly", bulkErrorSource);
     DTMN.enableBulkButtons();
     return;
   }
@@ -397,7 +401,10 @@ DTMN.validateBulkInputs = function()
   });
 
   if (DTMN.activeBulkError === "dateonly") {
-    if (!DTMN.hasDateOnlyBulkConflict(DTMN.findExpandedSections())) {
+    const validationElements = DTMN.activeBulkErrorSource === "all"
+      ? DTMN.collapseElements
+      : DTMN.findExpandedSections();
+    if (!DTMN.hasDateOnlyBulkConflict(validationElements)) {
       DTMN.hideBulkError();
     }
   } else if (hasValue) {
@@ -442,14 +449,16 @@ DTMN.showShiftError = function()
 DTMN.hideBulkError = function()
 {
   DTMN.activeBulkError = null;
+  DTMN.activeBulkErrorSource = null;
   DTMN.bulkErrorBanner.classList.add("d-none");
   DTMN.bulkErrorBanner.removeAttribute("role");
 };
 
-DTMN.showBulkError = function(errorType)
+DTMN.showBulkError = function(errorType, errorSource)
 {
   errorType = errorType || "empty";
   DTMN.activeBulkError = errorType;
+  DTMN.activeBulkErrorSource = errorSource || null;
   DTMN.bulkErrorBanner.querySelectorAll("[data-error]").forEach(function(error) {
     error.classList.toggle("d-none", error.dataset.error !== errorType);
   });
