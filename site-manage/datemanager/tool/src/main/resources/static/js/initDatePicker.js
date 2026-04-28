@@ -335,6 +335,7 @@ DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModi
 
   if (DTMN.hasDateOnlyBulkConflict(collapseElements)) {
     DTMN.showBulkError("dateonly");
+    DTMN.enableBulkButtons();
     return;
   }
 
@@ -476,6 +477,12 @@ DTMN.disableBulkButtons = function()
 {
   DTMN.bulkAllBtn.disabled = true;
   DTMN.bulkVisibleBtn.disabled = true;
+};
+
+DTMN.enableBulkButtons = function()
+{
+  DTMN.bulkAllBtn.disabled = false;
+  DTMN.bulkVisibleBtn.disabled = DTMN.findExpandedSections().length === 0;
 };
 
 DTMN.enableShiftControls = function(button)
