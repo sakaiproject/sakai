@@ -396,7 +396,11 @@ DTMN.validateBulkInputs = function()
     return hidden && hidden.value !== "";
   });
 
-  if (hasValue) {
+  if (DTMN.activeBulkError === "dateonly") {
+    if (!DTMN.hasDateOnlyBulkConflict(DTMN.collapseElements)) {
+      DTMN.hideBulkError();
+    }
+  } else if (hasValue) {
     DTMN.hideBulkError();
   }
 
@@ -437,6 +441,7 @@ DTMN.showShiftError = function()
 
 DTMN.hideBulkError = function()
 {
+  DTMN.activeBulkError = null;
   DTMN.bulkErrorBanner.classList.add("d-none");
   DTMN.bulkErrorBanner.removeAttribute("role");
 };
@@ -444,6 +449,7 @@ DTMN.hideBulkError = function()
 DTMN.showBulkError = function(errorType)
 {
   errorType = errorType || "empty";
+  DTMN.activeBulkError = errorType;
   DTMN.bulkErrorBanner.querySelectorAll("[data-error]").forEach(function(error) {
     error.classList.toggle("d-none", error.dataset.error !== errorType);
   });
