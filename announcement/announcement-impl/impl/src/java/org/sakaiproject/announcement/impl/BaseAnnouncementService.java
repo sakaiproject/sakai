@@ -2027,84 +2027,74 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			commitMessage(edit);
 
 			return edit;
+		}
 
-		} // addAnnouncementMessage
-		
-		//Intercept this commit to update the order and set unreleased to the top
+		@Override
 		public void commitMessage(MessageEdit edit, int priority, String invokee) {
 			int currentMax = setMessageOrderMax(edit);
-			setMessageUnreleasedMax(currentMax);
+			setMessageUnreleasedMax(currentMax, edit.getId());
 			super.commitMessage(edit, priority, invokee);
 		}
 		
 		/**
-		 * used to set unreleased messages higher than other messages
+		 * <p>Reorder unreleased announcements so they sort above released messages by assigning
+		 * increasing values.</p>
+		 *
+		 * <p>This method operates on other messages in the channel and skips the message
+		 * currently being committed to avoid acquiring a second edit lock for the same id.</p>
 		 * 
 		 * @param currentMax
-		 *        The value of the current max
+		 *        The current maximum message order value.
+		 * @param messageId
+		 *        The id of the message already being committed by the caller.
 		 */
-		private void setMessageUnreleasedMax(int currentMax) {
+		private void setMessageUnreleasedMax(int currentMax, String messageId) {
 			boolean releaseDateFirst = serverConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
-			//Don't run this if the property is not set
-			if (releaseDateFirst == false) {
-				return;
-			}
-			try {
-				//Get all messages in this channel
-				List<MessageEdit> msglist = (List<MessageEdit>) this.getMessages(null, false);
+			// don't run this if the property is not set
+			if (!releaseDateFirst) return;
 
-				//Go through all the messages and move all the ones that aren't yet released higher in the order. Just ignore any errors
-				for (MessageEdit me:msglist) {
+			try {
+				// get all messages in this channel
+				List<MessageEdit> msgList = (List<MessageEdit>) this.getMessages(null, false);
+
+				// go through all the messages and move all the ones that aren't yet released higher in the order. Just ignore any errors
+				for (MessageEdit msg : msgList) {
+					String msgId = msg.getId();
+
+					if (msgId.equals(messageId)) continue;
+
 					Date releaseDate = null;
 					try {
-						releaseDate = me.getProperties().getDateProperty(AnnouncementService.RELEASE_DATE);
-					} catch (EntityPropertyNotDefinedException e) {
-						if (log.isDebugEnabled()) {
-							log.debug("Exception moving an unreleased item.",e);
-						}
-						continue;
-					} catch (EntityPropertyTypeException e) {
-						if (log.isDebugEnabled()) {
-							log.debug("Exception moving an unreleased item.",e);
-						}
-						continue;
+						releaseDate = msg.getProperties().getDateProperty(AnnouncementService.RELEASE_DATE);
+					} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
+                        log.debug("Announcement [{}] does not have a property releaseDate, {}", msgId, e.toString());
+                        continue;
 					}
-					//releaseDate of this item is after current date, so set it later than max
+
+                    // releaseDate of this item is after current date, so set it later than max
 					if (releaseDate.compareTo(new Date()) > 0) {
-						if (log.isDebugEnabled()) {
-							log.debug("Placing unreleased announcement to top of list {}", me.getId());
-						}
-						//Try to set the current max of these other messages
+                        log.debug("Announcement [{}] reorder to top of list", msgId);
+                        // try to set the current max of these other messages
 						try {
-							AnnouncementMessageEdit em = editAnnouncementMessage(me.getId());
+							AnnouncementMessageEdit em = editAnnouncementMessage(msgId);
 							em.getHeaderEdit().setMessage_order(++currentMax);
 							super.commitMessage(em, NotificationService.NOTI_IGNORE, "");
-						} catch (InUseException e) {
-							if (log.isDebugEnabled()) {
-								log.debug("Exception moving an unreleased item.",e);
-							}
-							continue;
-						}
-						catch (IdUnusedException e) {
-							if (log.isDebugEnabled()) {
-								log.debug("Exception moving an unreleased item.",e);
-							}
-							continue;
-						}
-						//Commit this update directly
+						} catch (InUseException | IdUnusedException e) {
+                            log.debug("Announcement [{}] could not reorder an unreleased item, {}", msgId, e.toString());
+                        }
 					}
 				}
-			} catch (PermissionException ex) {
-				log.error(ex.getMessage());
+			} catch (PermissionException pe) {
+				log.warn("User does not have permission to reorder unreleased announcements in the current channel, {}", pe.toString());
 			}
 		}
 		
 		/**
-		 * Go through all of the messages to find the max, put this message at the Maximum + 1
+		 * Find the current maximum in this channel and assign the
+		 * supplied edit to {@code max + 1}.
 		 * 
-		 * @param msg
-		 *        The message to edit
-		 * @return The currentMax value determined (To save on future execution)
+		 * @param msg The message currently being committed.
+		 * @return the new assigned message order value (previous maximum plus one).
 		 */
 		private int setMessageOrderMax(MessageEdit msg) {
 			int currentMax = 0;
