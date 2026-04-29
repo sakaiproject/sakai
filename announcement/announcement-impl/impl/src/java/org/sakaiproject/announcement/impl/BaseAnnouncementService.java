@@ -2093,7 +2093,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * supplied edit to {@code max + 1}.
 		 * 
 		 * @param msg The message currently being committed.
-		 * @return the previous maximum order value found in the channel.
+		 * @return the new assigned message order value (previous maximum plus one).
 		 */
 		private int setMessageOrderMax(MessageEdit msg) {
 			int currentMax = 0;
