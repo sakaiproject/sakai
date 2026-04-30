@@ -673,6 +673,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
+    private static final String NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH = "new_assignment_check_allow_unrestricted_external_tool_launch";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS = "new_assignment_check_add_group_tags";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS = "new_assignment_check_add_instructor_tags";
     private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
@@ -1736,7 +1737,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment != null) {
             context.put("assignment", assignment);
-            context.put("canSubmit", assignmentService.canSubmit(assignment));
+            context.put("canSubmit", canSubmitOrLaunchExternalTool(assignment));
 
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
@@ -2110,6 +2111,19 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_VIEW_LAUNCH;
 
     } // build_view_external_tool_launch_context
+
+    private boolean canSubmitOrLaunchExternalTool(Assignment assignment) {
+        return assignmentService.canSubmit(assignment) || isExternalToolLaunchUnrestricted(assignment);
+    }
+
+    private boolean isExternalToolLaunchUnrestricted(Assignment assignment) {
+        if (assignment == null || assignment.getTypeOfSubmission() != Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+            return false;
+        }
+
+        Map<String, String> properties = assignment.getProperties();
+        return properties != null && BooleanUtils.toBoolean(properties.get(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
+    }
 
     /**
      * Determines if the attachments have been modified
@@ -3360,6 +3374,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("name_OpenDateNotification", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
         }
         context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+        context.put("name_CheckAllowUnrestrictedExternalToolLaunch", NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
 
         context.put("name_CheckAddInstructorTags", NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         context.put("name_CheckAddGroupTags", NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
@@ -3540,6 +3555,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_reminder_hours", serverConfigurationService.getInt("assignment.reminder.hours", 24));
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
+        context.put("value_CheckAllowUnrestrictedExternalToolLaunch", state.getAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
 
         context.put("value_CheckAddInstructorTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS));
         context.put("value_CheckAddGroupTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS));
@@ -4022,6 +4038,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
+        context.put("value_CheckAllowUnrestrictedExternalToolLaunch", state.getAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
         context.put("value_CheckAddInstructorTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS));
         context.put("value_CheckAddGroupTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS));
 
@@ -6394,7 +6411,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment != null) {
             AssignmentSubmission submission = getSubmission(assignmentReference, user, "doView_submission", state);
-            if (assignmentService.canSubmit(assignment)) {
+            boolean canSubmit = assignmentService.canSubmit(assignment);
+            if (canSubmit || isExternalToolLaunchUnrestricted(assignment)) {
                 String submitterId = params.get("submitterId");
 
                 // From submit as student link chef_assignments_list_assignments.vm
@@ -6427,7 +6445,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // show the submission with group error
                     mode = MODE_STUDENT_VIEW_GROUP_ERROR;
                 } else {
-                    if (assignment.getHonorPledge() && (submission == null || !submission.getHonorPledge())) {
+                    if (canSubmit && assignment.getHonorPledge() && (submission == null || !submission.getHonorPledge())) {
                         // if assignment uses honor pledge then and student hasn't accepted
                         mode = MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE;
                     } else {
@@ -8412,6 +8430,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // set the honor pledge to be "no honor pledge"
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, hp);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH,
+                params.getBoolean(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
 
         Boolean ait = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, ait);
@@ -9093,6 +9113,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String valueOpenDateNotification = (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
 
             Boolean checkAddHonorPledge = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+            Boolean allowUnrestrictedExternalToolLaunch = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
 
             Boolean checkAddInstructorTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) : null;
             Boolean checkAddGroupTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) : null;
@@ -9337,7 +9358,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
-                        excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow, checkIsEstimate, checkEstimateRequired, timeEstimate);
+                        excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow,
+                        BooleanUtils.toBoolean(allowUnrestrictedExternalToolLaunch), checkIsEstimate, checkEstimateRequired, timeEstimate);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
@@ -10347,6 +10369,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                   int excludeValue,
 								  Integer contentId,
                                   boolean contentLaunchNewWindow,
+                                  boolean allowUnrestrictedExternalToolLaunch,
                                   boolean checkIsEstimate,
                                   boolean checkEstimateRequired,
                                   String timeEstimate) {
@@ -10389,6 +10412,7 @@ public class AssignmentAction extends PagedResourceActionII {
         p.put(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE, Integer.toString(excludeType));
         p.put(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE, Integer.toString(excludeValue));
         p.put(NEW_ASSIGNMENT_REMINDER_EMAIL,Boolean.toString(emailReminder));
+        p.put(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH, Boolean.toString(allowUnrestrictedExternalToolLaunch));
 
         if (!enableCloseDate) {
             // remove close date
@@ -10929,6 +10953,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, a.getHonorPledge());
+                state.setAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH,
+                        BooleanUtils.toBoolean(properties.get(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH)));
 
                 if (properties.get(NEW_ASSIGNMENT_TAG_CREATOR) != null) {
                     state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_CREATOR).toString()));
@@ -13332,6 +13358,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         // make the honor pledge not include as the default
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, Boolean.FALSE);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH, Boolean.FALSE);
 
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.FALSE);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.FALSE);
@@ -13442,6 +13469,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
         state.removeAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+        state.removeAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);

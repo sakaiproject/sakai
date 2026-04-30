@@ -608,6 +608,19 @@
 				$tlang.getString("launchContentNewWindow")
 			</label>
 		</div>
+		<div class="checkbox">
+			<label for="$name_CheckAllowUnrestrictedExternalToolLaunch">
+				<input id="$name_CheckAllowUnrestrictedExternalToolLaunch" name="$name_CheckAllowUnrestrictedExternalToolLaunch" type="checkbox" value="true"
+					#if ($!value_CheckAllowUnrestrictedExternalToolLaunch)
+						checked="checked"
+					#end
+				/>
+				$tlang.getString("external.tool.allow.unrestricted.launch")
+			</label>
+		</div>
+		<div class="sak-banner-info">
+			$tlang.getString("external.tool.allow.unrestricted.launch.help")
+		</div>
 		</fieldset>
         </div>
         <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
