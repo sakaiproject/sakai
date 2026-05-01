@@ -46,6 +46,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -68,6 +69,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ItemHashUtil {
 
     @Setter private ContentHostingService contentHostingService;
+    @Setter private GradingService gradingService;
     @Setter private SecurityService securityService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionFactory sessionFactory;
@@ -399,7 +401,7 @@ public class ItemHashUtil {
     StringBuilder hashBaseForItemAttachments(ItemDataIfc item, StringBuilder into)
             throws NoSuchAlgorithmException, IOException, ServerOverloadException {
 
-        final AssessmentService service = new AssessmentService(securityService);
+        final AssessmentService service = new AssessmentService(gradingService, securityService);
         final List<String> attachmentResourceIds = service.getItemResourceIdList(item);
 
         if ( attachmentResourceIds == null ) {

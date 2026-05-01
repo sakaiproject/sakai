@@ -131,6 +131,7 @@
     <bean id="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
           class="org.sakaiproject.tool.assessment.facade.ItemHashUtil">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />

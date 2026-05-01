@@ -807,11 +807,17 @@ public class AssessmentBaseFacade
   }
 
   public Long getCategoryId() {
-    return categoryId;
+    try {
+      this.data = (AssessmentBaseIfc) assessment.getData();
+    } catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getCategoryId();
   }
 
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
+    this.data.setCategoryId(categoryId);
   }
 
   // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
