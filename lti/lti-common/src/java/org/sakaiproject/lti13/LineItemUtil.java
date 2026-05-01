@@ -495,7 +495,6 @@ public class LineItemUtil {
 			if (endDate != null) {
 				Instant endInstant = endDate.toInstant();
 				asn.setDueDate(endInstant);
-				asn.setCloseDate(endInstant);
 			}
 		}
 	}
