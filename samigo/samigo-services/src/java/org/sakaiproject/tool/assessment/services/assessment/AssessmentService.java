@@ -107,6 +107,10 @@ public class AssessmentService {
 	// versioning title string that it will look for/use, followed by a number
 	private static final String VERSION_START = "  - ";
 
+	private static final Predicate<Map.Entry<String, String>> ENTRY_IS_SAM_CORE = entry ->
+			Strings.CS.startsWith(entry.getKey(), CoreAssessmentEntityProvider.ENTITY_PREFIX + "/")
+					&& Strings.CS.startsWith(entry.getValue(), CoreAssessmentEntityProvider.ENTITY_PREFIX + "/");
+
 	private SecurityService securityService;
 	private GradingService gradingService;
 
@@ -1204,13 +1208,8 @@ public class AssessmentService {
 			return;
 		}
 
-		String prefix = CoreAssessmentEntityProvider.ENTITY_PREFIX + "/";
-		Predicate<Map.Entry<String, String>> isSamCore = entry ->
-				Strings.CS.startsWith(entry.getKey(), prefix)
-						&& Strings.CS.startsWith(entry.getValue(), prefix);
-
 		transversalMap.entrySet().stream()
-				.filter(isSamCore)
+				.filter(ENTRY_IS_SAM_CORE)
 				.forEach(entry -> {
 					String oldRef = entry.getKey();
 					String newRef = entry.getValue();
