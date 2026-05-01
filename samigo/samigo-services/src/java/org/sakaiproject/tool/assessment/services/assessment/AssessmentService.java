@@ -1216,18 +1216,22 @@ public class AssessmentService {
 					String sourceAssessmentId = StringUtils.substringAfterLast(oldRef, "/");
 					String copiedAssessmentId = StringUtils.substringAfterLast(newRef, "/");
 
-					AssessmentFacade sourceAssessment = getAssessment(sourceAssessmentId);
-					AssessmentFacade copiedAssessment = getAssessment(copiedAssessmentId);
-					if (sourceAssessment != null && copiedAssessment != null) {
-						EvaluationModel sourceEvaluation = (EvaluationModel) sourceAssessment.getEvaluationModel();
-						if (sourceEvaluation != null && Strings.CS.equals(sourceEvaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+					try {
+						AssessmentFacade sourceAssessment = getAssessment(sourceAssessmentId);
+						AssessmentFacade copiedAssessment = getAssessment(copiedAssessmentId);
+						if (sourceAssessment != null && copiedAssessment != null) {
+							EvaluationModel sourceEvaluation = (EvaluationModel) sourceAssessment.getEvaluationModel();
+							if (sourceEvaluation != null && Strings.CS.equals(sourceEvaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 
-							Long categoryId = toCategories.get(fromCategories.get(sourceAssessment.getCategoryId()));
-							if (!Objects.equals(categoryId, copiedAssessment.getCategoryId())) {
-								copiedAssessment.setCategoryId(categoryId);
-								saveAssessment(copiedAssessment);
+								Long categoryId = toCategories.get(fromCategories.get(sourceAssessment.getCategoryId()));
+								if (!Objects.equals(categoryId, copiedAssessment.getCategoryId())) {
+									copiedAssessment.setCategoryId(categoryId);
+									saveAssessment(copiedAssessment);
+								}
 							}
 						}
+					} catch (Exception e) {
+						log.warn("Could not update gradebook category for assessment [{}]: ", copiedAssessmentId, e);
 					}
 				});
 	}
