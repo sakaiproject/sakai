@@ -1,101 +1,110 @@
+# Sakai LTI Integration in the Assignments Tool
 
-Sakai LTI Integration in the Assignments Tool
-=============================================
+The Sakai Assignments tool supports an **External Tool** / LTI assignment type. This assignment type complements the placement types that have been in Sakai for a long time:
 
-As of Sakai-21, the Sakai Assignments tool has a new feature to support an
-"External Tool" / LTI assignment type.  This assignment type compliments the existing
-placement types that have been in Sakai for a long time:
+- **Lessons** — Learning App and External Tool
+- **Rich Text Editor** placement
+- **Left navigation bar** — Site Manage / Manage External Tools
 
-* Lessons Placement - Learning App and External Tool
-* Rich Text Editor Placement
-* Left navigation bar placement - Site Manage / Manage External Tools
+The Assignments placement is a useful addition because none of these other placements fully support coordinated **open**, **due**, and **accept-until (close)** dates. LTI Advantage Deep Linking can carry availability and submission date ranges as well as maximum points. Maximum points appear in many placements, but only Assignments provides a complete date workflow aligned with how instructors expect assignments to behave.
 
-The Assignments placement is a nice feature because none of these other placements really support
-open and close times, due dates, etc.  LTI Advantage Deep Linking has very nice support that
-allows external tools to specifs open and close datea, and maximum points.  Maximum points are supported
-in many of the placements but only assignments supports any kind of date workflow.
+## Creating an LTI Assignment in Sakai
 
-Creating an LTI Assignment in Sakai
------------------------------------
+1. Install or edit an LTI tool and indicate that it supports the **Assignment** placement.
+2. Open **Assignments** and add a new assignment.
+3. Set **Submission Type** to **External Tool (LTI)**.
+4. Use **Select External Tool (LTI)** to launch the resource picker.
+5. Choose a tool and complete the selection process.
 
-It is pretty simple, install or edit an LTI tool and indicate that it supports the Assignment
-placement.  Two great tools to use are the Tsugi Trophy tool and the Tsugi LMSTest tool because you
-can exercise a lot of features.
+Some tools (for example Tsugi Trophy or LMSTest) may include a configuration step (for example “Configure the LineItem”) as part of the Deep Linking response.
 
-Go into Assignments and Add a new Assignment.  Add a new assignment and then scroll
-down to the Submission Type and change it to "External Tool (LTI)".  Then you will see
-a "Select External Tool (LTI)" button.  Pressing the button will launch a resource picker
-similar to the "Install Learning App" in Lessons.  Choose a tool, and go through the selection
-process.  If you are using something like Tsugi's Trophy just before you will be given an option
-to "Configure the LineItem" (<a href="images/assignments/01-Tsugi-LineItem.png" target="_blank">image</a>).
-LineItem is part of the DeepLink response:
+See the IMS Deep Linking specification: [LTI Deep Linking v2.0](http://www.imsglobal.org/spec/lti-dl/v2p0) — search for `lineitem`, `available`, and `submission`.
 
-See http://www.imsglobal.org/spec/lti-dl/v2p0 - search for "lineitem", "available", and "submission".
+Tools may suggest:
 
-This allows the tool to request a different scoreMaximum and available and submission date ranges.
-The Sakai Assignment tool looks for these values when you are placing an assignment.
+- `scoreMaximum`
+- available date range
+- submission date range
 
-Once you pick these values (or your tool picks these values), they are sent back to Sakai.  When
-you come back to the Sakai assignments flow, Sakai parses these values and puts them into the
-Assignments's UI in the appropriate locations.  The instructor can scroll around and change all these
-value before saving the assignment.  Sakai simply sees this as "defaults" or "suggestions" and lets
-the instructor make the final decision within Sakai.
+These values are returned to Sakai and used to **pre-populate** the Assignments UI. Sakai treats them as **defaults**; the instructor can review and change all values before saving.
 
-A tool can find out the actual values set or updated by the instruction
-using the Assignments and Grades Service or by using the following custom
-variable substitution values:
+After save, a tool can read the final values using LTI Advantage services or via substitution variables:
 
-    ResourceLink.available.startDateTime
-    ResourceLink.available.endDateTime
-    ResourceLink.submission.startDateTime
-    ResourceLink.submission.endDateTime
+```text
+ResourceLink.available.startDateTime
+ResourceLink.available.endDateTime
+ResourceLink.submission.startDateTime
+ResourceLink.submission.endDateTime
+```
 
-Once you are happy with the assignment, save it.
+Once the assignment is saved, it appears in the gradebook with the correct maximum score.
 
-Once you save the assignment, you should be able to go into the gradebook and see the
-new column with the correct maximum score value.
+## LTI Date Handling in Sakai Assignments
 
-Sakai LTI Assignments and Gradebook Integration
------------------------------------------------
+LTI 1.3 defines two independent date ranges:
 
-LTI Assignments are integrated into the Sakai gradebook differently than
-other assignment types.
+- **`ResourceLink.available.*`** — when the activity is accessible
+- **`ResourceLink.submission.*`** — when submissions are accepted
 
-For non-LTI assignment submission types, when you create an Assignment and
-select "Send Grades to Gradebook" - the Assignments tool creates an externally
-managed Gradebook column that the LTI services cannot use.  The column exists somewhere
-deep inside Assignment but is not available via the grade book API that LTI Assignments
-and Grades Service uses.
+Sakai Assignments uses a three-part model:
 
-When the Assignments tool is creating a grade book column associated with an LTI
-launched assignment - the grade is created in a way that it can be used by LTI
-Services.  It also means that these LTI assignment grades can be overridden
-from within the gradebook (like most other grade book columns).
+**open date → due date → accept-until (close) date**
 
-I debated as to whether to try to implement LTI grades as externally maintained
-in the Assignments tables but it would make complying with all
-of the rules of LTI Advantage very difficult.
+LTI does not explicitly define a separate “due date” (soft deadline). In practice, many LTI tools (including Turnitin) treat **`ResourceLink.submission.endDateTime`** as the assignment due date.
 
-For example, if you have a tool that is used with two placements with one in
-assignments and in lessons, and the tool asks "show me my grade columns" using
-the LTI Advantage Assignments and Grades Services - it is supposed to see both
-the assignments columns and the lessons columns.   A pretty cool feature that
-tools will find quite useful.  This also avoids adding yet another externally
-maintained class of grades that we have to move back into the grade book at some
-point in the future.
+To keep behavior predictable and interoperable, Sakai applies this mapping when processing LTI date values:
 
-This is a fun thing to test by placing the Trophy tool in Assignments, and the
-LMSTest tool in Lessons and retrieving the AGS lineitems - you will see both
-and be able to access either line item from either placement - which is cool.
-For this to work they my be two placements of the same 
-tool (i.e. sakai.tsugicloud.org).  AGS only shows lineitems across placements
-of the same server.
+**If `ResourceLink.submission.endDateTime` is present:**
 
-Another side effect of storing LTI Assignment grades directly in the gradebook
-is that when an assignment is deleted - the grades and grade column are *not*
-deleted.   This give instructors flexibility - it allows a lot of use cases - but also
-it can lead to some "oops" moments - but at least the grades should not be lost
-unless the column is explicitly deleted in the grade book.
+- due date = `submission.endDateTime`
+- close (accept-until) date = `submission.endDateTime`
 
+**Else if `ResourceLink.available.endDateTime` is present:**
 
+- due date = `available.endDateTime`
+- close (accept-until) date = `available.endDateTime`
 
+### Design rules
+
+| Rule | Meaning |
+|------|--------|
+| **`submission.endDateTime` is authoritative** | When present, it defines the assignment deadline and is used for **both** due date and accept-until date. |
+| **`available.endDateTime` is fallback only** | Used only when `submission.endDateTime` is not provided; it must **never** override `submission.endDateTime`. |
+| **`submission.startDateTime` overrides `available.startDateTime` for open** | When both are present, the assignment **open** date follows `ResourceLink.submission.startDateTime`; `ResourceLink.available.startDateTime` does not win for open in that case (same precedence idea as end dates). |
+| **Due date and close date may be identical** | LTI does not distinguish a soft due date from a hard cutoff; Sakai may collapse these to one value. |
+
+### Rationale
+
+- Many tools interpret `submission.endDateTime` as the due date.
+- LTI does not standardize a late submission window.
+- Letting `available.endDateTime` override `submission.endDateTime` would produce incorrect deadlines for those tools.
+- A single authoritative rule reduces long-term confusion and support load.
+
+### Practical effect
+
+- `submission.endDateTime` → Sakai **due** date (authoritative)
+- `available.endDateTime` → fallback **due** / **close** date
+- `available.startDateTime` → Sakai **open** date (fallback when `submission.startDateTime` is absent)
+- `submission.startDateTime` → Sakai **open** date when present; **`submission.startDateTime` overrides `available.startDateTime`** when both are present
+
+**Where this is applied in the UI:** In `assignment/tool/src/webapp/vm/assignment/chef_assignments_instructor_new_edit_assignment.vm`, the External Tool deep-link callback `returnContentItem` assigns both `ResourceLink.available.startDateTime` and `ResourceLink.submission.startDateTime` to the assignment open-date input **`#opendate`** in that order, so the submission value wins if both are returned.
+
+This favors consistency with real-world LTI tool behavior over a strict, spec-only reading that would disagree with common implementations.
+
+## Sakai LTI Assignments and Gradebook Integration
+
+LTI assignments integrate with the Sakai gradebook **differently** from other assignment types.
+
+**Non-LTI assignments:** Choosing **Send Grades to Gradebook** creates an externally managed column that is **not** exposed through the LTI grade APIs in the same way.
+
+**LTI assignments:**
+
+- Gradebook columns are created in a form compatible with **LTI Advantage** (Assignments and Grades Service, line items).
+- Grades can be updated via LTI.
+- Grades can still be overridden directly in the gradebook.
+
+That lets tools retrieve and manage line items in a consistent way.
+
+**Example:** A tool placed in both Assignments and Lessons can retrieve line items for both contexts; Assignments and Grades Service can return the relevant columns for the tool. This avoids introducing another “externally managed only” grade type that would be hard to reconcile with LTI Advantage expectations. Which line items appear together still depends on tool registration and deployment; in common test setups (for example Trophy in Assignments and LMSTest in Lessons on the same Tsugi host), both placements target the same tool server so AGS can list related line items as expected.
+
+**Side effect:** Deleting an assignment **does not** delete the gradebook column. That preserves historical grades but may require manual column cleanup when an assignment is removed on purpose.

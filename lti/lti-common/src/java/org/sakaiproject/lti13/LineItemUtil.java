@@ -494,9 +494,13 @@ public class LineItemUtil {
 			Date endDate = LTIUtil.parseIMS8601(lineItem.endDateTime);
 			if (endDate != null) {
 				Instant endInstant = endDate.toInstant();
+				// LTI AGS LineItem has only one endDateTime. In practice tools treat it as
+				// the assignment deadline, so Sakai maps it to both dueDate and closeDate.
 				asn.setDueDate(endInstant);
+				asn.setCloseDate(endInstant);   // It is best for coordinated UIs for these to be locked since LTI 1.3 has no due date
 			}
 		}
+
 	}
 
 	/**
