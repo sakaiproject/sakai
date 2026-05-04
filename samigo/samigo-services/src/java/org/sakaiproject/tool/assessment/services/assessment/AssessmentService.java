@@ -1187,6 +1187,22 @@ public class AssessmentService {
 		}
 	}
 
+	/**
+	 * This method maps assessments to their corresponding gradebook categories when importing
+	 * from one site to another, ensuring that gradebook integration is maintained.
+	 *
+	 * <p>This operation is skipped if:
+	 * <ul>
+	 *   <li>The transversal map is null or empty</li>
+	 *   <li>Gradebook integration is not enabled</li>
+	 *   <li>Either context has gradebook groups enabled</li>
+	 * </ul>
+	 * 
+	 * @param fromContext The source context (site) for gradebook categories
+	 * @param toContext The target context (site) for gradebook categories
+	 * @param transversalMap A map of entity references from source to target, used to identify
+	 *					   copied assessments and update their gradebook category associations
+	 */
 	private void linkGradebookCategory(String fromContext, String toContext, Map<String, String> transversalMap) {
 		if (transversalMap == null || transversalMap.isEmpty()
 				|| !IntegrationContextFactory.getInstance().isIntegrated()
