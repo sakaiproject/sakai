@@ -21,7 +21,7 @@
 
 package org.sakaiproject.lti.api;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -746,6 +746,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId) {
         List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+        if (toolMaps == null) {
+            return Collections.emptyList();
+        }
         return toolMaps.stream()
                 .map(LtiToolBean::of)
                 .collect(Collectors.toList());
@@ -763,6 +766,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
         List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+        if (toolMaps == null) {
+            return Collections.emptyList();
+        }
         return toolMaps.stream()
                 .map(LtiToolBean::of)
                 .collect(Collectors.toList());
@@ -781,6 +787,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
         List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed, includeLaunchable);
+        if (toolMaps == null) {
+            return Collections.emptyList();
+        }
         return toolMaps.stream()
                 .map(LtiToolBean::of)
                 .collect(Collectors.toList());
@@ -793,6 +802,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiToolBean> getToolsLaunchAsBeans(String siteId) {
         List<Map<String, Object>> toolMaps = getToolsLaunch(siteId);
+        if (toolMaps == null) {
+            return Collections.emptyList();
+        }
         return toolMaps.stream()
                 .map(LtiToolBean::of)
                 .collect(Collectors.toList());
@@ -803,13 +815,14 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiToolBean objects
      */
-    default List<LtiToolBean> getToolsImportItemBeans(String siteId) {
+    default List<LtiToolBean> getToolsImportItemAsBeans(String siteId) {
         List<Map<String, Object>> toolMaps = getToolsImportItem(siteId);
-        List<LtiToolBean> toolBeans = new ArrayList<>();
-        for (Map<String, Object> toolMap : toolMaps) {
-            toolBeans.add(LtiToolBean.of(toolMap));
+        if (toolMaps == null) {
+            return Collections.emptyList();
         }
-        return toolBeans;
+        return toolMaps.stream()
+                .map(LtiToolBean::of)
+                .collect(Collectors.toList());
     }
 
     // ------------------------------------------------------------------------------------
@@ -846,6 +859,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiContentBean> getContentsAsBeans(String search, String order, int first, int last, String siteId) {
         List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+        if (contentMaps == null) {
+            return Collections.emptyList();
+        }
         return contentMaps.stream()
                 .map(LtiContentBean::of)
                 .collect(Collectors.toList());
@@ -862,11 +878,12 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId) {
         List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId);
-        List<LtiContentBean> contentBeans = new ArrayList<>();
-        for (Map<String, Object> contentMap : contentMaps) {
-            contentBeans.add(LtiContentBean.of(contentMap));
+        if (contentMaps == null) {
+            return Collections.emptyList();
         }
-        return contentBeans;
+        return contentMaps.stream()
+                .map(LtiContentBean::of)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -881,11 +898,12 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
         List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId, isAdminRole);
-        List<LtiContentBean> contentBeans = new ArrayList<>();
-        for (Map<String, Object> contentMap : contentMaps) {
-            contentBeans.add(LtiContentBean.of(contentMap));
+        if (contentMaps == null) {
+            return Collections.emptyList();
         }
-        return contentBeans;
+        return contentMaps.stream()
+                .map(LtiContentBean::of)
+                .collect(Collectors.toList());
     }
 
     // ------------------------------------------------------------------------------------
@@ -913,6 +931,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiToolSiteBean> getToolSitesByToolIdAsBeans(String toolId, String siteId) {
         List<Map<String, Object>> toolSiteMaps = getToolSitesByToolId(toolId, siteId);
+        if (toolSiteMaps == null) {
+            return Collections.emptyList();
+        }
         return toolSiteMaps.stream()
                 .map(LtiToolSiteBean::of)
                 .collect(Collectors.toList());
@@ -940,6 +961,9 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<LtiMembershipsJobBean> getMembershipsJobsAsBeans() {
         List<Map<String, Object>> jobMaps = getMembershipsJobs();
+        if (jobMaps == null) {
+            return Collections.emptyList();
+        }
         return jobMaps.stream()
                 .map(LtiMembershipsJobBean::of)
                 .collect(Collectors.toList());

@@ -1210,7 +1210,7 @@ public class SakaiLTIUtilTest {
 		try {
 			SakaiLTIUtil.getPublicKey(tool, idToken);
 			fail("Expected RuntimeException for null keyset");
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			assertNotNull("Bean method should throw exception", e);
 		}
 	}

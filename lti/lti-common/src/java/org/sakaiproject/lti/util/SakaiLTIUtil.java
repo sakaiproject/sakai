@@ -1369,10 +1369,6 @@ public class SakaiLTIUtil {
 			}
 		}
 
-		private static Key getPublicKey(Map<String, Object> tool, String id_token) {
-			return getPublicKey(LtiToolBean.of(tool), id_token);
-		}
-
 		/**
 		 * Create a DeepLinkResponse from the current request (may throw runtime). Bean overload.
 		 */
@@ -3282,6 +3278,7 @@ public class SakaiLTIUtil {
 	 */
 	public static boolean checkLaunchCode(LtiContentBean content, String launch_code) {
 		if (content == null) return false;
+		if (launch_code == null || launch_code.trim().isEmpty()) return false;
 		String content_id = (content.getId() != null) ? content.getId().toString() : "0";
 		if (!launch_code.contains(":" + content_id + ":")) return false;
 		String placement_secret = content.getPlacementsecret();
@@ -3708,11 +3705,6 @@ public class SakaiLTIUtil {
 			if (tool.getDebug() == LTIService.LTI_TOOL_DEBUG_ON) debug = true;
 		}
 		return debug;
-	}
-
-	/** Map shim for backward compatibility; prefer bean overload. */
-	private static boolean getDebug(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
-		return getDebug(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
 	}
 
 	/**

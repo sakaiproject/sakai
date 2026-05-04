@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -399,7 +400,14 @@ public abstract class FoormBaseBean {
             if (text == null) {
                 continue;
             }
-            Element child = doc.createElement(field);
+            Element child;
+            try {
+                child = doc.createElement(field);
+            } catch (DOMException | IllegalArgumentException e) {
+                log.error("Skipping archive field '{}' due to invalid XML element name in {}: {}",
+                        field, getClass().getName(), e.getMessage(), e);
+                continue;
+            }
             child.setTextContent(text);
             root.appendChild(child);
         }
