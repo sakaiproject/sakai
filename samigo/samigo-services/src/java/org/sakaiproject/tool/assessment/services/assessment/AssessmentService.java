@@ -1188,7 +1188,11 @@ public class AssessmentService {
 	}
 
 	private void linkGradebookCategory(String fromContext, String toContext, Map<String, String> transversalMap) {
-		if (transversalMap == null || transversalMap.isEmpty() || !IntegrationContextFactory.getInstance().isIntegrated()) {
+		if (transversalMap == null || transversalMap.isEmpty()
+				|| !IntegrationContextFactory.getInstance().isIntegrated()
+				|| gradingService.isGradebookGroupEnabled(fromContext)
+				|| gradingService.isGradebookGroupEnabled(toContext)
+		) {
 			return;
 		}
 
