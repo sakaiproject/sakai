@@ -10,6 +10,7 @@ let supported_messages = [
         { subject: "lti.capabilities" },
         { subject: "lti.put_data", frame: "_parent" },
         { subject: "lti.get_data", frame: "_parent" },
+        { subject: "lti.scrollToTop" },
         // Some general things we may or may not support depending on which page
         { subject: "lti.close"},
         { subject: "lti.frameResize" },
@@ -169,6 +170,16 @@ w.addEventListener('message', function (event) {
                 event.source.postMessage(send_data, event.origin);
             }
         break;
+        case 'lti.scrollToTop': {
+            const frame = document.getElementById(frame_id);
+            if (frame) {
+                if (frame.parentElement) {
+                    frame.parentElement.scrollTop = 0;
+                }
+                frame.scrollIntoView({ block: "start", inline: "nearest" });
+            }
+            break;
+        }
         case 'org.sakailms.lti.postverify': {
             if ( approved || same_origin ) {
                 console.debug('postverify from approved frame', frame_id);
