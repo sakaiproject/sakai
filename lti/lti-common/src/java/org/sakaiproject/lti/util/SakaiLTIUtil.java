@@ -197,6 +197,11 @@ public class SakaiLTIUtil {
 	public static final String MESSAGE_TYPE_PARAMETER_PRIVACY = "privacy";
 	public static final String MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW = "content_review";
 
+	// Sakai custom parameters
+	public static final String SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME = "Sakai.assignment.availableStartDateTime";
+	public static final String SAKAI_LTI_SUBSTITUTION_DUE_DATE = "Sakai.assignment.dueDate";
+	public static final String SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL = "Sakai.assignment.acceptUntil";
+
 	// Default Outbound Role Mapping - Sakai role to a comma-separated list of LTI Roles
 	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
 	public static final String LTI_OUTBOUND_ROLE_MAP = "lti.outbound.role.map";
@@ -1190,6 +1195,9 @@ public class SakaiLTIUtil {
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME,
+				SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME,
+				SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL,
+				SAKAI_LTI_SUBSTITUTION_DUE_DATE,
 				LTICustomVars.COURSEGROUP_ID
 			};
 
