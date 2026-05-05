@@ -2939,12 +2939,10 @@ public class SakaiLTIUtil {
 				submission.setGraded(true);
 			}
 
-			if ( activityProgress.equals(Score.ACTIVITY_INITIALIZED) || activityProgress.equals(Score.ACTIVITY_STARTED) ||
-					 activityProgress.equals(Score.ACTIVITY_INPROGRESS) ) {
-				submission.setSubmitted(false);
-				submission.setDateSubmitted(null);
-			} else {
-				submission.setSubmitted(true);
+			log.debug("submission isSubmitted={}; activityProgress={}", submission.getSubmitted(), activityProgress);
+			if (Boolean.TRUE.equals(submission.getSubmitted()) &&
+			    StringUtils.equalsAny(activityProgress, Score.ACTIVITY_INITIALIZED, Score.ACTIVITY_STARTED, Score.ACTIVITY_INPROGRESS,
+						  Score.ACTIVITY_SUBMITTED)) {
 				submission.setDateSubmitted(now);
 			}
 
