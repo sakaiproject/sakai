@@ -755,6 +755,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.courseGradeId = tableData.courseGradeId;
   GbGradeTable.gradebookId = tableData.gradebookId;
   GbGradeTable.i18n = tableData.i18n;
+  GbGradeTable.parseGradeValue = (val) => {
+    if (val == null || val === "") return -Infinity;
+    const n = GbGradeTable.localizedStringToNumber(String(val));
+    return isNaN(n) ? -Infinity : n;
+  };
   GbGradeTable._fixedColumns.push({
     titleFormatter: GbGradeTable.headerFormatter('studentHeader'),
     formatter: GbGradeTable.studentCellFormatter,
@@ -780,15 +785,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     },
     frozen: true,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
-    sorter: (a, b) => {
-      const parse = (val) => {
-        if (val == null || val === "") return -Infinity;
-        const n = GbGradeTable.localizedStringToNumber(String(val));
-        return isNaN(n) ? -Infinity : n;
-      };
-
-      return parse(a[1]) - parse(b[1]);
-    }
+    sorter: (a, b) => GbGradeTable.parseGradeValue(a[1]) - GbGradeTable.parseGradeValue(b[1])
   });
 
   if (GbGradeTable.settings.isStudentNumberVisible) {
@@ -1863,15 +1860,7 @@ GbGradeTable.getFilteredColumns = function() {
         formatterParams: { _data_: column },
         titleFormatter: GbGradeTable.headerFormatter(null, column),
         width: 180,
-        sorter: (a, b) => {
-          const parse = (val) => {
-            if (val == null || val === "") return -Infinity;
-            const n = GbGradeTable.localizedStringToNumber(String(val));
-            return isNaN(n) ? -Infinity : n;
-          };
-
-          return parse(a) - parse(b);
-        },
+        sorter: (a, b) => GbGradeTable.parseGradeValue(a) - GbGradeTable.parseGradeValue(b),
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
       }))
   );
