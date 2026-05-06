@@ -1,11 +1,15 @@
 package org.sakaiproject.e2e.support;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Tracing;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -128,5 +132,18 @@ public abstract class SakaiUiTestBase {
         String methodName = testInfo.getTestMethod().map(method -> method.getName()).orElse("unknownMethod");
         String base = className + "-" + methodName + "-" + Instant.now().toEpochMilli();
         return base.replaceAll("[^A-Za-z0-9._-]", "_");
+    }
+
+    protected Locator waitForWicketModal() {
+        Locator dialog = page.locator(".wicket-modal");
+        dialog.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(10_000));
+        assertThat(dialog).isVisible();
+
+        page.waitForFunction(
+            "() => !window.Wicket?.Ajax?.processing",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(5_000));
+
+        return page.locator(".wicket-modal").first();
     }
 }

@@ -7,12 +7,14 @@
 
 	<div class="accordion-item" id="settingsCategoriesHeader">
 		<h2 class="accordion-header">
-			<button wicket:id="settingsCategoriesAccordionButton" class="accordion-button collapsed fw-bold"
-				type="button"
-				data-bs-toggle="collapse"
-				data-bs-target="#settingsCategories"
-				aria-expanded="false"
-				aria-controls="settingsCategories">
+			<button wicket:id="settingsCategoriesAccordionButton"
+					class="accordion-button collapsed fw-bold"
+					type="button"
+					data-testid="settings-categories-accordion-button"
+					data-bs-toggle="collapse"
+					data-bs-target="#settingsCategories"
+					aria-expanded="false"
+					aria-controls="settingsCategories">
 				<wicket:message key="settingspage.categories.heading">Categories &amp; Weighting</wicket:message>
 			</button>
 		</h2>
@@ -21,8 +23,8 @@
 			
 				<div wicket:id="categoryType">
 					<div class="radio"><label><input class="me-1" wicket:id="none" type="radio"/><span><wicket:message key="settingspage.categories.none" /></span></label></div>
-					<div class="radio"><label><input class="me-1" wicket:id="categoriesOnly" type="radio"/><span><wicket:message key="settingspage.categories.categoriesonly" /></span></label></div>
-					<div class="radio"><label><input class="me-1" wicket:id="categoriesAndWeighting" type="radio"/><span><wicket:message key="settingspage.categories.categoriesweighting" /></span></label></div>
+					<div class="radio"><label><input class="me-1" data-testid="categories-only-radio" wicket:id="categoriesOnly" type="radio"/><span><wicket:message key="settingspage.categories.categoriesonly" /></span></label></div>
+					<div class="radio"><label><input class="me-1" data-testid="categories-and-weighting-radio" wicket:id="categoriesAndWeighting" type="radio"/><span><wicket:message key="settingspage.categories.categoriesweighting" /></span></label></div>
 				</div>
 				
 				<div class="instruction">
