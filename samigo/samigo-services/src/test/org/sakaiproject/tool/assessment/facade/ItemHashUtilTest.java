@@ -33,6 +33,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
@@ -77,6 +78,7 @@ public class ItemHashUtilTest {
     private ItemHashUtil itemHashUtil = new ItemHashUtil();
 
     @Mock private ContentHostingService contentHostingService;
+    @Mock private GradingService gradingService;
     @Mock private SecurityService securityService;
     @Mock private ServerConfigurationService serverConfigurationService;
 
@@ -90,6 +92,7 @@ public class ItemHashUtilTest {
         itemHashUtil.setContentHostingService(contentHostingService);
         itemHashUtil.setServerConfigurationService(serverConfigurationService);
         itemHashUtil.setSecurityService(securityService);
+        itemHashUtil.setGradingService(gradingService);
     }
 
     // Only need a small number of "top level" testHashItem*() checks on the final hash value b/c rest of the tests in this class
