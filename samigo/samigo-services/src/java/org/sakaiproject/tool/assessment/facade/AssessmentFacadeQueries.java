@@ -87,7 +87,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -98,15 +97,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateQueryException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
@@ -547,29 +543,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			} else {
 				control.setReleaseTo(AgentFacade.getSiteName(siteId));
 			}
-		}
-
-		EvaluationModel evaluation = (EvaluationModel) assessment
-			.getEvaluationModel();
-		if (evaluation == null) {
-			evaluation = new EvaluationModel();
-		}
-		org.sakaiproject.grading.api.GradingService g = null;
-		boolean integrated = IntegrationContextFactory.getInstance()
-			.isIntegrated();
-		try {
-			if (integrated) {
-				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.grading.api.GradingService");
-			}
-
-			GradebookServiceHelper gbsHelper = IntegrationContextFactory
-			.getInstance().getGradebookServiceHelper();
-		} catch (HibernateQueryException e) {
-			log.warn("Gradebook Error: " + e.getMessage());
-			evaluation
-				.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
-			throw new Exception(e);
 		}
 
 		return assessment;
