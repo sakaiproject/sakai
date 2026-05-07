@@ -18,7 +18,7 @@ package org.sakaiproject.util.impl;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -113,13 +113,11 @@ public class LocaleServiceImpl implements LocaleService {
         try {
             return Double.valueOf(trimmed);
         } catch (NumberFormatException nfe) {
-            try {
-                final NumberFormat parseFormat = NumberFormat.getInstance(locale);
-                parseFormat.setGroupingUsed(true);
-                return parseFormat.parse(trimmed).doubleValue();
-            } catch (ParseException pe) {
-                return null;
-            }
+            final NumberFormat parseFormat = NumberFormat.getInstance(locale);
+            parseFormat.setGroupingUsed(true);
+            final ParsePosition pos = new ParsePosition(0);
+            final Number number = parseFormat.parse(trimmed, pos);
+            return (number != null && pos.getIndex() == trimmed.length()) ? number.doubleValue() : null;
         }
     }
 

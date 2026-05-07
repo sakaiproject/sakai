@@ -79,7 +79,10 @@ public class CreateGradeItemStep extends BasePanel {
 			assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
 			String itemPointValue = processedGradeItem.getItemPointValue();
 			if (StringUtils.isNotBlank(itemPointValue)) {
-				assignment.setPoints(localeService.parseDouble(itemPointValue));
+				final Double points = localeService.parseDouble(itemPointValue);
+				if (points != null) {
+					assignment.setPoints(points);
+				}
 			}
 		}
 
