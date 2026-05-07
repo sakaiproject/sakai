@@ -4368,7 +4368,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 // S2U-26 even if a user can potentially have multiple gradebooks, we're only allowing one return column
                 if (gradingService.isGradebookGroupEnabled(siteId)) {
                     List<String> userGradebooks = gradingService.getGradebookInstancesForUser(siteId, submitterId.get().getSubmitter());
-                    gradebookUid = userGradebooks.get(0);
+                    if (!userGradebooks.isEmpty()) {
+                        gradebookUid = userGradebooks.get(0);
+                    }
                 }
                 // If the assignment reference is not equal to the associated gradebook item, then a custom gb item is being used
                 // S2U-34 In the 22x version this check was looking if the retrieved object from the gradingservice is null, now we check if an exception is thrown

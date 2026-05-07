@@ -3004,7 +3004,9 @@ public class SakaiLTIUtil {
 			List<String> userGradebooks = Arrays.asList(siteId);
 			if (gradingService.isGradebookGroupEnabled(siteId)) {
 				userGradebooks = gradingService.getGradebookInstancesForUser(siteId, userId);
-				returnGradebookUid = userGradebooks.get(0);
+				if (!userGradebooks.isEmpty()) {
+					returnGradebookUid = userGradebooks.get(0);
+				}
 			}
 			for (String gradebookUid : userGradebooks) {
 				List<org.sakaiproject.grading.api.Assignment> gradebookColumns = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
