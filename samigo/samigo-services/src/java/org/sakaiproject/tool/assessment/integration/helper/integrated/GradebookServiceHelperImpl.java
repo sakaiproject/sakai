@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Locale;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 /**
@@ -348,9 +346,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	}
 
   private String getFormattedScore(Double score, String siteId) {
-    String userId = AgentFacade.getAgentString();
-    Locale locale = localeService.getLocaleForSiteAndUser(siteId, userId);
-    return NumberUtil.normalizeLocaleDouble(score.toString(), locale);
+    return localeService.formatDouble(score, siteId, AgentFacade.getAgentString());
   }
 
   public List<String> getGradebookList(boolean isGradebookGroupEnabled, String[] groupsAuthorized) {

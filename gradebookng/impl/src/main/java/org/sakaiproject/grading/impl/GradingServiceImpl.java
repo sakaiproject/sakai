@@ -118,8 +118,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
-import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
@@ -157,6 +157,7 @@ public class GradingServiceImpl implements GradingService {
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
     @Autowired private MemoryService memoryService;
     @Autowired private PlusService plusService;
+    @Autowired private LocaleService localeService;
     @Autowired private ResourceLoader resourceLoader;
     @Autowired private SiteService siteService;
     @Autowired private SectionAwareness sectionAwareness;
@@ -2767,7 +2768,7 @@ public class GradingServiceImpl implements GradingService {
             return null;
         }
 
-        final Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
+        final Double scoreAsDouble = localeService.parseDouble(doubleAsString, resourceLoader.getLocale());
         if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
             log.warn("Failed to convert score for locale {}: '{}'", resourceLoader.getLocale(), doubleAsString);
             return null;

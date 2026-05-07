@@ -20,6 +20,7 @@ import java.util.Locale;
 /**
  * Resolves Sakai's effective locale using the standard precedence:
  * site locale, then user preference, then JVM default locale.
+ * Also provides locale-aware number formatting and parsing utilities.
  */
 public interface LocaleService {
 
@@ -38,4 +39,47 @@ public interface LocaleService {
      * @return effective locale for the provided context, never null
      */
     Locale getLocaleForSiteAndUser(String siteId, String userId);
+
+    /**
+     * Formats a double value using the separators for the supplied locale.
+     */
+    String formatDouble(Double value, Locale locale);
+
+    /**
+     * Resolves the effective locale for the given site and user, then formats the value.
+     */
+    String formatDouble(Double value, String siteId, String userId);
+
+    /**
+     * Parses a number string using either standard dot decimal notation or the separators
+     * for the provided locale. Returns null when parsing fails.
+     */
+    Double parseDouble(String origin, Locale locale);
+
+    /**
+     * Parses a number string using the current user's locale. Returns null when parsing fails.
+     */
+    Double parseDouble(String origin);
+
+    /**
+     * Parses the string and re-formats it using the separators for the supplied locale.
+     * Returns the original string unchanged when it cannot be parsed.
+     */
+    String normalizeDouble(String origin, Locale locale);
+
+    /**
+     * Parses the string and re-formats it using the current user's locale.
+     * Returns the original string unchanged when it cannot be parsed.
+     */
+    String normalizeDouble(String origin);
+
+    /**
+     * Returns true if the string is a validly formatted number for the supplied locale.
+     */
+    boolean isValidDouble(String origin, Locale locale);
+
+    /**
+     * Returns true if the string is a validly formatted number for the current user's locale.
+     */
+    boolean isValidDouble(String origin);
 }
