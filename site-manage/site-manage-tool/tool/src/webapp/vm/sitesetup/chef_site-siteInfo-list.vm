@@ -286,7 +286,7 @@
             #end
 
             #if ($isMicrosoftSynchronizationEnabled)
-            <tr class="summary-subnav-enabled">
+            <tr class="summary-microsoft-enabled">
                 <th>
                 $tlang.getString("sinfo.synchronization.microsoft.name")
                 </th>
