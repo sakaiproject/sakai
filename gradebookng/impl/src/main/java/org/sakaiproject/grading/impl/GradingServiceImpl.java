@@ -2764,18 +2764,17 @@ public class GradingServiceImpl implements GradingService {
      */
     public Double convertStringToDouble(final String doubleAsString) {
 
-        if (StringUtils.isBlank(doubleAsString)) {
+        final Double scoreAsDouble = StringUtils.isBlank(doubleAsString)
+                ? null
+                : localeService.parseDouble(doubleAsString);
+
+        if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
+            log.warn("Failed to convert score {}", doubleAsString);
             return null;
         }
 
-        final Double scoreAsDouble = localeService.parseDouble(doubleAsString, resourceLoader.getLocale());
-        if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
-            log.warn("Failed to convert score for locale {}: '{}'", resourceLoader.getLocale(), doubleAsString);
-            return null;
-        }
         return scoreAsDouble;
     }
-
     /**
      * Get a list of assignments in the gradebook attached to the given category. Note that each assignment only knows the category by name.
      *

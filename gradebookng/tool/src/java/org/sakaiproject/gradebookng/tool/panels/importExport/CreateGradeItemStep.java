@@ -79,11 +79,7 @@ public class CreateGradeItemStep extends BasePanel {
 			assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
 			String itemPointValue = processedGradeItem.getItemPointValue();
 			if (StringUtils.isNotBlank(itemPointValue)) {
-				final String decimalSeparator = formattedText.getDecimalSeparator();
-				if (",".equals(decimalSeparator)) {
-					itemPointValue = itemPointValue.replace(decimalSeparator, ".");
-				}
-				assignment.setPoints(Double.parseDouble(itemPointValue));
+				assignment.setPoints(localeService.parseDouble(itemPointValue));
 			}
 		}
 

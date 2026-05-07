@@ -71,6 +71,21 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
                 }
             }
         });
+        when(localeService.parseDouble(any(String.class))).thenAnswer(invocation -> {
+            String origin = invocation.getArgument(0);
+            if (origin == null) return null;
+            String trimmed = origin.trim();
+            if (trimmed.isEmpty()) return null;
+            try {
+                return Double.valueOf(trimmed);
+            } catch (NumberFormatException nfe) {
+                try {
+                    return Double.valueOf(trimmed.replace(",", "."));
+                } catch (NumberFormatException nfe2) {
+                    return null;
+                }
+            }
+        });
         return localeService;
     }
 

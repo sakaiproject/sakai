@@ -1363,6 +1363,7 @@ public class FormattedTextImpl implements FormattedText
     }
 
     @Override
+    @Deprecated
     public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed) {
 		NumberFormat nbFormat = NumberFormat.getInstance();				
 		try {
@@ -1377,6 +1378,7 @@ public class FormattedTextImpl implements FormattedText
     }
 
     @Override
+    @Deprecated
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
@@ -1393,6 +1395,7 @@ public class FormattedTextImpl implements FormattedText
     }
     
     @Override
+    @Deprecated
     public String getDecimalSeparator() {
 		return ((DecimalFormat)getNumberFormat()).getDecimalFormatSymbols().getDecimalSeparator()+"";
     }

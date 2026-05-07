@@ -338,7 +338,7 @@ public class ExportPanel extends BasePanel {
 
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
 			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.ISO_8859_1)){
-				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(formattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
+				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(localeService.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 				
 				// Create csv header
 				final List<String> header = new ArrayList<>();
@@ -405,7 +405,7 @@ public class ExportPanel extends BasePanel {
 							externalPrefix = IGNORE_COLUMN_PREFIX;
 						}
 						if (!isCustomExport || this.includeGradeItemScores) {
-							header.add(externalPrefix + a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
+							header.add(externalPrefix + a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, localeService.getDecimalSeparator() + "0") + "]");
 						}
 						if (!isCustomExport || this.includeGradeItemComments) {
 							header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, a1.getName()));
@@ -517,7 +517,7 @@ public class ExportPanel extends BasePanel {
 								if (gradeInfo != null) {
 									if (!isCustomExport || this.includeGradeItemScores) {
 										String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
-										line.add(StringUtils.removeEnd(grade, formattedText.getDecimalSeparator() + "0"));
+										line.add(StringUtils.removeEnd(grade, localeService.getDecimalSeparator() + "0"));
 									}
 									if (!isCustomExport || this.includeGradeItemComments) {
 										line.add(gradeInfo.getGradeComment());
@@ -538,7 +538,7 @@ public class ExportPanel extends BasePanel {
 								final Double average = categoryAverages.get(a1.getCategoryId());
 								
 								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
-								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
+								line.add(StringUtils.removeEnd(formattedAverage, localeService.getDecimalSeparator() + "0"));
 								}
 							}
 						}

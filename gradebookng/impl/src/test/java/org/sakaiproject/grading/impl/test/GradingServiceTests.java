@@ -54,6 +54,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -75,6 +76,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private CourseGradeRepository courseGradeRepository;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
+    @Autowired private LocaleService localeService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
@@ -354,16 +356,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
         assertNotNull(assignment);
 
-        ResourceLoader originalLoader = resourceLoader;
-        ResourceLoader spanishLoader = mock(ResourceLoader.class);
-        when(spanishLoader.getLocale()).thenReturn(new Locale("es", "ES"));
-        ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(spanishLoader);
-
-        try {
-            gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, externalId, user1, "4,5");
-        } finally {
-            ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(originalLoader);
-        }
+        gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, externalId, user1, "4,5");
 
         assertEquals("4.5", gradingService.getAssignmentScoreString(gradebook.getUid(), siteId, assignment.getId(), user1));
     }
@@ -386,16 +379,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Map<String, String> scores = new HashMap<>();
         scores.put(user1, "7,25");
 
-        ResourceLoader originalLoader = resourceLoader;
-        ResourceLoader spanishLoader = mock(ResourceLoader.class);
-        when(spanishLoader.getLocale()).thenReturn(new Locale("es", "ES"));
-        ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(spanishLoader);
-
-        try {
-            gradingService.updateExternalAssessmentScoresString(gradebook.getUid(), siteId, externalId, scores);
-        } finally {
-            ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(originalLoader);
-        }
+        gradingService.updateExternalAssessmentScoresString(gradebook.getUid(), siteId, externalId, scores);
 
         assertEquals("7.25", gradingService.getAssignmentScoreString(gradebook.getUid(), siteId, assignment.getId(), user1));
     }

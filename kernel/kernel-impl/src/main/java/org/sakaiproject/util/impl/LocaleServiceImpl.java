@@ -144,18 +144,33 @@ public class LocaleServiceImpl implements LocaleService {
 
     @Override
     public boolean isValidDouble(String origin, Locale locale) {
+        if (origin == null || origin.trim().isEmpty()) {
+            return false;
+        }
         final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(locale);
         final DecimalFormatSymbols fs = df.getDecimalFormatSymbols();
-        final String pattern =
-                "\\d{1,3}(\\" + fs.getGroupingSeparator() + "\\d{3})+" + fs.getDecimalSeparator()
-                + "\\d+|\\d*\\" + fs.getDecimalSeparator() + "\\d+|\\d{1,3}(\\"
-                + fs.getGroupingSeparator() + "\\d{3})+|\\d+";
-        return origin.matches(pattern);
+        final char groupingSeparator = fs.getGroupingSeparator();
+        final char decimalSeparator = fs.getDecimalSeparator();
+        final String pattern = "\\d{1,3}(\\"
+                + groupingSeparator
+                + "\\d{3})+\\"
+                + decimalSeparator
+                + "\\d+|\\d*\\"
+                + decimalSeparator
+                + "\\d+|\\d{1,3}(\\"
+                + groupingSeparator
+                + "\\d{3})+|\\d+";
+        return origin.trim().matches(pattern);
     }
 
     @Override
     public boolean isValidDouble(String origin) {
         return isValidDouble(origin, getLocaleForCurrentSiteAndUser());
+    }
+
+    @Override
+    public String getDecimalSeparator() {
+        return String.valueOf(DecimalFormatSymbols.getInstance(getLocaleForCurrentSiteAndUser()).getDecimalSeparator());
     }
 
     private Locale defaultLocale() {

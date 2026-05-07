@@ -100,89 +100,142 @@ public class LocaleServiceTest extends SakaiKernelTestBase {
         Assert.assertNotNull(localeService.getLocaleForCurrentSiteAndUser());
     }
 
-    // --- parseDouble ---
-
-    @Test public void parseDoubleStandardDotDecimal() {
+    @Test
+    public void parseDoubleStandardDotDecimal() {
         Assert.assertEquals(4.25, localeService.parseDouble("4.25", Locale.US), 0.0001);
     }
 
-    @Test public void parseDoubleLocaleCommaDecimal() {
+    @Test
+    public void parseDoubleLocaleCommaDecimal() {
         Assert.assertEquals(4.25, localeService.parseDouble("4,25", SPAIN), 0.0001);
     }
 
-    @Test public void parseDoubleWithGroupingSeparator() {
+    @Test
+    public void parseDoubleWithGroupingSeparator() {
         Assert.assertEquals(1234.56, localeService.parseDouble("1.234,56", SPAIN), 0.0001);
     }
 
-    @Test public void parseDoubleLargeNumber() {
+    @Test
+    public void parseDoubleLargeNumber() {
         Assert.assertEquals(1234567.89, localeService.parseDouble("1.234.567,89", SPAIN), 0.0001);
     }
 
-    @Test public void parseDoubleReturnsNullForNonNumeric() {
+    @Test
+    public void parseDoubleReturnsNullForNonNumeric() {
         Assert.assertNull(localeService.parseDouble("abc", SPAIN));
     }
 
-    @Test public void parseDoubleReturnsNullForBlank() {
+    @Test
+    public void parseDoubleReturnsNullForBlank() {
         Assert.assertNull(localeService.parseDouble(" ", SPAIN));
     }
 
-    @Test public void parseDoubleReturnsNullForNull() {
+    @Test
+    public void parseDoubleReturnsNullForNull() {
         Assert.assertNull(localeService.parseDouble(null, SPAIN));
     }
 
-    @Test public void normalizeDoubleUsDotPreserved() {
+    @Test
+    public void normalizeDoubleUsDotPreserved() {
         Assert.assertEquals("4.25", localeService.normalizeDouble("4.25", Locale.US));
     }
 
-    @Test public void normalizeDoubleConvertsToSpainFormat() {
+    @Test
+    public void normalizeDoubleConvertsToSpainFormat() {
         Assert.assertEquals("4,25", localeService.normalizeDouble("4.25", SPAIN));
     }
 
-    @Test public void normalizeDoubleStripsGroupingSeparator() {
+    @Test
+    public void normalizeDoubleStripsGroupingSeparator() {
         Assert.assertEquals("1234,56", localeService.normalizeDouble("1.234,56", SPAIN));
     }
 
-    @Test public void normalizeDoubleReturnsBlankUnchanged() {
+    @Test
+    public void normalizeDoubleReturnsBlankUnchanged() {
         Assert.assertEquals(" ", localeService.normalizeDouble(" ", Locale.FRANCE));
     }
 
-    @Test public void normalizeDoubleReturnsNonNumericUnchanged() {
+    @Test
+    public void normalizeDoubleReturnsNonNumericUnchanged() {
         Assert.assertEquals("abc", localeService.normalizeDouble("abc", Locale.FRANCE));
     }
 
-    @Test public void normalizeDoubleReturnsNullForNull() {
+    @Test
+    public void normalizeDoubleReturnsNullForNull() {
         Assert.assertNull(localeService.normalizeDouble(null, Locale.FRANCE));
     }
 
-    @Test public void formatDoubleUs() {
+    @Test
+    public void formatDoubleUs() {
         Assert.assertEquals("4.25", localeService.formatDouble(4.25, Locale.US));
     }
 
-    @Test public void formatDoubleSpain() {
+    @Test
+    public void formatDoubleSpain() {
         Assert.assertEquals("4,25", localeService.formatDouble(4.25, SPAIN));
     }
 
-    @Test public void formatDoubleNoTrailingZeros() {
+    @Test
+    public void formatDoubleNoTrailingZeros() {
         Assert.assertEquals("4", localeService.formatDouble(4.0, Locale.US));
     }
 
-    @Test public void formatDoubleBySiteAndUserUsesResolvedLocale() {
+    @Test
+    public void formatDoubleBySiteAndUserUsesResolvedLocale() {
         Assert.assertEquals("4,25", localeService.formatDouble(4.25, SITE_WITH_LOCALE, USER_WITH_LOCALE));
     }
 
-    @Test public void isValidDoubleInteger() {
+    @Test
+    public void isValidDoubleInteger() {
         Assert.assertTrue(localeService.isValidDouble("42", Locale.US));
     }
 
-    @Test public void isValidDoubleDecimalUs() {
+    @Test
+    public void isValidDoubleDecimalUs() {
         Assert.assertTrue(localeService.isValidDouble("4.25", Locale.US));
     }
 
-    @Test public void isValidDoubleDecimalSpain() {
+    @Test
+    public void isValidDoubleDecimalSpain() {
         Assert.assertTrue(localeService.isValidDouble("4,25", SPAIN));
     }
 
-    @Test public void isValidDoubleAlphaIsInvalid() {
+    @Test
+    public void isValidDoubleAlphaIsInvalid() {
         Assert.assertFalse(localeService.isValidDouble("abc", Locale.US));
+    }
+
+    @Test
+    public void isValidDoubleGroupedDecimalUs() {
+        Assert.assertTrue(localeService.isValidDouble("1,234.56", Locale.US));
+    }
+
+    @Test
+    public void isValidDoubleGroupedDecimalGermany() {
+        Assert.assertTrue(localeService.isValidDouble("1.234,56", Locale.GERMANY));
+    }
+
+    @Test
+    public void isValidDoubleGroupedIntegerUs() {
+        Assert.assertTrue(localeService.isValidDouble("1,234", Locale.US));
+    }
+
+    // Regression: the original regex concatenated the decimal separator char directly into the
+    // pattern without a preceding \, so for en_US the first grouped-decimal alternative was
+    // \d{1,3}(\,\d{3})+.\d+ where '.' matched any character. "1,234x56" would incorrectly
+    // pass. The fix escapes the separator: \d{1,3}(\,\d{3})+\.\d+
+    @Test
+    public void isValidDoubleGroupedWithNonSeparatorCharIsInvalid() {
+        Assert.assertFalse(localeService.isValidDouble("1,234x56", Locale.US));
+    }
+
+    @Test
+    public void isValidDoubleNullIsInvalid() {
+        Assert.assertFalse(localeService.isValidDouble(null, Locale.US));
+    }
+
+    @Test
+    public void isValidDoubleBlankIsInvalid() {
+        Assert.assertFalse(localeService.isValidDouble("", Locale.US));
     }
 }

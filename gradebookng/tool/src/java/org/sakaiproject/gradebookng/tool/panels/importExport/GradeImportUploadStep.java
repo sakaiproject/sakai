@@ -165,8 +165,14 @@ public class GradeImportUploadStep extends BasePanel {
 				// turn file into list
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
-																					upload.getClientFileName(), businessService, formattedText.getDecimalSeparator(), currentGradebookUid, currentSiteId);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+							upload.getInputStream(),
+							upload.getContentType(),
+							upload.getClientFileName(),
+							businessService,
+							localeService.getDecimalSeparator(),
+							currentGradebookUid,
+							currentSiteId);
 				} catch (final POIXMLException e) {
 					log.debug("strict OOXML workbook encountered", e);
 					error(getString("importExport.error.strictOOXML"));

@@ -80,7 +80,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		// form model
 		final GradeOverride override = new GradeOverride();
-		override.setGrade(",".equals(formattedText.getDecimalSeparator()) ? "0,0" : "0.0");
+		override.setGrade(",".equals(localeService.getDecimalSeparator()) ? "0,0" : "0.0");
 		final CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
 
 		// build form

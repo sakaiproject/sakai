@@ -22,7 +22,6 @@ package org.sakaiproject.tool.messageforums;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6382,24 +6381,18 @@ public class DiscussionForumTool {
 	 */
 	public boolean isNumber(String validateString) 
 	{
-			Double parsed = localeService.parseDouble(validateString, rb.getLocale());
+			Double parsed = localeService.parseDouble(validateString);
 			return parsed != null && parsed >= 0 && Double.isFinite(parsed);
 	}	 
+
      public boolean isFewerDigit(String validateString)
      {
          if (validateString == null) {
              return true;
          }
          // Normalize first so separators are consistent with the locale; if parsing fails, defer to other validators
-         final String normalized = localeService.normalizeDouble(validateString, rb.getLocale());
-         final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale()))
-                 .getDecimalFormatSymbols();
-         int idx = normalized.lastIndexOf(dfs.getDecimalSeparator());
-         // Also handle dot-decimal input when the locale uses a comma
-         if (idx < 0 && dfs.getDecimalSeparator() != '.') {
-             idx = normalized.lastIndexOf('.');
-         }
-         // true if no decimal point or at most two digits after it
+         final String normalized = localeService.normalizeDouble(validateString);
+         final int idx = normalized.lastIndexOf(localeService.getDecimalSeparator());
          return idx < 0 || (normalized.length() - idx - 1) <= 2;
      }
 	
