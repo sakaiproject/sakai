@@ -91,6 +91,40 @@ To keep behavior predictable and interoperable, Sakai applies this mapping when 
 
 This favors consistency with real-world LTI tool behavior over a strict, spec-only reading that would disagree with common implementations.
 
+## LTI Activity State and Submission Lifecycle
+
+Sakai treats `activityProgress` as a state machine for assignment submission status:
+
+0. **Tool omits `activityProgress`**
+   - Sakai defaults missing `activityProgress` to completed/submitted behavior
+   - This is intentional compatibility behavior for grade pushes without lifecycle state
+   - Tools that need/implement precise lifecycle control must send `activityProgress` on every update
+
+1. **Student submits (submitted/completed state)**
+   - Example states: `ACTIVITY_SUBMITTED`, `ACTIVITY_COMPLETED`
+   - Sakai sets `submitted = true`
+   - If `dateSubmitted` is empty, Sakai sets it to the current time
+
+2. **Instructor requests resubmission (restart/in-progress state)**
+   - Example states: `ACTIVITY_INITIALIZED`, `ACTIVITY_STARTED`, `ACTIVITY_INPROGRESS`
+   - Sakai clears submission state:
+     - `submitted = false`
+     - `dateSubmitted = null`
+
+3. **Student submits again after restart**
+   - State returns to submitted/completed
+   - Because step 2 cleared `dateSubmitted`, Sakai sets a fresh `dateSubmitted` timestamp
+
+4. **Duplicate submitted callbacks without restart**
+   - If a submitted/completed callback is repeated without an intervening restart/in-progress state, Sakai preserves the existing `dateSubmitted`
+   - This avoids timestamp drift from retries
+
+### Practical implication
+
+- Restart/in-progress transitions intentionally clear the submission timestamp.
+- The next real submit records a new submit timestamp.
+- Retries of the same submitted state do not keep moving the timestamp.
+
 ## Sakai LTI Assignments and Gradebook Integration
 
 LTI assignments integrate with the Sakai gradebook **differently** from other assignment types.

@@ -2928,6 +2928,8 @@ public class SakaiLTIUtil {
 		UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 		org.sakaiproject.site.api.SiteService siteService = ComponentManager.get(org.sakaiproject.site.api.SiteService.class);
 
+		// Design rule: if a tool omits activityProgress, treat it as completed/submitted.
+		// Tools that manage lifecycle transitions must send activityProgress on every update.
 		String activityProgress = scoreObj.activityProgress != null ? scoreObj.activityProgress : Score.ACTIVITY_COMPLETED ;
 		String gradingProgress = scoreObj.gradingProgress != null ? scoreObj.gradingProgress : Score.GRADING_FULLYGRADED;
 		log.debug("activityProgress: {} gradingProgress: {}", activityProgress, gradingProgress);
@@ -3038,20 +3040,53 @@ public class SakaiLTIUtil {
 				submission.setGraded(true);
 			}
 
-			if ( activityProgress.equals(Score.ACTIVITY_INITIALIZED) || activityProgress.equals(Score.ACTIVITY_STARTED) ||
-					 activityProgress.equals(Score.ACTIVITY_INPROGRESS) ) {
+			Instant previousDateSubmitted = submission.getDateSubmitted();
+			boolean isInProgressState = StringUtils.equalsAny(activityProgress,
+					Score.ACTIVITY_INITIALIZED,
+					Score.ACTIVITY_STARTED,
+					Score.ACTIVITY_INPROGRESS);
+
+			/*
+			 * Submission lifecycle (step by step):
+			 *
+			 * 1) Student submits:
+			 *    - activityProgress is submitted/completed.
+			 *    - We set submitted=true.
+			 *    - If dateSubmitted is null, we set it to "now".
+			 *
+			 * 2) Instructor requests resubmission (tool sends restart/in-progress):
+			 *    - activityProgress is initialized/started/inprogress.
+			 *    - We clear submission state (submitted=false, dateSubmitted=null).
+			 *
+			 * 3) Student submits again:
+			 *    - activityProgress returns to submitted/completed.
+			 *    - dateSubmitted was cleared in step 2, so we set a new submit time.
+			 *
+			 * 4) Duplicate submitted callbacks without a restart:
+			 *    - Keep the existing dateSubmitted to avoid timestamp drift from retries.
+			 */
+			log.debug("submission transition input: assignmentId={} userId={} activityProgress={} gradingProgress={} isInProgressState={} wasSubmitted={} previousDateSubmitted={} now={}",
+					a.getId(), userId, activityProgress, gradingProgress, isInProgressState, submission.getSubmitted(), previousDateSubmitted, now);
+			if (isInProgressState) {
 				submission.setSubmitted(false);
 				submission.setDateSubmitted(null);
 			} else {
 				submission.setSubmitted(true);
-				submission.setDateSubmitted(now);
+				// Non-in-progress branch (explicit submitted/completed OR missing-state default):
+				// initial submit sets now; duplicate submit preserves existing timestamp.
+				if (previousDateSubmitted == null) {
+					submission.setDateSubmitted(now);
+				} else {
+					submission.setDateSubmitted(previousDateSubmitted);
+				}
 			}
 
 			submission.getProperties().put(getNextSubmissionLogKey(submission), logEntry.toString());
 
 			 try {
 				assignmentService.updateSubmission(submission);
-				log.debug("Submitted submission={} userId={} log={}", submission.getId(), userId, logEntry.toString());
+				log.debug("Submitted submission={} userId={} submitted={} dateSubmitted={} log={}",
+						submission.getId(), userId, submission.getSubmitted(), submission.getDateSubmitted(), logEntry.toString());
 			} catch (org.sakaiproject.exception.PermissionException e) {
 				log.warn("Could not update submission: {}, {}", submission.getId(), e);
 				return "Could not update submission="+submission.getId()+" "+e;
