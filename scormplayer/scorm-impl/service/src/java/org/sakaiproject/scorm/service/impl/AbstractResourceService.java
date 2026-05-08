@@ -16,6 +16,7 @@
 package org.sakaiproject.scorm.service.impl;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -118,6 +119,11 @@ public abstract class AbstractResourceService implements ScormResourceService
 
 	protected void unpackEntry(String parentPath, ZipInputStream stream, ZipEntry entry) throws ResourceStorageException
 	{
+		if (shouldSkipEntry(entry))
+		{
+			return;
+		}
+
 		if (entry.isDirectory())
 		{
 			newFolder(parentPath, entry);
@@ -126,6 +132,45 @@ public abstract class AbstractResourceService implements ScormResourceService
 		{
 			newItem(parentPath, stream, entry);
 		}
+	}
+
+	protected boolean shouldSkipEntry(ZipEntry entry)
+	{
+		if (entry == null || entry.getName() == null || entry.getName().isBlank())
+		{
+			return true;
+		}
+
+		String normalizedName = entry.getName().replace('\\', '/');
+		while (normalizedName.startsWith("/"))
+		{
+			normalizedName = normalizedName.substring(1);
+		}
+
+		if (normalizedName.isBlank())
+		{
+			return true;
+		}
+
+		String[] parts = normalizedName.split("/");
+		for (String part : parts)
+		{
+			if ("__MACOSX".equals(part))
+			{
+				log.debug("Skipping SCORM archive metadata entry {}", entry.getName());
+				return true;
+			}
+		}
+
+		String fileName = parts[parts.length - 1];
+		String lowerName = fileName.toLowerCase(Locale.ENGLISH);
+		if (".ds_store".equals(lowerName) || "thumbs.db".equals(lowerName) || "desktop.ini".equals(lowerName) || fileName.startsWith("._"))
+		{
+			log.debug("Skipping SCORM archive junk entry {}", entry.getName());
+			return true;
+		}
+
+		return false;
 	}
 
 	protected void unzip(String parentPath, ZipInputStream zipStream) throws ResourceStorageException
