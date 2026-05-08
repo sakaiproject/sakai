@@ -755,6 +755,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.courseGradeId = tableData.courseGradeId;
   GbGradeTable.gradebookId = tableData.gradebookId;
   GbGradeTable.i18n = tableData.i18n;
+  GbGradeTable.parseGradeValue = (val) => {
+    if (val == null || val === "") return -Infinity;
+    const n = GbGradeTable.localizedStringToNumber(String(val));
+    return isNaN(n) ? -Infinity : n;
+  };
   GbGradeTable._fixedColumns.push({
     titleFormatter: GbGradeTable.headerFormatter('studentHeader'),
     formatter: GbGradeTable.studentCellFormatter,
@@ -780,21 +785,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     },
     frozen: true,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
-    sorter: function(a, b) {
-      const a_percent = parseFloat(a[1]);
-      const b_percent = parseFloat(b[1]);
-      const aIsNaN = isNaN(a_percent);
-      const bIsNaN = isNaN(b_percent);
-
-      // treat NaN as less than real numbers
-      if (a_percent > b_percent || (!aIsNaN && bIsNaN)) {
-          return 1;
-      }
-      if (a_percent < b_percent || (aIsNaN && !bIsNaN)) {
-          return -1;
-      }
-      return 0;
-    }
+    sorter: (a, b) => GbGradeTable.parseGradeValue(a[1]) - GbGradeTable.parseGradeValue(b[1])
   });
 
   if (GbGradeTable.settings.isStudentNumberVisible) {
@@ -1869,6 +1860,7 @@ GbGradeTable.getFilteredColumns = function() {
         formatterParams: { _data_: column },
         titleFormatter: GbGradeTable.headerFormatter(null, column),
         width: 180,
+        sorter: (a, b) => GbGradeTable.parseGradeValue(a) - GbGradeTable.parseGradeValue(b),
         editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
       }))
   );
