@@ -730,12 +730,12 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 			return null;
 		}
 
-		// Explicitly define the Content-Type and Content-Diposition headers so the invitation appears inline
+		// Explicitly define the Content-Type and Content-Diposition headers so the invitation appears attached
 		String filename = StringUtils.substringAfterLast(path, File.separator);
 		String type = String.format("text/calendar; charset=\"utf-8\"; method=%s; name=signup-invite.ics", method);
 		File file = new File(path);
 		DataSource dataSource = new Attachment.RenamedDataSource(new FileDataSource(file), filename);
-		return new Attachment(dataSource, type, Attachment.ContentDisposition.INLINE);
+		return new Attachment(dataSource, type, Attachment.ContentDisposition.ATTACHMENT);
 	}
 	
 	
