@@ -29,19 +29,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.grading.api.model.CourseGrade;
-import org.sakaiproject.util.NumberUtil;
-import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 public class GradeUpdateAction extends InjectableAction implements Serializable {
 
@@ -49,6 +45,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
+
+	@SpringBean(name = "org.sakaiproject.util.api.LocaleService")
+	private LocaleService localeService;
 
 	public GradeUpdateAction() {
 	}
@@ -131,21 +130,18 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		target.addChildren(page, FeedbackPanel.class);
 
 		final String rawOldGrade = params.get("oldScore").textValue();
-		String rawNewGrade = StringUtils.trimToEmpty(params.get("newScore").textValue());
-		final String decimal = ComponentManager.get(FormattedText.class).getDecimalSeparator();
-		if (rawNewGrade.startsWith(decimal)) {
-			rawNewGrade = "0" + rawNewGrade;  // prepend a 0 so this passes validation (ie. ".1 " becomes "0.1")
+		final String rawNewGrade = StringUtils.trimToEmpty(params.get("newScore").textValue());
+
+		if (StringUtils.isNotBlank(rawNewGrade)) {
+			final Double parsed = localeService.parseDouble(rawNewGrade);
+			if (parsed == null || parsed < 0) {
+				target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+				return new ArgumentErrorResponse("Grade not valid");
+			}
 		}
 
-		if (StringUtils.isNotBlank(rawNewGrade)
-				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
-			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
-
-			return new ArgumentErrorResponse("Grade not valid");
-		}
-
-		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
-		final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
+		final String oldGrade = localeService.normalizeDouble(StringUtils.defaultString(rawOldGrade));
+		final String newGrade = localeService.normalizeDouble(rawNewGrade);
 
 		final String assignmentId = params.get("assignmentId").asText();
 		final String studentUuid = params.get("studentId").asText();

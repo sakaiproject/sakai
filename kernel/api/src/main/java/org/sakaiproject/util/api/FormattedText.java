@@ -430,27 +430,28 @@ public interface FormattedText {
      public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod);
 
      /**
-      * General utility to get current decimal separator
-      *
-      * @return the decimal separator string
+      * @deprecated Use {@link org.sakaiproject.util.api.LocaleService#getDecimalSeparator()}
+      *             which applies the full Sakai locale precedence (site &rarr; user &rarr; JVM default).
       */
+     @Deprecated
      public String getDecimalSeparator();
 
      /**
-      * General utility to get current number format
-      *
-      * @param maxFractionDigits maximum fraction digits
-      * @param maxFractionDigits minimum fraction digits
-      * @param groupingUsed grouping used
-      * @return the number format
+      * @deprecated Use {@link org.sakaiproject.util.api.LocaleService#formatDouble(Double, java.util.Locale)},
+      *             {@link org.sakaiproject.util.api.LocaleService#parseDouble(String)}, or
+      *             {@code NumberFormat.getInstance(localeService.getLocaleForCurrentSiteAndUser())}
+      *             for full locale resolution.
       */
+     @Deprecated
      public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed);
 
      /**
-      * General utility to get current number format
-      *
-      * @return the number format
+      * @deprecated Use {@link org.sakaiproject.util.api.LocaleService#formatDouble(Double, java.util.Locale)},
+      *             {@link org.sakaiproject.util.api.LocaleService#parseDouble(String)}, or
+      *             {@code NumberFormat.getInstance(localeService.getLocaleForCurrentSiteAndUser())}
+      *             for full locale resolution.
       */
+     @Deprecated
      public NumberFormat getNumberFormat();
      
      /**

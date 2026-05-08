@@ -36,7 +36,6 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
@@ -45,7 +44,6 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.MessageHelper;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -167,8 +165,14 @@ public class GradeImportUploadStep extends BasePanel {
 				// turn file into list
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
-																					upload.getClientFileName(), businessService, ComponentManager.get(FormattedText.class).getDecimalSeparator(), currentGradebookUid, currentSiteId);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+							upload.getInputStream(),
+							upload.getContentType(),
+							upload.getClientFileName(),
+							businessService,
+							localeService.getDecimalSeparator(),
+							currentGradebookUid,
+							currentSiteId);
 				} catch (final POIXMLException e) {
 					log.debug("strict OOXML workbook encountered", e);
 					error(getString("importExport.error.strictOOXML"));

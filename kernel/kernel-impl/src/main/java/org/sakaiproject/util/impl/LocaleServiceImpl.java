@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.util.impl;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,6 +89,86 @@ public class LocaleServiceImpl implements LocaleService {
         }
 
         return defaultLocale();
+    }
+
+    @Override
+    public String formatDouble(Double value, Locale locale) {
+        NumberFormat format = NumberFormat.getInstance(locale);
+        format.setGroupingUsed(false);
+        format.setMinimumFractionDigits(0);
+        format.setMaximumFractionDigits(15);
+        return format.format(value);
+    }
+
+    @Override
+    public String formatDouble(Double value, String siteId, String userId) {
+        return formatDouble(value, getLocaleForSiteAndUser(siteId, userId));
+    }
+
+    @Override
+    public Double parseDouble(String origin, Locale locale) {
+        if (origin == null) return null;
+        final String trimmed = origin.trim();
+        if (trimmed.isEmpty()) return null;
+        try {
+            return Double.valueOf(trimmed);
+        } catch (NumberFormatException nfe) {
+            final NumberFormat parseFormat = NumberFormat.getInstance(locale);
+            parseFormat.setGroupingUsed(true);
+            final ParsePosition pos = new ParsePosition(0);
+            final Number number = parseFormat.parse(trimmed, pos);
+            return (number != null && pos.getIndex() == trimmed.length()) ? number.doubleValue() : null;
+        }
+    }
+
+    @Override
+    public Double parseDouble(String origin) {
+        return parseDouble(origin, getLocaleForCurrentSiteAndUser());
+    }
+
+    @Override
+    public String normalizeDouble(String origin, Locale locale) {
+        if (origin == null) return null;
+        final String trimmed = origin.trim();
+        if (trimmed.isEmpty()) return origin;
+        final Double value = parseDouble(trimmed, locale);
+        return value != null ? formatDouble(value, locale) : origin;
+    }
+
+    @Override
+    public String normalizeDouble(String origin) {
+        return normalizeDouble(origin, getLocaleForCurrentSiteAndUser());
+    }
+
+    @Override
+    public boolean isValidDouble(String origin, Locale locale) {
+        if (origin == null || origin.trim().isEmpty()) {
+            return false;
+        }
+        final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(locale);
+        final DecimalFormatSymbols fs = df.getDecimalFormatSymbols();
+        final char groupingSeparator = fs.getGroupingSeparator();
+        final char decimalSeparator = fs.getDecimalSeparator();
+        final String pattern = "\\d{1,3}(\\"
+                + groupingSeparator
+                + "\\d{3})+\\"
+                + decimalSeparator
+                + "\\d+|\\d*\\"
+                + decimalSeparator
+                + "\\d+|\\d{1,3}(\\"
+                + groupingSeparator
+                + "\\d{3})+|\\d+";
+        return origin.trim().matches(pattern);
+    }
+
+    @Override
+    public boolean isValidDouble(String origin) {
+        return isValidDouble(origin, getLocaleForCurrentSiteAndUser());
+    }
+
+    @Override
+    public String getDecimalSeparator() {
+        return String.valueOf(DecimalFormatSymbols.getInstance(getLocaleForCurrentSiteAndUser()).getDecimalSeparator());
     }
 
     private Locale defaultLocale() {

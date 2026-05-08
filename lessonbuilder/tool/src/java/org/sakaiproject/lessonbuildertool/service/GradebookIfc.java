@@ -36,7 +36,7 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
-import org.sakaiproject.util.NumberUtil;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * Interface to Gradebook
@@ -47,6 +47,7 @@ import org.sakaiproject.util.NumberUtil;
 @Slf4j
 public class GradebookIfc {
 	@Setter private static GradingService gradingService;
+	@Setter private static LocaleService localeService;
 
 	public boolean addExternalAssessment(final List<String> gradebookUids, final String siteId, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
@@ -107,7 +108,7 @@ public class GradebookIfc {
 	public boolean updateExternalAssessmentScore(final String gradebookUid, final String siteId, final String externalId,
 						 final String studentUid, final String points) {
 		try {
-			gradingService.updateExternalAssessmentScore(gradebookUid, siteId, externalId, studentUid, NumberUtil.normalizeLocaleDouble(points));
+			gradingService.updateExternalAssessmentScore(gradebookUid, siteId, externalId, studentUid, localeService.normalizeDouble(points));
 		} catch (Exception e) {
 			return false;
 		}
@@ -123,7 +124,7 @@ public class GradebookIfc {
 		Map<String, String> normalizedScores = new HashMap<>(studentUidsToScores.size());
 		for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
 			String value = entry.getValue();
-			normalizedScores.put(entry.getKey(), NumberUtil.normalizeLocaleDouble(value));
+			normalizedScores.put(entry.getKey(), localeService.normalizeDouble(value));
 		}
 		gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
 		} catch (Exception e) {

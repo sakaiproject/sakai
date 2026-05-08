@@ -35,7 +35,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -47,9 +46,6 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GraderPermission;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.PermissionDefinition;
-import org.sakaiproject.util.NumberUtil;
-import org.sakaiproject.util.api.FormattedText;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -84,7 +80,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		// form model
 		final GradeOverride override = new GradeOverride();
-		override.setGrade(",".equals(ComponentManager.get(FormattedText.class).getDecimalSeparator()) ? "0,0" : "0.0");
+		override.setGrade(",".equals(localeService.getDecimalSeparator()) ? "0,0" : "0.0");
 		final CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
 
 		// build form
@@ -102,7 +98,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 				final Assignment assignment = UpdateUngradedItemsPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
 				try {
-					if(!NumberUtil.isValidLocaleDouble(override.getGrade())){
+					if(!localeService.isValidDouble(override.getGrade())){
 						throw new NumberFormatException();
 					}
 					final Double overrideValue = FormatHelper.validateDouble(override.getGrade());

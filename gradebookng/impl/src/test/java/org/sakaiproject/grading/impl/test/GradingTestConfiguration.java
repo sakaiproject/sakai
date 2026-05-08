@@ -16,12 +16,19 @@
 package org.sakaiproject.grading.impl.test;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +49,45 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading")
     @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        LocaleService localeService = mock(LocaleService.class);
+        when(localeService.parseDouble(any(), any(Locale.class))).thenAnswer(invocation -> {
+            String origin = invocation.getArgument(0);
+            Locale locale = invocation.getArgument(1);
+            if (origin == null) return null;
+            String trimmed = origin.trim();
+            if (trimmed.isEmpty()) return null;
+            try {
+                return Double.valueOf(trimmed);
+            } catch (NumberFormatException nfe) {
+                try {
+                    NumberFormat format = NumberFormat.getInstance(locale);
+                    format.setGroupingUsed(true);
+                    return format.parse(trimmed).doubleValue();
+                } catch (ParseException pe) {
+                    return null;
+                }
+            }
+        });
+        when(localeService.parseDouble(any(String.class))).thenAnswer(invocation -> {
+            String origin = invocation.getArgument(0);
+            if (origin == null) return null;
+            String trimmed = origin.trim();
+            if (trimmed.isEmpty()) return null;
+            try {
+                return Double.valueOf(trimmed);
+            } catch (NumberFormatException nfe) {
+                try {
+                    return Double.valueOf(trimmed.replace(",", "."));
+                } catch (NumberFormatException nfe2) {
+                    return null;
+                }
+            }
+        });
+        return localeService;
+    }
 
     @Bean(name = "org.sakaiproject.section.api.SectionAwareness")
     public SectionAwareness sectionAwareness() {

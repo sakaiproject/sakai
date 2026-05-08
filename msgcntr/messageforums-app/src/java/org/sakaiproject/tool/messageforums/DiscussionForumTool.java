@@ -22,7 +22,6 @@ package org.sakaiproject.tool.messageforums;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -160,8 +159,8 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
@@ -423,6 +422,8 @@ public class DiscussionForumTool {
   /**
    * Dependency Injected
    */
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.LocaleService\"]}")
+  private LocaleService localeService;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
   private DiscussionForumManager forumManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
@@ -6318,24 +6319,18 @@ public class DiscussionForumTool {
 	 */
 	public boolean isNumber(String validateString) 
 	{
-			Double parsed = NumberUtil.parseLocaleDouble(validateString, rb.getLocale());
+			Double parsed = localeService.parseDouble(validateString);
 			return parsed != null && parsed >= 0 && Double.isFinite(parsed);
 	}	 
+
      public boolean isFewerDigit(String validateString)
      {
          if (validateString == null) {
              return true;
          }
          // Normalize first so separators are consistent with the locale; if parsing fails, defer to other validators
-         final String normalized = NumberUtil.normalizeLocaleDouble(validateString, rb.getLocale());
-         final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale()))
-                 .getDecimalFormatSymbols();
-         int idx = normalized.lastIndexOf(dfs.getDecimalSeparator());
-         // Also handle dot-decimal input when the locale uses a comma
-         if (idx < 0 && dfs.getDecimalSeparator() != '.') {
-             idx = normalized.lastIndexOf('.');
-         }
-         // true if no decimal point or at most two digits after it
+         final String normalized = localeService.normalizeDouble(validateString);
+         final int idx = normalized.lastIndexOf(localeService.getDecimalSeparator());
          return idx < 0 || (normalized.length() - idx - 1) <= 2;
      }
 	

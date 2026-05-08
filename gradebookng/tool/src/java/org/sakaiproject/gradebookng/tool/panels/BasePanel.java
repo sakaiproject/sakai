@@ -46,6 +46,8 @@ import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * Panel extension to abstract away some common functionality that many GBNG panels share. Classes extending {@link BasePanel} do not need
@@ -72,6 +74,12 @@ public abstract class BasePanel extends Panel {
 
 	@SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
 	protected ToolManager toolManager;
+
+	@SpringBean(name = "org.sakaiproject.util.api.FormattedText")
+	protected FormattedText formattedText;
+
+	@SpringBean(name = "org.sakaiproject.util.api.LocaleService")
+	protected LocaleService localeService;
 
 	protected static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	protected static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = Boolean.TRUE;
