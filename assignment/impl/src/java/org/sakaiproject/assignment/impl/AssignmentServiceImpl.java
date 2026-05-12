@@ -263,6 +263,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private static final String ANNOUNCEMENT_NOTIFICATION_INVOKEE = "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc";
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
+    private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
 
     public void init() {
         allowSubmitByInstructor = serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", true);
@@ -4739,12 +4740,22 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 originalGBAssignment = gradingService.getExternalAssignment(oAssignment.getContext(), associatedGradebookAssignment);
                             }
 
+                            Optional<Long> importedCategoryId = Optional.empty();
+                            if (isOriginalAssignmentExternal && originalGBAssignment != null) {
+                                importedCategoryId = createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext());
+                            }
+
                             if (nAssignment.getDraft()) {
                                 // assignment is in the draft state
                                 if (isOriginalAssignmentExternal) {
                                     // if this is an external defined assignments will create when publishing
                                     nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                                    if (importedCategoryId.isPresent()) {
+                                        nProperties.put(NEW_ASSIGNMENT_CATEGORY, importedCategoryId.get().toString());
+                                    } else {
+                                        nProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                                    }
                                 } else {
                                     if (newGbAssignment != null) {
                                         if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
@@ -4760,11 +4771,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // not in draft state
                                 if (isOriginalAssignmentExternal) {
                                     // external gradebook items are created by assignments and linked using the assignments reference
-                                    Long categoryId = null;
-                                    if (originalGBAssignment != null) {
-                                        categoryId = createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext())
-                                                .orElse(null);
-                                    }
+                                    Long categoryId = importedCategoryId.orElse(null);
 
                                     try {
                                         gradingService.addExternalAssessment(

@@ -22,12 +22,14 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -87,6 +89,9 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -125,6 +130,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private static final Faker faker = new Faker();
+    private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
 
     @Autowired private AssignmentEventObserver assignmentEventObserver;
     @Autowired private AssignmentService assignmentService;
@@ -2099,6 +2105,61 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 }
             }
         }
+    }
+
+    @Test
+    public void transferCopyEntitiesPreservesExternalGradebookCategoryForDraftImport() throws Exception {
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        String externalId = "/assignment/a/" + fromContext + "/" + UUID.randomUUID();
+        String categoryName = "Homework";
+        Long destinationCategoryId = 42L;
+
+        Assignment sourceAssignment = createNewAssignment(fromContext);
+        sourceAssignment.setTitle("Categorized assignment");
+        sourceAssignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD);
+        sourceAssignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, externalId);
+
+        String toContextReference = AssignmentReferenceReckoner.reckoner().context(toContext).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, toContextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, toContextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, toContextReference)).thenReturn(true);
+        when(serverConfigurationService.getBoolean("import.importAsDraft", true)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
+
+        User currentUser = mock(User.class);
+        when(currentUser.getId()).thenReturn(userId);
+        when(userDirectoryService.getCurrentUser()).thenReturn(currentUser);
+
+        org.sakaiproject.grading.api.Assignment sourceGradebookItem = new org.sakaiproject.grading.api.Assignment();
+        sourceGradebookItem.setName(sourceAssignment.getTitle());
+        sourceGradebookItem.setExternalId(externalId);
+        sourceGradebookItem.setCategoryName(categoryName);
+        when(gradingService.isExternalAssignmentDefined(fromContext, externalId)).thenReturn(true);
+        when(gradingService.getExternalAssignment(fromContext, externalId)).thenReturn(sourceGradebookItem);
+
+        GradebookInformation destinationGradebookInformation = new GradebookInformation();
+        destinationGradebookInformation.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+        destinationGradebookInformation.setCategories(new ArrayList<>());
+        when(gradingService.getGradebookInformation(toContext, toContext)).thenReturn(destinationGradebookInformation);
+        when(gradingService.getCategoryDefinitions(toContext, toContext))
+                .thenReturn(Collections.singletonList(new CategoryDefinition(destinationCategoryId, categoryName)));
+
+        AssignmentServiceImpl assignmentServiceImpl = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
+        assignmentServiceImpl.transferCopyEntities(fromContext, toContext, Collections.singletonList(sourceAssignment.getId()), Collections.<String>emptyList());
+
+        Assignment importedAssignment = assignmentService.getAssignmentsForContext(toContext).stream().findFirst().orElse(null);
+        Assert.assertNotNull(importedAssignment);
+        Assert.assertTrue(importedAssignment.getDraft());
+        Assert.assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+        Assert.assertEquals(destinationCategoryId.toString(),
+                importedAssignment.getProperties().get(NEW_ASSIGNMENT_CATEGORY));
+        verify(gradingService, never()).addExternalAssessment(
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString(), anyString(), any(), any(), anyString());
     }
 
     @Test
