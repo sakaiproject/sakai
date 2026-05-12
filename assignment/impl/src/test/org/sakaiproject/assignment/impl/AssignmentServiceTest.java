@@ -2127,6 +2127,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, toContextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, toContextReference)).thenReturn(true);
         when(serverConfigurationService.getBoolean("import.importAsDraft", true)).thenReturn(true);
+        when(serverConfigurationService.getBoolean("assignment.import.importAsDraft", true)).thenReturn(true);
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
 
         User currentUser = mock(User.class);

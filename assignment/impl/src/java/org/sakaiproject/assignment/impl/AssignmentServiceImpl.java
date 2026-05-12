@@ -4802,6 +4802,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                         nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                                        if (importedCategoryId.isPresent()) {
+                                            nProperties.put(NEW_ASSIGNMENT_CATEGORY, importedCategoryId.get().toString());
+                                        } else {
+                                            nProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                                        }
                                         nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
                                         assignmentRepository.merge(nAssignment);
                                         log.info("Renamed duplicate assignment to '{}' and set to draft in site {}. Will be added to GB on publish.", uniqueTitle, nAssignment.getContext());
