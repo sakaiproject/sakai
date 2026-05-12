@@ -278,13 +278,13 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 
         if (StringUtils.isNotBlank(hintScore))
         {
-            log.debug("applyScoreHints: score={} completion={} success={}", hintScore, hintCompletion, hintSuccess);
             scormApplicationService.setValue("cmi.score.scaled", hintScore, sessionBean, scoBean);
         }
 
-        if ("completed".equals(hintCompletion))
+        // "passed" and "failed" are both terminal success_status values (quiz was submitted); "unknown" means mid-session
+        if ("completed".equals(hintCompletion) || "passed".equals(hintSuccess) || "failed".equals(hintSuccess))
         {
-            scormApplicationService.setValue("cmi.completion_status", hintCompletion, sessionBean, scoBean);
+            scormApplicationService.setValue("cmi.completion_status", "completed", sessionBean, scoBean);
         }
 
         if ("passed".equals(hintSuccess) || "failed".equals(hintSuccess))

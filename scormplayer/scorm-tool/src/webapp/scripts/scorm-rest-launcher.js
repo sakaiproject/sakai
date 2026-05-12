@@ -656,6 +656,20 @@
         adjustFrameHeight();
         window.addEventListener('resize', adjustFrameHeight, { passive: true });
 
+        // Firefox suppresses beforeunload on non-localhost popup close, so invoke the SCO's
+        // unload handler explicitly to ensure score/completion are submitted before the window goes.
+        window.addEventListener('pagehide', function(event) {
+            if (event.persisted) return;
+            if (state.sessionId && state.activeScoId) {
+                const iframeWin = frame?.contentWindow;
+                try {
+                    if (typeof iframeWin?.finishTracking === 'function') iframeWin.finishTracking();
+                    else if (typeof iframeWin?.onbeforeunload === 'function') iframeWin.onbeforeunload();
+                } catch (_) {} // SCO may throw on pagehide — window is closing anyway, ignore
+            }
+            if (window.opener && !window.opener.closed) window.opener.location.reload();
+        });
+
         launchers.push({ root, state, adjustFrameHeight });
     }
 
@@ -671,12 +685,4 @@
         bootstrap,
         active: launchers,
     };
-
-    // Refresh parent window when this popup closes (handles both normal exit and force-close)
-    // Using pagehide event with persisted check to avoid triggering on bfcache navigations
-    window.addEventListener('pagehide', function(event) {
-        if (!event.persisted && window.opener && !window.opener.closed) {
-            window.opener.location.reload();
-        }
-    });
 })();
