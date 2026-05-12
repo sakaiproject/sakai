@@ -11518,8 +11518,9 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<String, Long> gradebookCategoriesMap = addToGradebookOnPublish
                 ? getBulkPublishGradebookCategories(state, siteId, assignment)
                 : Collections.emptyMap();
+        boolean addToResolvedGradebookOnPublish = addToGradebookOnPublish && !gradebookCategoriesMap.isEmpty();
 
-        if (addToGradebookOnPublish) {
+        if (addToResolvedGradebookOnPublish) {
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
             properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, assignmentReference);
@@ -11529,7 +11530,7 @@ public class AssignmentAction extends PagedResourceActionII {
         assignment.setDraft(Boolean.FALSE);
         assignmentService.updateAssignment(assignment);
 
-        if (addToGradebookOnPublish) {
+        if (addToResolvedGradebookOnPublish) {
             for (Map.Entry<String, Long> entry : gradebookCategoriesMap.entrySet()) {
                 initIntegrateWithGradebook(state, entry.getKey(), assignment.getTitle(), oAssociateGradebookAssignment,
                         assignment, assignment.getTitle(), assignment.getDueDate(), assignment.getTypeOfGrade(),

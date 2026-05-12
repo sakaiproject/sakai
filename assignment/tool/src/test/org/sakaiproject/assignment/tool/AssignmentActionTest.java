@@ -30,6 +30,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -52,6 +53,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -269,6 +271,40 @@ public class AssignmentActionTest {
                 "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
         Assert.assertEquals(Boolean.TRUE.toString(), properties.get(org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
         Assert.assertEquals("draft-announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        Mockito.verify(assignmentService).updateAssignment(assignment);
+    }
+
+    @Test
+    public void testPublishAssignmentDoesNotAssociateGradebookWhenCategoriesCannotResolve() throws Exception {
+        SessionState state = new SessionStateFake();
+        String siteId = "site-id";
+        Assignment assignment = new Assignment();
+        Map<String, String> properties = assignment.getProperties();
+
+        assignment.setId("assignment-id");
+        assignment.setContext(siteId);
+        assignment.setTitle("Assignment title");
+        assignment.setDraft(Boolean.TRUE);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setMaxGradePoint(100);
+        properties.put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentConstants.GRADEBOOK_INTEGRATION_ADD);
+        properties.put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "old-gradebook-item");
+        properties.put("new_assignment_category", "123");
+
+        Mockito.when(gradingService.isGradebookGroupEnabled(siteId)).thenReturn(true);
+        Mockito.when(siteService.getSite(siteId)).thenThrow(new IdUnusedException(siteId));
+
+        Method method = AssignmentAction.class.getDeclaredMethod("publishAssignment",
+                SessionState.class, String.class, Assignment.class);
+        method.setAccessible(true);
+        method.invoke(assignmentAction, state, siteId, assignment);
+
+        Assert.assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+                properties.get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        Assert.assertEquals("old-gradebook-item",
+                properties.get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+        Assert.assertEquals("123", properties.get("new_assignment_category"));
+        Assert.assertFalse(assignment.getDraft());
         Mockito.verify(assignmentService).updateAssignment(assignment);
     }
 }
