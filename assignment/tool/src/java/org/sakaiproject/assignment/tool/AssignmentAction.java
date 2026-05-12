@@ -11487,8 +11487,7 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
                 Assignment assignment = assignmentService.getAssignment(id);
-                assignment.setDraft(Boolean.FALSE);
-                assignmentService.updateAssignment(assignment);
+                publishAssignment(state, siteId, assignment);
             } catch (IdUnusedException e) {
                 log.warn("Cannot find assignment with ref: {}", ref);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", ref));
@@ -11506,6 +11505,83 @@ public class AssignmentAction extends PagedResourceActionII {
             // reset paging information after the assignment been deleted
             resetPaging(state);
         }
+    }
+
+    private void publishAssignment(SessionState state, String siteId, Assignment assignment) throws PermissionException {
+        Map<String, String> properties = assignment.getProperties();
+        String addtoGradebook = properties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+        String oAssociateGradebookAssignment = properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        boolean addToGradebookOnPublish = BooleanUtils.toBoolean(assignment.getDraft())
+                && GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook)
+                && assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE;
+
+        Map<String, Long> gradebookCategoriesMap = addToGradebookOnPublish
+                ? getBulkPublishGradebookCategories(state, siteId, assignment)
+                : Collections.emptyMap();
+
+        if (addToGradebookOnPublish) {
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+            properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, assignmentReference);
+            properties.remove(NEW_ASSIGNMENT_CATEGORY);
+        }
+
+        assignment.setDraft(Boolean.FALSE);
+        assignmentService.updateAssignment(assignment);
+
+        if (addToGradebookOnPublish) {
+            for (Map.Entry<String, Long> entry : gradebookCategoriesMap.entrySet()) {
+                initIntegrateWithGradebook(state, entry.getKey(), assignment.getTitle(), oAssociateGradebookAssignment,
+                        assignment, assignment.getTitle(), assignment.getDueDate(), assignment.getTypeOfGrade(),
+                        assignment.getMaxGradePoint().toString(), addtoGradebook, null, entry.getValue());
+            }
+        }
+    }
+
+    private Map<String, Long> getBulkPublishGradebookCategories(SessionState state, String siteId, Assignment assignment) {
+        Map<String, Long> gradebookCategoriesMap = new LinkedHashMap<>();
+        if (!gradingService.isGradebookGroupEnabled(siteId)) {
+            gradebookCategoriesMap.put(siteId, NumberUtils.toLong(assignment.getProperties().get(NEW_ASSIGNMENT_CATEGORY), -1L));
+            return gradebookCategoriesMap;
+        }
+
+        List<String> groupIdList = new ArrayList<>();
+        try {
+            Site site = siteService.getSite(siteId);
+            groupIdList = assignment.getGroups().stream()
+                    .map(site::getGroup)
+                    .filter(Objects::nonNull)
+                    .map(Group::getId)
+                    .collect(Collectors.toList());
+        } catch (IdUnusedException e) {
+            log.warn("Cannot find site {} while publishing assignment {}", siteId, assignment.getId());
+            addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", assignment.getId()));
+            return gradebookCategoriesMap;
+        }
+
+        List<String> selectedGradebookUids = new ArrayList<>();
+        buildGradebookUidList(state, siteId, selectedGradebookUids, GRADEBOOK_INTEGRATION_ADD, groupIdList, true);
+
+        String categoriesString = StringUtils.trimToNull(assignment.getProperties().get(NEW_ASSIGNMENT_CATEGORY));
+        if (categoriesString == null) {
+            selectedGradebookUids.forEach(gbUid -> gradebookCategoriesMap.put(gbUid, -1L));
+            return gradebookCategoriesMap;
+        }
+
+        List<String> selectedCategories = Arrays.stream(categoriesString.split(","))
+                .map(StringUtils::trimToNull)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        for (String gbUid : selectedGradebookUids) {
+            Long categoryId = gradingService.getCategoryDefinitions(gbUid, siteId).stream()
+                    .filter(category -> selectedCategories.contains(category.getId().toString()))
+                    .map(CategoryDefinition::getId)
+                    .findFirst()
+                    .orElse(-1L);
+            gradebookCategoriesMap.put(gbUid, categoryId);
+        }
+        return gradebookCategoriesMap;
     }
 
     /**
