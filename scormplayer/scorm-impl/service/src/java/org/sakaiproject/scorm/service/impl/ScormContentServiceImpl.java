@@ -388,6 +388,10 @@ public class ScormContentServiceImpl implements ScormContentService {
 		try
 		{
 			file = createFile(resourceService.getArchiveStream(resourceId));
+			if (file == null)
+			{
+				throw new ResourceStorageException("Unable to create temporary validation file for resource: " + resourceId);
+			}
 			int result = VALIDATION_SUCCESS;
 			if (!file.exists())
 			{

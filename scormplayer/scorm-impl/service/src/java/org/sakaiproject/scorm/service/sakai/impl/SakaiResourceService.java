@@ -632,7 +632,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 		{
 			if (archiveFile != null && archiveFile.exists() && !archiveFile.delete())
 			{
-				log.debug("Unable to remove failed SCORM temporary upload {}", archiveFile.getAbsolutePath());
+				log.warn("Unable to remove failed SCORM temporary upload {}", archiveFile.getAbsolutePath());
 			}
 			throw new ServerOverloadException("Unable to store temporary SCORM archive " + name, e);
 		}
@@ -666,7 +666,7 @@ public abstract class SakaiResourceService extends AbstractResourceService
 			File archiveFile = getTemporaryArchiveFile(resourceId);
 			if (archiveFile.exists() && !archiveFile.delete())
 			{
-				log.debug("Unable to remove temporary SCORM upload {}", archiveFile.getAbsolutePath());
+				log.warn("Unable to remove temporary SCORM upload {}", archiveFile.getAbsolutePath());
 			}
 		}
 		catch (Exception e)
