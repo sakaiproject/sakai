@@ -112,11 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
     chart = new Chart(canvas, buildConfig(type));
   }
 
-  const savedType = getCookie(COOKIE_NAME) || "bar";
+  const ALLOWED_TYPES = new Set(["bar", "pie"]);
+  const savedTypeRaw = getCookie(COOKIE_NAME);
+  const savedType = ALLOWED_TYPES.has(savedTypeRaw) ? savedTypeRaw : "bar";
   if (select) {
     select.value = savedType;
     select.addEventListener("change", () => {
-      const type = select.value;
+      const type = ALLOWED_TYPES.has(select.value) ? select.value : "bar";
       setCookie(COOKIE_NAME, type);
       renderChart(type);
     });
