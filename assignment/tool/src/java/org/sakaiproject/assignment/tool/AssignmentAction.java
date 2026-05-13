@@ -9239,10 +9239,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 } else {
+                    Object categoryObj = state.getAttribute(NEW_ASSIGNMENT_CATEGORY);
+                    String categoryString = categoryObj != null ? categoryObj.toString().trim() : null;
                     gradebookCategoriesMap.put(siteId,
-                        state.getAttribute(NEW_ASSIGNMENT_CATEGORY) != null
-                        ? (Long) state.getAttribute(NEW_ASSIGNMENT_CATEGORY)
-                        : -1L);
+                        StringUtils.isNotBlank(categoryString) ? NumberUtils.toLong(categoryString, -1L) : -1L);
                 }
             } else if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(addtoGradebook)) {
                 if (isGradebookGroupEnabled) {
@@ -11537,6 +11537,12 @@ public class AssignmentAction extends PagedResourceActionII {
         if (addToResolvedGradebookOnPublish) {
             updateGradebookIntegrationProperties(assignment, addtoGradebook, oAssociateGradebookAssignment, properties, true);
             properties.remove(NEW_ASSIGNMENT_CATEGORY);
+        } else if (addToGradebookOnPublish && gradebookCategoriesMap.isEmpty()) {
+            updateGradebookIntegrationProperties(assignment, GRADEBOOK_INTEGRATION_NO, oAssociateGradebookAssignment, properties, true);
+            properties.remove(NEW_ASSIGNMENT_CATEGORY);
+            log.warn("Skipping gradebook integration for assignment {} because getBulkPublishGradebookCategories returned no categories; clearing {}",
+                    assignment.getId(), NEW_ASSIGNMENT_CATEGORY);
+            addAlert(state, rb.getString("addtogradebook.skipped.no.categories"));
         }
 
         assignment.setDraft(Boolean.FALSE);
