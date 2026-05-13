@@ -12,8 +12,17 @@
 
     <section class="card mb-4" aria-labelledby="poll-results-chart-heading">
       <div class="card-body">
-        <h2 id="poll-results-chart-heading" class="h5 mb-3" th:text="#{results_chart_title}">Chart</h2>
-        <p id="poll-results-chart-summary" class="visually-hidden" th:text="#{results_chart_summary}">Bar chart of poll results by option.</p>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 id="poll-results-chart-heading" class="h5 mb-0" th:text="#{results_chart_title}">Chart</h2>
+          <div class="d-flex align-items-center gap-2">
+            <label for="chart-type-selection" class="mb-0" th:text="#{results_chart_type}">Chart Type:</label>
+            <select id="chart-type-selection" class="form-select form-select-sm" style="width: auto;">
+              <option value="bar" th:text="#{results_chart_bar}">Bar</option>
+              <option value="pie" th:text="#{results_chart_pie}">Pie</option>
+            </select>
+          </div>
+        </div>
+        <p id="poll-results-chart-summary" class="visually-hidden" th:text="#{results_chart_summary}">Chart of poll results by option.</p>
         <div class="position-relative" style="min-height: 20rem;">
           <canvas id="poll-results-chart" aria-describedby="poll-results-chart-summary" height="320"></canvas>
         </div>
