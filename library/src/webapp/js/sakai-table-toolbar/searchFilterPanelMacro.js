@@ -38,9 +38,10 @@
         const updateClearBtn = () => clearBtn && (clearBtn.style.display = field.value ? '' : 'none');
 
         const search = () => {
-            if (!field.value) return doFetch(field.dataset.clearUrl);
-            if (field.value.length < MIN_SEARCH_CHARS) return;
-            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(field.value)}`);
+            const q = field.value.trim();
+            if (!q) return doFetch(field.dataset.clearUrl);
+            if (q.length < MIN_SEARCH_CHARS) return;
+            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(q)}`);
         };
 
         field.addEventListener('input', () => {
@@ -48,7 +49,7 @@
         });
 
         field.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); search(); }
+            if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); search(); }
         });
 
         clearBtn?.addEventListener('click', () => {
