@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -84,6 +85,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -2127,7 +2129,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, toContextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, toContextReference)).thenReturn(true);
         when(serverConfigurationService.getBoolean("import.importAsDraft", true)).thenReturn(true);
-        when(serverConfigurationService.getBoolean("assignment.import.importAsDraft", true)).thenReturn(true);
+        when(serverConfigurationService.getBoolean(eq("assignment.import.importAsDraft"), anyBoolean())).thenReturn(true);
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
 
         User currentUser = mock(User.class);
@@ -2148,8 +2150,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(gradingService.getCategoryDefinitions(toContext, toContext))
                 .thenReturn(Collections.singletonList(new CategoryDefinition(destinationCategoryId, categoryName)));
 
-        AssignmentServiceImpl assignmentServiceImpl = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
-        assignmentServiceImpl.transferCopyEntities(fromContext, toContext, Collections.singletonList(sourceAssignment.getId()), Collections.<String>emptyList());
+        ((EntityTransferrer) assignmentService).transferCopyEntities(fromContext, toContext, Collections.singletonList(sourceAssignment.getId()), Collections.<String>emptyList());
 
         Assignment importedAssignment = assignmentService.getAssignmentsForContext(toContext).stream().findFirst().orElse(null);
         Assert.assertNotNull(importedAssignment);
