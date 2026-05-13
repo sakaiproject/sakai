@@ -8179,7 +8179,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                             if (!assignTo.equals("individuals")) {
                                 String categorySelected = params.getString(NEW_ASSIGNMENT_CATEGORY);
-                                List<String> selectedCategories = Arrays.asList(categorySelected.split(","));
+                                List<String> selectedCategories = Arrays.stream(categorySelected.split(","))
+                                        .map(StringUtils::trimToNull)
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toList());
 
                                 boolean areCategoriesInGroups =
                                     gradingService.checkMultiSelectorList(siteId,
@@ -9224,7 +9227,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (categoriesString == null || categoriesString.isBlank()) {
                         selectedGradebookUids.forEach(gbUid -> gradebookCategoriesMap.put(gbUid, -1L));
                     } else {
-                        List<String> selectedCategories = Arrays.asList(categoriesString.split(","));
+                        List<String> selectedCategories = Arrays.stream(categoriesString.split(","))
+                                .map(StringUtils::trimToNull)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
 
                         for (String gbUid : selectedGradebookUids) {
                             List<CategoryDefinition> categoryDefinitions = gradingService.getCategoryDefinitions(gbUid, siteId);
@@ -9372,9 +9378,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 Instant resubmitCloseTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
 
                 String gradebookItemKeys = gradebookItemMap.keySet().stream().collect(Collectors.joining(","));
+                String resolvedAddtoGradebook = getResolvedGradebookIntegration(addtoGradebook, post,
+                        gradebookCategoriesMap, gradebookItemMap);
 
                 editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce,
-                    addtoGradebook, gradebookItemKeys, allowResubmitNumber,
+                    resolvedAddtoGradebook, gradebookItemKeys, allowResubmitNumber,
                     aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
                 // Store category information in assignment properties for drafts
@@ -9518,8 +9526,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         // It should only be called once when updateAssignment has already been done
                         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
 
-                        integrateAssignmentWithGradebook(state, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime,
-                                gradeType, gradePoints, addtoGradebook, gradebookCategoriesMap, gradebookItemMap);
+                        if (shouldIntegrateWithGradebook(addtoGradebook, gradebookCategoriesMap, gradebookItemMap)) {
+                            integrateAssignmentWithGradebook(state, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime,
+                                    gradeType, gradePoints, addtoGradebook, gradebookCategoriesMap, gradebookItemMap);
+                        }
 
                         // log event if there is a title update
                         if (!StringUtils.equals(aOldTitle, title)) {
@@ -9990,6 +10000,31 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getString("addtogradebook.illegalPoints"));
             log.warn("{}:integrateAssignmentWithGradebook {}", this, e.getMessage(), e);
         }
+    }
+
+    private String getResolvedGradebookIntegration(String addtoGradebook, boolean post,
+                                                   Map<String, Long> gradebookCategoriesMap,
+                                                   Map<String, String> gradebookItemMap) {
+        if (!post) {
+            return addtoGradebook;
+        }
+
+        if (GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook) && gradebookCategoriesMap.isEmpty()) {
+            return GRADEBOOK_INTEGRATION_NO;
+        }
+
+        if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(addtoGradebook) && gradebookItemMap.isEmpty()) {
+            return GRADEBOOK_INTEGRATION_NO;
+        }
+
+        return addtoGradebook;
+    }
+
+    private boolean shouldIntegrateWithGradebook(String addtoGradebook, Map<String, Long> gradebookCategoriesMap,
+                                                 Map<String, String> gradebookItemMap) {
+        return GRADEBOOK_INTEGRATION_NO.equals(addtoGradebook)
+                || GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook) && !gradebookCategoriesMap.isEmpty()
+                || GRADEBOOK_INTEGRATION_ASSOCIATE.equals(addtoGradebook) && !gradebookItemMap.isEmpty();
     }
 
     private void initIntegrateWithGradebook(SessionState state, String gradebookUid, String aOldTitle, String oAssociateGradebookAssignment, Assignment assignment, String title, Instant dueTime, Assignment.GradeType gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, long category) {
@@ -11572,7 +11607,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     .collect(Collectors.toList());
         } catch (IdUnusedException e) {
             log.warn("Cannot find site {} while publishing assignment {}", siteId, assignment.getId());
-            addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", assignment.getId()));
+            addAlert(state, rb.getFormattedMessage("options_cannotFindSite", siteId));
             return gradebookCategoriesMap;
         }
 
