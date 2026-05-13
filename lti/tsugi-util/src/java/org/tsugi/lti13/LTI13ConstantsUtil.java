@@ -16,6 +16,8 @@
  */
 package org.tsugi.lti13;
 
+import java.util.List;
+
 public class LTI13ConstantsUtil {
 
 	public static final String KEY_ISS = "iss";
@@ -94,6 +96,10 @@ public class LTI13ConstantsUtil {
 	public static final String SCOPE_LINEITEM_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly";
 	public static final String SCOPE_NAMES_AND_ROLES = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly";
 	public static final String SCOPE_CONTEXTGROUP_READONLY = "https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly";
+	public static final List<String> SCOPES_SUPPORTED = List.of(
+	    SCOPE_RESULT_READONLY, SCOPE_SCORE, SCOPE_LINEITEM,
+	    SCOPE_LINEITEM_READONLY, SCOPE_NAMES_AND_ROLES, SCOPE_CONTEXTGROUP_READONLY
+	);
 
 	public static final String MEDIA_TYPE_MEMBERSHIPS = "application/vnd.ims.lti-nrps.v2.membershipcontainer+json";
 	public static final String MEDIA_TYPE_LINEITEM = "application/vnd.ims.lis.v2.lineitem+json";
