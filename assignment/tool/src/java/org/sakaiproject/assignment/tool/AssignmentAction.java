@@ -9988,7 +9988,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         } catch (AssignmentHasIllegalPointsException e) {
             addAlert(state, rb.getString("addtogradebook.illegalPoints"));
-            log.warn(this + ":integrateAssignmentWithGradebook " + e.getMessage());
+            log.warn("{}:integrateAssignmentWithGradebook {}", this, e.getMessage(), e);
         }
     }
 
@@ -10400,7 +10400,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // allow resubmit number and default assignment resubmit closeTime (dueTime)
         if (allowResubmitNumber != null && closeTime != null) {
             properties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, allowResubmitNumber);
-            properties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+            properties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.toEpochMilli()));
         } else if (allowResubmitNumber == null || allowResubmitNumber.length() == 0 || "0".equals(allowResubmitNumber)) {
             properties.remove(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
             properties.remove(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
