@@ -36,8 +36,6 @@ import org.apache.wicket.util.lang.Bytes;
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -63,9 +61,6 @@ public class UploadPage extends ConsoleBasePage
 
     @SpringBean( name = "org.sakaiproject.scorm.service.api.ScormResourceService" )
     ScormResourceService resourceService;
-
-    @SpringBean( name="org.sakaiproject.content.api.ContentHostingService" )
-    ContentHostingService contentHostingService;
 
     @Override
     protected void onInitialize()
@@ -133,7 +128,6 @@ public class UploadPage extends ConsoleBasePage
                     {
                         for( FileUpload upload : uploads )
                         {
-                            String resourceId = "";
                             try
                             {
                                 // Server-side file size validation - prevents bypassing client-side checks
@@ -148,7 +142,7 @@ public class UploadPage extends ConsoleBasePage
                                     continue;
                                 }
 
-                                resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
+                                String resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
                                 int status = contentService.storeAndValidate( resourceId, false, serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
 
                                 if( status == VALIDATION_SUCCESS )
@@ -165,17 +159,10 @@ public class UploadPage extends ConsoleBasePage
                             }
                             catch( OverQuotaException e )
                             {
-                                int quotaInMB = 20;
-                                try
-                                {
-                                    ContentCollection collection = contentHostingService.getCollection( resourceId );
-                                    long collectionQuota = contentHostingService.getQuota( collection ); // size in kb
-                                    quotaInMB = (int) collectionQuota / 1024;
-                                }
-                                catch( Exception ex ) { /* ignore */ }
-
+                                int quotaInMB = resourceService.getMaximumUploadFileSize();
                                 error( MessageFormat.format( getString( "upload.OverQuotaException" ), quotaInMB ) );
-                                log.error( "File puts user over quota: {}", upload.getClientFileName() );
+                                log.warn( "File puts user over quota: {}", upload.getClientFileName(), e );
+                                onError( target );
                             }
                             catch( Exception e )
                             {
