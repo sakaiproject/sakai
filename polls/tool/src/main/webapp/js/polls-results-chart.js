@@ -7,19 +7,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const COOKIE_NAME = "polls-chart-type";
+  const ALLOWED_TYPES = new Set(["bar", "pie"]);
+  const DEFAULT_TYPE = "bar";
   const PIE_COLORS = [
     "#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f",
     "#edc948", "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac"
   ];
 
-  function getCookie(name) {
-    const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
-    return match ? decodeURIComponent(match[1]) : null;
+  function getChartType() {
+    const stored = localStorage.getItem("polls-chart-type");
+    return ALLOWED_TYPES.has(stored) ? stored : DEFAULT_TYPE;
   }
 
-  function setCookie(name, value) {
-    document.cookie = name + "=" + encodeURIComponent(value) + "; path=/; max-age=" + (365 * 24 * 3600);
+  function saveChartType(type) {
+    localStorage.setItem("polls-chart-type", type);
   }
 
   const rootStyles = getComputedStyle(document.documentElement);
@@ -112,14 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
     chart = new Chart(canvas, buildConfig(type));
   }
 
-  const ALLOWED_TYPES = new Set(["bar", "pie"]);
-  const savedTypeRaw = getCookie(COOKIE_NAME);
-  const savedType = ALLOWED_TYPES.has(savedTypeRaw) ? savedTypeRaw : "bar";
+  const savedType = getChartType();
   if (select) {
     select.value = savedType;
     select.addEventListener("change", () => {
-      const type = ALLOWED_TYPES.has(select.value) ? select.value : "bar";
-      setCookie(COOKIE_NAME, type);
+      const type = ALLOWED_TYPES.has(select.value) ? select.value : DEFAULT_TYPE;
+      saveChartType(type);
       renderChart(type);
     });
   }
