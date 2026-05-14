@@ -1,9 +1,10 @@
 // scripts for the #searchFilterPanel velocity macro (see VM_chef_library.vm in the velocity project)
 (() => {
 
+    const MIN_SEARCH_CHARS = 3;
+
     document.querySelectorAll('.sakai-table-searchFilter-searchField[data-search-url]').forEach(field => {
         const clearBtn = field.nextElementSibling;
-        let debounceTimer;
 
         const doFetch = async (url) => {
             if (!url) return;
@@ -37,22 +38,21 @@
         const updateClearBtn = () => clearBtn && (clearBtn.style.display = field.value ? '' : 'none');
 
         const search = () => {
-            if (!field.value) return doFetch(field.dataset.clearUrl);
-            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(field.value)}`);
+            const q = field.value.trim();
+            if (!q) return doFetch(field.dataset.clearUrl);
+            if (q.length < MIN_SEARCH_CHARS) return;
+            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(q)}`);
         };
 
         field.addEventListener('input', () => {
             updateClearBtn();
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(search, 400);
         });
 
         field.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(debounceTimer); search(); }
+            if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); search(); }
         });
 
         clearBtn?.addEventListener('click', () => {
-            clearTimeout(debounceTimer);
             field.value = '';
             updateClearBtn();
             search();
