@@ -56,9 +56,10 @@ public class AttemptNumberPanel extends Panel
 	 */
 	protected void addAttemptNumberLink(long i, Class<?> pageClass, PageParameters params, RepeatingView container, long current)
 	{
-		params.set("attemptNumber", i);
+		PageParameters newParams = new PageParameters(params);
+		newParams.set("attemptNumber", i);
 
-		BookmarkablePageLabeledLink link = new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), pageClass, params);
+		BookmarkablePageLabeledLink link = new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), pageClass, newParams);
 
 		if (i == current)
 		{
