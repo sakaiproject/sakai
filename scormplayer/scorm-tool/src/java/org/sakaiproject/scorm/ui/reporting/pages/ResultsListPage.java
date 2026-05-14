@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,10 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -101,7 +104,7 @@ public class ResultsListPage extends ConsoleBasePage
 		Label heading = new Label( "heading", new ResourceModel( "page.heading.notAllowed" ) );
 		add( heading );
 
-		final AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
+		final AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId, contentPackage.getDueOn());
 		dataProvider.setFilterConfigurerVisible(true);
 		dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
 
@@ -352,6 +355,14 @@ public class ResultsListPage extends ConsoleBasePage
 		columns.add(actionColumn);
 
 		columns.add(new DecoratedDatePropertyColumn(attemptedHeader, "lastAttemptDate", "lastAttemptDate"));
+		columns.add(new AbstractColumn(new ResourceModel("late.indicator")) {
+			@Override
+			public void populateItem(Item item, String componentId, IModel rowModel) {
+				LearnerExperience exp = (LearnerExperience) rowModel.getObject();
+				IModel labelModel = exp.isLate() ? new ResourceModel("late.indicator") : Model.of("");
+				item.add(new Label(componentId, labelModel));
+			}
+		});
 		columns.add(new AccessStatusColumn(statusHeader, "status"));
 
 		ActionColumn attemptNumberActionColumn = new ActionColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts");
@@ -367,9 +378,20 @@ public class ResultsListPage extends ConsoleBasePage
 		private final List<LearnerExperience> learnerExperiences;
 		private final LearnerExperienceComparator comp = new LearnerExperienceComparator();
 
-		public AttemptDataProvider(long contentPackageId)
+		public AttemptDataProvider(long contentPackageId, Date dueOn)
 		{
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
+			if (dueOn != null)
+			{
+				for (LearnerExperience exp : learnerExperiences)
+				{
+					Date attemptDate = exp.getLastAttemptDate();
+					if (attemptDate != null && attemptDate.after(dueOn))
+					{
+						exp.setLate(true);
+					}
+				}
+			}
 			setSort( "learnerName", SortOrder.ASCENDING );
 		}
 

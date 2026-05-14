@@ -36,6 +36,7 @@ public class LearnerExperience implements Serializable
 	@Setter @Getter private long contentPackageId;
 	@Setter @Getter private Date lastAttemptDate;
 	@Setter @Getter private int status;
+	@Setter @Getter private boolean late;
 	@Setter @Getter private int numberOfAttempts;
 
 	public LearnerExperience(Learner learner, long contentPackageId)
