@@ -66,6 +66,8 @@
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible
 - **Tests**: Include tests where sensible/possible
+- **Test Public Behavior**: Do not use reflection to reach into private methods from tests. Private methods support public methods; test through the public method or service API that production code uses. If that makes the test brittle or excessively framework-heavy, prefer a narrower public seam or omit the low-value test.
+- **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `e2e-tests/src/test/java/org/sakaiproject/e2e/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 
