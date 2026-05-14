@@ -414,15 +414,12 @@ export class SakaiNotifications extends SakaiElement {
         <div id="${prefix}-accordion" class="accordion-collapse collapse ${prefix === "test" ? "show" : ""}">
           <div class="accordion-body px-0 py-1 rounded-0">
             <ul class="list-unstyled d-flex flex-column align-items-center py-2">
-              ${notifications.map(noti => {
-                const userId = this._getNotificationUserId(noti);
-                const siteId = getSiteId();
-                return html`
+              ${notifications.map(noti => html`
               <li class="toast fade show mt-2 shadow-sm">
                 <div class="toast-header">
-                  <sakai-user-photo user-id="${userId}" classes="mh-100 me-2"
+                  <sakai-user-photo user-id="${this._getNotificationUserId(noti)}" classes="mh-100 me-2"
                                     profile-popup="on"
-                                    site-id="${siteId}"></sakai-user-photo>
+                                    site-id="${getSiteId()}"></sakai-user-photo>
                   <strong class="me-auto">${noti.fromDisplayName}</strong>
                   <small>${noti.formattedEventDate}</small>
                   ${prefix !== "motd" && prefix !== "test" ? html`
@@ -454,8 +451,8 @@ export class SakaiNotifications extends SakaiElement {
                   ${noti.bodyShowing ? html`
                     <div class="mt-3">${unsafeHTML(noti.body)}</div>` : nothing}
                 </div>
-              </li>`;
-              })}
+              </li>
+              `)}
             </ul>
           </div>
           ${prefix === "test" ? html`
