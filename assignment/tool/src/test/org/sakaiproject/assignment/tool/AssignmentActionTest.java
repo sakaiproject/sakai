@@ -271,5 +271,4 @@ public class AssignmentActionTest {
         Assert.assertEquals("draft-announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
         Mockito.verify(assignmentService).updateAssignment(assignment);
     }
-
 }
