@@ -149,7 +149,7 @@ public class ScormContentServiceImpl implements ScormContentService {
 			{
 				int len = 0;
 				byte[] buf = new byte[1024];
-				while ((len = inputStream.read(buf)) > 0)
+				while ((len = inputStream.read(buf)) != -1)
 				{
 					fileOut.write(buf, 0, len);
 				}
@@ -369,7 +369,14 @@ public class ScormContentServiceImpl implements ScormContentService {
 	@Override
 	public int storeAndValidate(String resourceId, boolean isValidateToSchema, String encoding) throws ResourceStorageException
 	{
-		return validate(resourceId, false, isValidateToSchema, encoding, true);
+		try
+		{
+			return validate(resourceId, false, isValidateToSchema, encoding, true);
+		}
+		finally
+		{
+			resourceService.removeArchive(resourceId);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -377,66 +384,81 @@ public class ScormContentServiceImpl implements ScormContentService {
 	 */
 	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding, boolean createContentPackage) throws ResourceStorageException
 	{
-		File file = createFile(resourceService.getArchiveStream(resourceId));
-		int result = VALIDATION_SUCCESS;
-		if (!file.exists())
+		File file = null;
+		try
 		{
-			return VALIDATION_NOFILE;
-		}
-
-		IValidator validator = validate(file, isManifestOnly, isValidateToSchema, encoding);
-		IValidatorOutcome validatorOutcome = validator.getADLValidatorOutcome();
-
-		if (!validatorOutcome.getDoesIMSManifestExist())
-		{
-			return VALIDATION_NOMANIFEST;
-		}
-
-		if (!validatorOutcome.getIsWellformed())
-		{
-			result = VALIDATION_NOTWELLFORMED;
-		}
-
-		if (!validatorOutcome.getIsValidRoot())
-		{
-			result = VALIDATION_NOTVALIDROOT;
-		}
-
-		if (isValidateToSchema)
-		{
-			if (!validatorOutcome.getIsValidToSchema())
+			file = createFile(resourceService.getArchiveStream(resourceId));
+			if (file == null)
 			{
-				result = VALIDATION_NOTVALIDSCHEMA;
+				throw new ResourceStorageException("Unable to create temporary validation file for resource: " + resourceId);
+			}
+			int result = VALIDATION_SUCCESS;
+			if (!file.exists())
+			{
+				return VALIDATION_NOFILE;
 			}
 
-			if (!validatorOutcome.getIsValidToApplicationProfile())
+			IValidator validator = validate(file, isManifestOnly, isValidateToSchema, encoding);
+			IValidatorOutcome validatorOutcome = validator.getADLValidatorOutcome();
+
+			if (!validatorOutcome.getDoesIMSManifestExist())
 			{
-				result = VALIDATION_NOTVALIDPROFILE;
+				return VALIDATION_NOMANIFEST;
 			}
 
-			if (!validatorOutcome.getDoRequiredCPFilesExist())
+			if (!validatorOutcome.getIsWellformed())
 			{
-				result = VALIDATION_MISSINGREQUIREDFILES;
+				result = VALIDATION_NOTWELLFORMED;
 			}
+
+			if (!validatorOutcome.getIsValidRoot())
+			{
+				result = VALIDATION_NOTVALIDROOT;
+			}
+
+			if (isValidateToSchema)
+			{
+				if (!validatorOutcome.getIsValidToSchema())
+				{
+					result = VALIDATION_NOTVALIDSCHEMA;
+				}
+
+				if (!validatorOutcome.getIsValidToApplicationProfile())
+				{
+					result = VALIDATION_NOTVALIDPROFILE;
+				}
+
+				if (!validatorOutcome.getDoRequiredCPFilesExist())
+				{
+					result = VALIDATION_MISSINGREQUIREDFILES;
+				}
+			}
+
+			if (createContentPackage)
+			{
+				try
+				{
+					convertToContentPackage(resourceId, validator, validatorOutcome);
+				}
+				catch (InvalidArchiveException iae)
+				{
+					return VALIDATION_WRONGMIMETYPE;
+				}
+				catch (Exception e)
+				{
+					log.error("Failed to convert content package for resourceId: {}", resourceId, e);
+					return VALIDATION_CONVERTFAILED;
+				}
+			}
+
+			return result;
 		}
-
-		if (createContentPackage)
+		finally
 		{
-			try
+			if (file != null && file.exists() && !file.delete())
 			{
-				convertToContentPackage(resourceId, validator, validatorOutcome);
-			}
-			catch (InvalidArchiveException iae)
-			{
-				return VALIDATION_WRONGMIMETYPE;
-			}
-			catch (Exception e)
-			{
-				log.error("Failed to convert content package for resourceId: {}", resourceId, e);
-				return VALIDATION_CONVERTFAILED;
+				log.debug("Unable to remove temporary SCORM validation file {}", file.getAbsolutePath());
 			}
 		}
-
-		return result;
 	}
 }
