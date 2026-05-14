@@ -161,7 +161,8 @@ public class UploadPage extends ConsoleBasePage
                             {
                                 int quotaInMB = resourceService.getMaximumUploadFileSize();
                                 error( MessageFormat.format( getString( "upload.OverQuotaException" ), quotaInMB ) );
-                                log.error( "File puts user over quota: {}", upload.getClientFileName(), e );
+                                log.warn( "File puts user over quota: {}", upload.getClientFileName(), e );
+                                onError( target );
                             }
                             catch( Exception e )
                             {
