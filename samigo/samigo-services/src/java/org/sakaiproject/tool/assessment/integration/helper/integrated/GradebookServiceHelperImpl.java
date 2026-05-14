@@ -87,7 +87,36 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     */
     public void removeExternalAssessment(String gradebookUId, String publishedAssessmentId, GradingService g)
         throws Exception {
-        g.removeExternalAssignment(null, publishedAssessmentId, getAppName());
+        if (gradebookUId == null) {
+            throw new AssessmentNotFoundException("Cannot remove external assessment without a gradebook uid");
+        }
+
+        List<String> gradebookUids = new ArrayList<>(List.of(gradebookUId));
+
+        if (g.isGradebookGroupEnabled(gradebookUId)) {
+            for (String groupGradebookUid : g.getGradebookGroupInstancesIds(gradebookUId)) {
+                if (!gradebookUids.contains(groupGradebookUid)) {
+                    gradebookUids.add(groupGradebookUid);
+                }
+            }
+        }
+
+        AssessmentNotFoundException lastNotFound = null;
+        boolean removed = false;
+
+        for (String uid : gradebookUids) {
+            try {
+                g.removeExternalAssignment(uid, publishedAssessmentId, getAppName());
+                removed = true;
+            } catch (AssessmentNotFoundException e) {
+                lastNotFound = e;
+                log.debug("No external assessment id={} in gradebook uid={}", publishedAssessmentId, uid);
+            }
+        }
+
+        if (!removed && lastNotFound != null) {
+            throw lastNotFound;
+        }
     }
 
   public boolean isAssignmentDefined(String assessmentTitle,
