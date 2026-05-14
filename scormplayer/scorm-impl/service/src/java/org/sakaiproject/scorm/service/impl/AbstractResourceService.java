@@ -155,6 +155,12 @@ public abstract class AbstractResourceService implements ScormResourceService
 		String[] parts = normalizedName.split("/");
 		for (String part : parts)
 		{
+			if ("..".equals(part))
+			{
+				log.warn("Skipping SCORM archive entry with parent traversal segment {}", entry.getName());
+				return true;
+			}
+
 			if ("__MACOSX".equals(part))
 			{
 				log.debug("Skipping SCORM archive metadata entry {}", entry.getName());

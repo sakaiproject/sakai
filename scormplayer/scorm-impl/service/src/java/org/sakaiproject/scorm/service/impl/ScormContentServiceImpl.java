@@ -149,7 +149,7 @@ public class ScormContentServiceImpl implements ScormContentService {
 			{
 				int len = 0;
 				byte[] buf = new byte[1024];
-				while ((len = inputStream.read(buf)) > 0)
+				while ((len = inputStream.read(buf)) != -1)
 				{
 					fileOut.write(buf, 0, len);
 				}
