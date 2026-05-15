@@ -2650,12 +2650,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		List<MicrosoftDriveItem> ret = new ArrayList<>();
 		try {
 			GraphServiceClient client = getGraphClient();
-			Drive drive = client.me().drive().get();
-			String driveId = drive.getId();
+			String driveId = client.groups().byGroupId(groupId).drive().get().getId();
 			
 			DriveItemCollectionResponse itemPage = null;
 			if(itemId != null) {
-				itemPage = client.drives().byDriveId(client.me().drive().get().getId()).items().byDriveItemId(itemId).children().get();
+				itemPage = client.drives().byDriveId(driveId).items().byDriveItemId(itemId).children().get();
 			} else {
 				itemPage = client.drives().byDriveId(driveId).items().byDriveItemId("root").children().get();
 			}
@@ -2978,12 +2977,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		List<MicrosoftDriveItem> ret = new ArrayList<>();
 		try {
 			GraphServiceClient client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(userId);
-			Drive drive = client.me().drive().get();
-			String driveId = drive.getId();
+			String driveId = client.me().drive().get().getId();
 			
 			DriveItemCollectionResponse itemPage = null;
 			if(itemId != null) {
-				itemPage = client.drives().byDriveId(client.me().drive().get().getId()).items().byDriveItemId(itemId).children().get();
+				itemPage = client.drives().byDriveId(driveId).items().byDriveItemId(itemId).children().get();
 			} else {
 				itemPage = client.drives().byDriveId(driveId).items().byDriveItemId("root").children().get();
 			}
