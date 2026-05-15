@@ -443,7 +443,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             UserNotification ba = new UserNotification();
             ba.setFromUser(from);
             ba.setToUser(und.getTo());
-            ba.setEvent(okStringUtils.isNotBlank(und.getEvent()) ? und.getEvent() : event);
+            ba.setEvent(StringUtils.isNotBlank(und.getEvent()) ? und.getEvent() : event);
             ba.setRef(ref);
 
             ba.setTitle(finalTitle);
