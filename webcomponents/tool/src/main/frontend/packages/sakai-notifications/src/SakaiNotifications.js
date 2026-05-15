@@ -519,7 +519,7 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
-        ${Notification.permission !== "granted" && this._online && this._pushEnabled ? html`
+        ${Notification.permission !== "granted" && this._online && this.pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"
