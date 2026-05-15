@@ -67,7 +67,7 @@
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
     <sakai.tomcat.version>9.0.105</sakai.tomcat.version>
-    <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
+    <sakai.thymeleaf.version>3.1.5.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
@@ -555,12 +555,6 @@
         <groupId>org.thymeleaf</groupId>
         <artifactId>thymeleaf-spring5</artifactId>
         <version>${sakai.thymeleaf.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.thymeleaf.extras</groupId>
-        <artifactId>thymeleaf-extras-java8time</artifactId>
-        <version>3.0.4.RELEASE</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
