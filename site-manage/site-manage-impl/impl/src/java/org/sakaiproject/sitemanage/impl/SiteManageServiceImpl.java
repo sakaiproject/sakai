@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
@@ -397,6 +398,83 @@ public class SiteManageServiceImpl implements SiteManageService {
         saveSite(site);
     }
 
+    private Set<String> getImportedToolIdsForSite(String fromSiteId, Map<String, List<String>> importTools,
+            Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions) {
+
+        Set<String> toolIds = getImportedToolVisibilityIdsForSite(fromSiteId, importTools, toolItemMap);
+
+        toolOptions.forEach((toolId, siteOptions) -> {
+            if (siteOptions != null && siteOptions.containsKey(fromSiteId)) {
+                toolIds.add(toolId);
+            }
+        });
+
+        return toolIds;
+    }
+
+    private Set<String> getImportedToolVisibilityIdsForSite(String fromSiteId, Map<String, List<String>> importTools,
+            Map<String, Map<String, List<String>>> toolItemMap) {
+
+        Set<String> toolIds = new LinkedHashSet<>();
+
+        importTools.forEach((toolId, siteIds) -> {
+            if (siteIds != null && siteIds.contains(fromSiteId)) {
+                toolIds.add(toolId);
+            }
+        });
+
+        toolItemMap.forEach((toolId, siteItems) -> {
+            if (siteItems != null && siteItems.containsKey(fromSiteId)) {
+                toolIds.add(toolId);
+            }
+        });
+
+        return toolIds;
+    }
+
+    private void copyImportedToolVisibility(String fromSiteId, String toSiteId, Set<String> toolIds) {
+
+        if (CollectionUtils.isEmpty(toolIds)) {
+            return;
+        }
+
+        try {
+            Site fromSite = siteService.getSite(fromSiteId);
+            Site toSite = siteService.getSite(toSiteId);
+
+            for (String toolId : toolIds) {
+                Collection<ToolConfiguration> fromTools = fromSite.getTools(toolId);
+                Collection<ToolConfiguration> toTools = toSite.getTools(toolId);
+                if (CollectionUtils.isEmpty(fromTools) || CollectionUtils.isEmpty(toTools)) {
+                    continue;
+                }
+
+                Iterator<ToolConfiguration> toToolIt = toTools.iterator();
+                for (ToolConfiguration fromTool : fromTools) {
+                    if (!toToolIt.hasNext()) {
+                        break;
+                    }
+
+                    ToolConfiguration toTool = toToolIt.next();
+                    String fromVisibility = fromTool.getPlacementConfig().getProperty(ToolManager.PORTAL_VISIBLE);
+                    Properties toConfig = toTool.getPlacementConfig();
+                    if (StringUtils.equals(fromVisibility, toConfig.getProperty(ToolManager.PORTAL_VISIBLE))) {
+                        continue;
+                    }
+
+                    if (fromVisibility == null) {
+                        toConfig.remove(ToolManager.PORTAL_VISIBLE);
+                    } else {
+                        toConfig.setProperty(ToolManager.PORTAL_VISIBLE, fromVisibility);
+                    }
+                    toTool.save();
+                }
+            }
+        } catch (IdUnusedException e) {
+            log.warn("Cannot find site while copying imported tool visibility from {} to {}", fromSiteId, toSiteId);
+        }
+    }
+
     /**
      * Copies the site information from one site ot another.
      * @param fromSiteId    the source site
@@ -637,11 +715,14 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// Copy permissions from source sites to destination site
 		if (!siteIds.isEmpty()) {
 			for (String fromSiteId : siteIds) {
-				Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importTools, toolOptions);
+				Set<String> importedToolIds = getImportedToolIdsForSite(fromSiteId, importTools, toolItemMap, toolOptions);
+				Set<String> visibilityToolIds = getImportedToolVisibilityIdsForSite(fromSiteId, importTools, toolItemMap);
+				Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importedToolIds, toolOptions);
 				if (CollectionUtils.isNotEmpty(toolPermissions)) {
 					log.debug("Copying permissions from site {} to site {} out of this possible set {}", fromSiteId, toSiteId, toolPermissions);
 					copyToolPermissions(fromSiteId, toSiteId, toolPermissions);
 				}
+				copyImportedToolVisibility(fromSiteId, toSiteId, visibilityToolIds);
 			}
 
 			// Handle the Context.id.history
@@ -796,16 +877,37 @@ public class SiteManageServiceImpl implements SiteManageService {
         return transversalMap;
     }
 
-    private Set<String> getToolPermissionCandidatesToCopy(String siteId, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolOptions) {
+    private Set<String> getToolPermissionCandidatesToCopy(String siteId, Set<String> toolIds, Map<String, Map<String, List<String>>> toolOptions) {
 
-		if (importTools == null) importTools = new HashMap<>();
-		if (toolOptions == null) toolOptions = new HashMap<>();
-
-		Set<String> toolIds = new HashSet<>(importTools.keySet());
-		toolIds.addAll(toolOptions.keySet()); // the instructor might want to copy permissions without any other content from the tool
+		if (toolIds == null) toolIds = Collections.emptySet();
+		if (toolOptions == null) toolOptions = Collections.emptyMap();
 
 		Set<String> toolPermissions = new HashSet<>();
+		Site sourceSite = null;
+		try {
+			sourceSite = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.warn("Cannot find site {} while finding imported tool permissions to copy", siteId);
+		}
 		for (String toolId : toolIds) {
+			if (sourceSite != null) {
+				ToolConfiguration tool = sourceSite.getToolForCommonId(toolId);
+				if (tool != null) {
+					List<Set<String>> requiredPermissionSets = toolManager.getRequiredPermissions(tool);
+					if (requiredPermissionSets != null) {
+						for (Set<String> permissions : requiredPermissionSets) {
+							for (String permission : permissions) {
+								String trimmedPermission = StringUtils.trimToNull(permission);
+								if (trimmedPermission != null
+										&& !SiteService.SECURE_UPDATE_SITE.equals(trimmedPermission)
+										&& !SiteService.SITE_VISIT.equals(trimmedPermission)) {
+									toolPermissions.add(trimmedPermission);
+								}
+							}
+						}
+					}
+				}
+			}
 
 			// set copyPermissionsSelected to true if a copy permissions option is selected
 			boolean copyPermissionsSelected = false;
