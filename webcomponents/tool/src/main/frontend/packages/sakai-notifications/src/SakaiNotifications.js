@@ -414,48 +414,45 @@ export class SakaiNotifications extends SakaiElement {
         <div id="${prefix}-accordion" class="accordion-collapse collapse ${prefix === "test" ? "show" : ""}">
           <div class="accordion-body px-0 py-1 rounded-0">
             <ul class="list-unstyled d-flex flex-column align-items-center py-2">
-              ${notifications.map(noti => {
-      const userId = this._getNotificationUserId(noti);
-      const siteId = getSiteId();
-      return html`
-        <li class="toast fade show mt-2 shadow-sm">
-          <div class="toast-header">
-            <sakai-user-photo user-id="${userId}" classes="mh-100 me-2"
-                              profile-popup="on"
-                              site-id="${siteId}"></sakai-user-photo>
-            <strong class="me-auto">${noti.fromDisplayName}</strong>
-            <small>${noti.formattedEventDate}</small>
-            ${prefix !== "motd" && prefix !== "test" ? html`
-              <button type="button"
-                      class="btn-close"
-                      aria-label="${this._i18n.clear_this_notification}"
-                      data-notification-id="${noti.id}"
-                      @click=${this._clearNotification}>
-              </button>` : nothing}
-          </div>
-          <div class="toast-body">
-            <div class="d-flex justify-content-between">
-              <div class="me-1">${noti.title}</div>
-              <div>
-                ${prefix !== "motd" && prefix !== "test" ? html`
-                  <a href="${noti.url}">
-                    <i class="si si-sakai-filled-right-arrow"></i>
-                  </a>` : nothing}
-                ${prefix === "motd" ? html`
-                  <button type="button"
-                          data-ref="${noti.ref}"
-                          data-prefix="${prefix}"
-                          class="btn btn-link"
-                          @click=${this._viewMotd}>
-                    ${noti.bodyShowing ? this._i18n.hide : this._i18n.show}
-                  </button>` : nothing}
-              </div>
-            </div>
-            ${noti.bodyShowing ? html`
-              <div class="mt-3">${unsafeHTML(noti.body)}</div>` : nothing}
-          </div>
-        </li>`;
-    })}
+              ${notifications.map(noti => html`
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <sakai-user-photo user-id="${this._getNotificationUserId(noti)}" classes="mh-100 me-2"
+                                    profile-popup="on"
+                                    site-id="${getSiteId()}"></sakai-user-photo>
+                  <strong class="me-auto">${noti.fromDisplayName}</strong>
+                  <small>${noti.formattedEventDate}</small>
+                  ${prefix !== "motd" && prefix !== "test" ? html`
+                    <button type="button"
+                            class="btn-close"
+                            aria-label="${this._i18n.clear_this_notification}"
+                            data-notification-id="${noti.id}"
+                            @click=${this._clearNotification}>
+                    </button>` : nothing}
+                </div>
+                <div class="toast-body">
+                  <div class="d-flex justify-content-between">
+                    <div class="me-1">${noti.title}</div>
+                    <div>
+                      ${prefix !== "motd" && prefix !== "test" ? html`
+                        <a href="${noti.url}">
+                          <i class="si si-sakai-filled-right-arrow"></i>
+                        </a>` : nothing}
+                      ${prefix === "motd" ? html`
+                        <button type="button"
+                                data-ref="${noti.ref}"
+                                data-prefix="${prefix}"
+                                class="btn btn-link"
+                                @click=${this._viewMotd}>
+                          ${noti.bodyShowing ? this._i18n.hide : this._i18n.show}
+                        </button>` : nothing}
+                    </div>
+                  </div>
+                  ${noti.bodyShowing ? html`
+                    <div class="mt-3">${unsafeHTML(noti.body)}</div>` : nothing}
+                </div>
+              </li>
+              `)}
             </ul>
           </div>
           ${prefix === "test" ? html`
