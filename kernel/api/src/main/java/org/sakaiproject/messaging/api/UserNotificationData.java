@@ -34,6 +34,12 @@ public class UserNotificationData {
     private String title;
     private String url;
     private String commonToolId;
+    private String event;
     private boolean broadcast;
     private Duration ttl;
+
+    public UserNotificationData(String from, String to, String siteId, String title, String url,
+            String commonToolId, boolean broadcast, Duration ttl) {
+        this(from, to, siteId, title, url, commonToolId, null, broadcast, ttl);
+    }
 }
