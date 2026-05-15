@@ -165,7 +165,7 @@
 
 <div class="container-fluid">
 	<div class="row onedrive-content">
-		<div class="col-md-1 col-xs-12 left-tabs">
+		<div class="col-md-2 col-xs-12 left-tabs">
 			#if($!siteSynchronized)
 			<a href="#toolLinkParam("FilePickerAction" "doNavigateOneDrive" "onedriveType=onedrive_type_site")" title="$tlang.getString('onedrive.site')" #if($navigating_onedrive_type == 'onedrive_type_site') class="selected" #end>
 				<span>$tlang.getString('onedrive.site')</span>
@@ -178,7 +178,7 @@
 				<span>$tlang.getString('onedrive.shared')</span>
 			</a>
 		</div>
-		<div class="col-md-11 col-xs-12 right-content">
+		<div class="col-md-10 col-xs-12 right-content">
 			#if($navigating_onedrive_type == 'onedrive_type_user' || $navigating_onedrive_type == 'onedrive_type_shared')
 				#if(!$!onedriveUserAccount)
 					<span aria-hidden="true"> $tlang.getString('onedrive.set_account')</span>
