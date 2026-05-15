@@ -37,7 +37,6 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -110,13 +109,21 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
         try {
             AnnouncementMessage message = (AnnouncementMessage) announcementService.getMessage(entityManager.newReference(eventResource));
 
-            if (eventName.equals(AnnouncementService.EVENT_MOTD_NEW)) {
+            // Route MOTD events to broadcast handling. Immediate MOTDs fire EVENT_MOTD_NEW; future-dated MOTDs
+            // fire EVENT_AVAILABLE_ANNC with a motd resource when their open date arrives.
+            if (AnnouncementService.EVENT_MOTD_NEW.equals(eventName)
+                    || (AnnouncementService.EVENT_AVAILABLE_ANNC.equals(eventName) && eventResource.contains("motd"))) {
 
-                String title = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                // If the MOTD open date is in the future, skip now since EVENT_AVAILABLE_ANNC will fire when it's visible
+                if (message == null || Instant.now().isBefore(message.getHeader().getInstant())) {
+                    return Optional.of(bhEvents);
+                }
+                String title = message.getHeader().getSubject();
                 UserNotificationData userNotificationData = new UserNotificationData();
                 userNotificationData.setFrom(event.getUserId());
                 userNotificationData.setTo(UserNotificationData.BROADCAST);
                 userNotificationData.setTitle(title);
+                userNotificationData.setEvent(AnnouncementService.EVENT_MOTD_NEW);
                 userNotificationData.setBroadcast(true);
                 userNotificationData.setTtl(Duration.ofHours(motdTTLHours));
                 return Optional.of(List.of(userNotificationData));
@@ -174,7 +181,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                 + "&sakai_action=doShowmetadata";
 
                         // In this case title = announcement subject
-                        String title = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                        String title = message.getHeader().getSubject();
                         Set<String> usersToNotify = new HashSet<>();
 
                         // if the event context is !admin or the event resource contains "motd"
@@ -232,7 +239,8 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
             queryBuilder.or(
                 queryBuilder.equal(table.get("event"), AnnouncementService.SECURE_ANNC_ADD),
                 queryBuilder.equal(table.get("event"), AnnouncementService.EVENT_AVAILABLE_ANNC),
-                queryBuilder.equal(table.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY)),
+                queryBuilder.equal(table.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY),
+                queryBuilder.equal(table.get("event"), AnnouncementService.EVENT_MOTD_NEW)),
             queryBuilder.equal(table.get("ref"), eventResource)
         );
     }
