@@ -399,7 +399,21 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     private Set<String> getImportedToolIdsForSite(String fromSiteId, Map<String, List<String>> importTools,
-			Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions) {
+            Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions) {
+
+        Set<String> toolIds = getImportedToolVisibilityIdsForSite(fromSiteId, importTools, toolItemMap);
+
+        toolOptions.forEach((toolId, siteOptions) -> {
+            if (siteOptions != null && siteOptions.containsKey(fromSiteId)) {
+                toolIds.add(toolId);
+            }
+        });
+
+        return toolIds;
+    }
+
+    private Set<String> getImportedToolVisibilityIdsForSite(String fromSiteId, Map<String, List<String>> importTools,
+            Map<String, Map<String, List<String>>> toolItemMap) {
 
         Set<String> toolIds = new LinkedHashSet<>();
 
@@ -411,12 +425,6 @@ public class SiteManageServiceImpl implements SiteManageService {
 
         toolItemMap.forEach((toolId, siteItems) -> {
             if (siteItems != null && siteItems.containsKey(fromSiteId)) {
-                toolIds.add(toolId);
-            }
-        });
-
-        toolOptions.forEach((toolId, siteOptions) -> {
-            if (siteOptions != null && siteOptions.containsKey(fromSiteId)) {
                 toolIds.add(toolId);
             }
         });
@@ -435,24 +443,32 @@ public class SiteManageServiceImpl implements SiteManageService {
             Site toSite = siteService.getSite(toSiteId);
 
             for (String toolId : toolIds) {
-                ToolConfiguration fromTool = fromSite.getToolForCommonId(toolId);
-                ToolConfiguration toTool = toSite.getToolForCommonId(toolId);
-                if (fromTool == null || toTool == null) {
+                Collection<ToolConfiguration> fromTools = fromSite.getTools(toolId);
+                Collection<ToolConfiguration> toTools = toSite.getTools(toolId);
+                if (CollectionUtils.isEmpty(fromTools) || CollectionUtils.isEmpty(toTools)) {
                     continue;
                 }
 
-                String fromVisibility = fromTool.getPlacementConfig().getProperty(ToolManager.PORTAL_VISIBLE);
-                Properties toConfig = toTool.getPlacementConfig();
-                if (StringUtils.equals(fromVisibility, toConfig.getProperty(ToolManager.PORTAL_VISIBLE))) {
-                    continue;
-                }
+                Iterator<ToolConfiguration> toToolIt = toTools.iterator();
+                for (ToolConfiguration fromTool : fromTools) {
+                    if (!toToolIt.hasNext()) {
+                        break;
+                    }
 
-                if (fromVisibility == null) {
-                    toConfig.remove(ToolManager.PORTAL_VISIBLE);
-                } else {
-                    toConfig.setProperty(ToolManager.PORTAL_VISIBLE, fromVisibility);
+                    ToolConfiguration toTool = toToolIt.next();
+                    String fromVisibility = fromTool.getPlacementConfig().getProperty(ToolManager.PORTAL_VISIBLE);
+                    Properties toConfig = toTool.getPlacementConfig();
+                    if (StringUtils.equals(fromVisibility, toConfig.getProperty(ToolManager.PORTAL_VISIBLE))) {
+                        continue;
+                    }
+
+                    if (fromVisibility == null) {
+                        toConfig.remove(ToolManager.PORTAL_VISIBLE);
+                    } else {
+                        toConfig.setProperty(ToolManager.PORTAL_VISIBLE, fromVisibility);
+                    }
+                    toTool.save();
                 }
-                toTool.save();
             }
         } catch (IdUnusedException e) {
             log.warn("Cannot find site while copying imported tool visibility from {} to {}", fromSiteId, toSiteId);
@@ -700,12 +716,13 @@ public class SiteManageServiceImpl implements SiteManageService {
 		if (!siteIds.isEmpty()) {
 			for (String fromSiteId : siteIds) {
 				Set<String> importedToolIds = getImportedToolIdsForSite(fromSiteId, importTools, toolItemMap, toolOptions);
+				Set<String> visibilityToolIds = getImportedToolVisibilityIdsForSite(fromSiteId, importTools, toolItemMap);
 				Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importedToolIds, toolOptions);
 				if (CollectionUtils.isNotEmpty(toolPermissions)) {
 					log.debug("Copying permissions from site {} to site {} out of this possible set {}", fromSiteId, toSiteId, toolPermissions);
 					copyToolPermissions(fromSiteId, toSiteId, toolPermissions);
 				}
-				copyImportedToolVisibility(fromSiteId, toSiteId, importedToolIds);
+				copyImportedToolVisibility(fromSiteId, toSiteId, visibilityToolIds);
 			}
 
 			// Handle the Context.id.history
