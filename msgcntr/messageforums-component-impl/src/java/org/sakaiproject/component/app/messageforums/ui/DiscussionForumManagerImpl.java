@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -2422,5 +2423,80 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	@Override
 	public Optional<LRS_Statement> getStatementForGrade(String studentUid, String forumTitle, double score) {
 		return LRSDelegate.getStatementForGrade(learningResourceStoreService, userDirectoryService, studentUid, forumTitle, score);
+	}
+
+	@Override
+	public void setTopicGroupRestrictions(Long topicId, Collection<String> groupNames) {
+		Topic topic = forumManager.getTopicByIdWithMemberships(topicId);
+		if (topic == null) return;
+		topic.setBaseForum(topic.getOpenForum());
+		if (topic.getBaseForum() == null || topic.getBaseForum().getArea() == null) return;
+		uiPermissionsManager.clearMembershipsFromCacheForArea(topic.getBaseForum().getArea());
+		applyGroupRestrictions(topic.getMembershipItemSet(), groupNames);
+		forumManager.saveDiscussionForumTopic((DiscussionTopic) topic);
+	}
+
+	@Override
+	public void setForumGroupRestrictions(Long forumId, Collection<String> groupNames) {
+		BaseForum forum = forumManager.getForumByIdWithMemberships(forumId);
+		if (forum == null) return;
+		if (forum.getArea() == null) return;
+		uiPermissionsManager.clearMembershipsFromCacheForArea(forum.getArea());
+		applyGroupRestrictions(forum.getMembershipItemSet(), groupNames);
+		forumManager.saveDiscussionForum((DiscussionForum) forum);
+	}
+
+  /**
+   * Applies group restrictions to a set of membership items by adjusting permission levels based on specified group names.
+   *
+   * When group names are provided, this method restricts access by demoting Contributor items to None permission level,
+   * while promoting the specified groups to Contributor level. When group names are not provided or empty, the method
+   * clears restrictions by restoring role items with None permission to Contributor level and demoting Contributor
+   * group items to None level. Items with permission levels other than Contributor or None (such as Owner, Reviewer,
+   * or Author) are never modified. New membership items are created and added to the set for groups that don't
+   * already exist in the membership set.
+   *
+   * @param membershipItemSet the set of membership items to which restrictions will be applied
+   * @param groupNames the collection of group names to be granted Contributor access, or null/empty to clear restrictions
+   */
+  private void applyGroupRestrictions(Set<DBMembershipItem> membershipItemSet, Collection<String> groupNames) {
+		if (groupNames != null && !groupNames.isEmpty()) {
+			// Restricting: demote only Contributor items to None; promote specified groups to Contributor.
+			Set<String> toAdd = new HashSet<>(groupNames);
+			for (DBMembershipItem item : membershipItemSet) {
+				if (Objects.equals(item.getType(), MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
+					toAdd.remove(item.getName());
+					if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(item.getPermissionLevelName())) {
+						item.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
+						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
+					}
+				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
+					item.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
+					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+				}
+			}
+			for (String newGroupName : toAdd) {
+				DBMembershipItem newItem = permissionLevelManager.createDBMembershipItem(
+                        newGroupName,
+                        PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR,
+                        MembershipItem.TYPE_GROUP);
+				newItem.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
+				newItem = permissionLevelManager.saveDBMembershipItem(newItem);
+				membershipItemSet.add(newItem);
+			}
+		} else {
+			// Clearing: restore only None role items to Contributor; set only Contributor group items to None.
+			for (DBMembershipItem item : membershipItemSet) {
+				if (Objects.equals(item.getType(), MembershipItem.TYPE_ROLE)) {
+					if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(item.getPermissionLevelName())) {
+						item.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
+						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
+					}
+				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
+					item.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
+					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+				}
+			}
+		}
 	}
 }
