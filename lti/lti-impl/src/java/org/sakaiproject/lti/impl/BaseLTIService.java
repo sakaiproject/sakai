@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -221,6 +222,18 @@ public abstract class BaseLTIService implements LTIService {
 	public String[] getToolSiteModelDao(boolean isAdminRole) {
 		if (isAdminRole) {
 			return TOOL_SITE_MODEL;
+		}
+		return null;
+	}
+
+	@Override
+	public String[] getToolFunctionModel(String siteId) {
+		return getToolFunctionModelDao(isAdmin(siteId));
+	}
+
+	public String[] getToolFunctionModelDao(boolean isAdminRole) {
+		if (isAdminRole) {
+			return TOOL_FUNCTION_MODEL;
 		}
 		return null;
 	}
@@ -569,6 +582,9 @@ public abstract class BaseLTIService implements LTIService {
 
 		int countDelete = deleteToolSitesForToolIdDao(String.valueOf(key));
 		log.debug("Delete toolSites, toolId={}, countDelete={}", key, countDelete);
+
+		int functionDelete = deleteToolFunctionsForToolIdDao(String.valueOf(key));
+		log.debug("Delete toolFunctions, toolId={}, countDelete={}", key, functionDelete);
 
 		// We are going to delete the tool even if there were problems along the way
 		// Since that is the one thing we are supposed to do in this method
@@ -1095,6 +1111,66 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolSitesByToolId(String.valueOf(toolKey), siteId)
 				.stream()
 				.anyMatch(toolSite -> siteId.equals(toolSite.get(LTIService.LTI_SITE_ID)));
+	}
+
+	@Override
+	public List<String> getToolFunctionNames(String toolId, String siteId) {
+		if (!isAdmin(siteId)) {
+			return new ArrayList<>();
+		}
+		return getGrantedToolFunctionNames(LTIUtil.toLongKey(toolId));
+	}
+
+	@Override
+	public List<String> getGrantedToolFunctionNames(long toolId) {
+		String search = " lti_tool_functions.tool_id = " + toolId;
+		List<Map<String, Object>> rows = getToolFunctionsDao(search, "function_name ASC", 0, 0, ADMIN_SITE, true);
+		List<String> names = new ArrayList<>();
+		if (rows == null) {
+			return names;
+		}
+		for (Map<String, Object> row : rows) {
+			String name = (String) row.get(LTIService.LTI_FUNCTION_NAME);
+			if (name != null) {
+				names.add(name);
+			}
+		}
+		return names;
+	}
+
+	@Override
+	public Object setToolFunctionNames(Long toolId, Set<String> functionNames, String siteId) {
+		if (!isAdmin(siteId)) {
+			return "Not authorized";
+		}
+		if (getTool(toolId, siteId) == null) {
+			return "Tool not found";
+		}
+
+		deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
+
+		if (functionNames == null || functionNames.isEmpty()) {
+			return toolId;
+		}
+
+		org.sakaiproject.authz.api.FunctionManager functionManager =
+				(org.sakaiproject.authz.api.FunctionManager) ComponentManager.get(org.sakaiproject.authz.api.FunctionManager.class);
+		Set<String> registered = new java.util.HashSet<>(functionManager.getRegisteredFunctions());
+
+		for (String functionName : functionNames) {
+			if (!registered.contains(functionName)) {
+				log.warn("Ignoring unregistered function {} for tool {}", functionName, toolId);
+				continue;
+			}
+			Properties props = new Properties();
+			props.setProperty(LTIService.LTI_TOOL_ID, String.valueOf(toolId));
+			props.setProperty(LTIService.LTI_FUNCTION_NAME, functionName);
+			Object retval = insertToolFunctionDao(props, siteId, true, true);
+			if (retval instanceof String) {
+				return retval;
+			}
+		}
+		return toolId;
 	}
 
 	@Override

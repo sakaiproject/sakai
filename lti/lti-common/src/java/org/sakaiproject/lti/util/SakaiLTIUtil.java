@@ -103,6 +103,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.foorm.Foorm;
+import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
@@ -208,6 +209,15 @@ public class SakaiLTIUtil {
 	public static final String SAKAI_LTI_SUBSTITUTION_CLOSE_DATE = "Sakai.assignment.closeDate";
 	public static final String SAKAI_LTI_SUBSTITUTION_RESUBMISSION_ACCEPT_UNTIL = "Sakai.assignment.resubmissionAcceptUntil";
 	public static final String SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME = "Sakai.assignment.availableStartDateTime";
+
+	/** LTI 1.3 substitution: Entity Broker {@code /direct} base URL for bearer API access. */
+	public static final String SAKAI_LTI_SUBSTITUTION_DIRECT_URL = "Sakai.direct.url";
+
+	/** LTI 1.3 substitution: Sakai webapi base URL for bearer API access. */
+	public static final String SAKAI_LTI_SUBSTITUTION_API_URL = "Sakai.api.url";
+
+	/** LTI 1.3 substitution: space-separated OAuth scopes granted to the tool (e.g. {@code sakai.lti.api.content.read}). */
+	public static final String SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE = "Sakai.scopes.available";
 
 	// Default Outbound Role Mapping - Sakai role to a comma-separated list of LTI Roles
 	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
@@ -1075,6 +1085,60 @@ public class SakaiLTIUtil {
 		setProperty(props, "ext_sakai_server", getOurServerUrl());
 	}
 
+	/**
+	 * Base URL for Entity Broker ({@code /direct}) LTI bearer API access.
+	 */
+	public static String getLtiDirectBaseUrl() {
+		return getOurServerUrl() + "/direct";
+	}
+
+	/**
+	 * Base URL for the Sakai webapi WAR ({@code {serverUrl}/api}).
+	 */
+	public static String getLtiWebApiBaseUrl() {
+		return getOurServerUrl() + "/api";
+	}
+
+	/**
+	 * OAuth scope string (space-separated) for functions granted to a tool in {@code lti_tool_functions}.
+	 */
+	public static String formatLtiApiAvailableScopes(List<String> grantedFunctions) {
+		if (grantedFunctions == null || grantedFunctions.isEmpty()) {
+			return "";
+		}
+		StringBuilder scopes = new StringBuilder();
+		for (String functionName : grantedFunctions) {
+			if (StringUtils.isBlank(functionName)) {
+				continue;
+			}
+			if (scopes.length() > 0) {
+				scopes.append(' ');
+			}
+			scopes.append(SakaiAccessToken.functionToLtiApiScope(functionName.trim()));
+		}
+		return scopes.toString();
+	}
+
+	/**
+	 * LTI 1.3 custom substitution values for Sakai bearer API access.
+	 */
+	public static void addLtiApiLaunchSubstitutions(Properties lti13subst, Map<String, Object> tool, LTIService ltiService) {
+		if (lti13subst == null) {
+			return;
+		}
+		setProperty(lti13subst, SAKAI_LTI_SUBSTITUTION_DIRECT_URL, getLtiDirectBaseUrl());
+		setProperty(lti13subst, SAKAI_LTI_SUBSTITUTION_API_URL, getLtiWebApiBaseUrl());
+
+		String availableScopes = "";
+		if (tool != null && ltiService != null) {
+			Long toolId = LTIUtil.toLongKey(tool.get(LTIService.LTI_ID));
+			if (toolId != null && toolId.longValue() > 0) {
+				availableScopes = formatLtiApiAvailableScopes(ltiService.getGrantedToolFunctionNames(toolId.longValue()));
+			}
+		}
+		setProperty(lti13subst, SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE, availableScopes);
+	}
+
 		// This must return an HTML message as the [0] in the array
 		// If things are successful - the launch URL is in [1]
 		public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool,
@@ -1265,6 +1329,8 @@ public class SakaiLTIUtil {
 			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
+
+			addLtiApiLaunchSubstitutions(lti13subst, tool, ltiService);
 
 			// See if there are any locally deployed substitutions
 			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
@@ -1559,6 +1625,7 @@ public class SakaiLTIUtil {
 
 			// See if there are any locally deployed substitutions
 			LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+			addLtiApiLaunchSubstitutions(lti13subst, tool, ltiService);
 			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
 
 			log.debug("lti13subst={}", lti13subst);

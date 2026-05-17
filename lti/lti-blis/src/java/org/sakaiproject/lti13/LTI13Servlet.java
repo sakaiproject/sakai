@@ -44,7 +44,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import java.security.Key;
-import java.security.KeyPairGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,6 +59,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -77,8 +77,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti13.LineItemUtil;
 
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.sakaiproject.lti.api.SakaiAccessTokenException;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.tsugi.lti.LTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTICustomVars;
@@ -126,75 +126,16 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
 	private static final String APPLICATION_JWT = "application/jwt";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
+	@Setter
 	protected static LTIService ltiService = null;
-
-	// Used for signing and checking tokens
-	// TODO: Rotate these after a while
-	private KeyPair tokenKeyPair = null;
-
-    private CacheManager cacheManager;
-    private Cache cache;
-
-	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
-	private static final String CACHE_PUBLIC = "key::public";
-	private static final String CACHE_PRIVATE = "key::private";
+	@Setter
+	protected static SakaiAccessTokenService sakaiAccessTokenService = null;
 
 	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		if (ltiService == null) {
-			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		}
-
-        cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
-        cache = cacheManager.getCache(CACHE_NAME);
-
-		// Lets try to load from properties
-		if (tokenKeyPair == null) {
-			// lti.advantage.lti13servlet.public=MIIBIjANBgkqhkiG9w [snip] Yfu3RbCda/nq4lipjRQIDAQAB
-			String publicB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.public", null);
-			String privateB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.private", null);
-			if ( publicB64 != null && privateB64 != null) {
-				tokenKeyPair = LTI13Util.strings2KeyPair(publicB64, privateB64);
-				if ( tokenKeyPair == null ) {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not load tokenKeyPair from sakai.properties");
-				} else {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from sakai.properties");
-				}
-			}
-		}
-
-		// Get it from the cluster cache
-		if (tokenKeyPair == null) {
-			Cache.ValueWrapper publicB64 = cache.get(CACHE_PUBLIC);
-			Cache.ValueWrapper privateB64 = cache.get(CACHE_PRIVATE);
-			if ( publicB64 != null && privateB64 != null) {
-				tokenKeyPair = LTI13Util.strings2KeyPair((String) publicB64.get(), (String) privateB64.get());
-				if ( tokenKeyPair == null ) {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not parse tokenKeyPair from Ignite Cache");
-				} else {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from Ignite Cache");
-				}
-			}
-        }
-
-		// Lets make a new key
-		if (tokenKeyPair == null) {
-			try {
-				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-				keyGen.initialize(2048);
-				tokenKeyPair = keyGen.genKeyPair();
-				String publicB64 = LTI13Util.getPublicB64(tokenKeyPair);
-				String privateB64 = LTI13Util.getPrivateB64(tokenKeyPair);
-				cache.put(CACHE_PUBLIC, publicB64);
-				cache.put(CACHE_PRIVATE, privateB64);
-				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair and stored in Ignite Cache");
-			} catch (NoSuchAlgorithmException ex) {
-				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
-			}
-		}
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -745,6 +686,9 @@ public class LTI13Servlet extends HttpServlet {
 
 		lpc.variables.add(LTICustomVars.USER_ID);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
+		lpc.variables.add(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_DIRECT_URL);
+		lpc.variables.add(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_API_URL);
+		lpc.variables.add(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE);
 
 		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
 		pc.issuer = issuerURL;
@@ -810,7 +754,7 @@ public class LTI13Servlet extends HttpServlet {
 		Parameter Name - scope, Value - http://imsglobal.org/ags/lineitem http://imsglobal.org/ags/result/read
 		 */
 
-		if (tokenKeyPair == null) {
+		if (sakaiAccessTokenService == null || !sakaiAccessTokenService.isSigningKeyAvailable()) {
 			LTI13Util.return400(response, "No token key available to sign tokens");
 			log.error("No token key available to sign tokens");
 			return;
@@ -835,137 +779,19 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
-		if (body == null) {
-			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
-			log.error("Could not find Jwt Body in client_assertion\n{}", client_assertion);
-			return;
-		}
-
-		JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(client_assertion);
-		if (jsonHeader == null) {
-			LTI13Util.return400(response, "Could not parse Jwt Header in client_assertion");
-			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
-			return;
-		}
-
 		Long toolKey = LTIUtil.toLongKey(tool_id);
-		if (toolKey < 1) {
-			LTI13Util.return400(response, "Invalid tool key");
-			log.error("Invalid tool key {}", tool_id);
-			return;
-		}
-
-		// Load the tool
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
-		if (tool == null) {
-			LTI13Util.return400(response, "Could not load tool");
-			log.error("Could not load tool {}", tool_id);
-			return;
-		}
-
-		// Get the correct public key.
-		Key publicKey = null;
+		AccessToken at;
 		try {
-			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
-		} catch (Exception e) {
-			log.error("Error getting public key", e);
-			LTI13Util.return400(response, "Public key retrieval failed");
+			at = sakaiAccessTokenService.issueAccessToken(toolKey.longValue(), client_assertion, scope);
+		} catch (SakaiAccessTokenException e) {
+			if ("invalid_scope".equals(e.getErrorKey())) {
+				LTI13Util.return400(response, "invalid_scope", e.getMessage());
+			} else {
+				LTI13Util.return400(response, e.getMessage());
+			}
+			log.error("Token issue failed for tool {}: {}", tool_id, e.getMessage());
 			return;
 		}
-
-		Jws<Claims> claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
-
-		if (claims == null) {
-			LTI13Util.return400(response, "Could not verify signature");
-			log.error("Could not verify signature {}", tool_id);
-			return;
-		}
-
-		scope = scope.toLowerCase();
-
-
-		SakaiAccessToken sat = new SakaiAccessToken();
-		sat.tool_id = toolKey;
-		Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
-		sat.expires = issued + 3600L;
-
-		// https://datatracker.ietf.org/doc/html/rfc6749#section-5.1
-		HashSet<String> returnScopeSet = new HashSet<String> ();
-
-		// Work through requested scopes
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-				log.error("Scope lineitem readonly not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
-			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
-				log.error("Scope lineitem not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
-
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
-			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
-				log.error("Scope score not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_SCORE);
-
-			sat.addScope(SakaiAccessToken.SCOPE_SCORE);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
-				log.error("Scope result readonly not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
-
-			sat.addScope(SakaiAccessToken.SCOPE_RESULT_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
-			if (!Boolean.TRUE.equals(tool.allowroster)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
-				log.error("Scope names and roles not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
-
-			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowroster)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
-				log.error("Scope context group not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
-
-			sat.addScope(SakaiAccessToken.SCOPE_CONTEXTGROUP_READONLY);
-		}
-
-		String payload = JacksonUtil.toString(sat);
-		String jws = Jwts.builder().setPayload(payload).signWith(tokenKeyPair.getPrivate()).compact();
-
-		AccessToken at = new AccessToken();
-		at.access_token = jws;
-		at.scope = String.join(" ", new ArrayList<String>(returnScopeSet));
 
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
@@ -997,7 +823,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -1337,7 +1163,7 @@ public class LTI13Servlet extends HttpServlet {
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return; // Error already set
 		}
@@ -1614,7 +1440,7 @@ public class LTI13Servlet extends HttpServlet {
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return; // Error already set
 		}
@@ -1732,60 +1558,20 @@ public class LTI13Servlet extends HttpServlet {
 
 	}
 
-	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
-	        log.debug("publicKey={}", publicKey);
-
-	        String authorization = request.getHeader("authorization");
-
-		if (authorization == null || !authorization.startsWith("Bearer")) {
-			log.error("Invalid authorization {}", authorization);
-			LTI13Util.return403(response, "invalid_authorization");
+	protected SakaiAccessToken getSakaiAccessToken(HttpServletRequest request, HttpServletResponse response) {
+		if (sakaiAccessTokenService == null) {
+			log.error("SakaiAccessTokenService not available");
+			LTI13Util.return403(response, "token_service_unavailable");
 			return null;
 		}
-
-		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
-		String[] parts = authorization.split("\\s+");
-		if (parts.length != 2 || parts[1].length() < 1) {
-			log.error("Bad authorization {}", authorization);
-			LTI13Util.return403(response, "invalid_authorization");
-			return null;
-		}
-
-		String jws = parts[1];
-		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
-		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
-				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			log.error("{} Signature error {}\n{}", e.getClass().getName(), e.getMessage(), jws, e);
-			LTI13Util.return403(response, "signature_error");
+			String jws = sakaiAccessTokenService.extractBearerToken(request.getHeader("authorization"));
+			return sakaiAccessTokenService.validateToken(jws);
+		} catch (SakaiAccessTokenException e) {
+			log.error("SAT validation failed: {}", e.getMessage());
+			LTI13Util.return403(response, e.getErrorKey(), e.getMessage());
 			return null;
 		}
-
-		// Reconstruct the SakaiAccessToken
-		// https://www.baeldung.com/jackson-deserialization
-		SakaiAccessToken sat;
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
-			// System.out.println("jsonResult=" + jsonResult);
-			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
-		} catch (IOException ex) {
-			log.error("PARSE ERROR {}\n{}", ex.getMessage(), claims.toString());
-			LTI13Util.return403(response, "token_parse_failure", ex.getMessage());
-			return null;
-		}
-
-		// Validity check the access token
-		if (sat.tool_id != null && sat.scope != null && sat.expires != null) {
-			// All good
-		} else {
-			log.error("SakaiAccessToken missing required data {}", sat);
-			LTI13Util.return403(response, "Missing required data in access_token");
-			return null;
-		}
-
-		return sat;
 	}
 
 	// Sanity check signed_placement
@@ -2066,7 +1852,7 @@ public class LTI13Servlet extends HttpServlet {
 	private void handleLineItemsPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -2177,7 +1963,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -2302,7 +2088,7 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signed_placement={}; all={}", signed_placement, all);
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}
@@ -2429,7 +2215,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}
@@ -2677,7 +2463,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}

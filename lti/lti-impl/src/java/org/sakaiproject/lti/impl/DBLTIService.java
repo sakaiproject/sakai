@@ -108,6 +108,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_tool_site", LTIService.TOOL_SITE_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL, m_sql, m_autoDdl, doReset);
 			super.init();
 		} catch (Exception t) {
 			log.warn("init(): ", t);
@@ -976,6 +977,31 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	public int deleteToolSitesForToolIdDao(String toolId) {
 
 		String statement = "DELETE FROM lti_tool_site WHERE tool_id = ?";
+		Object[] fields = new Object[]{toolId};
+
+		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
+		log.debug("Count={} Delete={}", count, statement);
+		return count;
+	}
+
+	@Override
+	public List<Map<String, Object>> getToolFunctionsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+		String validOrder = null;
+		if (order != null) {
+			validOrder = foorm.orderCheck(order, "lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL);
+		}
+		return getThingsDao("lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL, null, null, search, null, validOrder, first, last, siteId, isAdminRole);
+	}
+
+	@Override
+	public Object insertToolFunctionDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		return insertThingDao("lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
+	}
+
+	@Override
+	public int deleteToolFunctionsForToolIdDao(String toolId) {
+
+		String statement = "DELETE FROM lti_tool_functions WHERE tool_id = ?";
 		Object[] fields = new Object[]{toolId};
 
 		int count = m_sql.dbWriteCount(statement, fields, null, null, false);

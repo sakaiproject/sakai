@@ -15,6 +15,15 @@
                 <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         </bean>
 
+        <bean id="org.sakaiproject.lti.api.SakaiAccessTokenService"
+                class="org.sakaiproject.lti.impl.SakaiAccessTokenServiceImpl"
+                init-method="init"
+                destroy-method="destroy">
+            <property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+            <property name="cacheManager"><ref bean="org.sakaiproject.ignite.SakaiCacheManager"/></property>
+        </bean>
+
         <bean id="org.sakaiproject.lti.api.LTIService"
                 class="org.sakaiproject.lti.impl.DBLTIService"
                 init-method="init"
