@@ -30,6 +30,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -405,9 +406,22 @@ public class ItemConfigBean implements Serializable {
     if (isShowImageMapQuestion())
     	list.add(new SelectItem(String.valueOf(TypeIfc.IMAGEMAP_QUESTION), getResourceDisplayName("image_map_question"))); // IMAGEMAP_QUESTION
 
-    if (isShowSearchQuestion())
-      list.add(new SelectItem("17", getResourceDisplayName("search_question"))); // SEARCH IN THE LIST OF QUESTIONS
-    
+    Comparator<SelectItem> comparator = new Comparator<SelectItem>() {
+        @Override
+        public int compare(SelectItem s1, SelectItem s2) {
+            // the items must be compared based on their label
+            return s1.getLabel().compareTo(s2.getLabel());
+        }
+    };
+
+    Collections.sort(list, comparator);
+
+    List<SelectItem> existingQuestionActions = new ArrayList<SelectItem>();
+
+    if (isSelectFromQuestionPool()) {
+      existingQuestionActions.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+    }
+
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden
     	// and only show the option if it's reasonable, such as when questionpools are
@@ -421,22 +435,19 @@ public class ItemConfigBean implements Serializable {
 							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager", "")
 					.contains("sakai.questionbank.client")) {
 
-			list.add(new SelectItem("100",
+			existingQuestionActions.add(new SelectItem("100",
 					getResourceDisplayName("import_from_question_bank")));
     	}
     }
-    
-    Comparator<SelectItem> comparator = new Comparator<SelectItem>() {
-        @Override
-        public int compare(SelectItem s1, SelectItem s2) {
-            // the items must be compared based on their value (assuming String or Integer value here)
-            return s1.getLabel().compareTo(s2.getLabel());
-        }
-    };
-    
-    Collections.sort(list, comparator);
-    if (isSelectFromQuestionPool()) {
-      list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+
+    if (isShowSearchQuestion()) {
+      existingQuestionActions.add(new SelectItem("17", getResourceDisplayName("search_question"))); // SEARCH IN THE LIST OF QUESTIONS
+    }
+
+    if (!existingQuestionActions.isEmpty()) {
+      Collections.sort(existingQuestionActions, comparator);
+      list.add(new SelectItemGroup(getResourceDisplayName("existing"), getResourceDisplayName("existing_desc"), false,
+          existingQuestionActions.toArray(new SelectItem[existingQuestionActions.size()])));
     }
     
     return list;
