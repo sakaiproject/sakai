@@ -35,13 +35,16 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import lombok.Setter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 
-	@Setter private UserDirectoryService userDirectoryService;
+    @Autowired
+	private UserDirectoryService userDirectoryService;
 
 	public User findOrCreateUser(Map payload, boolean trustedConsumer, boolean emailtrusted) throws LTIException {
 

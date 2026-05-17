@@ -22,9 +22,9 @@ public class SiteStatsMessagesTest {
 
     @Test
     public void formatsReportTitleInSaveSuccessMessages() {
-        assertMessage(Locale.ENGLISH, "Report 'Quarterly' saved successfully");
         assertMessage(new Locale("ro", "RO"), "Raportul 'Quarterly' a fost salvat cu succes");
         assertMessage(new Locale("sr"), "Izveštaj 'Quarterly' je uspešno sačuvan");
+        assertMessage(new Locale("es"), "El informe 'Quarterly' ha sido guardado con éxito");
     }
 
     private void assertMessage(Locale locale, String expected) {

@@ -20,6 +20,7 @@
 
 package org.sakaiproject.lti.beans;
 
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -186,6 +187,9 @@ public abstract class LTIBaseBean {
         Object value = map.get(key);
         if (value == null) {
             return null;
+        }
+        if (value instanceof Instant) {
+            return Date.from((Instant) value);
         }
         if (value instanceof Date) {
             return (Date) value;

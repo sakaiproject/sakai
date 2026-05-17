@@ -11,4 +11,8 @@
     <bean id="org.sakaiproject.authz.api.RoleProvider" class="org.mockito.Mockito" factory-method="mock">
         <constructor-arg value="org.sakaiproject.authz.api.RoleProvider"/>
     </bean>
+
+    <bean id="org.sakaiproject.lti.api.LTIToolPermissionService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.lti.api.LTIToolPermissionService"/>
+    </bean>
 </beans>

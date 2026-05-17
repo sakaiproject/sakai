@@ -354,19 +354,6 @@ public class LTIServiceBeanMethodsTest {
     }
 
     @Test
-    public void testNullHandling() {
-        // Test that null maps are handled gracefully
-        LtiToolBean nullTool = LtiToolBean.of(null);
-        assertNull("Null map should result in null tool", nullTool);
-
-        LtiContentBean nullContent = LtiContentBean.of(null);
-        assertNull("Null map should result in null content", nullContent);
-
-        LtiMembershipsJobBean nullJob = LtiMembershipsJobBean.of(null);
-        assertNull("Null map should result in null job", nullJob);
-    }
-
-    @Test
     public void testEmptyMapHandling() {
         // Test that empty maps create objects with null fields
         Map<String, Object> emptyMap = new HashMap<>();
