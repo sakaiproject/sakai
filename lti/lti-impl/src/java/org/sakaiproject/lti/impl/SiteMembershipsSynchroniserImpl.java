@@ -53,28 +53,22 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Slf4j
 public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroniser {
 
-    private UserFinderOrCreator userFinderOrCreator = null;
-    public void setUserFinderOrCreator(UserFinderOrCreator userFinderOrCreator) {
-        this.userFinderOrCreator = userFinderOrCreator;
-    }
+    @Autowired
+    private UserFinderOrCreator userFinderOrCreator;
 
+    @Autowired
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
 
-    private SiteMembershipUpdater siteMembershipUpdater = null;
-    public void setSiteMembershipUpdater(SiteMembershipUpdater siteMembershipUpdater) {
-        this.siteMembershipUpdater = siteMembershipUpdater;
-    }
+    @Autowired
+    private SiteMembershipUpdater siteMembershipUpdater;
 
-    private SiteService siteService = null;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
+    @Autowired
+    private SiteService siteService;
 
 	private void pushAdvisor() {
 

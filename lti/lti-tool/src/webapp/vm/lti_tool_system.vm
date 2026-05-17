@@ -4,10 +4,13 @@
 	<!-- jQuery -->
 ${includeLatestJQuery}
 
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
-    <script type="text/javascript">includeWebjarLibrary('datatables');</script>
+    <script>includeWebjarLibrary('datatables');</script>
+    <!-- Tablesorter: required -->
+    <script>includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
+    <script>includeWebjarLibrary('jquery.tablesorter');</script>
 
 	<script id="js">
 		document.addEventListener('DOMContentLoaded', function() {
@@ -108,6 +111,9 @@ ${includeLatestJQuery}
                                 <ul style="list-style: none;">
 									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolBean.id">$tlang.getString("gen.edit")</a></li>
 	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolBean.id">$tlang.getString("gen.delete")</a> </li>
+									#if ( $isAdmin && $isApiEnabled)
+										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolApiConfig")&id=$toolBean.id">$tlang.getString("tool.api.access")</a></li>
+									#end
 									#if ( $toolBean.ltiContentCount > 0 )
                                 		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$toolBean.id">$tlang.getString("gen.transfer")</a></li>
                                 	#end

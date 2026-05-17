@@ -19,11 +19,16 @@ import static org.mockito.Mockito.mock;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -66,5 +71,25 @@ public class WebApiTestConfiguration {
     @Bean
     public UserDirectoryService userDirectoryService() {
         return mock(UserDirectoryService.class);
+    }
+
+    @Bean
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
+    }
+
+    @Bean
+    public HttpServletRequest request() {
+        return mock(HttpServletRequest.class);
+    }
+
+    @Bean
+    public HttpServletResponse response() {
+        return mock(HttpServletResponse.class);
+    }
+
+    @Bean
+    public SakaiAccessTokenService accessTokenService() {
+        return mock(SakaiAccessTokenService.class);
     }
 }
