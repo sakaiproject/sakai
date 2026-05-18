@@ -76,6 +76,7 @@
               data-delete-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/delete"
               data-tool-id="$formattedText.escapeHtml($page.toolId)"
               data-locked="$page.locked"
+              data-iframe-source="$formattedText.escapeHtml($page.iframeSource)"
               data-title="$pageTitle"
               data-remove-confirm="$formattedText.escapeHtml($removeConfirm)">
             <div class="tool-order-row-main">

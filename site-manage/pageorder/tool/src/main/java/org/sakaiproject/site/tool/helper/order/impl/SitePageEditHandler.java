@@ -599,10 +599,6 @@ public class SitePageEditHandler {
                 permissions.remove(SiteService.SECURE_UPDATE_SITE);
                 permissions.remove(SiteService.SITE_VISIT);
 
-                if (enabled && permissions.size() > 1) {
-                    permissions = Collections.singletonList(permissions.get(0));
-                }
-
                 Set<Role> roles = getRolesWithout(authzGroup, SiteService.SECURE_UPDATE_SITE);
                 for (Role role : roles) {
                     if (enabled) {

@@ -229,7 +229,10 @@ public class MenuBuilder
                 }
             }
 
-            menu.add( buildMenuEntry( rl.getString( "java.datemanager" ), "doDateManagerHelper", activeTab.equals( SiteInfoActiveTab.DATE_MANAGER ) ) );
+            if( !TM.isStealthed( "sakai.datemanager" ) )
+            {
+                menu.add( buildMenuEntry( rl.getString( "java.datemanager" ), "doDateManagerHelper", activeTab.equals( SiteInfoActiveTab.DATE_MANAGER ) ) );
+            }
         }
 
         // If the add participant helper is available, not stealthed and not hidden, show the tab

@@ -21,11 +21,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -64,6 +66,19 @@ public class ToolOrderControllerTest {
     }
 
     @Test
+    public void visibilityRequiresRequest() {
+        when(messageSource.getMessage(eq("error_visibility_required"), any(), eq(Locale.ENGLISH)))
+                .thenReturn("Page visibility value is required.");
+
+        ResponseEntity<Map<String, Object>> response = controller.visibility("page1", null, Locale.ENGLISH);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertFalse((Boolean) response.getBody().get("success"));
+        assertEquals("Page visibility value is required.", response.getBody().get("message"));
+        verify(pageEditHandler, never()).setPageVisible(anyString(), anyBoolean());
+    }
+
+    @Test
     public void accessRequiresExplicitEnabledValue() {
         when(messageSource.getMessage(eq("error_access_required"), any(), eq(Locale.ENGLISH)))
                 .thenReturn("Page access value is required.");
@@ -75,5 +90,48 @@ public class ToolOrderControllerTest {
         assertFalse((Boolean) response.getBody().get("success"));
         assertEquals("Page access value is required.", response.getBody().get("message"));
         verify(pageEditHandler, never()).setPageEnabled(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void accessRequiresRequest() {
+        when(messageSource.getMessage(eq("error_access_required"), any(), eq(Locale.ENGLISH)))
+                .thenReturn("Page access value is required.");
+
+        ResponseEntity<Map<String, Object>> response = controller.access("page1", null, Locale.ENGLISH);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertFalse((Boolean) response.getBody().get("success"));
+        assertEquals("Page access value is required.", response.getBody().get("message"));
+        verify(pageEditHandler, never()).setPageEnabled(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void clientErrorsReturnBadRequest() {
+        when(messageSource.getMessage(eq("status_error"), any(), eq(Locale.ENGLISH)))
+                .thenReturn("The change could not be saved.");
+        ToolOrderController.ReorderRequest request = new ToolOrderController.ReorderRequest();
+        request.setPageIds(Collections.singletonList("page1"));
+        doThrow(new IllegalArgumentException("bad request")).when(pageEditHandler).reorderPages(any());
+
+        ResponseEntity<Map<String, Object>> response = controller.reorder(request, Locale.ENGLISH);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertFalse((Boolean) response.getBody().get("success"));
+        assertEquals("The change could not be saved.", response.getBody().get("message"));
+    }
+
+    @Test
+    public void unexpectedErrorsReturnInternalServerError() {
+        when(messageSource.getMessage(eq("internal_error"), any(), eq(Locale.ENGLISH)))
+                .thenReturn("The change could not be saved because of a server error.");
+        ToolOrderController.ReorderRequest request = new ToolOrderController.ReorderRequest();
+        request.setPageIds(Collections.singletonList("page1"));
+        doThrow(new RuntimeException("database unavailable")).when(pageEditHandler).reorderPages(any());
+
+        ResponseEntity<Map<String, Object>> response = controller.reorder(request, Locale.ENGLISH);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertFalse((Boolean) response.getBody().get("success"));
+        assertEquals("The change could not be saved because of a server error.", response.getBody().get("message"));
     }
 }

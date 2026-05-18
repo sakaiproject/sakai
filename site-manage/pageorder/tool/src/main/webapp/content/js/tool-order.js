@@ -130,6 +130,10 @@
     if (titleInput) {
       titleInput.value = row.dataset.title || "";
     }
+    const iframeInput = form.querySelector('input[name="iframeSource"]');
+    if (iframeInput) {
+      iframeInput.value = row.dataset.iframeSource || "";
+    }
     form.classList.add("d-none");
   };
 
@@ -137,6 +141,7 @@
     row.dataset.title = data.title;
     row.dataset.toolId = data.toolId;
     row.dataset.locked = String(data.locked);
+    row.dataset.iframeSource = data.iframeSource || "";
     row.dataset.removeConfirm = app.dataset.removeConfirmTemplate.replace("__TITLE__", data.title);
 
     const title = row.querySelector(".tool-order-title");

@@ -33,6 +33,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.vm.ActionURL;
 import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -64,7 +65,7 @@ public class ToolOrderVelocityView implements View {
         context.put("sakai_ActionURL", new ActionURL((String) model.get(SITE_INFO_ACTION_BASE), request).setPanel("Main"));
 
         Object modelLocale = model.get("locale");
-        Locale locale = modelLocale instanceof Locale ? (Locale) modelLocale : Locale.getDefault();
+        Locale locale = modelLocale instanceof Locale ? (Locale) modelLocale : RequestContextUtils.getLocale(request);
         ResourceLoader velocityMessages = new ResourceLoader("velocity-tool");
         velocityMessages.setContextLocale(locale);
         context.put("toolOptions", velocityMessages.getString("toolOptions"));

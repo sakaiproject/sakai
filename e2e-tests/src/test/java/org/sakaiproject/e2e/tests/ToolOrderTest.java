@@ -17,6 +17,7 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
@@ -78,6 +79,7 @@ class ToolOrderTest extends SakaiUiTestBase {
         Locator secondRow = rows.nth(1);
         assertThat(secondRow).isVisible();
         BoundingBox secondRowBox = secondRow.boundingBox();
+        assertNotNull(secondRowBox);
         Locator dragHandle = rows.first().locator("[data-action=\"drag-handle\"]");
         assertThat(dragHandle).isVisible();
         dragHandle.dragTo(secondRow, new Locator.DragToOptions().setTargetPosition(10, secondRowBox.height - 2));
