@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <div th:fragment="main (current)">
+  <th:block th:fragment="main (current)">
     <ul class="navIntraTool">
       <li role="presentation"><span th:class="${current}=='index' ? 'current'">
         <span th:if="${current}=='index'" th:text="#{menu.group.list}">Group List</span>
@@ -24,6 +24,6 @@
         <a th:unless="${current}=='import'" href="#" th:href="@{/import}" th:text="#{menu.bulk.creation}">Bulk creation</a>
       </span></li>
     </ul>
-  </div>
+  </th:block>
 </body>
 </html>

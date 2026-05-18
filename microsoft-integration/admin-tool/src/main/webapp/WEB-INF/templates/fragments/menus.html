@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-	<div th:fragment="main (active)">
+	<th:block th:fragment="main (active)">
 	<ul class="navIntraTool">
 		<li class="firstToolBarItem">
 		<span th:class="${active == 'index' ? 'current' : ''}">
@@ -34,6 +34,6 @@
 		</span>
 		</li>
 	</ul>
-	</div>
+	</th:block>
 </body>
 </html>

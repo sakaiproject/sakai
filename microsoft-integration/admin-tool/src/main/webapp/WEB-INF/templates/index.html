@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-	<div th:replace="fragments/common :: bootstrap" />
-	<div th:replace="fragments/common :: admin (${isAdmin})" />
+	<div th:replace="~{fragments/common :: bootstrap}" />
+	<div th:replace="~{fragments/common :: admin (${isAdmin})}" />
 
 	<div th:if="${isAdmin}">
 		<div class="portletBody">
-			<div id="menu" th:replace="fragments/menus :: main (index)" />
+			<div id="menu" th:insert="~{fragments/menus :: main (index)}" />
 			<div class="page-header">
 				<h1 th:text="#{index_title}"></h1>
 			</div>
 
-			<div th:replace="fragments/common :: error" />
+			<div th:replace="~{fragments/common :: error}" />
 			<div class="sak-banner-error hidden" id="ajax_error"></div>
 
-			<div th:replace="fragments/autoConfig :: progressbar"></div>
+			<div th:replace="~{fragments/autoConfig :: progressbar}"></div>
 
 			<div id="body-container"></div>
 		</div>
 
-		<div th:replace="fragments/autoConfig :: modal"></div>
-		<div th:replace="fragments/autoConfig :: script"></div>
+		<div th:replace="~{fragments/autoConfig :: modal}"></div>
+		<div th:replace="~{fragments/autoConfig :: script}"></div>
 		
 		<script th:inline="javascript">
 			(function () {

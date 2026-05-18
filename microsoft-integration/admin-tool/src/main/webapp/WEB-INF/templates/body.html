@@ -104,7 +104,7 @@
 						class="row table-space table-row"
 						th:id="|row_${row.id}|"
 						th:classappend="${index.even} ? 'index-background' : ''"
-						th:insert="fragments/synchronizationRow :: siteRow(${row})"
+						th:insert="~{fragments/synchronizationRow :: siteRow(${row})}"
 					></div>
 					<div th:id="|rowContainer_${row.id}|" class="row text-center hidden"></div>
 				</th:block>

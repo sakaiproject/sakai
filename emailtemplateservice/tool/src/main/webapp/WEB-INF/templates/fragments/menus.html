@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <body>
-        <div th:fragment="main (current)">
+        <th:block th:fragment="main (current)">
             <ul class="navIntraTool">
                 <li role="presentation">
                     <span th:if="${current}=='list'" th:text="#{mainview.list}" class="current">Template List</span>
@@ -13,6 +13,6 @@
                     <span th:case="*"><a href="#" th:href="@{/new}" th:text="#{mainview.new}"></a></span>
                 </li>
             </ul>
-        </div>
+        </th:block>
     </body>
 </html>

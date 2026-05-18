@@ -1,15 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <head th:replace="fragments/common :: head"/>
+    <head th:replace="~{fragments/common :: head}"/>
     <head>
         <title th:text="#{modifyemail.page.title}">Modify Email Template</title>
     </head>
 
     <body>
         <div class="portletBody container-fluid">
-            <div th:if="${emailTemplate.id == null}" id="menu" th:include="fragments/menus :: main (new)" />
-            <div th:unless="${emailTemplate.id == null}"id="menu" th:include="fragments/menus :: main (edit)" />
+            <div th:if="${emailTemplate.id == null}" id="menu" th:insert="~{fragments/menus :: main (new)}" />
+            <div th:unless="${emailTemplate.id == null}" id="menu" th:insert="~{fragments/menus :: main (edit)}" />
             <div class="page-header">
                 <h1 th:if="${emailTemplate.id == null}" th:text="#{modifyemail.new.template.header}"/>
                 <h1 th:unless="${emailTemplate.id == null}" th:text="#{modifyemail.modify.template.header(${emailTemplate.key},${emailTemplate.locale})}"/>

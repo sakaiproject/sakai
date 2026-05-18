@@ -9,11 +9,11 @@
 </head>
 <div th:fragment="bootstrap">
   <script>includeLatestJQuery('bulk-user-membership');</script>
-  <script th:inline="javascript">
+  <script>
       (function() {
-        const toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
-        if (toolId) {
-          setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+        const toolFrameId = window.name || (window.frameElement && window.frameElement.id);
+        if (toolFrameId) {
+          setMainFrameHeight(toolFrameId);
         }
     })();
   </script>

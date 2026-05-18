@@ -7,7 +7,7 @@
     </head>
     <body>
         <div class="portletBody">
-            <div id="menu" th:include="fragments/menus :: main (options)" />
+            <div id="menu" th:insert="~{fragments/menus :: main (options)}" />
                 <div th:if="${error != null}" th:text="${error}" class="sak-banner-error"/>
                 <form id="optionsForm" method="post" class="form-horizontal" >
                     <div class="page-header">
