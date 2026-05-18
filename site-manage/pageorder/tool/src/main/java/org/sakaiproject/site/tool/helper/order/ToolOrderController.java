@@ -94,8 +94,12 @@ public class ToolOrderController {
     public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId, @RequestBody VisibilityRequest request,
             Locale locale) {
         try {
-            ToolOrderPage row = pageEditHandler.setPageVisible(pageId, request.isVisible());
-            String message = request.isVisible() ? message("success_visible", locale, row.getTitle())
+            if (request == null || request.getVisible() == null) {
+                return validationError(message("error_visibility_required", locale));
+            }
+            boolean visible = request.getVisible();
+            ToolOrderPage row = pageEditHandler.setPageVisible(pageId, visible);
+            String message = visible ? message("success_visible", locale, row.getTitle())
                     : message("success_hidden", locale, row.getTitle());
             return ok(message, "row", row);
         } catch (RuntimeException e) {
@@ -108,8 +112,12 @@ public class ToolOrderController {
     public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request,
             Locale locale) {
         try {
-            ToolOrderPage row = pageEditHandler.setPageEnabled(pageId, request.isEnabled());
-            String message = request.isEnabled() ? message("success_enabled", locale, row.getTitle())
+            if (request == null || request.getEnabled() == null) {
+                return validationError(message("error_access_required", locale));
+            }
+            boolean enabled = request.getEnabled();
+            ToolOrderPage row = pageEditHandler.setPageEnabled(pageId, enabled);
+            String message = enabled ? message("success_enabled", locale, row.getTitle())
                     : message("success_disabled", locale, row.getTitle());
             return ok(message, "row", row);
         } catch (RuntimeException e) {
@@ -165,6 +173,13 @@ public class ToolOrderController {
         return ResponseEntity.status(status).body(body);
     }
 
+    private ResponseEntity<Map<String, Object>> validationError(String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", Boolean.FALSE);
+        body.put("message", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     private String message(String code, Locale locale, Object... args) {
         return messageSource.getMessage(code, args, locale);
     }
@@ -203,25 +218,25 @@ public class ToolOrderController {
     }
 
     public static class VisibilityRequest {
-        private boolean visible;
+        private Boolean visible;
 
-        public boolean isVisible() {
+        public Boolean getVisible() {
             return visible;
         }
 
-        public void setVisible(boolean visible) {
+        public void setVisible(Boolean visible) {
             this.visible = visible;
         }
     }
 
     public static class AccessRequest {
-        private boolean enabled;
+        private Boolean enabled;
 
-        public boolean isEnabled() {
+        public Boolean getEnabled() {
             return enabled;
         }
 
-        public void setEnabled(boolean enabled) {
+        public void setEnabled(Boolean enabled) {
             this.enabled = enabled;
         }
     }
