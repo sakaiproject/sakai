@@ -172,6 +172,32 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
+	private void deployToolToContentSites(Long toolKey, boolean isAdminRole, boolean isMaintainRole) {
+		if (toolKey == null || !isAdminRole || !isMaintainRole) {
+			return;
+		}
+
+		List<Map<String, Object>> sites = jdbcTemplate.queryForList(
+				"SELECT DISTINCT lti_content.SITE_ID FROM lti_content"
+				+ " INNER JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+				+ " WHERE lti_content.tool_id = ?", toolKey);
+		for (Map<String, Object> site : sites) {
+			String contentSite = StringUtils.trimToNull((String) site.get(LTI_SITE_ID));
+			if (contentSite == null || toolDeployed(toolKey, contentSite)) {
+				continue;
+			}
+
+			Properties props = new Properties();
+			props.setProperty(LTIService.LTI_TOOL_ID, toolKey.toString());
+			props.setProperty(LTIService.LTI_SITE_ID, contentSite);
+			props.setProperty("notes", rb.getString("tool.added.by.insert.content"));
+			Object insertResult = insertToolSiteDao(props, contentSite, isAdminRole, isMaintainRole);
+			if (insertResult instanceof String) {
+				log.warn("Unable to deploy stealthed tool {} to site {}: {}", toolKey, contentSite, insertResult);
+			}
+		}
+	}
+
 	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole)
 	{
 		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
@@ -182,7 +208,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	public Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		return updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isAdminRole, isMaintainRole);
+		Long stealth = Long.valueOf(LTIService.LTI_VISIBLE_STEALTH);
+		Map<String, Object> oldTool = getToolDao(key, siteId, true);
+		Long oldVisible = oldTool == null ? null : LTIUtil.toLongNull(oldTool.get(LTI_VISIBLE));
+		Object result = updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isAdminRole, isMaintainRole);
+		if (Boolean.TRUE.equals(result)) {
+			Map<String, Object> updatedTool = getToolDao(key, siteId, true);
+			Long updatedVisible = updatedTool == null ? null : LTIUtil.toLongNull(updatedTool.get(LTI_VISIBLE));
+			if (!stealth.equals(oldVisible) && stealth.equals(updatedVisible)) {
+				deployToolToContentSites(key, isAdminRole, isMaintainRole);
+			}
+		}
+		return result;
 	}
 
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
