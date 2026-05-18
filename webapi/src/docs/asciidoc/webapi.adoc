@@ -12,4 +12,6 @@ include::controllers/calendar/calendar-api.adoc[]
 
 include::controllers/grades/grades-api.adoc[]
 
+include::controllers/tasks/tasks-api.adoc[]
+
 include::controllers/scorm/scorm-api.adoc[]

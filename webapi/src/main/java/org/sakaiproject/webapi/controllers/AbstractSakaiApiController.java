@@ -50,8 +50,7 @@ abstract class AbstractSakaiApiController {
     protected PortalService portalService;
 
     /**
-     * Check for a valid session.
-     * If not valid a 403 Forbidden will be returned.
+     * Check for a valid session. If not valid a 403 Forbidden will be returned.
      */
     Session checkSakaiSession() {
 
