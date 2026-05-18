@@ -2,6 +2,7 @@
   const app = document.getElementById("tool-order-app");
   const list = document.getElementById("tool-order-list");
   const alert = document.getElementById("tool-order-alert");
+  const resourcesLockWarning = document.getElementById("tool-order-resources-lock-warning");
 
   if (!app) {
     return;
@@ -49,6 +50,16 @@
   const getRows = () => Array.from(list?.querySelectorAll(".tool-order-row") || []);
 
   const getOrder = () => getRows().map(row => row.dataset.pageId);
+
+  const updateResourcesLockWarning = () => {
+    if (!resourcesLockWarning) {
+      return;
+    }
+
+    const resourcesLocked = getRows()
+      .some(row => row.dataset.toolId === "sakai.resources" && row.dataset.locked === "true");
+    resourcesLockWarning.classList.toggle("d-none", !resourcesLocked);
+  };
 
   const restoreOrder = (order) => {
     const rowsById = new Map(getRows().map(row => [row.dataset.pageId, row]));
@@ -124,6 +135,8 @@
 
   const updateRow = (row, data) => {
     row.dataset.title = data.title;
+    row.dataset.toolId = data.toolId;
+    row.dataset.locked = String(data.locked);
     row.dataset.removeConfirm = app.dataset.removeConfirmTemplate.replace("__TITLE__", data.title);
 
     const title = row.querySelector(".tool-order-title");
@@ -166,6 +179,7 @@
         icon.className = data.enabled ? "bi bi-lock" : "bi bi-unlock";
       }
     }
+    updateResourcesLockWarning();
   };
 
   const saveTitle = async (row, form) => {
@@ -231,6 +245,7 @@
       const payload = await jsonRequest(row.dataset.deleteUrl);
       row.remove();
       updateMoveButtons();
+      updateResourcesLockWarning();
       showMessage(payload.message || app.dataset.savedMessage);
     } catch (error) {
       showMessage(error.message, false);

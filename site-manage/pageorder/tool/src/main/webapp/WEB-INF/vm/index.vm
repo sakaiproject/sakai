@@ -43,8 +43,8 @@
     <div class="sak-banner-warn">
       <span>$tlang.getString("warning")</span>
     </div>
-    <div class="sak-banner-warn">
-      <span>$tlang.getString("warn_lockResources")</span>
+    <div id="tool-order-resources-lock-warning" class="sak-banner-warn#if(!$resourcesLocked) d-none#end">
+      <span>$tlang.getString("warn_lockResources_locked")</span>
     </div>
 
     <div class="tool-order-list-header">
@@ -74,6 +74,8 @@
               data-visibility-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/visibility"
               data-access-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/access"
               data-delete-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/delete"
+              data-tool-id="$formattedText.escapeHtml($page.toolId)"
+              data-locked="$page.locked"
               data-title="$pageTitle"
               data-remove-confirm="$formattedText.escapeHtml($removeConfirm)">
             <div class="tool-order-row-main">

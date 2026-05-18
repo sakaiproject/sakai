@@ -45,6 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ToolOrderController {
 
+    private static final String RESOURCES_TOOL_ID = "sakai.resources";
+
     private final SitePageEditHandler pageEditHandler;
     private final MessageSource messageSource;
 
@@ -63,8 +65,10 @@ public class ToolOrderController {
         }
 
         Site site = pageEditHandler.requireCurrentSite();
+        List<ToolOrderPage> pages = pageEditHandler.getPages();
         model.addAttribute("siteTitle", site.getTitle());
-        model.addAttribute("pages", pageEditHandler.getPages());
+        model.addAttribute("pages", pages);
+        model.addAttribute("resourcesLocked", resourcesLocked(pages));
         model.addAttribute("reorderAllowed", pageEditHandler.isReorderAllowed());
         model.addAttribute("siteOrdered", pageEditHandler.isSiteOrdered());
         return "index";
@@ -196,6 +200,11 @@ public class ToolOrderController {
 
     private String message(String code, Locale locale, Object... args) {
         return messageSource.getMessage(code, args, locale);
+    }
+
+    private boolean resourcesLocked(List<ToolOrderPage> pages) {
+        return pages.stream()
+                .anyMatch(page -> RESOURCES_TOOL_ID.equals(page.getToolId()) && page.isLocked());
     }
 
     @Getter

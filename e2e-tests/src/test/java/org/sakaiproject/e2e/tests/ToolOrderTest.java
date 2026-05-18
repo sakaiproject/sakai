@@ -56,6 +56,21 @@ class ToolOrderTest extends SakaiUiTestBase {
         Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
         Pattern titleSavedMessage = Pattern.compile("title.*saved", Pattern.CASE_INSENSITIVE);
         Pattern removedMessage = Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE);
+        Pattern resourcesLockedMessage = Pattern.compile("Assignments.*student uploads", Pattern.CASE_INSENSITIVE);
+
+        Locator resourcesLockWarning = page.locator("#tool-order-resources-lock-warning");
+        assertThat(resourcesLockWarning).isHidden();
+        Locator resourcesRow = page.locator(".tool-order-row[data-tool-id=\"sakai.resources\"]").first();
+        if (resourcesRow.isVisible()) {
+            Locator resourcesAccessButton = resourcesRow.locator("[data-action=\"access\"]").first();
+            if (resourcesAccessButton.isVisible() && resourcesAccessButton.isEnabled()) {
+                resourcesAccessButton.click();
+                assertThat(resourcesLockWarning).isVisible();
+                assertThat(resourcesLockWarning).containsText(resourcesLockedMessage);
+                resourcesAccessButton.click();
+                assertThat(resourcesLockWarning).isHidden();
+            }
+        }
 
         Locator rows = page.locator(".tool-order-row");
         assertTrue(rows.count() > 1);
