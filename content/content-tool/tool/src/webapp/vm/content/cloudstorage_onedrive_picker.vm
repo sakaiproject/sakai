@@ -121,6 +121,7 @@
 					#if (!$onedriveItem.isFolder())
 						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.id})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
 					#end
+				</td>
 				<td headers="action-link">
 					#if (!$onedriveItem.isFolder())
 						<a href="#" onclick="return doAttachSubmitOneDrive('$formattedText.escapeUrl(${onedriveItem.id})',false)" title ="$tlang.getString('cloudstorage.attach_link')">$tlang.getString('cloudstorage.attach_link') <span class="skip">$formattedText.escapeHtml($onedriveItem.name)</span></a>
