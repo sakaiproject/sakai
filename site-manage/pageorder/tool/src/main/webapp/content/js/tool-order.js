@@ -369,7 +369,7 @@
     });
   }
 
-  if (window.bootstrap?.Tooltip) {
+  if (window.bootstrap?.Tooltip && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     app.querySelectorAll("[title]").forEach(element => new window.bootstrap.Tooltip(element));
   }
 

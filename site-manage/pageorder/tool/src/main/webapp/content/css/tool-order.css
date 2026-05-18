@@ -181,8 +181,18 @@
     order: 2;
   }
 
+  .tool-order-drag-handle {
+    display: none;
+  }
+
   .tool-order-row-actions {
     justify-content: flex-start;
     order: 3;
+  }
+}
+
+@media (pointer: coarse) {
+  .tool-order-drag-handle {
+    display: none;
   }
 }
