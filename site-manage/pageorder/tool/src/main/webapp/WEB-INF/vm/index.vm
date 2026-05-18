@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="$localeTag">
+<head>
+  <meta charset="utf-8">
+  <title>$tlang.getString("page_title")</title>
+  <link href="/library/skin/tool_base.css" rel="stylesheet" media="all">
+  <link href="/library/skin/default-skin/tool.css" rel="stylesheet" media="all">
+  <script src="/library/js/headscripts.js"></script>
+  <script>includeWebjarLibrary('bootstrap', { includeCss: true });</script>
+  <link href="$contextPath/content/css/tool-order.css" rel="stylesheet">
+  <script src="$contextPath/content/js/tool-order.js" defer></script>
+</head>
+<body>
+  #set($removeConfirmTemplate = $tlang.getFormattedMessage("remove_tool_confirm", "__TITLE__"))
+  <main id="tool-order-app"
+        class="portletBody tool-order"
+        data-order-url="$contextPath/api/order"
+        data-reset-url="$contextPath/api/reset-order"
+        data-saving-message="$formattedText.escapeHtml($tlang.getString("status_saving"))"
+        data-saved-message="$formattedText.escapeHtml($tlang.getString("status_saved"))"
+        data-error-message="$formattedText.escapeHtml($tlang.getString("status_error"))"
+        data-menu-hide="$formattedText.escapeHtml($tlang.getString("menu_hide_page"))"
+        data-menu-show="$formattedText.escapeHtml($tlang.getString("menu_show_page"))"
+        data-menu-lock="$formattedText.escapeHtml($tlang.getString("menu_lock_page"))"
+        data-menu-unlock="$formattedText.escapeHtml($tlang.getString("menu_enable_page"))"
+        data-remove-confirm-template="$formattedText.escapeHtml($removeConfirmTemplate)">
+    #if($menu)#toolbar($menu)#end
+
+    <div class="tool-order-heading">
+      <div>
+        <h1>$tlang.getString("page_title")</h1>
+        <p class="tool-order-site-title">$formattedText.escapeHtml($siteTitle)</p>
+      </div>
+      <form action="$contextPath/done" method="post">
+        <button type="submit" class="btn btn-primary">$tlang.getString("done")</button>
+      </form>
+    </div>
+
+    <div id="tool-order-alert" class="sak-banner-info" role="status" aria-live="polite">
+      <span>$tlang.getString("welcome")</span>
+    </div>
+
+    <div class="sak-banner-warn">
+      <span>$tlang.getString("warning")</span>
+    </div>
+    <div class="sak-banner-warn">
+      <span>$tlang.getString("warn_lockResources")</span>
+    </div>
+
+    <div class="tool-order-list-header">
+      <h2>$tlang.getString("curr_pages")</h2>
+      #if($siteOrdered)
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-action="reset-order"
+                data-confirm="$formattedText.escapeHtml($tlang.getString("reset_order_confirm"))">
+          <span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
+          <span>$tlang.getString("reset")</span>
+        </button>
+      #end
+    </div>
+
+    #if(!$pages.isEmpty())
+      <ul id="tool-order-list"
+          class="list-group tool-order-list"
+          data-reorder-allowed="$reorderAllowed">
+        #foreach($page in $pages)
+          #set($pageTitle = $formattedText.escapeHtml($page.title))
+          #set($removeConfirm = $tlang.getFormattedMessage("remove_tool_confirm", $page.title))
+          <li class="list-group-item tool-order-row"
+              id="tool-order-row-$formattedText.escapeHtml($page.id)"
+              data-page-id="$formattedText.escapeHtml($page.id)"
+              data-title-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/title"
+              data-visibility-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/visibility"
+              data-access-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/access"
+              data-delete-url="$contextPath/api/pages/$formattedText.escapeHtml($page.id)/delete"
+              data-title="$pageTitle"
+              data-remove-confirm="$formattedText.escapeHtml($removeConfirm)">
+            <div class="tool-order-row-main">
+              #if($reorderAllowed)
+                <div class="tool-order-move-controls">
+                  <button type="button"
+                          class="btn btn-icon tool-order-drag-handle"
+                          data-action="drag-handle"
+                          draggable="true"
+                          title="$formattedText.escapeHtml($tlang.getString("drag_tool"))"
+                          aria-label="$formattedText.escapeHtml($tlang.getString("drag_tool"))">
+                    <span class="si si-drag-handle" aria-hidden="true"></span>
+                  </button>
+                  <button type="button"
+                          class="btn btn-icon"
+                          data-action="move-up"
+                          #if($page.first)disabled="disabled"#end
+                          title="$formattedText.escapeHtml($tlang.getString("move_up"))"
+                          aria-label="$formattedText.escapeHtml($tlang.getString("move_up"))">
+                    <span class="bi bi-chevron-up" aria-hidden="true"></span>
+                  </button>
+                  <button type="button"
+                          class="btn btn-icon"
+                          data-action="move-down"
+                          #if($page.last)disabled="disabled"#end
+                          title="$formattedText.escapeHtml($tlang.getString("move_down"))"
+                          aria-label="$formattedText.escapeHtml($tlang.getString("move_down"))">
+                    <span class="bi bi-chevron-down" aria-hidden="true"></span>
+                  </button>
+                </div>
+              #end
+
+              <div class="tool-order-row-content">
+                <span class="$formattedText.escapeHtml($page.toolIconClass)" aria-hidden="true"></span>
+
+                <div class="tool-order-title-block">
+                  <div class="tool-order-display">
+                    <span class="tool-order-title">$pageTitle</span>
+                    <span class="badge text-bg-secondary tool-order-hidden-badge#if(!$page.hidden) d-none#end">
+                      $tlang.getString("status_hidden")
+                    </span>
+                    <span class="badge text-bg-warning tool-order-locked-badge#if(!$page.locked) d-none#end">
+                      $tlang.getString("status_locked")
+                    </span>
+                  </div>
+
+                  <form class="tool-order-edit-form d-none">
+                    <div class="tool-order-edit-fields">
+                      <label class="form-label" for="title-$formattedText.escapeHtml($page.id)">
+                        $tlang.getString("title")
+                      </label>
+                      <input class="form-control form-control-sm"
+                             id="title-$formattedText.escapeHtml($page.id)"
+                             name="title"
+                             maxlength="20"
+                             value="$pageTitle">
+                      #if($page.iframe)
+                        <div class="tool-order-url-field">
+                          <label class="form-label" for="url-$formattedText.escapeHtml($page.id)">
+                            $tlang.getString("url")
+                          </label>
+                          <input class="form-control form-control-sm"
+                                 id="url-$formattedText.escapeHtml($page.id)"
+                                 name="iframeSource"
+                                 value="$formattedText.escapeHtml($page.iframeSource)">
+                        </div>
+                      #end
+                    </div>
+                    <div class="tool-order-edit-actions">
+                      <button type="submit"
+                              class="btn btn-primary btn-sm"
+                              title="$formattedText.escapeHtml($tlang.getString("save_tool_title"))">
+                        <span class="bi bi-check-lg" aria-hidden="true"></span>
+                        <span>$tlang.getString("save")</span>
+                      </button>
+                      <button type="button"
+                              class="btn btn-outline-secondary btn-sm"
+                              data-action="cancel-edit"
+                              title="$formattedText.escapeHtml($tlang.getString("cancel_tool_title"))">
+                        <span class="bi bi-x-lg" aria-hidden="true"></span>
+                        <span>$tlang.getString("cancel")</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="tool-order-row-actions">
+                #if($page.allowsEdit)
+                  #set($editLabel = $tlang.getFormattedMessage("page_edit", $page.title))
+                  <button type="button"
+                          class="btn btn-icon"
+                          data-action="edit"
+                          title="$formattedText.escapeHtml($tlang.getString("menu_edit_page_title"))"
+                          aria-label="$formattedText.escapeHtml($editLabel)">
+                    <span class="bi bi-pencil" aria-hidden="true"></span>
+                  </button>
+                #end
+                #if($page.allowsHide)
+                  #if($page.visible)
+                    #set($visibilityTitle = $tlang.getString("menu_hide_page"))
+                    #set($visibilityLabel = $tlang.getFormattedMessage("page_hide", $page.title))
+                    #set($visibilityIcon = "bi bi-eye-slash")
+                  #else
+                    #set($visibilityTitle = $tlang.getString("menu_show_page"))
+                    #set($visibilityLabel = $tlang.getFormattedMessage("page_show", $page.title))
+                    #set($visibilityIcon = "bi bi-eye")
+                  #end
+                  <button type="button"
+                          class="btn btn-icon"
+                          data-action="visibility"
+                          #if(!$page.enabled)disabled="disabled"#end
+                          data-next-visible="#if(!$page.visible || !$page.enabled)true#{else}false#end"
+                          aria-label="$formattedText.escapeHtml($visibilityLabel)"
+                          title="$formattedText.escapeHtml($visibilityTitle)">
+                    <span class="$visibilityIcon" aria-hidden="true"></span>
+                  </button>
+                #end
+                #if($page.allowsLock)
+                  #if($page.enabled)
+                    #set($accessTitle = $tlang.getString("menu_lock_page"))
+                    #set($accessLabel = $tlang.getFormattedMessage("page_disable", $page.title))
+                    #set($accessIcon = "bi bi-lock")
+                  #else
+                    #set($accessTitle = $tlang.getString("menu_enable_page"))
+                    #set($accessLabel = $tlang.getFormattedMessage("page_enable", $page.title))
+                    #set($accessIcon = "bi bi-unlock")
+                  #end
+                  <button type="button"
+                          class="btn btn-icon"
+                          data-action="access"
+                          data-next-enabled="#if(!$page.enabled)true#{else}false#end"
+                          aria-label="$formattedText.escapeHtml($accessLabel)"
+                          title="$formattedText.escapeHtml($accessTitle)">
+                    <span class="$accessIcon" aria-hidden="true"></span>
+                  </button>
+                #end
+                #if($page.deletable)
+                  #set($removeLabel = $tlang.getFormattedMessage("page_remove", $page.title))
+                  <button type="button"
+                          class="btn btn-icon text-danger"
+                          data-action="delete"
+                          title="$formattedText.escapeHtml($tlang.getString("menu_remove_page"))"
+                          aria-label="$formattedText.escapeHtml($removeLabel)">
+                    <span class="bi bi-trash" aria-hidden="true"></span>
+                  </button>
+                #end
+              </div>
+            </div>
+          </li>
+        #end
+      </ul>
+    #else
+      <p class="tool-order-empty">$tlang.getString("empty_tools")</p>
+    #end
+  </main>
+</body>
+</html>

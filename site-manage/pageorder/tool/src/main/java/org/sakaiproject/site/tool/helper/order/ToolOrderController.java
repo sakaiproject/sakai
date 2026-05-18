@@ -23,6 +23,7 @@ import java.util.Map;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 import org.sakaiproject.site.tool.helper.order.model.ToolOrderPage;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ public class ToolOrderController {
 
     @GetMapping({"/", "/index"})
     public String index(Model model, Locale locale) {
+        addCommonModel(model, locale);
         if (!pageEditHandler.canUpdateCurrentSite()) {
             model.addAttribute("message", message("access_error", locale));
             return "access";
@@ -178,6 +180,16 @@ public class ToolOrderController {
         body.put("success", Boolean.FALSE);
         body.put("message", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    private void addCommonModel(Model model, Locale locale) {
+        ResourceLoader resourceLoader = new ResourceLoader("org.sakaiproject.tool.pageorder.bundle.Messages");
+        resourceLoader.setContextLocale(locale);
+        model.addAttribute("tlang", resourceLoader);
+        model.addAttribute("locale", locale);
+        model.addAttribute("localeTag", locale.toLanguageTag());
+        model.addAttribute("menu", pageEditHandler.getSiteInfoMenu());
+        model.addAttribute("siteInfoActionBase", pageEditHandler.getDoneBaseUrl());
     }
 
     private String message(String code, Locale locale, Object... args) {

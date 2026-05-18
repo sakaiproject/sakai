@@ -492,6 +492,8 @@ public class SiteAction extends PagedResourceActionII {
 	/** The action for menu */
 	public static final String STATE_ACTION = "site.action";
 
+	public static final String HELPER_SITE_INFO_MENU = "sakai.tool.helper.id.siteInfoMenu";
+
 	/** The user copyright string */
 	private static final String STATE_MY_COPYRIGHT = "resources.mycopyright";
 
@@ -4664,7 +4666,10 @@ public class SiteAction extends PagedResourceActionII {
 		//
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
+		Site site = getStateSite(state);
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", site.getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_SITE_INFO_MENU,
+				MenuBuilder.buildMenuForSiteInfo(site, rb, siteTypeProvider, SiteInfoActiveTab.TOOL_ORDER));
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");

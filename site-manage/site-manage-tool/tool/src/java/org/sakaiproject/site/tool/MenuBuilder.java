@@ -59,6 +59,7 @@ public class MenuBuilder
         EDIT_SITE_INFO,
         MANAGE_TOOLS,
         TOOL_ORDER,
+        DATE_MANAGER,
         ADD_PARTICIPANTS,
         EDIT_CLASS_ROSTERS,
         MANAGE_PARTICIPANTS,
@@ -179,6 +180,12 @@ public class MenuBuilder
     public static void buildMenuForSiteInfo( VelocityPortlet portlet, RunData data, SessionState state, Context context, Site site, ResourceLoader rl,
                                                         SiteTypeProvider siteTypeProvider, SiteInfoActiveTab activeTab )
     {
+        Menu menu = buildMenuForSiteInfo(site, rl, siteTypeProvider, activeTab);
+        addMenuToContext( menu, context );
+    }
+
+    public static Menu buildMenuForSiteInfo(Site site, ResourceLoader rl, SiteTypeProvider siteTypeProvider, SiteInfoActiveTab activeTab)
+    {
         // Get any necessary info from the site
         ResourceProperties siteProperties = site.getProperties();
         String siteType = site.getType();
@@ -192,7 +199,7 @@ public class MenuBuilder
         boolean allowUpdateGroupMembership = SS.allowUpdateGroupMembership( siteID );
 
         // Build the Menu object
-        Menu menu = new MenuImpl( portlet, data, (String) state.getAttribute( SiteAction.STATE_ACTION ) );
+        Menu menu = new MenuImpl();
 
         if( !isMyWorkspace )
         {
@@ -222,7 +229,7 @@ public class MenuBuilder
                 }
             }
 
-            menu.add( buildMenuEntry( rl.getString( "java.datemanager" ), "doDateManagerHelper", activeTab.equals( SiteInfoActiveTab.TOOL_ORDER ) ) );
+            menu.add( buildMenuEntry( rl.getString( "java.datemanager" ), "doDateManagerHelper", activeTab.equals( SiteInfoActiveTab.DATE_MANAGER ) ) );
         }
 
         // If the add participant helper is available, not stealthed and not hidden, show the tab
@@ -330,8 +337,7 @@ public class MenuBuilder
             }
         }
 
-        // Add the menu to the context if it's not empty
-        addMenuToContext( menu, context );
+        return menu;
     }
 
     /**

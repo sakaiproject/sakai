@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<html lang="$localeTag">
 <head>
   <meta charset="utf-8">
-  <title th:text="#{page_title}">Tool Order</title>
+  <title>$tlang.getString("page_title")</title>
   <link href="/library/skin/tool_base.css" rel="stylesheet" media="all">
   <link href="/library/skin/default-skin/tool.css" rel="stylesheet" media="all">
 </head>
 <body>
   <main class="portletBody">
+    #if($menu)#toolbar($menu)#end
     <div class="sak-banner-error" role="alert">
-      <span th:text="${message}">Sorry you don't have access to this tool</span>
+      <span>$formattedText.escapeHtml($message)</span>
     </div>
   </main>
 </body>

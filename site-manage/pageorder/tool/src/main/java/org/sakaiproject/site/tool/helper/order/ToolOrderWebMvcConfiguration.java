@@ -15,12 +15,11 @@
  */
 package org.sakaiproject.site.tool.helper.order;
 
-import java.nio.charset.StandardCharsets;
+import javax.servlet.ServletContext;
 
+import org.sakaiproject.site.tool.helper.order.velocity.ToolOrderVelocityViewResolver;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.sakaiproject.util.api.LocaleService;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,24 +29,11 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thymeleaf.spring5.ISpringTemplateEngine;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring5.view.ThymeleafViewResolver;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.site.tool.helper.order")
-public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer, ApplicationContextAware {
-
-    private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer {
 
     @Bean
     public MessageSource messageSource() {
@@ -57,33 +43,13 @@ public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer, Applicati
     }
 
     @Bean
-    public ViewResolver viewResolver() {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        return viewResolver;
+    public ViewResolver viewResolver(ServletContext servletContext) {
+        return new ToolOrderVelocityViewResolver(servletContext);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/content/**").addResourceLocations("/content/");
-    }
-
-    private ISpringTemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setEnableSpringELCompiler(true);
-        templateEngine.setMessageSource(messageSource());
-        templateEngine.setTemplateResolver(templateResolver());
-        return templateEngine;
-    }
-
-    private ITemplateResolver templateResolver() {
-        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-        templateResolver.setApplicationContext(applicationContext);
-        templateResolver.setPrefix("/WEB-INF/templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode(TemplateMode.HTML);
-        return templateResolver;
     }
 
     @Bean

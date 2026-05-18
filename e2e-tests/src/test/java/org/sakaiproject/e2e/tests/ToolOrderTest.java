@@ -46,6 +46,12 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
+        assertThat(page.locator(".navIntraTool .current")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE)))
+                .first()).isVisible();
+        assertThat(page.locator(".navIntraTool .current")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Date Manager", Pattern.CASE_INSENSITIVE))))
+                .hasCount(0);
         Locator statusAlert = page.locator("#tool-order-alert");
         Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
         Pattern titleSavedMessage = Pattern.compile("title.*saved", Pattern.CASE_INSENSITIVE);
