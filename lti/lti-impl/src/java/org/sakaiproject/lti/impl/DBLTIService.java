@@ -180,10 +180,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		List<Map<String, Object>> sites = jdbcTemplate.queryForList(
 				"SELECT DISTINCT lti_content.SITE_ID FROM lti_content"
 				+ " INNER JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
-				+ " WHERE lti_content.tool_id = ?", toolKey);
+				+ " WHERE lti_content.tool_id = ?"
+				+ " AND NOT EXISTS (SELECT 1 FROM lti_tool_site"
+				+ " WHERE lti_tool_site.tool_id = lti_content.tool_id"
+				+ " AND lti_tool_site.SITE_ID = lti_content.SITE_ID)", toolKey);
 		for (Map<String, Object> site : sites) {
 			String contentSite = StringUtils.trimToNull((String) site.get(LTI_SITE_ID));
-			if (contentSite == null || toolDeployed(toolKey, contentSite)) {
+			if (contentSite == null) {
 				continue;
 			}
 
