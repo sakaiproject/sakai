@@ -98,51 +98,53 @@
             </button>
           </div>
 
-          <span th:class="${page.toolIconClass}" aria-hidden="true"></span>
+          <div class="tool-order-row-content">
+            <span th:class="${page.toolIconClass}" aria-hidden="true"></span>
 
-          <div class="tool-order-title-block">
-            <div class="tool-order-display">
-              <span class="tool-order-title" th:text="${page.title}">Tool title</span>
-              <span class="badge text-bg-secondary tool-order-hidden-badge"
-                    th:classappend="${page.hidden} ? '' : ' d-none'"
-                    th:text="#{status_hidden}">Hidden</span>
-              <span class="badge text-bg-warning tool-order-locked-badge"
-                    th:classappend="${page.locked} ? '' : ' d-none'"
-                    th:text="#{status_locked}">Locked</span>
-            </div>
+            <div class="tool-order-title-block">
+              <div class="tool-order-display">
+                <span class="tool-order-title" th:text="${page.title}">Tool title</span>
+                <span class="badge text-bg-secondary tool-order-hidden-badge"
+                      th:classappend="${page.hidden} ? '' : ' d-none'"
+                      th:text="#{status_hidden}">Hidden</span>
+                <span class="badge text-bg-warning tool-order-locked-badge"
+                      th:classappend="${page.locked} ? '' : ' d-none'"
+                      th:text="#{status_locked}">Locked</span>
+              </div>
 
-            <form class="tool-order-edit-form d-none">
-              <div class="tool-order-edit-fields">
-                <label class="form-label" th:for="|title-${page.id}|" th:text="#{title}">Title</label>
-                <input class="form-control form-control-sm"
-                       th:id="|title-${page.id}|"
-                       name="title"
-                       maxlength="20"
-                       th:value="${page.title}">
-                <div th:if="${page.iframe}" class="tool-order-url-field">
-                  <label class="form-label" th:for="|url-${page.id}|" th:text="#{url}">URL</label>
+              <form class="tool-order-edit-form d-none">
+                <div class="tool-order-edit-fields">
+                  <label class="form-label" th:for="|title-${page.id}|" th:text="#{title}">Title</label>
                   <input class="form-control form-control-sm"
-                         th:id="|url-${page.id}|"
-                         name="iframeSource"
-                         th:value="${page.iframeSource}">
+                         th:id="|title-${page.id}|"
+                         name="title"
+                         maxlength="20"
+                         th:value="${page.title}">
+                  <div th:if="${page.iframe}" class="tool-order-url-field">
+                    <label class="form-label" th:for="|url-${page.id}|" th:text="#{url}">URL</label>
+                    <input class="form-control form-control-sm"
+                           th:id="|url-${page.id}|"
+                           name="iframeSource"
+                           th:value="${page.iframeSource}">
+                  </div>
                 </div>
-              </div>
-              <div class="tool-order-edit-actions">
-                <button type="submit"
-                        class="btn btn-primary btn-sm"
-                        th:title="#{save_tool_title}">
-                  <span class="bi bi-check-lg" aria-hidden="true"></span>
-                  <span th:text="#{save}">Save</span>
-                </button>
-                <button type="button"
-                        class="btn btn-outline-secondary btn-sm"
-                        data-action="cancel-edit"
-                        th:title="#{cancel_tool_title}">
-                  <span class="bi bi-x-lg" aria-hidden="true"></span>
-                  <span th:text="#{cancel}">Cancel</span>
-                </button>
-              </div>
-            </form>
+                <div class="tool-order-edit-actions">
+                  <button type="submit"
+                          class="btn btn-primary btn-sm"
+                          th:title="#{save_tool_title}">
+                    <span class="bi bi-check-lg" aria-hidden="true"></span>
+                    <span th:text="#{save}">Save</span>
+                  </button>
+                  <button type="button"
+                          class="btn btn-outline-secondary btn-sm"
+                          data-action="cancel-edit"
+                          th:title="#{cancel_tool_title}">
+                    <span class="bi bi-x-lg" aria-hidden="true"></span>
+                    <span th:text="#{cancel}">Cancel</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
 
           <div class="tool-order-row-actions">

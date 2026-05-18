@@ -42,6 +42,16 @@
   padding: 0.6rem 0.75rem;
 }
 
+.tool-order .btn-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0;
+}
+
 .tool-order-row.dragging {
   opacity: 0.55;
 }
@@ -59,7 +69,7 @@
   align-items: center;
   display: grid;
   gap: 0.65rem;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
 .tool-order-move-controls,
@@ -68,6 +78,14 @@
   align-items: center;
   display: flex;
   gap: 0.25rem;
+}
+
+.tool-order-row-content {
+  align-items: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
 }
 
 .tool-order-drag-handle {
@@ -131,22 +149,40 @@
     max-width: none;
   }
 
-  .tool-order-heading,
-  .tool-order-list-header {
+  .tool-order-heading {
     align-items: stretch;
     flex-direction: column;
   }
 
+  .tool-order-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .tool-order-row-main {
-    grid-template-columns: auto minmax(0, 1fr);
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.65rem;
+  }
+
+  .tool-order-row-content {
+    flex: 1 0 100%;
+    gap: 0.55rem;
+    order: 1;
+  }
+
+  .tool-order-move-controls,
+  .tool-order-row-actions {
+    gap: 0.35rem;
   }
 
   .tool-order-move-controls {
-    grid-column: 1 / -1;
+    order: 2;
   }
 
   .tool-order-row-actions {
-    grid-column: 1 / -1;
     justify-content: flex-start;
+    order: 3;
   }
 }
