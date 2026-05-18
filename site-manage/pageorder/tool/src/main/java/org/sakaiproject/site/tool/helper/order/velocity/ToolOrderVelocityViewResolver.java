@@ -22,6 +22,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
@@ -31,8 +32,10 @@ public class ToolOrderVelocityViewResolver implements ViewResolver {
     private static final String SUFFIX = ".vm";
 
     private final VelocityEngine velocityEngine;
+    private final LocaleResolver localeResolver;
 
-    public ToolOrderVelocityViewResolver(ServletContext servletContext) {
+    public ToolOrderVelocityViewResolver(ServletContext servletContext, LocaleResolver localeResolver) {
+        this.localeResolver = localeResolver;
         velocityEngine = new VelocityEngine();
         velocityEngine.setApplicationAttribute(ServletContext.class.getName(), servletContext);
         try {
@@ -44,7 +47,7 @@ public class ToolOrderVelocityViewResolver implements ViewResolver {
 
     @Override
     public View resolveViewName(String viewName, Locale locale) {
-        return new ToolOrderVelocityView(velocityEngine, PREFIX + viewName + SUFFIX);
+        return new ToolOrderVelocityView(velocityEngine, localeResolver, PREFIX + viewName + SUFFIX);
     }
 
     private Properties velocityProperties() {

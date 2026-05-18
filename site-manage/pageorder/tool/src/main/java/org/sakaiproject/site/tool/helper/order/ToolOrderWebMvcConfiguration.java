@@ -43,8 +43,8 @@ public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public ViewResolver viewResolver(ServletContext servletContext) {
-        return new ToolOrderVelocityViewResolver(servletContext);
+    public ViewResolver viewResolver(ServletContext servletContext, LocaleResolver localeResolver) {
+        return new ToolOrderVelocityViewResolver(servletContext, localeResolver);
     }
 
     @Override
