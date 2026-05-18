@@ -543,6 +543,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
+		return transferCopyEntitiesInternal(fromContext, toContext, ids, options, true);
+	}
+
+	private Map<String, String> transferCopyEntitiesInternal(String fromContext, String toContext, List<String> ids, List<String> options,
+			boolean createDefaultForum)
+	{
 		Map<String, String> transversalMap = new HashMap<>();
 		
 		boolean importOpenCloseDates = serverConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
@@ -552,7 +558,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 			// Copy area-level permissions first
 			Area fromArea = areaManager.getAreaByContextIdAndTypeId(fromContext, typeManager.getDiscussionForumType());
-			Area toArea = areaManager.getDiscussionArea(toContext, false);
+			Area toArea = areaManager.getDiscussionArea(toContext, createDefaultForum);
 			
 			if (fromArea != null && toArea != null) {
 				Set membershipItemSet = fromArea.getMembershipItemSet();
@@ -653,9 +659,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						//add the gradebook assignment associated with the forum settings
 						newForum.setDefaultAssignName(fromForum.getDefaultAssignName());
 
-						// save the forum, since this is copying over a forum, send "false" for parameter otherwise
-						//it will create a default forum as well
-						Area area = areaManager.getDiscussionArea(toContext, false);
+						// Save the forum in the target discussion area after it has been initialized for this import mode.
+						Area area = areaManager.getDiscussionArea(toContext, createDefaultForum);
 						newForum.setArea(area);
 
 						if (!getImportAsDraft())
@@ -1547,8 +1552,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				}
 			}
 			
-			// Call the regular transferCopyEntities method to do the copying
-			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
+			// In merge mode, let a never-opened Discussions tool create its normal default forum/topic.
+			// In replace mode, the cleanup path has already prepared the area without defaults.
+			transversalMap.putAll(transferCopyEntitiesInternal(fromContext, toContext, ids, options, !cleanup));
 		}
 		catch(Exception e)
 		{
