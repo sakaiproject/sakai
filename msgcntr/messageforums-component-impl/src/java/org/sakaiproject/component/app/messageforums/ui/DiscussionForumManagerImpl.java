@@ -92,7 +92,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -2425,25 +2424,56 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return LRSDelegate.getStatementForGrade(learningResourceStoreService, userDirectoryService, studentUid, forumTitle, score);
 	}
 
-	@Override
-	public void setTopicGroupRestrictions(Long topicId, Collection<String> groupNames) {
-		Topic topic = forumManager.getTopicByIdWithMemberships(topicId);
-		if (topic == null) return;
-		topic.setBaseForum(topic.getOpenForum());
-		if (topic.getBaseForum() == null || topic.getBaseForum().getArea() == null) return;
-		uiPermissionsManager.clearMembershipsFromCacheForArea(topic.getBaseForum().getArea());
-		applyGroupRestrictions(topic.getMembershipItemSet(), groupNames);
-		forumManager.saveDiscussionForumTopic((DiscussionTopic) topic);
-	}
+    @Override
+    public void setTopicGroupRestrictions(Long topicId, Set<String> groupIds) {
+        Topic topic = forumManager.getTopicByIdWithMemberships(topicId);
+        if (topic == null) return;
+        topic.setBaseForum(topic.getOpenForum());
+        if (topic.getBaseForum() == null || topic.getBaseForum().getArea() == null) return;
+        uiPermissionsManager.clearMembershipsFromCacheForArea(topic.getBaseForum().getArea());
+        String siteId = topic.getBaseForum().getArea().getContextId();
+        List<String> groupNames = resolveSiteGroupNames(groupIds, siteId);
+        if (groupNames != null) {
+          applyGroupRestrictions(topic.getMembershipItemSet(), groupNames);
+          forumManager.saveDiscussionForumTopic((DiscussionTopic) topic);
+          return;
+        }
+        log.warn("Failed to resolve group names for topic with ID: {}", topicId);
+    }
 
-	@Override
-	public void setForumGroupRestrictions(Long forumId, Collection<String> groupNames) {
+    @Override
+	public void setForumGroupRestrictions(Long forumId, Set<String> groupIds) {
 		BaseForum forum = forumManager.getForumByIdWithMemberships(forumId);
 		if (forum == null) return;
 		if (forum.getArea() == null) return;
 		uiPermissionsManager.clearMembershipsFromCacheForArea(forum.getArea());
-		applyGroupRestrictions(forum.getMembershipItemSet(), groupNames);
-		forumManager.saveDiscussionForum((DiscussionForum) forum);
+		String siteId = forum.getArea().getContextId();
+        List<String> groupNames = resolveSiteGroupNames(groupIds, siteId);
+        if (groupNames != null) {
+            applyGroupRestrictions(forum.getMembershipItemSet(), groupNames);
+            forumManager.saveDiscussionForum((DiscussionForum) forum);
+            return;
+        }
+        log.warn("Failed to resolve group names for forum with ID: {}", forumId);
+	}
+
+	private List<String> resolveSiteGroupNames(Set<String> groupIds, String siteId) {
+		if (groupIds == null || groupIds.isEmpty()) return Collections.emptyList();
+		Site site = siteService.getOptionalSite(siteId).orElse(null);
+        if (site != null) {
+          List<String> groupNames = new ArrayList<>();
+          for (String groupId : groupIds) {
+            Group group = site.getGroup(groupId);
+            if (group == null) {
+              log.debug("Group with ID {} not found in site {}", groupId, siteId);
+              return null;
+            }
+            groupNames.add(group.getTitle());
+          }
+          return groupNames;
+        }
+        log.debug("Site with ID {} not found", siteId);
+		return null;
 	}
 
   /**
@@ -2459,7 +2489,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @param membershipItemSet the set of membership items to which restrictions will be applied
    * @param groupNames the collection of group names to be granted Contributor access, or null/empty to clear restrictions
    */
-  private void applyGroupRestrictions(Set<DBMembershipItem> membershipItemSet, Collection<String> groupNames) {
+  private void applyGroupRestrictions(Set<DBMembershipItem> membershipItemSet, List<String> groupNames) {
 		if (groupNames != null && !groupNames.isEmpty()) {
 			// Restricting: demote only Contributor items to None; promote specified groups to Contributor.
 			Set<String> toAdd = new HashSet<>(groupNames);
