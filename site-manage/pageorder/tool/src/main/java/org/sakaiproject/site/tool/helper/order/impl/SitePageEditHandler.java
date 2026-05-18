@@ -154,6 +154,10 @@ public class SitePageEditHandler {
     }
 
     public void reorderPages(List<String> pageIds) {
+        if (pageIds == null || pageIds.isEmpty()) {
+            throw new IllegalArgumentException("Page order must include at least one page id");
+        }
+
         if (!isReorderAllowed()) {
             throw new SecurityException("Page ordering is disabled by configuration");
         }

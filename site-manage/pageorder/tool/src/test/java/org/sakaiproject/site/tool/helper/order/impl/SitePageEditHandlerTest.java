@@ -148,6 +148,24 @@ public class SitePageEditHandlerTest {
     }
 
     @Test
+    public void reorderPagesRejectsNullOrder() throws Exception {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> handler.reorderPages(null));
+
+        assertEquals("Page order must include at least one page id", exception.getMessage());
+        verify(siteService, never()).save(site);
+    }
+
+    @Test
+    public void reorderPagesRejectsEmptyOrder() throws Exception {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> handler.reorderPages(Collections.emptyList()));
+
+        assertEquals("Page order must include at least one page id", exception.getMessage());
+        verify(siteService, never()).save(site);
+    }
+
+    @Test
     public void deletePageRejectsRequiredTool() throws Exception {
         ToolConfiguration tool = tool("sakai.required");
         Properties placementConfig = new Properties();
