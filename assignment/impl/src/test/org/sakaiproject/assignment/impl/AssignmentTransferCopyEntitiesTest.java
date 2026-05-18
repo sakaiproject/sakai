@@ -269,6 +269,32 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         assertEquals("22", importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY));
     }
 
+    @Test
+    public void transferCopyEntitiesRemovesCategoryWhenFinalGradebookIntegrationIsNo() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment sourceAssignment = createPublishedAssignment(fromContext);
+        sourceAssignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+            AssignmentConstants.GRADEBOOK_INTEGRATION_ADD);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY, "11");
+        updateAssignment(sourceAssignment);
+
+        stubContextPermissions(toContext);
+        stubCategoryImport(fromContext, toContext, 11L, 22L, "Essays");
+
+        getAssignmentServiceImpl().transferCopyEntities(fromContext, toContext, null,
+            List.of(EntityTransferrer.PUBLISH_OPTION));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_NO,
+            importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        Assert.assertNull(importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY));
+    }
+
     private Assignment createPublishedAssignment(String context) {
 
         stubContextPermissions(context);

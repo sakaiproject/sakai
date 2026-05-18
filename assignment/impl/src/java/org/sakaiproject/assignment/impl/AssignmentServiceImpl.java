@@ -4704,11 +4704,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                     final String assignmentAddToGradebookChoice = nProperties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
                     final String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
-                    if (GRADEBOOK_INTEGRATION_ADD.equals(assignmentAddToGradebookChoice)) {
-                        remapImportedAssignmentCategoryProperty(nProperties, fromContext, toContext);
-                    } else {
-                        nProperties.remove(NEW_ASSIGNMENT_CATEGORY);
-                    }
+                    boolean categoryCreatedFromGradebookAssignment = false;
 
                     switch (assignmentAddToGradebookChoice) {
                         case GRADEBOOK_INTEGRATION_ADD, GRADEBOOK_INTEGRATION_ASSOCIATE -> {
@@ -4751,8 +4747,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                                     if (isOriginalAssignmentExternal && originalGBAssignment != null) {
-                                        createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext())
-                                                .ifPresent(categoryId -> nProperties.put(NEW_ASSIGNMENT_CATEGORY, categoryId.toString()));
+                                        Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext());
+                                        if (categoryId.isPresent()) {
+                                            nProperties.put(NEW_ASSIGNMENT_CATEGORY, categoryId.get().toString());
+                                            categoryCreatedFromGradebookAssignment = true;
+                                        }
                                     }
                                 } else {
                                     if (newGbAssignment != null) {
@@ -4835,6 +4834,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                             nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                         }
+                    }
+
+                    if (GRADEBOOK_INTEGRATION_ADD.equals(nProperties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                        if (!categoryCreatedFromGradebookAssignment) {
+                            remapImportedAssignmentCategoryProperty(nProperties, fromContext, toContext);
+                        }
+                    } else {
+                        nProperties.remove(NEW_ASSIGNMENT_CATEGORY);
                     }
 
                     // review service
