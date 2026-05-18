@@ -67,7 +67,7 @@
                    data-title-url=@{/api/pages/{pageId}/title(pageId=${page.id})},
                    data-visibility-url=@{/api/pages/{pageId}/visibility(pageId=${page.id})},
                    data-access-url=@{/api/pages/{pageId}/access(pageId=${page.id})},
-                   data-delete-url=@{/api/pages/{pageId}(pageId=${page.id})},
+                   data-delete-url=@{/api/pages/{pageId}/delete(pageId=${page.id})},
                    data-title=${page.title},
                    data-remove-confirm=#{remove_tool_confirm(${page.title})}">
         <div class="tool-order-row-main">

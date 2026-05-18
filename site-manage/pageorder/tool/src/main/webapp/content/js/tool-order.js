@@ -228,7 +228,7 @@
     try {
       setBusy(true);
       showMessage(app.dataset.savingMessage);
-      const payload = await jsonRequest(row.dataset.deleteUrl, "DELETE");
+      const payload = await jsonRequest(row.dataset.deleteUrl);
       row.remove();
       updateMoveButtons();
       showMessage(payload.message || app.dataset.savedMessage);
