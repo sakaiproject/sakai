@@ -297,6 +297,10 @@ public class SitePageEditHandler {
 
     public List<Tool> getAvailableTools() {
         Site site = requireCurrentSite();
+        return getAvailableTools(site);
+    }
+
+    private List<Tool> getAvailableTools(Site site) {
         List<Tool> tools = new ArrayList<>();
         Set<String> categories = new HashSet<>();
 
@@ -325,6 +329,10 @@ public class SitePageEditHandler {
 
     public SitePage addPage(String toolId, String title) {
         Site site = requireCurrentSite();
+        if (!isToolAvailable(site, toolId)) {
+            throw new IllegalArgumentException("Tool is not available for site " + site.getId() + ": " + toolId);
+        }
+
         try {
             SitePage page = site.addPage();
             page.setTitle(title);
@@ -380,7 +388,7 @@ public class SitePageEditHandler {
         List<String> permissions = getSingleToolPagePermissions(page).stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-        return !(permissions.isEmpty() || INSTRUCTOR_PERMISSIONS_ONLY.stream().anyMatch(permissions::contains));
+        return !(permissions.isEmpty() || permissions.stream().allMatch(INSTRUCTOR_PERMISSIONS_ONLY::contains));
     }
 
     public boolean allowEdit(SitePage page) {
@@ -471,6 +479,11 @@ public class SitePageEditHandler {
         return multiPlacementToolIds.contains(tool.getId())
                 || "true".equals(allowMultiple)
                 || site.getToolForCommonId(tool.getId()) == null;
+    }
+
+    private boolean isToolAvailable(Site site, String toolId) {
+        return StringUtils.isNotBlank(toolId)
+                && getAvailableTools(site).stream().anyMatch(tool -> toolId.equals(tool.getId()));
     }
 
     private SitePage requirePage(Site site, String pageId) {

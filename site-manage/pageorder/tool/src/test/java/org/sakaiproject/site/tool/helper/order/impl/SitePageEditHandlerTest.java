@@ -16,7 +16,10 @@
 package org.sakaiproject.site.tool.helper.order.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -26,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
@@ -204,6 +208,65 @@ public class SitePageEditHandlerTest {
         verify(eventTrackingService).post(event);
     }
 
+    @Test
+    public void addPageAddsAvailableTool() throws Exception {
+        Tool registeredTool = registeredTool("sakai.allowed");
+        SitePage page = page("page1");
+        ToolConfiguration placement = tool("sakai.allowed");
+        Event event = mock(Event.class);
+        when(toolManager.findTools(any(), any())).thenReturn(Collections.singleton(registeredTool));
+        when(site.addPage()).thenReturn(page);
+        when(page.addTool("sakai.allowed")).thenReturn(placement);
+        when(placement.getId()).thenReturn("placement1");
+        when(eventTrackingService.newEvent("pageorder.add",
+                "/site/site1/page/page1/tool/sakai.allowed/placement/placement1", false)).thenReturn(event);
+
+        assertEquals(page, handler.addPage("sakai.allowed", "New Page"));
+
+        verify(page).setTitle("New Page");
+        verify(siteService).save(site);
+        verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
+        verify(eventTrackingService).post(event);
+    }
+
+    @Test
+    public void addPageRejectsUnavailableTool() throws Exception {
+        Tool registeredTool = registeredTool("sakai.allowed");
+        when(toolManager.findTools(any(), any())).thenReturn(Collections.singleton(registeredTool));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> handler.addPage("sakai.disallowed", "New Page"));
+
+        assertEquals("Tool is not available for site site1: sakai.disallowed", exception.getMessage());
+        verify(site, never()).addPage();
+        verify(siteService, never()).save(site);
+    }
+
+    @Test
+    public void allowDisableAllowsPagesWithNonInstructorPermissions() {
+        ToolConfiguration tool = tool("sakai.foo");
+        SitePage page = page("page1", Collections.singletonList(tool));
+        when(toolManager.getRequiredPermissions(tool)).thenReturn(Collections.singletonList(new HashSet<>(
+                Arrays.asList(SiteService.SECURE_UPDATE_SITE, "foo.submit"))));
+
+        assertTrue(handler.allowDisable(page));
+    }
+
+    @Test
+    public void allowDisableRejectsInstructorOnlyPermissions() {
+        ToolConfiguration tool = tool("sakai.foo");
+        SitePage page = page("page1", Collections.singletonList(tool));
+        when(toolManager.getRequiredPermissions(tool)).thenReturn(Collections.singletonList(new HashSet<>(
+                Arrays.asList(SiteService.SECURE_UPDATE_SITE, SiteService.SITE_VISIT))));
+
+        assertFalse(handler.allowDisable(page));
+    }
+
+    @Test
+    public void allowDisableRejectsEmptyPermissions() {
+        assertFalse(handler.allowDisable(page("page1")));
+    }
+
     private SitePage page(String id) {
         return page(id, Collections.emptyList());
     }
@@ -219,6 +282,14 @@ public class SitePageEditHandlerTest {
     private ToolConfiguration tool(String toolId) {
         ToolConfiguration tool = mock(ToolConfiguration.class);
         when(tool.getToolId()).thenReturn(toolId);
+        return tool;
+    }
+
+    private Tool registeredTool(String toolId) {
+        Tool tool = mock(Tool.class);
+        when(tool.getId()).thenReturn(toolId);
+        when(tool.getTitle()).thenReturn(toolId);
+        when(tool.getRegisteredConfig()).thenReturn(new Properties());
         return tool;
     }
 }
