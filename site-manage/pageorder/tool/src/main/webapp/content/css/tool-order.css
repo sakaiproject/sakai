@@ -181,7 +181,7 @@
     order: 2;
   }
 
-  .tool-order-drag-handle {
+  .tool-order .tool-order-drag-handle {
     display: none;
   }
 
@@ -192,7 +192,7 @@
 }
 
 @media (pointer: coarse) {
-  .tool-order-drag-handle {
+  .tool-order .tool-order-drag-handle {
     display: none;
   }
 }
