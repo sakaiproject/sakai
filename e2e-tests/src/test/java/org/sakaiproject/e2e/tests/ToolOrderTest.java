@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.BoundingBox;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -49,12 +50,11 @@ class ToolOrderTest extends SakaiUiTestBase {
         Locator rows = page.locator(".tool-order-row");
         assertTrue(rows.count() > 1);
         String firstTitleBefore = rows.first().locator(".tool-order-title").innerText();
-        Locator firstMoveDown = rows.first().locator("[data-action=\"move-down\"]");
-        if (firstMoveDown.isEnabled()) {
-            firstMoveDown.click(new Locator.ClickOptions().setForce(true));
-        } else {
-            rows.nth(1).locator("[data-action=\"move-up\"]").click(new Locator.ClickOptions().setForce(true));
-        }
+        Locator secondRow = rows.nth(1);
+        BoundingBox secondRowBox = secondRow.boundingBox();
+        rows.first().locator("[data-action=\"drag-handle\"]").dragTo(secondRow, new Locator.DragToOptions()
+            .setTargetPosition(10, secondRowBox.height - 2)
+            .setForce(true));
         assertThat(page.locator("#tool-order-alert")).containsText(Pattern.compile("saved", Pattern.CASE_INSENSITIVE));
 
         page.reload();

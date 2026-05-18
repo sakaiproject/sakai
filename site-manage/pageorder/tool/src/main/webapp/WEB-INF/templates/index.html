@@ -69,13 +69,13 @@
                    data-access-url=@{/api/pages/{pageId}/access(pageId=${page.id})},
                    data-delete-url=@{/api/pages/{pageId}(pageId=${page.id})},
                    data-title=${page.title},
-                   data-remove-confirm=#{remove_tool_confirm(${page.title})},
-                   draggable=${reorderAllowed}">
+                   data-remove-confirm=#{remove_tool_confirm(${page.title})}">
         <div class="tool-order-row-main">
           <div class="tool-order-move-controls" th:if="${reorderAllowed}">
             <button type="button"
                     class="btn btn-icon tool-order-drag-handle"
                     data-action="drag-handle"
+                    draggable="true"
                     th:title="#{drag_tool}"
                     th:attr="aria-label=#{drag_tool}">
               <span class="si si-drag-handle" aria-hidden="true"></span>
