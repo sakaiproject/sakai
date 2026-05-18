@@ -70,6 +70,9 @@ public class ToolOrderController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> reorder(@RequestBody ReorderRequest request, Locale locale) {
         try {
+            if (request == null || request.getPageIds() == null) {
+                return validationError(message("error_order_required", locale));
+            }
             pageEditHandler.reorderPages(request.getPageIds());
             return ok(message("success_order_saved", locale), "pages", pageEditHandler.getPages());
         } catch (RuntimeException e) {
