@@ -68,6 +68,7 @@ public class SitePageEditHandler {
 
     private static final String TOOL_CFG_MULTI = "allowMultiple";
     private static final String HELPER_ID = "sakai.tool.helper.id";
+    private static final String HELPER_TOOL_ID = "sakai-site-pageorder-helper";
     private static final String UNHIDEABLES_CFG = "poh.unhideables";
     private static final String UNEDITABLES_CFG = "poh.uneditables";
     private static final String PAGE_ADD = "pageorder.add";
@@ -269,9 +270,14 @@ public class SitePageEditHandler {
     }
 
     public String getDoneUrl() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        String doneUrl = (String) session.getAttribute(HELPER_TOOL_ID + Tool.HELPER_DONE_URL);
+        if (StringUtils.isNotBlank(doneUrl)) {
+            return doneUrl;
+        }
+
         Tool currentTool = toolManager.getCurrentTool();
-        String doneUrl = currentTool == null ? null
-                : (String) sessionManager.getCurrentToolSession().getAttribute(currentTool.getId() + Tool.HELPER_DONE_URL);
+        doneUrl = currentTool == null ? null : (String) session.getAttribute(currentTool.getId() + Tool.HELPER_DONE_URL);
         return StringUtils.defaultIfBlank(doneUrl, "/");
     }
 

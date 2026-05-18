@@ -40,6 +40,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 
@@ -94,6 +95,18 @@ public class SitePageEditHandlerTest {
 
         assertEquals("No current site in context", exception.getMessage());
         verify(siteService, never()).getSite(anyString());
+    }
+
+    @Test
+    public void getDoneUrlUsesPageOrderHelperDoneUrl() {
+        Tool currentTool = mock(Tool.class);
+        when(currentTool.getId()).thenReturn("sakai.siteinfo");
+        when(toolManager.getCurrentTool()).thenReturn(currentTool);
+        when(toolSession.getAttribute("sakai.siteinfo" + Tool.HELPER_DONE_URL)).thenReturn("/");
+        when(toolSession.getAttribute("sakai-site-pageorder-helper" + Tool.HELPER_DONE_URL))
+                .thenReturn("/site-info?sakai.tool.helper.idMain=done&panel=Main");
+
+        assertEquals("/site-info?sakai.tool.helper.idMain=done&panel=Main", handler.getDoneUrl());
     }
 
     @Test

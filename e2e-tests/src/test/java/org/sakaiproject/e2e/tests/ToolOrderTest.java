@@ -100,5 +100,13 @@ class ToolOrderTest extends SakaiUiTestBase {
             assertThat(page.locator(".tool-order-row")
                     .filter(new Locator.FilterOptions().setHasText(deletedTitle))).hasCount(0);
         }
+
+        page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
+        page.waitForLoadState();
+        assertThat(page.locator("#tool-order-app")).hasCount(0);
+        assertThat(page.locator(".navIntraTool .current")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Site Information", Pattern.CASE_INSENSITIVE)))
+                .first()).isVisible();
     }
 }
