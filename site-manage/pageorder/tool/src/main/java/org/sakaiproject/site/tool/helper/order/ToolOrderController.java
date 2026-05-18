@@ -23,6 +23,7 @@ import java.util.Map;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 import org.sakaiproject.site.tool.helper.order.model.ToolOrderPage;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -43,16 +44,20 @@ import lombok.extern.slf4j.Slf4j;
 public class ToolOrderController {
 
     private final SitePageEditHandler pageEditHandler;
+    private final LocaleService localeService;
     private final MessageSource messageSource;
 
     @Autowired
-    public ToolOrderController(SitePageEditHandler pageEditHandler, MessageSource messageSource) {
+    public ToolOrderController(SitePageEditHandler pageEditHandler, LocaleService localeService,
+            MessageSource messageSource) {
         this.pageEditHandler = pageEditHandler;
+        this.localeService = localeService;
         this.messageSource = messageSource;
     }
 
     @GetMapping({"/", "/index"})
-    public String index(Model model, Locale locale) {
+    public String index(Model model) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         if (!pageEditHandler.canUpdateCurrentSite()) {
             model.addAttribute("message", message("access_error", locale));
             return "access";
@@ -68,7 +73,8 @@ public class ToolOrderController {
 
     @PostMapping("/api/order")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> reorder(@RequestBody ReorderRequest request, Locale locale) {
+    public ResponseEntity<Map<String, Object>> reorder(@RequestBody ReorderRequest request) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             if (request == null || request.getPageIds() == null) {
                 return validationError(message("error_order_required", locale));
@@ -82,8 +88,8 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/title")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> rename(@PathVariable String pageId, @RequestBody RenameRequest request,
-            Locale locale) {
+    public ResponseEntity<Map<String, Object>> rename(@PathVariable String pageId, @RequestBody RenameRequest request) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             ToolOrderPage row = pageEditHandler.renamePage(pageId, request.getTitle(), request.getIframeSource());
             return ok(message("success_title_saved", locale), "row", row);
@@ -94,8 +100,9 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/visibility")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId, @RequestBody VisibilityRequest request,
-            Locale locale) {
+    public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId,
+            @RequestBody VisibilityRequest request) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             if (request == null || request.getVisible() == null) {
                 return validationError(message("error_visibility_required", locale));
@@ -112,8 +119,8 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/access")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request,
-            Locale locale) {
+    public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             if (request == null || request.getEnabled() == null) {
                 return validationError(message("error_access_required", locale));
@@ -130,7 +137,8 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/delete")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable String pageId, Locale locale) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable String pageId) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             ToolOrderPage row = pageEditHandler.deletePage(pageId);
             return ok(message("success_removed", locale, row.getTitle()), "pageId", row.getId());
@@ -141,7 +149,8 @@ public class ToolOrderController {
 
     @PostMapping("/api/reset-order")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> resetOrder(Locale locale) {
+    public ResponseEntity<Map<String, Object>> resetOrder() {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             pageEditHandler.resetOrder();
             return ok(message("success_order_reset", locale), "pages", pageEditHandler.getPages());
