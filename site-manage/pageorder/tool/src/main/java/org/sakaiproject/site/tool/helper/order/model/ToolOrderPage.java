@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.site.tool.helper.order.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ToolOrderPage {
 
     private String id;
@@ -33,132 +38,4 @@ public class ToolOrderPage {
     private boolean iframe;
     private boolean first;
     private boolean last;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getToolId() {
-        return toolId;
-    }
-
-    public void setToolId(String toolId) {
-        this.toolId = toolId;
-    }
-
-    public String getToolIconClass() {
-        return toolIconClass;
-    }
-
-    public void setToolIconClass(String toolIconClass) {
-        this.toolIconClass = toolIconClass;
-    }
-
-    public String getIframeSource() {
-        return iframeSource;
-    }
-
-    public void setIframeSource(String iframeSource) {
-        this.iframeSource = iframeSource;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
-
-    public boolean isAllowsHide() {
-        return allowsHide;
-    }
-
-    public void setAllowsHide(boolean allowsHide) {
-        this.allowsHide = allowsHide;
-    }
-
-    public boolean isAllowsLock() {
-        return allowsLock;
-    }
-
-    public void setAllowsLock(boolean allowsLock) {
-        this.allowsLock = allowsLock;
-    }
-
-    public boolean isAllowsEdit() {
-        return allowsEdit;
-    }
-
-    public void setAllowsEdit(boolean allowsEdit) {
-        this.allowsEdit = allowsEdit;
-    }
-
-    public boolean isDeletable() {
-        return deletable;
-    }
-
-    public void setDeletable(boolean deletable) {
-        this.deletable = deletable;
-    }
-
-    public boolean isIframe() {
-        return iframe;
-    }
-
-    public void setIframe(boolean iframe) {
-        this.iframe = iframe;
-    }
-
-    public boolean isFirst() {
-        return first;
-    }
-
-    public void setFirst(boolean first) {
-        this.first = first;
-    }
-
-    public boolean isLast() {
-        return last;
-    }
-
-    public void setLast(boolean last) {
-        this.last = last;
-    }
 }

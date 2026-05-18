@@ -16,7 +16,6 @@
 package org.sakaiproject.site.tool.helper.order;
 
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,18 +23,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.web.servlet.LocaleResolver;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Resolves Spring MVC's locale from Sakai's effective site/user locale.
  */
+@RequiredArgsConstructor
 public class SakaiLocaleResolver implements LocaleResolver {
 
     private static final String LOCALE_ATTRIBUTE = SakaiLocaleResolver.class.getName() + ".LOCALE";
 
+    @NonNull
     private final LocaleService localeService;
-
-    public SakaiLocaleResolver(LocaleService localeService) {
-        this.localeService = Objects.requireNonNull(localeService);
-    }
 
     @Override
     public Locale resolveLocale(HttpServletRequest request) {

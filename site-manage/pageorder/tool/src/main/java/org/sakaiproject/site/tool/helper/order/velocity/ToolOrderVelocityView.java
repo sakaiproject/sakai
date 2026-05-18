@@ -34,6 +34,9 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.vm.ActionURL;
 import org.springframework.web.servlet.View;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ToolOrderVelocityView implements View {
 
     private static final String CONTENT_TYPE = "text/html;charset=UTF-8";
@@ -41,11 +44,6 @@ public class ToolOrderVelocityView implements View {
 
     private final VelocityEngine velocityEngine;
     private final String templateName;
-
-    public ToolOrderVelocityView(VelocityEngine velocityEngine, String templateName) {
-        this.velocityEngine = velocityEngine;
-        this.templateName = templateName;
-    }
 
     @Override
     public String getContentType() {

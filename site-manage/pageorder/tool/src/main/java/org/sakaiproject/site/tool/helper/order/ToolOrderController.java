@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -196,60 +198,28 @@ public class ToolOrderController {
         return messageSource.getMessage(code, args, locale);
     }
 
+    @Getter
+    @Setter
     public static class ReorderRequest {
         private List<String> pageIds;
-
-        public List<String> getPageIds() {
-            return pageIds;
-        }
-
-        public void setPageIds(List<String> pageIds) {
-            this.pageIds = pageIds;
-        }
     }
 
+    @Getter
+    @Setter
     public static class RenameRequest {
         private String title;
         private String iframeSource;
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getIframeSource() {
-            return iframeSource;
-        }
-
-        public void setIframeSource(String iframeSource) {
-            this.iframeSource = iframeSource;
-        }
     }
 
+    @Getter
+    @Setter
     public static class VisibilityRequest {
         private Boolean visible;
-
-        public Boolean getVisible() {
-            return visible;
-        }
-
-        public void setVisible(Boolean visible) {
-            this.visible = visible;
-        }
     }
 
+    @Getter
+    @Setter
     public static class AccessRequest {
         private Boolean enabled;
-
-        public Boolean getEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(Boolean enabled) {
-            this.enabled = enabled;
-        }
     }
 }
