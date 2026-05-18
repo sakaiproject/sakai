@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -667,26 +668,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    return ret;
     }
 
-    // set the item to be accessible only to the specific groups.
-    // null to make it accessible to the whole site
 	public void setGroups(Collection<String> groups) {
-		if (type != TYPE_FORUM_TOPIC && type != TYPE_FORUM_FORUM) {
-			return;
-		}
-		Collection<String> groupNames = new ArrayList<>();
-		if (groups != null && !groups.isEmpty()) {
-			Collection<Group> siteGroups = siteService.getOptionalSite(toolManager.getCurrentPlacement().getContext())
-					.map(Site::getGroups)
-					.orElse(Collections.emptyList());
-			siteGroups.stream().
-					filter(g -> groups.contains(g.getId()))
-					.map(Group::getTitle)
-					.forEach(groupNames::add);
-		}
+		Set<String> groupIds = (groups == null) ? Collections.emptySet() : new HashSet<>(groups);
 		if (type == TYPE_FORUM_TOPIC) {
-			discussionForumManager.setTopicGroupRestrictions(id, groupNames);
-		} else {
-			discussionForumManager.setForumGroupRestrictions(id, groupNames);
+			discussionForumManager.setTopicGroupRestrictions(id, groupIds);
+		} else if (type == TYPE_FORUM_FORUM) {
+			discussionForumManager.setForumGroupRestrictions(id, groupIds);
 		}
 	}
 
