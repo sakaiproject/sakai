@@ -27,10 +27,7 @@
     #if($menu)#toolbar($menu)#end
 
     <div class="tool-order-heading">
-      <div>
-        <h1>$tlang.getString("page_title")</h1>
-        <p class="tool-order-site-title">$formattedText.escapeHtml($siteTitle)</p>
-      </div>
+      <h1>$tlang.getString("page_title")</h1>
     </div>
 
     <div id="tool-order-alert" class="sak-banner-info" role="status" aria-live="polite">

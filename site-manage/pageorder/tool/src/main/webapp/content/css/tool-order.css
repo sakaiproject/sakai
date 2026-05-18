@@ -11,11 +11,6 @@
 }
 
 .tool-order-heading h1 {
-  margin-bottom: 0.25rem;
-}
-
-.tool-order-site-title {
-  color: var(--sakai-text-color-2);
   margin: 0;
 }
 

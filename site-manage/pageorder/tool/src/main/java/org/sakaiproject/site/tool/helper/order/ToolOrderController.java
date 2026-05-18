@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 import org.sakaiproject.site.tool.helper.order.model.ToolOrderPage;
 import org.sakaiproject.util.ResourceLoader;
@@ -63,9 +62,7 @@ public class ToolOrderController {
             return "access";
         }
 
-        Site site = pageEditHandler.requireCurrentSite();
         List<ToolOrderPage> pages = pageEditHandler.getPages();
-        model.addAttribute("siteTitle", site.getTitle());
         model.addAttribute("pages", pages);
         model.addAttribute("resourcesLocked", resourcesLocked(pages));
         model.addAttribute("reorderAllowed", pageEditHandler.isReorderAllowed());
