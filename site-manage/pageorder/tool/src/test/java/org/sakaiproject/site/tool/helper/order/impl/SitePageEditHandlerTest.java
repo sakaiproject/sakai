@@ -110,6 +110,13 @@ public class SitePageEditHandlerTest {
     }
 
     @Test
+    public void getDoneUrlFallsBackWithoutToolSession() {
+        when(sessionManager.getCurrentToolSession()).thenReturn(null);
+
+        assertEquals("/", handler.getDoneUrl());
+    }
+
+    @Test
     public void reorderPagesPersistsPositionsAndMarksTopRefresh() throws Exception {
         SitePage page1 = page("page1");
         SitePage page2 = page("page2");

@@ -266,6 +266,10 @@ public class SitePageEditHandler {
 
     public String getDoneUrl() {
         ToolSession session = sessionManager.getCurrentToolSession();
+        if (session == null) {
+            return "/";
+        }
+
         String doneUrl = (String) session.getAttribute(HELPER_TOOL_ID + Tool.HELPER_DONE_URL);
         if (StringUtils.isNotBlank(doneUrl)) {
             return doneUrl;
