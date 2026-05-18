@@ -64,6 +64,10 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -89,6 +93,7 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private GradingService gradingService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -204,6 +209,66 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         verify(announcementChannel).commitMessage(message, 0, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
     }
 
+    @Test
+    public void transferCopyEntitiesStoresDestinationCategoryForImportedDraftFromExternalGradebookItem() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment sourceAssignment = createPublishedAssignment(fromContext);
+        sourceAssignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        String sourceAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(sourceAssignment).reckon().getReference();
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+            AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE);
+        sourceAssignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT,
+            sourceAssignmentRef);
+        updateAssignment(sourceAssignment);
+
+        stubContextPermissions(toContext);
+        stubCategoryImport(fromContext, toContext, 11L, 22L, "Essays");
+
+        org.sakaiproject.grading.api.Assignment sourceGradebookAssignment = new org.sakaiproject.grading.api.Assignment();
+        sourceGradebookAssignment.setCategoryName("Essays");
+        when(gradingService.isExternalAssignmentDefined(fromContext, sourceAssignmentRef)).thenReturn(true);
+        when(gradingService.getExternalAssignment(fromContext, sourceAssignmentRef)).thenReturn(sourceGradebookAssignment);
+
+        getAssignmentServiceImpl().transferCopyEntities(fromContext, toContext, null, null);
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        assertTrue(importedAssignment.getDraft());
+        assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+            importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        assertEquals("22", importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY));
+    }
+
+    @Test
+    public void transferCopyEntitiesRemapsDraftAssignmentCategoryProperty() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment sourceAssignment = createPublishedAssignment(fromContext);
+        sourceAssignment.setDraft(true);
+        sourceAssignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+            AssignmentConstants.GRADEBOOK_INTEGRATION_ADD);
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY, "11");
+        updateAssignment(sourceAssignment);
+
+        stubContextPermissions(toContext);
+        stubCategoryImport(fromContext, toContext, 11L, 22L, "Essays");
+
+        getAssignmentServiceImpl().transferCopyEntities(fromContext, toContext, null, null);
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        assertTrue(importedAssignment.getDraft());
+        assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD,
+            importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        assertEquals("22", importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_CATEGORY));
+    }
+
     private Assignment createPublishedAssignment(String context) {
 
         stubContextPermissions(context);
@@ -248,6 +313,25 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+    }
+
+    private void stubCategoryImport(String fromContext, String toContext, Long sourceCategoryId, Long destinationCategoryId,
+            String categoryName) {
+
+        CategoryDefinition sourceCategory = new CategoryDefinition();
+        sourceCategory.setId(sourceCategoryId);
+        sourceCategory.setName(categoryName);
+
+        CategoryDefinition destinationCategory = new CategoryDefinition();
+        destinationCategory.setId(destinationCategoryId);
+        destinationCategory.setName(categoryName);
+
+        GradebookInformation destinationGradebookInformation = new GradebookInformation();
+        destinationGradebookInformation.setCategoryType(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY);
+
+        when(gradingService.getGradebookInformation(toContext, toContext)).thenReturn(destinationGradebookInformation);
+        when(gradingService.getCategoryDefinitions(fromContext, fromContext)).thenReturn(List.of(sourceCategory));
+        when(gradingService.getCategoryDefinitions(toContext, toContext)).thenReturn(List.of(destinationCategory));
     }
 
     private AssignmentServiceImpl getAssignmentServiceImpl() {
