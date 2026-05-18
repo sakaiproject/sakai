@@ -10,6 +10,7 @@
   const reorderAllowed = list?.dataset.reorderAllowed === "true";
   let draggedRow = null;
   let dragStartOrder = "";
+  let savingOrder = false;
 
   const jsonRequest = async (url, method = "POST", body = null) => {
     const options = {
@@ -75,10 +76,11 @@
   };
 
   const persistOrder = async (previousOrder) => {
-    if (!reorderAllowed) {
+    if (!reorderAllowed || savingOrder) {
       return;
     }
 
+    savingOrder = true;
     try {
       setBusy(true);
       showMessage(app.dataset.savingMessage);
@@ -91,6 +93,7 @@
       }
       showMessage(error.message, false);
     } finally {
+      savingOrder = false;
       setBusy(false);
     }
   };
@@ -261,6 +264,9 @@
     const row = button.closest(".tool-order-row");
     switch (button.dataset.action) {
       case "move-up": {
+        if (savingOrder) {
+          break;
+        }
         const previousOrder = getOrder();
         const previous = row?.previousElementSibling;
         if (row && previous) {
@@ -271,6 +277,9 @@
         break;
       }
       case "move-down": {
+        if (savingOrder) {
+          break;
+        }
         const previousOrder = getOrder();
         const next = row?.nextElementSibling;
         if (row && next) {
@@ -315,7 +324,7 @@
   if (list && reorderAllowed) {
     list.addEventListener("dragstart", event => {
       const row = event.target.closest(".tool-order-row");
-      if (!row || !event.target.closest('[data-action="drag-handle"]')) {
+      if (savingOrder || !row || !event.target.closest('[data-action="drag-handle"]')) {
         event.preventDefault();
         return;
       }

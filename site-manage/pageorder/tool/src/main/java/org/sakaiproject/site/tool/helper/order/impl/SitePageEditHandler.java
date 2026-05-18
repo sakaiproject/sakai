@@ -35,8 +35,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -98,9 +98,14 @@ public class SitePageEditHandler {
     private ServerConfigurationService serverConfigurationService;
     private ContentHostingService contentHostingService;
     private AuthzGroupService authzGroupService;
+    private EventTrackingService eventTrackingService;
 
     public Site getCurrentSite() {
         String siteId = getCurrentSiteId();
+        if (StringUtils.isBlank(siteId)) {
+            throw new IllegalStateException("No current site in context");
+        }
+
         try {
             return siteService.getSite(siteId);
         } catch (IdUnusedException e) {
@@ -167,7 +172,7 @@ public class SitePageEditHandler {
 
         site.setCustomPageOrdered(true);
         saveSite(site);
-        EventTrackingService.post(EventTrackingService.newEvent(SITE_REORDER, "/site/" + site.getId(), false));
+        eventTrackingService.post(eventTrackingService.newEvent(SITE_REORDER, "/site/" + site.getId(), false));
         markTopRefresh();
     }
 
@@ -243,7 +248,7 @@ public class SitePageEditHandler {
 
         site.removePage(page);
         saveSite(site);
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_DELETE,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_DELETE,
                 "/site/" + site.getId() + "/page/" + page.getId(), false));
         markTopRefresh();
         return row;
@@ -253,7 +258,7 @@ public class SitePageEditHandler {
         Site site = requireCurrentSite();
         site.setCustomPageOrdered(false);
         saveSite(site);
-        EventTrackingService.post(EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
+        eventTrackingService.post(eventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
         markTopRefresh();
     }
 
@@ -305,7 +310,7 @@ public class SitePageEditHandler {
             page.setTitle(title);
             ToolConfiguration placement = page.addTool(toolId);
             saveSite(site);
-            EventTrackingService.post(EventTrackingService.newEvent(PAGE_ADD,
+            eventTrackingService.post(eventTrackingService.newEvent(PAGE_ADD,
                     "/site/" + site.getId() + "/page/" + page.getId()
                             + "/tool/" + toolId + "/placement/" + placement.getId(), false));
             markTopRefresh();
@@ -467,7 +472,7 @@ public class SitePageEditHandler {
         }
 
         saveSite(site);
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_RENAME,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_RENAME,
                 "/site/" + site.getId() + "/page/" + page.getId()
                         + "/old_title/" + oldTitle + "/new_title/" + page.getTitle(), false));
     }
@@ -484,7 +489,7 @@ public class SitePageEditHandler {
         }
 
         saveSite(site);
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_RENAME,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_RENAME,
                 "/site/" + site.getId() + "/page/" + page.getId()
                         + "/old_title/" + oldTitle + "/new_title/" + page.getTitle(), false));
     }
@@ -502,27 +507,27 @@ public class SitePageEditHandler {
     }
 
     private void disablePage(Site site, String pageId) throws SakaiException {
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_DISABLE,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_DISABLE,
                 "/site/" + site.getId() + "/page/" + pageId, false));
         setEnabled(site, pageId, false);
         setVisibility(site, pageId, false);
     }
 
     private void enablePage(Site site, String pageId) throws SakaiException {
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_ENABLE,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_ENABLE,
                 "/site/" + site.getId() + "/page/" + pageId, false));
         setEnabled(site, pageId, true);
         setVisibility(site, pageId, true);
     }
 
     private void hidePage(Site site, String pageId) throws SakaiException {
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_HIDE,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_HIDE,
                 "/site/" + site.getId() + "/page/" + pageId, false));
         setVisibility(site, pageId, false);
     }
 
     private void showPage(Site site, String pageId) throws SakaiException {
-        EventTrackingService.post(EventTrackingService.newEvent(PAGE_SHOW,
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_SHOW,
                 "/site/" + site.getId() + "/page/" + pageId, false));
         setVisibility(site, pageId, true);
         setEnabled(site, pageId, true);
@@ -649,5 +654,10 @@ public class SitePageEditHandler {
     @Autowired
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {
         this.authzGroupService = authzGroupService;
+    }
+
+    @Autowired
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
 }

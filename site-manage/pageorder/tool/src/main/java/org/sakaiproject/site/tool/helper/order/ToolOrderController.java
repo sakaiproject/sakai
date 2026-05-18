@@ -20,28 +20,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 import org.sakaiproject.site.tool.helper.order.model.ToolOrderPage;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,31 +42,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ToolOrderController {
 
-    private static final ResourceLoader RB = new ResourceLoader("org.sakaiproject.tool.pageorder.bundle.Messages");
-
     private final SitePageEditHandler pageEditHandler;
-    private final LocaleService localeService;
+    private final MessageSource messageSource;
 
     @Autowired
-    public ToolOrderController(SitePageEditHandler pageEditHandler, LocaleService localeService) {
+    public ToolOrderController(SitePageEditHandler pageEditHandler, MessageSource messageSource) {
         this.pageEditHandler = pageEditHandler;
-        this.localeService = localeService;
-    }
-
-    @ModelAttribute("locale")
-    public Locale locale(HttpServletRequest request, HttpServletResponse response) {
-        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
-        LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
-        if (localeResolver != null) {
-            localeResolver.setLocale(request, response, locale);
-        }
-        return locale;
+        this.messageSource = messageSource;
     }
 
     @GetMapping({"/", "/index"})
-    public String index(Model model) {
+    public String index(Model model, Locale locale) {
         if (!pageEditHandler.canUpdateCurrentSite()) {
-            model.addAttribute("message", RB.getString("access_error"));
+            model.addAttribute("message", message("access_error", locale));
             return "access";
         }
 
@@ -87,71 +68,74 @@ public class ToolOrderController {
 
     @PostMapping("/api/order")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> reorder(@RequestBody ReorderRequest request) {
+    public ResponseEntity<Map<String, Object>> reorder(@RequestBody ReorderRequest request, Locale locale) {
         try {
             pageEditHandler.reorderPages(request.getPageIds());
-            return ok(RB.getString("success_order_saved"), "pages", pageEditHandler.getPages());
+            return ok(message("success_order_saved", locale), "pages", pageEditHandler.getPages());
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
     @PostMapping("/api/pages/{pageId}/title")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> rename(@PathVariable String pageId, @RequestBody RenameRequest request) {
+    public ResponseEntity<Map<String, Object>> rename(@PathVariable String pageId, @RequestBody RenameRequest request,
+            Locale locale) {
         try {
             ToolOrderPage row = pageEditHandler.renamePage(pageId, request.getTitle(), request.getIframeSource());
-            return ok(RB.getString("success_title_saved"), "row", row);
+            return ok(message("success_title_saved", locale), "row", row);
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
     @PostMapping("/api/pages/{pageId}/visibility")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId, @RequestBody VisibilityRequest request) {
+    public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId, @RequestBody VisibilityRequest request,
+            Locale locale) {
         try {
             ToolOrderPage row = pageEditHandler.setPageVisible(pageId, request.isVisible());
-            String message = request.isVisible() ? RB.getFormattedMessage("success_visible", new Object[] {row.getTitle()})
-                    : RB.getFormattedMessage("success_hidden", new Object[] {row.getTitle()});
+            String message = request.isVisible() ? message("success_visible", locale, row.getTitle())
+                    : message("success_hidden", locale, row.getTitle());
             return ok(message, "row", row);
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
     @PostMapping("/api/pages/{pageId}/access")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request) {
+    public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request,
+            Locale locale) {
         try {
             ToolOrderPage row = pageEditHandler.setPageEnabled(pageId, request.isEnabled());
-            String message = request.isEnabled() ? RB.getFormattedMessage("success_enabled", new Object[] {row.getTitle()})
-                    : RB.getFormattedMessage("success_disabled", new Object[] {row.getTitle()});
+            String message = request.isEnabled() ? message("success_enabled", locale, row.getTitle())
+                    : message("success_disabled", locale, row.getTitle());
             return ok(message, "row", row);
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
     @DeleteMapping("/api/pages/{pageId}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable String pageId) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable String pageId, Locale locale) {
         try {
             ToolOrderPage row = pageEditHandler.deletePage(pageId);
-            return ok(RB.getFormattedMessage("success_removed", new Object[] {row.getTitle()}), "pageId", row.getId());
+            return ok(message("success_removed", locale, row.getTitle()), "pageId", row.getId());
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
     @PostMapping("/api/reset-order")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> resetOrder() {
+    public ResponseEntity<Map<String, Object>> resetOrder(Locale locale) {
         try {
             pageEditHandler.resetOrder();
-            return ok(RB.getString("success_order_reset"), "pages", pageEditHandler.getPages());
+            return ok(message("success_order_reset", locale), "pages", pageEditHandler.getPages());
         } catch (RuntimeException e) {
-            return error(e);
+            return error(e, locale);
         }
     }
 
@@ -169,13 +153,18 @@ public class ToolOrderController {
         return ResponseEntity.ok(body);
     }
 
-    private ResponseEntity<Map<String, Object>> error(RuntimeException e) {
+    private ResponseEntity<Map<String, Object>> error(RuntimeException e, Locale locale) {
         log.warn("Tool Order request failed", e);
         Map<String, Object> body = new HashMap<>();
         body.put("success", Boolean.FALSE);
-        body.put("message", e instanceof SecurityException ? RB.getString("access_error") : e.getMessage());
+        String message = e instanceof SecurityException ? message("access_error", locale) : message("status_error", locale);
+        body.put("message", message);
         HttpStatus status = e instanceof SecurityException ? HttpStatus.FORBIDDEN : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(body);
+    }
+
+    private String message(String code, Locale locale, Object... args) {
+        return messageSource.getMessage(code, args, locale);
     }
 
     public static class ReorderRequest {

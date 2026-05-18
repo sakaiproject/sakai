@@ -18,6 +18,7 @@ package org.sakaiproject.site.tool.helper.order;
 import java.nio.charset.StandardCharsets;
 
 import org.sakaiproject.util.ResourceLoaderMessageSource;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -29,7 +30,6 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.spring5.ISpringTemplateEngine;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
@@ -87,7 +87,7 @@ public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer, Applicati
     }
 
     @Bean
-    public LocaleResolver localeResolver() {
-        return new SessionLocaleResolver();
+    public LocaleResolver localeResolver(LocaleService localeService) {
+        return new SakaiLocaleResolver(localeService);
     }
 }

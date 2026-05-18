@@ -31,12 +31,10 @@ import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -53,6 +51,7 @@ public class SitePageEditHandlerTest {
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
     private ContentHostingService contentHostingService;
+    private EventTrackingService eventTrackingService;
     private ToolSession toolSession;
     private Site site;
 
@@ -64,6 +63,7 @@ public class SitePageEditHandlerTest {
         sessionManager = mock(SessionManager.class);
         serverConfigurationService = mock(ServerConfigurationService.class);
         contentHostingService = mock(ContentHostingService.class);
+        eventTrackingService = mock(EventTrackingService.class);
         toolSession = mock(ToolSession.class);
         site = mock(Site.class);
 
@@ -72,6 +72,7 @@ public class SitePageEditHandlerTest {
         handler.setSessionManager(sessionManager);
         handler.setServerConfigurationService(serverConfigurationService);
         handler.setContentHostingService(contentHostingService);
+        handler.setEventTrackingService(eventTrackingService);
 
         when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
         when(toolSession.getAttribute("sakai.tool.helper.id.siteId")).thenReturn("site1");
@@ -86,6 +87,16 @@ public class SitePageEditHandlerTest {
     }
 
     @Test
+    public void getCurrentSiteRejectsMissingContextSiteId() throws Exception {
+        when(toolSession.getAttribute("sakai.tool.helper.id.siteId")).thenReturn(" ");
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> handler.getCurrentSite());
+
+        assertEquals("No current site in context", exception.getMessage());
+        verify(siteService, never()).getSite(anyString());
+    }
+
+    @Test
     public void reorderPagesPersistsPositionsAndMarksTopRefresh() throws Exception {
         SitePage page1 = page("page1");
         SitePage page2 = page("page2");
@@ -93,19 +104,16 @@ public class SitePageEditHandlerTest {
         when(site.getPage("page1")).thenReturn(page1);
         when(site.getPage("page2")).thenReturn(page2);
         Event event = mock(Event.class);
+        when(eventTrackingService.newEvent("pageorder.reorder", "/site/site1", false)).thenReturn(event);
 
-        try (MockedStatic<EventTrackingService> events = Mockito.mockStatic(EventTrackingService.class)) {
-            events.when(() -> EventTrackingService.newEvent("pageorder.reorder", "/site/site1", false)).thenReturn(event);
+        handler.reorderPages(Arrays.asList("page2", "page1"));
 
-            handler.reorderPages(Arrays.asList("page2", "page1"));
-
-            verify(page2).setPosition(0);
-            verify(page1).setPosition(1);
-            verify(site).setCustomPageOrdered(true);
-            verify(siteService).save(site);
-            verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
-            events.verify(() -> EventTrackingService.post(event));
-        }
+        verify(page2).setPosition(0);
+        verify(page1).setPosition(1);
+        verify(site).setCustomPageOrdered(true);
+        verify(siteService).save(site);
+        verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
+        verify(eventTrackingService).post(event);
     }
 
     @Test
@@ -148,17 +156,14 @@ public class SitePageEditHandlerTest {
         when(tool.getConfig()).thenReturn(placementConfig);
         when(toolManager.getRequiredPermissions(tool)).thenReturn(Collections.emptyList());
         when(toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)).thenReturn(true);
+        when(eventTrackingService.newEvent("pageorder.hide", "/site/site1/page/page1", false)).thenReturn(event);
 
-        try (MockedStatic<EventTrackingService> events = Mockito.mockStatic(EventTrackingService.class)) {
-            events.when(() -> EventTrackingService.newEvent("pageorder.hide", "/site/site1/page/page1", false)).thenReturn(event);
+        handler.setPageVisible("page1", false);
 
-            handler.setPageVisible("page1", false);
-
-            assertEquals("false", placementConfig.getProperty(ToolManager.PORTAL_VISIBLE));
-            verify(tool).save();
-            verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
-            events.verify(() -> EventTrackingService.post(event));
-        }
+        assertEquals("false", placementConfig.getProperty(ToolManager.PORTAL_VISIBLE));
+        verify(tool).save();
+        verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
+        verify(eventTrackingService).post(event);
     }
 
     private SitePage page(String id) {

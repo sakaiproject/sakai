@@ -41,21 +41,26 @@ class ToolOrderTest extends SakaiUiTestBase {
         Locator toolOrderTab = page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE))).first();
         assertThat(toolOrderTab).isVisible();
-        toolOrderTab.click(new Locator.ClickOptions().setForce(true));
+        toolOrderTab.click();
         page.waitForLoadState();
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
+        Locator statusAlert = page.locator("#tool-order-alert");
+        Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
+        Pattern titleSavedMessage = Pattern.compile("title.*saved", Pattern.CASE_INSENSITIVE);
+        Pattern removedMessage = Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE);
 
         Locator rows = page.locator(".tool-order-row");
         assertTrue(rows.count() > 1);
         String firstTitleBefore = rows.first().locator(".tool-order-title").innerText();
         Locator secondRow = rows.nth(1);
+        assertThat(secondRow).isVisible();
         BoundingBox secondRowBox = secondRow.boundingBox();
-        rows.first().locator("[data-action=\"drag-handle\"]").dragTo(secondRow, new Locator.DragToOptions()
-            .setTargetPosition(10, secondRowBox.height - 2)
-            .setForce(true));
-        assertThat(page.locator("#tool-order-alert")).containsText(Pattern.compile("saved", Pattern.CASE_INSENSITIVE));
+        Locator dragHandle = rows.first().locator("[data-action=\"drag-handle\"]");
+        assertThat(dragHandle).isVisible();
+        dragHandle.dragTo(secondRow, new Locator.DragToOptions().setTargetPosition(10, secondRowBox.height - 2));
+        assertThat(statusAlert).containsText(orderSavedMessage);
 
         page.reload();
         page.waitForLoadState();
@@ -65,25 +70,35 @@ class ToolOrderTest extends SakaiUiTestBase {
         Locator editableRow = page.locator(".tool-order-row:has([data-action=\"edit\"])").first();
         assertThat(editableRow).isVisible();
         String renamedTitle = "Site News";
-        editableRow.locator("[data-action=\"edit\"]").click(new Locator.ClickOptions().setForce(true));
+        Locator editButton = editableRow.locator("[data-action=\"edit\"]");
+        assertThat(editButton).isVisible();
+        editButton.click();
         editableRow.locator("input[name=\"title\"]").fill(renamedTitle);
-        editableRow.locator("button[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
+        Locator saveButton = editableRow.locator("button[type=\"submit\"]").first();
+        assertThat(saveButton).isVisible();
+        saveButton.click();
+        assertThat(statusAlert).isVisible();
+        assertThat(statusAlert).containsText(titleSavedMessage);
         assertThat(editableRow.locator(".tool-order-title")).containsText(renamedTitle);
 
         Locator visibilityButton = editableRow.locator("[data-action=\"visibility\"]").first();
-        if (visibilityButton.count() > 0 && visibilityButton.isEnabled()) {
-            visibilityButton.click(new Locator.ClickOptions().setForce(true));
+        if (visibilityButton.isVisible() && visibilityButton.isEnabled()) {
+            visibilityButton.click();
             assertThat(editableRow.locator(".tool-order-hidden-badge")).isVisible();
-            visibilityButton.click(new Locator.ClickOptions().setForce(true));
+            visibilityButton.click();
             assertThat(editableRow.locator(".tool-order-hidden-badge")).isHidden();
         }
 
         Locator deletableRow = page.locator(".tool-order-row:has([data-action=\"delete\"])").first();
-        if (deletableRow.count() > 0) {
+        if (deletableRow.isVisible()) {
             String deletedTitle = deletableRow.locator(".tool-order-title").innerText();
+            Locator deleteButton = deletableRow.locator("[data-action=\"delete\"]");
+            assertThat(deleteButton).isVisible();
             page.onceDialog(dialog -> dialog.accept());
-            deletableRow.locator("[data-action=\"delete\"]").click(new Locator.ClickOptions().setForce(true));
-            assertThat(page.locator(".tool-order-row").filter(new Locator.FilterOptions().setHasText(deletedTitle))).hasCount(0);
+            deleteButton.click();
+            assertThat(statusAlert).containsText(removedMessage);
+            assertThat(page.locator(".tool-order-row")
+                    .filter(new Locator.FilterOptions().setHasText(deletedTitle))).hasCount(0);
         }
     }
 }
