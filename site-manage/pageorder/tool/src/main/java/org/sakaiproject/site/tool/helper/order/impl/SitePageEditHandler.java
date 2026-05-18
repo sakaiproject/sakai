@@ -142,7 +142,7 @@ public class SitePageEditHandler {
 
     public ToolOrderPage getPage(String pageId) {
         Site site = requireCurrentSite();
-        return toToolOrderPage(site, requirePage(site, pageId), false, false);
+        return toToolOrderPage(site, requirePage(site, pageId));
     }
 
     public boolean isReorderAllowed() {
@@ -197,7 +197,7 @@ public class SitePageEditHandler {
 
         setIframeSource(site, page, iframeSource);
         markTopRefresh();
-        return toToolOrderPage(site, page, false, false);
+        return toToolOrderPage(site, page);
     }
 
     public ToolOrderPage setPageVisible(String pageId, boolean visible) {
@@ -219,7 +219,7 @@ public class SitePageEditHandler {
         }
 
         markTopRefresh();
-        return toToolOrderPage(site, page, false, false);
+        return toToolOrderPage(site, page);
     }
 
     public ToolOrderPage setPageEnabled(String pageId, boolean enabled) {
@@ -241,13 +241,13 @@ public class SitePageEditHandler {
         }
 
         markTopRefresh();
-        return toToolOrderPage(site, page, false, false);
+        return toToolOrderPage(site, page);
     }
 
     public ToolOrderPage deletePage(String pageId) {
         Site site = requireCurrentSite();
         SitePage page = requirePage(site, pageId);
-        ToolOrderPage row = toToolOrderPage(site, page, false, false);
+        ToolOrderPage row = toToolOrderPage(site, page);
         if (!row.isDeletable()) {
             throw new SecurityException("Page may not be deleted: " + pageId);
         }
@@ -473,6 +473,14 @@ public class SitePageEditHandler {
         return row;
     }
 
+    private ToolOrderPage toToolOrderPage(Site site, SitePage page) {
+        List<SitePage> pages = site.getOrderedPages();
+        String pageId = page.getId();
+        boolean first = !pages.isEmpty() && pageId.equals(pages.get(0).getId());
+        boolean last = !pages.isEmpty() && pageId.equals(pages.get(pages.size() - 1).getId());
+        return toToolOrderPage(site, page, first, last);
+    }
+
     private boolean canAddTool(Site site, Tool tool, Set<String> multiPlacementToolIds) {
         Properties config = tool.getRegisteredConfig();
         String allowMultiple = config.getProperty(TOOL_CFG_MULTI);
@@ -540,30 +548,30 @@ public class SitePageEditHandler {
     }
 
     private void disablePage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_DISABLE,
-                "/site/" + site.getId() + "/page/" + pageId, false));
         setEnabled(site, pageId, false);
         setVisibility(site, pageId, false);
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_DISABLE,
+                "/site/" + site.getId() + "/page/" + pageId, false));
     }
 
     private void enablePage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_ENABLE,
-                "/site/" + site.getId() + "/page/" + pageId, false));
         setEnabled(site, pageId, true);
         setVisibility(site, pageId, true);
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_ENABLE,
+                "/site/" + site.getId() + "/page/" + pageId, false));
     }
 
     private void hidePage(Site site, String pageId) throws SakaiException {
+        setVisibility(site, pageId, false);
         eventTrackingService.post(eventTrackingService.newEvent(PAGE_HIDE,
                 "/site/" + site.getId() + "/page/" + pageId, false));
-        setVisibility(site, pageId, false);
     }
 
     private void showPage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_SHOW,
-                "/site/" + site.getId() + "/page/" + pageId, false));
         setVisibility(site, pageId, true);
         setEnabled(site, pageId, true);
+        eventTrackingService.post(eventTrackingService.newEvent(PAGE_SHOW,
+                "/site/" + site.getId() + "/page/" + pageId, false));
     }
 
     private void setVisibility(Site site, String pageId, boolean visible) throws SakaiException {
