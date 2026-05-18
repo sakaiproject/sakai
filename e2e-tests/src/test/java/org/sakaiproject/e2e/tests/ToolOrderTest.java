@@ -47,6 +47,8 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
+        assertThat(page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE)))).hasCount(0);
         assertThat(page.locator(".navIntraTool .current")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE)))
                 .first()).isVisible();
@@ -124,8 +126,11 @@ class ToolOrderTest extends SakaiUiTestBase {
                     .filter(new Locator.FilterOptions().setHasText(deletedTitle))).hasCount(0);
         }
 
-        page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
+        Locator siteInformationTab = page.locator(".navIntraTool a")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Site Information", Pattern.CASE_INSENSITIVE)))
+                .first();
+        assertThat(siteInformationTab).isVisible();
+        siteInformationTab.click();
         page.waitForLoadState();
         assertThat(page.locator("#tool-order-app")).hasCount(0);
         assertThat(page.locator(".navIntraTool .current")

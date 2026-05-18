@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.view.RedirectView;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -153,14 +152,6 @@ public class ToolOrderController {
         } catch (RuntimeException e) {
             return error(e, locale);
         }
-    }
-
-    @PostMapping("/done")
-    public RedirectView done() {
-        pageEditHandler.prepareDone();
-        RedirectView redirectView = new RedirectView(pageEditHandler.getDoneUrl(), false);
-        redirectView.setExposeModelAttributes(false);
-        return redirectView;
     }
 
     private ResponseEntity<Map<String, Object>> ok(String message, String dataName, Object data) {
