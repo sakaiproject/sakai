@@ -1186,3 +1186,11 @@ ASN.checkIframeTags = function () {
         document.getElementById('tagSection').style.display = 'none';
     }
 }
+
+ASN.withdrawGradesConfirm = function(confirmMessage, clickedElement) {
+    if (confirm(confirmMessage)) {
+        clickedElement.classList.add('noPointers');
+        SPNR.disableControlsAndSpin(clickedElement, null);
+        ASN.submitForm('viewForm', 'withdrawGrades', null, null);
+    }
+};

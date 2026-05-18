@@ -5234,6 +5234,17 @@ public class AssignmentAction extends PagedResourceActionII {
 
             List<SubmitterSubmission> userSubmissions = prepPage(state);
 
+            boolean canWithdrawGrades = false;
+            if (userSubmissions != null) {
+                for (SubmitterSubmission ss : userSubmissions) {
+                    if (ss.getSubmission() != null && ss.getSubmission().getGradeReleased()) {
+                        canWithdrawGrades = true;
+                        break;
+                    }
+                }
+            }
+            context.put("canWithdrawGrades", Boolean.valueOf(canWithdrawGrades));
+
             // attach the assignment to these submissions now to avoid costly lookup for each submission later in the velocity template
             for (SubmitterSubmission s : userSubmissions) {
                 s.getSubmission().setAssignment(assignment);
@@ -6598,6 +6609,9 @@ public class AssignmentAction extends PagedResourceActionII {
             case "releaseCommented":
             case "releaseGrades":
                 doRelease_grades(data);
+                break;
+            case "withdrawGrades":
+                doWithdraw_grades(data);
                 break;
             case "upload":
                 doPrep_upload_all(data);
@@ -12023,6 +12037,52 @@ public class AssignmentAction extends PagedResourceActionII {
                 updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, null, "update", a.getGroups());
             }
         }
+    }
+
+    public void doWithdraw_grades(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+
+        try {
+            Assignment assignment = getAssignment(aReference, "doWithdraw_grades", state);
+            if (assignment == null) {
+                log.error("Could not retrieve assignment object for withdrawing grades.");
+                addAlert(state, rb.getString("saved.error"));
+                return;
+            }
+
+            assignment.setReleaseGrades(Boolean.FALSE);
+            assignmentService.updateAssignment(assignment);
+
+            Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
+            String associateGradebookAssignment = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            if (submissions != null) {
+                for (AssignmentSubmission submission : submissions) {
+                    // revoke the release state and the returned status flags
+                    submission.setGradeReleased(false);
+                    submission.setReturned(false);
+                    submission.setDateReturned(null);
+
+                    try {
+                        assignmentService.updateSubmission(submission);
+                        // update gradebook synchronization if association exists
+                        if (associateGradebookAssignment != null) {
+                            String siteId = assignment.getContext();
+                            String sReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                            updateGradebookAssociation(state, siteId, aReference, associateGradebookAssignment, sReference, "update", assignment.getGroups());
+                        }
+                    } catch (PermissionException e) {
+                        log.warn("Permission denied while updating submission {} during unpublishing: {}", submission.getId(), e.getMessage());
+                    }
+                }
+            }
+            log.debug("Grades successfully unpublished for assignment ID: {}", assignment.getId());
+        } catch (Exception e) {
+            log.error("Exception caught inside doWithdraw_grades processing: " + e.getMessage(), e);
+            addAlert(state, rb.getString("saved.error"));
+        }
+
+        state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
     }
 
     /**
