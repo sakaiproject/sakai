@@ -97,13 +97,55 @@ public class SecFetchSiteCsrfInterceptorTest {
     }
 
     @Test
-    public void postWithoutFetchMetadataIsAllowed() throws Exception {
+    public void postWithoutFetchMetadataAndFallbackIsBlocked() throws Exception {
         HttpServletRequest request = request("POST", null, "/api/order", "application/json");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        StringWriter body = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(body));
+
+        assertFalse(interceptor.preHandle(request, response, new Object()));
+
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        verify(response).setContentType("application/json");
+        assertTrue(body.toString().contains("\"success\":false"));
+    }
+
+    @Test
+    public void postWithoutFetchMetadataWithSameOriginHeaderIsAllowed() throws Exception {
+        HttpServletRequest request = request("POST", null, "/api/order", "application/json");
+        when(request.getHeader(SecFetchSiteCsrfInterceptor.ORIGIN)).thenReturn("https://sakai.example.edu");
         HttpServletResponse response = mock(HttpServletResponse.class);
 
         assertTrue(interceptor.preHandle(request, response, new Object()));
 
         verify(response, never()).sendError(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void postWithoutFetchMetadataWithSameOriginRefererIsAllowed() throws Exception {
+        HttpServletRequest request = request("POST", null, "/api/order", "application/json");
+        when(request.getHeader(SecFetchSiteCsrfInterceptor.REFERER))
+                .thenReturn("https://sakai.example.edu/portal/site/site1");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        assertTrue(interceptor.preHandle(request, response, new Object()));
+
+        verify(response, never()).sendError(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void postWithoutFetchMetadataWithCrossOriginHeaderIsBlocked() throws Exception {
+        HttpServletRequest request = request("POST", null, "/api/order", "application/json");
+        when(request.getHeader(SecFetchSiteCsrfInterceptor.ORIGIN)).thenReturn("https://evil.example.net");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        StringWriter body = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(body));
+
+        assertFalse(interceptor.preHandle(request, response, new Object()));
+
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        verify(response).setContentType("application/json");
+        assertTrue(body.toString().contains("\"success\":false"));
     }
 
     @Test
@@ -122,6 +164,9 @@ public class SecFetchSiteCsrfInterceptorTest {
         when(request.getHeader(SecFetchSiteCsrfInterceptor.SEC_FETCH_SITE)).thenReturn(fetchSite);
         when(request.getHeader("Accept")).thenReturn(accept);
         when(request.getRequestURI()).thenReturn(requestUri);
+        when(request.getScheme()).thenReturn("https");
+        when(request.getServerName()).thenReturn("sakai.example.edu");
+        when(request.getServerPort()).thenReturn(443);
         return request;
     }
 }

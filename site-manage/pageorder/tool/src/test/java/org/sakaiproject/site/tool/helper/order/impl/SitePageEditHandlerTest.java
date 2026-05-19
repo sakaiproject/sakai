@@ -17,10 +17,14 @@ package org.sakaiproject.site.tool.helper.order.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +35,10 @@ import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
@@ -192,9 +199,70 @@ public class SitePageEditHandlerTest {
         handler.setPageVisible("page1", false);
 
         assertEquals("false", placementConfig.getProperty(ToolManager.PORTAL_VISIBLE));
-        verify(tool).save();
+        InOrder inOrder = inOrder(tool, eventTrackingService);
+        inOrder.verify(tool).save();
+        inOrder.verify(eventTrackingService).newEvent("pageorder.hide", "/site/site1/page/page1", false);
+        inOrder.verify(eventTrackingService).post(event);
         verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
-        verify(eventTrackingService).post(event);
+    }
+
+    @Test
+    public void setPageEnabledPersistsAccessAndVisibilityBeforePostingEvent() throws Exception {
+        Properties placementConfig = new Properties();
+        ToolConfiguration tool = tool("sakai.foo");
+        SitePage page = page("page1", Collections.singletonList(tool));
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+        Role role = mock(Role.class);
+        Event event = mock(Event.class);
+        when(site.getPage("page1")).thenReturn(page);
+        when(site.getReference()).thenReturn("/site/site1");
+        when(tool.getPlacementConfig()).thenReturn(placementConfig);
+        when(tool.getConfig()).thenReturn(placementConfig);
+        when(toolManager.getRequiredPermissions(tool))
+                .thenReturn(Collections.singletonList(Collections.singleton("foo.read")));
+        when(toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)).thenReturn(true);
+        when(authzGroupService.getAuthzGroup("/site/site1")).thenReturn(authzGroup);
+        when(authzGroup.getRoles()).thenReturn(Collections.singleton(role));
+        when(role.isAllowed(SiteService.SECURE_UPDATE_SITE)).thenReturn(false);
+        when(eventTrackingService.newEvent("pageorder.disable", "/site/site1/page/page1", false)).thenReturn(event);
+
+        handler.setPageEnabled("page1", false);
+
+        assertEquals("false", placementConfig.getProperty(ToolManager.PORTAL_VISIBLE));
+        verify(role).disallowFunctions(Collections.singletonList("foo.read"));
+        InOrder inOrder = inOrder(authzGroupService, tool, eventTrackingService);
+        inOrder.verify(authzGroupService).save(authzGroup);
+        inOrder.verify(tool).save();
+        inOrder.verify(eventTrackingService).newEvent("pageorder.disable", "/site/site1/page/page1", false);
+        inOrder.verify(eventTrackingService).post(event);
+    }
+
+    @Test
+    public void setPageEnabledRollsBackAccessWhenVisibilitySaveFails() throws Exception {
+        Properties placementConfig = new Properties();
+        ToolConfiguration tool = tool("sakai.foo");
+        SitePage page = page("page1", Collections.singletonList(tool));
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+        Role role = mock(Role.class);
+        when(site.getPage("page1")).thenReturn(page);
+        when(site.getReference()).thenReturn("/site/site1");
+        when(tool.getPlacementConfig()).thenReturn(placementConfig);
+        when(tool.getConfig()).thenReturn(placementConfig);
+        when(toolManager.getRequiredPermissions(tool))
+                .thenReturn(Collections.singletonList(Collections.singleton("foo.read")));
+        when(toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)).thenReturn(true);
+        when(authzGroupService.getAuthzGroup("/site/site1")).thenReturn(authzGroup);
+        when(authzGroup.getRoles()).thenReturn(Collections.singleton(role));
+        when(role.isAllowed(SiteService.SECURE_UPDATE_SITE)).thenReturn(false);
+        doThrow(new RuntimeException("save failed")).when(tool).save();
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> handler.setPageEnabled("page1", false));
+
+        assertEquals("save failed", exception.getMessage());
+        verify(role).disallowFunctions(Collections.singletonList("foo.read"));
+        verify(role).allowFunctions(Collections.singletonList("foo.read"));
+        verify(authzGroupService, times(2)).save(authzGroup);
+        verify(eventTrackingService, never()).post(any(Event.class));
     }
 
     private SitePage page(String id) {

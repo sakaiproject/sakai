@@ -515,30 +515,72 @@ public class SitePageEditHandler {
     }
 
     private void disablePage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_DISABLE,
-                "/site/" + site.getId() + "/page/" + pageId, false));
-        setEnabled(site, pageId, false);
-        setVisibility(site, pageId, false);
+        SitePage page = requirePage(site, pageId);
+        boolean wasEnabled = isEnabled(page);
+        boolean wasVisible = isVisible(page);
+        runCompensatingPageUpdates(
+                () -> setEnabled(site, pageId, false),
+                () -> setVisibility(site, pageId, false),
+                () -> restorePageState(site, pageId, wasEnabled, wasVisible));
+        postPageEvent(PAGE_DISABLE, site, pageId);
     }
 
     private void enablePage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_ENABLE,
-                "/site/" + site.getId() + "/page/" + pageId, false));
-        setEnabled(site, pageId, true);
-        setVisibility(site, pageId, true);
+        SitePage page = requirePage(site, pageId);
+        boolean wasEnabled = isEnabled(page);
+        boolean wasVisible = isVisible(page);
+        runCompensatingPageUpdates(
+                () -> setEnabled(site, pageId, true),
+                () -> setVisibility(site, pageId, true),
+                () -> restorePageState(site, pageId, wasEnabled, wasVisible));
+        postPageEvent(PAGE_ENABLE, site, pageId);
     }
 
     private void hidePage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_HIDE,
-                "/site/" + site.getId() + "/page/" + pageId, false));
         setVisibility(site, pageId, false);
+        postPageEvent(PAGE_HIDE, site, pageId);
     }
 
     private void showPage(Site site, String pageId) throws SakaiException {
-        eventTrackingService.post(eventTrackingService.newEvent(PAGE_SHOW,
+        SitePage page = requirePage(site, pageId);
+        boolean wasEnabled = isEnabled(page);
+        boolean wasVisible = isVisible(page);
+        runCompensatingPageUpdates(
+                () -> setVisibility(site, pageId, true),
+                () -> setEnabled(site, pageId, true),
+                () -> restorePageState(site, pageId, wasEnabled, wasVisible));
+        postPageEvent(PAGE_SHOW, site, pageId);
+    }
+
+    private void postPageEvent(String event, Site site, String pageId) {
+        eventTrackingService.post(eventTrackingService.newEvent(event,
                 "/site/" + site.getId() + "/page/" + pageId, false));
-        setVisibility(site, pageId, true);
-        setEnabled(site, pageId, true);
+    }
+
+    private void runCompensatingPageUpdates(PageUpdate first, PageUpdate second, PageUpdate rollback)
+            throws SakaiException {
+        boolean firstApplied = false;
+        try {
+            first.apply();
+            firstApplied = true;
+            second.apply();
+        } catch (SakaiException | RuntimeException e) {
+            if (firstApplied) {
+                try {
+                    rollback.apply();
+                } catch (SakaiException | RuntimeException rollbackFailure) {
+                    if (rollbackFailure != e) {
+                        e.addSuppressed(rollbackFailure);
+                    }
+                }
+            }
+            throw e;
+        }
+    }
+
+    private void restorePageState(Site site, String pageId, boolean enabled, boolean visible) throws SakaiException {
+        setEnabled(site, pageId, enabled);
+        setVisibility(site, pageId, visible);
     }
 
     private void setVisibility(Site site, String pageId, boolean visible) throws SakaiException {
@@ -606,6 +648,11 @@ public class SitePageEditHandler {
         } catch (GroupNotDefinedException | AuthzPermissionException e) {
             throw new SakaiException(e);
         }
+    }
+
+    @FunctionalInterface
+    private interface PageUpdate {
+        void apply() throws SakaiException;
     }
 
     private Set<Role> getRolesWithout(AuthzGroup authzGroup, String function) {

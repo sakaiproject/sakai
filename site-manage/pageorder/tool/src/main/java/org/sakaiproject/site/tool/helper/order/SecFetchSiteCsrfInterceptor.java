@@ -16,6 +16,8 @@
 package org.sakaiproject.site.tool.helper.order;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecFetchSiteCsrfInterceptor implements HandlerInterceptor {
 
+    static final String ORIGIN = "Origin";
+    static final String REFERER = "Referer";
     static final String SEC_FETCH_SITE = "Sec-Fetch-Site";
 
     private static final String SAME_ORIGIN = "same-origin";
@@ -59,7 +63,58 @@ public class SecFetchSiteCsrfInterceptor implements HandlerInterceptor {
         }
 
         String fetchSite = request.getHeader(SEC_FETCH_SITE);
-        return fetchSite != null && !SAME_ORIGIN.equalsIgnoreCase(fetchSite);
+        if (SAME_ORIGIN.equalsIgnoreCase(fetchSite)) {
+            return false;
+        }
+
+        if (fetchSite != null) {
+            return true;
+        }
+
+        return !hasSameOriginFallback(request);
+    }
+
+    private static boolean hasSameOriginFallback(HttpServletRequest request) {
+        return isSameOriginHeader(request.getHeader(ORIGIN), request)
+                || isSameOriginHeader(request.getHeader(REFERER), request);
+    }
+
+    private static boolean isSameOriginHeader(String header, HttpServletRequest request) {
+        if (header == null || header.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            URI uri = new URI(header.trim());
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (scheme == null || host == null || request.getScheme() == null || request.getServerName() == null) {
+                return false;
+            }
+
+            return scheme.equalsIgnoreCase(request.getScheme())
+                    && host.equalsIgnoreCase(request.getServerName())
+                    && normalizedPort(scheme, uri.getPort())
+                            == normalizedPort(request.getScheme(), request.getServerPort());
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
+    private static int normalizedPort(String scheme, int port) {
+        if (port > 0) {
+            return port;
+        }
+
+        if ("http".equalsIgnoreCase(scheme)) {
+            return 80;
+        }
+
+        if ("https".equalsIgnoreCase(scheme)) {
+            return 443;
+        }
+
+        return port;
     }
 
     private void rejectRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {

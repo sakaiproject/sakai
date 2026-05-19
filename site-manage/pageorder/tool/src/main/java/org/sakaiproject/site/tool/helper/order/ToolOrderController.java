@@ -183,9 +183,19 @@ public class ToolOrderController {
         log.warn("Tool Order request failed", e);
         Map<String, Object> body = new HashMap<>();
         body.put("success", Boolean.FALSE);
-        String message = e instanceof SecurityException ? message("access_error", locale) : message("status_error", locale);
+        HttpStatus status;
+        String message;
+        if (e instanceof SecurityException) {
+            status = HttpStatus.FORBIDDEN;
+            message = message("access_error", locale);
+        } else if (e instanceof IllegalArgumentException) {
+            status = HttpStatus.BAD_REQUEST;
+            message = message("validation_error", locale);
+        } else {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            message = message("status_error", locale);
+        }
         body.put("message", message);
-        HttpStatus status = e instanceof SecurityException ? HttpStatus.FORBIDDEN : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(body);
     }
 
