@@ -116,6 +116,15 @@ public class SitePageEditHandlerTest {
     }
 
     @Test
+    public void getDoneUrlFallsBackWhenToolSessionIsMissing() {
+        when(sessionManager.getCurrentToolSession()).thenReturn(null);
+
+        assertEquals("/", handler.getDoneUrl());
+
+        verify(toolManager, never()).getCurrentTool();
+    }
+
+    @Test
     public void prepareDoneIgnoresMissingToolSession() {
         when(sessionManager.getCurrentToolSession()).thenReturn(null);
 
