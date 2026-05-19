@@ -16,6 +16,7 @@
 package org.sakaiproject.site.tool.helper.order.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -43,6 +44,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -181,6 +183,34 @@ public class SitePageEditHandlerTest {
         assertEquals("https://example.edu", row.getWebContentUrl());
         verify(tool).setTitle("Web Content");
         verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
+    }
+
+    @Test
+    public void addPageWrapsSavePermissionFailureWithOriginalCause() throws Exception {
+        SitePage page = page("page1");
+        ToolConfiguration placement = tool("sakai.foo");
+        PermissionException permissionException = new PermissionException("user1", "site.upd", "/site/site1");
+        when(site.addPage()).thenReturn(page);
+        when(page.addTool("sakai.foo")).thenReturn(placement);
+        doThrow(permissionException).when(siteService).save(site);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> handler.addPage("sakai.foo", "New Tool"));
+
+        assertEquals("Error adding page New Tool", exception.getMessage());
+        assertSame(permissionException, exception.getCause());
+        verify(eventTrackingService, never()).post(any(Event.class));
+    }
+
+    @Test
+    public void addPageRethrowsUnexpectedIllegalStateException() throws Exception {
+        IllegalStateException failure = new IllegalStateException("unexpected");
+        when(site.addPage()).thenThrow(failure);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> handler.addPage("sakai.foo", "New Tool"));
+
+        assertSame(failure, exception);
     }
 
     @Test

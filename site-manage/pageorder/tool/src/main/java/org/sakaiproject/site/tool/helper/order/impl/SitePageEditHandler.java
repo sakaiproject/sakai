@@ -328,8 +328,12 @@ public class SitePageEditHandler {
                             + "/tool/" + toolId + "/placement/" + placement.getId(), false));
             markTopRefresh();
             return page;
-        } catch (Exception e) {
-            throw new IllegalStateException("Error adding page " + title, e);
+        } catch (IllegalStateException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IdUnusedException || cause instanceof PermissionException) {
+                throw new IllegalStateException("Error adding page " + title, cause);
+            }
+            throw e;
         }
     }
 
