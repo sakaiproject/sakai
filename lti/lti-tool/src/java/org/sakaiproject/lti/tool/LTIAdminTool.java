@@ -720,6 +720,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
 
+		// Make sure this is ready to handle LTI 1.3 launches
+		minimalLTI13(tool);
+
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
