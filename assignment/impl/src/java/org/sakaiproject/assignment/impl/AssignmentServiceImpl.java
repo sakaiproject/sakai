@@ -4689,6 +4689,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                     final String assignmentAddToGradebookChoice = nProperties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
                     final String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
+                    boolean categoryCreatedFromGradebookAssignment = false;
 
                     switch (assignmentAddToGradebookChoice) {
                         case GRADEBOOK_INTEGRATION_ADD, GRADEBOOK_INTEGRATION_ASSOCIATE -> {
@@ -4696,7 +4697,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             org.sakaiproject.grading.api.Assignment newGbAssignment = null;
 
                             boolean isOriginalAssignmentExternal = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
-                            if (!isOriginalAssignmentExternal) {
+                            if (isOriginalAssignmentExternal) {
+                                originalGBAssignment = gradingService.getExternalAssignment(oAssignment.getContext(), associatedGradebookAssignment);
+                            } else if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
                                 // load the assignment for internal gb link
                                 try {
                                     originalGBAssignment = gradingService.getAssignmentByNameOrId(
@@ -4720,16 +4723,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         log.debug("Assignment {} not found in gradebook for site {}", originalGBAssignment.getName(), nAssignment.getContext(), anfe);
                                     }
                                 }
-                            } else {
-                                originalGBAssignment = gradingService.getExternalAssignment(oAssignment.getContext(), associatedGradebookAssignment);
                             }
 
                             if (nAssignment.getDraft()) {
                                 // assignment is in the draft state
-                                if (isOriginalAssignmentExternal) {
+                                if (isOriginalAssignmentExternal || GRADEBOOK_INTEGRATION_ADD.equals(assignmentAddToGradebookChoice)) {
                                     // if this is an external defined assignments will create when publishing
                                     nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                                    if (isOriginalAssignmentExternal && originalGBAssignment != null) {
+                                        Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext());
+                                        if (categoryId.isPresent()) {
+                                            nProperties.put(NEW_ASSIGNMENT_CATEGORY, categoryId.get().toString());
+                                            categoryCreatedFromGradebookAssignment = true;
+                                        }
+                                    }
                                 } else {
                                     if (newGbAssignment != null) {
                                         if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
@@ -4811,6 +4819,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                             nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                         }
+                    }
+
+                    if (GRADEBOOK_INTEGRATION_ADD.equals(nProperties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                        if (!categoryCreatedFromGradebookAssignment) {
+                            remapImportedAssignmentCategoryProperty(nProperties, fromContext, toContext);
+                        }
+                    } else {
+                        nProperties.remove(NEW_ASSIGNMENT_CATEGORY);
                     }
 
                     // review service
@@ -5619,6 +5635,52 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return uniqueTitle;
+    }
+
+    private void remapImportedAssignmentCategoryProperty(Map<String, String> properties, String fromGradebookId, String toGradebookId) {
+
+        String categoryIds = StringUtils.trimToNull(properties.get(NEW_ASSIGNMENT_CATEGORY));
+        if (categoryIds == null) {
+            return;
+        }
+
+        Optional<Long> destinationCategoryId = createCategoryForAssignmentPropertyIfNecessary(categoryIds, fromGradebookId, toGradebookId);
+        if (destinationCategoryId.isPresent()) {
+            properties.put(NEW_ASSIGNMENT_CATEGORY, destinationCategoryId.get().toString());
+        } else {
+            properties.remove(NEW_ASSIGNMENT_CATEGORY);
+        }
+    }
+
+    private Optional<Long> createCategoryForAssignmentPropertyIfNecessary(String categoryIds, String fromGradebookId, String toGradebookId) {
+
+        List<String> selectedCategories = Arrays.stream(categoryIds.split(","))
+                .map(StringUtils::trimToNull)
+                .filter(Objects::nonNull)
+                .filter(categoryId -> !"-1".equals(categoryId))
+                .collect(Collectors.toList());
+
+        if (selectedCategories.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Category ids are gradebook-specific. Resolve the source id to a category name,
+        // then match or create the equivalent category in the destination gradebook.
+        List<CategoryDefinition> categoryDefs = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId);
+        if (categoryDefs == null) {
+            categoryDefs = Collections.emptyList();
+        }
+        Optional<CategoryDefinition> sourceCategory = categoryDefs.stream()
+                .filter(category -> category.getId() != null && selectedCategories.contains(category.getId().toString()))
+                .findFirst();
+
+        if (!sourceCategory.isPresent()) {
+            return Optional.empty();
+        }
+
+        org.sakaiproject.grading.api.Assignment sourceAssignment = new org.sakaiproject.grading.api.Assignment();
+        sourceAssignment.setCategoryName(sourceCategory.get().getName());
+        return createCategoryForGbAssignmentIfNecessary(sourceAssignment, fromGradebookId, toGradebookId);
     }
 
     private Optional<Long> createCategoryForGbAssignmentIfNecessary(
