@@ -5686,7 +5686,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Category ids are gradebook-specific. Resolve the source id to a category name,
         // then match or create the equivalent category in the destination gradebook.
-        Optional<CategoryDefinition> sourceCategory = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId).stream()
+        List<CategoryDefinition> categoryDefs = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId);
+        if (categoryDefs == null) {
+            categoryDefs = Collections.emptyList();
+        }
+        Optional<CategoryDefinition> sourceCategory = categoryDefs.stream()
                 .filter(category -> category.getId() != null && selectedCategories.contains(category.getId().toString()))
                 .findFirst();
 
