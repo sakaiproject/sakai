@@ -31,6 +31,7 @@ import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
@@ -53,28 +54,25 @@ public class SitePageEditHandlerTest {
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
     private ContentHostingService contentHostingService;
+    private AuthzGroupService authzGroupService;
     private EventTrackingService eventTrackingService;
     private ToolSession toolSession;
     private Site site;
 
     @Before
     public void setUp() throws Exception {
-        handler = new SitePageEditHandler();
         siteService = mock(SiteService.class);
         toolManager = mock(ToolManager.class);
         sessionManager = mock(SessionManager.class);
         serverConfigurationService = mock(ServerConfigurationService.class);
         contentHostingService = mock(ContentHostingService.class);
+        authzGroupService = mock(AuthzGroupService.class);
         eventTrackingService = mock(EventTrackingService.class);
         toolSession = mock(ToolSession.class);
         site = mock(Site.class);
 
-        handler.setSiteService(siteService);
-        handler.setToolManager(toolManager);
-        handler.setSessionManager(sessionManager);
-        handler.setServerConfigurationService(serverConfigurationService);
-        handler.setContentHostingService(contentHostingService);
-        handler.setEventTrackingService(eventTrackingService);
+        handler = new SitePageEditHandler(siteService, toolManager, sessionManager, serverConfigurationService,
+                contentHostingService, authzGroupService, eventTrackingService);
 
         when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
         when(toolSession.getAttribute("sakai.tool.helper.id.siteId")).thenReturn("site1");

@@ -54,15 +54,16 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service layer for Site Info's Tool Order helper.
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class SitePageEditHandler {
 
@@ -93,13 +94,13 @@ public class SitePageEditHandler {
     public static final String ALLOW_TITLE_EDIT_CFG = "org.sakaiproject.site.tool.helper.order.rsf.PageListProducer.allowTitleEdit";
     public static final String ALLOW_REORDER_CFG = "site-manage.pageorder.allowreorder";
 
-    private SiteService siteService;
-    private ToolManager toolManager;
-    private SessionManager sessionManager;
-    private ServerConfigurationService serverConfigurationService;
-    private ContentHostingService contentHostingService;
-    private AuthzGroupService authzGroupService;
-    private EventTrackingService eventTrackingService;
+    private final SiteService siteService;
+    private final ToolManager toolManager;
+    private final SessionManager sessionManager;
+    private final ServerConfigurationService serverConfigurationService;
+    private final ContentHostingService contentHostingService;
+    private final AuthzGroupService authzGroupService;
+    private final EventTrackingService eventTrackingService;
 
     public Site getCurrentSite() {
         String siteId = getCurrentSiteId();
@@ -633,38 +634,4 @@ public class SitePageEditHandler {
         }
     }
 
-    @Autowired
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    @Autowired
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-    }
-
-    @Autowired
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    @Autowired
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    @Autowired
-    public void setContentHostingService(ContentHostingService contentHostingService) {
-        this.contentHostingService = contentHostingService;
-    }
-
-    @Autowired
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-
-    @Autowired
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
-    }
 }
