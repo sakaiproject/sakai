@@ -16,6 +16,16 @@
             </div>
         </div>
 
+        #if ($showDeploymentGroup)
+        <div id="deployment-group-input-container">
+            <label for="deployment-group-input">$tlang.getString("tool.site.deployment_group")</label>
+            <div id="deployment-group-input-info" class="text-muted">$tlang.getString("tool.site.deployment_group.hint")</div>
+            <div id="div-deployment-group-input">
+                <input type="text" id="deployment-group-input" class="form-control" name="deployment_group" size="40" maxlength="128" pattern="[A-Za-z0-9]*" title="$tlang.getString('tool.site.deployment_group.pattern')" value="$formattedText.escapeHtml($!previousPost.get('deployment_group'))">
+            </div>
+        </div>
+        #end
+
         <div id="tool-site-ids-input-container">
             <label for="tool-site-ids-input">
                 <span style="color: red;">*</span>

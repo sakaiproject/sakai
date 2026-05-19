@@ -1151,6 +1151,14 @@ public class Foorm {
 				if (sdf == null) {
 					if (dataMap != null)
 						dataMap.put(field, null);
+				} else if ("true".equals(info.getProperty("alphanumeric")) && !sdf.matches("^[a-zA-Z0-9]+$")) {
+					if (sb.length() > 0)
+						sb.append(", ");
+					error = getI18N("foorm.alphanumeric.field", "Field must contain only letters and numbers:", loader) + " "
+							+ getI18N(label, loader);
+					sb.append(error);
+					if (errors != null)
+						errors.put(label, error);
 				} else {
 					if (dataMap != null)
 						dataMap.put(field, sdf);

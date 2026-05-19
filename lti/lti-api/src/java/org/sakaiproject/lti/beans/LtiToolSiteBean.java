@@ -46,6 +46,7 @@ public class LtiToolSiteBean extends LTIBaseBean {
     public Long toolId;                // TOOL_SITE_MODEL: "tool_id:integer:hidden=true"
     public String siteId;              // TOOL_SITE_MODEL: "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin"
     public String notes;               // TOOL_SITE_MODEL: "notes:text:label=bl_tool_site_notes:maxlength=1024"
+    public String deploymentGroup;     // TOOL_SITE_MODEL: "deployment_group:text:label=bl_deployment_group:maxlength=128:alphanumeric=true"
     public Date createdAt;             // TOOL_SITE_MODEL: "created_at:autodate"
     public Date updatedAt;             // TOOL_SITE_MODEL: "updated_at:autodate"
 
@@ -66,6 +67,7 @@ public class LtiToolSiteBean extends LTIBaseBean {
         toolSite.setToolId(getLongValue(map, LTIService.LTI_TOOL_ID));
         toolSite.setSiteId(getStringValue(map, LTIService.LTI_SITE_ID));
         toolSite.setNotes(getStringValue(map, "notes"));
+        toolSite.setDeploymentGroup(getStringValue(map, LTIService.LTI_DEPLOYMENT_GROUP));
         toolSite.setCreatedAt(getDateValue(map, LTIService.LTI_CREATED_AT));
         toolSite.setUpdatedAt(getDateValue(map, LTIService.LTI_UPDATED_AT));
         
@@ -84,6 +86,7 @@ public class LtiToolSiteBean extends LTIBaseBean {
         putIfNotNull(map, LTIService.LTI_TOOL_ID, toolId);
         putIfNotNull(map, LTIService.LTI_SITE_ID, siteId);
         putIfNotNull(map, "notes", notes);
+        putIfNotNull(map, LTIService.LTI_DEPLOYMENT_GROUP, deploymentGroup);
         putIfNotNull(map, LTIService.LTI_CREATED_AT, createdAt);
         putIfNotNull(map, LTIService.LTI_UPDATED_AT, updatedAt);
         

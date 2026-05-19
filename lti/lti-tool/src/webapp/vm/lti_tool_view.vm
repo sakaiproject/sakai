@@ -22,7 +22,7 @@ $(document).ready( function() {
         });
 
         // Add copy buttons
-        let arr = ["#foorm_output_lti13_lms_issuer", "#foorm_output_lti13_client_id",  "#foorm_output_lti13_lms_deployment_id",
+        let arr = ["#foorm_output_lti13_lms_issuer", "#foorm_output_lti13_client_id",
             "#foorm_output_lti13_lms_keyset", "#foorm_output_lti13_lms_endpoint", "#foorm_output_lti13_lms_token"];
         arr.forEach( (element) => {
             console.log(element);
@@ -37,7 +37,7 @@ $(document).ready( function() {
         let lti11_fields = ["#lti11_security", "#consumerkey", "#secret"];
 
         // LTI 1.3 fields
-        let lti13_fields = ["#lti13_lms_security", "#lti13_lms_issuer", "#lti13_client_id", "#lti13_lms_deployment_id",
+        let lti13_fields = ["#lti13_lms_security", "#lti13_lms_issuer", "#lti13_client_id",
             "#lti13_lms_keyset", "#lti13_lms_endpoint", "#lti13_lms_token",
             "#lti13_tool_security", "#lti13_tool_keyset", "#lti13_oidc_endpoint",
             "#lti13_oidc_redirect"];

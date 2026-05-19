@@ -522,7 +522,7 @@ public class LTI13Servlet extends HttpServlet {
 		String context_id = site.getId();
 
 		String user_id = sess.getUserId();
-		String subject = SakaiLTIUtil.getSubject(user_id, context_id);
+		String subject = SakaiLTIUtil.getSubject(user_id);
 
 		try {
 			Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
@@ -1237,8 +1237,9 @@ public class LTI13Servlet extends HttpServlet {
 		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
 		if ( toolConfigurationObj instanceof JSONObject ) {
 			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
-			String deployment_id = SakaiLTIUtil.getDeploymentId(null);
-			toolConfiguration.put("deployment_id", deployment_id);
+			// No site context during dynamic registration; resolve from the tool record.
+			String deployment_id = SakaiLTIUtil.getToolDeploymentId(null, tool.asMap());
+			toolConfiguration.put(LTIService.LTI_DEPLOYMENT_ID, deployment_id);
 		}
 
 		String json_out = null;
@@ -1473,7 +1474,7 @@ public class LTI13Servlet extends HttpServlet {
 				jo.put("status", "Active");
 				String lti11_legacy_user_id = user.getId();
 				jo.put("lti11_legacy_user_id", lti11_legacy_user_id);
-				String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id, site.getId());
+				String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id);
 				jo.put("user_id", subject);   // TODO: Should be subject - LTI13 Quirk
 				jo.put("lis_person_sourcedid", user.getEid());
 
@@ -2522,7 +2523,7 @@ public class LTI13Servlet extends HttpServlet {
 			for (User user : users) {
 				Result result = new Result();
                                 String lti11_legacy_user_id = user.getId();
-                                String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id, context_id);
+                                String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id);
 				result.userId = subject;
 				result.resultMaximum = a.getPoints();
 
