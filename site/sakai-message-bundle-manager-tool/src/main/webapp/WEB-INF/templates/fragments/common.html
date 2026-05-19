@@ -8,31 +8,30 @@
 <title th:text="#{common.title}">Message Bundle Manager</title>
 </head>
 <div th:fragment="bootstrap">
-  <script>includeLatestJQuery('common.html');</script>
-  <script th:inline="javascript">
-    $(document).ready(function () {
-      var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
-      if (toolId) {
-        setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+  <script>
+    (() => {
+      const toolFrameId = window.name || (window.frameElement && window.frameElement.id);
+      if (toolFrameId) {
+        setMainFrameHeight(toolFrameId);
       }
-    });
+    })();
   </script>
 </div>
-<div th:fragment="loadBundlesFromDb (enabled)">
+<th:block th:fragment="loadBundlesFromDb (enabled)">
   <div th:unless="${enabled}">
     <div class="sak-banner-warn" role="alert" th:text="#{common.warning}">
       Message bundle editing is not activated, please see your Administrator.
     </div>
     <p></p>
   </div>
-</div>
-<div th:fragment="admin (admin)">
+</th:block>
+<th:block th:fragment="admin (admin)">
   <div th:unless="${admin}">
     <div class="sak-banner-error" role="alert" th:text="#{common.danger}">
       You must be an admin to use this tool, please see your Administrator.
     </div>
     <p></p>
   </div>
-</div>
+</th:block>
 </body>
 </html>

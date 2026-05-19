@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: jQuery" />
+  <div th:replace="~{fragments/common :: scripts}" />
   <div class="portletBody">
-    <div id="menu" th:include="fragments/menus :: main (import)" />
+    <div id="menu" th:insert="~{fragments/menus :: main (import)}" />
     <div><h1 th:text="#{import.header}"></h1></div>
     <div class="row">
       <div class="col-sm-6">
@@ -43,6 +43,6 @@
       </div>
     </form>
   </div>
-  <script th:replace="fragments/javascript :: importJs" />
+  <script th:replace="~{fragments/javascript :: importJs}" />
 </body>
 </html>

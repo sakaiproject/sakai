@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 
 <body>
-	<div th:replace="fragments/common :: bootstrap" />
-	<div th:include="fragments/common :: admin (${isAdmin})" />
+	<div th:replace="~{fragments/common :: bootstrap}" />
+	<div th:insert="~{fragments/common :: admin (${isAdmin})}" />
 
 	<div th:if="${isAdmin}">
 		<div class="portletBody">
-			<div id="menu" th:include="fragments/menus :: main (new)" />
+			<div id="menu" th:insert="~{fragments/menus :: main (new)}" />
 			<div class="page-header">
 				<h1 th:text="#{site_synch.new_title}"></h1>
 			</div>
 
-			<div th:include="fragments/common :: error" />
+			<div th:insert="~{fragments/common :: error}" />
 
 			<form id="siteSynchForm" th:action="@{/save-siteSynchronization}" method="post">
 				<div class="col-md-12 synchContainer">
@@ -25,7 +25,7 @@
 								<legend class="collapse-button" role="button" data-bs-toggle="collapse" data-bs-target=".fieldset-content"
 									th:text="#{site_synch.filters}" tabindex="0"></legend>
 								<div class="fieldset-content collapse show">
-									<div th:replace="fragments/siteFilter :: siteFilter">
+									<div th:replace="~{fragments/siteFilter :: siteFilter}">
 									</div>
 
 									<div class="act">

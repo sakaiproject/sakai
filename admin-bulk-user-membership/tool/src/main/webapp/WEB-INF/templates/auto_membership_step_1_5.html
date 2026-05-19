@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: bootstrap" />
+  <div th:replace="~{fragments/common :: bootstrap}" />
   <div class="portletBody">
     <div class="page-header">
       <h1 th:text="#{common_title}">Bulk User Membership</h1>
     </div>
-    <div th:replace="fragments/wizard :: step (step1)"></div>
+    <div th:replace="~{fragments/wizard :: step (step1)}"></div>
     <div class="row">
       <div class="title sak-banner-warn col-sm-12" th:text="#{select.role.title(${siteId})}"></div>
     </div>
@@ -47,6 +47,6 @@
         </div>
     </form>
   </div>
-  <script th:replace="fragments/javascript :: autoMembershipStep1_5Js"></script>
+  <script th:replace="~{fragments/javascript :: autoMembershipStep1_5Js}"></script>
 </body>
 </html>

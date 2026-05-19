@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"	xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="fragments/common :: head"/>
+    <head th:replace="~{fragments/common :: head}"/>
     <body>
-        <div th:replace="fragments/common :: jQuery" />
+        <div th:replace="~{fragments/common :: scripts}" />
         <div class="portletBody">
-            <div id="menu" th:include="fragments/menus :: main (list)" />
+            <div id="menu" th:insert="~{fragments/menus :: main (list)}" />
 
             <div id="banner" class="sak-banner-success" th:if="${success}" th:text="#{template.saved.message(${templateKey}, ${templateLocale})}">
                 Success message

@@ -7,7 +7,7 @@
     </head> 
     <body>
         <div class="portletBody">
-            <div id="menu" th:include="fragments/menus :: main (compose)" />
+            <div id="menu" th:insert="~{fragments/menus :: main (compose)}" />
             <br/>
             <span th:text="#{message.sent.to}" style="margin-bottom: 5px ">Message sent to:</span>
             <ul th:each="user:${listaus}">

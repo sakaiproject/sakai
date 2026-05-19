@@ -12,7 +12,7 @@
     <div th:class="${current} == 'step3' ? 'col-sm-4 bordered wizard-step-active' : 'col-sm-4 bordered'">
       <span th:text="#{automembership.wizard.step3}">Step 3: Results Screen</span>
     </div>
-    <script th:replace="fragments/javascript :: wizardJs" />
+    <script th:replace="~{fragments/javascript :: wizardJs}" />
   </div>
 </body>
 </html>

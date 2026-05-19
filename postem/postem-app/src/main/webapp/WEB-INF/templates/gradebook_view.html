@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-    <div th:replace="fragments/common :: jQuery" />
+    <div th:replace="~{fragments/common :: jQuery}" />
     <div class="portletBody">
-        <div id="menu" th:include="fragments/menus :: main (index)" />
+        <div id="menu" th:insert="~{fragments/menus :: main (index)}" />
         <div class="page-header"><h1 th:text="#{gradebook_view}">View</h1></div>
         <div class="sak-banner-info" th:if="${studentsList == null or studentsList.isEmpty()}" th:text="#{no_gradebooks}">There are currently no items at this location.</div>
         <div class="sak-banner-info" th:text="#{gradebook_lastmodified} + ' ' + ${currentGradebook.updatedDateTime}"></div>

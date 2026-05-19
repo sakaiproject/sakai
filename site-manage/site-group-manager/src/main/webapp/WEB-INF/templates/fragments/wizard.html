@@ -18,6 +18,6 @@
         <div th:class="${current} == 'step4' ? 'col bordered wizard-step-active' : 'col bordered'" th:text="#{autogroups.wizard.step4}">Step 4: Preview</div>
       </div>
     </div>
-    <script th:replace="fragments/javascript :: wizardJs" />
+    <script th:replace="~{fragments/javascript :: wizardJs}" />
   </body>
 </html>

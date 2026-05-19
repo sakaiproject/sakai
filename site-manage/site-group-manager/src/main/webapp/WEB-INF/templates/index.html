@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: jQuery" />
+  <div th:replace="~{fragments/common :: scripts}" />
   <div class="portletBody">
-    <div id="menu" th:include="fragments/menus :: main (index)" />
+    <div id="menu" th:insert="~{fragments/menus :: main (index)}" />
     <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
     <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
@@ -104,6 +104,6 @@
       </div>
     </form>
   </div>
-  <script th:replace="fragments/javascript :: indexJs" />
+  <script th:replace="~{fragments/javascript :: indexJs}" />
 </body>
 </html>
