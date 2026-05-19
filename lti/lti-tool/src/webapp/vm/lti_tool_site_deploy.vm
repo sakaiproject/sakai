@@ -58,13 +58,14 @@ ${includeLatestJQuery}
 
                 },
                 // Default sort
-                sortList : [ [ 4,0] ],
+                sortList : [ [ 0,0] ],
                 headers: {
-                    // special configuration for this column (we start counting zero)
-                    2: {
+#if ($toolSiteActionSorterColumn >= 0)
+                    $toolSiteActionSorterColumn: {
                         // disable it by setting the property sorter to false
                         sorter: false
                     }
+#end
                 }
             })
 
@@ -133,6 +134,9 @@ ${includeLatestJQuery}
                     <thead>
                         <tr>
                             <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
+#if ($showDeploymentGroup)
+                            <th id="deployment_group" data-placeholder="$tlang.getString('tool.site.search.deployment_group')">$tlang.getString("tool.site.table.deployment_group")</th>
+#end
                             <th id="site_notes" data-placeholder="$tlang.getString('search.notes')">$tlang.getString("bl_notes")</th>
                             #if ($isAdmin) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
                         </tr>
@@ -146,6 +150,9 @@ ${includeLatestJQuery}
                                     #set($siteId=$toolSite.siteId)
                                     $!siteId
                                 </td>
+#if ($showDeploymentGroup)
+                                <td headers="deployment_group">$formattedText.escapeHtml($!toolSite.deploymentGroup)</td>
+#end
                                 <td headers="site_notes">$formattedText.escapeHtml($toolSite.notes)</td>
 
                                 #if ($isAdmin)

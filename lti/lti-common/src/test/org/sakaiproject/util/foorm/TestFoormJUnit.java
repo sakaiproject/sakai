@@ -233,6 +233,86 @@ public class TestFoormJUnit {
 
     }
 
+    // For deployment_id field test - mirrors the TOOL_MODEL declaration so blank values
+    // must collapse to a real null in the dataMap that is handed to the JDBC update.
+    static String [] test_deployment_id = {
+        "deployment_id:text:label=bl_deployment_id:maxlength=255:role=admin:archive=true"
+    };
+
+    @Test
+    public void testDeploymentIdBlankStoresAsNull() {
+        Foorm foorm = new Foorm();
+        Map<String,Object> parms = new HashMap<String,Object>();
+        parms.put("deployment_id", "");
+
+        Map<String,Object> dataMap = new HashMap<String,Object>();
+
+        String errors = foorm.formExtract(parms, test_deployment_id, null, true, dataMap, null);
+        assertNull("formExtract should not produce errors for blank deployment_id", errors);
+        assertTrue("dataMap should contain the deployment_id key", dataMap.containsKey("deployment_id"));
+        assertNull("blank deployment_id should be stored as null", dataMap.get("deployment_id"));
+    }
+
+    @Test
+    public void testDeploymentIdWhitespaceStoresAsNull() {
+        Foorm foorm = new Foorm();
+        Map<String,Object> parms = new HashMap<String,Object>();
+        parms.put("deployment_id", "   ");
+
+        Map<String,Object> dataMap = new HashMap<String,Object>();
+
+        String errors = foorm.formExtract(parms, test_deployment_id, null, true, dataMap, null);
+        assertNull("formExtract should not produce errors for whitespace deployment_id", errors);
+        assertNull("whitespace-only deployment_id should be stored as null", dataMap.get("deployment_id"));
+    }
+
+    @Test
+    public void testDeploymentIdValuePreserved() {
+        Foorm foorm = new Foorm();
+        Map<String,Object> parms = new HashMap<String,Object>();
+        parms.put("deployment_id", "07940580-b309-415e-a37c-914d387c1150");
+
+        Map<String,Object> dataMap = new HashMap<String,Object>();
+
+        String errors = foorm.formExtract(parms, test_deployment_id, null, true, dataMap, null);
+        assertNull("formExtract should not produce errors for a populated deployment_id", errors);
+        assertEquals("populated deployment_id should be stored verbatim",
+                "07940580-b309-415e-a37c-914d387c1150", dataMap.get("deployment_id"));
+    }
+
+    @Test
+    public void testDeploymentIdTrimmedBeforeStore() {
+        Foorm foorm = new Foorm();
+        Map<String,Object> parms = new HashMap<String,Object>();
+        parms.put("deployment_id", "  abc-123  ");
+
+        Map<String,Object> dataMap = new HashMap<String,Object>();
+
+        String errors = foorm.formExtract(parms, test_deployment_id, null, true, dataMap, null);
+        assertNull("formExtract should not produce errors", errors);
+        assertEquals("deployment_id should be trimmed before storage", "abc-123", dataMap.get("deployment_id"));
+    }
+
+    @Test
+    public void testDeploymentIdTruncatedToMaxLength() {
+        Foorm foorm = new Foorm();
+        StringBuilder oversize = new StringBuilder();
+        for (int i = 0; i < 260; i++) {
+            oversize.append('x');
+        }
+
+        Map<String,Object> parms = new HashMap<String,Object>();
+        parms.put("deployment_id", oversize.toString());
+
+        Map<String,Object> dataMap = new HashMap<String,Object>();
+
+        String errors = foorm.formExtract(parms, test_deployment_id, null, true, dataMap, null);
+        assertNull("formExtract should not produce errors when truncating", errors);
+        Object stored = dataMap.get("deployment_id");
+        assertTrue("stored deployment_id should be a String", stored instanceof String);
+        assertEquals("deployment_id should be truncated to maxlength", 255, ((String) stored).length());
+    }
+
     @Test
 	public void testIntegerFieldWord() {
 	Foorm foorm = new Foorm();

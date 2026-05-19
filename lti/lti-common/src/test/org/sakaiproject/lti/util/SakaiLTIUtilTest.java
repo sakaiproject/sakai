@@ -82,6 +82,24 @@ public class SakaiLTIUtilTest {
 	public void setUp() throws Exception {
 	}
 
+	@Test
+	public void testNormalizeLtiDeploymentIdForLaunch() {
+		assertNull(SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch(null));
+		assertNull(SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch(""));
+		assertNull(SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("   "));
+		assertNull(SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("\t\n"));
+		assertNull(SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("🌴🌴"));
+		assertEquals("Hello123", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("Hello 🌴 123"));
+		assertEquals("abc-def_9", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch(" abc-def_9 "));
+		assertEquals("abc-def-9", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch(" abc-def-9 "));
+		assertEquals("x_y-z", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("x_y-z!!!"));
+		assertEquals("07940580-b309-415e-a37c-914d387c1150",
+				SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("  07940580-b309-415e-a37c-914d387c1150  "));
+		assertEquals("caf", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("caf\u00e9"));
+		assertEquals("42", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("42"));
+		assertEquals("ENGR_01", SakaiLTIUtil.normalizeLtiDeploymentIdForLaunch("ENGR_01"));
+	}
+
 	/**
          * If it is null, blank, or has no equal signs return unchanged
          * If there is one equal sign return unchanged

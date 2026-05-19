@@ -224,6 +224,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	}
 
 	/**
+	 * @return true when the tool is configured for LTI 1.3 or both (not LTI 1.1 only).
+	 */
+	private boolean isLti13Tool(String toolId, String siteId) {
+		if (StringUtils.isBlank(toolId)) {
+			return false;
+		}
+		try {
+			Map<String, Object> toolMap = ltiService.getTool(Long.valueOf(toolId), siteId);
+			return toolMap != null && SakaiLTIUtil.isLTI13(toolMap);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Setup the velocity context and choose the template for the response.
 	 */
 	public String buildErrorPanelContext(VelocityPortlet portlet, Context context,
@@ -691,11 +706,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String authOIDC = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
 		context.put("authOIDC", authOIDC);
 
-		String site_id = toolBean.getSiteId();
-		String issuerURL = SakaiLTIUtil.getIssuer(site_id);
+		String issuerURL = SakaiLTIUtil.getIssuer();
 		context.put("issuerURL", issuerURL);
 
-		String deploymentId = SakaiLTIUtil.getDeploymentId(site_id);
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
 		context.put("deploymentId", deploymentId);
 
 		String configUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
@@ -774,7 +788,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		boolean retval = false;
 
 		Long tool_id = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 
 		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		if (clientId == null ) {
@@ -803,16 +816,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			tool.put(LTIService.LTI13_LMS_TOKEN, tokenurl);
 		}
 
-		String deployment_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_DEPLOYMENT_ID));
-		if ( deployment_id == null ) {
-			deployment_id = SakaiLTIUtil.getDeploymentId(site_id);
-			tool.put(LTIService.LTI13_LMS_DEPLOYMENT_ID, deployment_id);
-			retval = true;
-		}
-
 		String issuer = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ISSUER));
 		if ( issuer == null ) {
-			issuer = SakaiLTIUtil.getIssuer(site_id);
+			issuer = SakaiLTIUtil.getIssuer();
 			tool.put(LTIService.LTI13_LMS_ISSUER, issuer);
 			retval = true;
 		}
@@ -825,7 +831,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		boolean retval = false;
 
 		Long tool_id = toolBean.id;
-		String site_id = toolBean.siteId;
 
 		String clientId = StringUtils.trimToNull(toolBean.lti13ClientId);
 		if (clientId == null ) {
@@ -854,16 +859,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			toolBean.lti13LmsToken = tokenurl;
 		}
 
-		String deployment_id = StringUtils.trimToNull(toolBean.lti13LmsDeploymentId);
-		if ( deployment_id == null ) {
-			deployment_id = SakaiLTIUtil.getDeploymentId(site_id);
-			toolBean.lti13LmsDeploymentId = deployment_id;
-			retval = true;
-		}
-
 		String issuer = StringUtils.trimToNull(toolBean.lti13LmsIssuer);
 		if ( issuer == null ) {
-			issuer = SakaiLTIUtil.getIssuer(site_id);
+			issuer = SakaiLTIUtil.getIssuer();
 			toolBean.lti13LmsIssuer = issuer;
 			retval = true;
 		}
@@ -980,10 +978,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		String site_id = toolBean.siteId;
 		String clientId = toolBean.lti13ClientId;
-		String issuerURL = SakaiLTIUtil.getIssuer(site_id);
-		String deploymentId = SakaiLTIUtil.getDeploymentId(site_id);
+		String issuerURL = SakaiLTIUtil.getIssuer();
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
 
 		String sakaiConfigUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
 		sakaiConfigUrl += "?key=" + URLEncoder.encode(toolKey.toString());
@@ -1113,6 +1110,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<LtiToolSiteBean> ltiToolSiteBeans = ltiService.getToolSitesByToolIdAsBeans(tool_id, getSiteId(state));
 		context.put("ltiToolSites", ltiToolSiteBeans);
 
+		boolean showDeploymentGroup = isLti13Tool(tool_id, getSiteId(state));
+		context.put("showDeploymentGroup", showDeploymentGroup);
+		int toolSiteActionSorterColumn = -1;
+		if (ltiService.isAdmin(getSiteId(state))) {
+			toolSiteActionSorterColumn = showDeploymentGroup ? 3 : 2;
+		}
+		context.put("toolSiteActionSorterColumn", toolSiteActionSorterColumn);
+
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_site_deploy";
@@ -1148,6 +1153,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("previousPost", previousPost);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+		context.put("showDeploymentGroup", isLti13Tool(toolId, getSiteId(state)));
 
 		// Remove previous form inputs
 		state.removeAttribute(STATE_POST);
@@ -1222,13 +1228,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<String> insertSuccessSiteIds = new ArrayList<>();
 		List<String> insertErrorMessages = new ArrayList<>();
 
+		String adminSiteId = getSiteId(state);
+		boolean isLti13 = isLti13Tool(toolId, adminSiteId);
+		String deploymentGroup = isLti13 ? StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI_DEPLOYMENT_GROUP)) : null;
+
 		for (String inputSiteId : uniqueInputSiteIds) {
 			Properties props = new Properties();
 			props.setProperty("tool_id", toolId);
 			props.setProperty("SITE_ID", inputSiteId);
 			props.setProperty("notes", reqProps.getProperty("notes"));
+			if (deploymentGroup != null) {
+				props.setProperty(LTIService.LTI_DEPLOYMENT_GROUP, deploymentGroup);
+			}
 
-			Object retval = ltiService.insertToolSite(props, getSiteId(state));
+			Object retval = ltiService.insertToolSite(props, adminSiteId);
 
 			if (retval instanceof String) {	// Error
 				insertErrorMessages.add("SiteId=" + inputSiteId + ", retval=" + retval + ".");
@@ -1289,7 +1302,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		formOutput += formOutput2;
 		context.put("formOutput", formOutput);
 
-		String[] mappingFormInput = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), null, "^SITE_ID:.*");
+		boolean showDeploymentGroup = isLti13Tool(toolId, getSiteId(state));
+		context.put("showDeploymentGroup", showDeploymentGroup);
+		String excludeToolSiteInput = showDeploymentGroup ? "^SITE_ID:.*" : "^SITE_ID:.*|^deployment_group:.*";
+		String[] mappingFormInput = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), null, excludeToolSiteInput);
 		String formInput = ltiService.formInput(toolSiteBean, mappingFormInput);
 		context.put("formInput", formInput);
 
@@ -1319,6 +1335,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// find the tool id
 		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
 		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+
+		if (!isLti13Tool(toolId, getSiteId(state))) {
+			reqProps.remove(LTIService.LTI_DEPLOYMENT_GROUP);
+		}
 
 		// Save to DB
 		Object retval = ltiService.updateToolSite(Long.valueOf(id), reqProps, getSiteId(state));
@@ -1371,7 +1391,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String formOutput = ltiService.formOutput(toolBean, mappingFormOutput);
 
 		// Display toolSite attributes (Read-only)
-		String[] mappingFormOutput2 = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), "^SITE_ID:.*|^notes:.*", null);
+		boolean showDeploymentGroup = isLti13Tool(toolId, getSiteId(state));
+		context.put("showDeploymentGroup", showDeploymentGroup);
+		String includeToolSiteDeleteFields = showDeploymentGroup
+				? "^SITE_ID:.*|^notes:.*|^deployment_group:.*"
+				: "^SITE_ID:.*|^notes:.*";
+		String[] mappingFormOutput2 = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), includeToolSiteDeleteFields, null);
 		String formOutput2 = ltiService.formOutput(toolSiteBean, mappingFormOutput2);
 		formOutput += formOutput2;
 		context.put("formOutput", formOutput);
@@ -1613,7 +1638,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		minimalLTI13(toolBean);
 
 		String siteId = toolBean.siteId;
-		context.put("issuerURL", SakaiLTIUtil.getIssuer(siteId));
+		context.put("issuerURL", SakaiLTIUtil.getIssuer());
 
 		// If siteId is not blank, there is no option for visibility since the tool is always be visible in the site; otherwise, the tool can be visible or stealth
 		String excludePattern = StringUtils.isNotEmpty(siteId) ? "^visible:.*" : "^SITE_ID:.*";

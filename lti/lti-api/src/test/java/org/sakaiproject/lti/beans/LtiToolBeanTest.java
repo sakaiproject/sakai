@@ -51,7 +51,7 @@ public class LtiToolBeanTest {
         testMap.put("description", "Test tool description");
         testMap.put("status", "enable");
         testMap.put("visible", "visible");
-        testMap.put("deployment_id", 789L);
+        testMap.put("deployment_id", "deployment-789");
         testMap.put("launch", "https://example.com/tool/launch");
         testMap.put("newpage", Integer.valueOf(1)); // LTI_TOOL_NEWPAGE_ON
         testMap.put("frameheight", Integer.valueOf(800));
@@ -97,7 +97,6 @@ public class LtiToolBeanTest {
         // LTI 1.3 security values from the LMS
         testMap.put("lti13_lms_issuer", "https://lms.com");
         testMap.put("lti13_client_id", "client123");
-        testMap.put("lti13_lms_deployment_id", "deployment456");
         testMap.put("lti13_lms_keyset", "https://lms.com/keyset");
         testMap.put("lti13_lms_endpoint", "https://lms.com/endpoint");
         testMap.put("lti13_lms_token", "https://lms.com/token");
@@ -147,7 +146,7 @@ public class LtiToolBeanTest {
         assertEquals("Test tool description", tool.getDescription());
         assertEquals("enable", tool.getStatus());
         assertEquals("visible", tool.getVisible());
-        assertEquals(Long.valueOf(789L), tool.getDeploymentId());
+        assertEquals("deployment-789", tool.getDeploymentId());
         assertEquals("https://example.com/tool/launch", tool.getLaunch());
         assertEquals(Integer.valueOf(1), tool.getNewpage()); // LTI_TOOL_NEWPAGE_ON
         assertEquals(Integer.valueOf(800), tool.getFrameheight());
@@ -192,7 +191,6 @@ public class LtiToolBeanTest {
         // LTI 1.3 security values from the LMS
         assertEquals("https://lms.com", tool.getLti13LmsIssuer());
         assertEquals("client123", tool.getLti13ClientId());
-        assertEquals("deployment456", tool.getLti13LmsDeploymentId());
         assertEquals("https://lms.com/keyset", tool.getLti13LmsKeyset());
         assertEquals("https://lms.com/endpoint", tool.getLti13LmsEndpoint());
         assertEquals("https://lms.com/token", tool.getLti13LmsToken());
@@ -226,7 +224,7 @@ public class LtiToolBeanTest {
         tool.setDescription("Test toMap description");
         tool.setStatus("disable");
         tool.setVisible("stealth");
-        tool.setDeploymentId(101112L);
+        tool.setDeploymentId("deployment-101112");
         tool.setLaunch("https://test.com/launch");
         tool.setNewpage(0); // LTI_TOOL_NEWPAGE_OFF
         tool.setFrameheight(1000);
@@ -264,7 +262,6 @@ public class LtiToolBeanTest {
         
         tool.setLti13LmsIssuer("https://test.com");
         tool.setLti13ClientId("testclient");
-        tool.setLti13LmsDeploymentId("testdeployment");
         tool.setLti13LmsKeyset("https://test.com/keyset");
         tool.setLti13LmsEndpoint("https://test.com/endpoint");
         tool.setLti13LmsToken("https://test.com/token");
@@ -295,7 +292,7 @@ public class LtiToolBeanTest {
         assertEquals("Test toMap description", result.get("description"));
         assertEquals("disable", result.get("status"));
         assertEquals("stealth", result.get("visible"));
-        assertEquals(101112L, result.get("deployment_id"));
+        assertEquals("deployment-101112", result.get("deployment_id"));
         assertEquals("https://test.com/launch", result.get("launch"));
         assertEquals(Integer.valueOf(0), result.get("newpage")); // LTI_TOOL_NEWPAGE_OFF
         assertEquals(1000, result.get("frameheight"));
@@ -340,7 +337,6 @@ public class LtiToolBeanTest {
         // LTI 1.3 security values from the LMS
         assertEquals("https://test.com", result.get("lti13_lms_issuer"));
         assertEquals("testclient", result.get("lti13_client_id"));
-        assertEquals("testdeployment", result.get("lti13_lms_deployment_id"));
         assertEquals("https://test.com/keyset", result.get("lti13_lms_keyset"));
         assertEquals("https://test.com/endpoint", result.get("lti13_lms_endpoint"));
         assertEquals("https://test.com/token", result.get("lti13_lms_token"));
@@ -429,7 +425,7 @@ public class LtiToolBeanTest {
         
         // Test different number types
         mapWithVariousTypes.put("id", Integer.valueOf(123)); // Integer instead of Long
-        mapWithVariousTypes.put("deployment_id", "456"); // String instead of Long
+        mapWithVariousTypes.put("deployment_id", "deployment-456"); // LTI 1.3 string value
         mapWithVariousTypes.put("frameheight", 600L); // Long instead of Integer
         mapWithVariousTypes.put("lti13_auto_state", "2"); // String instead of Integer
         
@@ -446,7 +442,7 @@ public class LtiToolBeanTest {
         
         // Verify type conversions worked
         assertEquals(Long.valueOf(123L), tool.getId());
-        assertEquals(Long.valueOf(456L), tool.getDeploymentId());
+        assertEquals("deployment-456", tool.getDeploymentId());
         assertEquals(Integer.valueOf(600), tool.getFrameheight());
         assertEquals(Integer.valueOf(2), tool.getLti13AutoState());
         assertTrue(tool.getPlLaunch());
@@ -461,7 +457,7 @@ public class LtiToolBeanTest {
         
         // Test all the weird number types that come from different databases
         mapWithDatabaseTypes.put("id", Double.valueOf(999.0)); // Double from Oracle
-        mapWithDatabaseTypes.put("deployment_id", Float.valueOf(888.0f)); // Float from MySQL
+        mapWithDatabaseTypes.put("deployment_id", "deployment-888"); // LTI 1.3 string value
         mapWithDatabaseTypes.put("frameheight", Short.valueOf((short)700)); // Short
         mapWithDatabaseTypes.put("lti13_auto_state", Byte.valueOf((byte)2)); // Byte
         
@@ -470,7 +466,7 @@ public class LtiToolBeanTest {
         
         // Verify all number types converted correctly
         assertEquals("Double should convert to Long", Long.valueOf(999L), tool.getId());
-        assertEquals("Float should convert to Long", Long.valueOf(888L), tool.getDeploymentId());
+        assertEquals("Deployment ID should be preserved as a string", "deployment-888", tool.getDeploymentId());
         assertEquals("Short should convert to Integer", Integer.valueOf(700), tool.getFrameheight());
         assertEquals("Byte should convert to Integer", Integer.valueOf(2), tool.getLti13AutoState());
     }
@@ -481,7 +477,7 @@ public class LtiToolBeanTest {
         
         // Test string representations of numbers (common from databases)
         mapWithStringNumbers.put("id", "777"); // String number
-        mapWithStringNumbers.put("deployment_id", "-666"); // Negative string number
+        mapWithStringNumbers.put("deployment_id", "deployment--666"); // LTI 1.3 string value
         mapWithStringNumbers.put("frameheight", "0"); // Zero string
         mapWithStringNumbers.put("lti13_auto_state", "3"); // Single digit string
         
@@ -490,7 +486,7 @@ public class LtiToolBeanTest {
         
         // Verify string numbers converted correctly
         assertEquals("String '777' should convert to Long", Long.valueOf(777L), tool.getId());
-        assertEquals("String '-666' should convert to Long", Long.valueOf(-666L), tool.getDeploymentId());
+        assertEquals("Deployment ID should be preserved as a string", "deployment--666", tool.getDeploymentId());
         assertEquals("String '0' should convert to Integer", Integer.valueOf(0), tool.getFrameheight());
         assertEquals("String '3' should convert to Integer", Integer.valueOf(3), tool.getLti13AutoState());
     }
@@ -501,7 +497,7 @@ public class LtiToolBeanTest {
         
         // Test decimal strings (should truncate like LTIUtil)
         mapWithDecimals.put("id", "555.0"); // Decimal string with .0
-        mapWithDecimals.put("deployment_id", "444.7"); // Decimal string with decimal part
+        mapWithDecimals.put("deployment_id", "deployment.444.7"); // LTI 1.3 string value
         mapWithDecimals.put("frameheight", "333.99"); // Decimal string for integer field
         mapWithDecimals.put("lti13_auto_state", "2.5"); // Decimal string for integer field
         
@@ -510,7 +506,7 @@ public class LtiToolBeanTest {
         
         // Verify decimal strings are truncated correctly
         assertEquals("String '555.0' should truncate to 555", Long.valueOf(555L), tool.getId());
-        assertEquals("String '444.7' should truncate to 444", Long.valueOf(444L), tool.getDeploymentId());
+        assertEquals("Deployment ID should be preserved as a string", "deployment.444.7", tool.getDeploymentId());
         assertEquals("String '333.99' should truncate to 333", Integer.valueOf(333), tool.getFrameheight());
         assertEquals("String '2.5' should truncate to 2", Integer.valueOf(2), tool.getLti13AutoState());
     }
@@ -519,7 +515,7 @@ public class LtiToolBeanTest {
     public void testInvalidStringHandling() {
         Map<String, Object> mapWithInvalidStrings = new HashMap<>();
         
-        // Test invalid string values (should return null)
+        // Test invalid string values (should return null for numeric fields)
         mapWithInvalidStrings.put("id", "invalid"); // Invalid string
         mapWithInvalidStrings.put("deployment_id", ""); // Empty string
         mapWithInvalidStrings.put("frameheight", "not-a-number"); // Non-numeric string
@@ -530,7 +526,7 @@ public class LtiToolBeanTest {
         
         // Verify invalid strings return null
         assertNull("Invalid string 'invalid' should return null", tool.getId());
-        assertNull("Empty string should return null", tool.getDeploymentId());
+        assertEquals("Empty deployment ID should be preserved as a string", "", tool.getDeploymentId());
         assertNull("Non-numeric string should return null", tool.getFrameheight());
         assertNull("Mixed string should return null", tool.getLti13AutoState());
     }
@@ -541,11 +537,10 @@ public class LtiToolBeanTest {
         
         // Test BigDecimal (common from databases)
         java.math.BigDecimal bigDecimal111 = new java.math.BigDecimal("111.45");
-        java.math.BigDecimal bigDecimal222 = new java.math.BigDecimal("222");
         java.math.BigDecimal bigDecimal333 = new java.math.BigDecimal("333.99");
         
         mapWithBigDecimals.put("id", bigDecimal111);
-        mapWithBigDecimals.put("deployment_id", bigDecimal222);
+        mapWithBigDecimals.put("deployment_id", "deployment-222");
         mapWithBigDecimals.put("frameheight", bigDecimal333);
         
         LtiToolBean tool = LtiToolBean.of(mapWithBigDecimals);
@@ -553,7 +548,7 @@ public class LtiToolBeanTest {
         
         // Verify BigDecimal conversion (should truncate decimals)
         assertEquals("BigDecimal 111.45 should truncate to 111", Long.valueOf(111L), tool.getId());
-        assertEquals("BigDecimal 222 should convert to 222", Long.valueOf(222L), tool.getDeploymentId());
+        assertEquals("Deployment ID should be preserved as a string", "deployment-222", tool.getDeploymentId());
         assertEquals("BigDecimal 333.99 should truncate to 333", Integer.valueOf(333), tool.getFrameheight());
     }
 

@@ -61,6 +61,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.event.api.Event;
 
 import org.sakaiproject.lti.api.LTIException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
@@ -424,7 +425,7 @@ public class PlusServiceImpl implements PlusService {
 		Map<String, String> payload = new TreeMap<>();
 		payload.put("issuer", launchJWT.issuer);
 		payload.put("client_id", launchJWT.audience); // Note name change
-		payload.put("deployment_id", launchJWT.deployment_id);
+		payload.put(LTIService.LTI_DEPLOYMENT_ID, launchJWT.deployment_id);
 		payload.put("oidc_token", tenant.getOidcToken());
 		payload.put("oidc_audience", tenant.getOidcAudience());
 		payload.put(LTIConstants.LTI_MESSAGE_TYPE, launchJWT.message_type);
