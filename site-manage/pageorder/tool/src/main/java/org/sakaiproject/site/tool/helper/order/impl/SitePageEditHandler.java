@@ -339,7 +339,7 @@ public class SitePageEditHandler {
 
     public boolean isVisible(SitePage page) {
         for (ToolConfiguration placement : page.getTools()) {
-            Properties roleConfig = placement.getConfig();
+            Properties roleConfig = placement.getPlacementConfig();
             String visibility = roleConfig.getProperty(ToolManager.PORTAL_VISIBLE);
 
             if (!"false".equals(visibility)) {
@@ -611,6 +611,9 @@ public class SitePageEditHandler {
             }
 
             if (saveChanges) {
+                roleConfig.setProperty(ToolManager.PORTAL_VISIBLE, visibility);
+                placement.save();
+
                 if (getSitePropertySpecialHidden() && "sakai.resources".equals(toolId)) {
                     String siteCollectionId = contentHostingService.getSiteCollection(placement.getSiteId());
                     try {
@@ -623,8 +626,6 @@ public class SitePageEditHandler {
                         log.warn("Exception occurred when attempting to add/remove hidden property from site collection {}", siteCollectionId, e);
                     }
                 }
-                roleConfig.setProperty(ToolManager.PORTAL_VISIBLE, visibility);
-                placement.save();
             }
         }
     }
