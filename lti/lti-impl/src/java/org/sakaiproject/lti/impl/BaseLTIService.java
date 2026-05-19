@@ -794,7 +794,7 @@ public abstract class BaseLTIService implements LTIService {
 		Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
 		String contentSite = (String) reqProps.get(LTIService.LTI_SITE_ID);
 		log.debug("checking if tool {} is stealth and about to deploy to site {}, visible={}", toolKey, contentSite, visible);
-		if ( contentSite != null && visible != null && visible.equals(LTIService.LTI_VISIBLE_STEALTH) ) {
+		if ( contentSite != null && visible != null && visible == LTIService.LTI_VISIBLE_STEALTH ) {
 			boolean isDeployed = toolDeployed(toolKey, contentSite);
 			if ( isDeployed ) {
 				// The tool is already deployed to the site, our work is done
