@@ -1927,6 +1927,33 @@ public class LTI13Servlet extends HttpServlet {
 		return true;
 	}
 
+	private static boolean isGradebookReadonlyView(org.sakaiproject.lti.beans.LtiToolBean tool) {
+		return LineItemUtil.isGradebookReadonlyView(
+				tool != null ? tool.allowgradebookreadonly : null,
+				tool != null ? tool.allowlineitems : null);
+	}
+
+	/**
+	 * @return true if the response was written (caller should return)
+	 */
+	private static boolean rejectIfLineItemReadOnly(org.sakaiproject.lti.beans.LtiToolBean tool, String contextId,
+			Long toolId, Long lineitemKey, HttpServletResponse response) {
+		if (!isGradebookReadonlyView(tool) || lineitemKey == null) {
+			return false;
+		}
+		Assignment column = LineItemUtil.getColumnByIdDAO(contextId, lineitemKey);
+		if (column == null) {
+			return false;
+		}
+		Map<String, String> assignmentRefToToolKey = LineItemUtil.getExternalIdsForToolAssignments(contextId);
+		if (!LineItemUtil.isColumnWritableByTool(contextId, column, toolId, true, assignmentRefToToolKey)) {
+			LTI13Util.return403(response, "Line item is read-only");
+			log.warn("Rejecting write to read-only line item column_id={} tool_id={}", lineitemKey, toolId);
+			return true;
+		}
+		return false;
+	}
+
 	protected org.sakaiproject.lti.beans.LtiToolBean loadToolForContent(org.sakaiproject.lti.beans.LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
 		Long toolKey = LTIUtil.toLongKey(content.toolId);
 		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
@@ -2187,6 +2214,10 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
+		if (rejectIfLineItemReadOnly(tool, site.getId(), sat.tool_id, lineitem_key, response)) {
+			return;
+		}
+
 		Assignment retval;
 		try {
 			if (log.isDebugEnabled()) {
@@ -2319,11 +2350,13 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// Find the line items created for this tool
+		// Find the line items created for this tool (or entire gradebook when configured)
 		if (log.isDebugEnabled()) {
 			log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		}
-		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
+		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
+		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter,
+				gradebookReadonlyView);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
@@ -2425,10 +2458,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String context_id = site.getId();
+		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
 		Assignment a = null;
 
 		if ( lineitem_key != null ) {
-			a = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, lineitem_key);
+			a = LineItemUtil.getColumnForToolReadDAO(context_id, sat.tool_id, lineitem_key, gradebookReadonlyView);
 		} else if ( content != null ) {
 			String assignment_label = (String) content.title;
 			a = LineItemUtil.getColumnByLabelDAO(context_id, sat.tool_id, assignment_label);
@@ -2442,7 +2476,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Return the line item metadata (same source as list: assignment-backed fields from Assignments when applicable)
 		if ( ! results ) {
-			SakaiLineItem item = LineItemUtil.getLineItemForToolColumn(signed_placement, context_id, sat.tool_id, a);
+			SakaiLineItem item = LineItemUtil.getLineItemForToolColumn(signed_placement, context_id, sat.tool_id, a,
+					gradebookReadonlyView);
 			if (item == null) {
 				LTI13Util.return404(response, "Line item not exposed for this tool");
 				log.error("Line item not exposed for this tool; column_id={} context_id={} tool_id={}",
@@ -2663,6 +2698,9 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String context_id = site.getId();
+		if (rejectIfLineItemReadOnly(tool, context_id, sat.tool_id, lineitem_key, response)) {
+			return;
+		}
 		if ( LineItemUtil.deleteAssignmentByKeyDAO(context_id, sat.tool_id, lineitem_key) ) {
 			return;
 		}

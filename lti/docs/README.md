@@ -15,6 +15,7 @@ Documentation:
 * [Setting up Tsugi in Sakai for Testing](TSUGI.md)
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
 * [Using LTI with the Assignments Tool](https://www.tsugi.org/md/ASSIGNMENT.md)
+* [Sakai LTI 1.3 / Advantage extensions](LTI13_EXTENSIONS.md)
 * [Windows PostMessage Support in Sakai](POSTMESSAGE.md)
 * [LTI Dynamic Registration Support in Sakai](PROVISION.md)
 * [Using the IMS Reference Implementation with Sakai](IMS_RI.md)

@@ -79,6 +79,7 @@ public class LtiToolBeanTest {
         // Services
         testMap.put("allowoutcomes", Integer.valueOf(1));
         testMap.put("allowlineitems", Integer.valueOf(0));
+        testMap.put("allowgradebookreadonly", Integer.valueOf(1));
         testMap.put("allowroster", Integer.valueOf(1));
         
         // Configuration
@@ -173,6 +174,7 @@ public class LtiToolBeanTest {
         // Services
         assertTrue(tool.getAllowoutcomes());
         assertFalse(tool.getAllowlineitems());
+        assertTrue(tool.getAllowgradebookreadonly());
         assertTrue(tool.getAllowroster());
         
         // Configuration
@@ -247,6 +249,7 @@ public class LtiToolBeanTest {
         
         tool.setAllowoutcomes(false);
         tool.setAllowlineitems(true);
+        tool.setAllowgradebookreadonly(false);
         tool.setAllowroster(false);
         
         tool.setDebug(0); // LTI_TOOL_DEBUG_OFF
@@ -319,6 +322,7 @@ public class LtiToolBeanTest {
         // Services
         assertEquals(Integer.valueOf(0), result.get("allowoutcomes"));
         assertEquals(Integer.valueOf(1), result.get("allowlineitems"));
+        assertEquals(Integer.valueOf(0), result.get("allowgradebookreadonly"));
         assertEquals(Integer.valueOf(0), result.get("allowroster"));
         
         // Configuration
@@ -622,7 +626,7 @@ public class LtiToolBeanTest {
         // Deliberately omit all boolean fields to test null handling
         // No pl_launch, pl_linkselection, pl_contextlaunch, etc.
         // No sendname, sendemailaddr, pl_privacy
-        // No allowoutcomes, allowlineitems, allowroster
+        // No allowoutcomes, allowlineitems, allowgradebookreadonly, allowroster
         
         LtiToolBean tool = LtiToolBean.of(mapWithMissingBooleans);
         assertNotNull(tool);
@@ -644,6 +648,7 @@ public class LtiToolBeanTest {
         assertNull("pl_privacy should be null", tool.getPlPrivacy());
         assertNull("allowoutcomes should be null", tool.getAllowoutcomes());
         assertNull("allowlineitems should be null", tool.getAllowlineitems());
+        assertNull("allowgradebookreadonly should be null", tool.getAllowgradebookreadonly());
         assertNull("allowroster should be null", tool.getAllowroster());
         
         // Convert Bean back to Map
@@ -665,6 +670,7 @@ public class LtiToolBeanTest {
         assertFalse("pl_privacy should not be in map", convertedMap.containsKey("pl_privacy"));
         assertFalse("allowoutcomes should not be in map", convertedMap.containsKey("allowoutcomes"));
         assertFalse("allowlineitems should not be in map", convertedMap.containsKey("allowlineitems"));
+        assertFalse("allowgradebookreadonly should not be in map", convertedMap.containsKey("allowgradebookreadonly"));
         assertFalse("allowroster should not be in map", convertedMap.containsKey("allowroster"));
         
         // Verify only the fields we set are in the map
