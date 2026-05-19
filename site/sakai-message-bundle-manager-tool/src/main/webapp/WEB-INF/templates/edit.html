@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: bootstrap" />
-  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})" />
-  <div th:include="fragments/common :: admin (${isAdmin})" />
+  <div th:replace="~{fragments/common :: bootstrap}" />
+  <div th:insert="~{fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})}" />
+  <div th:insert="~{fragments/common :: admin (${isAdmin})}" />
   <div th:if="${isLoadBundlesFromDb} and ${isAdmin}">
     <div class="portletBody">
-      <div id="menu" th:include="fragments/menus :: main (edit)" />
+      <div id="menu" th:insert="~{fragments/menus :: main (edit)}" />
       <h3 th:text="#{edit.edit}">Edit Message</h3>
       <form class="form-horizontal" action="#" th:action="@{/edit}" th:object="${messageEntity}" method="post">
         <input type="hidden" th:field="*{id}" />

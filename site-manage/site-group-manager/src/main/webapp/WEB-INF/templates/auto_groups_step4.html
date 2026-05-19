@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: jQuery" />
+  <div th:replace="~{fragments/common :: scripts}" />
   <div class="portletBody">
-    <div id="menu" th:include="fragments/menus :: main (autogroups)" />
+    <div id="menu" th:insert="~{fragments/menus :: main (autogroups)}" />
     <div><h1 th:text="#{autogroups.header.wizard}"></h1></div>
-    <div th:replace="fragments/wizard :: step (step4)"></div>
+    <div th:replace="~{fragments/wizard :: step (step4)}"></div>
     <br/>
     <div class="row">
       <div class="col-sm-8">
@@ -67,6 +67,6 @@
       </div>
     </div>
   </div>
-  <script th:replace="fragments/javascript :: autoGroupsStep4Js" />
+  <script th:replace="~{fragments/javascript :: autoGroupsStep4Js}" />
 </body>
 </html>

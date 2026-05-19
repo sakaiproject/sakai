@@ -6,29 +6,29 @@
 				<li class="breadcrumb-item">
 					<a href="#" aria-expanded="true" th:attr="onclick=|toggleFolder('${typeKey}','${rowId}')|" th:text="${typesMap.get(typeKey)}" role="button" tabindex="0"></a>
 				</li>
-				<li th:replace="fragments/driveItems :: printHierarchyLink(${currentItem}, true)" />
+				<li th:replace="~{fragments/driveItems :: printHierarchyLink(${currentItem}, true)}" />
 				</ol>
 			</th:block>
 		</div>
 
 		<div th:if="${itemsList.empty}" th:text="#{container_empty}" class="row sak-banner-info"></div>
 		<div th:if="${!itemsList.empty}" class="row display-flex">
-			<th:block th:each="item: ${itemsList}">
-				<div th:insert="fragments/driveItems :: printItem(${item})" class="video-item col-lg-3 col-md-4 col-sm-12" th:tabindex="${stat.first} ? 0 : -1"></div>
+			<th:block th:each="item, stat: ${itemsList}">
+				<div th:insert="~{fragments/driveItems :: printItem(${item})}" class="video-item col-lg-3 col-md-4 col-sm-12" th:tabindex="${stat.first} ? 0 : -1"></div>
 			</th:block>
 		</div>
 	</div>
 	
 	<th:block th:each="item: ${itemsList}">
 		<th:block th:if="${ item.isFolder() and item.hasChildren() }">
-			<div th:replace="fragments/driveItems :: exploreAndPrintItems(currentItem=${item}, itemsList=${item.getChildren()}, level=${level + 1})"></div>
+			<div th:replace="~{fragments/driveItems :: exploreAndPrintItems(currentItem=${item}, itemsList=${item.getChildren()}, level=${level + 1})}"></div>
 		</th:block>
 	</th:block>
 </th:block>
 
 <th:block th:fragment="printHierarchyLink(item, first)">
 	<th:block th:if="${item.parent}">
-		<li th:replace="fragments/driveItems :: printHierarchyLink(${item.parent}, false)" />
+		<li th:replace="~{fragments/driveItems :: printHierarchyLink(${item.parent}, false)}" />
 	</th:block>
 	<li class="breadcrumb-item">
 		<a th:if="${!first}" href="#" aria-expanded="true" th:attr="onclick=|toggleFolder('${typeKey}', 'f_${item.id}')|" th:text="${item.name}" role="button" tabindex="-1"></a>

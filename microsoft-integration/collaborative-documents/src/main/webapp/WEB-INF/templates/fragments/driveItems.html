@@ -1,24 +1,24 @@
 <th:block th:fragment="printObject(item)" th:with="df=#{date.format}">
 	<th:block th:if="${item}">
 		<th:block th:if="${item instanceof T(org.sakaiproject.microsoft.api.data.MicrosoftTeamWrapper)}">
-			<th:block th:replace="fragments/driveItems :: printTeam(${item})"></th:block>
+			<th:block th:replace="~{fragments/driveItems :: printTeam(${item})}"></th:block>
 		</th:block>
 
 		<th:block th:if="${item instanceof T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem)}">
-			<th:block th:replace="fragments/driveItems :: printFolder(${item})"></th:block>
+			<th:block th:replace="~{fragments/driveItems :: printFolder(${item})}"></th:block>
 		</th:block>
 	</th:block>
 </th:block>
 
 <th:block th:fragment="printTeam(item)">
 	<div th:class="${allowCreateFolders or allowCreateFiles}? 'breadcrumb-header'">
-		<th:block th:replace="fragments/driveItems :: menuNew(${item})" />
+		<th:block th:replace="~{fragments/driveItems :: menuNew(${item})}" />
 	</div>
 	
 	<th:block th:if="${item.hasItems()}">
-		<div th:replace="fragments/driveItems :: printItemsHeader()"></div>
+		<div th:replace="~{fragments/driveItems :: printItemsHeader()}"></div>
 		<th:block th:each="elem: ${item.items}">
-			<div th:replace="fragments/driveItems :: printItem(${elem})"></div>
+			<div th:replace="~{fragments/driveItems :: printItem(${elem})}"></div>
 		</th:block>
 	</th:block>
 	<div th:if="${!item.hasItems()}" th:text="#{container_empty}" class="sak-banner-info"></div>
@@ -31,14 +31,14 @@
 <th:block th:fragment="printFolder(item)">
 	<div class="folder-container" th:id="${item.id}">
 		<div th:class="${allowCreateFolders or allowCreateFiles}? 'breadcrumb-header'">
-			<th:block th:replace="fragments/driveItems :: menuNew(${item})" />
-			<th:block th:replace="fragments/driveItems :: printBreadcrumbs(${item})" />
+			<th:block th:replace="~{fragments/driveItems :: menuNew(${item})}" />
+			<th:block th:replace="~{fragments/driveItems :: printBreadcrumbs(${item})}" />
 		</div>
 		
 		<th:block th:if="${item.hasChildren()}">
-			<div th:replace="fragments/driveItems :: printItemsHeader()"></div>
+			<div th:replace="~{fragments/driveItems :: printItemsHeader()}"></div>
 			<th:block th:each="elem: ${item.children}">
-				<div th:replace="fragments/driveItems :: printItem(${elem})"></div>
+				<div th:replace="~{fragments/driveItems :: printItem(${elem})}"></div>
 			</th:block>
 		</th:block>
 		<div th:if="${!item.hasChildren()}" th:text="#{container_empty}" class="sak-banner-info"></div>
@@ -71,13 +71,13 @@
 		<li class="breadcrumb-item">
 			<a href="#" th:attr="onclick=|loadTeam('${currentTeam?.id}')|" th:text="${currentTeam?.name}" role="button" tabindex="0"></a>
 		</li>
-		<li th:replace="fragments/driveItems :: printHierarchyLink(${item}, true)" />
+		<li th:replace="~{fragments/driveItems :: printHierarchyLink(${item}, true)}" />
 	</ol>
 </th:block>
 
 <th:block th:fragment="printHierarchyLink(item, first)">
 	<th:block th:if="${item.parent}">
-		<li th:replace="fragments/driveItems :: printHierarchyLink(${item.parent}, false)" />
+		<li th:replace="~{fragments/driveItems :: printHierarchyLink(${item.parent}, false)}" />
 	</th:block>
 	<li class="breadcrumb-item">
 		<a th:if="${!first}" href="#" th:data-itemid="${item.id}" onclick="loadFolder(this)" th:text="${item.name}" role="button" tabindex="-1" />

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: jQuery" />
+  <div th:replace="~{fragments/common :: scripts}" />
   <div class="portletBody">
-    <div id="menu" th:include="fragments/menus :: main (joinableset)" />
+    <div id="menu" th:insert="~{fragments/menus :: main (joinableset)}" />
     <div>
       <h1 th:if="${joinableSetForm.joinableSetId == null}" th:text="#{joinableset.header.new}"></h1>
       <h1 th:if="${joinableSetForm.joinableSetId != null}" th:text="#{joinableset.header.edit}"></h1>
@@ -158,6 +158,6 @@
       </div>
     </div>
   </div>
-  <script th:replace="fragments/javascript :: joinableSetJs" />
+  <script th:replace="~{fragments/javascript :: joinableSetJs}" />
 </body>
 </html>

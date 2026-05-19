@@ -12,23 +12,23 @@
 <div th:fragment="bootstrap">
 	<script>includeLatestJQuery('microsoft-admin');</script>
 	<script>includeWebjarLibrary('bootstrap');</script>
-	<script th:inline="javascript">
+	<script>
 		(function() {
-			const toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
-			if (toolId) {
-			  setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+			const toolFrameId = window.name || (window.frameElement && window.frameElement.id);
+			if (toolFrameId) {
+			  setMainFrameHeight(toolFrameId);
 			}
 		})();
 	</script>
 </div>
 
-<div th:fragment="admin (admin)">
+<th:block th:fragment="admin (admin)">
 	<div th:unless="${admin}" class="sak-banner-error" role="alert" th:text="#{common_danger}">
 		You must be an admin to use this tool, please contact your Administrator.
 	</div>
-</div>
+</th:block>
 
-<div th:fragment="error">
+<th:block th:fragment="error">
 	<div th:if="${exception_error != null}">
 		<div class="sak-banner-error" id="exception_error"  th:text="${exception_error}"></div>
 
@@ -38,6 +38,6 @@
 			})();
 		</script>
 	</div>
-</div>
+</th:block>
 </body>
 </html>

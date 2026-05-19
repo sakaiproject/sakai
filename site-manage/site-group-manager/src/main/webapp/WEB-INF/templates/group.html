@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/common :: head" />
+<head th:replace="~{fragments/common :: head}" />
 <body>
-  <div th:replace="fragments/common :: jQuery" />
+  <div th:replace="~{fragments/common :: scripts}" />
   <div class="portletBody">
-    <div id="menu" th:include="fragments/menus :: main (group)" />
+    <div id="menu" th:insert="~{fragments/menus :: main (group)}" />
     <div>
       <h1 th:if="${groupForm.groupId == null}" th:text="#{groups.header.new}"></h1>
       <h1 th:if="${groupForm.groupId != null}" th:text="#{groups.header.edit}"></h1>
@@ -104,6 +104,6 @@
       </div>
     </form>
   </div>
-  <script th:replace="fragments/javascript :: groupJs" />
+  <script th:replace="~{fragments/javascript :: groupJs}" />
 </body>
 </html>

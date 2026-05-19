@@ -65,7 +65,7 @@
 						<div class="accordion-body">
 							<div th:if="${itemsList}" class="row display-flex">
 								<th:block th:each="item, stat: ${itemsList}">
-									<div th:insert="fragments/driveItems :: printItem(${item})" class="video-item col-lg-3 col-md-4 col-sm-12" th:tabindex="${stat.first} ? 0 : -1"></div>
+									<div th:insert="~{fragments/driveItems :: printItem(${item})}" class="video-item col-lg-3 col-md-4 col-sm-12" th:tabindex="${stat.first} ? 0 : -1"></div>
 								</th:block>
 							</div>
 							<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
@@ -129,7 +129,7 @@
 				<div class="accordion-collapse collapse" th:classappend="${expanded} ? 'show'" th:id="|section_tree_${typeKey}|">
 					<div class="accordion-body">
 						<th:block th:if="${itemsList}">
-							<div th:replace="fragments/driveItems :: exploreAndPrintItems(rowId=|t_${typeKey}|, itemsList=${itemsList}, level=0)"></div>
+							<div th:replace="~{fragments/driveItems :: exploreAndPrintItems(rowId=|t_${typeKey}|, itemsList=${itemsList}, level=0)}"></div>
 						</th:block>
 						<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
 					</div>

@@ -26,7 +26,7 @@
 		<div class="accordion-collapse collapse team-container" th:classappend="${expanded}? 'show'" th:id="${teamKey}" data-bs-parent="#accordion_all">
 			<div class="accordion-body panel-body">
 				<th:block th:if="${expanded and currentItem != null}">
-					<div th:replace="fragments/driveItems :: printObject(${currentItem})"></div>
+					<div th:replace="~{fragments/driveItems :: printObject(${currentItem})}"></div>
 				</th:block>
 				<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
 			</div>
