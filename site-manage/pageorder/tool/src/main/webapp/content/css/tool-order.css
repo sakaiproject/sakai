@@ -1,0 +1,198 @@
+.tool-order {
+  max-width: 820px;
+}
+
+.tool-order-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.tool-order-heading h1 {
+  margin-bottom: 0.25rem;
+}
+
+.tool-order-site-title {
+  color: var(--sakai-text-color-2);
+  margin: 0;
+}
+
+.tool-order-list-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: 1rem 0 0.5rem;
+}
+
+.tool-order-list-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.tool-order-list {
+  margin-bottom: 1rem;
+}
+
+.tool-order-row {
+  background: var(--sakai-background-color-2);
+  border-color: var(--sakai-border-color);
+  padding: 0.6rem 0.75rem;
+}
+
+.tool-order .btn-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0;
+}
+
+.tool-order-row.dragging {
+  opacity: 0.55;
+}
+
+.tool-order-row.drag-over {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -2px;
+}
+
+.tool-order-busy {
+  cursor: progress;
+}
+
+.tool-order-row-main {
+  align-items: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.tool-order-move-controls,
+.tool-order-row-actions,
+.tool-order-edit-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.tool-order-row-content {
+  align-items: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.tool-order-drag-handle {
+  cursor: grab;
+}
+
+.tool-order-drag-handle:active {
+  cursor: grabbing;
+}
+
+.tool-order-tool-icon {
+  color: var(--sakai-text-color-1);
+  font-size: 1.15rem;
+}
+
+.tool-order-title-block {
+  min-width: 0;
+}
+
+.tool-order-display {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 2rem;
+}
+
+.tool-order-title {
+  overflow-wrap: anywhere;
+}
+
+.tool-order-edit-form {
+  border-top: 1px solid var(--sakai-border-color);
+  margin-top: 0.55rem;
+  padding-top: 0.65rem;
+}
+
+.tool-order-edit-fields {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(12rem, 1fr);
+  margin-bottom: 0.65rem;
+}
+
+.tool-order-edit-fields .form-label {
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.tool-order-url-field {
+  min-width: 0;
+}
+
+.tool-order-empty {
+  color: var(--sakai-text-color-2);
+  margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .tool-order {
+    max-width: none;
+  }
+
+  .tool-order-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tool-order-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tool-order-row-main {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.65rem;
+  }
+
+  .tool-order-row-content {
+    flex: 1 0 100%;
+    gap: 0.55rem;
+    order: 1;
+  }
+
+  .tool-order-move-controls,
+  .tool-order-row-actions {
+    gap: 0.35rem;
+  }
+
+  .tool-order-move-controls {
+    order: 2;
+  }
+
+  .tool-order .tool-order-drag-handle {
+    display: none;
+  }
+
+  .tool-order-row-actions {
+    justify-content: flex-start;
+    order: 3;
+  }
+}
+
+@media (pointer: coarse) {
+  .tool-order .tool-order-drag-handle {
+    display: none;
+  }
+}
