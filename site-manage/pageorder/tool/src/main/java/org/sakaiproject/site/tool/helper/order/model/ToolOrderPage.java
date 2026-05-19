@@ -26,7 +26,7 @@ public class ToolOrderPage {
     private String title;
     private String toolId;
     private String toolIconClass;
-    private String iframeSource;
+    private String webContentUrl;
     private boolean visible;
     private boolean enabled;
     private boolean hidden;
@@ -35,7 +35,7 @@ public class ToolOrderPage {
     private boolean allowsLock;
     private boolean allowsEdit;
     private boolean deletable;
-    private boolean iframe;
+    private boolean webContent;
     private boolean first;
     private boolean last;
 }

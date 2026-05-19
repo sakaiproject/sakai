@@ -64,7 +64,7 @@
           th:each="page : ${pages}"
           th:id="|tool-order-row-${page.id}|"
           th:attr="data-page-id=${page.id},
-                   data-title-url=@{/api/pages/{pageId}/title(pageId=${page.id})},
+                   data-details-url=@{/api/pages/{pageId}/details(pageId=${page.id})},
                    data-visibility-url=@{/api/pages/{pageId}/visibility(pageId=${page.id})},
                    data-access-url=@{/api/pages/{pageId}/access(pageId=${page.id})},
                    data-delete-url=@{/api/pages/{pageId}/delete(pageId=${page.id})},
@@ -120,12 +120,12 @@
                          name="title"
                          maxlength="20"
                          th:value="${page.title}">
-                  <div th:if="${page.iframe}" class="tool-order-url-field">
+                  <div th:if="${page.webContent}" class="tool-order-url-field">
                     <label class="form-label" th:for="|url-${page.id}|" th:text="#{url}">URL</label>
                     <input class="form-control form-control-sm"
                            th:id="|url-${page.id}|"
-                           name="iframeSource"
-                           th:value="${page.iframeSource}">
+                           name="webContentUrl"
+                           th:value="${page.webContentUrl}">
                   </div>
                 </div>
                 <div class="tool-order-edit-actions">

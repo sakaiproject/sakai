@@ -177,20 +177,20 @@ public class SitePageEditHandler {
         markTopRefresh();
     }
 
-    public ToolOrderPage renamePage(String pageId, String newTitle, String iframeSource) {
+    public ToolOrderPage updatePageDetails(String pageId, String title, String webContentUrl) {
         Site site = requireCurrentSite();
         SitePage page = requirePage(site, pageId);
         if (!allowEdit(page)) {
-            throw new SecurityException("Page title editing is disabled for page " + pageId);
+            throw new SecurityException("Page details editing is disabled for page " + pageId);
         }
 
-        if (StringUtils.isBlank(newTitle)) {
+        if (StringUtils.isBlank(title)) {
             resetTitle(site, page);
         } else {
-            setTitle(site, page, newTitle);
+            setTitle(site, page, title);
         }
 
-        setIframeSource(site, page, iframeSource);
+        setWebContentUrl(site, page, webContentUrl);
         markTopRefresh();
         return toToolOrderPage(site, page, false, false);
     }
@@ -420,9 +420,10 @@ public class SitePageEditHandler {
     private ToolOrderPage toToolOrderPage(Site site, SitePage page, boolean first, boolean last) {
         List<ToolConfiguration> tools = page.getTools();
         String toolId = tools.isEmpty() ? "unknown-tool" : tools.get(0).getToolId();
-        String iframeSource = "";
+        String webContentUrl = "";
         if (tools.size() == 1 && "sakai.iframe".equals(toolId)) {
-            iframeSource = StringUtils.defaultString(tools.get(0).getPlacementConfig().getProperty("source"));
+            webContentUrl = StringUtils.defaultString(
+                    tools.get(0).getPlacementConfig().getProperty("source"));
         }
 
         boolean visible = isVisible(page);
@@ -436,7 +437,7 @@ public class SitePageEditHandler {
         row.setTitle(page.getTitle());
         row.setToolId(toolId);
         row.setToolIconClass("tool-order-tool-icon si si-" + toolId.replace('.', '-'));
-        row.setIframeSource(iframeSource);
+        row.setWebContentUrl(webContentUrl);
         row.setVisible(visible);
         row.setEnabled(enabled);
         row.setHidden(!visible && enabled);
@@ -445,7 +446,7 @@ public class SitePageEditHandler {
         row.setAllowsLock(allowDisable(page));
         row.setAllowsEdit(allowEdit(page));
         row.setDeletable(singleTool && !required && !siteInfoTool);
-        row.setIframe(singleTool && "sakai.iframe".equals(toolId));
+        row.setWebContent(singleTool && "sakai.iframe".equals(toolId));
         row.setFirst(first);
         row.setLast(last);
         return row;
@@ -500,14 +501,14 @@ public class SitePageEditHandler {
                         + "/old_title/" + oldTitle + "/new_title/" + page.getTitle(), false));
     }
 
-    private void setIframeSource(Site site, SitePage page, String iframeSource) {
-        if (iframeSource == null || page.getTools().size() != 1) {
+    private void setWebContentUrl(Site site, SitePage page, String webContentUrl) {
+        if (webContentUrl == null || page.getTools().size() != 1) {
             return;
         }
 
         ToolConfiguration tool = page.getTools().get(0);
         if ("sakai.iframe".equals(tool.getToolId())) {
-            tool.getPlacementConfig().setProperty("source", iframeSource);
+            tool.getPlacementConfig().setProperty("source", webContentUrl);
             saveSite(site);
         }
     }

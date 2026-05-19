@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -86,13 +88,15 @@ public class ToolOrderController {
         }
     }
 
-    @PostMapping("/api/pages/{pageId}/title")
+    @PostMapping("/api/pages/{pageId}/details")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> rename(@PathVariable String pageId, @RequestBody RenameRequest request) {
+    public ResponseEntity<Map<String, Object>> updatePageDetails(@PathVariable String pageId,
+            @RequestBody PageDetailsRequest request) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
-            ToolOrderPage row = pageEditHandler.renamePage(pageId, request.getTitle(), request.getIframeSource());
-            return ok(message("success_title_saved", locale), "row", row);
+            ToolOrderPage row = pageEditHandler.updatePageDetails(pageId, request.getTitle(),
+                    request.getWebContentUrl());
+            return ok(message("success_page_details_saved", locale), "row", row);
         } catch (RuntimeException e) {
             return error(e, locale);
         }
@@ -196,60 +200,28 @@ public class ToolOrderController {
         return messageSource.getMessage(code, args, locale);
     }
 
+    @Getter
+    @Setter
     public static class ReorderRequest {
         private List<String> pageIds;
-
-        public List<String> getPageIds() {
-            return pageIds;
-        }
-
-        public void setPageIds(List<String> pageIds) {
-            this.pageIds = pageIds;
-        }
     }
 
-    public static class RenameRequest {
+    @Getter
+    @Setter
+    public static class PageDetailsRequest {
         private String title;
-        private String iframeSource;
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getIframeSource() {
-            return iframeSource;
-        }
-
-        public void setIframeSource(String iframeSource) {
-            this.iframeSource = iframeSource;
-        }
+        private String webContentUrl;
     }
 
+    @Getter
+    @Setter
     public static class VisibilityRequest {
         private Boolean visible;
-
-        public Boolean getVisible() {
-            return visible;
-        }
-
-        public void setVisible(Boolean visible) {
-            this.visible = visible;
-        }
     }
 
+    @Getter
+    @Setter
     public static class AccessRequest {
         private Boolean enabled;
-
-        public Boolean getEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(Boolean enabled) {
-            this.enabled = enabled;
-        }
     }
 }

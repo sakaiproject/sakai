@@ -52,7 +52,7 @@ public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer, Applicati
     @Bean
     public MessageSource messageSource() {
         ResourceLoaderMessageSource messages = new ResourceLoaderMessageSource();
-        messages.setBasename("classpath:org/sakaiproject/tool/pageorder/bundle/Messages");
+        messages.setBasename("Messages");
         return messages;
     }
 

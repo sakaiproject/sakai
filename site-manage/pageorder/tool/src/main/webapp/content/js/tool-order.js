@@ -136,9 +136,9 @@
       titleInput.value = data.title;
     }
 
-    const iframeInput = row.querySelector('input[name="iframeSource"]');
-    if (iframeInput) {
-      iframeInput.value = data.iframeSource || "";
+    const webContentUrlInput = row.querySelector('input[name="webContentUrl"]');
+    if (webContentUrlInput) {
+      webContentUrlInput.value = data.webContentUrl || "";
     }
 
     row.querySelector(".tool-order-hidden-badge")?.classList.toggle("d-none", !data.hidden);
@@ -168,16 +168,16 @@
     }
   };
 
-  const saveTitle = async (row, form) => {
+  const savePageDetails = async (row, form) => {
     const body = {
       title: form.querySelector('input[name="title"]')?.value || "",
-      iframeSource: form.querySelector('input[name="iframeSource"]')?.value,
+      webContentUrl: form.querySelector('input[name="webContentUrl"]')?.value,
     };
 
     try {
       setBusy(true);
       showMessage(app.dataset.savingMessage);
-      const payload = await jsonRequest(row.dataset.titleUrl, "POST", body);
+      const payload = await jsonRequest(row.dataset.detailsUrl, "POST", body);
       updateRow(row, payload.row);
       form.classList.add("d-none");
       showMessage(payload.message || app.dataset.savedMessage);
@@ -318,7 +318,7 @@
       return;
     }
     event.preventDefault();
-    saveTitle(form.closest(".tool-order-row"), form);
+    savePageDetails(form.closest(".tool-order-row"), form);
   });
 
   if (list && reorderAllowed) {

@@ -39,6 +39,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.tool.helper.order.model.ToolOrderPage;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -138,6 +139,25 @@ public class SitePageEditHandlerTest {
         assertThrows(IllegalArgumentException.class, () -> handler.reorderPages(Collections.singletonList("page1")));
 
         verify(siteService, never()).save(site);
+    }
+
+    @Test
+    public void updatePageDetailsUpdatesWebContentUrl() throws Exception {
+        Properties placementConfig = new Properties();
+        ToolConfiguration tool = tool("sakai.iframe");
+        SitePage page = page("page1", Collections.singletonList(tool));
+        when(site.getPage("page1")).thenReturn(page);
+        when(tool.getConfig()).thenReturn(placementConfig);
+        when(tool.getPlacementConfig()).thenReturn(placementConfig);
+        when(toolManager.getRequiredPermissions(tool)).thenReturn(Collections.emptyList());
+        when(toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)).thenReturn(true);
+
+        ToolOrderPage row = handler.updatePageDetails("page1", "Web Content", "https://example.edu");
+
+        assertEquals("https://example.edu", placementConfig.getProperty("source"));
+        assertEquals("https://example.edu", row.getWebContentUrl());
+        verify(tool).setTitle("Web Content");
+        verify(toolSession).setAttribute(SitePageEditHandler.ATTR_TOP_REFRESH, Boolean.TRUE);
     }
 
     @Test
