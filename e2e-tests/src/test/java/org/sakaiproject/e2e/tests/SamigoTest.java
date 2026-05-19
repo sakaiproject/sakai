@@ -450,11 +450,16 @@ class SamigoTest extends SakaiUiTestBase {
             .setHasText(Pattern.compile("^\\s*Search questions\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
 
         Object result = select.evaluate("select => {"
-            + "const options = Array.from(select.options);"
-            + "const searchIndex = options.findIndex(option => option.textContent.trim().toLowerCase() === 'search questions');"
-            + "const firstExistingIndex = options.findIndex(option => option.parentElement.tagName === 'OPTGROUP' && option.parentElement.label === 'Existing');"
-            + "return searchIndex >= firstExistingIndex && firstExistingIndex > 0;"
-            + "}");
+             "const options = Array.from(select.options);"
+             "const normalized = t => (t || '').trim().toLowerCase();"
+             "const isExisting = option => option.parentElement"
+             "  && option.parentElement.tagName === 'OPTGROUP'"
+             "  && option.parentElement.label === 'Existing';"
+             "const searchIndex = options.findIndex(option => normalized(option.textContent) === 'search questions');"
+             "const firstExistingIndex = options.findIndex(option => isExisting(option));"
+             "const lastIndex = options.length - 1;"
+             "return searchIndex === lastIndex && firstExistingIndex > 0 && isExisting(options[searchIndex]);"
+             "}");
         assertEquals(Boolean.TRUE, result);
     }
 
