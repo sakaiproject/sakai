@@ -21,6 +21,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -80,6 +82,14 @@ public class ToolOrderControllerTest {
         ResponseEntity<Map<String, Object>> response = controller.reorder(request);
 
         assertErrorResponse(response, HttpStatus.BAD_REQUEST, "validation failed");
+    }
+
+    @Test
+    public void updatePageDetailsRejectsMissingRequestBody() {
+        ResponseEntity<Map<String, Object>> response = controller.updatePageDetails("page1", null);
+
+        assertErrorResponse(response, HttpStatus.BAD_REQUEST, "validation failed");
+        verify(pageEditHandler, never()).updatePageDetails(any(), any(), any());
     }
 
     @Test

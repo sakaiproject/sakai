@@ -49,7 +49,7 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(app).isVisible();
         Locator statusAlert = page.locator("#tool-order-alert");
         Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
-        Pattern titleSavedMessage = Pattern.compile("title.*saved", Pattern.CASE_INSENSITIVE);
+        Pattern toolSettingsSavedMessage = Pattern.compile("tool settings.*saved", Pattern.CASE_INSENSITIVE);
         Pattern removedMessage = Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE);
 
         Locator rows = page.locator(".tool-order-row");
@@ -80,7 +80,7 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(saveButton).isVisible();
         saveButton.click();
         assertThat(statusAlert).isVisible();
-        assertThat(statusAlert).containsText(titleSavedMessage);
+        assertThat(statusAlert).containsText(toolSettingsSavedMessage);
         assertThat(editableRow.locator(".tool-order-title")).containsText(renamedTitle);
 
         Locator visibilityButton = editableRow.locator("[data-action=\"visibility\"]").first();

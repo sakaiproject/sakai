@@ -94,6 +94,9 @@ public class ToolOrderController {
             @RequestBody PageDetailsRequest request) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
+            if (request == null) {
+                return validationError(message("validation_error", locale));
+            }
             ToolOrderPage row = pageEditHandler.updatePageDetails(pageId, request.getTitle(),
                     request.getWebContentUrl());
             return ok(message("success_page_details_saved", locale), "row", row);

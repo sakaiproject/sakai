@@ -266,6 +266,9 @@ public class SitePageEditHandler {
 
     public void prepareDone() {
         ToolSession session = sessionManager.getCurrentToolSession();
+        if (session == null) {
+            return;
+        }
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
         session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
     }

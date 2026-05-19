@@ -116,6 +116,15 @@ public class SitePageEditHandlerTest {
     }
 
     @Test
+    public void prepareDoneIgnoresMissingToolSession() {
+        when(sessionManager.getCurrentToolSession()).thenReturn(null);
+
+        handler.prepareDone();
+
+        verify(toolSession, never()).setAttribute(anyString(), any());
+    }
+
+    @Test
     public void reorderPagesPersistsPositionsAndMarksTopRefresh() throws Exception {
         SitePage page1 = page("page1");
         SitePage page2 = page("page2");
