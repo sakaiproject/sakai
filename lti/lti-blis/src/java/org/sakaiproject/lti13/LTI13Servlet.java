@@ -2039,6 +2039,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( item == null )  {
 			return; // Error already handled
 		}
+		log.debug("item={}; resourceLinkId={}", item, item.resourceLinkId);
 
 		Site site = null;
 		org.sakaiproject.lti.beans.LtiToolBean tool = null;
@@ -2086,7 +2087,12 @@ public class LTI13Servlet extends HttpServlet {
 
 		Assignment retval;
 		try {
-			retval = LineItemUtil.createLineItem(site, sat.tool_id, null /*content*/, item);
+			Map<String, Object> content = null;
+			Long contentKey = LineItemUtil.getContentIdFromResourceLinkId(item.resourceLinkId);
+			if (contentKey != null) {
+			    content = ltiService.getContent(contentKey, site.getId());
+			}
+			retval = LineItemUtil.createLineItem(site, sat.tool_id, content, item);
 		} catch (Exception e) {
 			log.error("Could not create lineitem: "+e.getMessage());
 			LTI13Util.return400(response, "Could not create lineitem: "+e.getMessage());
