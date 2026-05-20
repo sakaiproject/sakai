@@ -2497,11 +2497,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 				if (Objects.equals(item.getType(), MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
 					toAdd.remove(item.getName());
 					if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(item.getPermissionLevelName())) {
-						item.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
+						item.setPermissionLevel(null);
 						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
 					}
 				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
-					item.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
+					item.setPermissionLevel(null);
 					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
 				}
 			}
@@ -2510,7 +2510,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
                         newGroupName,
                         PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR,
                         MembershipItem.TYPE_GROUP);
-				newItem.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
 				newItem = permissionLevelManager.saveDBMembershipItem(newItem);
 				membershipItemSet.add(newItem);
 			}
@@ -2519,11 +2518,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 			for (DBMembershipItem item : membershipItemSet) {
 				if (Objects.equals(item.getType(), MembershipItem.TYPE_ROLE)) {
 					if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(item.getPermissionLevelName())) {
-						item.setPermissionLevel(permissionLevelManager.getDefaultContributorPermissionLevel());
+						item.setPermissionLevel(null);
 						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
 					}
 				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
-					item.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
+					item.setPermissionLevel(null);
 					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
 				}
 			}
