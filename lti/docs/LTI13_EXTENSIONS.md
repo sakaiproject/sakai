@@ -20,7 +20,7 @@ Typical uses include analytics dashboards, advising views, or cross-activity rep
 2. Edit the tool (or create one).
 3. Under **Services**, enable:
    - **Allow External Tool to create grade columns** (`allowlineitems`) — required.
-   - **Tool has the right to have a read-only view of the entire gradebook** (`allowgradebookreadonly`).
+   - **Allow External Tool read-only access to entire gradebook** (`allowgradebookreadonly`).
 
 Both must be enabled. If read-only view is checked but line items are not allowed, Sakai ignores read-only view at runtime.
 
@@ -70,7 +70,7 @@ GET  /imsblis/lti13/lineitems/{context_id}/{lineitem_id}/results/{user_id}
 | Get results | Allowed (all students in site) | Allowed (all students in site) |
 | PUT line item | Allowed | **403** — `Line item is read-only` |
 | DELETE line item | Allowed | **403** |
-| POST score | Allowed | **404** / cannot load column (not writable) |
+| POST score | Allowed | **403** — `Line item is read-only` |
 
 **Ownership** is determined from the gradebook column’s `tool_id|content_id` key in `EXTERNAL_ID` (or legacy `EXTERNAL_DATA`), consistent with existing LTI line item authorization.
 

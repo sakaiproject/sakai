@@ -1110,6 +1110,10 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		if (rejectIfLineItemReadOnly(tool, site.getId(), sat.tool_id, lineitem_key, response)) {
+			return;
+		}
+
 		// TODO: Check if sat and tool match
 
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
