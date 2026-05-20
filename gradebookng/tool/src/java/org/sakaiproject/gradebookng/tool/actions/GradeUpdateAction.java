@@ -133,8 +133,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final String rawNewGrade = StringUtils.trimToEmpty(params.get("newScore").textValue());
 
 		if (StringUtils.isNotBlank(rawNewGrade)) {
-			final Double parsed = localeService.parseDouble(rawNewGrade);
-			if (parsed == null || parsed < 0) {
+			final boolean validNumber = localeService.isValidDouble(rawNewGrade);
+			final Double parsed = validNumber ? localeService.parseDouble(rawNewGrade) : null;
+			if (!validNumber || parsed == null || parsed < 0) {
 				target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 				return new ArgumentErrorResponse("Grade not valid");
 			}
