@@ -220,6 +220,16 @@ public class LocaleServiceTest extends SakaiKernelTestBase {
         Assert.assertTrue(localeService.isValidDouble("1,234", Locale.US));
     }
 
+    @Test
+    public void isValidDoubleMalformedGroupingUsIsInvalid() {
+        Assert.assertFalse(localeService.isValidDouble("3,3", Locale.US));
+    }
+
+    @Test
+    public void isValidDoubleMalformedGroupingGermanyIsInvalid() {
+        Assert.assertFalse(localeService.isValidDouble("3.3", Locale.GERMANY));
+    }
+
     // Regression: the original regex concatenated the decimal separator char directly into the
     // pattern without a preceding \, so for en_US the first grouped-decimal alternative was
     // \d{1,3}(\,\d{3})+.\d+ where '.' matched any character. "1,234x56" would incorrectly
