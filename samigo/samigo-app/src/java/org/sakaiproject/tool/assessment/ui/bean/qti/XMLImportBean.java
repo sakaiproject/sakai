@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -48,7 +47,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -287,6 +285,7 @@ public class XMLImportBean implements Serializable {
   private void processFile(String fileName, String uploadFile, boolean isRespondus) throws Exception
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
+    QTIService.clearLastSkippedAttachments();
 
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
@@ -309,6 +308,22 @@ public class XMLImportBean implements Serializable {
       sb.append(". ");
       sb.append(rb.getString("respondus_matching_err_2"));
       FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    List<String> skippedAttachments = QTIService.getLastSkippedAttachments();
+    if (!skippedAttachments.isEmpty()) {
+      String importedFilename = getImportedFilename(uploadFile);
+      String warningText = MessageFormat.format(
+          rb.getString("import_attachment_warning"),
+          importedFilename,
+          buildSkippedAttachmentList(skippedAttachments));
+      if (skippedAttachments.size() > 5) {
+        warningText = warningText + MessageFormat.format(
+            rb.getString("import_attachment_warning_more"),
+            skippedAttachments.size() - 5);
+      }
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, warningText, null);
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     
@@ -377,6 +392,26 @@ public class XMLImportBean implements Serializable {
 	  String temp_filename_3 = temp_filename_1.substring(0, temp_filename_1.substring(0, temp_filename_1.indexOf(".")).lastIndexOf("_"));
 	  String final_filename = temp_filename_3 + temp_filename_2;
 	  return final_filename;
+  }
+
+  private String extractAttachmentName(String attachmentReference) {
+    if (attachmentReference == null) {
+      return "";
+    }
+    int lastSlash = attachmentReference.lastIndexOf('/');
+    return lastSlash > -1 ? attachmentReference.substring(lastSlash + 1) : attachmentReference;
+  }
+
+  private String buildSkippedAttachmentList(List<String> skippedAttachments) {
+    StringBuilder skippedList = new StringBuilder();
+    int displayed = Math.min(skippedAttachments.size(), 5);
+    for (int i = 0; i < displayed; i++) {
+      if (i > 0) {
+        skippedList.append(", ");
+      }
+      skippedList.append(extractAttachmentName(skippedAttachments.get(i)));
+    }
+    return skippedList.toString();
   }
   
   private void deleteDirectory(File directory) {
@@ -511,6 +546,7 @@ public class XMLImportBean implements Serializable {
     String fileName = uploadFile;
     String unzipLocation = null;
     boolean fileNotFound = false;
+    QTIService.clearLastSkippedAttachments();
     if (isCP) {
         ImportService importService = new ImportService();
         unzipLocation = importService.unzipImportFile(uploadFile);
@@ -618,6 +654,22 @@ public class XMLImportBean implements Serializable {
       sb.append(". ");
       sb.append(rb.getString("respondus_matching_err_2"));
       FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    List<String> skippedAttachments = QTIService.getLastSkippedAttachments();
+    if (!skippedAttachments.isEmpty()) {
+      String importedFilename = getImportedFilename(uploadFile);
+      String warningText = MessageFormat.format(
+          rb.getString("import_attachment_warning"),
+          importedFilename,
+          buildSkippedAttachmentList(skippedAttachments));
+      if (skippedAttachments.size() > 5) {
+        warningText = warningText + MessageFormat.format(
+            rb.getString("import_attachment_warning_more"),
+            skippedAttachments.size() - 5);
+      }
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, warningText, null);
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
 

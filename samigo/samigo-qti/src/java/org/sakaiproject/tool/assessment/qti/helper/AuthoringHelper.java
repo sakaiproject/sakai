@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.w3c.dom.Document;
@@ -72,14 +73,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
@@ -1077,6 +1070,7 @@ public class AuthoringHelper
       
       // Assessment Attachment
       exHelper.makeAssessmentAttachmentSet(assessment);
+      QTIService.setLastSkippedAttachments(exHelper.getSkippedAttachments());
 
       assessmentService.saveAssessment(assessment);
       return assessment;
@@ -1231,12 +1225,13 @@ public class AuthoringHelper
 
                item = itemService.saveItem(item);
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
-               
+
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
+               QTIService.setLastSkippedAttachments(exHelper.getSkippedAttachments());
                questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());
-               questionPoolItem.setItemId(item.getItemId());         
+               questionPoolItem.setItemId(item.getItemId());
                questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
-               
+
              } // ... end for each item
       }
       // need error message if more than one section, for now
