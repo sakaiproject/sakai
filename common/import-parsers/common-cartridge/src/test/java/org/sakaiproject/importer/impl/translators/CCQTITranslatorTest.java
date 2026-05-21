@@ -23,15 +23,24 @@ package org.sakaiproject.importer.impl.translators;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sakaiproject.importer.api.Importable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class CCQTITranslatorTest {
+
+	@Rule
+	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	@Test
 	public void testGetTypeName() {
@@ -83,5 +92,29 @@ public class CCQTITranslatorTest {
 		// Should return null for non-QTI files
 		Importable result = translator.translate(resourceElement, null, "context/", "/tmp");
 		assertNull("Should return null for non-QTI files", result);
+	}
+
+	@Test
+	public void testTranslateRejectsQTIFileWithDoctype() throws Exception {
+		CCQTITranslator translator = new CCQTITranslator();
+
+		File archiveBase = temporaryFolder.newFolder("archive");
+		File assessmentDirectory = new File(archiveBase, "non_cc_assessments");
+		assertTrue("Assessment directory should be created", assessmentDirectory.mkdirs());
+
+		File qtiFile = new File(assessmentDirectory, "test.xml.qti");
+		String qtiXml = "<!DOCTYPE questestinterop [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]>"
+			+ "<questestinterop>&xxe;</questestinterop>";
+		Files.write(qtiFile.toPath(), qtiXml.getBytes(StandardCharsets.UTF_8));
+
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document manifestDoc = builder.newDocument();
+		Element resourceElement = manifestDoc.createElement("resource");
+		resourceElement.setAttribute("identifier", "test-qti");
+		resourceElement.setAttribute("href", "non_cc_assessments/test.xml.qti");
+
+		Importable result = translator.translate(resourceElement, null, "context/", archiveBase.getPath());
+
+		assertNull("Should reject QTI files containing a DOCTYPE", result);
 	}
 }

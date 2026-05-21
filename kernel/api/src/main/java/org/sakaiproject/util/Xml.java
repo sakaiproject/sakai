@@ -34,11 +34,13 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Stack;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.validation.Schema;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,6 +69,14 @@ import org.xml.sax.helpers.DefaultHandler;
 @Slf4j
 public class Xml
 {
+	private static final String ELEMENT_ATTRIBUTE_LIMIT = "jdk.xml.elementAttributeLimit";
+	private static final String MAX_ELEMENT_DEPTH = "jdk.xml.maxElementDepth";
+	private static final String DISALLOW_DOCTYPE_DECL = "http://apache.org/xml/features/disallow-doctype-decl";
+	private static final String EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
+	private static final String EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities";
+	private static final String LOAD_EXTERNAL_DTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+	private static final String DEFER_NODE_EXPANSION = "http://apache.org/xml/features/dom/defer-node-expansion";
+
 	private static SAXParserFactory parserFactory;
 
 	/**
@@ -433,9 +443,71 @@ public class Xml
 	 */
 	protected static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
 	{
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		return createSecureDocumentBuilderFactory().newDocumentBuilder();
+	}
 
-		return dbf.newDocumentBuilder();
+	/**
+	 * @return a secure, namespace-aware DocumentBuilderFactory for DOM XML parsing.
+	 */
+	public static DocumentBuilderFactory createSecureDocumentBuilderFactory() throws ParserConfigurationException
+	{
+		return createSecureDocumentBuilderFactory(null);
+	}
+
+	/**
+	 * @param schema optional schema to attach to the factory
+	 * @return a secure, namespace-aware DocumentBuilderFactory for DOM XML parsing.
+	 */
+	public static DocumentBuilderFactory createSecureDocumentBuilderFactory(Schema schema) throws ParserConfigurationException
+	{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newDefaultInstance();
+
+		setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		setFeature(factory, DISALLOW_DOCTYPE_DECL, true);
+		setFeature(factory, EXTERNAL_GENERAL_ENTITIES, false);
+		setFeature(factory, EXTERNAL_PARAMETER_ENTITIES, false);
+		setFeature(factory, LOAD_EXTERNAL_DTD, false);
+		setFeature(factory, DEFER_NODE_EXPANSION, false);
+
+		setAttribute(factory, ELEMENT_ATTRIBUTE_LIMIT, "30");
+		setAttribute(factory, MAX_ELEMENT_DEPTH, "25");
+		setAttribute(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		setAttribute(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+		factory.setCoalescing(true);
+		factory.setExpandEntityReferences(false);
+		factory.setIgnoringComments(true);
+		factory.setIgnoringElementContentWhitespace(true);
+		factory.setNamespaceAware(true);
+		factory.setSchema(schema);
+		factory.setValidating(false);
+		factory.setXIncludeAware(false);
+
+		return factory;
+	}
+
+	private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) throws ParserConfigurationException
+	{
+		try
+		{
+			factory.setFeature(feature, value);
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new ParserConfigurationException("XML parser does not support required feature " + feature + ": " + e.getMessage());
+		}
+	}
+
+	private static void setAttribute(DocumentBuilderFactory factory, String attribute, Object value) throws ParserConfigurationException
+	{
+		try
+		{
+			factory.setAttribute(attribute, value);
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new ParserConfigurationException("XML parser does not support required attribute " + attribute + ": " + e.getMessage());
+		}
 	}
 
 	/**

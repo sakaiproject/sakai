@@ -74,6 +74,7 @@
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
+- **Secure XML Parsing**: For DOM XML parsing, use `org.sakaiproject.util.Xml.createSecureDocumentBuilderFactory()` instead of manually configuring `DocumentBuilderFactory`. `MapperFactory` is only for Jackson `ObjectMapper`/`XmlMapper` creation.
 
 ## Push Notifications
 - **Support Matrix**: Design for current evergreen builds of Chrome, Edge, Safari, and Firefox; no legacy branches.

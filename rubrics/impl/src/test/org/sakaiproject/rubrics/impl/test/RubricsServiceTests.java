@@ -81,7 +81,6 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 
-import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -899,9 +898,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
                 if (StringUtils.isNotBlank(criterionDescription)) {
                     NodeList descriptionNodes = criterionEl.getElementsByTagName("description");
                     assertEquals(1, descriptionNodes.getLength());
-                    CDATASection descriptionNode = (CDATASection) descriptionNodes.item(0).getFirstChild();
-                    assertNotNull(descriptionNode);
-                    assertEquals(criterionDescription, descriptionNode.getNodeValue());
+                    assertNotNull(descriptionNodes.item(0).getFirstChild());
+                    assertEquals(criterionDescription, descriptionNodes.item(0).getTextContent());
                 }
 
                 NodeList ratingsNodes = criterionEl.getElementsByTagName("ratings");
@@ -921,9 +919,9 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
                     String ratingDescription = ratingBean.getDescription();
                     if (StringUtils.isNotBlank(ratingDescription)) {
                         NodeList ratingDescriptionNodes = ratingEl.getElementsByTagName("description");
-                        CDATASection ratingDescriptionNode = (CDATASection) ratingDescriptionNodes.item(0).getFirstChild();
-                        assertNotNull(ratingDescriptionNode);
-                        assertEquals(ratingDescription, ratingDescriptionNode.getNodeValue());
+                        assertEquals(1, ratingDescriptionNodes.getLength());
+                        assertNotNull(ratingDescriptionNodes.item(0).getFirstChild());
+                        assertEquals(ratingDescription, ratingDescriptionNodes.item(0).getTextContent());
                     }
                 }
             }
