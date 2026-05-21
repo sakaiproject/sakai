@@ -1647,7 +1647,7 @@ public class DiscussionForumTool {
 	  boolean isDraftOld = false;
 	  boolean availabilityChanged = false;
 
-	  Set oldMembershipItemSet = null;
+	  Set<DBMembershipItem> oldMembershipItemSet = null;
 	  
 	  if (target instanceof DiscussionForum){
 		  DiscussionForum forum = ((DiscussionForum) target);
@@ -1691,23 +1691,25 @@ public class DiscussionForumTool {
 		        	update = true;
 		        	break;
 		        }
-		        
-		        Iterator iter2 = oldMembershipItemSet.iterator();
-				while(iter2.hasNext())
-				{
-					DBMembershipItem oldItem = (DBMembershipItem) iter2.next();
-					if(permBean.getItem().getId().equals(oldItem.getId())){
-						PermissionLevel oldLevel = oldItem.getPermissionLevel();
-						if (oldLevel == null) {
-							oldLevel = permissionLevelManager.getPermissionLevelByName(oldItem.getPermissionLevelName());
-						}
-						Boolean oldModerate = (oldLevel != null) ? oldLevel.getModeratePostings() : Boolean.FALSE;
-						if(permBean.getModeratePostings() != Boolean.TRUE.equals(oldModerate)){
-							update = true;
-							break;
-						}
-					}
-				}
+
+                  for (DBMembershipItem oldItem : oldMembershipItemSet) {
+                      if (permBean.getItem().getId().equals(oldItem.getId())) {
+                          PermissionLevel oldLevel = oldItem.getPermissionLevel();
+                          if (oldLevel == null) {
+                              if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(oldItem.getPermissionLevelName())) {
+                                  // Custom item with no stored level — permissions are unknown, treat as changed
+                                  update = true;
+                                  break;
+                              }
+                              oldLevel = permissionLevelManager.getPermissionLevelByName(oldItem.getPermissionLevelName());
+                          }
+                          Boolean oldModerate = (oldLevel != null) ? oldLevel.getModeratePostings() : Boolean.FALSE;
+                          if (permBean.getModeratePostings() != Boolean.TRUE.equals(oldModerate)) {
+                              update = true;
+                              break;
+                          }
+                      }
+                  }
 				if(update){
 					break;
 				}

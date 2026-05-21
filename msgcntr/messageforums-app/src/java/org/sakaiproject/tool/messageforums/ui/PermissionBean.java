@@ -78,12 +78,15 @@ public class PermissionBean {
     {
       if (!"Custom".equals(selectedLevel))
       {
-        this.displayLevel = permissionLevelManager.getPermissionLevelByName(selectedLevel);
+        PermissionLevel level = permissionLevelManager.getPermissionLevelByName(selectedLevel);
+        if (level != null) {
+          this.displayLevel = level;
+        }
       }
       else
       {
         MessageForumsTypeManager typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
-        if (this.displayLevel == null || !this.displayLevel.getTypeUuid().equals(typeManager.getCustomLevelType()))
+        if (this.displayLevel == null || !typeManager.getCustomLevelType().equals(this.displayLevel.getTypeUuid()))
         {
           this.displayLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new PermissionsMask());
         }
