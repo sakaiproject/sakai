@@ -63,27 +63,27 @@ public class AreaImpl extends MutableEntityImpl implements Area {
     @Setter @Getter private int sendToEmail;
 
     public List<OpenForum> getOpenForums() {
-        return new ArrayList<>(openForumsSet);
+        return openForumsSet == null ? new ArrayList<>() : new ArrayList<>(openForumsSet);
     }
 
     public void setOpenForums(List<OpenForum> openForums) {
-        this.openForumsSet = new HashSet<>(openForums);
+        this.openForumsSet = openForums == null ? new HashSet<>() : new HashSet<>(openForums);
     }
 
     public List<PrivateForum> getPrivateForums() {
-        return new ArrayList<>(privateForumsSet);
+        return privateForumsSet == null ? new ArrayList<>() : new ArrayList<>(privateForumsSet);
     }
 
     public void setPrivateForums(List<PrivateForum> privateForums) {
-        this.privateForumsSet = new HashSet<>(privateForums);
+        this.privateForumsSet = privateForums == null ? new HashSet<>() : new HashSet<>(privateForums);
     }
 
     public List<DiscussionForum> getDiscussionForums() {
-        return new ArrayList<>(discussionForumsSet);
+        return discussionForumsSet == null ? new ArrayList<>() : new ArrayList<>(discussionForumsSet);
     }
 
     public void setDiscussionForums(List<DiscussionForum> discussionForums) {
-        this.discussionForumsSet = new HashSet<>(discussionForums);
+        this.discussionForumsSet = discussionForums == null ? new HashSet<>() : new HashSet<>(discussionForums);
     }
 
     public String toString() {
@@ -108,7 +108,9 @@ public class AreaImpl extends MutableEntityImpl implements Area {
             throw new IllegalArgumentException("Illegal topic argument passed!");
         }
         forum.setArea(null);
-        privateForumsSet.remove(forum);
+        if (privateForumsSet != null) {
+            privateForumsSet.remove(forum);
+        }
     }
 
     public void addDiscussionForum(DiscussionForum forum) {
@@ -129,8 +131,12 @@ public class AreaImpl extends MutableEntityImpl implements Area {
             throw new IllegalArgumentException("Illegal topic argument passed!");
         }
         forum.setArea(null);
-        discussionForumsSet.remove(forum);
-        openForumsSet.remove(forum);
+        if (discussionForumsSet != null) {
+            discussionForumsSet.remove(forum);
+        }
+        if (openForumsSet != null) {
+            openForumsSet.remove(forum);
+        }
     }
 
     public void addOpenForum(OpenForum forum) {
@@ -151,7 +157,9 @@ public class AreaImpl extends MutableEntityImpl implements Area {
             throw new IllegalArgumentException("Illegal topic argument passed!");
         }
         forum.setArea(null);
-        openForumsSet.remove(forum);
+        if (openForumsSet != null) {
+            openForumsSet.remove(forum);
+        }
     }
 
     public void addMembershipItem(DBMembershipItem item) {
@@ -170,7 +178,9 @@ public class AreaImpl extends MutableEntityImpl implements Area {
         if (item == null) {
             throw new IllegalArgumentException("Illegal level argument passed!");
         }
-        membershipItemSet.remove(item);
+        if (membershipItemSet != null) {
+            membershipItemSet.remove(item);
+        }
     }
 
 }

@@ -95,32 +95,33 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
         membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
 
-        ifChangeSettings = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getChangeSettings());
-        ifDeleteAny = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getDeleteAny());
-        ifDeleteOwn = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getDeleteOwn());
-        ifMarkAsNotRead = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getMarkAsNotRead());
-        ifModeratePostings = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getModeratePostings());
-        ifMovePosting = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getMovePosting());
-        ifNewResponse = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewResponse());
-        ifNewResponseToResponse = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewResponseToResponse());
-        ifPostToGradebook = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getPostToGradebook());
-        ifRead = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getRead());
-        ifReviseAny = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getReviseAny());
-        ifReviseOwn = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getReviseOwn());
+        ifChangeSettings = item -> resolvePermissionLevel(item).map(PermissionLevel::getChangeSettings).orElse(false);
+        ifDeleteAny = item -> resolvePermissionLevel(item).map(PermissionLevel::getDeleteAny).orElse(false);
+        ifDeleteOwn = item -> resolvePermissionLevel(item).map(PermissionLevel::getDeleteOwn).orElse(false);
+        ifMarkAsNotRead = item -> resolvePermissionLevel(item).map(PermissionLevel::getMarkAsNotRead).orElse(false);
+        ifModeratePostings = item -> resolvePermissionLevel(item).map(PermissionLevel::getModeratePostings).orElse(false);
+        ifMovePosting = item -> resolvePermissionLevel(item).map(PermissionLevel::getMovePosting).orElse(false);
+        ifNewResponse = item -> resolvePermissionLevel(item).map(PermissionLevel::getNewResponse).orElse(false);
+        ifNewResponseToResponse = item -> resolvePermissionLevel(item).map(PermissionLevel::getNewResponseToResponse).orElse(false);
+        ifPostToGradebook = item -> resolvePermissionLevel(item).map(PermissionLevel::getPostToGradebook).orElse(false);
+        ifRead = item -> resolvePermissionLevel(item).map(PermissionLevel::getRead).orElse(false);
+        ifReviseAny = item -> resolvePermissionLevel(item).map(PermissionLevel::getReviseAny).orElse(false);
+        ifReviseOwn = item -> resolvePermissionLevel(item).map(PermissionLevel::getReviseOwn).orElse(false);
 
         forumManager.setUiPermissionsManager(this);
     }
 
-    private PermissionLevel resolvePermissionLevel(DBMembershipItem item) {
-        return Optional.ofNullable(item.getPermissionLevel())
-                .orElse(permissionLevelManager.getPermissionLevelByName(item.getPermissionLevelName()));
+    private Optional<PermissionLevel> resolvePermissionLevel(DBMembershipItem item) {
+        return Optional.ofNullable(
+                Optional.ofNullable(item.getPermissionLevel())
+                        .orElse(permissionLevelManager.getPermissionLevelByName(item.getPermissionLevelName())));
     }
 
     @Override
     public boolean isNewForum() {
         if (isSuperUser()) return true;
 
-        Predicate<DBMembershipItem> ifNewForum = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewForum());
+        Predicate<DBMembershipItem> ifNewForum = item -> resolvePermissionLevel(item).map(PermissionLevel::getNewForum).orElse(false);
         return getAreaItemsByCurrentUser().stream().anyMatch(ifNewForum);
     }
 
@@ -167,7 +168,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 && isInstructorForAllowedGroup(forum.getId(), true, siteId, getCurrentUserId())) {
             return true;
         }
-        Predicate<DBMembershipItem> ifNewTopic = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewTopic());
+        Predicate<DBMembershipItem> ifNewTopic = item -> resolvePermissionLevel(item).map(PermissionLevel::getNewTopic).orElse(false);
         return getForumItemsByCurrentUser(forum).stream().anyMatch(ifNewTopic);
     }
 
@@ -428,7 +429,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
         if (isSuperUser(currentUserId)) return true;
 
-        Predicate<DBMembershipItem> ifIdentifyANonAuthors = i -> Boolean.TRUE.equals(resolvePermissionLevel(i).getIdentifyAnonAuthors());
+        Predicate<DBMembershipItem> ifIdentifyANonAuthors = i -> resolvePermissionLevel(i).map(PermissionLevel::getIdentifyAnonAuthors).orElse(false);
         return getTopicItemsByUser(topic, currentUserId, getContextId()).stream().anyMatch(ifIdentifyANonAuthors);
     }
 

@@ -195,7 +195,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
     
     public boolean isPrivateAreaEnabled() {
-        return getPrivateArea().getEnabled();
+        Area area = getPrivateArea();
+        return area != null && Boolean.TRUE.equals(area.getEnabled());
     }
 
     public Area createArea(String typeId, String contextParam) {

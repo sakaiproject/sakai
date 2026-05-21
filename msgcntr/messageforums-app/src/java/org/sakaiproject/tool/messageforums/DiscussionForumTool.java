@@ -1222,6 +1222,8 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     
+    attachments.clear();
+    prepareRemoveAttach.clear();
     List attachList = forum.getAttachments();
     if (attachList != null)
     {
@@ -1230,7 +1232,7 @@ public class DiscussionForumTool {
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
     }
-    
+
     selectedForum = new DiscussionForumBean(forum, forumManager, userTimeService);
     loadForumDataInForumBean(forum, selectedForum);
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -1837,6 +1839,8 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
+    attachments.clear();
+    prepareRemoveAttach.clear();
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
     {
@@ -1844,8 +1848,8 @@ public class DiscussionForumTool {
       {
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
-    }  
-    
+    }
+
     setFromMainOrForumOrTopic();
     siteGroups.clear();
     return TOPIC_SETTING_REVISE;
@@ -2319,6 +2323,8 @@ public class DiscussionForumTool {
     	selectedTopic.setReadFullDesciption(true);
     }
     
+    attachments.clear();
+    prepareRemoveAttach.clear();
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
     {

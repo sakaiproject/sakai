@@ -2482,6 +2482,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         String siteId = topic.getBaseForum().getArea().getContextId();
         List<String> groupNames = resolveSiteGroupNames(groupIds, siteId);
         if (groupNames != null) {
+          if (!groupNames.isEmpty()) {
+            Set<DBMembershipItem> topicItems = topic.getMembershipItemSet();
+            if (topicItems == null || topicItems.isEmpty()) {
+              createDefaultMembershipItemsForTopic((DiscussionTopic) topic, siteId);
+            }
+          }
           applyGroupRestrictions(topic.getMembershipItemSet(), groupNames);
           forumManager.saveDiscussionForumTopic((DiscussionTopic) topic);
           return;
@@ -2498,6 +2504,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		String siteId = forum.getArea().getContextId();
         List<String> groupNames = resolveSiteGroupNames(groupIds, siteId);
         if (groupNames != null) {
+            if (!groupNames.isEmpty()) {
+              Set<DBMembershipItem> forumItems = forum.getMembershipItemSet();
+              if (forumItems == null || forumItems.isEmpty()) {
+                createDefaultMembershipItemsForForum((DiscussionForum) forum, siteId);
+              }
+            }
             applyGroupRestrictions(forum.getMembershipItemSet(), groupNames);
             forumManager.saveDiscussionForum((DiscussionForum) forum);
             return;
@@ -2539,7 +2551,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   private void applyGroupRestrictions(Set<DBMembershipItem> membershipItemSet, List<String> groupNames) {
 		if (groupNames != null && !groupNames.isEmpty()) {
-			// Restricting: demote only Contributor items to None; promote specified groups to Contributor.
+			// Restricting: demote only Contributor group items to None; promote specified groups to Contributor.
 			Set<String> toAdd = new HashSet<>(groupNames);
 			for (DBMembershipItem item : membershipItemSet) {
 				if (Objects.equals(item.getType(), MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
@@ -2548,7 +2560,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 						item.setPermissionLevel(null);
 						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
 					}
-				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
+				} else if (Objects.equals(item.getType(), MembershipItem.TYPE_GROUP)
+						&& PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
 					item.setPermissionLevel(null);
 					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
 				}
@@ -2569,7 +2582,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 						item.setPermissionLevel(null);
 						item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
 					}
-				} else if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
+				} else if (Objects.equals(item.getType(), MembershipItem.TYPE_GROUP)
+						&& PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName())) {
 					item.setPermissionLevel(null);
 					item.setPermissionLevelName(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
 				}

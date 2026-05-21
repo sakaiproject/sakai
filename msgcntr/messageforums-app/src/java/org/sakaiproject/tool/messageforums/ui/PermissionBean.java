@@ -52,6 +52,9 @@ public class PermissionBean {
     this.selectedLevel = item.getPermissionLevelName();
     PermissionLevel level = item.getPermissionLevel();
     this.displayLevel = (level != null) ? level : permissionLevelManager.getPermissionLevelByName(selectedLevel);
+    if (this.displayLevel == null) {
+      setPermissionsForLevel(selectedLevel);
+    }
   }
 
   /**
