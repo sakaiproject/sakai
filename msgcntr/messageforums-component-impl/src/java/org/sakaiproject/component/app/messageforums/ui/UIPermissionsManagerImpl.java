@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipItem;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
@@ -62,20 +64,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
-    private static final Predicate<DBMembershipItem> ifChangeSettings = item -> item.getPermissionLevel().getChangeSettings();
-    private static final Predicate<DBMembershipItem> ifDeleteAny = item -> item.getPermissionLevel().getDeleteAny();
-    private static final Predicate<DBMembershipItem> ifDeleteOwn = item -> item.getPermissionLevel().getDeleteOwn();
-    private static final Predicate<DBMembershipItem> ifMarkAsNotRead = item -> item.getPermissionLevel().getMarkAsNotRead();
-    private static final Predicate<DBMembershipItem> ifModeratePostings = item -> item.getPermissionLevel().getModeratePostings();
-    private static final Predicate<DBMembershipItem> ifMovePosting = item -> item.getPermissionLevel().getMovePosting();
-    private static final Predicate<DBMembershipItem> ifNewResponse = item -> item.getPermissionLevel().getNewResponse();
-    private static final Predicate<DBMembershipItem> ifNewResponseToResponse = item -> item.getPermissionLevel().getNewResponseToResponse();
-    private static final Predicate<DBMembershipItem> ifPostToGradebook = item -> item.getPermissionLevel().getPostToGradebook();
-    private static final Predicate<DBMembershipItem> ifRead = i -> i.getPermissionLevel().getRead();
-    private static final Predicate<DBMembershipItem> ifReviseAny = item -> item.getPermissionLevel().getReviseAny();
-    private static final Predicate<DBMembershipItem> ifReviseOwn = item -> item.getPermissionLevel().getReviseOwn();
-
-
     @Setter private AuthzGroupService authzGroupService;
     @Setter private DiscussionForumManager forumManager;
     @Setter private MemoryService memoryService;
@@ -89,18 +77,50 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     private Cache<String, Set<DBMembershipItem>> membershipItemCache;
     private Cache<String, Set<String>> userGroupMembershipCache;
 
+    private Predicate<DBMembershipItem> ifChangeSettings;
+    private Predicate<DBMembershipItem> ifDeleteAny;
+    private Predicate<DBMembershipItem> ifDeleteOwn;
+    private Predicate<DBMembershipItem> ifMarkAsNotRead;
+    private Predicate<DBMembershipItem> ifModeratePostings;
+    private Predicate<DBMembershipItem> ifMovePosting;
+    private Predicate<DBMembershipItem> ifNewResponse;
+    private Predicate<DBMembershipItem> ifNewResponseToResponse;
+    private Predicate<DBMembershipItem> ifPostToGradebook;
+    private Predicate<DBMembershipItem> ifRead;
+    private Predicate<DBMembershipItem> ifReviseAny;
+    private Predicate<DBMembershipItem> ifReviseOwn;
+
     public void init() {
         log.info("init()");
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
         membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
+
+        ifChangeSettings = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getChangeSettings());
+        ifDeleteAny = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getDeleteAny());
+        ifDeleteOwn = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getDeleteOwn());
+        ifMarkAsNotRead = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getMarkAsNotRead());
+        ifModeratePostings = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getModeratePostings());
+        ifMovePosting = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getMovePosting());
+        ifNewResponse = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewResponse());
+        ifNewResponseToResponse = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewResponseToResponse());
+        ifPostToGradebook = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getPostToGradebook());
+        ifRead = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getRead());
+        ifReviseAny = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getReviseAny());
+        ifReviseOwn = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getReviseOwn());
+
         forumManager.setUiPermissionsManager(this);
+    }
+
+    private PermissionLevel resolvePermissionLevel(DBMembershipItem item) {
+        return Optional.ofNullable(item.getPermissionLevel())
+                .orElse(permissionLevelManager.getPermissionLevelByName(item.getPermissionLevelName()));
     }
 
     @Override
     public boolean isNewForum() {
         if (isSuperUser()) return true;
 
-        Predicate<DBMembershipItem> ifNewForum = item -> item.getPermissionLevel().getNewForum();
+        Predicate<DBMembershipItem> ifNewForum = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewForum());
         return getAreaItemsByCurrentUser().stream().anyMatch(ifNewForum);
     }
 
@@ -147,7 +167,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 && isInstructorForAllowedGroup(forum.getId(), true, siteId, getCurrentUserId())) {
             return true;
         }
-        Predicate<DBMembershipItem> ifNewTopic = item -> item.getPermissionLevel().getNewTopic();
+        Predicate<DBMembershipItem> ifNewTopic = item -> Boolean.TRUE.equals(resolvePermissionLevel(item).getNewTopic());
         return getForumItemsByCurrentUser(forum).stream().anyMatch(ifNewTopic);
     }
 
@@ -408,7 +428,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
         if (isSuperUser(currentUserId)) return true;
 
-        Predicate<DBMembershipItem> ifIdentifyANonAuthors = i -> i.getPermissionLevel().getIdentifyAnonAuthors();
+        Predicate<DBMembershipItem> ifIdentifyANonAuthors = i -> Boolean.TRUE.equals(resolvePermissionLevel(i).getIdentifyAnonAuthors());
         return getTopicItemsByUser(topic, currentUserId, getContextId()).stream().anyMatch(ifIdentifyANonAuthors);
     }
 

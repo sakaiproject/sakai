@@ -1168,6 +1168,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       area = areaManager.saveArea(area, currentUser);
       flagAreaCacheForClearing(area);
     }
+    if (saveArea && (forumReturn.getMembershipItemSet() == null || forumReturn.getMembershipItemSet().isEmpty())) {
+      createDefaultMembershipItemsForForum(forumReturn, contextId);
+    }
     return forumReturn;
   }
 
@@ -1231,6 +1234,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forum.addTopic(topic);
       forum = forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
       //sak-5146 forumManager.saveDiscussionForum(forum);
+    }
+    if (saveForum && (topic.getMembershipItemSet() == null || topic.getMembershipItemSet().isEmpty())) {
+      createDefaultMembershipItemsForTopic(topic, forum.getArea().getContextId());
     }
     flagAreaCacheForClearing(forum);
 
@@ -2039,6 +2045,56 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return getDBMember(originalSet, name, type);
   }
 
+  private String resolveDefaultLevelName(String roleId, String contextSiteId) {
+    String configured = ServerConfigurationService.getString(MC_DEFAULT + roleId);
+    if (StringUtils.isNotBlank(configured)) return configured;
+    String cacheId = contextSiteId + "/" + roleId;
+    Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
+    if (allowedFunctions == null) {
+      allowedFunctions = authzGroupService.getAllowedFunctions(roleId, Collections.singletonList(contextSiteId));
+      allowedFunctionsCache.put(cacheId, allowedFunctions);
+    }
+    return allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE)
+            ? PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER
+            : PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR;
+  }
+
+  private void createDefaultMembershipItemsForForum(DiscussionForum forum, String contextId) {
+    String contextSiteId = "/site/" + contextId;
+    Set<DBMembershipItem> items = new HashSet<>();
+    try {
+      Site site = siteService.getSite(contextId);
+      for (Role role : site.getRoles()) {
+        String levelName = resolveDefaultLevelName(role.getId(), contextSiteId);
+        DBMembershipItem item = permissionLevelManager.createDBMembershipItem(role.getId(), levelName, MembershipItem.TYPE_ROLE);
+        ((DBMembershipItemImpl) item).setForum(forum);
+        item = permissionLevelManager.saveDBMembershipItem(item);
+        items.add(item);
+      }
+    } catch (IdUnusedException e) {
+      log.warn("Could not fetch site {} to create default forum membership items: {}", contextId, e.toString());
+    }
+    forum.setMembershipItemSet(items);
+  }
+
+  private void createDefaultMembershipItemsForTopic(DiscussionTopic topic, String contextId) {
+    String contextSiteId = "/site/" + contextId;
+    Set<DBMembershipItem> items = new HashSet<>();
+    try {
+      Site site = siteService.getSite(contextId);
+      for (Role role : site.getRoles()) {
+        String levelName = resolveDefaultLevelName(role.getId(), contextSiteId);
+        DBMembershipItem item = permissionLevelManager.createDBMembershipItem(role.getId(), levelName, MembershipItem.TYPE_ROLE);
+        ((DBMembershipItemImpl) item).setTopic(topic);
+        item = permissionLevelManager.saveDBMembershipItem(item);
+        items.add(item);
+      }
+    } catch (IdUnusedException e) {
+      log.warn("Could not fetch site {} to create default topic membership items: {}", contextId, e.toString());
+    }
+    topic.setMembershipItemSet(items);
+  }
+
   @Override
   public DBMembershipItem getDBMember(Set<DBMembershipItem> originalSet, String name, int type) {
 	return getDBMember(originalSet, name, type, getContextSiteId());
@@ -2051,21 +2107,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     Optional<DBMembershipItem> membershipItem = Optional.empty();
     if (originalSet != null) membershipItem = originalSet.stream().filter(ifTypeAndNameAreEqual).findAny();
 
-    if (membershipItem.isPresent() && membershipItem.get().getPermissionLevel() != null) return membershipItem.get();
+    if (membershipItem.isPresent()) return membershipItem.get();
 
+    // Item not in the stored set — build a transient item with a default level from config or site roles.
     PermissionLevel level = null;
-    //for groups awareness
     if (type == MembershipItem.TYPE_ROLE || type == MembershipItem.TYPE_GROUP) {
-
-      String levelName;
-      if (membershipItem.isPresent()) {
-        /** use level from stored item */
-        levelName = membershipItem.get().getPermissionLevelName();
-      } else {
-        /** get level from config file */
-        levelName = ServerConfigurationService.getString(MC_DEFAULT + name);
-      }
-
+      String levelName = ServerConfigurationService.getString(MC_DEFAULT + name);
       if (StringUtils.isNotBlank(levelName)) {
         level = permissionLevelManager.getPermissionLevelByName(levelName);
       } else if (name == null || ".anon".equals(name)) {
@@ -2074,7 +2121,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         if (type == MembershipItem.TYPE_GROUP) {
           level = permissionLevelManager.getDefaultNonePermissionLevel();
         } else {
-          //check cache first:
           String cacheId = contextSiteId + "/" + name;
           Set<String> allowedFunctions = allowedFunctionsCache.get(cacheId);
           if (allowedFunctions == null) {
@@ -2091,11 +2137,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
 
-    DBMembershipItem item  = new DBMembershipItemImpl();
+    DBMembershipItem item = new DBMembershipItemImpl();
     item.setName(name);
     item.setPermissionLevelName((level == null) ? noneLevel.getName() : level.getName());
     item.setType(type);
-    item.setPermissionLevel((level == null) ? noneLevel : level);
     return item;
   }
 
@@ -2338,12 +2383,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   	  
   	  // now we have the membership items. let's see which ones can read
   	  for (DBMembershipItem membershipItem : revisedMembershipItemSet) {
-  		  if ((checkReadPermission && membershipItem.getPermissionLevel().getRead() && !checkModeratePermission) ||
-  				  (!checkReadPermission && checkModeratePermission && membershipItem.getPermissionLevel().getModeratePostings()) ||
-  				  (checkReadPermission && membershipItem.getPermissionLevel().getRead() && checkModeratePermission && membershipItem.getPermissionLevel().getModeratePostings())) {
+  		  PermissionLevel pl = membershipItem.getPermissionLevel();
+  		  if (pl == null) pl = permissionLevelManager.getPermissionLevelByName(membershipItem.getPermissionLevelName());
+  		  if (pl == null) continue;
+  		  if ((checkReadPermission && Boolean.TRUE.equals(pl.getRead()) && !checkModeratePermission) ||
+  				  (!checkReadPermission && checkModeratePermission && Boolean.TRUE.equals(pl.getModeratePostings())) ||
+  				  (checkReadPermission && Boolean.TRUE.equals(pl.getRead()) && checkModeratePermission && Boolean.TRUE.equals(pl.getModeratePostings()))) {
   			  if (membershipItem.getType() == MembershipItem.TYPE_ROLE) {
   				  // add the users who are a member of this role
-  				  log.debug("Adding users in role: " + membershipItem.getName() + " with read: " + membershipItem.getPermissionLevel().getRead());
+  				  log.debug("Adding users in role: " + membershipItem.getName() + " with read: " + pl.getRead());
   				  Set<String> usersInRole = currentSite.getUsersHasRole(membershipItem.getName());
   				  usersAllowed.addAll(usersInRole);
   			  } else if (membershipItem.getType() == MembershipItem.TYPE_GROUP) {

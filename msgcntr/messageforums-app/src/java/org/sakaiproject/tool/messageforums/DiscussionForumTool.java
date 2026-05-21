@@ -1201,7 +1201,8 @@ public class DiscussionForumTool {
     topicClickCount = 0;
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
-    
+    permissions = null;
+
     String forumId = getExternalParameterByKey(FORUM_ID);
     if (StringUtils.isBlank(forumId) || "null".equals(forumId))
     {
@@ -1696,7 +1697,12 @@ public class DiscussionForumTool {
 				{
 					DBMembershipItem oldItem = (DBMembershipItem) iter2.next();
 					if(permBean.getItem().getId().equals(oldItem.getId())){
-						if(permBean.getModeratePostings() != oldItem.getPermissionLevel().getModeratePostings()){
+						PermissionLevel oldLevel = oldItem.getPermissionLevel();
+						if (oldLevel == null) {
+							oldLevel = permissionLevelManager.getPermissionLevelByName(oldItem.getPermissionLevelName());
+						}
+						Boolean oldModerate = (oldLevel != null) ? oldLevel.getModeratePostings() : Boolean.FALSE;
+						if(permBean.getModeratePostings() != Boolean.TRUE.equals(oldModerate)){
 							update = true;
 							break;
 						}
@@ -1793,7 +1799,8 @@ public class DiscussionForumTool {
     forumClickCount = 0;
     setPermissionMode(PERMISSION_MODE_TOPIC);
     setEditMode(true);
-        
+    permissions = null;
+
     if(selectedTopic == null)
     {
 			log.debug("no topic is selected in processActionReviseTopicSettings.");
@@ -7263,8 +7270,12 @@ public class DiscussionForumTool {
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(t));
       }
       permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
+      if (area != null) {
+        uiPermissionsManager.clearMembershipsFromCacheForArea(area);
+      }
     }
     siteMembers = null;
+    permissions = null;
   }
 
 	/**
@@ -7274,24 +7285,26 @@ public class DiscussionForumTool {
 	 */
 	private void setupMembershipItemPermission(DBMembershipItem membershipItem, PermissionBean permBean)
 	{
-		PermissionsMask mask = new PermissionsMask();                
-		mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-		mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-		mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-		mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-		mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-		mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-		mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-		mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-		mask.put(PermissionLevel.MARK_AS_NOT_READ,Boolean.valueOf(permBean.getMarkAsNotRead()));
-		mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-		mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(permBean.getIdentifyAnonAuthors()));
-		mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-		mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-		mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-		mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-		
-		PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
+		if (!PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(permBean.getSelectedLevel())) {
+			return;
+		}
+		PermissionsMask mask = new PermissionsMask();
+		mask.put(PermissionLevel.NEW_FORUM, permBean.getNewForum());
+		mask.put(PermissionLevel.NEW_TOPIC, permBean.getNewTopic());
+		mask.put(PermissionLevel.NEW_RESPONSE, permBean.getNewResponse());
+		mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, permBean.getResponseToResponse());
+		mask.put(PermissionLevel.MOVE_POSTING, permBean.getMovePosting());
+		mask.put(PermissionLevel.CHANGE_SETTINGS, permBean.getChangeSettings());
+		mask.put(PermissionLevel.POST_TO_GRADEBOOK, permBean.getPostToGradebook());
+		mask.put(PermissionLevel.READ, permBean.getRead());
+		mask.put(PermissionLevel.MARK_AS_NOT_READ, permBean.getMarkAsNotRead());
+		mask.put(PermissionLevel.MODERATE_POSTINGS, permBean.getModeratePostings());
+		mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, permBean.getIdentifyAnonAuthors());
+		mask.put(PermissionLevel.DELETE_OWN, permBean.getDeleteOwn());
+		mask.put(PermissionLevel.DELETE_ANY, permBean.getDeleteAny());
+		mask.put(PermissionLevel.REVISE_OWN, permBean.getReviseOwn());
+		mask.put(PermissionLevel.REVISE_ANY, permBean.getReviseAny());
+		PermissionLevel level = permissionLevelManager.createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM, typeManager.getCustomLevelType(), mask);
 		membershipItem.setPermissionLevel(level);
 	}
   

@@ -30,47 +30,39 @@ public interface Area extends MutableEntity {
      * setting for {@link #sendToEmail}. A copy of message is never sent
      * to recipients' email addresses
      */
-    public static final int EMAIL_COPY_NEVER = 0;
+    int EMAIL_COPY_NEVER = 0;
     /**
      * setting for {@link #sendToEmail}. Sender is given the option of sending
      * a copy of message to email addresses 
      */
-    public static final int EMAIL_COPY_OPTIONAL = 1;
+    int EMAIL_COPY_OPTIONAL = 1;
     /**
      * setting for {@link #sendToEmail}. A copy of message is always sent
      * to recipients' email addresses
      */
-    public static final int EMAIL_COPY_ALWAYS = 2;
+    int EMAIL_COPY_ALWAYS = 2;
 
-    public void setVersion(Integer version);
+    void setVersion(Integer version);
 
-    public String getContextId();
+    String getContextId();
 
-    public void setContextId(String contextId);
+    void setContextId(String contextId);
 
-    public Boolean getHidden();
+    Boolean getHidden();
 
-    public void setHidden(Boolean hidden);
+    void setHidden(Boolean hidden);
 
-    public String getName();
+    String getName();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public Boolean getEnabled();
+    Boolean getEnabled();
 
-    public void setEnabled(Boolean enabled);
+    void setEnabled(Boolean enabled);
     
-    /**
-     * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708. DO NOT USE.
-     * @return
-     */
-    public Boolean getSendEmailOut();
+    Boolean getSendEmailOut();
     
-    /**
-     * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708. DO NOT USE.
-     * @param sendEmailOut
-     */
-    public void setSendEmailOut(Boolean sendEmailOut);
+    void setSendEmailOut(Boolean sendEmailOut);
     
     /**
      * 
@@ -78,7 +70,7 @@ public interface Area extends MutableEntity {
      * email addresses. This may be {@link #EMAIL_COPY_NEVER}, #{@link #EMAIL_COPY_OPTIONAL},
      * {@link #EMAIL_COPY_ALWAYS}
      */
-    public int getSendToEmail();
+    int getSendToEmail();
     
     /**
      * set the site-level setting for sending a copy of the message to recipients'
@@ -86,81 +78,81 @@ public interface Area extends MutableEntity {
      * {@link #EMAIL_COPY_ALWAYS}
      * @param sendToEmail
      */
-    public void setSendToEmail(int sendToEmail);
+    void setSendToEmail(int sendToEmail);
 
-    public List getOpenForums();
+    List<OpenForum> getOpenForums();
     
-    public Set getOpenForumsSet();
+    Set<OpenForum> getOpenForumsSet();
 
-    public void setOpenForums(List openForums);
+    void setOpenForums(List<OpenForum> openForums);
 
-    public List getPrivateForums();
+    List<PrivateForum> getPrivateForums();
     
-    public Set getPrivateForumsSet();
+    Set<PrivateForum> getPrivateForumsSet();
 
-    public void setPrivateForums(List discussionForums);
+    void setPrivateForums(List<PrivateForum> discussionForums);
 
-    public List getDiscussionForums();
+    List<DiscussionForum> getDiscussionForums();
 
-    public void setDiscussionForums(List discussionForums);
+    void setDiscussionForums(List<DiscussionForum> discussionForums);
 
-    public String getTypeUuid();
+    String getTypeUuid();
 
-    public void setTypeUuid(String typeUuid);
+    void setTypeUuid(String typeUuid);
 
-    public void addPrivateForum(BaseForum forum);
+    void addPrivateForum(PrivateForum forum);
 
-    public void removePrivateForum(BaseForum forum);
+    void removePrivateForum(PrivateForum forum);
 
-    public void addDiscussionForum(BaseForum forum);
+    void addDiscussionForum(DiscussionForum forum);
 
-    public void removeDiscussionForum(BaseForum forum);
+    void removeDiscussionForum(DiscussionForum forum);
 
-    public void addOpenForum(BaseForum forum);
+    void addOpenForum(OpenForum forum);
 
-    public void removeOpenForum(BaseForum forum);
+    void removeOpenForum(OpenForum forum);
 
-    public Boolean getLocked();
+    Boolean getLocked();
     
-    public void setLocked(Boolean locked);
+    void setLocked(Boolean locked);
     
-    public Boolean getModerated();
+    Boolean getModerated();
     
-    public void setModerated(Boolean moderated);
+    void setModerated(Boolean moderated);
     
-    public Boolean getAutoMarkThreadsRead();
+    Boolean getAutoMarkThreadsRead();
     
-    public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
+    void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
     
-    public Set<DBMembershipItem> getMembershipItemSet();
+    Set<DBMembershipItem> getMembershipItemSet();
 			
-	public void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet);
+	void setMembershipItemSet(Set<DBMembershipItem> membershipItemSet);
     
-    public void addMembershipItem(DBMembershipItem item);      
+    void addMembershipItem(DBMembershipItem item);
 
-    public void removeMembershipItem(DBMembershipItem item);
+    void removeMembershipItem(DBMembershipItem item);
     
-    public Boolean getAvailabilityRestricted();
+    Boolean getAvailabilityRestricted();
     
-    public void setAvailabilityRestricted(Boolean restricted);
+    void setAvailabilityRestricted(Boolean restricted);
       
-    public Date getOpenDate();
+    Date getOpenDate();
 
-	public void setOpenDate(Date openDate);
+	void setOpenDate(Date openDate);
 	
-    public Date getCloseDate();
+    Date getCloseDate();
     
-	public void setCloseDate(Date closeDate);
+	void setCloseDate(Date closeDate);
 	
-	public Boolean getAvailability();
+	Boolean getAvailability();
     
-    public void setAvailability(Boolean restricted);
+    void setAvailability(Boolean restricted);
     
-    public Boolean getPostFirst();
+    Boolean getPostFirst();
     
-    public void setPostFirst(Boolean postFirst);
+    void setPostFirst(Boolean postFirst);
     
-    public Set getHiddenGroups();
+    Set<HiddenGroup> getHiddenGroups();
        
-    public void setHiddenGroups(Set hiddenGroups);
+    void setHiddenGroups(Set<HiddenGroup> hiddenGroups);
 }
