@@ -112,9 +112,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
 
     private Optional<PermissionLevel> resolvePermissionLevel(DBMembershipItem item) {
-        return Optional.ofNullable(
-                Optional.ofNullable(item.getPermissionLevel())
-                        .orElse(permissionLevelManager.getPermissionLevelByName(item.getPermissionLevelName())));
+        if (item == null) return Optional.empty();
+        PermissionLevel level = item.getPermissionLevel();
+        if (level != null) return Optional.of(level);
+        return Optional.ofNullable(item.getPermissionLevelName())
+                .flatMap(name -> Optional.ofNullable(permissionLevelManager.getPermissionLevelByName(name)));
     }
 
     @Override
