@@ -236,6 +236,8 @@ public class QuestionPoolBean implements Serializable {
   @Autowired
   private SecurityService securityService;
 
+  @Getter private String infoDuplicatedQuestion = StringUtils.EMPTY;
+
   /**
    * Creates a new QuestionPoolBean object.
    */
@@ -1400,9 +1402,8 @@ public String getAddOrEdit()
 					// return to an irrelevant screen. I think it's better
 					// just to skip that item. One could argue for a warning
 					// message.
-					if (!hasItemInDestPool(sourceItemId, destId)) {
-						delegate.moveItemToPool(sourceItemId, sourceId, destId);
-					}
+					infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+					delegate.moveItemToPool(sourceItemId, sourceId, destId);
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
 				}
 			} catch (Exception e) {
@@ -1478,25 +1479,15 @@ public String getAddOrEdit()
 
 		return EDIT_ASSESSMENT;
 	}
-     
-  public boolean hasItemInDestPool(Long sourceItemId, Long destId){
-  
-              QuestionPoolService delegate = new QuestionPoolService();
-              // check if the item already exists in the destPool
-              if (delegate.hasItem(sourceItemId, destId)){
-                // we do not want to add duplicated items, show message
 
-                FacesContext context=FacesContext.getCurrentInstance();
-                String err;
-                err=rb.getString("copy_duplicate_error");
-                context.addMessage(null,new FacesMessage(err));
-                return true;
-              }
-  	      else {	
-                return false;
- 	      } 
+  public String addMessageIfDuplicatedInDestPool(Long sourceItemId, Long destId){
+      QuestionPoolService delegate = new QuestionPoolService();
+      // check if the item already exists in the destPool
+      if (delegate.hasItem(sourceItemId, destId)){
+          // if has duplicated items, show message
+          return rb.getString("copy_duplicate_error");
+      } else return StringUtils.EMPTY;
   }
-
 
   public String copyQuestion() {
 		if (getSourcePart() != null)
@@ -1526,12 +1517,11 @@ public String getAddOrEdit()
 						// return to an irrelevant screen. I think it's better
 						// just to skip that item. One could argue for a warning
 						// message.
-						if (!hasItemInDestPool(sourceItemId, destId)) {
-							Long copyItemFacadeId = questionPoolService
-									.copyItemFacade(sourceItem.getData());
-							delegate.addItemToPool(copyItemFacadeId, new Long(
-									destId));
-						}
+						infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+						Long copyItemFacadeId = questionPoolService
+								.copyItemFacade(sourceItem.getData());
+						delegate.addItemToPool(copyItemFacadeId, new Long(
+								destId));
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
 					}
 				} catch (Exception e) {
