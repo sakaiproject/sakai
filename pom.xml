@@ -86,7 +86,6 @@
                 <module>message</module>
                 <module>microsoft-integration</module>
                 <module>msgcntr</module>
-                <module>oauth</module>
                 <module>pasystem</module>
                 <module>plus</module>
                 <module>podcasts</module>
@@ -276,8 +275,6 @@
                 <module>msgcntr/messageforums-api</module>
                 <module>msgcntr/messageforums-hbm</module>
                 <module>microsoft-integration/api</module>
-                <module>oauth/api</module>
-                <module>oauth/dao-hbm</module>
                 <module>pasystem/pasystem-api/api</module>
                 <module>polls/api</module>
                 <module>profile2/api</module>
