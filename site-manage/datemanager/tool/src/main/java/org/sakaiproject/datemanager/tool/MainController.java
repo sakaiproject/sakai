@@ -29,6 +29,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,7 @@ import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
@@ -81,6 +83,10 @@ public class MainController {
 	@Autowired
 	private ServerConfigurationService serverConfigurationService;
 
+	@Autowired
+	@Qualifier("org.sakaiproject.time.api.UserTimeService")
+	private UserTimeService userTimeService;
+
     /**
      * Sets the locale for the current site and user in the model.
      *
@@ -99,6 +105,7 @@ public class MainController {
         model.addAttribute("userCountry", loc.getCountry());
         model.addAttribute("userLanguage", loc.getLanguage());
         model.addAttribute("userLocale", loc.toString());
+        model.addAttribute("userTimeZone", userTimeService.getLocalTimeZone().getID());
 
         return model;
     }

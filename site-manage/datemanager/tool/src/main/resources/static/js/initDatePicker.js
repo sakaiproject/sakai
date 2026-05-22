@@ -2,6 +2,7 @@ var DTMN = DTMN || {};
 
 DTMN.toolList = [ "assignments", "assessments", "signup", "gradebook", "resources", "calendar", "forums", "announcements", "lessons" ];
 DTMN.collapseElements = [ ];
+DTMN.bulkFields = [ "open_date", "due_date", "accept_until", "feedback_start", "feedback_end", "signup_begins", "signup_deadline" ];
 DTMN.nextIndex = -1;
 
 DTMN.initDatePicker = function(updates, notModified) {
@@ -31,8 +32,18 @@ DTMN.initDatePicker = function(updates, notModified) {
       }, 25); // delay 25ms to give browser time to render the spinner
     });
 
-    collapseElement.addEventListener("shown.bs.collapse", () => DTMN.validateShiftInput());
-    collapseElement.addEventListener("hidden.bs.collapse", () => DTMN.validateShiftInput());
+    collapseElement.addEventListener("shown.bs.collapse", () => {
+      DTMN.validateShiftInput();
+      if (DTMN.validateBulkInputs) {
+        DTMN.validateBulkInputs();
+      }
+    });
+    collapseElement.addEventListener("hidden.bs.collapse", () => {
+      DTMN.validateShiftInput();
+      if (DTMN.validateBulkInputs) {
+        DTMN.validateBulkInputs();
+      }
+    });
   });
 };
 
@@ -59,6 +70,136 @@ DTMN.initShifter = function(updates, notModified) {
   DTMN.shiftVisibleBtn.addEventListener("click", function() {
     DTMN.handleShiftButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
   }, false);
+};
+
+DTMN.initBulkSetter = function(updates, notModified) {
+
+  DTMN.bulkErrorBanner = document.getElementById("dateBulkSetterError");
+  DTMN.bulkAllBtn = document.getElementById("applyAllDates");
+  DTMN.bulkVisibleBtn = document.getElementById("applyVisibleDates");
+  DTMN.bulkInputs = Array.from(document.querySelectorAll(".bulk-date-input"));
+
+  DTMN.initBulkDatePickers();
+
+  DTMN.bulkAllBtn.addEventListener("click", function() {
+    DTMN.handleBulkButtonClick(this, DTMN.collapseElements, updates, notModified);
+  }, false);
+
+  DTMN.bulkVisibleBtn.addEventListener("click", function() {
+    DTMN.handleBulkButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
+  }, false);
+
+  DTMN.validateBulkInputs();
+};
+
+DTMN.initBulkDatePickers = function() {
+  DTMN.bulkFields.forEach(function(field) {
+    const input = document.getElementById(DTMN.getBulkInputId(field));
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
+
+    if (!input || !hidden) {
+      return;
+    }
+
+    hidden.addEventListener("change", () => DTMN.validateBulkInputs(), false);
+
+    localDatePicker({
+      input,
+      useTime: 1,
+      parseFormat: 'YYYY-MM-DDTHH:mm:ss',
+      allowEmptyDate: true,
+      ashidden: {
+        iso8601: hidden.id,
+      }
+    });
+  });
+};
+
+DTMN.getBulkInputId = function(field)
+{
+  return "bulk-" + field.replaceAll("_", "-");
+};
+
+DTMN.getBulkHiddenId = function(field)
+{
+  return "bulk-hidden-" + field.replaceAll("_", "-");
+};
+
+DTMN.getUserTimeZone = function()
+{
+  const userTimeZone = globalThis.sakai?.locale?.userTimeZone;
+  if (!userTimeZone && DTMN.warnDatePickerTimeZoneFallback) {
+    DTMN.warnDatePickerTimeZoneFallback("getUserTimeZone");
+  }
+  return userTimeZone || null;
+};
+
+DTMN.warnDatePickerTimeZoneFallback = function(functionName, value, useTime)
+{
+  const warningFlag = "_" + functionName + "TimeZoneFallbackWarned";
+  if (DTMN[warningFlag]) {
+    return;
+  }
+
+  DTMN[warningFlag] = true;
+  console.warn(functionName + " falling back to browser timezone because moment-timezone or sakai.locale.userTimeZone is unavailable.", {value, useTime});
+};
+
+DTMN.getDatePickerInputValue = function(date, useTime)
+{
+  const userTimeZone = DTMN.getUserTimeZone();
+  let userDate = date;
+  if (moment.tz && userTimeZone) {
+    userDate = date.clone().tz(userTimeZone);
+  } else {
+    DTMN.warnDatePickerTimeZoneFallback("getDatePickerInputValue", date && date.format ? date.format() : date, useTime);
+  }
+  return useTime ? userDate.format("YYYY-MM-DDTHH:mm") : userDate.format("YYYY-MM-DD");
+};
+
+DTMN.getHiddenDateValue = function(date, useTime)
+{
+  const userTimeZone = DTMN.getUserTimeZone();
+  let userDate = date;
+  if (moment.tz && userTimeZone) {
+    userDate = date.clone().tz(userTimeZone);
+  } else {
+    DTMN.warnDatePickerTimeZoneFallback("getHiddenDateValue", date && date.format ? date.format() : date, useTime);
+  }
+  return useTime ? userDate.format("YYYY-MM-DDTHH:mm:ss") : userDate.format("YYYY-MM-DD");
+};
+
+DTMN.parseDatePickerInputValue = function(value, useTime)
+{
+  const formats = useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm", "YYYY-MM-DD"] : "YYYY-MM-DD";
+  const userTimeZone = DTMN.getUserTimeZone();
+  if (moment.tz && userTimeZone) {
+    return moment.tz(value, formats, true, userTimeZone);
+  }
+
+  DTMN.warnDatePickerTimeZoneFallback("parseDatePickerInputValue", value, useTime);
+  return moment(value, formats, true);
+};
+
+DTMN.hasTime = function(date)
+{
+  return date.hours() !== 0 || date.minutes() !== 0 || date.seconds() !== 0;
+};
+
+DTMN.setDatePickerValue = function(datepicker, date, useTime)
+{
+  datepicker.value = DTMN.getDatePickerInputValue(date, useTime);
+
+  const td = datepicker.closest("td");
+  const hiddenField = td ? td.querySelector("input[type=hidden]") : null;
+  if (hiddenField) {
+    hiddenField.value = DTMN.getHiddenDateValue(date, useTime);
+    hiddenField.dispatchEvent(new Event("change", {bubbles: true}));
+  } else {
+    datepicker.dispatchEvent(new Event("change", {bubbles: true}));
+  }
+
+  datepicker.classList.add("border-warning");
 };
 
 DTMN.attachDatePicker = function (selector, updates, notModified) {
@@ -204,6 +345,36 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
   }, 25);
 };
 
+DTMN.handleBulkButtonClick = function(button, collapseElements, updates, notModified)
+{
+  const hasValue = DTMN.bulkFields.some(function(field) {
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
+    return hidden && hidden.value !== "";
+  });
+
+  if (!hasValue) {
+    DTMN.showBulkError();
+    DTMN.validateBulkInputs();
+    return;
+  }
+
+  DTMN.hideBulkError();
+  DTMN.disableBulkControls(button);
+  window.setTimeout(function()
+  {
+    if (collapseElements.length === 0)
+    {
+      DTMN.enableBulkControls(button);
+      return;
+    }
+
+    for (let i = 0; i < collapseElements.length; i++)
+    {
+      window.setTimeout(function() { DTMN.applyBulkDates(updates, notModified, collapseElements[i].id, button, i === collapseElements.length - 1); }, 10);
+    }
+  }, 25);
+};
+
 DTMN.validateShiftInput = function()
 {
   const val = DTMN.shiftInput.value;
@@ -233,6 +404,25 @@ DTMN.findExpandedSections = function()
   return DTMN.collapseElements.filter(function (e) { return e.classList.contains("show") === true; });
 };
 
+DTMN.validateBulkInputs = function()
+{
+  if (!DTMN.bulkAllBtn || !DTMN.bulkVisibleBtn) {
+    return;
+  }
+
+  const hasValue = DTMN.bulkFields.some(function(field) {
+    const hidden = document.getElementById(DTMN.getBulkHiddenId(field));
+    return hidden && hidden.value !== "";
+  });
+
+  if (hasValue) {
+    DTMN.hideBulkError();
+  }
+
+  DTMN.bulkAllBtn.disabled = !hasValue;
+  DTMN.bulkVisibleBtn.disabled = !hasValue || DTMN.findExpandedSections().length === 0;
+};
+
 DTMN.hideShiftError = function()
 {
   DTMN.shiftErrorBanner.classList.add("d-none");
@@ -243,6 +433,24 @@ DTMN.showShiftError = function()
 {
   DTMN.shiftErrorBanner.classList.remove("d-none");
   DTMN.shiftErrorBanner.setAttribute("role", "alert");
+};
+
+DTMN.hideBulkError = function()
+{
+  DTMN.activeBulkError = null;
+  DTMN.bulkErrorBanner.classList.add("d-none");
+  DTMN.bulkErrorBanner.removeAttribute("role");
+};
+
+DTMN.showBulkError = function(errorType)
+{
+  errorType = errorType || "empty";
+  DTMN.activeBulkError = errorType;
+  DTMN.bulkErrorBanner.querySelectorAll("[data-error]").forEach(function(error) {
+    error.classList.toggle("d-none", error.dataset.error !== errorType);
+  });
+  DTMN.bulkErrorBanner.classList.remove("d-none");
+  DTMN.bulkErrorBanner.setAttribute("role", "alert");
 };
 
 DTMN.disableShiftControls = function(button)
@@ -258,11 +466,41 @@ DTMN.disableShiftButtons = function()
   DTMN.shiftVisibleBtn.disabled = true;
 };
 
+DTMN.disableBulkControls = function(button)
+{
+  DTMN.bulkInputs.forEach(function(input) {
+    input.disabled = true;
+  });
+  DTMN.disableBulkButtons();
+  button.classList.add("spinButton");
+};
+
+DTMN.disableBulkButtons = function()
+{
+  DTMN.bulkAllBtn.disabled = true;
+  DTMN.bulkVisibleBtn.disabled = true;
+};
+
+DTMN.enableBulkButtons = function()
+{
+  DTMN.bulkAllBtn.disabled = false;
+  DTMN.bulkVisibleBtn.disabled = DTMN.findExpandedSections().length === 0;
+};
+
 DTMN.enableShiftControls = function(button)
 {
   button.classList.remove("spinButton");
   DTMN.validateShiftInput();
   DTMN.shiftInput.disabled = false;
+};
+
+DTMN.enableBulkControls = function(button)
+{
+  button.classList.remove("spinButton");
+  DTMN.bulkInputs.forEach(function(input) {
+    input.disabled = false;
+  });
+  DTMN.validateBulkInputs();
 };
 
 DTMN.clearChangedDateIndication = function() {
@@ -294,7 +532,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
 
     // Find the associated hidden field using modern DOM traversal
     const td = datepicker.closest('td');
-    const hiddenField = td.querySelector('input[type=hidden]');
+    const hiddenField = td ? td.querySelector('input[type=hidden]') : null;
 
     if (!hiddenField) {
       console.warn('No hidden field found for datepicker', datepicker);
@@ -304,12 +542,11 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
     const dataTool = hiddenField.dataset.tool;
 
     // Determine the correct date format based on the tool type
-    const dateFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm:ss';
-    const displayFormat = (dataTool === 'gradebookItems') ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm:ss";
+    const useTime = dataTool !== 'gradebookItems';
 
     try {
       // Parse the date string and add days
-      const currentDate = moment(dateValue, dateFormat);
+      const currentDate = DTMN.parseDatePickerInputValue(dateValue, useTime);
 
       if (!currentDate.isValid()) {
         console.warn('Invalid date format:', dateValue);
@@ -318,17 +555,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
 
       const newDate = currentDate.clone().add(days, 'days');
 
-      // Update the hidden field with the formatted date
-      hiddenField.value = newDate.format(dateFormat);
-
-      // Trigger change event on the hidden field
-      hiddenField.dispatchEvent(new Event('change', {bubbles: true}));
-
-      // Update the visible input field
-      datepicker.value = newDate.format(displayFormat);
-
-      // Add visual indication that the field has been changed
-      datepicker.classList.add('border-warning');
+      DTMN.setDatePickerValue(datepicker, newDate, useTime);
 
     } catch (error) {
       console.error('Error processing date:', dateValue, error);
@@ -338,5 +565,47 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   if (enableButton)
   {
     DTMN.enableShiftControls(button);
+  }
+};
+
+DTMN.applyBulkDates = function (updates, notModified, rootElementId, button, enableButton) {
+
+  const rootElement = "#" + rootElementId;
+
+  DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
+
+  DTMN.bulkFields.forEach(function(field) {
+    const bulkInput = document.getElementById(DTMN.getBulkInputId(field));
+    const bulkHidden = document.getElementById(DTMN.getBulkHiddenId(field));
+
+    if (!bulkInput || !bulkHidden || bulkHidden.value === "") {
+      return;
+    }
+
+    const bulkDate = DTMN.parseDatePickerInputValue(bulkInput.value, true);
+
+    if (!bulkDate.isValid()) {
+      return;
+    }
+
+    const hiddenFields = document.querySelectorAll(rootElement + ' input[type=hidden][data-field="' + field + '"]');
+    hiddenFields.forEach(function(hiddenField) {
+      const td = hiddenField.closest('td');
+      const datepicker = td ? td.querySelector('input.datepicker') : null;
+
+      if (!datepicker || datepicker.disabled) {
+        return;
+      }
+
+      const dataTool = hiddenField.dataset.tool;
+      const useTime = dataTool !== 'gradebookItems';
+
+      DTMN.setDatePickerValue(datepicker, bulkDate, useTime);
+    });
+  });
+
+  if (enableButton)
+  {
+    DTMN.enableBulkControls(button);
   }
 };
