@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -119,6 +120,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 
 	protected Set getEnrolledSections(String userUid) {
 		return getCourseBean().sectionManager.getSectionEnrollments(userUid, getCourse().getUuid());
+	}
+
+	protected Locale getLocale() {
+		return getCourseBean().localeService.getLocaleForCurrentSiteAndUser();
 	}
 
 	protected String getCategoryName(String categoryId) {

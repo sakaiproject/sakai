@@ -27,6 +27,7 @@ import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * Provides the current course uuid for a given user session.  This is also the
@@ -46,6 +47,7 @@ public class CourseBean implements Serializable {
     protected Authz authz;
     protected Context context;
     protected PreferencesBean prefs;
+    protected LocaleService localeService;
 
 	protected String getCourseUuid() {
 		Course course = sectionManager.getCourse(context.getContext(null));
@@ -81,6 +83,10 @@ public class CourseBean implements Serializable {
 	public void setPrefs(PreferencesBean prefs) {
 		this.prefs = prefs;
 	}
-	
+
+    public void setLocaleService(LocaleService localeService) {
+        this.localeService = localeService;
+    }
+
 }
 

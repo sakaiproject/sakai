@@ -22,7 +22,10 @@ package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -52,17 +55,30 @@ public class EnrollmentDecorator implements Serializable {
         this.categoryToSectionMap = categoryToSectionMap;
     }
 
-    public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending) {
-        return new Comparator<EnrollmentDecorator>() {
-            private final Collator collator = Collator.getInstance();        	
-            private int compareUsers(final User u1, final User u2) {
-        	    this.collator.setStrength(Collator.PRIMARY);
-        	    return new CompareToBuilder()
-        		        .append(u1.getSortName(), u2.getSortName(), this.collator)        				
-        		        .toComparison();
+    private static Collator createCollator(Locale locale) {
+        Collator fallback = Collator.getInstance(locale);
+        fallback.setStrength(Collator.TERTIARY);
+        try {
+            Collator base = Collator.getInstance(locale);
+            if (!(base instanceof RuleBasedCollator)) {
+                return fallback;
             }
+            Collator c = new RuleBasedCollator(((RuleBasedCollator) base).getRules().replaceAll("<'_'", "<' '<'_'"));
+            c.setStrength(Collator.TERTIARY);
+            return c;
+        } catch (ParseException e) {
+            log.warn("Failed to create RuleBasedCollator for EnrollmentDecorator", e);
+            return fallback;
+        }
+    }
+
+    public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending, final Locale locale) {
+        return new Comparator<EnrollmentDecorator>() {
+            private final Collator collator = createCollator(locale);
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
-                int comparison = compareUsers(enr1.getUser(), enr2.getUser());
+                int comparison = new CompareToBuilder()
+                        .append(enr1.getUser().getSortName(), enr2.getUser().getSortName(), this.collator)
+                        .toComparison();
                 return sortAscending ? comparison : (-1 * comparison);
             }
         };
@@ -77,8 +93,9 @@ public class EnrollmentDecorator implements Serializable {
         };
     }
 
-    public static final Comparator<EnrollmentDecorator> getCategoryComparator(final String categoryId, final boolean sortAscending) {
-        if(log.isDebugEnabled()) log.debug("Comparing enrollment decorators by " + categoryId);
+    public static final Comparator<EnrollmentDecorator> getCategoryComparator(final String categoryId, final boolean sortAscending, final Locale locale) {
+        log.debug("Comparing enrollment decorators by {}", categoryId);
+        final Collator collator = createCollator(locale);
         return new Comparator<EnrollmentDecorator>() {
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
                 CourseSection section1 = (CourseSection)enr1.getCategoryToSectionMap().get(categoryId);
@@ -89,17 +106,16 @@ public class EnrollmentDecorator implements Serializable {
                 if(section1 != null && section2 == null) {
                     return sortAscending ? 1 : -1;
                 }
+                int comparison;
                 if(section1 == null && section2 == null) {
-                    return getNameComparator(sortAscending).compare(enr1, enr2);
-                }
-
-                int comparison = 0;
-                if(section1.getTitle().equals(section2.getTitle())) {
-                    // Use the student name for comparison if the titles are equal
-                    comparison = enr1.getUser().getSortName().compareTo(enr2.getUser().getSortName());
+                    comparison = collator.compare(enr1.getUser().getSortName(), enr2.getUser().getSortName());
                 } else {
-                    // Use the section title for comparison if the titles are different
-                    comparison = section1.getTitle().compareTo(section2.getTitle());
+                    int titleComparison = collator.compare(section1.getTitle(), section2.getTitle());
+                    if (titleComparison == 0) {
+                        comparison = collator.compare(enr1.getUser().getSortName(), enr2.getUser().getSortName());
+                    } else {
+                        comparison = titleComparison;
+                    }
                 }
                 return sortAscending ? comparison : (-1 * comparison);
             }
