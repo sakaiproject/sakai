@@ -1484,10 +1484,8 @@ public String getAddOrEdit()
   public String addMessageIfDuplicatedInDestPool(Long sourceItemId, Long destId){
       QuestionPoolService delegate = new QuestionPoolService();
       // check if the item already exists in the destPool
-      if (delegate.hasItem(sourceItemId, destId)){
-          // if has duplicated items, show message
-          return rb.getString("copy_duplicate_error");
-      } else return StringUtils.EMPTY;
+      // if has duplicated items, show message
+      return delegate.hasItem(sourceItemId, destId) ? rb.getString("copy_duplicate_error") : StringUtils.EMPTY;
   }
 
   public String copyQuestion() {
