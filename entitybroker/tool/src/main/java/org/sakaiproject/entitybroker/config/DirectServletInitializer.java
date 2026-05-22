@@ -30,8 +30,8 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 /**
  * Programmatic replacement for web.xml.
- * Registers the Spring DispatcherServlet and all filters (OAuth pre/post,
- * Sakai request) that were previously declared in web.xml.
+ * Registers the Spring DispatcherServlet and the Sakai request filter
+ * that were previously declared in web.xml.
  */
 public class DirectServletInitializer implements WebApplicationInitializer {
 
@@ -47,12 +47,6 @@ public class DirectServletInitializer implements WebApplicationInitializer {
         servlet.setLoadOnStartup(1);
         servlet.addMapping("/*");
 
-        // OAuth pre-filter
-        FilterRegistration.Dynamic oauthPre =
-                servletContext.addFilter("oauth.pre", "org.sakaiproject.oauth.filter.OAuthPreFilter");
-        oauthPre.addMappingForServletNames(
-                EnumSet.of(DispatcherType.REQUEST), true, "sakai.entitybroker.direct");
-
         // Sakai request filter with basic auth enabled
         FilterRegistration.Dynamic sakaiRequest =
                 servletContext.addFilter("sakai.request", "org.sakaiproject.util.RequestFilter");
@@ -60,11 +54,5 @@ public class DirectServletInitializer implements WebApplicationInitializer {
         sakaiRequest.addMappingForServletNames(
                 EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE),
                 true, "sakai.entitybroker.direct");
-
-        // OAuth post-filter
-        FilterRegistration.Dynamic oauthPost =
-                servletContext.addFilter("oauth.post", "org.sakaiproject.oauth.filter.OAuthPostFilter");
-        oauthPost.addMappingForServletNames(
-                EnumSet.of(DispatcherType.REQUEST), true, "sakai.entitybroker.direct");
     }
 }
