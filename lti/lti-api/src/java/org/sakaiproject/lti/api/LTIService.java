@@ -105,7 +105,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "description:textarea:label=bl_description:maxlength=4096:archive=true",
             "status:radio:label=bl_status:choices=enable,disable",
             "visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-            "deployment_id:text:label=bl_deployment_id:maxlength=255:role=admin:archive=true",
             "launch:url:label=bl_launch:maxlength=1024:required=true:archive=true",
             "newpage:radio:label=bl_newpage:choices=off,on,content:archive=true",
             "frameheight:integer:label=bl_frameheight:archive=true",
@@ -142,8 +141,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin:archive=true",
 
             // LTI 1.3 security values from the tool
-            "lti13_tool_security:header:fields=lti13_tool_keyset,lti13_oidc_endpoint,lti13_oidc_redirect",
+            "lti13_tool_security:header:fields=lti13_tool_keyset,deployment_id,lti13_oidc_endpoint,lti13_oidc_redirect",
             "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin",  // From the tool - keep legacy field name
+            "deployment_id:text:label=bl_deployment_id:maxlength=255:role=admin:archive=true",
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",  // From the tool - keep legacy field name
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",  // From the tool - keep legacy field name
 
