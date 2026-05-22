@@ -16,11 +16,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-access-impl</artifactId>
     </dependency>
-    <!-- OAuth dependency -->
-    <dependency>
-      <groupId>org.sakaiproject.oauth</groupId>
-      <artifactId>oauth-api</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <resources />
