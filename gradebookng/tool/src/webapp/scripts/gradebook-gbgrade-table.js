@@ -882,7 +882,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick",
+    editTriggerEvent:"click",
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
@@ -893,6 +893,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       rowElement.setAttribute("scope", "row");
       rowElement.classList.add("border-bottom");
     }
+  });
+
+  // Prevent clicks on interactive cell elements from triggering the cell editor
+  $(GbGradeTable.domElement).on("click", ".tabulator-cell .dropdown-toggle, .tabulator-cell .gb-comment-notification, .tabulator-cell .gb-notification, .tabulator-cell .gb-view-grade-summary", function(event) {
+    event.stopPropagation();
   });
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
