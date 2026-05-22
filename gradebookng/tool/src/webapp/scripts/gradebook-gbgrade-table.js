@@ -896,9 +896,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   // Prevent clicks on interactive cell elements from triggering the cell editor
-  $(GbGradeTable.domElement).on("click", ".tabulator-cell .dropdown-toggle, .tabulator-cell .gb-comment-notification, .tabulator-cell .gb-notification, .tabulator-cell .gb-view-grade-summary", function(event) {
-    event.stopPropagation();
-  });
+  const editBlockSelectors = [".dropdown-toggle", ".gb-comment-notification", ".gb-notification", ".gb-view-grade-summary"];
+  GbGradeTable.domElement[0].addEventListener("click", e => {
+    if (e.target.closest(editBlockSelectors.map(s => `.tabulator-cell ${s}`).join(", "))) {
+      e.stopPropagation();
+    }
+  }, true);
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
     if (e.target.classList.contains('gb-title')) {
