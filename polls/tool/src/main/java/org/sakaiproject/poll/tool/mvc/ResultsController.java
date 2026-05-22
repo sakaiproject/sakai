@@ -26,15 +26,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.service.PollsService;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -47,7 +47,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -139,8 +141,10 @@ public class ResultsController {
         boolean isAdmin = securityService.isSuperUser();
         boolean canAdd = isAdmin || securityService.unlock(PERMISSION_ADD, siteRef);
         boolean isSiteOwner = isAdmin || securityService.unlock("site.upd", siteRef);
+        boolean canEdit = canEditPoll(currentPoll);
 
         model.addAttribute("poll", currentPoll);
+        model.addAttribute("canEdit", canEdit);
         model.addAttribute("rows", rows);
         model.addAttribute("chartLabels", rows.stream().map(ResultRow::getChartLabel).collect(Collectors.toList()));
         model.addAttribute("chartVotes", rows.stream().map(ResultRow::getVotes).collect(Collectors.toList()));
@@ -195,6 +199,17 @@ public class ResultsController {
             text += messageSource.getMessage("deleted_option_tag_html", null, locale);
         }
         return text;
+    }
+
+    private boolean canEditPoll(Poll poll) {
+        if (securityService.isSuperUser()) {
+            return true;
+        }
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
+            return true;
+        }
+        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef) && StringUtils.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
     }
 
     @Value
