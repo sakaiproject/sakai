@@ -1300,7 +1300,7 @@ public class ExtractionHelper
 			    contentType = mimetypesFileTypeMap.getContentType(filename);
 			    contentResource = attachmentHelper.createContentResource(fullFilePath, filename, contentType);
 			  } else {
-			    log.warn("QTI Import - Physical file not found in ZIP package for resource " + oldResourceId + ". Migration of this resource will be skipped.");
+			    log.warn("QTI Import - Physical file not found in ZIP package for resource {}. Migration of this resource will be skipped.", oldResourceId);
 			    recordSkippedAttachment(oldResourceId);
 			  }
 			  if (contentResource != null) {
@@ -1330,6 +1330,15 @@ public class ExtractionHelper
       return null;
     }
 
+    String unzipRootCanonicalPath;
+    try {
+      unzipRootCanonicalPath = unzipRoot.getCanonicalPath();
+    } catch (IOException e) {
+      log.warn("QTI Import - Could not resolve ZIP root path {}", unzipRoot.getPath(), e);
+      return null;
+    }
+    String unzipRootCanonicalPrefix = unzipRootCanonicalPath + File.separator;
+
     String[] candidatePaths = new String[] {
       stripLeadingSlash(resourceId),
       stripLeadingSlash(decodeImportedAttachmentPath(resourceId)),
@@ -1343,16 +1352,35 @@ public class ExtractionHelper
       }
       File candidateFile = new File(unzipRoot, candidatePath);
       if (candidateFile.isFile()) {
-        return candidateFile.getPath();
+        try {
+          String candidateCanonicalPath = candidateFile.getCanonicalPath();
+          if (isWithinUnzipRoot(unzipRootCanonicalPath, unzipRootCanonicalPrefix, candidateCanonicalPath)) {
+            return candidateCanonicalPath;
+          }
+        } catch (IOException e) {
+          log.warn("QTI Import - Could not resolve candidate attachment path {}", candidateFile.getPath(), e);
+        }
       }
 
       File indexedMatch = getImportedAttachmentIndex().get(candidatePath);
       if (indexedMatch != null) {
-        return indexedMatch.getPath();
+        try {
+          String indexedCanonicalPath = indexedMatch.getCanonicalPath();
+          if (isWithinUnzipRoot(unzipRootCanonicalPath, unzipRootCanonicalPrefix, indexedCanonicalPath)) {
+            return indexedCanonicalPath;
+          }
+        } catch (IOException e) {
+          log.warn("QTI Import - Could not resolve indexed attachment path {}", indexedMatch.getPath(), e);
+        }
       }
     }
 
     return null;
+  }
+
+  private boolean isWithinUnzipRoot(String unzipRootCanonicalPath, String unzipRootCanonicalPrefix, String candidateCanonicalPath)
+  {
+    return candidateCanonicalPath != null && (candidateCanonicalPath.equals(unzipRootCanonicalPath) || candidateCanonicalPath.startsWith(unzipRootCanonicalPrefix));
   }
 
   private Map<String, File> getImportedAttachmentIndex()
