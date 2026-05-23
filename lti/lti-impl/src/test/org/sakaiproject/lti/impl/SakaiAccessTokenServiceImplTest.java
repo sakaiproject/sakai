@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.lti.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -303,6 +304,22 @@ public class SakaiAccessTokenServiceImplTest {
         } catch (SakaiAccessTokenException e) {
             assertEquals("invalid_request", e.getErrorKey());
         }
+    }
+
+    @Test
+    public void isLtiBearerWebApiEnabledDefaultsTrue() {
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED,
+                SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT))
+                .thenReturn(true);
+        assertTrue(service.isLtiBearerWebApiEnabled());
+    }
+
+    @Test
+    public void isLtiBearerWebApiEnabledWhenDisabled() {
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED,
+                SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT))
+                .thenReturn(false);
+        assertFalse(service.isLtiBearerWebApiEnabled());
     }
 
     private SakaiAccessToken sampleSat() {

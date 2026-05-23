@@ -63,6 +63,18 @@ public class LtiBearerTokenInterceptor implements HandlerInterceptor {
       return true;
     }
 
+    if (!sakaiAccessTokenService.isLtiBearerWebApiEnabled()) {
+      log.warn("LTI Bearer access to webapi is disabled ({}=false)", SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED);
+      response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      try {
+        response.getWriter().write("{\"error\":\"webapi_disabled\",\"message\":\"LTI Bearer access to webapi is disabled\"}");
+      } catch (Exception ex) {
+        log.debug("Could not write 403 body", ex);
+      }
+      return false;
+    }
+
     log.info(STAR);
     log.info(BANNER);
     log.info("*** LTI Bearer Token Interceptor — preHandle START ***");

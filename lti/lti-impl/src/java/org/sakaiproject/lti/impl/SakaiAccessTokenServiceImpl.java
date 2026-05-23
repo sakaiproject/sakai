@@ -84,6 +84,11 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
     }
 
     @Override
+    public boolean isLtiBearerWebApiEnabled() {
+        return serverConfigurationService.getBoolean(PROPERTY_WEBAPI_ENABLED, PROPERTY_WEBAPI_ENABLED_DEFAULT);
+    }
+
+    @Override
     public Key getVerificationKey() {
         if (tokenKeyPair == null) {
             return null;
