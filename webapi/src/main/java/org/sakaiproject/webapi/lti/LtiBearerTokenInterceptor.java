@@ -24,6 +24,7 @@ import org.sakaiproject.lti.api.LtiBearerSessionConstants;
 import org.sakaiproject.lti.api.SakaiAccessTokenException;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.lti.util.LtiBearerSessionSupport;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,7 +46,7 @@ public class LtiBearerTokenInterceptor implements HandlerInterceptor {
 
   private final SakaiAccessTokenService sakaiAccessTokenService;
   private final SessionManager sessionManager;
-  private final LtiWebApiSessionSupport sessionSupport = new LtiWebApiSessionSupport();
+  private final LtiBearerSessionSupport sessionSupport = new LtiBearerSessionSupport();
 
   @Autowired
   public LtiBearerTokenInterceptor(

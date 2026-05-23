@@ -89,6 +89,11 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
     }
 
     @Override
+    public boolean isLtiBearerDirectEnabled() {
+        return serverConfigurationService.getBoolean(PROPERTY_DIRECT_ENABLED, PROPERTY_DIRECT_ENABLED_DEFAULT);
+    }
+
+    @Override
     public Key getVerificationKey() {
         if (tokenKeyPair == null) {
             return null;

@@ -100,6 +100,8 @@ The well-known configuration (`/imsblis/lti13/well_known`) advertises these vari
 | `sakai.lti.serverUrl` | (falls back to `serverUrl`) | Base URL for LTI services and substitutions (`Sakai.api.url` is always `{serverUrl}/api`) |
 | `lti.advantage.lti13servlet.public` | — | Optional SAT signing public key (Base64) |
 | `lti.advantage.lti13servlet.private` | — | Optional SAT signing private key (Base64) |
+| `lti.bearer.webapi.enabled` | `true` | Allow LTI Bearer tokens on webapi (`/api`); when false, Bearer requests get 403 without validation |
+| `lti.bearer.direct.enabled` | `true` | Allow LTI Bearer tokens on Entity Broker (`/direct`); when false, Bearer requests get 403 without validation |
 
 ## webapi bearer authentication
 
@@ -107,6 +109,14 @@ The `webapi` module can authenticate requests with `Authorization: Bearer <SAT>`
 See `LtiBearerTokenInterceptor` and `LtiAuthController` (`/lti/bearer-probe` for diagnostics).
 
 SAT validation: `SakaiAccessTokenService.validateToken()`.
+
+## /direct bearer authentication
+
+The Entity Broker direct WAR (`/direct`) can authenticate requests with `Authorization: Bearer <SAT>`.
+See `LtiBearerDirectInterceptor` and `LtiDirectAuthController` (`GET /direct/lti/bearer-probe` for diagnostics).
+
+SAT validation uses the same `SakaiAccessTokenService.validateToken()` as webapi. Scope-to-function enforcement on
+actual entity calls is not implemented yet (same as webapi).
 
 ## Testing
 
@@ -117,6 +127,10 @@ SAT validation: `SakaiAccessTokenService.validateToken()`.
 3. POST to `/imsblis/lti13/token/{toolId}` with `scope=sakai.lti.api.content.read` and valid
    `client_assertion` → receive token; repeat with scope not granted → `invalid_scope`.
 4. **Clear all and save** → launch shows empty `scopes`; token request for that scope fails.
+5. `GET /api/lti/bearer-probe` and `GET /direct/lti/bearer-probe` with `Authorization: Bearer <SAT>` → JSON with
+   `ltiAuthenticated: true`, `toolId`, and `scope`.
+6. Set `lti.bearer.webapi.enabled=false` or `lti.bearer.direct.enabled=false` → matching probe returns 403 without
+   validating the token.
 
 ## Security notes
 

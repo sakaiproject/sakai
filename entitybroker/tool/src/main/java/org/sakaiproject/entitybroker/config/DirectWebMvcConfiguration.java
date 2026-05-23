@@ -17,7 +17,11 @@ package org.sakaiproject.entitybroker.config;
 
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.controller.DirectController;
+import org.sakaiproject.entitybroker.lti.LtiBearerDirectInterceptor;
+import org.sakaiproject.entitybroker.lti.LtiDirectAuthController;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.entitybroker.rest.EntityActionsManager;
 import org.sakaiproject.entitybroker.rest.EntityBatchHandler;
 import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
@@ -27,10 +31,12 @@ import org.sakaiproject.entitybroker.rest.EntityRESTProviderBase;
 import org.sakaiproject.entitybroker.rest.EntityRedirectsManager;
 import org.sakaiproject.util.BasicAuth;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -45,6 +51,29 @@ public class DirectWebMvcConfiguration implements WebMvcConfigurer {
 
     @Autowired
     private EntityBrokerManager entityBrokerManager;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.lti.api.SakaiAccessTokenService")
+    private SakaiAccessTokenService sakaiAccessTokenService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.tool.api.SessionManager")
+    private SessionManager sessionManager;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(ltiBearerDirectInterceptor()).excludePathPatterns("/login");
+    }
+
+    @Bean
+    public LtiBearerDirectInterceptor ltiBearerDirectInterceptor() {
+        return new LtiBearerDirectInterceptor(sakaiAccessTokenService, sessionManager);
+    }
+
+    @Bean
+    public LtiDirectAuthController ltiDirectAuthController() {
+        return new LtiDirectAuthController(sessionManager);
+    }
 
     @Bean
     public EntityActionsManager entityActionsManager() {

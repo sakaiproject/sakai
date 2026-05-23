@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.webapi.lti;
+package org.sakaiproject.lti.util;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,10 +25,10 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
- * Establishes a minimal Sakai session for an LTI tool Bearer token request (webapi).
+ * Establishes a minimal Sakai session for an LTI tool Bearer token request (webapi, /direct).
  */
 @Slf4j
-public class LtiWebApiSessionSupport {
+public class LtiBearerSessionSupport {
 
     /**
      * @return the new LTI mini-session (also set as current)

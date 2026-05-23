@@ -322,6 +322,22 @@ public class SakaiAccessTokenServiceImplTest {
         assertFalse(service.isLtiBearerWebApiEnabled());
     }
 
+    @Test
+    public void isLtiBearerDirectEnabledDefaultsTrue() {
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED,
+                SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED_DEFAULT))
+                .thenReturn(true);
+        assertTrue(service.isLtiBearerDirectEnabled());
+    }
+
+    @Test
+    public void isLtiBearerDirectEnabledWhenDisabled() {
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED,
+                SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED_DEFAULT))
+                .thenReturn(false);
+        assertFalse(service.isLtiBearerDirectEnabled());
+    }
+
     private SakaiAccessToken sampleSat() {
         SakaiAccessToken sat = new SakaiAccessToken();
         sat.tool_id = TOOL_ID;

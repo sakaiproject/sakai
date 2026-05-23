@@ -35,6 +35,10 @@ public interface SakaiAccessTokenService {
     String PROPERTY_WEBAPI_ENABLED = "lti.bearer.webapi.enabled";
     Boolean PROPERTY_WEBAPI_ENABLED_DEFAULT = true;
 
+    /** When false, LTI Bearer tokens are rejected on Entity Broker ({@code /direct}) without validation. */
+    String PROPERTY_DIRECT_ENABLED = "lti.bearer.direct.enabled";
+    Boolean PROPERTY_DIRECT_ENABLED_DEFAULT = true;
+
     void init();
 
     void destroy();
@@ -45,6 +49,11 @@ public interface SakaiAccessTokenService {
      * Whether LTI Bearer (SAT) authentication is allowed on webapi ({@code /api}).
      */
     boolean isLtiBearerWebApiEnabled();
+
+    /**
+     * Whether LTI Bearer (SAT) authentication is allowed on Entity Broker ({@code /direct}).
+     */
+    boolean isLtiBearerDirectEnabled();
 
     /**
      * Public key used to verify SAT signatures.
