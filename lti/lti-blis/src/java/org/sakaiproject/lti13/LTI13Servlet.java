@@ -2544,17 +2544,7 @@ public class LTI13Servlet extends HttpServlet {
 			Long lineitem_key, String user_id, HttpServletRequest request, HttpServletResponse response)
 	{
 		log.debug("signed_placement={} user_id={}", signed_placement, user_id);
-		// TODO: Is the outer container an array or an object - the spec and swagger doc disagree
-		/*
-			[{
-			  "id": "https://lms.example.com/context/2923/lineitems/1/results/5323497",
-			  "scoreOf": "https://lms.example.com/context/2923/lineitems/1",
-			  "userId": "5323497",
-			  "resultScore": 0.83,
-			  "resultMaximum": 1,
-			  "comment": "This is exceptional work."
-			}]
-		*/
+		// AGS 2.0: results collection is always a JSON array (at most one element when filtered by user).
 		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points

@@ -59,7 +59,7 @@ IMS [AGS 2.0](https://www.imsglobal.org/spec/lti-ags/v2p0) defines filtering to 
 GET …/lineitems/{context_id}/{lineitem_id}/results?user_id={lti_user_id}
 ```
 
-The response is a JSON **array** with at most one result (an empty array `[]` if the user has no score).
+Both request forms return a JSON **array** with at most one result (an empty array `[]` if the user has no score or is not in the site).
 
 Sakai also accepts a **path segment** on the same collection URL (from older LIS v2 / LTI 2.0 outcomes REST and from Sakai `result.id` values):
 
