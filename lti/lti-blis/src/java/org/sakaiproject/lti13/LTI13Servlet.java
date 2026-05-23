@@ -2519,8 +2519,25 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		resultsForAssignment(signed_placement, site, a, lineitem_key, user_id, request, response);
+		String filterUserId = resolveResultsFilterUserId(user_id, request);
+		resultsForAssignment(signed_placement, site, a, lineitem_key, filterUserId, request, response);
 
+	}
+
+	/**
+	 * Resolve a single-user filter for AGS Result GET. Accepts the IMS AGS 2.0 query
+	 * parameter {@code user_id} (LTI subject or bare user id) and the legacy path segment
+	 * from {@code …/results/{user_id}} or from a result {@code id} URL.
+	 */
+	private String resolveResultsFilterUserId(String pathUserId, HttpServletRequest request) {
+		String filter = pathUserId;
+		if (StringUtils.isEmpty(filter)) {
+			filter = request.getParameter("user_id");
+		}
+		if (StringUtils.isEmpty(filter)) {
+			return null;
+		}
+		return SakaiLTIUtil.parseSubject(filter);
 	}
 
 	private void resultsForAssignment(String signed_placement, Site site, Assignment a,
@@ -2579,7 +2596,7 @@ public class LTI13Servlet extends HttpServlet {
 			response.setContentType(APPLICATION_JSON);
 			PrintWriter out = response.getWriter();
 
-			if ( user_id == null ) out.println("[");
+			out.println("[");
 			for (User user : users) {
 				Result result = new Result();
                                 String lti11_legacy_user_id = user.getId();
@@ -2634,9 +2651,7 @@ public class LTI13Servlet extends HttpServlet {
 				out.print(json_out);
 
 			}
-			if ( user_id == null ) {
-				out.println("]");
-			}
+			out.println("]");
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		} finally {

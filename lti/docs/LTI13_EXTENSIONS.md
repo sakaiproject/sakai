@@ -47,8 +47,29 @@ Base URL pattern (context-scoped APIs use the site id as the placement segment; 
 GET  /imsblis/lti13/lineitems/{context_id}
 GET  /imsblis/lti13/lineitems/{context_id}/{lineitem_id}
 GET  /imsblis/lti13/lineitems/{context_id}/{lineitem_id}/results
+GET  /imsblis/lti13/lineitems/{context_id}/{lineitem_id}/results?user_id={lti_user_id}
 GET  /imsblis/lti13/lineitems/{context_id}/{lineitem_id}/results/{user_id}
 ```
+
+#### Result service: single-user queries
+
+IMS [AGS 2.0](https://www.imsglobal.org/spec/lti-ags/v2p0) defines filtering to one learner with the **`user_id` query parameter** on the results collection:
+
+```text
+GET …/lineitems/{context_id}/{lineitem_id}/results?user_id={lti_user_id}
+```
+
+The response is a JSON **array** with at most one result (an empty array `[]` if the user has no score).
+
+Sakai also accepts a **path segment** on the same collection URL (from older LIS v2 / LTI 2.0 outcomes REST and from Sakai `result.id` values):
+
+```text
+GET …/lineitems/{context_id}/{lineitem_id}/results/{user_id}
+```
+
+Both forms accept either the LTI 1.3 **subject** (`https://{platform}/user/{sakai_user_id}`) or the bare Sakai user id. Path segments in `result.id` URLs emitted by Sakai use the bare Sakai user id so tools can follow those links without conversion.
+
+Prefer the query-parameter form for new tool code; it matches the AGS 2.0 specification and certification expectations.
 
 #### When read-only view is **disabled** (default)
 
@@ -126,7 +147,7 @@ Query parameters for listing (`tag`, `resource_id`, `lti_link_id`) still apply w
 1. Confirm the Sakai administrator enabled both **line items** and **gradebook read-only view** for your tool.
 2. Obtain a token with `lineitem.readonly` (read-only gradebook) or `lineitem` (read/write on owned columns only).
 3. `GET` the line item container for the site `context_id`.
-4. For each line item in the list, if `https://www.sakailms.org/spec/lti-ags/v2p0/readOnly` is `true`, only call GET on the item and its `/results` collection.
+4. For each line item in the list, if `https://www.sakailms.org/spec/lti-ags/v2p0/readOnly` is `true`, only call GET on the item and its `/results` collection (optionally with `?user_id=` to read one learner).
 5. Continue to use `lineitem` + `score` scopes only for columns your tool owns.
 
 ---
