@@ -1092,7 +1092,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -1385,7 +1388,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -1638,7 +1644,10 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Don't let a tool access groups unless it is placed *somewhere* in this site
-		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) return;
+		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) {
+			// checkToolHasPlacements() already logs and writes the 403 response.
+			return;
+		}
 
 		String pagingstr = (String) site.getProperties().get(PLUS_NRPS_PAGING);
 		int paging = NumberUtils.toInt(pagingstr, -1);
@@ -1922,10 +1931,13 @@ public class LTI13Servlet extends HttpServlet {
 
 	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
 	{
-		 List<org.sakaiproject.lti.beans.LtiContentBean> contents = ltiService.getContentsAsBeans(null, null, 0, 2, siteId);
-		if (contents.size() < 1) {
-			log.error("Tool id={} has no placements in site={}", toolKey, siteId);
-			LTI13Util.return400(response, "No placements for tool");
+		String search = "lti_content.tool_id = " + toolKey;
+		List<org.sakaiproject.lti.beans.LtiContentBean> contents =
+			ltiService.getContentsAsBeans(search, null, 0, 1, siteId);
+
+		if (contents.isEmpty()) {
+			log.warn("Tool id={} has no placements in site={}", toolKey, siteId);
+			LTI13Util.return403(response, "Tool not placed in site");
 			return false;
 		}
 		return true;
@@ -2111,7 +2123,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -2212,7 +2227,7 @@ public class LTI13Servlet extends HttpServlet {
 			}
 
 			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 400 response.
+				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
 
@@ -2333,7 +2348,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -2457,7 +2475,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -2697,7 +2718,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
