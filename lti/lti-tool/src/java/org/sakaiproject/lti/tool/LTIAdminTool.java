@@ -709,7 +709,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String issuerURL = SakaiLTIUtil.getIssuer();
 		context.put("issuerURL", issuerURL);
 
-		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean);
 		context.put("deploymentId", deploymentId);
 
 		String configUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
@@ -785,49 +785,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 	// Make sure this is ready to handle LTI 1.3 launches
 	private boolean minimalLTI13(Map<String, Object> tool) {
-		boolean retval = false;
-
-		Long tool_id = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
-
-		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-		if (clientId == null ) {
-			clientId = UUID.randomUUID().toString();
-			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
-			retval = true;
+		if (tool == null) {
+			return false;
 		}
-
-		String keyset = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_KEYSET));
-		if (keyset == null ) {
-			keyset = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
-			tool.put(LTIService.LTI13_LMS_KEYSET, keyset);
-			retval = true;
+		LtiToolBean toolBean = LtiToolBean.of(tool);
+		boolean retval = minimalLTI13(toolBean);
+		if (retval) {
+			tool.put(LTIService.LTI13_CLIENT_ID, toolBean.lti13ClientId);
+			tool.put(LTIService.LTI13_LMS_KEYSET, toolBean.lti13LmsKeyset);
+			tool.put(LTIService.LTI13_LMS_ENDPOINT, toolBean.lti13LmsEndpoint);
+			tool.put(LTIService.LTI13_LMS_TOKEN, toolBean.lti13LmsToken);
+			tool.put(LTIService.LTI13_LMS_ISSUER, toolBean.lti13LmsIssuer);
 		}
-
-		String endpoint = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ENDPOINT));
-		if (endpoint == null ) {
-			endpoint = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
-			tool.put(LTIService.LTI13_LMS_ENDPOINT, endpoint);
-			retval = true;
-		}
-
-		String tokenurl = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_TOKEN));
-		if (tokenurl == null && tool_id != null ) {
-			tokenurl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
-			tool.put(LTIService.LTI13_LMS_TOKEN, tokenurl);
-		}
-
-		String issuer = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ISSUER));
-		if ( issuer == null ) {
-			issuer = SakaiLTIUtil.getIssuer();
-			tool.put(LTIService.LTI13_LMS_ISSUER, issuer);
-			retval = true;
-		}
-
 		return retval;
 	}
 
-	// Bean version of minimalLTI13 - Make sure this is ready to handle LTI 1.3 launches
-	private boolean minimalLTI13(org.sakaiproject.lti.beans.LtiToolBean toolBean) {
+	private boolean minimalLTI13(LtiToolBean toolBean) {
 		boolean retval = false;
 
 		Long tool_id = toolBean.id;
@@ -889,11 +862,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Build a minimal tool
-		String clientId = UUID.randomUUID().toString();
-		Map<String, Object> tool = new HashMap<String, Object>();
-		tool.put(LTIService.LTI_TITLE, title);
-		tool.put(LTIService.LTI_LAUNCH, "https://example.com/draft-tool-in-progress");
-		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+		LtiToolBean tool = new LtiToolBean();
+		tool.title = title;
+		tool.launch = "https://example.com/draft-tool-in-progress";
+		tool.lti13ClientId = UUID.randomUUID().toString();
 
 		minimalLTI13(tool);
 
@@ -980,7 +952,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String clientId = toolBean.lti13ClientId;
 		String issuerURL = SakaiLTIUtil.getIssuer();
-		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean);
 
 		String sakaiConfigUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
 		sakaiConfigUrl += "?key=" + URLEncoder.encode(toolKey.toString());
@@ -1332,9 +1304,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Retrieve primary key
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 
-		// find the tool id
-		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
-		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+		LtiToolSiteBean toolSiteBean = ltiService.getToolSiteAsBean(Long.valueOf(id), getSiteId(state));
+		if (toolSiteBean == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+		String toolId = String.valueOf(toolSiteBean.getToolId());
 
 		if (!isLti13Tool(toolId, getSiteId(state))) {
 			reqProps.remove(LTIService.LTI_DEPLOYMENT_GROUP);
@@ -1347,7 +1323,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.tool.site.edit") + " retval=" + retval);
 
 		} else if ( retval instanceof Boolean ) { // Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSiteBean.getSiteId());
 
 		} else { // Unexpected Error
 			log.error("Unexpected return type from updateToolSite={}, id={}, current siteId={}", retval, id, getSiteId(state));
@@ -1424,15 +1400,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Retrieve primary key
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 
-		// find the tool id
-		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
-		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+		LtiToolSiteBean toolSiteBean = ltiService.getToolSiteAsBean(Long.valueOf(id), getSiteId(state));
+		if (toolSiteBean == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+		String toolId = String.valueOf(toolSiteBean.getToolId());
 
 		// Save to DB
 		boolean retval = ltiService.deleteToolSite(Long.valueOf(id), getSiteId(state));
 
 		if (retval) {	// Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.delete.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.delete.success") + " SiteId=" + toolSiteBean.getSiteId());
 		} else { // Fail
 			addAlert(state, rb.getString("error.tool.site.delete") + " retval=" + retval);
 		}

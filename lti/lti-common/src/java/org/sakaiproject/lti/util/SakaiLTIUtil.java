@@ -1778,6 +1778,21 @@ public class SakaiLTIUtil {
 		 */
 		public static String resolveLaunchDeploymentId(Site site, String launchSiteId, Long toolKey,
 				Map<String, Object> tool, LTIService ltiService) {
+			return resolveLaunchDeploymentId(site, launchSiteId, toolKey, LtiToolBean.of(tool), ltiService);
+		}
+
+		public static String resolveLaunchDeploymentId(Site site, String launchSiteId, Long toolKey,
+				LtiToolBean tool, LTIService ltiService) {
+			Long effectiveToolKey = toolKey;
+			if (effectiveToolKey == null && tool != null) {
+				effectiveToolKey = tool.id;
+			}
+			String toolDeploymentId = tool == null ? null : StringUtils.trimToNull(tool.deploymentId);
+			return resolveLaunchDeploymentId(site, launchSiteId, effectiveToolKey, toolDeploymentId, ltiService);
+		}
+
+		private static String resolveLaunchDeploymentId(Site site, String launchSiteId, Long toolKey,
+				String toolDeploymentId, LTIService ltiService) {
 			String normalized;
 			if (site != null) {
 				String explicit = StringUtils.trimToNull(site.getProperties().getProperty(LTI13_DEPLOYMENT_ID));
@@ -1809,13 +1824,9 @@ public class SakaiLTIUtil {
 					}
 				}
 			}
-			if (tool != null) {
-				Object deploymentId = tool.get(LTIService.LTI_DEPLOYMENT_ID);
-				String toolDeploymentId = deploymentId == null ? null : StringUtils.trimToNull(deploymentId.toString());
-				normalized = normalizeLtiDeploymentIdForLaunch(toolDeploymentId);
-				if (normalized != null) {
-					return normalized;
-				}
+			normalized = normalizeLtiDeploymentIdForLaunch(toolDeploymentId);
+			if (normalized != null) {
+				return normalized;
 			}
 			String serverDefault = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
 			normalized = normalizeLtiDeploymentIdForLaunch(serverDefault);
@@ -1826,8 +1837,12 @@ public class SakaiLTIUtil {
 		 * Resolves {@code deployment_id} when no launch site or {@link LTIService} context is available
 		 * (same as {@link #resolveLaunchDeploymentId} with null launch site id, tool key, and service).
 		 */
+		public static String getToolDeploymentId(Site site, LtiToolBean tool) {
+			return resolveLaunchDeploymentId(site, null, tool == null ? null : tool.id, tool, null);
+		}
+
 		public static String getToolDeploymentId(Site site, Map<String, Object> tool) {
-			return resolveLaunchDeploymentId(site, null, null, tool, null);
+			return getToolDeploymentId(site, LtiToolBean.of(tool));
 		}
 
 		// LTI 1.3 / OIDC: the iss (issuer) claim is a stable per-platform identifier.
@@ -1972,7 +1987,7 @@ public class SakaiLTIUtil {
 			lj.expires = lj.issued + 3600L;
 			String launchSiteId = StringUtils.trimToNull(ltiProps.getProperty(LTIConstants.CONTEXT_ID));
 			Long toolKeyJwt = tool.id;
-			lj.deployment_id = resolveLaunchDeploymentId(site, launchSiteId, toolKeyJwt, tool.asMap(), ltiService);
+			lj.deployment_id = resolveLaunchDeploymentId(site, launchSiteId, toolKeyJwt, tool, ltiService);
 
 			String lti1_roles = fixLegacyRoles(ltiProps.getProperty("roles"));
 			if (lti1_roles != null ) {
@@ -4011,33 +4026,33 @@ public class SakaiLTIUtil {
 		}
 	}
 
-	public static String computeToolCheckSum(Map<String, Object> tool) {
-		if ( tool == null ) return null;
-		if ( StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH)) ) return null;
-		if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET)) ) {
+	public static String computeToolCheckSum(LtiToolBean tool) {
+		if (tool == null) {
+			return null;
+		}
+		if (StringUtils.isEmpty(tool.launch)) {
+			return null;
+		}
+		if (StringUtils.isNotEmpty(tool.consumerkey) && StringUtils.isNotEmpty(tool.secret)) {
 			// Enough
-		} else if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET)) ) {
+		} else if (StringUtils.isNotEmpty(tool.lti13ClientId) && StringUtils.isNotEmpty(tool.lti13ToolKeyset)) {
 			// Enough
 		} else {
 			return null;
 		}
 
 		StringBuffer sb = new StringBuffer();
-		String secret = (String) tool.get(LTIService.LTI_SECRET);
-		sb.append(secret != null ? secret : "");
-		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-		sb.append(consumerkey != null ? consumerkey : "");
-		String lti13ClientId = (String) tool.get(LTIService.LTI13_CLIENT_ID);
-		sb.append(lti13ClientId != null ? lti13ClientId : "");
-		String lti13ToolKeyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
-		sb.append(lti13ToolKeyset != null ? lti13ToolKeyset : "");
-		String launch = (String) tool.get(LTIService.LTI_LAUNCH);
-		sb.append(launch != null ? launch : "");
+		sb.append(tool.secret != null ? tool.secret : "");
+		sb.append(tool.consumerkey != null ? tool.consumerkey : "");
+		sb.append(tool.lti13ClientId != null ? tool.lti13ClientId : "");
+		sb.append(tool.lti13ToolKeyset != null ? tool.lti13ToolKeyset : "");
+		sb.append(tool.launch != null ? tool.launch : "");
 
-		String retval = LTI13Util.sha256(sb.toString());
-		return retval;
+		return LTI13Util.sha256(sb.toString());
+	}
+
+	public static String computeToolCheckSum(Map<String, Object> tool) {
+		return computeToolCheckSum(LtiToolBean.of(tool));
 	}
 
 	// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1

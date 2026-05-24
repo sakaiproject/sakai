@@ -999,34 +999,29 @@ public interface LTIService extends LTISubstitutionsFilter {
         if (trimmedSite.isEmpty()) {
             return null;
         }
-        List<Map<String, Object>> rows = getToolSitesByToolId(String.valueOf(toolKey), trimmedSite);
-        if (rows == null) {
+        List<LtiToolSiteBean> rows = getToolSitesByToolIdAsBeans(String.valueOf(toolKey), trimmedSite);
+        if (rows == null || rows.isEmpty()) {
             return null;
         }
-        Map<String, Object> bestRow = null;
+        LtiToolSiteBean bestRow = null;
         java.util.Date bestUpdated = null;
-        for (Map<String, Object> row : rows) {
-            Object siteObj = row.get(LTI_SITE_ID);
-            if (siteObj == null) {
+        for (LtiToolSiteBean row : rows) {
+            if (row.siteId == null) {
                 continue;
             }
-            if (!trimmedSite.equals(siteObj.toString().trim())) {
+            if (!trimmedSite.equals(row.siteId.trim())) {
                 continue;
             }
-            java.util.Date updated = toolSiteRowUpdatedAt(row.get(LTI_UPDATED_AT));
+            java.util.Date updated = row.updatedAt;
             if (bestRow == null || isNewerToolSiteRow(updated, bestUpdated)) {
                 bestRow = row;
                 bestUpdated = updated;
             }
         }
-        if (bestRow == null) {
+        if (bestRow == null || bestRow.deploymentGroup == null) {
             return null;
         }
-        Object dg = bestRow.get(LTI_DEPLOYMENT_GROUP);
-        if (dg == null) {
-            return null;
-        }
-        String s = dg.toString().trim();
+        String s = bestRow.deploymentGroup.trim();
         return s.isEmpty() ? null : s;
     }
 
