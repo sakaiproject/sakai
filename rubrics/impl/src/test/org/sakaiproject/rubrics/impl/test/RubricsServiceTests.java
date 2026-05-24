@@ -22,6 +22,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -73,6 +75,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Xml;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +113,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private FormattedText formattedText;
 
     String siteId = "playpen";
     String siteTitle = "Playpen";
@@ -281,6 +285,26 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         rubricBean.setTitle(newTitle);
         rubricBean = rubricsService.saveRubric(rubricBean);
         assertEquals(newTitle, rubricBean.getTitle());
+    }
+
+    @Test
+    public void saveRubricSanitizesRichTextFields() {
+
+        switchToInstructor();
+
+        String payload = "<img src=x onerror=alert(1)>";
+        String clean = "<img src=\"x\" />";
+        when(formattedText.processFormattedText(eq(payload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(clean);
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+        rubricBean.getCriteria().get(0).setDescription(payload);
+        rubricBean.getCriteria().get(0).getRatings().get(0).setDescription(payload);
+
+        RubricTransferBean savedRubric = rubricsService.saveRubric(rubricBean);
+        Rubric persistedRubric = rubricRepository.findById(savedRubric.getId()).get();
+
+        assertEquals(clean, persistedRubric.getCriteria().get(0).getDescription());
+        assertEquals(clean, persistedRubric.getCriteria().get(0).getRatings().get(0).getDescription());
     }
 
     @Test

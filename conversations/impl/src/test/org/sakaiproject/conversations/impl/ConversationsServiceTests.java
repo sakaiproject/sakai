@@ -43,6 +43,7 @@ import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
+import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -61,6 +62,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Xml;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,6 +122,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private ConversationsTopicRepository topicRepository;
     @Autowired private TopicStatusRepository topicStatusRepository;
+    @Autowired private SettingsRepository settingsRepository;
+    @Autowired private FormattedText formattedText;
 
     private ResourceLoader resourceLoader;
 
@@ -150,6 +154,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         reset(sessionManager);
         reset(securityService);
         reset(userDirectoryService);
+        reset(formattedText);
+        when(formattedText.processFormattedText(anyString(), isNull(), eq(FormattedText.Level.HIGH)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         topicBean = new TopicTransferBean();
         topicBean.setTitle("Topic 1");
         topicBean.setMessage("Topic 1 messaage");
@@ -1206,6 +1213,64 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             e.printStackTrace();
             fail("Unexpected exception when crudding comment");
         }
+    }
+
+    @Test
+    public void richTextFieldsAreSanitizedOnSave() throws Exception {
+
+        switchToUser1();
+
+        String topicPayload = "<img src=x onerror=alert(1)>";
+        String sanitizedTopic = "<img src=\"x\" />";
+        when(formattedText.processFormattedText(eq(topicPayload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(sanitizedTopic);
+
+        TopicTransferBean topic = new TopicTransferBean();
+        topic.siteId = site1Id;
+        topic.title = "Topic Title";
+        topic.message = topicPayload;
+        TopicTransferBean savedTopic = conversationsService.saveTopic(topic, true);
+
+        assertEquals(sanitizedTopic, savedTopic.message);
+        assertEquals(sanitizedTopic, topicRepository.findById(savedTopic.id).get().getMessage());
+
+        String postPayload = "<script>alert(document.cookie)</script>";
+        String sanitizedPost = "";
+        when(formattedText.processFormattedText(eq(postPayload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(sanitizedPost);
+
+        PostTransferBean post = new PostTransferBean();
+        post.siteId = site1Id;
+        post.topic = savedTopic.id;
+        post.message = postPayload;
+        PostTransferBean savedPost = conversationsService.savePost(post, true);
+
+        assertEquals(sanitizedPost, savedPost.message);
+        assertEquals(sanitizedPost, postRepository.findById(savedPost.id).get().getMessage());
+
+        String commentPayload = "<svg onload=alert(1)>x</svg>";
+        String sanitizedComment = "x";
+        when(formattedText.processFormattedText(eq(commentPayload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(sanitizedComment);
+
+        CommentTransferBean comment = new CommentTransferBean();
+        comment.postId = savedPost.id;
+        comment.topicId = savedTopic.id;
+        comment.siteId = site1Id;
+        comment.message = commentPayload;
+        CommentTransferBean savedComment = conversationsService.saveComment(comment);
+
+        assertEquals(sanitizedComment, savedComment.message);
+        assertEquals(sanitizedComment, commentRepository.findById(savedComment.id).get().getMessage());
+
+        String guidelinesPayload = "<a href=\"javascript:alert(1)\">guidelines</a>";
+        String sanitizedGuidelines = "<a>guidelines</a>";
+        when(formattedText.processFormattedText(eq(guidelinesPayload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(sanitizedGuidelines);
+        when(securityService.unlock(SiteService.SECURE_UPDATE_SITE, site1Ref)).thenReturn(true);
+
+        Settings settings = conversationsService.getSettingsForSite(site1Id);
+        settings.setGuidelines(guidelinesPayload);
+        Settings savedSettings = conversationsService.saveSettings(settings);
+
+        assertEquals(sanitizedGuidelines, savedSettings.getGuidelines());
+        assertEquals(sanitizedGuidelines, settingsRepository.findBySiteId(site1Id).get().getGuidelines());
     }
 
     @Test

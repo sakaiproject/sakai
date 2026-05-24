@@ -19,6 +19,8 @@
 package org.sakaiproject.tasks.impl.test;
 
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -42,6 +44,7 @@ import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,6 +61,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private TaskService taskService;
+    @Autowired private FormattedText formattedText;
 
     private String siteId = "playpen";
     private String student = "student";
@@ -102,6 +106,27 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         assertEquals("task.description were not the same", description, userTask.getDescription());
         assertEquals("usertask.notes were not the same", notes, userTask.getNotes());
         Assert.isTrue(userTask.getPriority() == priority, "task.priority were not the same");
+    }
+
+    @Test
+    public void testCreateSingleUserTaskSanitizesNotesOnSave() {
+
+        switchToStudent();
+
+        String payload = "<img src=x onerror=alert(1)>";
+        String clean = "<img src=\"x\" />";
+        when(formattedText.processFormattedText(eq(payload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(clean);
+
+        UserTaskAdapterBean bean = new UserTaskAdapterBean();
+        bean.setDescription("Description about my task");
+        bean.setNotes(payload);
+        bean.setPriority(Priorities.QUITE_HIGH);
+
+        taskService.createSingleUserTask(bean);
+
+        UserTaskAdapterBean userTask = taskService.getCurrentTasksForCurrentUser().stream().findFirst().get();
+
+        assertEquals("User task notes should be sanitized before storage", clean, userTask.getNotes());
     }
 
     @Test

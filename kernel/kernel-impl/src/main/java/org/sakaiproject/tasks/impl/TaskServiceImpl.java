@@ -53,6 +53,7 @@ import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,7 @@ public class TaskServiceImpl implements TaskService, Observer {
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
+    @Autowired private FormattedText formattedText;
     @Autowired private TaskAssignedRepository taskAssignedRepository;
     @Autowired private TaskRepository taskRepository;
     @Autowired private UserTaskRepository userTaskRepository;
@@ -142,6 +144,7 @@ public class TaskServiceImpl implements TaskService, Observer {
     public UserTask createSingleUserTask(UserTaskAdapterBean transfer) {
 
         String userId = sessionManager.getCurrentSessionUserId();
+        sanitizeUserTaskAdapterBean(transfer);
 
         Task task = new Task();
         BeanUtils.copyProperties(transfer, task);
@@ -202,6 +205,7 @@ public class TaskServiceImpl implements TaskService, Observer {
         }
 
         UserTask userTask = optionalUserTask.get();
+        sanitizeUserTaskAdapterBean(transfer);
 
         // Trigger the load of the Task entity
         Task task = userTask.getTask();
@@ -219,6 +223,7 @@ public class TaskServiceImpl implements TaskService, Observer {
     public UserTask createUserTask(Task task, UserTaskAdapterBean transfer) {
         UserTask userTask = new UserTask();
         userTask.setTask(task);
+        sanitizeUserTaskAdapterBean(transfer);
         BeanUtils.copyProperties(transfer, userTask);
         return userTaskRepository.save(userTask);
     }
@@ -274,6 +279,16 @@ public class TaskServiceImpl implements TaskService, Observer {
                     bean.setDue(ut.getTask().getDue());
                     return bean;
                 }).collect(Collectors.toList());
+    }
+
+    // Rich text is cleaned before persistence; read paths return stored values unchanged.
+    private void sanitizeUserTaskAdapterBean(UserTaskAdapterBean bean) {
+
+        bean.setNotes(sanitizeFormattedText(bean.getNotes()));
+    }
+
+    private String sanitizeFormattedText(String text) {
+        return formattedText.processFormattedText(text, null, FormattedText.Level.HIGH);
     }
 
     public List<UserTask> getCurrentUserTasks(String userId) {

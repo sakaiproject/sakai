@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -57,6 +58,7 @@ import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -160,6 +162,14 @@ public class ConversationsTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         return mock(ServerConfigurationService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.FormattedText")
+    public FormattedText formattedText() {
+        FormattedText formattedText = mock(FormattedText.class);
+        when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        return formattedText;
     }
 
     @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
