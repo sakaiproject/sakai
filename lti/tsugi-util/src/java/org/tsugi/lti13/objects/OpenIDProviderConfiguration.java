@@ -111,6 +111,7 @@ public class OpenIDProviderConfiguration extends org.tsugi.jackson.objects.Jacks
     public OpenIDProviderConfiguration() {
 		this.token_endpoint_auth_methods_supported.add("private_key_jwt");
 		this.token_endpoint_auth_signing_alg_values_supported.add("RS256");
+		this.scopes_supported.addAll(LTI13ConstantsUtil.SCOPES_SUPPORTED);
 		this.scopes_supported.add("openid");
 		this.response_types_supported.add("id_token");
 		this.id_token_signing_alg_values_supported.add("RS256");
