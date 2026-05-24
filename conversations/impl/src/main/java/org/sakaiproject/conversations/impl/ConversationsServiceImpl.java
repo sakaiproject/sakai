@@ -120,6 +120,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.entity.api.EntityTransferrer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -156,6 +157,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     private EntityManager entityManager;
 
     private EventTrackingService eventTrackingService;
+
+    private FormattedText formattedText;
 
     private MemoryService memoryService;
 
@@ -525,6 +528,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (topicBean.showDate != null && topicBean.showDate.isAfter(now)) {
             topicBean.hidden = true;
         }
+
+        sanitizeTopicBean(topicBean);
 
         ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
 
@@ -1034,6 +1039,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
         postBean.setModifier(currentUserId);
         postBean.setModified(now);
+        sanitizePostBean(postBean);
 
         ConversationsPost post = postBean.asPost();
 
@@ -1722,6 +1728,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
         commentBean.setModifier(currentUserId);
         commentBean.setModified(now);
+        sanitizeCommentBean(commentBean);
 
         ConversationsComment comment = commentBean.asComment();
         comment.setPost(postRepository.getReferenceById(commentBean.postId));
@@ -2196,6 +2203,23 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
     }
 
+    // Rich text is cleaned before persistence; read paths return stored values unchanged.
+    private void sanitizeTopicBean(TopicTransferBean topicBean) {
+        topicBean.message = sanitizeFormattedText(topicBean.message);
+    }
+
+    private void sanitizePostBean(PostTransferBean postBean) {
+        postBean.message = sanitizeFormattedText(postBean.message);
+    }
+
+    private void sanitizeCommentBean(CommentTransferBean commentBean) {
+        commentBean.message = sanitizeFormattedText(commentBean.message);
+    }
+
+    private String sanitizeFormattedText(String text) {
+        return formattedText.processFormattedText(text, null, FormattedText.Level.HIGH);
+    }
+
     private String getCheckedCurrentUserId() throws ConversationsPermissionsException {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
@@ -2221,6 +2245,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, "/site/" + settings.getSiteId())) {
             throw new ConversationsPermissionsException("Current user cannot set site settings");
         }
+
+        settings.setGuidelines(sanitizeFormattedText(settings.getGuidelines()));
 
         Settings old = getSettingsForSite(settings.getSiteId());
         Boolean oldSiteLocked = old.getSiteLocked();

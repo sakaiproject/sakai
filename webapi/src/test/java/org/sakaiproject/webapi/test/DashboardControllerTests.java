@@ -17,6 +17,10 @@ package org.sakaiproject.webapi.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,11 +42,14 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.portal.api.PortalConstants;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.webapi.controllers.DashboardController;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -71,7 +78,13 @@ public class DashboardControllerTests {
     private SessionManager sessionManager;
 
     @Mock
+    private SiteService siteService;
+
+    @Mock
     private UserDirectoryService userDirectoryService;
+
+    @Mock
+    private FormattedText formattedText;
 
     private DashboardController dashboardController;
     private AutoCloseable mocks;
@@ -90,10 +103,15 @@ public class DashboardControllerTests {
         ReflectionTestUtils.setField(dashboardController, "securityService", securityService);
         ReflectionTestUtils.setField(dashboardController, "serverConfigurationService", serverConfigurationService);
         ReflectionTestUtils.setField(dashboardController, "entityManager", entityManager);
+        ReflectionTestUtils.setField(dashboardController, "siteService", siteService);
         ReflectionTestUtils.setField(dashboardController, "userDirectoryService", userDirectoryService);
+        ReflectionTestUtils.setField(dashboardController, "formattedText", formattedText);
         ReflectionTestUtils.setField(dashboardController, "defaultHomeLayout", List.of());
         ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of());
         ReflectionTestUtils.setField(dashboardController, "maxNumberMotd", 5);
+
+        when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @After
@@ -229,5 +247,33 @@ public class DashboardControllerTests {
 
         assertEquals(List.of("courses", "announcements", "calendar", "grades", "forums"), bean.getWidgetLayout());
         assertEquals("courses", bean.getWidgetLayout().get(0));
+    }
+
+    @Test
+    public void testSaveSiteDashboardSanitizesOverviewOnSave() throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn("admin-user");
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        String siteId = "site1";
+        Site site = mock(Site.class);
+        ResourceProperties properties = mock(ResourceProperties.class);
+        when(siteService.getSite(siteId)).thenReturn(site);
+        when(site.getProperties()).thenReturn(properties);
+
+        String payload = "<img src=x onerror=alert(1)>";
+        String clean = "<img src=\"x\" />";
+        when(formattedText.processFormattedText(eq(payload), isNull(), eq(FormattedText.Level.HIGH))).thenReturn(clean);
+
+        DashboardRestBean bean = new DashboardRestBean();
+        bean.setOverview(payload);
+        bean.setProgramme("Programme");
+        bean.setWidgetLayout(List.of("announcements"));
+        bean.setTemplate(1);
+
+        dashboardController.saveSiteDashboard(siteId, bean);
+
+        verify(site).setDescription(clean);
     }
 }
