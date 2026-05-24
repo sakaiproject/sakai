@@ -18,7 +18,15 @@
 </script>
 <script th:fragment="importJs" th:inline="javascript">
     /*<![CDATA[*/
-    $(document).ready(function() {
+    const onReady = callback => {
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", callback, { once: true });
+        } else {
+            callback();
+        }
+    };
+
+    onReady(() => {
         // Button spinners
         const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
         bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
@@ -34,7 +42,15 @@
 </script>
 <script th:fragment="importConfirmJs" th:inline="javascript">
     /*<![CDATA[*/
-    $(document).ready(function() {
+    const onReady = callback => {
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", callback, { once: true });
+        } else {
+            callback();
+        }
+    };
+
+    onReady(() => {
         // Button spinners
         const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
         bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
@@ -51,6 +67,13 @@
 </script>
 <script th:fragment="indexJs" th:inline="javascript">
   /*<![CDATA[*/
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
 
   var groupManager = groupManager || {};
 
@@ -69,10 +92,12 @@
     action === "show" ? modal.show() : modal.hide();
   };
 
+  onReady(() => {
+
   const gmCancelButton = document.getElementById("delete-groups-cancel-button");
   gmCancelButton && gmCancelButton.addEventListener("click", e => {
 
-    e.preventDefault;
+    e.preventDefault();
     SPNR.disableControlsAndSpin(gmCancelButton, null);
     window.location = window.location.href.replace("/sakai-site-group-manager.helper", "");
   });
@@ -115,13 +140,22 @@
   cancel && cancel.addEventListener("click", () => {
     groupManager.showOrHideConfirmationDialog("hide");
   });
+  });
 
   /*]]>*/
 </script>
 
 <script th:fragment="joinableSetJs" th:inline="javascript">
   /*<![CDATA[*/
-  $(document).ready(function() {
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
+
+  onReady(() => {
 
     //Disable the submit button
     const submitButton = document.getElementById("create-joinableset-submit-button");
@@ -218,17 +252,23 @@
 
   var confirmationModal = function (callback) {
 
+    const showOrHideConfirmationDialog = action => {
+
+      const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("confirmation-modal"));
+      action === "show" ? modal.show() : modal.hide();
+    };
+
     const deleteButton = document.getElementById("delete-joinableset-submit-button");
     deleteButton && deleteButton.addEventListener("click", e => {
 
       e.preventDefault();
-      groupManager.showOrHideConfirmationDialog("show");
+      showOrHideConfirmationDialog("show");
     });
 
     const confirmButton = document.getElementById("modal-btn-confirm");
     confirmButton && confirmButton.addEventListener("click", () => {
 
-      groupManager.showOrHideConfirmationDialog("hide");
+      showOrHideConfirmationDialog("hide");
       window.location.replace(deleteButton.getAttribute("href"));
     });
 
@@ -236,7 +276,7 @@
     cancelButton && cancelButton.addEventListener("click", () => {
 
       callback(false);
-      groupManager.showOrHideConfirmationDialog("hide");
+      showOrHideConfirmationDialog("hide");
    });
   };
 
@@ -251,9 +291,18 @@
 <script th:fragment="groupJs" th:inline="javascript">
   /*<![CDATA[*/
   // Load the select2 library
+  includeLatestJQuery('sakai-site-group-manager');
   includeWebjarLibrary('select2');
 
-  $(document).ready(function() {
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
+
+  onReady(() => {
 
     const groupTitle = document.getElementById("groupTitle");
 
@@ -320,139 +369,183 @@
 
 <script th:fragment="autoGroupsStep1Js" th:inline="javascript">
   /*<![CDATA[*/
-  const allRolesCheckbox = document.getElementById("group-manager-select-all-roles");
-  allRolesCheckbox && allRolesCheckbox.addEventListener("click", e => {
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
 
-    document.querySelectorAll(".group-manager-role-checkbox")
-      .forEach(box => box.checked = e.target.checked);
-  });
+  onReady(() => {
 
-  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
-  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
-  });
-  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
-  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
-    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+    const allRolesCheckbox = document.getElementById("group-manager-select-all-roles");
+    allRolesCheckbox && allRolesCheckbox.addEventListener("click", e => {
+
+      document.querySelectorAll(".group-manager-role-checkbox")
+        .forEach(box => box.checked = e.target.checked);
+    });
+
+    const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+    autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+    });
+    const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+    autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+      window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+    });
   });
   /*]]>*/
 </script>
 
 <script th:fragment="autoGroupsStep2Js" th:inline="javascript">
   /*<![CDATA[*/
-  const selectSectionDiv = document.getElementById("selectSectionDiv");
-  const useSectionsRadio = document.getElementById("sectionOptionUseSections");
-  useSectionsRadio && useSectionsRadio.addEventListener("change", e => {
-    selectSectionDiv && (selectSectionDiv.style.display = "block");
-  });
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
 
-  const dontUse = document.getElementById("sectionOptionDontUseSections");
-  dontUse && dontUse.addEventListener("change", e => {
-    selectSectionDiv && (selectSectionDiv.style.display = "none");
-  });
+  onReady(() => {
 
-  const allSectionsRadio = document.getElementById("group-manager-select-all-sections");
-  allSectionsRadio && allSectionsRadio.addEventListener("click", e => {
+    const selectSectionDiv = document.getElementById("selectSectionDiv");
+    const useSectionsRadio = document.getElementById("sectionOptionUseSections");
+    useSectionsRadio && useSectionsRadio.addEventListener("change", e => {
+      selectSectionDiv && (selectSectionDiv.style.display = "block");
+    });
 
-    document.querySelectorAll(".group-manager-step2-checkbox")
-      .forEach(box => box.checked = e.target.checked);
-  });
+    const dontUse = document.getElementById("sectionOptionDontUseSections");
+    dontUse && dontUse.addEventListener("change", e => {
+      selectSectionDiv && (selectSectionDiv.style.display = "none");
+    });
 
-  const backButton = document.getElementById("autogroups-back-button");
-  backButton && backButton.addEventListener("click", () => {
-    SPNR.disableControlsAndSpin(backButton, null);
-    document.getElementById("wizardAction").value = "back";
-    document.getElementById("autogroups-wizard-step2-form").submit();
-  });
+    const allSectionsRadio = document.getElementById("group-manager-select-all-sections");
+    allSectionsRadio && allSectionsRadio.addEventListener("click", e => {
 
-  // Button spinners
-  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
-  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
-  });
-  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
-  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
-    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+      document.querySelectorAll(".group-manager-step2-checkbox")
+        .forEach(box => box.checked = e.target.checked);
+    });
+
+    const backButton = document.getElementById("autogroups-back-button");
+    backButton && backButton.addEventListener("click", () => {
+      SPNR.disableControlsAndSpin(backButton, null);
+      document.getElementById("wizardAction").value = "back";
+      document.getElementById("autogroups-wizard-step2-form").submit();
+    });
+
+    // Button spinners
+    const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+    autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+    });
+    const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+    autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+      window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+    });
   });
   /*]]>*/
 </script>
 
 <script th:fragment="autoGroupsStep3Js" th:inline="javascript">
   /*<![CDATA[*/
-  const options = document.getElementById("mixtureStructureOptions");
-  document.getElementById("mixtureConfiguration")?.addEventListener("change", () => {
-    options && (options.style.display = "block");
-  });
-  document.getElementById("pureConfiguration")?.addEventListener("click", e => {
-    options && (options.style.display = e.target.checked ? "none" : "block");
-  });
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
 
-  const splitByGroups = document.getElementById("splitByGroups");
-  const splitByGroupsOptions = document.getElementById("splitByGroupsOptions");
-  const splitByUsers = document.getElementById("splitByUsers");
-  const splitByUsersOptions = document.getElementById("splitByUsersOptions");
-  const groupSelectedClass = 'optGroupSelectSelected';
-  const byUser = document.getElementById("splitByUser");
-  byUser && byUser.addEventListener("change", () => {
+  onReady(() => {
 
-    splitByGroups && splitByGroups.classList.remove(groupSelectedClass);
-    splitByUsers && splitByUsers.classList.add(groupSelectedClass);
-    splitByGroupsOptions && (splitByGroupsOptions.style.display = "none");
-    splitByUsersOptions && (splitByUsersOptions.style.display = "block");
-  });
+    const options = document.getElementById("mixtureStructureOptions");
+    document.getElementById("mixtureConfiguration")?.addEventListener("change", () => {
+      options && (options.style.display = "block");
+    });
+    document.getElementById("pureConfiguration")?.addEventListener("click", e => {
+      options && (options.style.display = e.target.checked ? "none" : "block");
+    });
 
-  const byGroup = document.getElementById("splitByGroup");
-  byGroup && byGroup.addEventListener("change", () => {
+    const splitByGroups = document.getElementById("splitByGroups");
+    const splitByGroupsOptions = document.getElementById("splitByGroupsOptions");
+    const splitByUsers = document.getElementById("splitByUsers");
+    const splitByUsersOptions = document.getElementById("splitByUsersOptions");
+    const groupSelectedClass = 'optGroupSelectSelected';
+    const byUser = document.getElementById("splitByUser");
+    byUser && byUser.addEventListener("change", () => {
 
-    splitByUsers && splitByUsers.classList.remove(groupSelectedClass);
-    splitByGroups && splitByGroups.classList.add(groupSelectedClass);
-    splitByUsersOptions && (splitByUsersOptions.style.display = "none");
-    splitByGroupsOptions && (splitByGroupsOptions.style.display = "block");
-  });
+      splitByGroups && splitByGroups.classList.remove(groupSelectedClass);
+      splitByUsers && splitByUsers.classList.add(groupSelectedClass);
+      splitByGroupsOptions && (splitByGroupsOptions.style.display = "none");
+      splitByUsersOptions && (splitByUsersOptions.style.display = "block");
+    });
 
-  const backButton = document.getElementById("autogroups-back-button");
-  backButton && backButton.addEventListener("click", () => {
-    SPNR.disableControlsAndSpin(backButton, null);
-    document.getElementById('wizardAction').value = "back";
-    document.getElementById("autogroups-wizard-step3-form").submit();
-  });
+    const byGroup = document.getElementById("splitByGroup");
+    byGroup && byGroup.addEventListener("change", () => {
 
-  // Button spinners
-  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
-  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
-  });
-  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
-  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
-    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
-    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+      splitByUsers && splitByUsers.classList.remove(groupSelectedClass);
+      splitByGroups && splitByGroups.classList.add(groupSelectedClass);
+      splitByUsersOptions && (splitByUsersOptions.style.display = "none");
+      splitByGroupsOptions && (splitByGroupsOptions.style.display = "block");
+    });
+
+    const backButton = document.getElementById("autogroups-back-button");
+    backButton && backButton.addEventListener("click", () => {
+      SPNR.disableControlsAndSpin(backButton, null);
+      document.getElementById('wizardAction').value = "back";
+      document.getElementById("autogroups-wizard-step3-form").submit();
+    });
+
+    // Button spinners
+    const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+    autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+    });
+    const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+    autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+      window.location.href = autoGroupsCancelButton.getAttribute('data-url');
+    });
   });
   /*]]>*/
 </script>
 
 <script th:fragment="autoGroupsStep4Js" th:inline="javascript">
   /*<![CDATA[*/
-  document.querySelectorAll("#autogroups-back-button-top, #autogroups-back-button").forEach(el => {
+  const onReady = callback => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  };
 
-    el.addEventListener("click", () => {
-      SPNR.disableControlsAndSpin(el, null);
-      document.getElementById("wizardAction").value = "back";
-      document.getElementById("autogroups-wizard-step4-form").submit();
-    });
-  });
+  onReady(() => {
 
-  // Button spinners
-  document.querySelectorAll("#autogroups-creategroups-button, #autogroups-creategroups-button-top").forEach(el => {
-    el.addEventListener("click", () => {
-      SPNR.disableControlsAndSpin(el, null);
+    document.querySelectorAll("#autogroups-back-button-top, #autogroups-back-button").forEach(el => {
+
+      el.addEventListener("click", () => {
+        SPNR.disableControlsAndSpin(el, null);
+        document.getElementById("wizardAction").value = "back";
+        document.getElementById("autogroups-wizard-step4-form").submit();
+      });
     });
-  });
-  document.querySelectorAll("#autogroups-cancel-button, #autogroups-cancel-button-top").forEach(el => {
-    el.addEventListener("click", () => {
-      SPNR.disableControlsAndSpin(el, null);
-      window.location.href = el.getAttribute('data-url');
+
+    // Button spinners
+    document.querySelectorAll("#autogroups-creategroups-button, #autogroups-creategroups-button-top").forEach(el => {
+      el.addEventListener("click", () => {
+        SPNR.disableControlsAndSpin(el, null);
+      });
+    });
+    document.querySelectorAll("#autogroups-cancel-button, #autogroups-cancel-button-top").forEach(el => {
+      el.addEventListener("click", () => {
+        SPNR.disableControlsAndSpin(el, null);
+        window.location.href = el.getAttribute('data-url');
+      });
     });
   });
   /*]]>*/
