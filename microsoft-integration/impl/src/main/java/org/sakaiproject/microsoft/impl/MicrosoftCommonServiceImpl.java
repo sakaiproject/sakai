@@ -149,6 +149,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 
+import static org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl.decrypt;
+
 @Slf4j
 @Transactional
 public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
@@ -215,11 +217,17 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					log.debug(MicrosoftCredentials.KEY_SCOPE+"="+microsoftCredentials.getScope());
 					log.debug(MicrosoftCredentials.KEY_AUTHORITY+"="+microsoftCredentials.getAuthority());
 
+					String decryptedSecret = decrypt(microsoftCredentials.getSecret());
+					if (decryptedSecret == null) {
+						log.error("Failed to decrypt Microsoft secret. Check your microsoft.encryption.key.");
+						throw new MicrosoftInvalidCredentialsException();
+					}
+
 					TokenCredential credential = new ClientSecretCredentialBuilder()
 							.authorityHost(microsoftCredentials.getAuthority())
 							.tenantId(microsoftCredentials.getTenantId())
 							.clientId(microsoftCredentials.getClientId())
-							.clientSecret(microsoftCredentials.getSecret())
+							.clientSecret(decryptedSecret)
 							.build();
 					this.graphClient = new GraphServiceClient(credential, microsoftCredentials.getScope());
 
