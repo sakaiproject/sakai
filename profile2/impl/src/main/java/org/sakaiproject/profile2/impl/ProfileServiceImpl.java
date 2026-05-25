@@ -366,16 +366,8 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Override
     public boolean setProfileImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
 
-        //check auth and get currentUserUuid
         String currentUserUuid = sakaiProxy.getCurrentUserId();
-        if (currentUserUuid == null) {
-            throw new SecurityException("You must be logged in to update a user's profile image.");
-        }
-
-        //check admin, or the currentUser and given uuid match
-        if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
-            throw new SecurityException("Not allowed to save.");
-        }
+        checkCanModifyProfile(currentUserUuid, userUuid, "update a user's profile image");
 
         //check image is actually allowed to be changed
         if (!sakaiProxy.isProfilePictureChangeEnabled()) {
@@ -459,6 +451,9 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     @Override
     public boolean removeProfileImage(final String userUuid) {
+
+        String currentUserUuid = sakaiProxy.getCurrentUserId();
+        checkCanModifyProfile(currentUserUuid, userUuid, "remove a user's profile image");
 
         if (dao.removeProfileImage(userUuid)) {
             log.info("Removed profile image for user: {}", userUuid);
@@ -874,6 +869,9 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Transactional
     public boolean saveUserProfile(ProfileTransferBean profileBean) {
 
+        String currentUserUuid = sakaiProxy.getCurrentUserId();
+        checkCanModifyProfile(currentUserUuid, profileBean.id, "update a user's profile");
+
         Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
         sakaiPerson.ifPresent(sp -> {
             sp.setNickname(profileBean.nickname);
@@ -909,7 +907,17 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         }).orElse(false);
     }
 
+    @Override
+    public void assertCanModifyProfile(String userUuid) {
+
+        checkCanModifyProfile(sakaiProxy.getCurrentUserId(), userUuid, "modify this profile");
+    }
+
+    @Override
     public boolean removePronunciationRecording(String userId) {
+
+        String currentUserUuid = sakaiProxy.getCurrentUserId();
+        checkCanModifyProfile(currentUserUuid, userId, "remove a user's pronunciation recording");
 
         String path = getUserNamePronunciationResourceId(userId);
         sakaiProxy.removeResource(path);
@@ -917,6 +925,17 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         userProfile.nameRecordingUrl = null;
         saveUserProfile(userProfile);
         return true;
+    }
+
+    private void checkCanModifyProfile(String currentUserUuid, String userUuid, String action) {
+
+        if (currentUserUuid == null) {
+            throw new SecurityException("You must be logged in to " + action + ".");
+        }
+
+        if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
+            throw new SecurityException("Not allowed to " + action + ".");
+        }
     }
 
     /**

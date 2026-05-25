@@ -49,6 +49,11 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Access forbidden", ex);
     }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<Object> handleSecurityException(SecurityException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.FORBIDDEN, "Access forbidden", ex);
+    }
+
     @ExceptionHandler(PermissionException.class)
     public ResponseEntity<Object> handlePermissionException(PermissionException ex, WebRequest request) {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Permission denied", ex);

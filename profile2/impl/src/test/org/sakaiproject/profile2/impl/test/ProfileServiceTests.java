@@ -24,10 +24,13 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.ProfileImage;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.profile2.api.ProfileTransferBean;
+import org.sakaiproject.profile2.api.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.api.repository.ProfileImageUploadedRepository;
 import org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -49,9 +52,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private ProfileService profileService;
+    @Autowired private ContentHostingService contentHostingService;
     @Autowired private SakaiPersonManager sakaiPersonManager;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
+    @Autowired private ProfileImageUploadedRepository profileImageUploadedRepository;
     @Autowired private SocialNetworkingInfoRepository socialNetworkingInfoRepository;
     @Autowired private UserDirectoryService userDirectoryService;
 
@@ -66,6 +71,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
       reset(userDirectoryService);
       reset(securityService);
       reset(sessionManager);
+      reset(contentHostingService);
 
       user1 = mock(User.class);
       when(user1.getCreatedBy()).thenReturn(user1);
@@ -76,6 +82,125 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
       when(user1.getFirstName()).thenReturn("User");
       when(user1.getLastName()).thenReturn("1");
       when(user1.getEid()).thenReturn("user1");
+    }
+
+    @Test
+    public void assertCanModifyProfileRejectsNonOwner() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.assertCanModifyProfile(user1Id));
+        assertEquals("Not allowed to modify this profile.", exception.getMessage());
+    }
+
+    @Test
+    public void setProfileImageRequiresLoggedInUser() {
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.setProfileImage(user1Id, new byte[0], "image/png", "image.png"));
+        assertEquals("You must be logged in to update a user's profile image.", exception.getMessage());
+    }
+
+    @Test
+    public void setProfileImageRejectsNonOwner() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.setProfileImage(user1Id, new byte[0], "image/png", "image.png"));
+        assertEquals("Not allowed to update a user's profile image.", exception.getMessage());
+    }
+
+    @Test
+    public void saveUserProfileRequiresLoggedInUser() {
+
+        ProfileTransferBean profileBean = new ProfileTransferBean();
+        profileBean.id = user1Id;
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.saveUserProfile(profileBean));
+        assertEquals("You must be logged in to update a user's profile.", exception.getMessage());
+    }
+
+    @Test
+    public void saveUserProfileRejectsNonOwner() {
+
+        ProfileTransferBean profileBean = new ProfileTransferBean();
+        profileBean.id = user1Id;
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.saveUserProfile(profileBean));
+        assertEquals("Not allowed to update a user's profile.", exception.getMessage());
+    }
+
+    @Test
+    public void removeProfileImageRequiresLoggedInUser() {
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.removeProfileImage(user1Id));
+        assertEquals("You must be logged in to remove a user's profile image.", exception.getMessage());
+    }
+
+    @Test
+    public void removeProfileImageRejectsNonOwner() {
+
+        profileImageUploadedRepository.save(new ProfileImageUploaded(user1Id, "/main", "/thumb", "/avatar"));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.removeProfileImage(user1Id));
+
+        assertEquals("Not allowed to remove a user's profile image.", exception.getMessage());
+        assertTrue(profileImageUploadedRepository.findById(user1Id).isPresent());
+    }
+
+    @Test
+    public void removeProfileImageAllowsSuperUser() {
+
+        profileImageUploadedRepository.save(new ProfileImageUploaded(user1Id, "/main", "/thumb", "/avatar"));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+        when(securityService.isSuperUser()).thenReturn(true);
+
+        assertTrue(profileService.removeProfileImage(user1Id));
+        assertFalse(profileImageUploadedRepository.findById(user1Id).isPresent());
+    }
+
+    @Test
+    public void removePronunciationRecordingRequiresLoggedInUser() throws Exception {
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.removePronunciationRecording(user1Id));
+
+        assertEquals("You must be logged in to remove a user's pronunciation recording.", exception.getMessage());
+        verify(contentHostingService, never()).removeResource(anyString());
+    }
+
+    @Test
+    public void removePronunciationRecordingRejectsNonOwner() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+
+        Exception exception = assertThrows(SecurityException.class, () -> profileService.removePronunciationRecording(user1Id));
+
+        assertEquals("Not allowed to remove a user's pronunciation recording.", exception.getMessage());
+        verify(contentHostingService, never()).removeResource(anyString());
+    }
+
+    @Test
+    public void removePronunciationRecordingAllowsOwner() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
+        when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(Optional.empty());
+
+        assertTrue(profileService.removePronunciationRecording(user1Id));
+        verify(contentHostingService).removeResource("/private/namePronunciation/" + user1Id + ".ogg");
+    }
+
+    @Test
+    public void removePronunciationRecordingAllowsSuperUser() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+        when(securityService.isSuperUser()).thenReturn(true);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
+        when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(Optional.empty());
+
+        assertTrue(profileService.removePronunciationRecording(user1Id));
+        verify(contentHostingService).removeResource("/private/namePronunciation/" + user1Id + ".ogg");
     }
 
     @Test

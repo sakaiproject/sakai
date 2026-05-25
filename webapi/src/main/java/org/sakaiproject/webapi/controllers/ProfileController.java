@@ -50,11 +50,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.simple.JSONObject;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -115,9 +117,10 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @PatchMapping(value = "/users/{userId}/profile", consumes = "application/json-patch+json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProfileTransferBean> patchProfile(@PathVariable String userId, @RequestBody JsonPatch patch) throws Exception {
+    public ResponseEntity<ProfileTransferBean> patchProfile(@PathVariable String userId, @RequestBody JsonPatch patch) {
 
         checkSakaiSession();
+        profileService.assertCanModifyProfile(userId);
 
         ProfileTransferBean profile = profileService.getUserProfile(userId);
 
@@ -133,7 +136,7 @@ public class ProfileController extends AbstractSakaiApiController {
             }
 
             return ResponseEntity.ok(patchedProfile);
-        } catch (Exception e) {
+        } catch (JsonPatchException | JsonProcessingException | IllegalArgumentException e) {
             log.error("Failed to patch profile", e.toString());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -197,11 +200,7 @@ public class ProfileController extends AbstractSakaiApiController {
 
         result.put("status", "ERROR");
 
-        String currentUserId = checkSakaiSession().getUserId();
-
-        if (currentUserId == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        checkSakaiSession();
 
         String mimeType = "image/png";
         String fileName = UUID.randomUUID().toString();
@@ -224,10 +223,6 @@ public class ProfileController extends AbstractSakaiApiController {
         Session session = checkSakaiSession();
         String currentUserId = session.getUserId();
 
-        if (currentUserId == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         String imageUrl = profileService.getProfileImageEntityUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
 
         result.put("url", imageUrl);
@@ -241,11 +236,7 @@ public class ProfileController extends AbstractSakaiApiController {
     @DeleteMapping(value = "/users/{userId}/profile/image")
     public ResponseEntity<String> removeProfileImage(@PathVariable String userId) {
 
-        String currentUserId = checkSakaiSession().getUserId();
-
-        if (currentUserId == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        checkSakaiSession();
 
         profileService.removeProfileImage(userId);
 
@@ -260,10 +251,11 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(path = "/users/{userId}/profile/pronunciation")
-    public ResponseEntity removeNamePronunciation(@PathVariable String userId) {
+    public ResponseEntity<String> removeNamePronunciation(@PathVariable String userId) {
+
+        checkSakaiSession();
 
         profileService.removePronunciationRecording(userId);
         return ResponseEntity.ok().build();
     }
-
 }
