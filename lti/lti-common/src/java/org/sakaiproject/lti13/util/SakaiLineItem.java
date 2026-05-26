@@ -55,5 +55,12 @@ public class SakaiLineItem extends LineItem {
 
 	@JsonProperty("https://www.sakailms.org/spec/lti-ags/v2p0/includeInComputation")
 	public Boolean includeInComputation;
+
+	/**
+	 * When gradebook read-only view is enabled, Sakai sets this to {@code true} on read-only line items
+	 * in list and detail responses. Omitted when the tool may write to the column.
+	 */
+	@JsonProperty("https://www.sakailms.org/spec/lti-ags/v2p0/readOnly")
+	public Boolean readOnly;
 }
 
