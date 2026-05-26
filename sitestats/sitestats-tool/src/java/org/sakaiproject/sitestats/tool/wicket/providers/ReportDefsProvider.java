@@ -57,7 +57,7 @@ public class ReportDefsProvider implements IDataProvider {
 	private boolean 				includeHidden;
 	private List<ReportDef>			data;
 	@SpringBean(name = "org.sakaiproject.util.api.LocaleService")
-	private transient LocaleService localeService;
+	private LocaleService localeService;
 
 	public ReportDefsProvider(String siteId, int mode, boolean filterWithToolsInSite, boolean includeHidden) {
 		Injector.get().inject(this);		

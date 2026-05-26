@@ -28,7 +28,6 @@ import java.util.UUID;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.comparator.SakaiCollators;
 
 import lombok.EqualsAndHashCode;
@@ -92,7 +91,7 @@ public class MembershipItem implements Comparable<MembershipItem> {
 
     @Override
     public int compareTo(MembershipItem item) {
-        return compareByType.thenComparing(getNameComparator(new ResourceLoader().getLocale())).compare(this, item);
+        return compareByType.thenComparing(getNameComparator(Locale.getDefault())).compare(this, item);
     }
 }
  
