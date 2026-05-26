@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.time.Instant;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.json.simple.JSONObject;
@@ -777,7 +778,9 @@ public class LineItemUtil {
 				key = refMap != null ? refMap.get(assignmentExternalId) : null;
 			}
 			boolean owned = toolId == null || toolIdMatchesKey(toolId, key);
-			return new LtiLineItemRowResolution(true, false, owned, key, null);
+			// Pass to the constructor an assignment object if it is associated with this gradebook item; otherwise, the value is null.
+			org.sakaiproject.assignment.api.model.Assignment asn = getAssignmentForGradebookLink(contextId, gbColumn.getId());
+			return new LtiLineItemRowResolution(true, false, owned, key, asn);
 		}
 
 		boolean assignmentApp = ASSIGNMENTS_EXTERNAL_APP_NAME.equals(appName)
@@ -833,7 +836,51 @@ public class LineItemUtil {
 			return new LtiLineItemRowResolution(false, true, owned, key, null);
 		}
 
+		org.sakaiproject.assignment.api.model.Assignment asn = getAssignmentForGradebookLink(contextId, gbColumn.getId());
+		if (asn != null) {
+			if (refMap == null) {
+			    refMap = getExternalIdsForToolAssignments(contextId);
+			}
+			org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+			if (assignmentService == null) {
+			    log.warn("AssignmentService not available");
+			    return LtiLineItemRowResolution.none();
+			}
+			String key = refMap != null ? refMap.get(assignmentService.assignmentReference(contextId, asn.getId())) : null;
+			if (StringUtils.isBlank(key)) {
+			    return LtiLineItemRowResolution.none();
+			}
+			boolean owned = toolId == null || toolIdMatchesKey(toolId, key);
+			return new LtiLineItemRowResolution(false, true, owned, key, asn);
+		}
+
 		return LtiLineItemRowResolution.none();
+	}
+
+	/**
+	 * Return an assignment object from the Assignments tool if it's associated with a gradebook item which was created in Gradebook, instead of
+	 * externally managed by the Assignments tool.
+	 * @param contextId - The site id
+	 * @param gbColumnId - The gradebook item id
+	 * @return Return an assignment object from the Assignments tool if it's associated with the gbColumnId and that GB item originates from Gradebook.
+	 * If more than one assignment is associated with the GB item. Return null and log a warning.
+	 */
+	public static org.sakaiproject.assignment.api.model.Assignment getAssignmentForGradebookLink(String contextId, Long gbColumnId) {
+		org.sakaiproject.assignment.api.model.Assignment asn = null;
+		// More than one assignment could be associated with a gradebook assignment.
+		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+		List<org.sakaiproject.assignment.api.model.Assignment> assignmentsLinkedToGbColumn = null;
+		try {
+			assignmentsLinkedToGbColumn = assignmentService.getAssignmentsForGradebookLink(contextId, String.valueOf(gbColumnId));
+		} catch (Exception e) {
+			log.debug("Could not find an assignment assoicated with gradebook item {} in site {}", gbColumnId, contextId);
+		}
+		if (assignmentsLinkedToGbColumn != null && assignmentsLinkedToGbColumn.size() == 1) {
+			asn = assignmentsLinkedToGbColumn.get(0);
+		} else if (assignmentsLinkedToGbColumn != null && assignmentsLinkedToGbColumn.size() > 1) {
+		    log.warn("More than one assignment is associated with gradebook item {} in site {}", gbColumnId, contextId);
+		}
+		return asn;
 	}
 
 	/**
@@ -1145,6 +1192,8 @@ public class LineItemUtil {
 					if (parts.length > 1 && !StringUtils.equals("0", parts[1])) {
 						item.resourceLinkId = "content:" + parts[1];
 					}
+				} else if (sakaiAsn != null && sakaiAsn.getContentId() != null && Integer.compare(sakaiAsn.getContentId(), 0) > 0) {
+					item.resourceLinkId = "content:" + String.valueOf(sakaiAsn.getContentId());
 				}
 
 				if ( filter != null ) {
@@ -1162,6 +1211,15 @@ public class LineItemUtil {
 		}
 
 		return retval;
+	}
+
+	public static Long getContentIdFromResourceLinkId(String resourceLinkId) {
+		if (!StringUtils.startsWith(resourceLinkId, "content:")) {
+		    return null;
+		}
+		String key = StringUtils.substringAfter(resourceLinkId, "content:");
+		long contentId = NumberUtils.toLong(key, -1L);
+		return (contentId > 0) ? Long.valueOf(contentId) : null;
 	}
 
 	public static SakaiLineItem getLineItem(String signed_placement, Assignment gbColumn) {

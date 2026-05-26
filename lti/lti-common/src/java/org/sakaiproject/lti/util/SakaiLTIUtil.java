@@ -2757,21 +2757,29 @@ public class SakaiLTIUtil {
 
 			// Check if this is a gradebook column that is owned by assignments
 			String external_id = gradebookColumn.getExternalId();
-			log.debug("external_id: {} {}", external_id);
-			if ( external_id != null && LineItemUtil.isAssignmentColumn(external_id) ) {
+			// Check if the column was created in Gradebook and is associated with an assignment (assumes only one; cannot handle multiple yet)
+			org.sakaiproject.assignment.api.model.Assignment assignment = LineItemUtil.getAssignmentForGradebookLink(siteId, gradebookColumn.getId());
+			log.debug("external_id: {} assignment with GB item from GB={}", external_id, assignment);
+			if ( external_id != null && (LineItemUtil.isAssignmentColumn(external_id) || (assignment != null)) ) {
 				pushAdvisor(); // Add security advisor to allow access to assignments
 				try {
 					org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
-					org.sakaiproject.assignment.api.model.Assignment assignment;
-					try {
-						org.sakaiproject.assignment.api.AssignmentReferenceReckoner.AssignmentReference assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().reference(external_id).reckon();
-						log.debug("assignmentReference.id {}", assignmentReference.getId());
-						assignment = assignmentService.getAssignment(assignmentReference.getId());
-					} catch (Exception e) {
-						log.error("Error getting assignment", e);
-						return "Error retrieving assignment: " + e.getMessage();
+					if (assignmentService == null) {
+					    String warning = "AssignmentService not available";
+					    log.warn(warning);
+					    return warning;
 					}
-
+					if (assignment == null) {
+					    // Try fetching an assignment where the gb column originates from the Assignments tool
+					    try {
+						    org.sakaiproject.assignment.api.AssignmentReferenceReckoner.AssignmentReference assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().reference(external_id).reckon();
+						    log.debug("assignmentReference.id {}", assignmentReference.getId());
+						    assignment = assignmentService.getAssignment(assignmentReference.getId());
+					    } catch (Exception e) {
+						    log.error("Error getting assignment", e);
+						    return "Error retrieving assignment: " + e.getMessage();
+					    }
+					}
 					if ( assignment != null ) {
 						log.debug("Gradebook column is owned by assignment: {}", assignment.getId());
 						try {
