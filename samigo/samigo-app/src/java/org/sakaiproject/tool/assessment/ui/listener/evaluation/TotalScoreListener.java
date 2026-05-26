@@ -104,6 +104,7 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
   private BeanSort bs;
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private LocaleService localeService = ComponentManager.get(LocaleService.class);
 
   //private SectionAwareness sectionAwareness;
   // private List availableSections;
@@ -803,6 +804,9 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     if ((sortProperty).equals("totalOverrideScore")) bs.toNumericSort();
     if ((sortProperty).equals("finalScore")) bs.toNumericSort();
     if ((sortProperty).equals("timeElapsed")) bs.toNumericSort();
+
+    UserSortNameComparator userComparator = sortProperty.equals("lastName")
+        ? new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()) : null;
     
     if (sortAscending) {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
@@ -810,7 +814,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     		agents = (List)bs.sort();
     	} else {
     		if (!agents.isEmpty()) {
-			UserSortNameComparator userComparator = new UserSortNameComparator(ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser());
     			Collections.sort(agents, new Comparator<AgentResults>() {
     				public int compare(AgentResults a1, AgentResults a2) {
     					return userComparator.compare(getUser(a1.getAgentId()), getUser(a2.getAgentId()));
@@ -825,7 +828,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     		agents = (List)bs.sortDesc();
     	} else {
     		if (!agents.isEmpty()) {
-			UserSortNameComparator userComparator = new UserSortNameComparator(ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser());
     			Collections.sort(agents, new Comparator<AgentResults>() {
     				public int compare(AgentResults a1, AgentResults a2) {
     					return userComparator.compare(getUser(a2.getAgentId()), getUser(a1.getAgentId()));

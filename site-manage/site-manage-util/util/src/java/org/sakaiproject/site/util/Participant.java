@@ -20,11 +20,9 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 public class Participant {
@@ -172,15 +170,11 @@ public class Participant {
 		}
 	}
 
-	public int compareTo(Participant participantB) {
-		return compareTo(participantB, ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser());
-	}
-
 	public int compareTo(Participant participantB, Locale locale) {
 		return compareTo(participantB, new UserSortNameComparator(locale));
 	}
 
-	private int compareTo(Participant participantB, UserSortNameComparator comparator) {
+	public int compareTo(Participant participantB, UserSortNameComparator comparator) {
 		User userA = null;
 		User userB = null;
 		String uniqnameB = participantB.getUniqname();

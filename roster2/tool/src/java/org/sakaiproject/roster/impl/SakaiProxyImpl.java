@@ -111,6 +111,7 @@ import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -118,7 +119,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -157,8 +157,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Resource private ToolManager toolManager;
     @Resource private UserDirectoryService userDirectoryService;
-
-    @Setter private RosterMemberComparator memberComparator;
+    @Resource private LocaleService localeService;
 
     private static final String SAK_PROP_SHOW_PERMS_TO_MAINTAINERS = "roster.showPermsToMaintainers";
     private static final boolean SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT = true;
@@ -190,7 +189,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
 
         eventTrackingService.addObserver(this);
-        memberComparator = new RosterMemberComparator(getFirstNameLastName());
         userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$|additionalInfo|specialNeeds|studentNumber"));
     }
 
@@ -259,6 +257,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         return serverConfigurationService.getBoolean(
                 "roster.display.firstNameLastName", DEFAULT_FIRST_NAME_LAST_NAME);
+    }
+
+    private RosterMemberComparator getMemberComparator() {
+        return new RosterMemberComparator(getFirstNameLastName(), localeService.getLocaleForCurrentSiteAndUser());
     }
 
     @Override
@@ -538,7 +540,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).toList());
 
                 // The group loop is shuffling members, sort the list again
-                filtered.sort(memberComparator);
+                filtered.sort(getMemberComparator());
             } else if (null != site.getGroup(groupId)) {
                 // get all members of requested groupId if current user is
                 // member
@@ -814,6 +816,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             cacheMembersMap.put(siteId, siteMembers);
             log.debug("Caching on '{}' ...", siteId);
 
+            RosterMemberComparator memberComparator = getMemberComparator();
             cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
             cache.putAll(cacheMembersMap);
             siteMembers = (List<RosterMember>) cache.get(key);
@@ -888,6 +891,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 members.add(member);
             }
 
+            RosterMemberComparator memberComparator = getMemberComparator();
             members.sort(memberComparator);
             waiting.sort(memberComparator);
             enrolled.sort(memberComparator);

@@ -52,10 +52,6 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     private AssignmentSubmissionComparator() {
     }
 
-    public AssignmentSubmissionComparator(AssignmentService assignmentService, SiteService siteService, UserDirectoryService userDirectoryService) {
-        this(assignmentService, siteService, userDirectoryService, Locale.getDefault());
-    }
-
     public AssignmentSubmissionComparator(AssignmentService assignmentService, SiteService siteService, UserDirectoryService userDirectoryService, Locale locale) {
         this.assignmentService = assignmentService;
         this.siteService = siteService;

@@ -21,6 +21,7 @@ import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -30,6 +31,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +43,7 @@ public class SiteComparator implements Comparator {
 
 	Collator collator = Collator.getInstance();
 	Collator localeCollator = null;
+	UserSortNameComparator userSortNameComparator = null;
 	
 	/**
 	 * the criteria
@@ -59,6 +62,9 @@ public class SiteComparator implements Comparator {
 	 *            otherwise.
 	 */
 	public SiteComparator(String criterion, String asc) {
+		if (SiteConstants.SORTED_BY_PARTICIPANT_NAME.equals(criterion)) {
+			throw new IllegalArgumentException("Participant name sorting requires a locale");
+		}
 		m_criterion = criterion;
 		m_asc = asc;
 
@@ -68,9 +74,11 @@ public class SiteComparator implements Comparator {
 
 	// create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used
 	public SiteComparator(String criterion, String asc, Locale locale) {
-		this(criterion, asc);
+		m_criterion = criterion;
+		m_asc = asc;
 
-		m_loc = locale;
+		m_loc = Objects.requireNonNull(locale, "locale");
+		userSortNameComparator = new UserSortNameComparator(locale);
 
 		try {
 			RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale);
@@ -142,7 +150,7 @@ public class SiteComparator implements Comparator {
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_NAME)) {
 			// Defer to the UserSortNameComparator if possible
 			if (o1.getClass().equals(Participant.class) && o2.getClass().equals(Participant.class)) {
-				result = ((Participant) o1).compareTo((Participant) o2, m_loc);
+				result = ((Participant) o1).compareTo((Participant) o2, userSortNameComparator);
 			} else if (o1.getClass().equals(Participant.class)) {
 				result = compareString(((Participant) o1).getName(), null);
 			} else if (o2.getClass().equals(Participant.class)) {
@@ -333,7 +341,7 @@ public class SiteComparator implements Comparator {
 	 * @return
 	 */
 	private int compareParticipantName(Participant  o1, Participant o2) {
-		return o1.compareTo(o2, m_loc);
+		return o1.compareTo(o2, userSortNameComparator);
 	}
 
 	private int compareBoolean(boolean b1, boolean b2) {

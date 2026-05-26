@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -113,7 +114,7 @@ public class AssignmentComparatorTest {
 		}
 
 		sortNameComparator = new UserIdComparator(userDirectoryService);
-		submitterNameComparator = new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService);
+		submitterNameComparator = new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService, Locale.US);
 	}
 
 	/**

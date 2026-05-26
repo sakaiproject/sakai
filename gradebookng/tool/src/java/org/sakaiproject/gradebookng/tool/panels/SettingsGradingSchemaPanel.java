@@ -415,7 +415,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.collect(Collectors.toList());
 
 		final List<GbUser> users = this.businessService.getGbUsers(currentSiteId, userUuids);
-		users.sort(new FirstNameComparatorGbUser());
+		users.sort(new FirstNameComparatorGbUser(localeService.getLocaleForCurrentSiteAndUser()));
 
 		return users;
 	}

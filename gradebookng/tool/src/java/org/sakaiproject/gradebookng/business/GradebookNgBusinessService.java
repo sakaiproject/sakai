@@ -1065,8 +1065,9 @@ public class GradebookNgBusinessService {
 		List<User> users = getUsers(userUuids);
 		List<GbUser> gbUsers = new ArrayList<>(users.size());
 		if (settings.getStudentSortOrder() != null) {
-			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ? new FirstNameComparator()
-					: new UserSortNameComparator(localeService.getLocaleForSiteAndUser(site.getId(), userDirectoryService.getCurrentUser().getId()));
+			Locale locale = localeService.getLocaleForSiteAndUser(site.getId(), userDirectoryService.getCurrentUser().getId());
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ? new FirstNameComparator(locale)
+					: new UserSortNameComparator(locale);
 			if (SortDirection.DESCENDING == settings.getStudentSortOrder()) {
 				comp = Collections.reverseOrder(comp);
 			}
