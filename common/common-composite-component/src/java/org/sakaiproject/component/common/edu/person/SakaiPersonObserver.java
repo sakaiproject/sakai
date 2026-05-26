@@ -73,21 +73,12 @@ public class SakaiPersonObserver implements Observer {
 		String function = event.getEvent();
 		
 		if (UserDirectoryService.SECURE_REMOVE_USER.equals(function)) {
-			//then delete this users profiles
-			
+			// then delete this users profiles
 			
 			Reference ref = entityManager.newReference(event.getResource());
 			
 			// look for group reference. Need to replace it with parent site reference
-			String refId = ref.getId();
-			
-			///TODO we need a security advisor
-			
-			Optional<SakaiPerson> sp = sakaiPersonManager.getSakaiPerson(refId, sakaiPersonManager.getUserMutableType());
-			sp.ifPresent(sakaiPersonManager::delete);
-
-			sp = sakaiPersonManager.getSakaiPerson(refId, sakaiPersonManager.getSystemMutableType());
-			sp.ifPresent(sakaiPersonManager::delete);
+			sakaiPersonManager.delete(ref.getId());
 		}
 	}
 }

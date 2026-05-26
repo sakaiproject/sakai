@@ -24,6 +24,7 @@ package org.sakaiproject.api.common.edu.person;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,8 +35,8 @@ import org.sakaiproject.api.common.type.Type;
  */
 public interface SakaiPersonManager
 {
-	public static final String PROFILE_UPDATE = "profile.update";
-	public static final String PROFILE_DELETE = "profile.delete";
+	String PROFILE_UPDATE = "profile.update";
+	String PROFILE_DELETE = "profile.delete";
 
     /**
      * Creates a persistent SakaiPerson record.
@@ -60,7 +61,7 @@ public interface SakaiPersonManager
 	 * 
 	 * @return
 	 */
-	public SakaiPerson getPrototype();
+	SakaiPerson getPrototype();
 
 	/**
 	 * Retrieve SakaiPerson by uid (username).
@@ -69,7 +70,7 @@ public interface SakaiPersonManager
 	 *        username
 	 * @return List of SakaiPerson objects incuding both system and user mutable Types.
 	 */
-	public List<SakaiPerson> findSakaiPersonByUid(String uid);
+	List<SakaiPerson> findSakaiPersonByUid(String uid);
 
 	/**
 	 * Query-by-Example finder signature.
@@ -78,7 +79,7 @@ public interface SakaiPersonManager
 	 *        A SakaiPerson protoype. All non-null preoperties will be searched using a logical AND.
 	 * @return
 	 */
-	public List<SakaiPerson> findSakaiPerson(SakaiPerson queryByExample);
+	List<SakaiPerson> findSakaiPerson(SakaiPerson queryByExample);
 
     /**
      * Gets the SakaiPerson record for the current user with the specified record type.
@@ -110,35 +111,47 @@ public interface SakaiPersonManager
 	 * @param userMutableType
 	 * @return
 	 */
-	public Map<String, SakaiPerson> getSakaiPersons(Set<String> userIds, Type userMutableType);
+	Map<String, SakaiPerson> getSakaiPersons(Set<String> userIds, Type userMutableType);
 
 	/**
 	 * Returns the userMutableType constant. SakaiPerson's of this Type allow the user to modify all attributes.
 	 * 
 	 * @return
 	 */
-	public Type getUserMutableType();
+	Type getUserMutableType();
 
 	/**
 	 * Returns the systemMutableType constant. SakaiPerson's of this Type can only be modified by the "system", i.e. not the end user, and would normally consist of enterprise data (e.g. LDAP, etc).
 	 * 
 	 * @return
 	 */
-	public Type getSystemMutableType();
+	Type getSystemMutableType();
 
 	/**
 	 * Save or update the SakaiPerson bean.
 	 * 
 	 * @param sakaiPerson
 	 */
-	public void save(SakaiPerson sakaiPerson);
+	void save(SakaiPerson sakaiPerson);
 
 	/**
 	 * Removes SakaiPerson from persistent state.
 	 * 
 	 * @param sakaiPerson
 	 */
-	public void delete(SakaiPerson sakaiPerson);
+	default void delete(SakaiPerson sakaiPerson) {
+		Objects.requireNonNull(sakaiPerson, "SakaiPerson cannot be null");
+		delete(sakaiPerson.getAgentUuid());
+	}
+
+	/**
+	 * Removes SakaiPerson records from persistent state for the specified user.
+	 * This will delete all SakaiPerson records (both system-managed and user-managed types)
+	 * associated with the given user ID. A PROFILE_DELETE event will be posted for the deletion.
+	 *
+	 * @param userId The unique identifier (agentUuid) of the user whose SakaiPerson records should be deleted
+	 */
+	void delete(String userId);
 
 	/**
 	 * Search the "common" SakaiPerson fields for a given String.
@@ -147,7 +160,7 @@ public interface SakaiPersonManager
 	 *        String used to search for SakaiPerson objects where the following properties are like this String: uid, givenName, surname.
 	 * @return
 	 */
-	public List<SakaiPerson> findSakaiPerson(String simpleSearchCriteria);
+	List<SakaiPerson> findSakaiPerson(String simpleSearchCriteria);
 
 	/**
 	 * Composite call to determine if a Set of Agents have the FERPA flag enabled.
@@ -155,14 +168,14 @@ public interface SakaiPersonManager
 	 * @param agentUuids
 	 * @return A List of agentUuid Strings where FERPA is enabled.
 	 */
-	public List<String> isFerpaEnabled(Collection<String> agentUuids);
+	List<String> isFerpaEnabled(Collection<String> agentUuids);
 
 	/**
 	 * Find all SakaiPerson objects where ferpaEnabled == TRUE.
 	 * 
 	 * @return A List of SakaiPerson objects where ferpaEnabled == TRUE.
 	 */
-	public List<SakaiPerson> findAllFerpaEnabled();
+	List<SakaiPerson> findAllFerpaEnabled();
 	
 	
 }

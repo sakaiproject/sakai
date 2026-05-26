@@ -21,12 +21,16 @@
 
 package org.sakaiproject.component.common.edu.person;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +65,6 @@ import org.sakaiproject.user.api.UserEdit;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
@@ -506,33 +509,35 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			return hb;
 		}
 	}
-	
-	
 
-	/**
-	 * @see org.sakaiproject.api.common.edu.person.SakaiPersonManager#delete(org.sakaiproject.api.common.edu.person.SakaiPerson)
-	 */
-	public void delete(final SakaiPerson sakaiPerson)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("delete(SakaiPerson {})", sakaiPerson);
+	@Override
+	public void delete(final String userId) {
+		log.debug("delete SakaiPerson entities matching id [{}]", userId);
+		Objects.requireNonNull(userId, "userId cannot be null");
+
+		HibernateCallback<List<String>> callback = session -> {
+			List<String> refs = new ArrayList<>();
+
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SakaiPersonImpl> query = cb.createQuery(SakaiPersonImpl.class);
+			Root<SakaiPersonImpl> person = query.from(SakaiPersonImpl.class);
+			query.where(cb.equal(person.get("agentUuid"), userId));
+			session.createQuery(query).list()
+					.forEach(p -> {
+						String ref = getReference(p);
+						if (securityService.unlock("user.del", ref)) {
+							refs.add(ref);
+							session.delete(p);
+						}
+			});
+			return refs;
+		};
+		List<String> deletedRefs = getHibernateTemplate().execute(callback);
+
+		for (String ref : deletedRefs) {
+			eventTrackingService.post(eventTrackingService.newEvent(PROFILE_DELETE, ref, true));
 		}
-		if (sakaiPerson == null) throw new IllegalArgumentException("Illegal sakaiPerson argument passed!");
-		
-		String ref =  getReference(sakaiPerson);
-		
-		// only someone with the appropriate permissions can delete
-        if (!securityService.unlock("user.del", ref)) {
-            throw new SecurityException("You do not have permission to delete this sakaiPerson.");
-        }
-
-        // First merge to handle potentially detached instances
-		SakaiPerson mergedPerson = getHibernateTemplate().merge(sakaiPerson);
-		log.debug("Deleted SakaiPerson [{}]", mergedPerson.toString());
-		getHibernateTemplate().delete(mergedPerson);
-		eventTrackingService.post(eventTrackingService.newEvent(PROFILE_DELETE, ref, true));
-		
+		log.debug("Deleted {} sakaiPerson entities matching id [{}]", deletedRefs.size(), userId);
 	}
 
     private boolean isSupportedType(Type recordType) {
