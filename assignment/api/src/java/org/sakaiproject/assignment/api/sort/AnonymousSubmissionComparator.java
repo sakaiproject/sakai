@@ -16,30 +16,25 @@
 package org.sakaiproject.assignment.api.sort;
 
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Locale;
 
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * Sorts assignment submissions by the submission's anonymous ID.
  */
-@Slf4j
 public class AnonymousSubmissionComparator implements Comparator<AssignmentSubmission> {
 
     private Collator collator;
 
     public AnonymousSubmissionComparator() {
-        try {
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException e) {
-            // error with init RuleBasedCollator with rules
-            // use the default Collator
-            collator = Collator.getInstance();
-            log.warn("{} AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
-        }
+        this(Locale.getDefault());
+    }
+
+    public AnonymousSubmissionComparator(Locale locale) {
+        collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
     }
 
     @Override

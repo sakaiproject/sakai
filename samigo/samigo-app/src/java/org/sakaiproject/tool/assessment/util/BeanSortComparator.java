@@ -25,14 +25,14 @@ package org.sakaiproject.tool.assessment.util;
 import java.io.Serializable;
 
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * DOCUMENTATION PENDING
@@ -41,9 +41,11 @@ import org.apache.commons.beanutils.BeanUtils;
  * @version $Id$
  */
 @Slf4j
- public class BeanSortComparator
+public class BeanSortComparator
   implements Comparator
 {
+  private Collator collator;
+
   private String propertyName;
 
   /**
@@ -54,7 +56,13 @@ import org.apache.commons.beanutils.BeanUtils;
    */
   public BeanSortComparator(String propertyName)
   {
+    this(propertyName, Locale.getDefault());
+  }
+
+  public BeanSortComparator(String propertyName, Locale locale)
+  {
     this.propertyName = propertyName;
+    this.collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
   }
 
   /**
@@ -123,12 +131,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 	  String finalS1 = s1.replaceAll("<.*?>", "");
 	  String finalS2 = s2.replaceAll("<.*?>", "");
-	  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-	  try {
-		RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-		return collator.compare(finalS1.toLowerCase(), finalS2.toLowerCase());
-	  } catch (ParseException e) {}
-	  return Collator.getInstance().compare(finalS1.toLowerCase(), finalS2.toLowerCase());	  
+        return collator.compare(finalS1.toLowerCase(), finalS2.toLowerCase());
   }
   
   /**

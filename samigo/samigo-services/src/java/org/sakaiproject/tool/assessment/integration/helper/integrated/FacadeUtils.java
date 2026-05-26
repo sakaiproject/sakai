@@ -23,15 +23,17 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.*;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * borrowed gradebook's FacadeUtils class
  */
 public class FacadeUtils {
+
+	private static final Collator COLLATOR = SakaiCollators
+			.getCollatorWithUnderscoreAfterSpace(java.util.Locale.getDefault(), Collator.TERTIARY);
 
 	// Enforce noninstantiability.
 	private FacadeUtils() {
@@ -42,12 +44,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			try{
-				RuleBasedCollator r_collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				return r_collator.compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
-			}catch(ParseException e){
-				  return Collator.getInstance().compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
-			}
+			return COLLATOR.compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
 		}
 	};
 
@@ -57,12 +54,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-			try{
-				RuleBasedCollator r_collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				return r_collator.compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
-			}catch(ParseException e){
-				  return Collator.getInstance().compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
-			}
+			return COLLATOR.compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
         }
     };
 

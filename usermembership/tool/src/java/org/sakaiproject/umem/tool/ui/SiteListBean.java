@@ -27,8 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,6 +65,8 @@ import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
@@ -103,8 +103,10 @@ public class SiteListBean {
 	private AuthzGroupService			authzGroupService	= (AuthzGroupService) ComponentManager.get( AuthzGroupService.class.getName() );
 	private UserDirectoryService		userDirectoryService= (UserDirectoryService) ComponentManager.get( UserDirectoryService.class.getName() );
 	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+	private LocaleService				localeService		= ComponentManager.get(LocaleService.class);
 	/** Private vars */
-	private RuleBasedCollator					collator;
+	private Collator					collator			= SakaiCollators
+			.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	private long						timeSpentInGroups	= 0;
 	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
@@ -133,13 +135,6 @@ public class SiteListBean {
 		private String				siteTerm;
 		private boolean				selected;
 
-		{
-			try{
-				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			}catch(ParseException e){
-				collator = (RuleBasedCollator)Collator.getInstance();
-			}
-		}
 		public UserSitesRow() {
 			this.selected = false;
 		}

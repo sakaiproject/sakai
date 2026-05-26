@@ -17,7 +17,6 @@
 package org.sakaiproject.site.util;
 
 import java.text.Collator;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
@@ -31,14 +30,12 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
-@Slf4j
 public class SiteComparator implements Comparator {
 
 	Collator collator = Collator.getInstance();
@@ -62,8 +59,8 @@ public class SiteComparator implements Comparator {
 	 *            otherwise.
 	 */
 	public SiteComparator(String criterion, String asc) {
-		if (SiteConstants.SORTED_BY_PARTICIPANT_NAME.equals(criterion)) {
-			throw new IllegalArgumentException("Participant name sorting requires a locale");
+		if (isParticipantCriterion(criterion)) {
+			throw new IllegalArgumentException("Participant sorting requires a locale");
 		}
 		m_criterion = criterion;
 		m_asc = asc;
@@ -72,23 +69,14 @@ public class SiteComparator implements Comparator {
 
 	
 
-	// create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used
+	// create a locale-sensitive comparator
 	public SiteComparator(String criterion, String asc, Locale locale) {
 		m_criterion = criterion;
 		m_asc = asc;
 
 		m_loc = Objects.requireNonNull(locale, "locale");
 		userSortNameComparator = new UserSortNameComparator(locale);
-
-		try {
-			RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale);
-			String rules = defaultCollator.getRules();
-			localeCollator = new RuleBasedCollator(rules.replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			localeCollator.setStrength(Collator.TERTIARY);
-		} catch (Exception e) {
-			log.warn("SiteComparator failed to create RuleBasedCollator for locale " + locale.toString(), e);
-			localeCollator = null;
-		}
+		localeCollator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
 	}
 	
 	
@@ -342,6 +330,16 @@ public class SiteComparator implements Comparator {
 	 */
 	private int compareParticipantName(Participant  o1, Participant o2) {
 		return o1.compareTo(o2, userSortNameComparator);
+	}
+
+	private boolean isParticipantCriterion(String criterion) {
+		return SiteConstants.SORTED_BY_PARTICIPANT_NAME.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_UNIQNAME.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_ROLE.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_COURSE.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_ID.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_CREDITS.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_STATUS.equals(criterion);
 	}
 
 	private int compareBoolean(boolean b1, boolean b2) {

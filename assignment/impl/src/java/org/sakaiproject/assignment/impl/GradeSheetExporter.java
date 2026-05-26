@@ -18,9 +18,6 @@ package org.sakaiproject.assignment.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +26,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -63,7 +61,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
-import org.springframework.util.comparator.NullSafeComparator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -88,23 +85,10 @@ public class GradeSheetExporter {
     /**
     * A comparator that sorts by student sortName
     */
-    private static final Comparator<Submitter> SUBMITTER_NAME_COMPARATOR = new Comparator<Submitter>() {
-        Collator collator;
-        {
-            this.collator = Collator.getInstance();
-            try {
-                this.collator = new RuleBasedCollator(
-                        ((RuleBasedCollator) this.collator).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-            } catch (final ParseException e) {
-                log.warn(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
-            }
-        }
-
-        @Override
-        public int compare(final Submitter s1, final Submitter s2) {
-            return new NullSafeComparator<>(collator, false).compare(s1.getSortName(), s2.getSortName());
-        }
-    };
+    private Comparator<Submitter> getSubmitterNameComparator(Locale locale) {
+        UserSortNameComparator comparator = new UserSortNameComparator(locale);
+        return (Submitter s1, Submitter s2) -> comparator.compareSortNames(s1.getSortName(), s1.id, s2.getSortName(), s2.id);
+    }
 
     /**
      * @param reference The reference, either to a specific assignment, or just to an assignment context.
@@ -356,7 +340,7 @@ public class GradeSheetExporter {
                 }
 
                 final List<Submitter> submitters = new ArrayList<>(results.keySet());
-                Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
+                Collections.sort(submitters, getSubmitterNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
 
                 // Date submitted and Late.
                 CellStyle dateCellStyle = wb.createCellStyle();
@@ -608,7 +592,7 @@ public class GradeSheetExporter {
 
 
                 final List<Submitter> submitters = new ArrayList(results.keySet());
-                Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
+                Collections.sort(submitters, getSubmitterNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
 
                 for (final Submitter submitter : submitters) {
                     List<Object> rowValues = results.get(submitter);

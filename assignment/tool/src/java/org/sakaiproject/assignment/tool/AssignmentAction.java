@@ -41,8 +41,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -234,6 +232,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
@@ -17007,14 +17006,7 @@ public class AssignmentAction extends PagedResourceActionII {
             m_user = user;
             Locale locale = localeService.getLocaleForCurrentSiteAndUser();
             userSortNameComparator = new UserSortNameComparator(locale);
-            try {
-                collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance(locale)).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-            } catch (ParseException e) {
-                // error with init RuleBasedCollator with rules
-                // use the default Collator
-                collator = Collator.getInstance(locale);
-                log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
-            }
+            collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
         } // constructor
 
         /**

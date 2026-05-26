@@ -15,8 +15,7 @@
  */
 package org.sakaiproject.util.comparator;
 
-import org.apache.commons.lang3.StringUtils;
-
+import java.math.BigInteger;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;
@@ -24,46 +23,38 @@ import java.util.Objects;
 
 public class AlphaNumericComparator implements Comparator<String> {
 	private final Comparator<String> stringComparator;
-	private final Comparator<String> fallbackComparator;
 
 	public AlphaNumericComparator() {
-		this(String.CASE_INSENSITIVE_ORDER, Comparator.naturalOrder());
+		this(String.CASE_INSENSITIVE_ORDER);
 	}
 
 	public AlphaNumericComparator(Locale locale) {
-		Collator collator = Collator.getInstance(Objects.requireNonNull(locale));
-		collator.setStrength(Collator.SECONDARY);
+		Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(Objects.requireNonNull(locale), Collator.SECONDARY);
 		Comparator<String> localeComparator = collator::compare;
 		this.stringComparator = buildComparator(localeComparator);
-		this.fallbackComparator = localeComparator;
 	}
 
-	private AlphaNumericComparator(Comparator<String> textComparator, Comparator<String> fallbackComparator) {
+	private AlphaNumericComparator(Comparator<String> textComparator) {
 		this.stringComparator = buildComparator(textComparator);
-		this.fallbackComparator = fallbackComparator;
 	}
 
 	@Override
 	public int compare(String o1, String o2) {
-		try {
-			return stringComparator.compare(o1, o2);
-		} catch (NumberFormatException nfe) {
-			return fallbackComparator.compare(String.valueOf(o1), String.valueOf(o2));
-		}
+		return stringComparator.compare(o1, o2);
 	}
 
 	private static Comparator<String> buildComparator(Comparator<String> textComparator) {
 		return Comparator
 				.comparing(AlphaNumericComparator::getTextPart, textComparator)
-				.thenComparingLong(AlphaNumericComparator::getNumberPart);
+				.thenComparing(AlphaNumericComparator::getNumberPart);
 	}
 
 	private static String getTextPart(String value) {
 		return String.valueOf(value).replaceAll("\\d", "");
 	}
 
-	private static long getNumberPart(String value) {
+	private static BigInteger getNumberPart(String value) {
 		String numberPart = String.valueOf(value).replaceAll("\\D", "");
-		return StringUtils.isNumeric(numberPart) ? Long.parseLong(numberPart) : 0;
+		return numberPart.isEmpty() ? BigInteger.ZERO : new BigInteger(numberPart);
 	}
 }

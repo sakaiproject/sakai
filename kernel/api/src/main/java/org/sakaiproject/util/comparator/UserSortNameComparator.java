@@ -20,8 +20,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.user.api.User;
 import org.springframework.util.comparator.NullSafeComparator;
@@ -29,7 +27,6 @@ import org.springframework.util.comparator.NullSafeComparator;
 /**
  * This sorts users.
  */
-@Slf4j
 public class UserSortNameComparator implements Comparator<User> {
 
     private Collator collator;
@@ -83,23 +80,11 @@ public class UserSortNameComparator implements Comparator<User> {
     }
 
     private static Collator createCollator(Locale locale) {
-        Collator collator = Collator.getInstance(locale);
-        collator.setStrength(Collator.SECONDARY); // ignore case but do differentiate on accents
-        return collator;
+        return SakaiCollators.getSortNameCollator(locale);
     }
 
     public int compareSortNames(String sortName1, String displayId1, String sortName2, String displayId2) {
         return compareSortNames(sortName1, displayId1, sortName2, displayId2, nullsLow, collator);
-    }
-
-    /**
-     * Allows Sakai user-like models, such as Sections' coursemanagement.User, to share the same sort-name behavior
-     * without implementing org.sakaiproject.user.api.User.
-     */
-    public static int compareSortNames(String sortName1, String displayId1, String sortName2, String displayId2,
-            boolean nullsLow, Locale locale) {
-        return compareSortNames(sortName1, displayId1, sortName2, displayId2, nullsLow,
-                createCollator(Objects.requireNonNull(locale)));
     }
 
     private static int compareSortNames(String sortName1, String displayId1, String sortName2, String displayId2,

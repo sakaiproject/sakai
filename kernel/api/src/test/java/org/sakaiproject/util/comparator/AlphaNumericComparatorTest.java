@@ -39,6 +39,16 @@ public class AlphaNumericComparatorTest {
     }
 
     @Test
+    public void alphanumericCompareLargeNumberParts() {
+        List<String> rawData = Arrays.asList("X1000000000000000000000000000000000000000", "X999999999999999999999999999999999999999", "X2");
+        List<String> expectedSort = Arrays.asList("X2", "X999999999999999999999999999999999999999", "X1000000000000000000000000000000000000000");
+
+        rawData.sort(alphaNumeric);
+
+        assertEquals(expectedSort, rawData);
+    }
+
+    @Test
     public void localeAlphanumericCompare() {
         for (Locale locale : Arrays.asList(Locale.forLanguageTag("es"), Locale.forLanguageTag("eu"), Locale.forLanguageTag("ca"))) {
             List<String> rawData = new ArrayList<>(Arrays.asList("Sección 10", "Sección 2", "Sección 1"));

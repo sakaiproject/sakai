@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -98,15 +99,12 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		this.messageLocator = messageLocator;
 	}
 
-	private class SimpleUser implements Comparable<SimpleUser> {
-		public String displayName;
+	private class SimpleUser {
+		public String sortName;
+		public String displayId;
 		public String userId;
 		public Double grade;
 		public SimplePageQuestionResponse response = null;
-		
-		public int compareTo(SimpleUser user) {
-			return displayName.compareTo(user.displayName);
-		}
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
@@ -171,7 +169,9 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 				notSubmitted.remove(response.getUserId());
 				try {
 					SimpleUser user = new SimpleUser();
-					user.displayName = UserDirectoryService.getUser(response.getUserId()).getSortName();
+					User directoryUser = UserDirectoryService.getUser(response.getUserId());
+					user.sortName = directoryUser.getSortName();
+					user.displayId = directoryUser.getDisplayId();
 					user.userId = response.getUserId();
 					if (manuallyGraded && !response.isOverridden())
 					    user.grade = null;
@@ -184,8 +184,11 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			}
 		}
 		
+		Locale locale = localeService.getLocaleForCurrentSiteAndUser();
+		UserSortNameComparator userSortNameComparator = new UserSortNameComparator(locale);
 		ArrayList<SimpleUser> simpleUsers = new ArrayList<SimpleUser>(users.values());
-		Collections.sort(simpleUsers);
+		simpleUsers.sort((user1, user2) -> userSortNameComparator.compareSortNames(user1.sortName, user1.displayId,
+				user2.sortName, user2.displayId));
 		
 		if(simpleUsers.size() > 0) {
 			UIOutput.make(tofill, "gradingTable");
@@ -208,7 +211,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			
 			UIOutput.make(branch, "data-row");
 			
-			UIOutput.make(branch, "student-name", user.displayName);
+			UIOutput.make(branch, "student-name", user.sortName);
 			if("multipleChoice".equals(questionItem.getAttribute("questionType"))) {
 				UIOutput.make(branch, "student-response", user.response.getOriginalText());
 			}else {
@@ -225,7 +228,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 				UIOutput.make(branch, "responsePoints",
 					(user.grade == null? "" : String.valueOf(user.grade)));
 				UIOutput.make(branch, "pointsBox").
-					decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+					decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.sortName)));
 				UIOutput.make(branch, "maxpoints", " / " + (questionItem.getGradebookPoints()));
 			}
 		}
@@ -239,7 +242,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 				} catch (Exception e) {
 				}
 			}
-		    Collections.sort(missing, new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
+		    Collections.sort(missing, userSortNameComparator);
 		    UIOutput.make(tofill, "missing-head");
 		    UIOutput.make(tofill, "missing-div");
 		    for (User user : missing) {

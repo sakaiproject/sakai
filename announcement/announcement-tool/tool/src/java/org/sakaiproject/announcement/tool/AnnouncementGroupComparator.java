@@ -15,35 +15,24 @@
  */
 package org.sakaiproject.announcement.tool;
 
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Locale;
+import java.util.Objects;
 
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 /**
  * Comparator for announcements.
  */
-@Slf4j
 class AnnouncementGroupComparator implements Comparator<Group> {
 
     public enum Criteria {TITLE, DESCRIPTION};
 
-    private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-    private Collator collator = Collator.getInstance();
+    private final Comparator<String> stringComparator;
 
     // the criteria
     Criteria m_criteria = null;
-
-    {
-        try {
-            collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException e) {
-            log.error("{} Cannot init RuleBasedCollator. Will use the default Collator instead.", this, e);
-        }
-    }
 
     // the criteria - asc
     boolean m_asc = true;
@@ -53,9 +42,10 @@ class AnnouncementGroupComparator implements Comparator<Group> {
      *  @param criteria The sort criteria string
      * @param asc      The sort order string. "true" if ascending; "false" otherwise.
      */
-    public AnnouncementGroupComparator(Criteria criteria, boolean asc) {
+    public AnnouncementGroupComparator(Criteria criteria, boolean asc, Locale locale) {
         m_criteria = criteria;
         m_asc = asc;
+        stringComparator = new AlphaNumericComparator(Objects.requireNonNull(locale));
 
     } // constructor
 
@@ -72,7 +62,7 @@ class AnnouncementGroupComparator implements Comparator<Group> {
             // sorted by the group title
             String factor1 = (o1).getTitle();
             String factor2 = (o2).getTitle();
-            result = collator.compare(factor1, factor2);
+            result = stringComparator.compare(factor1, factor2);
         } else if (m_criteria.equals(Criteria.DESCRIPTION)) {
             // sorted by the group title
             String factor1 = (o1).getDescription();
@@ -83,7 +73,7 @@ class AnnouncementGroupComparator implements Comparator<Group> {
             if (factor2 == null) {
                 factor2 = "";
             }
-            result = collator.compare(factor1, factor2);
+            result = stringComparator.compare(factor1, factor2);
         }
 
         // sort ascending or descending

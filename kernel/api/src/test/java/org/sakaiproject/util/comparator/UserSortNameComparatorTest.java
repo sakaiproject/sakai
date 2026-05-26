@@ -156,21 +156,6 @@ public class UserSortNameComparatorTest {
     }
 
     @Test
-    public void staticSortNameCompareMatchesUserComparator() {
-        Locale locale = Locale.forLanguageTag("es");
-        UserSortNameComparator comparator = new UserSortNameComparator(locale);
-        User userA = mockUser("Martinez Torcal, Apple", "student1");
-        User userB = mockUser("Martin Troncoso, X", "student2");
-
-        int comparatorResult = comparator.compare(userA, userB);
-        int staticResult = UserSortNameComparator.compareSortNames(userA.getSortName(), userA.getDisplayId(),
-                userB.getSortName(), userB.getDisplayId(), false, locale);
-
-        assertEquals(Integer.signum(comparatorResult), Integer.signum(staticResult));
-        assertEquals(1, Integer.signum(staticResult));
-    }
-
-    @Test
     public void localeAwareSortNameCompareWithSpanishNames() {
         UserSortNameComparator comparator = new UserSortNameComparator(Locale.forLanguageTag("es"));
 

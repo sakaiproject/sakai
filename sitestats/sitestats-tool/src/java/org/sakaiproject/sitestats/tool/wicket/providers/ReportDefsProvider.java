@@ -18,9 +18,6 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.providers;
 
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.wicket.Session;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
@@ -43,6 +41,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 @Slf4j
 public class ReportDefsProvider implements IDataProvider {
@@ -186,14 +185,7 @@ public class ReportDefsProvider implements IDataProvider {
 	
 	public final Comparator<ReportDef> getReportDefComparator() {
 		return new Comparator<ReportDef>() {
-			private transient Collator		collator = Collator.getInstance();
-			{
-				try{
-					collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				}catch(ParseException e){
-				    log.error("Unable to create RuleBasedCollator");
-				}		
-			}
+			private transient Comparator<String> comparator = new AlphaNumericComparator(Session.get().getLocale());
 			
 			public int compare(ReportDef o1, ReportDef o2) {
 				String title1 = null;
@@ -208,7 +200,7 @@ public class ReportDefsProvider implements IDataProvider {
 				}else{
 					title2 = o2.getTitle();
 				}
-				return collator.compare(title1, title2);
+				return comparator.compare(title1, title2);
 			}
 			
 		};

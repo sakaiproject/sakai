@@ -16,14 +16,14 @@
 package org.sakaiproject.assignment.api.sort;
 
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * Sorts a collection of User IDs by their sortnames.
@@ -37,16 +37,7 @@ public class UserIdComparator implements Comparator<String> {
     public UserIdComparator(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
         // TODO this should be in a service and should repect the current user's locale
-        try {
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException e) {
-            // error with init RuleBasedCollator with rules
-            // use the default Collator
-            collator = Collator.getInstance();
-            log.warn("{} UserIdComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
-        }
-        // This is to ignore case of the values
-        collator.setStrength(Collator.SECONDARY);
+        collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(Locale.getDefault(), Collator.SECONDARY);
     }
 
     @Override

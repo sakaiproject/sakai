@@ -29,8 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,6 +91,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -110,6 +109,9 @@ import org.sakaiproject.util.api.FormattedText;
 @ManagedBean(name="itemauthor")
 @SessionScoped
 public class ItemAuthorBean implements Serializable {
+  private static final Collator COLLATOR = SakaiCollators
+      .getCollatorWithUnderscoreAfterSpace(java.util.Locale.getDefault(), Collator.TERTIARY);
+
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
@@ -944,12 +946,7 @@ public class ItemAuthorBean implements Serializable {
 		public int compare(Object o1, Object o2) {
 			SelectItem i1 = (SelectItem) o1;
 			SelectItem i2 = (SelectItem) o2;
-			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-			try {
-				RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				return collator.compare(i1.getLabel(), i2.getLabel());
-			} catch (ParseException e) {}
-			return Collator.getInstance().compare(i1.getLabel(), i2.getLabel());
+			return COLLATOR.compare(i1.getLabel(), i2.getLabel());
 		}
 	}
   

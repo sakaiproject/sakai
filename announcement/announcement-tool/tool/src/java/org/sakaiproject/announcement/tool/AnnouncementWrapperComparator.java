@@ -15,36 +15,27 @@
  */
 package org.sakaiproject.announcement.tool;
 
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.time.Instant;
 import java.util.Comparator;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Locale;
+import java.util.Objects;
 
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * Comparator for announcements.
  */
-@Slf4j
 public class AnnouncementWrapperComparator implements Comparator<AnnouncementWrapper> {
 
-    private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-    private Collator collator = Collator.getInstance();
+    private final Comparator<String> stringComparator;
+    private final UserSortNameComparator userSortNameComparator;
     
     // the criteria
     String m_criteria = null;
-
-    {
-        try {
-            collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException e) {
-            log.error("{} Cannot init RuleBasedCollator. Will use the default Collator instead.", this, e);
-        }
-    }
 
     // the criteria - asc
     boolean m_asc = true;
@@ -54,9 +45,11 @@ public class AnnouncementWrapperComparator implements Comparator<AnnouncementWra
      *  @param criteria The sort criteria string
      * @param asc      The sort order string. "true" if ascending; "false" otherwise.
      */
-    public AnnouncementWrapperComparator(String criteria, boolean asc) {
+    public AnnouncementWrapperComparator(String criteria, boolean asc, Locale locale) {
         m_criteria = criteria;
         m_asc = asc;
+        stringComparator = new AlphaNumericComparator(Objects.requireNonNull(locale));
+        userSortNameComparator = new UserSortNameComparator(locale);
 
     } // constructor
 
@@ -124,16 +117,13 @@ public class AnnouncementWrapperComparator implements Comparator<AnnouncementWra
             result = compareInstantsNullSafe(o1retractDate, o2retractDate);
             break;
         case AnnouncementAction.SORT_SUBJECT:
-            result = collator.compare(o1.getAnnouncementHeader().getSubject(), o2.getAnnouncementHeader().getSubject());
+            result = stringComparator.compare(o1.getAnnouncementHeader().getSubject(), o2.getAnnouncementHeader().getSubject());
             break;
         case AnnouncementAction.SORT_CHANNEL:
-            result = collator.compare(o1.getChannelDisplayName(), o2.getChannelDisplayName());
+            result = stringComparator.compare(o1.getChannelDisplayName(), o2.getChannelDisplayName());
             break;
         case AnnouncementAction.SORT_FROM:
-            // The anonymous user doesn't have a sort name (it's null).
-            String sortName1 = o1.getAnnouncementHeader().getFrom().getSortName();
-            String sortName2 = o2.getAnnouncementHeader().getFrom().getSortName();
-            result = compareStringNullSafe(sortName1, sortName2);
+            result = compareFromNullSafe(o1.getAnnouncementHeader().getFrom(), o2.getAnnouncementHeader().getFrom());
             break;
         case AnnouncementAction.SORT_PUBLIC:
         	String factor1 = o1.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
@@ -165,9 +155,20 @@ public class AnnouncementWrapperComparator implements Comparator<AnnouncementWra
             return 1;
         }
         else {
-            result = collator.compare(sortName1, sortName2);
+            result = stringComparator.compare(sortName1, sortName2);
         }
         return result;
+    }
+
+    private int compareFromNullSafe(User user1, User user2) {
+        if (user1 == null && user2 == null) {
+            return 0;
+        } else if (user1 == null) {
+            return -1;
+        } else if (user2 == null) {
+            return 1;
+        }
+        return userSortNameComparator.compareSortNames(user1.getSortName(), user1.getDisplayId(), user2.getSortName(), user2.getDisplayId());
     }
 
     private int compareInstantsNullSafe(Instant date1, Instant o2ModDate) {

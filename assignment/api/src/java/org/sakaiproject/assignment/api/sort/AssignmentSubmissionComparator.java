@@ -16,8 +16,6 @@
 package org.sakaiproject.assignment.api.sort;
 
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,6 +31,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
@@ -58,14 +57,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
         this.userDirectoryService = userDirectoryService;
         this.locale = locale;
         this.userSortNameComparator = new UserSortNameComparator(locale);
-        try {
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance(locale)).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException e) {
-            // error with init RuleBasedCollator with rules
-            // use the default Collator
-            collator = Collator.getInstance(locale);
-            log.warn("AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead.", e);
-        }
+        collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
     }
 
     @Override

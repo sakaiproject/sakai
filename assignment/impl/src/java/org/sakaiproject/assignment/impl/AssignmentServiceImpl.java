@@ -2610,7 +2610,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     StringBuilder exceptionMessage = new StringBuilder();
                     SortedIterator sortedIterator;
                     if (assignmentUsesAnonymousGrading(assignment)){
-                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator(
+                                localeService.getLocaleForSiteAndUser(assignment.getContext(), sessionManager.getCurrentSessionUserId())));
                     } else {
                         sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService,
                                 localeService.getLocaleForSiteAndUser(assignment.getContext(), sessionManager.getCurrentSessionUserId())));

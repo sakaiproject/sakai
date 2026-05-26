@@ -27,8 +27,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,6 +52,8 @@ import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -107,16 +107,19 @@ public class UserListBean {
 	private String							newUserType			= null;
 	private String							newAuthority		= USER_AUTH_ALL;
 
-	/** Private vars */
-	private static RuleBasedCollator				collator;																// use
-	private String							message				= "";
-	// system
 	/** Sakai services vars */
 	private transient UserDirectoryService	M_uds				= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	private transient ToolManager			M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SqlService			M_sql				= (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
 	private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+	private LocaleService localeService = ComponentManager.get(LocaleService.class);
+
+	/** Private vars */
+	private Collator						collator			= SakaiCollators
+			.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
+	private String							message				= "";
+	// system
 	
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
@@ -132,14 +135,6 @@ public class UserListBean {
 		private String				authority;
 		private Date              createdOn;
 		private Date              modifiedOn;
-
-		static {
-			try{
-				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			}catch(ParseException e){
-				collator = (RuleBasedCollator)Collator.getInstance();
-			}
-		}
 
 		public UserRow() {
 		}
