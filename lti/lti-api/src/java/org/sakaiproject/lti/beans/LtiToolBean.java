@@ -79,6 +79,7 @@ public class LtiToolBean extends LTIBaseBean {
     // Services from TOOL_MODEL
     public Boolean allowoutcomes;      // TOOL_MODEL: "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true"
     public Boolean allowlineitems;     // TOOL_MODEL: "allowlineitems:checkbox:label=bl_allowlineitems:archive=true"
+    public Boolean allowgradebookreadonly; // TOOL_MODEL: "allowgradebookreadonly:checkbox:label=bl_allowgradebookreadonly:archive=true"
     public Boolean allowroster;        // TOOL_MODEL: "allowroster:checkbox:label=bl_allowroster:archive=true"
     
     // Configuration fields from TOOL_MODEL
@@ -165,6 +166,7 @@ public class LtiToolBean extends LTIBaseBean {
         // Services
         tool.setAllowoutcomes(getBooleanValue(map, LTIService.LTI_ALLOWOUTCOMES));
         tool.setAllowlineitems(getBooleanValue(map, LTIService.LTI_ALLOWLINEITEMS));
+        tool.setAllowgradebookreadonly(getBooleanValue(map, LTIService.LTI_ALLOWGRADEBOOKREADONLY));
         tool.setAllowroster(getBooleanValue(map, LTIService.LTI_ALLOWROSTER));
         
         // Configuration
@@ -249,6 +251,7 @@ public class LtiToolBean extends LTIBaseBean {
         // Services
         putBooleanAsInteger(map, LTIService.LTI_ALLOWOUTCOMES, allowoutcomes);
         putBooleanAsInteger(map, LTIService.LTI_ALLOWLINEITEMS, allowlineitems);
+        putBooleanAsInteger(map, LTIService.LTI_ALLOWGRADEBOOKREADONLY, allowgradebookreadonly);
         putBooleanAsInteger(map, LTIService.LTI_ALLOWROSTER, allowroster);
         
         // Configuration

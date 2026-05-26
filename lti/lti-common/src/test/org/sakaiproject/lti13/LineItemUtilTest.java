@@ -163,4 +163,60 @@ public class LineItemUtilTest {
 		assertFalse(LineItemUtil.isGradebookColumnLTI("site1", a));
 	}
 
+	@Test
+	public void testIsGradebookReadonlyViewRequiresAllowLineItems() {
+		assertTrue(LineItemUtil.isGradebookReadonlyView(Boolean.TRUE, Boolean.TRUE));
+		assertFalse(LineItemUtil.isGradebookReadonlyView(Boolean.TRUE, Boolean.FALSE));
+		assertFalse(LineItemUtil.isGradebookReadonlyView(Boolean.FALSE, Boolean.TRUE));
+	}
+
+	@Test
+	public void testIsColumnWritableByTool_gradebookReadonlyView() {
+		Assignment owned = new Assignment();
+		owned.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+		owned.setExternalId("5|0");
+
+		Assignment other = new Assignment();
+		other.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+		other.setExternalId("9|0");
+
+		assertTrue(LineItemUtil.isColumnWritableByTool("site1", owned, 5L, true, null));
+		assertFalse(LineItemUtil.isColumnWritableByTool("site1", other, 5L, true, null));
+	}
+
+	@Test
+	public void testIsColumnVisibleToTool_gradebookReadonlyViewIncludesAll() {
+		Assignment manual = new Assignment();
+		manual.setName("Manual column");
+		assertTrue(LineItemUtil.isColumnVisibleToTool("site1", manual, 5L, true, null));
+	}
+
+	@Test
+	public void testGetLineItemForToolColumnSetsReadOnlyForNonOwnedColumn() {
+		Assignment other = new Assignment();
+		other.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+		other.setExternalId("9|0");
+		other.setName("Other tool column");
+		other.setPoints(10.0);
+		other.setId(42L);
+
+		SakaiLineItem li = LineItemUtil.getLineItemForToolColumn("signed", "site1", 5L, other, true);
+		assertNotNull(li);
+		assertEquals(Boolean.TRUE, li.readOnly);
+		assertNull(LineItemUtil.getLineItemForToolColumn("signed", "site1", 5L, other, false));
+	}
+
+	@Test
+	public void testGetLineItemForToolColumnOmitsReadOnlyForOwnedColumn() {
+		Assignment owned = new Assignment();
+		owned.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+		owned.setExternalId("5|0");
+		owned.setName("My column");
+		owned.setPoints(10.0);
+
+		SakaiLineItem li = LineItemUtil.getLineItemForToolColumn("signed", "site1", 5L, owned, true);
+		assertNotNull(li);
+		assertNull(li.readOnly);
+	}
+
 }

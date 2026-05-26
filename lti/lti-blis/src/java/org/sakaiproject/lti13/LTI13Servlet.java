@@ -1092,7 +1092,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -1107,6 +1110,10 @@ public class LTI13Servlet extends HttpServlet {
 		if (!checkUserInSite(site, userId)) {
 			log.warn("User {} not found in siteId={}", userId, site.getId());
 			LTI13Util.return400(response, "User does not belong to site");
+			return;
+		}
+
+		if (rejectIfLineItemReadOnly(tool, site.getId(), sat.tool_id, lineitem_key, response)) {
 			return;
 		}
 
@@ -1381,7 +1388,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -1634,7 +1644,10 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Don't let a tool access groups unless it is placed *somewhere* in this site
-		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) return;
+		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) {
+			// checkToolHasPlacements() already logs and writes the 403 response.
+			return;
+		}
 
 		String pagingstr = (String) site.getProperties().get(PLUS_NRPS_PAGING);
 		int paging = NumberUtils.toInt(pagingstr, -1);
@@ -1918,13 +1931,43 @@ public class LTI13Servlet extends HttpServlet {
 
 	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
 	{
-		 List<org.sakaiproject.lti.beans.LtiContentBean> contents = ltiService.getContentsAsBeans(null, null, 0, 2, siteId);
-		if (contents.size() < 1) {
-			log.error("Tool id={} has no placements in site={}", toolKey, siteId);
-			LTI13Util.return400(response, "No placements for tool");
+		String search = "lti_content.tool_id = " + toolKey;
+		List<org.sakaiproject.lti.beans.LtiContentBean> contents =
+			ltiService.getContentsAsBeans(search, null, 0, 1, siteId);
+
+		if (contents.isEmpty()) {
+			log.warn("Tool id={} has no placements in site={}", toolKey, siteId);
+			LTI13Util.return403(response, "Tool not placed in site");
 			return false;
 		}
 		return true;
+	}
+
+	private static boolean isGradebookReadonlyView(org.sakaiproject.lti.beans.LtiToolBean tool) {
+		return LineItemUtil.isGradebookReadonlyView(
+				tool != null ? tool.allowgradebookreadonly : null,
+				tool != null ? tool.allowlineitems : null);
+	}
+
+	/**
+	 * @return true if the response was written (caller should return)
+	 */
+	private static boolean rejectIfLineItemReadOnly(org.sakaiproject.lti.beans.LtiToolBean tool, String contextId,
+			Long toolId, Long lineitemKey, HttpServletResponse response) {
+		if (!isGradebookReadonlyView(tool) || lineitemKey == null) {
+			return false;
+		}
+		Assignment column = LineItemUtil.getColumnByIdDAO(contextId, lineitemKey);
+		if (column == null) {
+			return false;
+		}
+		Map<String, String> assignmentRefToToolKey = LineItemUtil.getExternalIdsForToolAssignments(contextId);
+		if (!LineItemUtil.isColumnWritableByTool(contextId, column, toolId, true, assignmentRefToToolKey)) {
+			LTI13Util.return403(response, "Line item is read-only");
+			log.warn("Rejecting write to read-only line item column_id={} tool_id={}", lineitemKey, toolId);
+			return true;
+		}
+		return false;
 	}
 
 	protected org.sakaiproject.lti.beans.LtiToolBean loadToolForContent(org.sakaiproject.lti.beans.LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
@@ -2080,7 +2123,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -2181,10 +2227,14 @@ public class LTI13Servlet extends HttpServlet {
 			}
 
 			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 400 response.
+				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
 
+		}
+
+		if (rejectIfLineItemReadOnly(tool, site.getId(), sat.tool_id, lineitem_key, response)) {
+			return;
 		}
 
 		Assignment retval;
@@ -2298,7 +2348,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
@@ -2319,11 +2372,13 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// Find the line items created for this tool
+		// Find the line items created for this tool (or entire gradebook when configured)
 		if (log.isDebugEnabled()) {
 			log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		}
-		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
+		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
+		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter,
+				gradebookReadonlyView);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
@@ -2420,15 +2475,19 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
 		String context_id = site.getId();
+		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
 		Assignment a = null;
 
 		if ( lineitem_key != null ) {
-			a = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, lineitem_key);
+			a = LineItemUtil.getColumnForToolReadDAO(context_id, sat.tool_id, lineitem_key, gradebookReadonlyView);
 		} else if ( content != null ) {
 			String assignment_label = (String) content.title;
 			a = LineItemUtil.getColumnByLabelDAO(context_id, sat.tool_id, assignment_label);
@@ -2442,7 +2501,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Return the line item metadata (same source as list: assignment-backed fields from Assignments when applicable)
 		if ( ! results ) {
-			SakaiLineItem item = LineItemUtil.getLineItemForToolColumn(signed_placement, context_id, sat.tool_id, a);
+			SakaiLineItem item = LineItemUtil.getLineItemForToolColumn(signed_placement, context_id, sat.tool_id, a,
+					gradebookReadonlyView);
 			if (item == null) {
 				LTI13Util.return404(response, "Line item not exposed for this tool");
 				log.error("Line item not exposed for this tool; column_id={} context_id={} tool_id={}",
@@ -2459,25 +2519,32 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		resultsForAssignment(signed_placement, site, a, lineitem_key, user_id, request, response);
+		String filterUserId = resolveResultsFilterUserId(user_id, request);
+		resultsForAssignment(signed_placement, site, a, lineitem_key, filterUserId, request, response);
 
+	}
+
+	/**
+	 * Resolve a single-user filter for AGS Result GET. Accepts the IMS AGS 2.0 query
+	 * parameter {@code user_id} (LTI subject or bare user id) and the legacy path segment
+	 * from {@code …/results/{user_id}} or from a result {@code id} URL.
+	 */
+	private String resolveResultsFilterUserId(String pathUserId, HttpServletRequest request) {
+		String filter = pathUserId;
+		if (StringUtils.isEmpty(filter)) {
+			filter = request.getParameter("user_id");
+		}
+		if (StringUtils.isEmpty(filter)) {
+			return null;
+		}
+		return SakaiLTIUtil.parseSubject(filter);
 	}
 
 	private void resultsForAssignment(String signed_placement, Site site, Assignment a,
 			Long lineitem_key, String user_id, HttpServletRequest request, HttpServletResponse response)
 	{
 		log.debug("signed_placement={} user_id={}", signed_placement, user_id);
-		// TODO: Is the outer container an array or an object - the spec and swagger doc disagree
-		/*
-			[{
-			  "id": "https://lms.example.com/context/2923/lineitems/1/results/5323497",
-			  "scoreOf": "https://lms.example.com/context/2923/lineitems/1",
-			  "userId": "5323497",
-			  "resultScore": 0.83,
-			  "resultMaximum": 1,
-			  "comment": "This is exceptional work."
-			}]
-		*/
+		// AGS 2.0: results collection is always a JSON array (at most one element when filtered by user).
 		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points
@@ -2519,7 +2586,7 @@ public class LTI13Servlet extends HttpServlet {
 			response.setContentType(APPLICATION_JSON);
 			PrintWriter out = response.getWriter();
 
-			if ( user_id == null ) out.println("[");
+			out.println("[");
 			for (User user : users) {
 				Result result = new Result();
                                 String lti11_legacy_user_id = user.getId();
@@ -2574,9 +2641,7 @@ public class LTI13Servlet extends HttpServlet {
 				out.print(json_out);
 
 			}
-			if ( user_id == null ) {
-				out.println("]");
-			}
+			out.println("]");
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		} finally {
@@ -2658,11 +2723,17 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+				// checkToolHasPlacements() already logs and writes the 403 response.
+				return;
+			}
 
 		}
 
 		String context_id = site.getId();
+		if (rejectIfLineItemReadOnly(tool, context_id, sat.tool_id, lineitem_key, response)) {
+			return;
+		}
 		if ( LineItemUtil.deleteAssignmentByKeyDAO(context_id, sat.tool_id, lineitem_key) ) {
 			return;
 		}

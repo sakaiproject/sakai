@@ -1002,6 +1002,96 @@ public class LineItemUtil {
 	}
 
 	/**
+	 * Whether the tool may list and read all gradebook columns (non-owned columns are read-only).
+	 */
+	public static boolean isGradebookReadonlyView(Boolean allowgradebookreadonly, Boolean allowlineitems) {
+		return Boolean.TRUE.equals(allowgradebookreadonly) && Boolean.TRUE.equals(allowlineitems);
+	}
+
+	/**
+	 * Whether a gradebook column should appear in AGS line item list/detail for this tool.
+	 */
+	public static boolean isColumnVisibleToTool(String contextId, Assignment gbColumn, Long toolId,
+			boolean gradebookReadonlyView, Map<String, String> assignmentRefToToolKey) {
+		if (gbColumn == null) {
+			return false;
+		}
+		if (gradebookReadonlyView) {
+			return true;
+		}
+		LtiLineItemRowResolution r = resolveLtiLineItemRow(contextId, gbColumn, toolId, assignmentRefToToolKey);
+		return r.isIncludedInToolLineItemList();
+	}
+
+	/**
+	 * When gradebook read-only view is on, sets {@link SakaiLineItem#readOnly} to {@code true} only for
+	 * columns not owned by the tool. Writable (owned) line items omit the property (omission = writable).
+	 */
+	private static void applyGradebookReadonlyLineItemFlag(SakaiLineItem item, LtiLineItemRowResolution resolution,
+			boolean gradebookReadonlyView) {
+		if (item == null || !gradebookReadonlyView) {
+			return;
+		}
+		if (!resolution.isOwnedByTool()) {
+			item.readOnly = Boolean.TRUE;
+		}
+	}
+
+	/**
+	 * Whether this tool may update, delete, or post scores for the column.
+	 */
+	public static boolean isColumnWritableByTool(String contextId, Assignment gbColumn, Long toolId,
+			boolean gradebookReadonlyView, Map<String, String> assignmentRefToToolKey) {
+		if (gbColumn == null || toolId == null) {
+			return false;
+		}
+		LtiLineItemRowResolution r = resolveLtiLineItemRow(contextId, gbColumn, toolId, assignmentRefToToolKey);
+		if (gradebookReadonlyView) {
+			return r.isOwnedByTool();
+		}
+		return r.isIncludedInToolLineItemList();
+	}
+
+	/**
+	 * Load a gradebook column by id within a site (no tool ownership check).
+	 */
+	public static Assignment getColumnByIdDAO(String context_id, Long column_id) {
+		if (column_id == null || StringUtils.isBlank(context_id)) {
+			return null;
+		}
+		GradingService gradingService = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
+		pushAdvisor();
+		try {
+			return gradingService.getAssignmentById(context_id, column_id);
+		} catch (Throwable e) {
+			log.debug("Could not load gradebook column id={} in site={}: {}", column_id, context_id, e.toString());
+			return null;
+		} finally {
+			popAdvisor();
+		}
+	}
+
+	/**
+	 * Load a column for AGS read access (list/detail/results), honoring gradebook read-only view.
+	 */
+	public static Assignment getColumnForToolReadDAO(String context_id, Long tool_id, Long column_id,
+			boolean gradebookReadonlyView) {
+		if (gradebookReadonlyView) {
+			Assignment column = getColumnByIdDAO(context_id, column_id);
+			if (column == null) {
+				return null;
+			}
+			Map<String, String> assignmentRefToToolKey = getExternalIdsForToolAssignments(context_id);
+			if (isColumnVisibleToTool(context_id, column, tool_id, true, assignmentRefToToolKey)) {
+				return column;
+			}
+			return null;
+		}
+		return getColumnByKeyDAO(context_id, tool_id, column_id);
+	}
+
+	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
 	 * @param tool_id The tool we are scanning for
@@ -1009,8 +1099,19 @@ public class LineItemUtil {
 	 * @return A List of LineItems - an empty list is returned if none exist
 	 */
 	public static List<SakaiLineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id, SakaiLineItem filter) {
+		return getLineItemsForTool(signed_placement, site, tool_id, filter, false);
+	}
 
-		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
+	/**
+	 * Get the line items from the gradebook for a tool.
+	 * When {@code gradebookReadonlyView} is true, every gradebook column is returned; columns not owned
+	 * by the tool have {@link SakaiLineItem#readOnly} set to true.
+	 */
+	public static List<SakaiLineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id,
+			SakaiLineItem filter, boolean gradebookReadonlyView) {
+
+		log.debug("signed_placement={}; site id={}; tool_id={}; gradebookReadonlyView={}", signed_placement,
+				site.getId(), tool_id, gradebookReadonlyView);
 
 		String context_id = site.getId();
 		if ( tool_id == null ) {
@@ -1028,21 +1129,22 @@ public class LineItemUtil {
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				LtiLineItemRowResolution r = resolveLtiLineItemRow(context_id, gbColumn, tool_id, assignmentRefToToolKey);
-				if (!r.isIncludedInToolLineItemList()) {
+				if (!isColumnVisibleToTool(context_id, gbColumn, tool_id, gradebookReadonlyView, assignmentRefToToolKey)) {
 					continue;
 				}
 				String external_id = r.getToolContentKey();
 				log.debug("gbColumn: {} resolved key={}", gbColumn.getName(), external_id);
-				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				log.debug("gb column id={}; title={}; external_id={}", gbColumn.getId(), gbColumn.getName(), external_id);
 
-				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
-
 				org.sakaiproject.assignment.api.model.Assignment sakaiAsn = r.getSakaiAssignment();
 				SakaiLineItem item = getLineItem(signed_placement, gbColumn, sakaiAsn);
-				if ( parts.length > 1 && ! StringUtils.equals("0", parts[1]) ) {
-					item.resourceLinkId = "content:" + parts[1];
+				applyGradebookReadonlyLineItemFlag(item, r, gradebookReadonlyView);
+				if (external_id != null && external_id.length() > 0) {
+					String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+					if (parts.length > 1 && !StringUtils.equals("0", parts[1])) {
+						item.resourceLinkId = "content:" + parts[1];
+					}
 				}
 
 				if ( filter != null ) {
@@ -1136,16 +1238,22 @@ public class LineItemUtil {
 	 */
 	public static SakaiLineItem getLineItemForToolColumn(String signed_placement, String contextId, Long toolId,
 			Assignment gbColumn) {
+		return getLineItemForToolColumn(signed_placement, contextId, toolId, gbColumn, false);
+	}
+
+	public static SakaiLineItem getLineItemForToolColumn(String signed_placement, String contextId, Long toolId,
+			Assignment gbColumn, boolean gradebookReadonlyView) {
 		if (gbColumn == null) {
 			return null;
 		}
 		Map<String, String> assignmentRefToToolKey = getExternalIdsForToolAssignments(contextId);
-		LtiLineItemRowResolution r = resolveLtiLineItemRow(contextId, gbColumn, toolId, assignmentRefToToolKey);
-		if (!r.isIncludedInToolLineItemList()) {
+		if (!isColumnVisibleToTool(contextId, gbColumn, toolId, gradebookReadonlyView, assignmentRefToToolKey)) {
 			return null;
 		}
+		LtiLineItemRowResolution r = resolveLtiLineItemRow(contextId, gbColumn, toolId, assignmentRefToToolKey);
 		String external_id = r.getToolContentKey();
 		SakaiLineItem li = getLineItem(signed_placement, gbColumn, r.getSakaiAssignment());
+		applyGradebookReadonlyLineItemFlag(li, r, gradebookReadonlyView);
 		if (StringUtils.isNotBlank(external_id)) {
 			String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 			if (parts.length > 1 && !StringUtils.equals("0", parts[1])) {

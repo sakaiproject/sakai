@@ -126,9 +126,10 @@ public interface LTIService extends LTISubstitutionsFilter {
             "sendname:checkbox:label=bl_sendname:archive=true",
             "sendemailaddr:checkbox:label=bl_sendemailaddr:archive=true",
             "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
-            "services:header:fields=allowoutcomes,allowlineitems,allowroster",
+            "services:header:fields=allowoutcomes,allowlineitems,allowgradebookreadonly,allowroster",
             "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true",
             "allowlineitems:checkbox:label=bl_allowlineitems:archive=true",
+            "allowgradebookreadonly:checkbox:label=bl_allowgradebookreadonly:archive=true",
             "allowroster:checkbox:label=bl_allowroster:archive=true",
 
             "debug:radio:label=bl_debug:choices=off,on,content",
@@ -212,6 +213,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
     String LTI_ALLOWLINEITEMS = "allowlineitems";
+    String LTI_ALLOWGRADEBOOKREADONLY = "allowgradebookreadonly";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_SETTINGS = "settings";
     // This field is mis-named - so we make an alias :(
