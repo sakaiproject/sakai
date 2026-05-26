@@ -12,6 +12,7 @@ import org.tsugi.lti.POXResponseBuilder;
 import org.tsugi.lti.POXResponseHelper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
@@ -45,6 +46,10 @@ public class POXJacksonParser {
         xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
         xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", Boolean.FALSE);
         XML_MAPPER.getFactory().setXMLInputFactory(xmlInputFactory);
+        XML_MAPPER.getFactory().setStreamReadConstraints(StreamReadConstraints.builder()
+            .maxNestingDepth(64)
+            .maxStringLength(262144)
+            .build());
     }
 
     /**

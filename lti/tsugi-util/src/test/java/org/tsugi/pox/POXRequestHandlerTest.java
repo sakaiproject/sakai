@@ -2,8 +2,7 @@ package org.tsugi.pox;
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.Enumeration;
@@ -18,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.mock.web.DelegatingServletInputStream;
 
 import org.tsugi.lti.Base64;
 import org.tsugi.lti.POXConstants;
@@ -675,7 +675,61 @@ public class POXRequestHandlerTest {
         assertFalse("External entity attack should be blocked - request should not be valid", pox.isValid());
         assertNotNull("Should have error message indicating parse failure", pox.errorMessage);
     }
-    
+
+    @Test
+    public void testRequestBodyLimitRejectsBeforeParsing() throws Exception {
+        String body = TEST_XML_REQUEST + String.join("", Collections.nCopies(262144, "x"));
+        String bodyHash = computeBodyHash(body, "HMAC-SHA1");
+        HttpServletRequest request = createMockRequestWithOAuth(body, "test_key", "test_secret", bodyHash, "HMAC-SHA1");
+
+        POXRequestHandler pox = new POXRequestHandler(request);
+
+        assertFalse("Oversized request should not be valid", pox.isValid());
+        assertEquals("Request body too large", pox.errorMessage);
+        assertNull("Oversized body should not be decoded or parsed", pox.getPostBody());
+        assertNull("Oversized body should not produce a POX request", pox.getPoxRequest());
+    }
+
+    @Test
+    public void testInvalidBodyHashRejectsBeforeParsing() throws Exception {
+        HttpServletRequest request = createMockRequestWithOAuth(
+            TEST_XML_REQUEST, "test_key", "test_secret", "not-the-real-hash", "HMAC-SHA1");
+
+        POXRequestHandler pox = new POXRequestHandler(request);
+
+        assertFalse("Invalid body hash should not be valid", pox.isValid());
+        assertEquals("Body hash does not match header", pox.errorMessage);
+        assertNull("Body hash failure should not decode or parse the body", pox.getPostBody());
+        assertNull("Body hash failure should not produce a POX request", pox.getPoxRequest());
+    }
+
+    @Test
+    public void testContentTypeIsCaseInsensitive() throws Exception {
+        String bodyHash = computeBodyHash(TEST_XML_REQUEST, "HMAC-SHA1");
+        HttpServletRequest request = createMockRequestWithOAuth(
+            TEST_XML_REQUEST, "test_key", "test_secret", bodyHash, "HMAC-SHA1");
+        Mockito.when(request.getContentType()).thenReturn("APPLICATION/XML; charset=UTF-8");
+
+        POXRequestHandler pox = new POXRequestHandler(request);
+
+        assertNotEquals("Content Type must be application/xml or text/xml", pox.errorMessage);
+        Mockito.verify(request).getInputStream();
+    }
+
+    @Test
+    public void testMissingConsumerKeyRejectsBeforeBodyRead() throws Exception {
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getContentType()).thenReturn("application/xml");
+        Mockito.when(request.getHeader("Authorization")).thenReturn(
+            "OAuth oauth_body_hash=\"abc\", oauth_signature_method=\"HMAC-SHA1\"");
+
+        POXRequestHandler pox = new POXRequestHandler(request);
+
+        assertFalse("Missing consumer key should not be valid", pox.isValid());
+        assertEquals("Did not find oauth_consumer_key", pox.errorMessage);
+        Mockito.verify(request, Mockito.never()).getInputStream();
+    }
+
     /**
      * Helper method to create a mock HttpServletRequest with OAuth headers and body
      */
@@ -692,10 +746,8 @@ public class POXRequestHandlerTest {
             oauthConsumerKey, oauthBodyHash, oauthSignatureMethod);
         Mockito.when(request.getHeader("Authorization")).thenReturn(authHeader);
         
-        // Set request body - create a new reader each time getReader() is called
-        // This is needed because BufferedReader can only be read once
-        Mockito.when(request.getReader()).thenAnswer(invocation -> {
-            return new BufferedReader(new StringReader(body));
+        Mockito.when(request.getInputStream()).thenAnswer(invocation -> {
+            return new DelegatingServletInputStream(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
         });
         
         // Set method
@@ -765,10 +817,8 @@ public class POXRequestHandlerTest {
         Enumeration<String> authHeaders = Collections.enumeration(Collections.singletonList(authHeader));
         Mockito.when(request.getHeaders("Authorization")).thenReturn(authHeaders);
         
-        // Set request body - create a new reader each time getReader() is called
-        // This is needed because BufferedReader can only be read once
-        Mockito.when(request.getReader()).thenAnswer(invocation -> {
-            return new BufferedReader(new StringReader(body));
+        Mockito.when(request.getInputStream()).thenAnswer(invocation -> {
+            return new DelegatingServletInputStream(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
         });
         
         Mockito.when(request.getMethod()).thenReturn("POST");
