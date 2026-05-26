@@ -466,8 +466,8 @@ public class LineItemUtil {
 	/**
 	 * Applies LTI line item fields to a Sakai Assignments activity (points use the assignment scale factor).
 	 * {@code startDateTime} maps to {@link org.sakaiproject.assignment.api.model.Assignment#getOpenDate() openDate}.
-	 * {@code endDateTime} maps to both {@link org.sakaiproject.assignment.api.model.Assignment#getDueDate() due date}
-	 * and {@link org.sakaiproject.assignment.api.model.Assignment#getCloseDate() close date} (accept until).
+	 * {@code endDateTime} maps to {@link org.sakaiproject.assignment.api.model.Assignment#getDueDate() due date} only
+	 * (close / accept-until is not modified by AGS PUT).
 	 */
 	private static void applyLineItemToSakaiAssignment(SakaiLineItem lineItem,
 			org.sakaiproject.assignment.api.model.Assignment asn,
@@ -494,10 +494,8 @@ public class LineItemUtil {
 			Date endDate = LTIUtil.parseIMS8601(lineItem.endDateTime);
 			if (endDate != null) {
 				Instant endInstant = endDate.toInstant();
-				// LTI AGS LineItem has only one endDateTime. In practice tools treat it as
-				// the assignment deadline, so Sakai maps it to both dueDate and closeDate.
+				// LTI AGS LineItem has only one endDateTime; map it to due date (not close).
 				asn.setDueDate(endInstant);
-				asn.setCloseDate(endInstant);   // It is best for coordinated UIs for these to be locked since LTI 1.3 has no due date
 			}
 		}
 
