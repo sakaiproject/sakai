@@ -70,7 +70,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
         private SecurityService securityService;
         private SiteService siteService;
 	@Setter private UserTimeService userTimeService;
-	private LocaleService localeService;
+	@Setter private LocaleService localeService;
 	private MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	
@@ -98,10 +98,6 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		this.messageLocator = messageLocator;
 	}
 
-	public void setLocaleService(LocaleService localeService) {
-		this.localeService = localeService;
-	}
-	
 	private class SimpleUser implements Comparable<SimpleUser> {
 		public String displayName;
 		public String userId;

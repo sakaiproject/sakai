@@ -17,8 +17,10 @@ package org.sakaiproject.util.comparator;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 
@@ -34,5 +36,17 @@ public class AlphaNumericComparatorTest {
         rawData.sort(alphaNumeric);
 
         assertEquals(expectedSort, rawData);
+    }
+
+    @Test
+    public void localeAlphanumericCompare() {
+        for (Locale locale : Arrays.asList(Locale.forLanguageTag("es"), Locale.forLanguageTag("eu"), Locale.forLanguageTag("ca"))) {
+            List<String> rawData = new ArrayList<>(Arrays.asList("Sección 10", "Sección 2", "Sección 1"));
+            List<String> expectedSort = Arrays.asList("Sección 1", "Sección 2", "Sección 10");
+
+            rawData.sort(new AlphaNumericComparator(locale));
+
+            assertEquals(expectedSort, rawData);
+        }
     }
 }

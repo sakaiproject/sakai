@@ -2317,10 +2317,11 @@ public class SiteAction extends PagedResourceActionII {
 
 					context.put("viewMembershipGroups", viewMembershipGroups);
 
-					Collections.sort(filteredGroups, new GroupTitleComparator());
+					GroupTitleComparator groupTitleComparator = new GroupTitleComparator(localeService.getLocaleForCurrentSiteAndUser());
+					Collections.sort(filteredGroups, groupTitleComparator);
 					context.put("groups", filteredGroups);
 
-					Collections.sort(filteredSections, new GroupTitleComparator());
+					Collections.sort(filteredSections, groupTitleComparator);
 					context.put("sections", filteredSections);
 				}
 
@@ -2419,8 +2420,9 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				context.put("joinedJoinableGroups", new ArrayList<>(joinedGroups));
 
+				AlphaNumericComparator joinableGroupTitleComparator = new AlphaNumericComparator(localeService.getLocaleForCurrentSiteAndUser());
 				List<JoinableGroup> sortedJoinableGroups = joinableGroups.stream()
-						.sorted((g1, g2) -> new AlphaNumericComparator().compare(g1.getTitle(), g2.getTitle()))
+						.sorted((g1, g2) -> joinableGroupTitleComparator.compare(g1.getTitle(), g2.getTitle()))
 						.collect(Collectors.toList());
 				context.put("joinableGroups", sortedJoinableGroups);
 				
@@ -3520,7 +3522,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Sort the course offerings if necessary
 			List<CourseObject> courseList = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
 			if (CollectionUtils.isNotEmpty(courseList)) {
-				courseList.sort(Comparator.comparing(CourseObject::getTitle, new AlphaNumericComparator()));
+				courseList.sort(Comparator.comparing(CourseObject::getTitle, new AlphaNumericComparator(localeService.getLocaleForCurrentSiteAndUser())));
 				state.setAttribute(STATE_TERM_COURSE_LIST, courseList);
 			}
 			context.put("termCourseList", state.getAttribute(STATE_TERM_COURSE_LIST));

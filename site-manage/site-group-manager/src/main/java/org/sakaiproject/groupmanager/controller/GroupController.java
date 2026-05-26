@@ -218,7 +218,7 @@ public class GroupController {
             }
         });
         List<String> joinableSetList = new ArrayList<>(groupJoinableSet);
-        Collections.sort(joinableSetList, new AlphaNumericComparator());
+        Collections.sort(joinableSetList, new AlphaNumericComparator(sakaiService.getLocaleForCurrentSiteAndUser()));
 
         // Add the attributes to the model
         model.addAttribute("groupForm", groupForm);

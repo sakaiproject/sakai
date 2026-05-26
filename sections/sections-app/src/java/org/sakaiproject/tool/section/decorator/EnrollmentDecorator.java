@@ -21,9 +21,6 @@
 package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
@@ -31,9 +28,8 @@ import java.util.Map;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Decorates an EnrollmentRecord for display in the UI.
@@ -41,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-@Slf4j
 public class EnrollmentDecorator implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -53,23 +48,6 @@ public class EnrollmentDecorator implements Serializable {
     public EnrollmentDecorator(EnrollmentRecord enrollment, Map categoryToSectionMap) {
         this.enrollment = enrollment;
         this.categoryToSectionMap = categoryToSectionMap;
-    }
-
-    private static Collator createCollator(Locale locale) {
-        Collator fallback = Collator.getInstance(locale);
-        fallback.setStrength(Collator.TERTIARY);
-        try {
-            Collator base = Collator.getInstance(locale);
-            if (!(base instanceof RuleBasedCollator)) {
-                return fallback;
-            }
-            Collator c = new RuleBasedCollator(((RuleBasedCollator) base).getRules().replaceAll("<'_'", "<' '<'_'"));
-            c.setStrength(Collator.TERTIARY);
-            return c;
-        } catch (ParseException e) {
-            log.warn("Failed to create RuleBasedCollator for EnrollmentDecorator", e);
-            return fallback;
-        }
     }
 
     public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending, final Locale locale) {
@@ -92,9 +70,8 @@ public class EnrollmentDecorator implements Serializable {
     }
 
     public static final Comparator<EnrollmentDecorator> getCategoryComparator(final String categoryId, final boolean sortAscending, final Locale locale) {
-        log.debug("Comparing enrollment decorators by {}", categoryId);
-        final Collator collator = createCollator(locale);
-        final UserSortNameComparator userComparator = new UserSortNameComparator(false, locale);
+        final AlphaNumericComparator titleComparator = new AlphaNumericComparator(locale);
+        final Comparator<EnrollmentDecorator> nameComparator = getNameComparator(true, locale);
         return new Comparator<EnrollmentDecorator>() {
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
                 CourseSection section1 = (CourseSection)enr1.getCategoryToSectionMap().get(categoryId);
@@ -107,11 +84,11 @@ public class EnrollmentDecorator implements Serializable {
                 }
                 int comparison;
                 if(section1 == null && section2 == null) {
-                    comparison = compareUsers(enr1.getUser(), enr2.getUser(), userComparator);
+                    comparison = nameComparator.compare(enr1, enr2);
                 } else {
-                    int titleComparison = collator.compare(section1.getTitle(), section2.getTitle());
+                    int titleComparison = titleComparator.compare(section1.getTitle(), section2.getTitle());
                     if (titleComparison == 0) {
-                        comparison = compareUsers(enr1.getUser(), enr2.getUser(), userComparator);
+                        comparison = nameComparator.compare(enr1, enr2);
                     } else {
                         comparison = titleComparison;
                     }

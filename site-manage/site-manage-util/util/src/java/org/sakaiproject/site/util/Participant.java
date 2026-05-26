@@ -17,7 +17,6 @@ package org.sakaiproject.site.util;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
@@ -168,10 +167,6 @@ public class Participant {
 		} catch (UserNotDefinedException e) {
 			return uniqname;
 		}
-	}
-
-	public int compareTo(Participant participantB, Locale locale) {
-		return compareTo(participantB, new UserSortNameComparator(locale));
 	}
 
 	public int compareTo(Participant participantB, UserSortNameComparator comparator) {
