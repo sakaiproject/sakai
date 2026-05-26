@@ -35,9 +35,11 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -63,6 +65,8 @@ import org.junit.Assert;
 public class GradeReportTest {
 
     @Autowired private FormattedText formattedText;
+    @Autowired private LocaleService localeService;
+    @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private UserDirectoryService userDirectoryService;
 
@@ -126,6 +130,8 @@ public class GradeReportTest {
         exporter.setUserDirectoryService(userDirectoryService);
         exporter.setRb(resourceLoader);
         exporter.setFormattedText(formattedText);
+        exporter.setLocaleService(localeService);
+        exporter.setSessionManager(sessionManager);
     }
 
     @Test

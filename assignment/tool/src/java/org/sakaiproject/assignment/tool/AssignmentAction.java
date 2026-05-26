@@ -232,6 +232,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
@@ -1167,6 +1168,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private FormattedText formattedText;
     private GradingService gradingService;
     private LearningResourceStoreService learningResourceStoreService;
+    private LocaleService localeService;
     private NotificationService notificationService;
 	private PreferencesService preferencesService;
 	private RubricsService rubricsService;
@@ -1212,6 +1214,7 @@ public class AssignmentAction extends PagedResourceActionII {
         formattedText = ComponentManager.get(FormattedText.class);
         gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
+        localeService = ComponentManager.get(LocaleService.class);
         notificationService = ComponentManager.get(NotificationService.class);
 		preferencesService  = ComponentManager.get(PreferencesService.class);
 		rubricsService  = ComponentManager.get(RubricsService.class);
@@ -3750,7 +3753,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             log.warn(this + ":setAssignmentFormContext cannot get user " + e.getMessage() + " user id=" + userId);
                         }
                     }
-                    Collections.sort(usersList, new UserSortNameComparator());
+                    Collections.sort(usersList, new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
                     roleUsers.put(r.getId(), usersList);
                 }
             }
@@ -17120,7 +17123,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 try {
                     User u1 = userDirectoryService.getUser(((Assignment) o1).getModifier());
                     User u2 = userDirectoryService.getUser(((Assignment) o2).getModifier());
-                    result = new UserSortNameComparator().compare(u1, u2);
+                    result = new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()).compare(u1, u2);
                 } catch (UserNotDefinedException e) {
                     log.error("Could not get user {} or {}: {}", ((Assignment) o1).getModifier(), ((Assignment) o2).getModifier(), e.getMessage());
                 }
@@ -17285,7 +17288,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
                 } else if (u1.getUser() != null && u2.getUser() != null) {
-                    result = new UserSortNameComparator().compare(u1.getUser(), u2.getUser());
+                    result = new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()).compare(u1.getUser(), u2.getUser());
                 } else {
                     String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();
                     String lName2 = u2.getUser() == null ? u2.getGroup().getTitle() : u2.getUser().getSortName();

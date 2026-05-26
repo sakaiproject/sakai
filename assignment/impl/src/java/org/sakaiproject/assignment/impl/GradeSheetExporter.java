@@ -55,11 +55,13 @@ import org.sakaiproject.assignment.api.sort.AssignmentComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.springframework.util.comparator.NullSafeComparator;
 
@@ -78,6 +80,8 @@ public class GradeSheetExporter {
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
+    @Setter private LocaleService localeService;
+    @Setter private SessionManager sessionManager;
 
     @Setter private ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -163,7 +167,7 @@ public class GradeSheetExporter {
                     site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserSortNameComparator());
+            members.sort(new UserSortNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
                 Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
@@ -467,7 +471,7 @@ public class GradeSheetExporter {
                     site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserSortNameComparator());
+            members.sort(new UserSortNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
                 Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());

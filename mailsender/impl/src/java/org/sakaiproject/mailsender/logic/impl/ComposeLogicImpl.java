@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,7 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected ToolManager toolManager;
 	protected ServerConfigurationService serverConfigurationService;
 	protected ConfigLogic configLogic;
+	protected LocaleService localeService;
 	protected HashSet<String> ignoreRoles = new HashSet<String>();
 
 	/**
@@ -454,6 +456,10 @@ public class ComposeLogicImpl implements ComposeLogic
 		this.configLogic = configLogic;
 	}
 
+	public void setLocaleService(LocaleService localeService) {
+		this.localeService = localeService;
+	}
+
 	/**
 	 * Inject method for setting any roles that should be ignored.
 	 *
@@ -489,7 +495,7 @@ public class ComposeLogicImpl implements ComposeLogic
 	private List<User> getSortedUsers(Set<String> userIds)
 	{
 		List<User> users = this.userDirectoryService.getUsers(userIds);
-		users.sort(new UserSortNameComparator());
+		users.sort(new UserSortNameComparator(localeService.getLocaleForSiteAndUser(externalLogic.getSiteID(), externalLogic.getCurrentUserId())));
 		return users;
 	}
 

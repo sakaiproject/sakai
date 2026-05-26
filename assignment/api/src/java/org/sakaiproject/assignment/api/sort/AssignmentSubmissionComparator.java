@@ -19,6 +19,7 @@ import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,25 +42,32 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 public class AssignmentSubmissionComparator implements Comparator<AssignmentSubmission> {
 
     private Collator collator;
+    private Locale locale;
     private SiteService siteService;
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
-    private static final UserSortNameComparator userSortNameComparator = new UserSortNameComparator();
+    private UserSortNameComparator userSortNameComparator;
 
     // private to prevent no arg instantiation
     private AssignmentSubmissionComparator() {
     }
 
     public AssignmentSubmissionComparator(AssignmentService assignmentService, SiteService siteService, UserDirectoryService userDirectoryService) {
+        this(assignmentService, siteService, userDirectoryService, Locale.getDefault());
+    }
+
+    public AssignmentSubmissionComparator(AssignmentService assignmentService, SiteService siteService, UserDirectoryService userDirectoryService, Locale locale) {
         this.assignmentService = assignmentService;
         this.siteService = siteService;
         this.userDirectoryService = userDirectoryService;
+        this.locale = locale;
+        this.userSortNameComparator = new UserSortNameComparator(locale);
         try {
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance(locale)).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException e) {
             // error with init RuleBasedCollator with rules
             // use the default Collator
-            collator = Collator.getInstance();
+            collator = Collator.getInstance(locale);
             log.warn("AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead.", e);
         }
     }
@@ -119,7 +127,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
         } else if (s1 == null) {
             result = -1;
         } else {
-            result = collator.compare(s1.toLowerCase(), s2.toLowerCase());
+            result = collator.compare(s1.toLowerCase(locale), s2.toLowerCase(locale));
         }
         return result;
     }
