@@ -12078,7 +12078,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             log.debug("Grades successfully unpublished for assignment ID: {}", assignment.getId());
         } catch (Exception e) {
-            log.error("Exception caught inside doWithdraw_grades processing: " + e.getMessage(), e);
+            log.error("Exception caught inside doWithdraw_grades processing: {}", e.getMessage(), e);
             addAlert(state, rb.getString("saved.error"));
         }
 
