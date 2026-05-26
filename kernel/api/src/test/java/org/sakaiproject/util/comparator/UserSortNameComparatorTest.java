@@ -165,6 +165,24 @@ public class UserSortNameComparatorTest {
     }
 
     @Test
+    public void spanishSortNameCompareUsesSuppliedLocale() {
+        UserSortNameComparator usComparator = new UserSortNameComparator(Locale.US);
+        UserSortNameComparator spanishComparator = new UserSortNameComparator(Locale.forLanguageTag("es"));
+
+        assertComparesBefore(usComparator, "Ña, Ana", "Nz, Ana");
+        assertComparesBefore(spanishComparator, "Nz, Ana", "Ña, Ana");
+    }
+
+    @Test
+    public void swedishSortNameCompareUsesSuppliedLocale() {
+        UserSortNameComparator usComparator = new UserSortNameComparator(Locale.US);
+        UserSortNameComparator swedishComparator = new UserSortNameComparator(Locale.forLanguageTag("sv-SE"));
+
+        assertComparesBefore(usComparator, "Åberg, Anna", "Zetterberg, Zoe");
+        assertComparesBefore(swedishComparator, "Zetterberg, Zoe", "Åberg, Anna");
+    }
+
+    @Test
     public void localeAwareSortNameCompareWithBasqueNames() {
         UserSortNameComparator comparator = new UserSortNameComparator(Locale.forLanguageTag("eu"));
 
