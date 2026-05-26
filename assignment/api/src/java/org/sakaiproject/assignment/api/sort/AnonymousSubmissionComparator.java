@@ -29,10 +29,6 @@ public class AnonymousSubmissionComparator implements Comparator<AssignmentSubmi
 
     private Collator collator;
 
-    public AnonymousSubmissionComparator() {
-        this(Locale.getDefault());
-    }
-
     public AnonymousSubmissionComparator(Locale locale) {
         collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
     }

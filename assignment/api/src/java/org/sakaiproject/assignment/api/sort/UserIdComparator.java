@@ -34,10 +34,9 @@ public class UserIdComparator implements Comparator<String> {
     private Collator collator;
     private UserDirectoryService userDirectoryService;
 
-    public UserIdComparator(UserDirectoryService userDirectoryService) {
+    public UserIdComparator(UserDirectoryService userDirectoryService, Locale locale) {
         this.userDirectoryService = userDirectoryService;
-        // TODO this should be in a service and should repect the current user's locale
-        collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(Locale.getDefault(), Collator.SECONDARY);
+        collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.SECONDARY);
     }
 
     @Override

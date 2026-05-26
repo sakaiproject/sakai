@@ -16,6 +16,7 @@
 package org.sakaiproject.signup.test;
 
 import java.util.Optional;
+import java.util.Locale;
 
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
@@ -38,6 +39,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -126,6 +128,14 @@ public class SignupMeetingServiceTestConfiguration extends SakaiTestConfiguratio
         FormattedText formattedText = Mockito.mock(FormattedText.class);
         Mockito.when(formattedText.convertFormattedTextToPlaintext(Mockito.any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
         return formattedText;
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        LocaleService localeService = Mockito.mock(LocaleService.class);
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
+        Mockito.when(localeService.getLocaleForSiteAndUser(Mockito.any(), Mockito.any())).thenReturn(Locale.US);
+        return localeService;
     }
 
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")

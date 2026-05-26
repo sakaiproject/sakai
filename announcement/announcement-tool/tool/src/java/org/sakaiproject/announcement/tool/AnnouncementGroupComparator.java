@@ -43,7 +43,7 @@ class AnnouncementGroupComparator implements Comparator<Group> {
      * @param asc      The sort order string. "true" if ascending; "false" otherwise.
      */
     public AnnouncementGroupComparator(Criteria criteria, boolean asc, Locale locale) {
-        m_criteria = criteria;
+        m_criteria = Objects.requireNonNull(criteria, "criteria must not be null");
         m_asc = asc;
         stringComparator = new AlphaNumericComparator(Objects.requireNonNull(locale));
 

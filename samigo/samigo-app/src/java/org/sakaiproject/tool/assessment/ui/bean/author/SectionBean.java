@@ -75,9 +75,6 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="sectionBean")
 @SessionScoped
 public class SectionBean implements Serializable {
-  private static final Collator COLLATOR = SakaiCollators
-      .getCollatorWithUnderscoreAfterSpace(java.util.Locale.getDefault(), Collator.TERTIARY);
-
 
 /** Use serialVersionUID for interoperability. */
 private final static long serialVersionUID = 4216587136245498157L;
@@ -496,8 +493,12 @@ private List attachmentList;
 	  public int compare(Object o1, Object o2) {
 		  SelectItem i1 = (SelectItem)o1;
 		  SelectItem i2 = (SelectItem)o2;
-		  return COLLATOR.compare(i1.getLabel(), i2.getLabel());
+		  return getCollator().compare(i1.getLabel(), i2.getLabel());
 	  }
+  }
+
+  private Collator getCollator() {
+    return SakaiCollators.getCollatorWithUnderscoreAfterSpace(rb.getLocale(), Collator.TERTIARY);
   }
 
   /**List of available question pools.

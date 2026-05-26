@@ -241,6 +241,7 @@
         <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager"/>
         <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
     </bean>
 
     <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
@@ -401,6 +402,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
     </bean>
 
     <bean id="org.sakaiproject.component.app.messageforums.elfinder.ForumToolFsVolumeFactory"

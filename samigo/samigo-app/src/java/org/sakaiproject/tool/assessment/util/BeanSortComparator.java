@@ -32,6 +32,7 @@ import java.text.Collator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
@@ -45,6 +46,7 @@ public class BeanSortComparator
   implements Comparator
 {
   private Collator collator;
+  private Locale locale;
 
   private String propertyName;
 
@@ -56,12 +58,13 @@ public class BeanSortComparator
    */
   public BeanSortComparator(String propertyName)
   {
-    this(propertyName, Locale.getDefault());
+    this(propertyName, new ResourceLoader().getLocale());
   }
 
   public BeanSortComparator(String propertyName, Locale locale)
   {
     this.propertyName = propertyName;
+    this.locale = locale;
     this.collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
   }
 
@@ -120,18 +123,18 @@ public class BeanSortComparator
 	  }
 
 	  // Deal with n/a case
-	  if (s1.toLowerCase().startsWith("n/a")
-			  && !s2.toLowerCase().startsWith("n/a"))
+	  if (s1.toLowerCase(locale).startsWith("n/a")
+			  && !s2.toLowerCase(locale).startsWith("n/a"))
 		  return 1;
 
-	  if (s2.toLowerCase().startsWith("n/a") &&
-			  !s1.toLowerCase().startsWith("n/a"))
+	  if (s2.toLowerCase(locale).startsWith("n/a") &&
+			  !s1.toLowerCase(locale).startsWith("n/a"))
 		  return -1;
 
 
 	  String finalS1 = s1.replaceAll("<.*?>", "");
 	  String finalS2 = s2.replaceAll("<.*?>", "");
-        return collator.compare(finalS1.toLowerCase(), finalS2.toLowerCase());
+        return collator.compare(finalS1.toLowerCase(locale), finalS2.toLowerCase(locale));
   }
   
   /**

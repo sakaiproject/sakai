@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.wicket.Session;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -41,6 +41,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 @Slf4j
@@ -55,6 +56,8 @@ public class ReportDefsProvider implements IDataProvider {
 	private boolean 				filterWithToolsInSite;
 	private boolean 				includeHidden;
 	private List<ReportDef>			data;
+	@SpringBean(name = "org.sakaiproject.util.api.LocaleService")
+	private transient LocaleService localeService;
 
 	public ReportDefsProvider(String siteId, int mode, boolean filterWithToolsInSite, boolean includeHidden) {
 		Injector.get().inject(this);		
@@ -185,7 +188,7 @@ public class ReportDefsProvider implements IDataProvider {
 	
 	public final Comparator<ReportDef> getReportDefComparator() {
 		return new Comparator<ReportDef>() {
-			private transient Comparator<String> comparator = new AlphaNumericComparator(Session.get().getLocale());
+			private transient Comparator<String> comparator = new AlphaNumericComparator(localeService.getLocaleForCurrentSiteAndUser());
 			
 			public int compare(ReportDef o1, ReportDef o2) {
 				String title1 = null;

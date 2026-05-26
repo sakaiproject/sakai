@@ -113,7 +113,7 @@ public class AssignmentComparatorTest {
 			namesWithSpaceSubmissions[i] = createSubmissionForUserID(USERS_WITH_SPACE_PREFIX + i);
 		}
 
-		sortNameComparator = new UserIdComparator(userDirectoryService);
+		sortNameComparator = new UserIdComparator(userDirectoryService, Locale.US);
 		submitterNameComparator = new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService, Locale.US);
 	}
 

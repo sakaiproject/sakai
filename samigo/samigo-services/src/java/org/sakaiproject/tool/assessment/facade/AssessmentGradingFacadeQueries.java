@@ -57,6 +57,7 @@ import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -102,6 +103,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -2619,7 +2621,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 dataList.add(responseList);
             }
         }
-        Collections.sort(dataList, new ResponsesComparator(anonymous));
+        Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(
+                ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
+        Collections.sort(dataList, new ResponsesComparator(anonymous, collator));
         finalList.add(dataList);
         finalList.add(headerList);
         return finalList;
@@ -2794,13 +2798,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 published question
 	 */
     private static class ResponsesComparator implements Comparator {
-        private static final Collator COLLATOR = SakaiCollators
-                .getCollatorWithUnderscoreAfterSpace(java.util.Locale.getDefault(), Collator.TERTIARY);
-
+        private final Collator collator;
         boolean anonymous;
 
-        public ResponsesComparator(boolean anony) {
+        public ResponsesComparator(boolean anony, Collator collator) {
             anonymous = anony;
+            this.collator = collator;
         }
 
 		public int compare(Object a, Object b) {
@@ -2820,23 +2823,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			else {
 				String aFirstElement = (String) ((ArrayList) a).get(0);
 				String bFirstElement = (String) ((ArrayList) b).get(0);
-				if (COLLATOR.compare(aFirstElement, bFirstElement) < 0)
+				if (collator.compare(aFirstElement, bFirstElement) < 0)
 					return -1;
-				else if (COLLATOR.compare(aFirstElement, bFirstElement) > 0)
+				else if (collator.compare(aFirstElement, bFirstElement) > 0)
 					return 1;
 				else {
 					String aSecondElement = (String) ((ArrayList) a).get(1);
 					String bSecondElement = (String) ((ArrayList) b).get(1);
-					if (COLLATOR.compare(aSecondElement,bSecondElement) < 0)
+					if (collator.compare(aSecondElement,bSecondElement) < 0)
 						return -1;
-					else if (COLLATOR.compare(aSecondElement,bSecondElement) > 0)
+					else if (collator.compare(aSecondElement,bSecondElement) > 0)
 						return 1;
 					else {
 						String aThirdElement = (String) ((ArrayList) a).get(2);
 						String bThirdElement = (String) ((ArrayList) b).get(2);
-						if (COLLATOR.compare(aThirdElement,bThirdElement) < 0)
+						if (collator.compare(aThirdElement,bThirdElement) < 0)
 							return -1;
-						else if (COLLATOR.compare(aThirdElement,bThirdElement) > 0)
+						else if (collator.compare(aThirdElement,bThirdElement) > 0)
 							return 1;
 					}
 				}

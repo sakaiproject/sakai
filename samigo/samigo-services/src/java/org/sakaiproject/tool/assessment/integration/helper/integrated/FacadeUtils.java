@@ -24,16 +24,15 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 import java.util.*;
 import java.text.Collator;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * borrowed gradebook's FacadeUtils class
  */
 public class FacadeUtils {
-
-	private static final Collator COLLATOR = SakaiCollators
-			.getCollatorWithUnderscoreAfterSpace(java.util.Locale.getDefault(), Collator.TERTIARY);
 
 	// Enforce noninstantiability.
 	private FacadeUtils() {
@@ -44,7 +43,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			return COLLATOR.compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
+			return getCollator().compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
 		}
 	};
 
@@ -54,7 +53,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-			return COLLATOR.compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
+			return getCollator().compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
         }
     };
 
@@ -80,5 +79,10 @@ public class FacadeUtils {
             studentUids.add(enr.getUser().getUserUid());
         }
 		return studentUids;
+	}
+
+	private static Collator getCollator() {
+		return SakaiCollators.getCollatorWithUnderscoreAfterSpace(
+				ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	}
 }
