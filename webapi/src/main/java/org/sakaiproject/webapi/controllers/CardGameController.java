@@ -28,6 +28,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.webapi.beans.CardGameUserRestBean;
 import org.sakaiproject.webapi.beans.SimpleGroup;
@@ -88,6 +89,9 @@ public class CardGameController extends AbstractSakaiApiController {
     @Autowired
     private ProfileService profileService;
 
+    @Autowired
+    private LocaleService localeService;
+
     private int minAttempts;
     private double minHitRatio;
     private boolean showOfficialPhoto;
@@ -128,7 +132,7 @@ public class CardGameController extends AbstractSakaiApiController {
             log.debug("Not skipping any users for having default images");
         }
 
-        Set<User> visibleUsers = userDirectoryService.getUsers(getVisibleUsersIds(currentUserId, site)).stream()
+        List<User> visibleUsers = userDirectoryService.getUsers(getVisibleUsersIds(currentUserId, site)).stream()
                 .filter(Objects::nonNull)
                 .filter(user -> {
                     boolean skipUser = skipNoImageUsers && hasDefaultImage(user.getId(), siteId, showOfficialPhoto);
@@ -138,8 +142,9 @@ public class CardGameController extends AbstractSakaiApiController {
 
                     return !skipUser;
                 })
-                .sorted(new UserSortNameComparator(true, true))
-                .collect(Collectors.toSet());
+                .sorted(new UserSortNameComparator(true, true,
+                        localeService.getLocaleForSiteAndUser(siteId, currentUserId)))
+                .collect(Collectors.toList());
 
         return visibleUsers.stream()
                 .map(user -> CardGameUserRestBean.of(user, statItems.get(user.getId())))

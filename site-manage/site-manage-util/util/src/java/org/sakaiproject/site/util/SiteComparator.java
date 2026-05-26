@@ -66,32 +66,22 @@ public class SiteComparator implements Comparator {
 
 	
 
-        // create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used 
-	
-        public SiteComparator(String criterion, String asc, Locale locale) {
-	
-                this(criterion, asc);
-	
-                m_loc = locale;
-	
-                try {
-	
-        	RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale); 
-	
-               String rules = defaultCollator.getRules();
-	
-               localeCollator = new RuleBasedCollator(rules.replaceAll("<'\u005f'", "<' '<'\u005f'"));
-	
-               localeCollator.setStrength(Collator.TERTIARY);
-	
-                } catch (Exception e) {
-	
-                	log.warn("SiteComparator failed to create RuleBasedCollator for locale " + locale.toString(), e);
-                	localeCollator = null;
-	
-                }
-	
-        }	
+	// create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used
+	public SiteComparator(String criterion, String asc, Locale locale) {
+		this(criterion, asc);
+
+		m_loc = locale;
+
+		try {
+			RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale);
+			String rules = defaultCollator.getRules();
+			localeCollator = new RuleBasedCollator(rules.replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			localeCollator.setStrength(Collator.TERTIARY);
+		} catch (Exception e) {
+			log.warn("SiteComparator failed to create RuleBasedCollator for locale " + locale.toString(), e);
+			localeCollator = null;
+		}
+	}
 	
 	
 	/**
@@ -152,7 +142,7 @@ public class SiteComparator implements Comparator {
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_NAME)) {
 			// Defer to the UserSortNameComparator if possible
 			if (o1.getClass().equals(Participant.class) && o2.getClass().equals(Participant.class)) {
-				result = ((Participant) o1).compareTo((Participant) o2);
+				result = ((Participant) o1).compareTo((Participant) o2, m_loc);
 			} else if (o1.getClass().equals(Participant.class)) {
 				result = compareString(((Participant) o1).getName(), null);
 			} else if (o2.getClass().equals(Participant.class)) {
@@ -343,7 +333,7 @@ public class SiteComparator implements Comparator {
 	 * @return
 	 */
 	private int compareParticipantName(Participant  o1, Participant o2) {
-		return compareString(o1.getName(), o2.getName());
+		return o1.compareTo(o2, m_loc);
 	}
 
 	private int compareBoolean(boolean b1, boolean b2) {

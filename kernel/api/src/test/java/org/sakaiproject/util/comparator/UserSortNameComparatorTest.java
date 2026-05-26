@@ -16,7 +16,10 @@
 package org.sakaiproject.util.comparator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+
+import java.util.Locale;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -150,5 +153,57 @@ public class UserSortNameComparatorTest {
         assertEquals(1, comparator.compare(userA, userB));
         assertEquals(1, comparator.compare(userA, userC));
         assertEquals(-1, comparator.compare(userB, userC));
+    }
+
+    @Test
+    public void staticSortNameCompareMatchesUserComparator() {
+        Locale locale = Locale.forLanguageTag("es");
+        UserSortNameComparator comparator = new UserSortNameComparator(locale);
+        User userA = mockUser("Martinez Torcal, Apple", "student1");
+        User userB = mockUser("Martin Troncoso, X", "student2");
+
+        int comparatorResult = comparator.compare(userA, userB);
+        int staticResult = UserSortNameComparator.compareSortNames(userA.getSortName(), userA.getDisplayId(),
+                userB.getSortName(), userB.getDisplayId(), false, locale);
+
+        assertEquals(Integer.signum(comparatorResult), Integer.signum(staticResult));
+        assertEquals(1, Integer.signum(staticResult));
+    }
+
+    @Test
+    public void localeAwareSortNameCompareWithSpanishNames() {
+        UserSortNameComparator comparator = new UserSortNameComparator(Locale.forLanguageTag("es"));
+
+        assertComparesBefore(comparator, "Martin Troncoso, X", "Martinez Torcal, Apple");
+        assertComparesBefore(comparator, "Inigo, Ana", "Iñigo, Ana");
+        assertComparesBefore(comparator, "de la Cruz, Ana", "Delgado, Ana");
+    }
+
+    @Test
+    public void localeAwareSortNameCompareWithBasqueNames() {
+        UserSortNameComparator comparator = new UserSortNameComparator(Locale.forLanguageTag("eu"));
+
+        assertComparesBefore(comparator, "Etxe Berria, Aitor", "Etxeberria, Aitor");
+        assertComparesBefore(comparator, "Goikoetxea, Ane", "Goñi, Ane");
+    }
+
+    @Test
+    public void localeAwareSortNameCompareWithCatalanNames() {
+        UserSortNameComparator comparator = new UserSortNameComparator(Locale.forLanguageTag("ca"));
+
+        assertComparesBefore(comparator, "L·lull, Ramon", "Llull, Ramon");
+        assertComparesBefore(comparator, "Marti, Nuria", "Martí, Nuria");
+	}
+
+    private void assertComparesBefore(UserSortNameComparator comparator, String sortName1, String sortName2) {
+        assertEquals(-1, Integer.signum(comparator.compare(
+                mockUser(sortName1, "student1"), mockUser(sortName2, "student2"))));
+    }
+
+    private User mockUser(String sortName, String displayId) {
+        User user = Mockito.mock(User.class);
+        when(user.getSortName()).thenReturn(sortName);
+        when(user.getDisplayId()).thenReturn(displayId);
+        return user;
     }
 }

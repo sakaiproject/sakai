@@ -116,7 +116,7 @@ public class MainController {
                     groupMemberList.add(memberUserOptional.get());
                 }
             });
-            Collections.sort(groupMemberList, new UserSortNameComparator());
+            Collections.sort(groupMemberList, new UserSortNameComparator(locale));
             groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map

@@ -203,6 +203,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
@@ -816,7 +817,7 @@ public class SiteAction extends PagedResourceActionII {
 	private Cache m_userSiteCache;
 	private ImportService importService;
 	private List prefLocales;
-	private Locale comparator_locale;
+	private Locale dateFormattingLocale;
 	private String libraryPath;
 	private String moreInfoPath;
 	private String showOrphanedMembers;
@@ -836,6 +837,7 @@ public class SiteAction extends PagedResourceActionII {
 	private IdManager idManager;
 	private LTIService ltiService;
 	private LinkMigrationHelper linkMigrationHelper;
+	private LocaleService localeService;
 	private MemoryService memoryService;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
@@ -875,6 +877,7 @@ public class SiteAction extends PagedResourceActionII {
 		groupProvider = ComponentManager.get(GroupProvider.class);
 		idManager = ComponentManager.get(IdManager.class);
 		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
+		localeService = ComponentManager.get(LocaleService.class);
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		memoryService = ComponentManager.get(MemoryService.class);
 		preferencesService = ComponentManager.get(PreferencesService.class);
@@ -903,7 +906,7 @@ public class SiteAction extends PagedResourceActionII {
 		siteTypeUtil = new SiteTypeUtil(siteService, serverConfigurationService);
 
 		importService = org.sakaiproject.importer.cover.ImportService.getInstance();
-		comparator_locale = rb.getLocale();
+		dateFormattingLocale = rb.getLocale();
 		prefLocales = new ArrayList<>();
 
 		SITE_DEFAULT_LIST = serverConfigurationService.getString("site.types");
@@ -5517,7 +5520,8 @@ public class SiteAction extends PagedResourceActionII {
 			String sortedAsc = (String) state.getAttribute(SORTED_ASC);
 			Iterator sortedParticipants;
 			if (sortedBy != null) {
-				sortedParticipants = new SortedIterator(participants.iterator(), new SiteComparator(sortedBy,sortedAsc,comparator_locale));
+				sortedParticipants = new SortedIterator(participants.iterator(), new SiteComparator(sortedBy,
+						sortedAsc, localeService.getLocaleForCurrentSiteAndUser()));
 				participants.clear();
 				while (sortedParticipants.hasNext()) {
 					participants.add(sortedParticipants.next());
@@ -16890,7 +16894,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}
 
 	private String getDateFormat(Date date) {
-		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), comparator_locale);
+		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), dateFormattingLocale);
 		return f;
 	}
 }

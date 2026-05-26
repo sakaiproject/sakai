@@ -28,10 +28,10 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,11 +74,9 @@ public class EnrollmentDecorator implements Serializable {
 
     public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending, final Locale locale) {
         return new Comparator<EnrollmentDecorator>() {
-            private final Collator collator = createCollator(locale);
+            private final UserSortNameComparator userComparator = new UserSortNameComparator(false, locale);
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
-                int comparison = new CompareToBuilder()
-                        .append(enr1.getUser().getSortName(), enr2.getUser().getSortName(), this.collator)
-                        .toComparison();
+                int comparison = compareUsers(enr1.getUser(), enr2.getUser(), userComparator);
                 return sortAscending ? comparison : (-1 * comparison);
             }
         };
@@ -96,6 +94,7 @@ public class EnrollmentDecorator implements Serializable {
     public static final Comparator<EnrollmentDecorator> getCategoryComparator(final String categoryId, final boolean sortAscending, final Locale locale) {
         log.debug("Comparing enrollment decorators by {}", categoryId);
         final Collator collator = createCollator(locale);
+        final UserSortNameComparator userComparator = new UserSortNameComparator(false, locale);
         return new Comparator<EnrollmentDecorator>() {
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
                 CourseSection section1 = (CourseSection)enr1.getCategoryToSectionMap().get(categoryId);
@@ -108,11 +107,11 @@ public class EnrollmentDecorator implements Serializable {
                 }
                 int comparison;
                 if(section1 == null && section2 == null) {
-                    comparison = collator.compare(enr1.getUser().getSortName(), enr2.getUser().getSortName());
+                    comparison = compareUsers(enr1.getUser(), enr2.getUser(), userComparator);
                 } else {
                     int titleComparison = collator.compare(section1.getTitle(), section2.getTitle());
                     if (titleComparison == 0) {
-                        comparison = collator.compare(enr1.getUser().getSortName(), enr2.getUser().getSortName());
+                        comparison = compareUsers(enr1.getUser(), enr2.getUser(), userComparator);
                     } else {
                         comparison = titleComparison;
                     }
@@ -120,6 +119,11 @@ public class EnrollmentDecorator implements Serializable {
                 return sortAscending ? comparison : (-1 * comparison);
             }
         };
+    }
+
+    private static int compareUsers(User user1, User user2, UserSortNameComparator userComparator) {
+        return userComparator.compareSortNames(user1.getSortName(), user1.getDisplayId(),
+                user2.getSortName(), user2.getDisplayId());
     }
 
     public String getStatus() {
