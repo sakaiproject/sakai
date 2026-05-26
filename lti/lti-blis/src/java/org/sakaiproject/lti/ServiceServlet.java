@@ -63,9 +63,6 @@ import org.tsugi.lti.objects.ResultScore;
 import org.tsugi.lti.objects.POXRequestBody;
 import org.tsugi.lti.POXRequestHandler;
 import org.tsugi.lti13.LTI13ConstantsUtil;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -163,7 +160,7 @@ public class ServiceServlet extends HttpServlet {
 		String contentType = request.getContentType();
 		if ( contentType != null && contentType.startsWith("application/json") ) {
 			doPostJSON(request, response);
-		} else if ( contentType != null && contentType.startsWith("application/xml") ) {
+		} else if ( POXRequestHandler.isXmlContentType(contentType) ) {
 			doPostXml(request, response);
 		} else {
 			doPostForm(request, response);
@@ -564,17 +561,6 @@ public class ServiceServlet extends HttpServlet {
 
 		String sourcedid = null;
 		String message_type = null;
-		if ( log.isDebugEnabled() ) {
-			try {
-				Object obj = POXJacksonParser.XML_MAPPER.readValue(pox.getPostBody(), Object.class);
-				String pretty = POXJacksonParser.XML_MAPPER.writerWithDefaultPrettyPrinter()
-					.without(ToXmlGenerator.Feature.WRITE_XML_DECLARATION)
-					.writeValueAsString(obj);
-				log.debug("POST\n{}", pretty);
-			} catch (Exception e) {
-				log.debug("POST\n{}", pox.getPostBody());
-			}
-		}
 		if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
 			  "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
 			sourcedid = POXJacksonParser.getBodySourcedId(pox.getPoxRequest());

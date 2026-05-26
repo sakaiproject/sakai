@@ -1,9 +1,11 @@
 package org.tsugi.lti;
 
-import java.io.Reader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Locale;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -38,9 +40,7 @@ public class POXRequestHandler {
     public final static String [] validSeverity = POXConstants.VALID_SEVERITY.toArray(new String[0]);
     public final static String [] validMinor = POXConstants.VALID_MINOR.toArray(new String[0]);
     
-    // Maximum request body size: 10MB (conservatively using 10M characters)
-    // For UTF-8, this is approximately 10MB for ASCII content, up to 40MB worst-case
-    private static final long MAX_REQUEST_BODY_SIZE = 10L * 1024 * 1024;
+    public static final long MAX_REQUEST_BODY_SIZE = 256L * 1024;
 
     private POXEnvelopeRequest poxRequest;
     private String postBody;
@@ -67,24 +67,26 @@ public class POXRequestHandler {
     }
 
     public void loadFromRequest(HttpServletRequest request) {
+        valid = false;
+        errorMessage = null;
+        operation = null;
+        poxRequest = null;
+        postBody = null;
+        header = null;
+        oauth_body_hash = null;
+        oauth_consumer_key = null;
+        oauth_signature_method = null;
+        base_string = null;
+
         String contentType = request.getContentType();
-        String baseContentType;
 
         if (contentType == null || contentType.isEmpty()) {
             errorMessage = "Content Type is missing";
             log.info("{}", errorMessage);
             return;
         }
-        
-        // Extract base content type (e.g., "application/xml" from "application/xml; charset=utf-8")
-        int semicolonIndex = contentType.indexOf(';');
-        if (semicolonIndex >= 0) {
-            baseContentType = contentType.substring(0, semicolonIndex).trim();
-        } else {
-            baseContentType = contentType.trim();
-        }
 
-        if (!"application/xml".equals(baseContentType) && !"text/xml".equals(baseContentType)) {
+        if (!isXmlContentType(contentType)) {
             errorMessage = "Content Type must be application/xml or text/xml";
             log.info("{}\n{}", errorMessage, contentType);
             return;
@@ -108,6 +110,18 @@ public class POXRequestHandler {
             }
         }
 
+        if (oauth_consumer_key == null) {
+            errorMessage = "Did not find oauth_consumer_key";
+            log.info("{}", errorMessage);
+            return;
+        }
+
+        if (!"HMAC-SHA1".equals(oauth_signature_method) && !"HMAC-SHA256".equals(oauth_signature_method)) {
+            errorMessage = "Unsupported oauth_signature_method";
+            log.info("{}", errorMessage);
+            return;
+        }
+
         if (oauth_body_hash == null) {
             errorMessage = "Did not find oauth_body_hash";
             log.info("{}", errorMessage);
@@ -117,25 +131,26 @@ public class POXRequestHandler {
 
         log.debug("OBH={}", oauth_body_hash);
         log.debug("OSM={}", oauth_signature_method);
-        
-        final char[] buffer = new char[0x10000];
-        try (Reader in = request.getReader()) {
-            StringBuilder out = new StringBuilder();
-            long totalCharsRead = 0;
+
+        byte[] bodyBytes;
+        final byte[] buffer = new byte[0x4000];
+        try (InputStream in = request.getInputStream();
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            long totalBytesRead = 0;
             int read;
             do {
                 read = in.read(buffer, 0, buffer.length);
                 if (read > 0) {
-                    totalCharsRead += read;
-                    if (totalCharsRead > MAX_REQUEST_BODY_SIZE) {
+                    totalBytesRead += read;
+                    if (totalBytesRead > MAX_REQUEST_BODY_SIZE) {
                         errorMessage = "Request body too large";
-                        log.warn("Request body exceeds maximum size: {} characters", totalCharsRead);
+                        log.warn("Request body exceeds maximum size: {} bytes", totalBytesRead);
                         return;
                     }
-                    out.append(buffer, 0, read);
+                    out.write(buffer, 0, read);
                 }
             } while (read >= 0);
-            postBody = out.toString();
+            bodyBytes = out.toByteArray();
         } catch (Exception e) {
             errorMessage = "Could not read message body:" + e.getMessage();
             return;
@@ -146,7 +161,7 @@ public class POXRequestHandler {
             if ("HMAC-SHA256".equals(oauth_signature_method)) {
                 md = MessageDigest.getInstance("SHA-256");
             }
-            md.update(postBody.getBytes(StandardCharsets.UTF_8));
+            md.update(bodyBytes);
             byte[] output = Base64.encode(md.digest());
             String hash = new String(output);
             log.debug("HASH={}", hash);
@@ -158,8 +173,23 @@ public class POXRequestHandler {
             errorMessage = "Could not compute body hash";
             return;
         }
+
+        postBody = new String(bodyBytes, StandardCharsets.UTF_8);
         
         parsePostBody();
+    }
+
+    public static boolean isXmlContentType(String contentType) {
+        if (contentType == null || contentType.isEmpty()) {
+            return false;
+        }
+
+        int semicolonIndex = contentType.indexOf(';');
+        String baseContentType = semicolonIndex >= 0
+            ? contentType.substring(0, semicolonIndex)
+            : contentType;
+        baseContentType = baseContentType.trim().toLowerCase(Locale.ROOT);
+        return "application/xml".equals(baseContentType) || "text/xml".equals(baseContentType);
     }
 
     /**
@@ -222,7 +252,7 @@ public class POXRequestHandler {
             valid = true;
         } catch (Exception e) {
             errorMessage = "Could not parse XML: " + e.getMessage();
-            log.warn("POX parsing error", e);
+            log.debug("POX parsing error: {}", e.getMessage());
         }
     }
 
@@ -464,4 +494,3 @@ public class POXRequestHandler {
             .buildAsXml();
     }
 }
-
