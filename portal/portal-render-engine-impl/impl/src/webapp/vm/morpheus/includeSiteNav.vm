@@ -1,4 +1,4 @@
-#macro(siteListItem $type $site $isExpanded)
+#macro(siteListItem $type $site $isExpanded $indentation)
 
     ## Remove those special site chars. They don't play well with html attributes.
     #set ($safeSiteId = $site.id.replace("!", "").replace("~", "").replace(".",""))
@@ -73,21 +73,33 @@
                 #pageListItem ($page, $pageUrl, "${page.icon}", 4)
             #end
             #if ($site.childSites)
-                <li class="nav-item">
-                    <div class="ps-2">
-                        <div class="dropdown">
-                            <button class="btn btn-nav w-100 dropdown-toggle pe-3 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="d-flex align-items-center">
-                                    <span class="me-1 bi bi-diagram-2" aria-hidden="true"></span>
-                                    <span>$rloader.sitenav_sub_sites</span>
-                                </div>
-                            </button>
-                            <ul class="dropdown-menu w-100">
-                                #foreach($childSite in $site.childSites)
-                                    <li><a class="dropdown-item px-3 py-2" href="/portal/site/$childSite.id">$ftext.escapeHtml(${childSite.title})</a></li>
-                                #end
-                            </ul>
+                #set($subsiteCollapseId = "${type}-site-${safeSiteId}-subsites")
+
+                <li class="nav-item ms-${indentation}">
+                    <button class="btn btn-nav w-100 ps-3 collapsed"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#${subsiteCollapseId}"
+                            aria-expanded="false"
+                            aria-controls="${subsiteCollapseId}">
+                        <div class="d-flex text-start align-items-center">
+                            <div class="d-flex w-100">
+                                <span class="bi bi-diagram-3 me-1" aria-hidden="true"></span>
+                                <span>$rloader.sitenav_sub_sites</span>
+                            </div>
                         </div>
+                    </button>
+
+                    <div id="${subsiteCollapseId}" class="pt-1 collapse">
+                        <ul class="nav flex-column">
+                            #foreach($childSite in $site.childSites)
+                                <li class="nav-item">
+                                    <a class="btn btn-nav w-100 rounded-end text-start ps-5" href="/portal/site/$childSite.id">
+                                        <span class="me-2 bi bi-arrow-return-right" aria-hidden="true"></span>
+                                        <span>$ftext.escapeHtml(${childSite.title})</span>
+                                    </a>
+                                </li>
+                            #end
+                        </ul>
                     </div>
                 </li>
             #end
@@ -136,14 +148,14 @@
         #if (${userIsLoggedIn})
             <div id="sites-section-first" class="sites-section">
                 <ul class="mb-0">
-                    #siteListItem("home", $sidebarSites.homeSite, false)
+                    #siteListItem("home", $sidebarSites.homeSite, false, 3)
                 </ul>
             </div>
             <div class="sites-section pinned-site-section">
                 <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_pinned}</h3>
                 <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
                     #foreach ($site in $sidebarSites.pinnedSites)
-                        #siteListItem("pinned", $site, false)
+                        #siteListItem("pinned", $site, false, 3)
                     #end
                 </ul>
                 #if (${showSiteLabels})
@@ -156,7 +168,7 @@
                 <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_recent}</h3>
                 <ul id="recent-site-list" class="mb-0">
                     #foreach ($site in $sidebarSites.recentSites)
-                        #siteListItem("recent", $site, false)
+                        #siteListItem("recent", $site, false, 3)
                     #end
                 </ul>
             </div>
@@ -165,7 +177,7 @@
                 <div class="sites-section">
                     <h3 class="visually-hidden sites-section-heading">${rloader.sitenav_title_current}</h3>
                     <ul class="pt-2 mb-0">
-                        #siteListItem("gateway", $sidebarSites.gatewaySite, true)
+                        #siteListItem("gateway", $sidebarSites.gatewaySite, true, 3)
                     </ul>
                 </div>
             #end
