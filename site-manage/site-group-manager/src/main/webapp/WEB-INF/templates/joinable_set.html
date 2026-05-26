@@ -83,7 +83,7 @@
                     </div>
                     <div id="groupCollapsible" class="collapse">
                       <ul class="list-group">
-                        <li class="list-group-item-action" th:each="group : ${joinableSetGroups}"><span th:text="${group.title}"></span></li>
+                        <li class="list-group-item" th:each="group : ${joinableSetGroups}"><span th:text="${group.title}"></span></li>
                       </ul>
                     </div>
                   </div>
@@ -124,7 +124,7 @@
                     </div>
                     <div id="notJoinedUsersCollapsible" class="collapse">
                       <ul class="list-group">
-                        <li class="list-group-item-action" th:each="user : ${notJoinedUserList}"><span th:text="|${user.displayName} (${user.eid})|"></span></li>
+                        <li class="list-group-item" th:each="user : ${notJoinedUserList}"><span th:text="|${user.displayName} (${user.eid})|"></span></li>
                       </ul>
                     </div>
                   </div>

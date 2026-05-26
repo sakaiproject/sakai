@@ -18,40 +18,35 @@
 </script>
 <script th:fragment="importJs" th:inline="javascript">
     /*<![CDATA[*/
-    $(document).ready(function() {
-        // Button spinners
-        const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
-        bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
-            SPNR.disableControlsAndSpin(bulkCreateButton, null);
-        });
-        const bulkCreateCancelButton = document.getElementById("bulk-creation-cancel-button");
-        bulkCreateCancelButton && bulkCreateCancelButton.addEventListener("click", e => {
-            SPNR.disableControlsAndSpin(bulkCreateCancelButton, null);
-            window.location.href = bulkCreateCancelButton.getAttribute('data-url');
-        });
+    // Button spinners
+    const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
+    bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
+        SPNR.disableControlsAndSpin(bulkCreateButton, null);
+    });
+    const bulkCreateCancelButton = document.getElementById("bulk-creation-cancel-button");
+    bulkCreateCancelButton && bulkCreateCancelButton.addEventListener("click", e => {
+        SPNR.disableControlsAndSpin(bulkCreateCancelButton, null);
+        window.location.href = bulkCreateCancelButton.getAttribute('data-url');
     });
     /*]]>*/
 </script>
 <script th:fragment="importConfirmJs" th:inline="javascript">
     /*<![CDATA[*/
-    $(document).ready(function() {
-        // Button spinners
-        const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
-        bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
-            SPNR.disableControlsAndSpin(bulkCreateButton, null);
-        });
-        document.querySelectorAll("#bulk-creation-back-button, #bulk-creation-cancel-button").forEach(el => {
-            el.addEventListener("click", () => {
-                SPNR.disableControlsAndSpin(el, null);
-                window.location.href = el.getAttribute('data-url');
-            });
+    // Button spinners
+    const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
+    bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
+        SPNR.disableControlsAndSpin(bulkCreateButton, null);
+    });
+    document.querySelectorAll("#bulk-creation-back-button, #bulk-creation-cancel-button").forEach(el => {
+        el.addEventListener("click", () => {
+            SPNR.disableControlsAndSpin(el, null);
+            window.location.href = el.getAttribute('data-url');
         });
     });
     /*]]>*/
 </script>
 <script th:fragment="indexJs" th:inline="javascript">
   /*<![CDATA[*/
-
   var groupManager = groupManager || {};
 
   groupManager.checkSubmitButton = () => {
@@ -72,7 +67,7 @@
   const gmCancelButton = document.getElementById("delete-groups-cancel-button");
   gmCancelButton && gmCancelButton.addEventListener("click", e => {
 
-    e.preventDefault;
+    e.preventDefault();
     SPNR.disableControlsAndSpin(gmCancelButton, null);
     window.location = window.location.href.replace("/sakai-site-group-manager.helper", "");
   });
@@ -121,8 +116,6 @@
 
 <script th:fragment="joinableSetJs" th:inline="javascript">
   /*<![CDATA[*/
-  $(document).ready(function() {
-
     //Disable the submit button
     const submitButton = document.getElementById("create-joinableset-submit-button");
     submitButton && (submitButton.disabled = true);
@@ -174,21 +167,26 @@
         SPNR.disableControlsAndSpin(joinableSetCancelButton, null);
         window.location.href = joinableSetCancelButton.getAttribute('data-url');
     });
-  });
 
   var confirmationModal = function (callback) {
+
+    const showOrHideConfirmationDialog = action => {
+
+      const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("confirmation-modal"));
+      action === "show" ? modal.show() : modal.hide();
+    };
 
     const deleteButton = document.getElementById("delete-joinableset-submit-button");
     deleteButton && deleteButton.addEventListener("click", e => {
 
       e.preventDefault();
-      groupManager.showOrHideConfirmationDialog("show");
+      showOrHideConfirmationDialog("show");
     });
 
     const confirmButton = document.getElementById("modal-btn-confirm");
     confirmButton && confirmButton.addEventListener("click", () => {
 
-      groupManager.showOrHideConfirmationDialog("hide");
+      showOrHideConfirmationDialog("hide");
       window.location.replace(deleteButton.getAttribute("href"));
     });
 
@@ -196,7 +194,7 @@
     cancelButton && cancelButton.addEventListener("click", () => {
 
       callback(false);
-      groupManager.showOrHideConfirmationDialog("hide");
+      showOrHideConfirmationDialog("hide");
    });
   };
 
@@ -211,69 +209,68 @@
 <script th:fragment="groupJs" th:inline="javascript">
   /*<![CDATA[*/
   // Load the select2 library
+  includeLatestJQuery('sakai-site-group-manager');
   includeWebjarLibrary('select2');
 
-  $(document).ready(function() {
+  const groupTitle = document.getElementById("groupTitle");
 
-    const groupTitle = document.getElementById("groupTitle");
+  //Disable or enable the submit depending on the group title value.
+  const submitButton = document.getElementById("create-group-submit-button");
+  submitButton && (submitButton.disabled = !groupTitle?.value);
 
-    //Disable or enable the submit depending on the group title value.
-    const submitButton = document.getElementById("create-group-submit-button");
-    submitButton && (submitButton.disabled = !groupTitle?.value);
+  //Enable or disable the submit button depending on the required fields
+  groupTitle?.addEventListener("keyup", e => submitButton && (submitButton.disabled = !e.target.value));
 
-    //Enable or disable the submit button depending on the required fields
-    groupTitle?.addEventListener("keyup", e => submitButton && (submitButton.disabled = !e.target.value));
+  document.querySelectorAll("#groupMembershipFilter, #groupJoinableShowAllUsers")
+    .forEach(el => {
 
-    document.querySelectorAll("#groupMembershipFilter, #groupJoinableShowAllUsers")
-      .forEach(el => {
+      el.addEventListener("change", e => {
 
-        el.addEventListener("change", e => {
-
-          const gmJoinableShowAllUsersCheckbox = document.getElementById("groupJoinableShowAllUsers");
-          const groupParams = {
-            filterByGroupId: e.target.value,
-            groupId: document.getElementById("groupId")?.value,
-            currentTitle: groupTitle?.value,
-            currentDescription: document.getElementById("groupDescription")?.value,
-            currentShowAllUsers: gmJoinableShowAllUsersCheckbox?.checked ? true : false,
-          };
-          window.location = `group?${new URLSearchParams(groupParams)}`;
-        })
-      });
-
-    const groupJoinableSet = document.getElementById("groupJoinableSet");
-    const joinableOptionsDiv = document.getElementById("joinableOptionsDiv");
-    if (!groupJoinableSet?.value) {
-      joinableOptionsDiv && (joinableOptionsDiv.style.display = "none");
-    }
-
-    groupJoinableSet && groupJoinableSet.addEventListener("change", e => {
-      if (joinableOptionsDiv) {
-        joinableOptionsDiv.style.display = e.target.value === "" ? "none" : "block";
-      }
+        const gmJoinableShowAllUsersCheckbox = document.getElementById("groupJoinableShowAllUsers");
+        const groupParams = {
+          filterByGroupId: e.target.value,
+          groupId: document.getElementById("groupId")?.value,
+          currentTitle: groupTitle?.value,
+          currentDescription: document.getElementById("groupDescription")?.value,
+          currentShowAllUsers: gmJoinableShowAllUsersCheckbox?.checked ? true : false,
+        };
+        window.location = `group?${new URLSearchParams(groupParams)}`;
+      })
     });
 
-    //Initialize the select2 component
+  const groupJoinableSet = document.getElementById("groupJoinableSet");
+  const joinableOptionsDiv = document.getElementById("joinableOptionsDiv");
+  if (!groupJoinableSet?.value) {
+    joinableOptionsDiv && (joinableOptionsDiv.style.display = "none");
+  }
+
+  groupJoinableSet && groupJoinableSet.addEventListener("change", e => {
+    if (joinableOptionsDiv) {
+      joinableOptionsDiv.style.display = e.target.value === "" ? "none" : "block";
+    }
+  });
+
+  //Initialize the select2 component after jQuery is available (portal loads it post-parse)
+  document.addEventListener('DOMContentLoaded', () => {
     var searchPlaceHolderText = /*[[#{groups.multiselect.search}]]*/;
-    $('#groupMembers').select2({
+    jQuery('#groupMembers').select2({
       placeholder: searchPlaceHolderText,
       allowClear: true,
       closeOnSelect: false,
       width: '100%'
     });
+  });
 
-    // Button spinners
-    document.querySelectorAll("#create-group-submit-button, #save-group-submit-button").forEach(el => {
-        el.addEventListener("click", () => {
-            SPNR.disableControlsAndSpin(el, null);
-        });
-    });
-    const cancelGroupButton = document.getElementById("create-group-cancel-button");
-    cancelGroupButton && cancelGroupButton.addEventListener("click", e => {
-        SPNR.disableControlsAndSpin(cancelGroupButton, null);
-        window.location.href = cancelGroupButton.getAttribute('data-url');
-    });
-
+  // Button spinners
+  document.querySelectorAll("#create-group-submit-button, #save-group-submit-button").forEach(el => {
+      el.addEventListener("click", () => {
+          SPNR.disableControlsAndSpin(el, null);
+      });
+  });
+  const cancelGroupButton = document.getElementById("create-group-cancel-button");
+  cancelGroupButton && cancelGroupButton.addEventListener("click", e => {
+      SPNR.disableControlsAndSpin(cancelGroupButton, null);
+      window.location.href = cancelGroupButton.getAttribute('data-url');
   });
   /*]]>*/
 </script>
