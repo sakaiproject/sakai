@@ -125,7 +125,7 @@ function printView(url) {
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$formattedText.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
-			<input type="hidden" id="withdrawgrad-confirmation-template" value="$tlang.getString('withdrawgrad.confirmation')" />
+			<input type="hidden" id="withdrawgrad-confirmation-template" value="$formattedText.escapeHtml($tlang.getString('withdrawgrad.confirmation'))" />
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg == 0)
