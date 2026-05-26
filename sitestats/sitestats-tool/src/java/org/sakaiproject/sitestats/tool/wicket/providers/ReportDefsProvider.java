@@ -187,9 +187,8 @@ public class ReportDefsProvider implements IDataProvider {
 	}
 	
 	public final Comparator<ReportDef> getReportDefComparator() {
+		Comparator<String> comparator = new AlphaNumericComparator(localeService.getLocaleForCurrentSiteAndUser());
 		return new Comparator<ReportDef>() {
-			private transient Comparator<String> comparator = new AlphaNumericComparator(localeService.getLocaleForCurrentSiteAndUser());
-			
 			public int compare(ReportDef o1, ReportDef o2) {
 				String title1 = null;
 				String title2 = null;
