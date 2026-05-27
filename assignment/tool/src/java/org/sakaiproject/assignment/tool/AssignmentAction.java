@@ -9517,11 +9517,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // integrate with other tools only if the assignment is posted
                     if (post) {
-                        // add the due date to schedule if the schedule exists
-                        integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aProperties);
-
-                        // the open date been announced
-                        integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
+                        integrateAssignmentWithCalendarAndAnnouncement(state, a, title, openTime, dueTime, aOldTitle,
+                                oldOpenTime, oldDueTime, checkAddDueTime, checkAutoAnnounce, valueOpenDateNotification,
+                                aProperties);
 
                         // It should only be called once when updateAssignment has already been done
                         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
@@ -10093,7 +10091,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void integrateWithAnnouncement(SessionState state, String aOldTitle, Assignment assignment, String title, Instant openTime, String checkAutoAnnounce, String valueOpenDateNotification, Instant oldOpenTime) {
+    void integrateWithAnnouncement(SessionState state, String aOldTitle, Assignment assignment, String title, Instant openTime, String checkAutoAnnounce, String valueOpenDateNotification, Instant oldOpenTime) {
         if (checkAutoAnnounce.equalsIgnoreCase(Boolean.TRUE.toString())) {
             AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
             if (channel != null) {
@@ -11556,7 +11554,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void publishAssignment(SessionState state, String siteId, Assignment assignment) throws PermissionException {
+    void publishAssignment(SessionState state, String siteId, Assignment assignment) throws PermissionException {
         Map<String, String> properties = assignment.getProperties();
         String addtoGradebook = properties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
         String oAssociateGradebookAssignment = properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -11580,14 +11578,60 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getString("addtogradebook.skipped.no.categories"));
         }
 
+        boolean wasDraft = BooleanUtils.toBoolean(assignment.getDraft());
+
         assignment.setDraft(Boolean.FALSE);
         assignmentService.updateAssignment(assignment);
+
+        if (wasDraft) {
+            integrateOnFirstPublish(state, assignment, properties);
+        }
 
         if (addToResolvedGradebookOnPublish) {
             integrateAssignmentWithGradebook(state, assignment.getTitle(), oAssociateGradebookAssignment, assignment,
                     assignment.getTitle(), assignment.getDueDate(), assignment.getTypeOfGrade(), assignment.getMaxGradePoint().toString(),
                     addtoGradebook, gradebookCategoriesMap, Collections.emptyMap());
         }
+    }
+
+    private void integrateOnFirstPublish(SessionState state, Assignment assignment, Map<String, String> properties) {
+        String title = assignment.getTitle();
+        Instant openTime = assignment.getOpenDate();
+        Instant dueTime = assignment.getDueDate();
+        String checkAddDueTime = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+        String checkAutoAnnounce = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+        String openDateNotification = StringUtils.defaultIfBlank(properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION),
+                AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+
+        integrateAssignmentWithCalendarAndAnnouncement(state, assignment, title, openTime, dueTime, title, openTime, dueTime,
+                Boolean.toString(BooleanUtils.toBoolean(checkAddDueTime)),
+                Boolean.toString(BooleanUtils.toBoolean(checkAutoAnnounce)),
+                openDateNotification, properties);
+
+        postFirstPublishEvents(assignment, openTime);
+    }
+
+    private void postFirstPublishEvents(Assignment assignment, Instant openTime) {
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
+        if (openTime.isBefore(Instant.now())) {
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+        } else {
+            eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
+        }
+    }
+
+    private void integrateAssignmentWithCalendarAndAnnouncement(SessionState state, Assignment assignment, String title,
+            Instant openTime, Instant dueTime, String oldTitle, Instant oldOpenTime, Instant oldDueTime,
+            String checkAddDueTime, String checkAutoAnnounce, String openDateNotification, Map<String, String> properties) {
+
+        // add the due date to schedule if the schedule exists
+        integrateWithCalendar(state, assignment, title, dueTime, checkAddDueTime, oldDueTime, properties);
+
+        // the open date been announced
+        integrateWithAnnouncement(state, oldTitle, assignment, title, openTime, checkAutoAnnounce, openDateNotification, oldOpenTime);
     }
 
     private Map<String, Long> getBulkPublishGradebookCategories(SessionState state, String siteId, Assignment assignment) {

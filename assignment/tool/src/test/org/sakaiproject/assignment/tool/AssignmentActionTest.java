@@ -30,6 +30,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -38,6 +39,9 @@ import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -48,6 +52,7 @@ import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
@@ -71,7 +76,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.format.FormatStyle;
@@ -241,6 +245,7 @@ public class AssignmentActionTest {
         Mockito.when(assignment.getProperties()).thenReturn(properties);
         Mockito.when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
         Mockito.when(assignment.getId()).thenReturn("assignment-id");
+        Mockito.when(assignment.getContext()).thenReturn("site-id");
         Mockito.when(channel.getAnnouncementMessage("draft-announcement-id")).thenReturn(existingMessage);
         Mockito.when(existingMessage.getId()).thenReturn("draft-announcement-id");
         Mockito.when(existingMessage.getAnnouncementHeader()).thenReturn(existingHeader);
@@ -257,10 +262,7 @@ public class AssignmentActionTest {
         Mockito.when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
         Mockito.when(assignmentService.getUsersLocalDateTimeString(openTime)).thenReturn("Apr 14, 2026 12:00 PM EDT");
 
-        Method method = AssignmentAction.class.getDeclaredMethod("integrateWithAnnouncement", SessionState.class,
-                String.class, Assignment.class, String.class, Instant.class, String.class, String.class, Instant.class);
-        method.setAccessible(true);
-        method.invoke(assignmentAction, state, "Imported Assignment", assignment, "Imported Assignment", openTime,
+        assignmentAction.integrateWithAnnouncement(state, "Imported Assignment", assignment, "Imported Assignment", openTime,
                 Boolean.TRUE.toString(), org.sakaiproject.assignment.api.AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE, openTime);
 
         Mockito.verify(channel).editAnnouncementMessage("draft-announcement-id");
@@ -270,5 +272,77 @@ public class AssignmentActionTest {
         Assert.assertEquals(Boolean.TRUE.toString(), properties.get(org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
         Assert.assertEquals("draft-announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
         Mockito.verify(assignmentService).updateAssignment(assignment);
+    }
+
+    @Test
+    public void testBulkPublishIntegratesCalendarAndAnnouncement() throws Exception {
+        SessionState state = new SessionStateFake();
+        Calendar calendar = Mockito.mock(Calendar.class);
+        CalendarEvent calendarEvent = Mockito.mock(CalendarEvent.class);
+        CalendarEventEdit calendarEventEdit = Mockito.mock(CalendarEventEdit.class);
+        AnnouncementChannel channel = Mockito.mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit message = Mockito.mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = Mockito.mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit messageProperties = Mockito.mock(ResourcePropertiesEdit.class);
+        Event updateEvent = Mockito.mock(Event.class);
+        Event availableEvent = Mockito.mock(Event.class);
+        Assignment assignment = Mockito.mock(Assignment.class);
+        Map<String, String> properties = new HashMap<>();
+        Instant openTime = Instant.parse("2099-04-14T16:00:00Z");
+        Instant dueTime = Instant.parse("2099-04-21T16:00:00Z");
+
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        properties.put(org.sakaiproject.assignment.api.AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION,
+                org.sakaiproject.assignment.api.AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+
+        state.setAttribute("calendar", calendar);
+        state.setAttribute("announcement_channel", channel);
+
+        Mockito.when(assignment.getProperties()).thenReturn(properties);
+        Mockito.when(assignment.getDraft()).thenReturn(Boolean.TRUE);
+        Mockito.when(assignment.getTitle()).thenReturn("Bulk Publish Assignment");
+        Mockito.when(assignment.getDueDate()).thenReturn(dueTime);
+        Mockito.when(assignment.getOpenDate()).thenReturn(openTime);
+        Mockito.when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
+        Mockito.when(assignment.getId()).thenReturn("assignment-id");
+        Mockito.when(assignment.getContext()).thenReturn("site-id");
+        Mockito.when(calendar.addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
+                Mockito.anyList(), Mockito.isNull())).thenReturn(calendarEvent);
+        Mockito.when(calendarEvent.getId()).thenReturn("calendar-event-id");
+        Mockito.when(calendar.getEditEvent("calendar-event-id", org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR))
+                .thenReturn(calendarEventEdit);
+        Mockito.when(channel.addAnnouncementMessage()).thenReturn(message);
+        Mockito.when(message.getAnnouncementHeaderEdit()).thenReturn(header);
+        Mockito.when(message.getPropertiesEdit()).thenReturn(messageProperties);
+        Mockito.when(message.getId()).thenReturn("announcement-id");
+        Mockito.when(entityManager.newReferenceList()).thenReturn(new java.util.ArrayList());
+        Mockito.when(formattedText.convertPlaintextToFormattedText("Bulk Publish Assignment")).thenReturn("Bulk Publish Assignment");
+        Mockito.when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+        Mockito.when(userTimeService.dateTimeFormat(dueTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 21, 2026 12:00 PM EDT");
+        Mockito.when(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT,
+                "/assignment/a/site-id/assignment-id", true)).thenReturn(updateEvent);
+        Mockito.when(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT,
+                "/assignment/a/site-id/assignment-id", true)).thenReturn(availableEvent);
+
+        assignmentAction.publishAssignment(state, "site-id", assignment);
+
+        Mockito.verify(assignment).setDraft(Boolean.FALSE);
+        Mockito.verify(calendar).addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
+                Mockito.anyList(), Mockito.isNull());
+        Mockito.verify(calendar).commitEvent(calendarEventEdit);
+        Mockito.verify(channel).addAnnouncementMessage();
+        Mockito.verify(header).setDraft(false);
+        Mockito.verify(channel).commitMessage(message, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED));
+        Assert.assertEquals("calendar-event-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertEquals("announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        Mockito.verify(eventTrackingService).post(updateEvent);
+        Mockito.verify(eventTrackingService).delay(availableEvent, openTime);
+        Mockito.verify(assignmentService, Mockito.atLeast(3)).updateAssignment(assignment);
     }
 }
