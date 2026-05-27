@@ -358,6 +358,33 @@ public interface AssignmentService extends EntityProducer {
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
     /**
+     * Publishes a draft assignment and performs first-publish integrations.
+     *
+     * @param assignment the Assignment to publish.
+     * @throws PermissionException if current User does not have permission to update the assignment.
+     */
+    public void publishAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Integrates assignment availability and due dates with Announcement and Calendar tools.
+     * Caller must ensure the current user is allowed to update the assignment; assignment property persistence
+     * re-checks update permission through {@link #updateAssignment(Assignment)}.
+     *
+     * @param assignment the Assignment to integrate.
+     * @param title the assignment title.
+     * @param openTime the assignment open date.
+     * @param dueTime the assignment due date.
+     * @param oldOpenTime the previous assignment open date.
+     * @param oldDueTime the previous assignment due date.
+     * @param checkAddDueTime whether to add the due date to calendar.
+     * @param checkAutoAnnounce whether to announce the open date.
+     * @param openDateNotification open date notification level.
+     */
+    public void integrateAssignmentWithCalendarAndAnnouncement(Assignment assignment, String title, Instant openTime, Instant dueTime,
+            Instant oldOpenTime, Instant oldDueTime, String checkAddDueTime, String checkAutoAnnounce,
+            String openDateNotification);
+
+    /**
      * @param submission
      * @throws PermissionException
      */
