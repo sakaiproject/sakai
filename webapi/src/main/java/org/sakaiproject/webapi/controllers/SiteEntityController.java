@@ -29,6 +29,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -277,7 +278,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
                     Area forumArea = discussionForumManager.getDiscussionForumArea(siteId);
 
-                    Optional<DiscussionForum> optForum = findForumInArea(forumArea, patchEntity.getId());
+                    Optional<OpenForum> optForum = findForumInArea(forumArea, patchEntity.getId());
 
                     if (optForum.isEmpty()) {
                         log.debug("Forum with id {} not found", patchEntity.getId());
@@ -513,12 +514,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<DiscussionForum> findForumInArea(Area forumArea, String forumId) {
+    private Optional<OpenForum> findForumInArea(Area forumArea, String forumId) {
         if (forumArea == null) {
             return Optional.empty();
         }
 
-        Set<DiscussionForum> forums = (Set<DiscussionForum>) forumArea.getOpenForumsSet();
+        Set<OpenForum> forums = forumArea.getOpenForumsSet();
 
         return forums.stream()
                 .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))

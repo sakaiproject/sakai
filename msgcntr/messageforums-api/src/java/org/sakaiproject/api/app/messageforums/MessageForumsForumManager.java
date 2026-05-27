@@ -284,12 +284,19 @@ public interface MessageForumsForumManager {
 	public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid, final String contextId);
 	
 	/**
-	 * 
+	 *
 	 * @param topicId
 	 * @return the Topic with the given id with the DBMembershipItems initialized.
 	 * Does not initialize attachments or messages.
 	 */
 	public Topic getTopicByIdWithMemberships(final Long topicId);
+
+	/**
+	 * @param forumId
+	 * @return the BaseForum with the given id with the DBMembershipItems initialized.
+	 * Does not initialize attachments or topics.
+	 */
+	public BaseForum getForumByIdWithMemberships(final Long forumId);
 
 	/**
 	 * @param contextId the context in which we are seeking topics

@@ -144,6 +144,8 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
     </bean>
 
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"

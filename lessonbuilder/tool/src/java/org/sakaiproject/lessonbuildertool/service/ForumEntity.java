@@ -23,9 +23,9 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -45,27 +45,23 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
-import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.api.app.messageforums.MembershipItem;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -109,8 +105,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
     static MessageForumsMessageManager messageManager = (MessageForumsMessageManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
-    static PermissionLevelManager permissionLevelManager = (PermissionLevelManager)
-	ComponentManager.get("org.sakaiproject.api.app.messageforums.PermissionLevelManager");
     static UIPermissionsManager uiPermissionsManager = (UIPermissionsManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager");
     static DiscussionForumManager discussionForumManager = (DiscussionForumManager)
@@ -119,6 +113,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.AreaManager");
     static MessageForumsTypeManager typeManager = (MessageForumsTypeManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
+	static ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+	static SiteService siteService = ComponentManager.get(SiteService.class);
+	static ToolManager toolManager = ComponentManager.get(ToolManager.class);
+	static SqlService sqlService = ComponentManager.get(SqlService.class);
 
     private LessonEntity nextEntity = null;
     private SimplePageBean simplePageBean;
@@ -248,14 +246,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     
 	// LSNBLDR-21. If the tool is not in the current site we shouldn't query
 	// for topics owned by the tool.
-	Site site = null;
-	try {
-	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	} catch (Exception impossible) {
-	    return ret;
-	}
-    	
-    ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
+    ToolConfiguration tool = siteService.getOptionalSite(toolManager.getCurrentPlacement().getContext())
+			.map(site -> site.getToolForCommonId("sakai.forums"))
+			.orElse(null);
 	
     if(tool == null) {
     	
@@ -387,14 +380,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		return "javascript:alert('" + messageLocator.getMessage("simplepage.forumdeleted") + "')";
 	}
 
-	Site site = null;
-	try {
-	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	} catch (Exception impossible) {
-	    return null;
-	}
-	ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
-	
+		ToolConfiguration tool = siteService.getOptionalSite(toolManager.getCurrentPlacement().getContext())
+				.map(site -> site.getToolForCommonId("sakai.forums"))
+				.orElse(null);
+
 	// LSNBLDR-21. If the tool is not in the current site we shouldn't return a url
 	if(tool == null) {
 	    return null;
@@ -415,132 +404,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return null;
     }
 
-    // The msgcntr permissions model is completely undocumented. Here's a cheat sheet:
-
-    // DBMembershipItem has 
-    //    type, which is ALL, ROLE, GROUP or USER
-    //    name which is the specific rolename, groupname or username
-    //    permissionlevelname which is "Owner", "Contributor", "None", etc.
-    //       In addition there is a bitmask that says which specific permissions
-    //       are present, but we always use the default permissions for each level.
-
-    // Here's typical code. First we create a permissionlevel with a given bitmask.
-    // This permissionlevel controls the detailed permissions. As noted, we always 
-    // default levels. Unfortunately we have to create a new copy of the level
-    // for every entry. Some fo their internal code uses common permissionlevels, but
-    // if you don't have a separate level object and database entry for each membershipitem,
-    // things get very confused.
-    //	  PermissionLevel contributorLevel = permissionLevelManager.
-    //	      createPermissionLevel("Contributor",  typeManager.getContributorLevelType(), contributorMask);
-    //    permissionLevelManager.savePermissionLevel(contributorLevel);
-
-    // Now we create the actual entry. Note that this one says members of the specified
-    // group are contributors. Then it sets the default contributor bitmask. You can call
-    // a permission contributor but set any bits you want. However we're going to assume
-    // that people pick a name that represents what they want, and make minimal changes.
-    //	  DBMembershipItem membershipItem = permissionLevelManager.
-    //	    createDBMembershipItem(groupName, "Contributor", MembershipItem.TYPE_GROUP);
-    //	  membershipItem.setPermissionLevel(contributorLevel);
-    //	  permissionLevelManager.saveDBMembershipItem(membershipItem);	
-
-
-    // How we use it:
-
-    // ACCESS CONTROL:
-
-    // Our model is fairly simple. When we control access, Owner is the maintain role, and 
-    //    contributor is the group we control. Everything else is set to none.
-    // When you decontrol something, we make Owner the maintain role
-    //    and Contributor all the other roles. Once we support groups, we'll put back
-    //    saved group access, but we won't try to put back anything else.
-    // The tool code makes sure that items are added for all roles, so we don't have to add entries
-    //    in most cases, just change their permission levels.
-
-    // GROUP ACCESS WHEN WE AREN'T CONTROLLING:
-
-    // Now, our group management code, which should only be used when we're not controlling:
-    // Getgroups returns which groups are contributor.
-    //    If you want something more complex, you'll have to do it in the tool, but if there
-    //       are any groups with contributor, we'll only let students in those groups access
-    //       through our tool.
-    // Setgroups with a non-null list: we set all contributor entries to none, and then set the
-    //    specified groups to contribtor. By only handling groups, we avoid interfering with
-    //    anything you might do in the tool. But the moment you use access control, we take
-    //    over. Sorry. Once we've done that you could go back into the tool and hack, but I
-    //    don't recommend that.
-    // Setgroups with a null list: we set all contributor entries to none, and then set all roles
-    //    other than maintain to contributor.
-    // It may be safer to do changes in the tool.
-
-
-    // the following methods all take references. So they're in effect static.
-    // They ignore the entity from which they're called.
-    // The reason for not making them a normal method is that many of the
-    // implementations seem to let you set access control and find submissions
-    // from a reference, without needing the actual object. So doing it this
-    // way could save some database activity
-
-    PermissionsMask noneMask = null;
-    PermissionsMask contributorMask = null;
-    PermissionsMask ownerMask = null;
-
-    private void setMasks() {
-	if (noneMask == null) {
-	    noneMask = new PermissionsMask();
-	    noneMask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.READ, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.MARK_AS_NOT_READ,Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
-	    noneMask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
-	}
-	if (contributorMask == null) {
-	    contributorMask = new PermissionsMask();
-	    contributorMask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
-	    contributorMask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
-	    contributorMask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.READ, Boolean.valueOf(true));
-	    contributorMask.put(PermissionLevel.MARK_AS_NOT_READ,Boolean.valueOf(true));
-	    contributorMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
-	    contributorMask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
-	}
-	if (ownerMask == null) {
-	    ownerMask = new PermissionsMask();
-	    ownerMask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.READ, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.MARK_AS_NOT_READ,Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
-	    ownerMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
-	    ownerMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(true));
-	    ownerMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
-	    ownerMask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(true));
-	}
-    }
-
     public LessonSubmission getSubmission(String user) {
 	return null; // not used
     }
@@ -557,7 +420,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String tool = bean.getCurrentTool("sakai.forums");
 	if (tool != null) {
-	    tool = ServerConfigurationService.getToolUrl() + "/" + tool + "/discussionForum/forumsOnly/dfForums";
+	    tool = serverConfigurationService.getToolUrl() + "/" + tool + "/discussionForum/forumsOnly/dfForums";
 	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_forums")));
 	}
 	if (nextEntity != null)
@@ -783,14 +646,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		}
 
 	List <String>ret = new ArrayList<String>();
-	Collection<Group> groups = null;
-
-	try {
-	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	    groups = site.getGroups();
-	} catch (Exception e) {
-	    log.info("Unable to get site info for getGroups " + e);
-	}
+	Collection<Group> groups = siteService.getOptionalSite(toolManager.getCurrentPlacement().getContext())
+			.map(Site::getGroups)
+			.orElse(Collections.emptyList());
 
 	// now change any existing ones into null
 	for (DBMembershipItem item: oldMembershipItemSet) {
@@ -810,159 +668,16 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    return ret;
     }
 
-    // set the item to be accessible only to the specific groups.
-    // null to make it accessible to the whole site
-    public void setGroups(Collection<String> groups) {
-
-    // Setgroups with a non-null list: we set all contributor entries to none, and then set the
-    //    specified groups to contribtor. By only handling groups, we avoid interfering with
-    //    anything you might do in the tool. But the moment you use access control, we take
-    //    over. Sorry. Once we've done that you could go back into the tool and hack, but I
-    //    don't recommend that.
-    // Setgroups with a null list: we set all contributor entries to none, and then set all roles
-    //    other than maintain to contributor.
-
-	setMasks();
-		Set<DBMembershipItem> oldMembershipItemSet = null;
+	public void setGroups(Collection<String> groups) {
+		Set<String> groupIds = (groups == null) ? Collections.emptySet() : new HashSet<>(groups);
 		if (type == TYPE_FORUM_TOPIC) {
-			topic = getTopicById(true, id);
-			if (topic == null) {
-				return;
-			}
-			uiPermissionsManager.clearMembershipsFromCacheForArea(topic.getBaseForum().getArea());
-			oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
+			discussionForumManager.setTopicGroupRestrictions(id, groupIds);
 		} else if (type == TYPE_FORUM_FORUM) {
-			forum = getForumById(true, id);
-			if (forum == null) {
-				return;
-			}
-			uiPermissionsManager.clearMembershipsFromCacheForArea(forum.getArea());
-			oldMembershipItemSet = uiPermissionsManager.getForumItemsSet((DiscussionForum)forum);
-		} else {
-			return;
-		}
-
-	Site site = null;
-	try {
-	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	} catch (Exception e) {
-	    log.info("Unable to get site info for setGroups " + e);
-	    return;
-	}
-
-	DBMembershipItem membershipItem = null;
-
-	boolean haveOwner = false;
-	boolean changed = false;
-
-	if (groups != null && groups.size() > 0) {
-
-	    // this is the groups we've been asked to use
-	    // remove groups form this as we see them if they already have access
-	    // so at the end we just add the ones remaining
-	    List<String>groupNames = new ArrayList<String>();
-	    Set<String>addGroupNames = new HashSet<String>();
-	    for (String groupId: groups) {
-		groupNames.add(site.getGroup(groupId).getTitle());
-		addGroupNames.add(site.getGroup(groupId).getTitle());
-	    }
-
-	    // delete groups from here as they are done.
-
-	    // if we've seen an owner. Otherwise set the maintain role as owner
-
-	    // Setgroups with a non-null list: we set all contributor entries to none, and then set the
-	    //    specified groups to contribtor. However we don't touch owner.
-	    // By only handling groups, we avoid interfering with
-	    //    anything you might do in the tool. But the moment you use access control, we take
-	    //    over. Sorry. Once we've done that you could go back into the tool and hack, but I
-	    //    don't recommend that.
-
-	    for (DBMembershipItem item: oldMembershipItemSet) {
-		// kill everything except our own groups
-		// this will leave the owner but remove all other roles
-		if (item.getType().equals(MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
-		    addGroupNames.remove(item.getName()); // we've seen it
-		    // if it's one of our groups make it a contributor if it's not already an owner
-		    if (!item.getPermissionLevelName().equals("Contributor") && 
-			!item.getPermissionLevelName().equals("Owner")) {
-
-			PermissionLevel contributorLevel = permissionLevelManager.
-			    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
-			permissionLevelManager.savePermissionLevel(contributorLevel);
-
-			item.setPermissionLevel(contributorLevel);
-			item.setPermissionLevelName("Contributor");
-			permissionLevelManager.saveDBMembershipItem(item);
-		    }
-		} else if (!item.getPermissionLevelName().equals("Owner")) {  // only group members are contributors
-		    // remove contributor from anything else, both groups and roles
-		    PermissionLevel noneLevel = permissionLevelManager.
-			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
-		    permissionLevelManager.savePermissionLevel(noneLevel);
-
-		    item.setPermissionLevel(noneLevel);
-		    item.setPermissionLevelName("None");
-		    permissionLevelManager.saveDBMembershipItem(item);
-		}			
-	    }
-	    for (String newGroupName: addGroupNames) {
-		changed = true;
-		PermissionLevel contributorLevel = permissionLevelManager.
-		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
-		permissionLevelManager.savePermissionLevel(contributorLevel);
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(newGroupName, "Contributor", MembershipItem.TYPE_GROUP);
-		membershipItem.setPermissionLevel(contributorLevel);
-		membershipItem = permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		oldMembershipItemSet.add(membershipItem);
-	    }
-
-	} else {
-	    // Setgroups with a null list: we set all contributor entries to none, and then set all roles
-	    //    to contributor.  However we don't touch Owners.
-
-	    for (DBMembershipItem item: oldMembershipItemSet) {
-		if (item.getPermissionLevelName().equals("Owner")) {
-		    haveOwner = true;
-		} else if (item.getType().equals(MembershipItem.TYPE_ROLE)) {
-		    // default state has all roles except owner as contributor
-		    if (!item.getPermissionLevelName().equals("Contributor")) {
-			PermissionLevel contributorLevel = permissionLevelManager.
-			    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
-			permissionLevelManager.savePermissionLevel(contributorLevel);
-			
-			item.setPermissionLevel(contributorLevel);
-			item.setPermissionLevelName("Contributor");
-			permissionLevelManager.saveDBMembershipItem(item);
-		    }
-		} else if (!item.getPermissionLevelName().equals("None")) {
-		    // kill other contributors
-		    PermissionLevel noneLevel = permissionLevelManager.
-			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
-		    permissionLevelManager.savePermissionLevel(noneLevel);
-
-		    item.setPermissionLevel(noneLevel);
-		    item.setPermissionLevelName("None");
-		    permissionLevelManager.saveDBMembershipItem(item);
-		}			
-	    }
-	}
-
-	if (changed) {
-		if (type == TYPE_FORUM_TOPIC) {
-			topic.setMembershipItemSet(oldMembershipItemSet);
-			forumManager.saveDiscussionForumTopic((DiscussionTopic)topic);
-		} else if (type == TYPE_FORUM_FORUM) {
-			forum.setMembershipItemSet(oldMembershipItemSet);
-			forumManager.saveDiscussionForum((DiscussionForum)forum);
+			discussionForumManager.setForumGroupRestrictions(id, groupIds);
 		}
 	}
 
-
-    }
-
-    // only used for topics
+	// only used for topics
     public String getObjectId(){
 	String title = getTitle();
 	// fetches topic as well
@@ -1053,7 +768,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	Object fields[] = new Object[1];
 	fields[0] = id;
 
-	List<String> siteIds = SqlService.dbRead(sql, fields, null);
+	List<String> siteIds = sqlService.dbRead(sql, fields, null);
 
 	if (siteIds != null && siteIds.size() > 0)
 	    return siteIds.get(0);
