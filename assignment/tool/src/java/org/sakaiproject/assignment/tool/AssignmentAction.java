@@ -107,6 +107,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
@@ -9509,7 +9510,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     // integrate with other tools only if the assignment is posted
                     if (post) {
                         assignmentService.integrateAssignmentWithCalendarAndAnnouncement(a, title, openTime, dueTime,
-                                oldOpenTime, oldDueTime, checkAddDueTime, checkAutoAnnounce, valueOpenDateNotification);
+                                oldOpenTime, oldDueTime, BooleanUtils.toBoolean(checkAddDueTime),
+                                BooleanUtils.toBoolean(checkAutoAnnounce),
+                                OpenDateNotification.fromProperty(valueOpenDateNotification));
 
                         // It should only be called once when updateAssignment has already been done
                         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
@@ -12895,13 +12898,13 @@ public class AssignmentAction extends PagedResourceActionII {
                         state.setAttribute(CALENDAR, calendarService.getCalendar(calendarId));
                     } catch (IdUnusedException e) {
                         state.removeAttribute(CALENDAR);
-                        log.info(this + ":initState No calendar found for site " + siteId + " " + e.getMessage());
+                        log.info("No calendar found for site {}", siteId, e);
                     } catch (PermissionException e) {
                         state.removeAttribute(CALENDAR);
-                        log.info(this + ":initState No permission to get the calender. " + e.getMessage());
+                        log.info("No permission to get calendar for site {}", siteId, e);
                     } catch (Exception ex) {
                         state.removeAttribute(CALENDAR);
-                        log.info(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
+                        log.info("Unable to initialize calendar for site {}", siteId, ex);
                     }
                 }
             }

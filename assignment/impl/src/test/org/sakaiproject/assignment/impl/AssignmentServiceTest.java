@@ -78,6 +78,7 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -253,8 +254,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
 
         service.integrateAssignmentWithCalendarAndAnnouncement(assignment, "Imported Assignment", openTime, null,
-                openTime, null, Boolean.FALSE.toString(), Boolean.TRUE.toString(),
-                AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+                openTime, null, false, true, OpenDateNotification.NONE);
 
         verify(channel).editAnnouncementMessage("draft-announcement-id");
         verify(editHeader).setDraft(false);

@@ -57,6 +57,21 @@ import org.sakaiproject.util.api.FormattedText;
 
 public interface AssignmentService extends EntityProducer {
 
+    public enum OpenDateNotification {
+        NONE,
+        OPTIONAL,
+        REQUIRED;
+
+        public static OpenDateNotification fromProperty(String value) {
+            if (AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW.equals(value)) {
+                return OPTIONAL;
+            } else if (AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH.equals(value)) {
+                return REQUIRED;
+            }
+            return NONE;
+        }
+    }
+
     Entity createAssignmentEntity(String assignmentId);
 
     /**
@@ -376,13 +391,13 @@ public interface AssignmentService extends EntityProducer {
      * @param dueTime the assignment due date.
      * @param oldOpenTime the previous assignment open date.
      * @param oldDueTime the previous assignment due date.
-     * @param checkAddDueTime whether to add the due date to calendar.
-     * @param checkAutoAnnounce whether to announce the open date.
+     * @param checkAddDueTime true to add the due date to calendar.
+     * @param checkAutoAnnounce true to announce the open date.
      * @param openDateNotification open date notification level.
      */
     public void integrateAssignmentWithCalendarAndAnnouncement(Assignment assignment, String title, Instant openTime, Instant dueTime,
-            Instant oldOpenTime, Instant oldDueTime, String checkAddDueTime, String checkAutoAnnounce,
-            String openDateNotification);
+            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce,
+            OpenDateNotification openDateNotification);
 
     /**
      * @param submission
