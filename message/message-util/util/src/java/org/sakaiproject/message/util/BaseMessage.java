@@ -3140,14 +3140,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			return msgs;
 		} // findMessages
 
-		protected List findSortedMessages(boolean ascending) {
-			List msgs = new Vector(findMessages());
-			if (msgs.size() == 0) return msgs;
+		protected List<Message> findSortedMessages(boolean ascending) {
+			List<Message> msgs = new ArrayList<>(findMessages());
+			if (msgs.isEmpty()) return msgs;
 
-			// sort - natural order is date ascending
+			// Natural message order is date ascending.
 			Collections.sort(msgs);
 
-			// reverse, if not ascending
 			if (!ascending)
 			{
 				Collections.reverse(msgs);
