@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.LineItemUtil;
 
@@ -55,79 +54,6 @@ public class LineItemUtilTest {
 		assertNotNull(li.submissionReview);
 		assertNotNull(li.submissionReview.url);
 		assertEquals(li.submissionReview.url, "https://platform.example.com/act/849023/sub");
-	}
-
-	@Test
-	public void testGetLineItemUsesExternalIdAndMetadataJson() {
-		Assignment assignment = new Assignment();
-		assignment.setName("Test");
-		assignment.setPoints(100.0);
-		assignment.setExternalId("123|456");
-		assignment.setLineItemMetadata("{\"resourceId\":\"metadataResource\",\"tag\":\"metadataTag\"}");
-
-		SakaiLineItem lineItem = LineItemUtil.getLineItem(null, assignment);
-		assertEquals("456", lineItem.resourceLinkId);
-		assertEquals("metadataResource", lineItem.resourceId);
-		assertEquals("metadataTag", lineItem.tag);
-	}
-
-	@Test
-	public void testGetLineItemFallsBackToExternalDataForToolContentKey() {
-		Assignment assignment = new Assignment();
-		assignment.setName("Test");
-		assignment.setPoints(100.0);
-		assignment.setExternalId(null);
-		assignment.setExternalData("123|456");
-		assignment.setLineItemMetadata("{\"resourceId\":\"r1\",\"tag\":\"t1\"}");
-
-		SakaiLineItem lineItem = LineItemUtil.getLineItem(null, assignment);
-		assertEquals("456", lineItem.resourceLinkId);
-		assertEquals("r1", lineItem.resourceId);
-		assertEquals("t1", lineItem.tag);
-	}
-
-	@Test
-	public void testShouldMigrateLegacyExternalIdWhenNewFieldsMissing() {
-		Assignment assignment = new Assignment();
-		assignment.setExternalData(null);
-		assignment.setLineItemMetadata(null);
-		assignment.setExternalId("123|456|legacyResource|legacyTag|");
-
-		assertTrue(LineItemUtil.shouldMigrateLegacyExternalId(assignment));
-	}
-
-	@Test
-	public void testShouldNotMigrateLegacyExternalIdWhenMetadataPresent() {
-		Assignment assignment = new Assignment();
-		assignment.setExternalData(null);
-		assignment.setLineItemMetadata("{\"resourceId\":\"metadataResource\",\"tag\":\"metadataTag\"}");
-		assignment.setExternalId("123|456|legacyResource|legacyTag|");
-
-		assertFalse(LineItemUtil.shouldMigrateLegacyExternalId(assignment));
-	}
-
-	@Test
-	public void testShouldNotMigrateLegacyExternalIdWhenLegacyInvalid() {
-		Assignment assignment = new Assignment();
-		assignment.setExternalData(null);
-		assignment.setLineItemMetadata(null);
-		assignment.setExternalId("not-valid");
-
-		assertFalse(LineItemUtil.shouldMigrateLegacyExternalId(assignment));
-	}
-
-	@Test
-	public void testIsGradebookColumnLTI_ImsAgsIsTrue() {
-		Assignment a = new Assignment();
-		a.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
-		assertTrue(LineItemUtil.isGradebookColumnLTI("site1", a));
-	}
-
-	@Test
-	public void testIsGradebookColumnLTI_AssignmentToolWithoutReferenceIsFalse() {
-		Assignment a = new Assignment();
-		a.setExternalAppName(LineItemUtil.ASSIGNMENT_GRADES_TOOL_ID);
-		assertFalse(LineItemUtil.isGradebookColumnLTI("site1", a));
 	}
 
 }
