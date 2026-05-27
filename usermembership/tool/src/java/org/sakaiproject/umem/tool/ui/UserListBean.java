@@ -116,8 +116,6 @@ public class UserListBean {
 	private LocaleService localeService = ComponentManager.get(LocaleService.class);
 
 	/** Private vars */
-	private Collator						collator			= SakaiCollators
-			.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	private String							message				= "";
 	// system
 	
@@ -287,10 +285,14 @@ public class UserListBean {
 		
 		if(userRows != null){
 			// Sort resulting list
-			Collections.sort(userRows, getUserRowComparator(userSortColumn, userSortAscending, collator));
+			Collections.sort(userRows, getUserRowComparator(userSortColumn, userSortAscending, getCollator()));
 		}
 		
 		return "";
+	}
+
+	private Collator getCollator() {
+		return SakaiCollators.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	}
 	
 	public TimeZone getUserTimeZone() {

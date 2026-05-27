@@ -105,8 +105,6 @@ public class SiteListBean {
 	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 	private LocaleService				localeService		= ComponentManager.get(LocaleService.class);
 	/** Private vars */
-	private Collator					collator			= SakaiCollators
-			.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	private long						timeSpentInGroups	= 0;
 	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
@@ -289,9 +287,13 @@ public class SiteListBean {
 				refreshQuery = false;
 			}
 			
-			if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
+			if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, getCollator()));
 		}
 		return "";
+	}
+
+	private Collator getCollator() {
+		return SakaiCollators.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	}
 	
 	/**
@@ -552,7 +554,7 @@ public class SiteListBean {
 	}
 
 	public List getUserSitesRows() {		
-		if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
+		if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, getCollator()));
 		return userSitesRows;
 	}
 
