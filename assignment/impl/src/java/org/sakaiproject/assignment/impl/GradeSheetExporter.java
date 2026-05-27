@@ -144,6 +144,9 @@ public class GradeSheetExporter {
             // site members excluding those who can add assignments
             // hashmap which stores the Excel row number for particular user
 
+            Locale locale = localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId());
+            UserSortNameComparator userSortNameComparator = new UserSortNameComparator(locale);
+            Comparator<Submitter> submitterNameComparator = getSubmitterNameComparator(locale);
             String refToCheck = group == null ? site.getReference() : group.getReference();
             List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
             List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
@@ -151,7 +154,7 @@ public class GradeSheetExporter {
                     site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserSortNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
+            members.sort(userSortNameComparator);
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
                 Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
@@ -340,7 +343,7 @@ public class GradeSheetExporter {
                 }
 
                 final List<Submitter> submitters = new ArrayList<>(results.keySet());
-                Collections.sort(submitters, getSubmitterNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
+                Collections.sort(submitters, submitterNameComparator);
 
                 // Date submitted and Late.
                 CellStyle dateCellStyle = wb.createCellStyle();
@@ -448,6 +451,9 @@ public class GradeSheetExporter {
             // site members excluding those who can add assignments
             // hashmap which stores the Excel row number for particular user
 
+            Locale locale = localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId());
+            UserSortNameComparator userSortNameComparator = new UserSortNameComparator(locale);
+            Comparator<Submitter> submitterNameComparator = getSubmitterNameComparator(locale);
             String refToCheck = group == null ? site.getReference() : group.getReference();
             List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
             List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
@@ -455,7 +461,7 @@ public class GradeSheetExporter {
                     site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserSortNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
+            members.sort(userSortNameComparator);
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
                 Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
@@ -591,8 +597,8 @@ public class GradeSheetExporter {
                 }
 
 
-                final List<Submitter> submitters = new ArrayList(results.keySet());
-                Collections.sort(submitters, getSubmitterNameComparator(localeService.getLocaleForSiteAndUser(context, sessionManager.getCurrentSessionUserId())));
+                final List<Submitter> submitters = new ArrayList<>(results.keySet());
+                Collections.sort(submitters, submitterNameComparator);
 
                 for (final Submitter submitter : submitters) {
                     List<Object> rowValues = results.get(submitter);
