@@ -28,14 +28,7 @@ Tools may suggest:
 
 These values are returned to Sakai and used to **pre-populate** the Assignments UI. Sakai treats them as **defaults**; the instructor can review and change all values before saving.
 
-After save, a tool can read the final values using LTI Advantage services or via substitution variables:
-
-```text
-ResourceLink.available.startDateTime
-ResourceLink.available.endDateTime
-ResourceLink.submission.startDateTime
-ResourceLink.submission.endDateTime
-```
+After save, a tool can read the final values using LTI Advantage services or via substitution variables at launch (see below).
 
 Once the assignment is saved, it appears in the gradebook with the correct maximum score.
 
@@ -46,50 +39,97 @@ LTI 1.3 defines two independent date ranges:
 - **`ResourceLink.available.*`** — when the activity is accessible
 - **`ResourceLink.submission.*`** — when submissions are accepted
 
-Sakai Assignments uses a three-part model:
+Sakai Assignments uses a richer internal model:
 
-**open date → due date → accept-until (close) date**
+| Sakai field | Typical meaning |
+|-------------|-----------------|
+| **visible date** | When the assignment becomes visible. **Not shown in the Assignments UI by default** (`assignment.visible.date.enabled` is false unless your site turns it on). |
+| **open date** | When students may begin work |
+| **due date** | Soft deadline / expected completion |
+| **close date** | Accept-until (hard cutoff for submission) |
+| **resubmission accept-until** | Late resubmission window end (`allowResubmitCloseTime` property) |
 
-LTI does not explicitly define a separate “due date” (soft deadline). In practice, many LTI tools (including Turnitin) treat **`ResourceLink.submission.endDateTime`** as the assignment due date.
+Date flow is **bidirectional**:
 
-To keep behavior predictable and interoperable, Sakai applies this mapping when processing LTI date values:
+1. **Inbound (Deep Link → instructor UI)** — tool suggestions pre-fill the assignment editor.
+2. **Outbound (assignment → LTI launch)** — current assignment dates are written into substitution variables so tools see the values Sakai is actually using.
 
-**If `ResourceLink.submission.endDateTime` is present:**
+### Inbound: Deep Link pre-populates the assignment editor
 
-- due date = `submission.endDateTime`
-- close (accept-until) date = `submission.endDateTime`
+When the instructor picks an activity via Deep Linking, `returnContentItem` in JavaScript in the Assignment UI maps the tool’s `available` and `submission` blocks onto Sakai’s open, due, and close pickers:
 
-**Else if `ResourceLink.available.endDateTime` is present:**
+- `available.startDateTime` and `submission.startDateTime` both target **open** (submission is applied second and wins if both are present).
+- `available.endDateTime` and `submission.endDateTime` both set **due** and **close** to the same epoch (LTI has no separate soft deadline in the payload).
 
-- due date = `available.endDateTime`
-- close (accept-until) date = `available.endDateTime`
+The instructor can change any value before save. Sakai treats Deep Link dates as **defaults**, not the final source of truth.
 
-### Design rules
+### Outbound: four `ResourceLink` substitution parameters at launch
 
-| Rule | Meaning |
-|------|--------|
-| **`submission.endDateTime` is authoritative** | When present, it defines the assignment deadline and is used for **both** due date and accept-until date. |
-| **`available.endDateTime` is fallback only** | Used only when `submission.endDateTime` is not provided; it must **never** override `submission.endDateTime`. |
-| **`submission.startDateTime` overrides `available.startDateTime` for open** | When both are present, the assignment **open** date follows `ResourceLink.submission.startDateTime`; `ResourceLink.available.startDateTime` does not win for open in that case (same precedence idea as end dates). |
-| **Due date and close date may be identical** | LTI does not distinguish a soft due date from a hard cutoff; Sakai may collapse these to one value. |
+On each external-tool launch, `AssignmentAction` copies the assignment’s current dates into the LTI content item’s `LTI_SETTINGS` JSON. At launch, `SakaiLTIUtil` loads those keys into the substitution map and `LTI13Util.substituteCustom()` resolves tool custom parameters such as `$ResourceLink.submission.endDateTime`.
 
-### Rationale
+Implementation: `assignment/tool/.../AssignmentAction.java` (build `content_json`) and `lti/lti-common/.../SakaiLTIUtil.java` (`jsonSubst` loop).
 
-- Many tools interpret `submission.endDateTime` as the due date.
-- LTI does not standardize a late submission window.
-- Letting `available.endDateTime` override `submission.endDateTime` would produce incorrect deadlines for those tools.
-- A single authoritative rule reduces long-term confusion and support load.
+All date values are ISO-8601 strings from `Instant.toString()`.
 
-### Practical effect
+| Substitution variable | How Sakai sets it |
+|----------------------|-------------------|
+| `ResourceLink.available.startDateTime` | **Earliest** non-null of **visible date** and **open date** (omitted if both are unset). Visible date is rarely set in practice because the Assignments UI does not expose it by default. |
+| `ResourceLink.submission.startDateTime` | Assignment **open date** |
+| `ResourceLink.submission.endDateTime` | Assignment **due date** |
+| `ResourceLink.available.endDateTime` | **Latest** non-null of **close date**, **due date**, and **resubmission accept-until** (omitted if all are unset) |
 
-- `submission.endDateTime` → Sakai **due** date (authoritative)
-- `available.endDateTime` → fallback **due** / **close** date
-- `available.startDateTime` → Sakai **open** date (fallback when `submission.startDateTime` is absent)
-- `submission.startDateTime` → Sakai **open** date when present; **`submission.startDateTime` overrides `available.startDateTime`** when both are present
+Note the **available** dates are generally outside the range of the **submission** dates.
 
-**Where this is applied in the UI:** In `assignment/tool/src/webapp/vm/assignment/chef_assignments_instructor_new_edit_assignment.vm`, the External Tool deep-link callback `returnContentItem` assigns both `ResourceLink.available.startDateTime` and `ResourceLink.submission.startDateTime` to the assignment open-date input **`#opendate`** in that order, so the submission value wins if both are returned.
+**Why aggregate available dates?** LTI only exposes one start and one end for “availability,” while Sakai can have separate visible, open, due, close, and resubmit-cutoff times. The earliest start and latest end give tools a single window that covers every Sakai constraint.
 
-This favors consistency with real-world LTI tool behavior over a strict, spec-only reading that would disagree with common implementations.
+**Submission vs available:** Submission start/end map directly to open and due so tools that only read the submission range still get the primary student workflow dates. Available start/end add the wider Sakai window (visibility and accept-until / resubmit limits).
+
+Example tool custom configuration:
+
+```text
+windowStart=$ResourceLink.available.startDateTime
+open=$ResourceLink.submission.startDateTime
+due=$ResourceLink.submission.endDateTime
+windowEnd=$ResourceLink.available.endDateTime
+```
+
+### Sakai-specific substitution parameters
+
+In addition to the four `ResourceLink.*` variables, Sakai exposes each internal date under `Sakai.assignment.*` (constants in `SakaiLTIUtil`). Each is stored only when that assignment field is set:
+
+| Substitution variable | Assignment field |
+|----------------------|------------------|
+| `Sakai.assignment.visibleDate` | Visible date (omitted when unset; UI field hidden unless `assignment.visible.date.enabled` is true) |
+| `Sakai.assignment.openDate` | Open date |
+| `Sakai.assignment.dueDate` | Due date |
+| `Sakai.assignment.closeDate` | Close (accept-until) date |
+| `Sakai.assignment.resubmissionAcceptUntil` | Resubmission accept-until |
+
+Use these when a tool needs Sakai’s native fields separately instead of the aggregated `ResourceLink.available.*` values.
+
+### AGS line item PUT (date sync from tool)
+
+When a tool updates a line item with `PUT` parses the body as a `SakaiLineItem` and calls `LineItemUtil.updateLineItem()`.
+
+For a gradebook row that is the **primary LTI line item** for a linked Sakai external-tool assignment, `applyLineItemToSakaiAssignment()` applies:
+
+| Line item field | Sakai assignment field |
+|-----------------|------------------------|
+| `startDateTime` | **open date** |
+| `endDateTime` | **due date** only |
+| `label`, `scoreMaximum` | title, max points (when applicable) |
+
+LTI AGS exposes only one end timestamp. Sakai maps it to **due date** and does **not** change **close date** (accept-until), **visible date** (not editable in the default Assignments UI), or **resubmission accept-until** on PUT. Instructors can therefore keep a later accept-until in Assignments than the tool’s advertised deadline.
+
+After `assignmentService.updateAssignment()`, `syncGradebookColumnTitleAndDueFromSakaiAssignment()` copies the assignment title and due date onto the gradebook column.
+
+If there is no linked assignment row, `endDateTime` updates only the gradebook column’s due date.
+
+**GET / line item responses:** When Sakai builds a line item for a linked assignment (`getLineItem()`), `endDateTime` is the assignment **due date**, or **close date** if due is unset—so tools reading the line item see a single end time that reflects Sakai’s effective deadline, even though PUT writes due only.
+
+Launch substitution variables (above) are refreshed from the full assignment model on the next student launch, not from this PUT path.
+
+See `lti/lti-blis/.../LTI13Servlet.java` and `lti/lti-common/.../LineItemUtil.java`.
 
 ## LTI Activity State and Submission Lifecycle
 

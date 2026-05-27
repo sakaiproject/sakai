@@ -2037,7 +2037,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
 
-                // Normally Sakai does not show, populate nor use visibleDate
+                // Visible date is not shown in the Assignments UI by default (assignment.visible.date.enabled).
                 Instant visibleDate = assignment.getVisibleDate();
                 String assignmentVisibleDate = StringUtils.trimToEmpty(visibleDate == null ? null : visibleDate.toString());
                 Instant openDate = assignment.getOpenDate();
@@ -2046,11 +2046,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 String assignmentDueDate = StringUtils.trimToEmpty(dueDate == null ? null : dueDate.toString());
                 Instant closeDate = assignment.getCloseDate();
                 String assignmentCloseDate = StringUtils.trimToEmpty(closeDate == null ? null : closeDate.toString());
-                String assignmentResubmissionAcceptUntil = null;
+                Instant resubmissionAcceptUntil = null;
                 String allowResubmitCloseTime = assignment.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                 if (StringUtils.isNotBlank(allowResubmitCloseTime)) {
                     try {
-                        assignmentResubmissionAcceptUntil = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime)).toString();
+                        resubmissionAcceptUntil = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
                     } catch (NumberFormatException e) {
                         log.warn("Invalid resubmission close time for assignment {}: {}", assignment.getId(), allowResubmitCloseTime);
                     }
@@ -2062,20 +2062,47 @@ public class AssignmentAction extends PagedResourceActionII {
                 content_json.put(LTIService.LTI_PROTECT, new Integer(1));
 
                 // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
-                // Normally Sakai does not show, populate nor use visibleDate so we fall back to open date
                 content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
                 content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentDueDate);
-                if ( ! StringUtils.isBlank(assignmentVisibleDate) ) {
-                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
-                } else {
-                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentOpenDate);
+
+                // Find earliest among Sakai's internal dates
+                Instant availableStart = null;
+                for (Instant candidate : new Instant[] { visibleDate, openDate }) {
+                    if (candidate != null && (availableStart == null || candidate.isBefore(availableStart))) {
+                        availableStart = candidate;
+                    }
                 }
-                content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentCloseDate);
+                if (availableStart != null) {
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, availableStart.toString());
+                }
 
+                // Find latest among Sakai's internal dates
+                Instant availableEnd = null;
+                for (Instant candidate : new Instant[] { closeDate, dueDate, resubmissionAcceptUntil }) {
+                    if (candidate != null && (availableEnd == null || candidate.isAfter(availableEnd))) {
+                        availableEnd = candidate;
+                    }
+                }
+                if (availableEnd != null) {
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, availableEnd.toString());
+                }
 
-                // There is no real place for due date in the variables most tools treat close date as due date
-                content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_DUE_DATE, assignmentDueDate);
-                content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL, assignmentResubmissionAcceptUntil);
+                // Sakai-specific date substitutions (resolved into custom_* at launch via SakaiLTIUtil)
+                if ( StringUtils.isNotBlank(assignmentVisibleDate) ) {
+                    content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_VISIBLE_DATE, assignmentVisibleDate);
+                }
+                if (openDate != null) {
+                    content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_OPEN_DATE, openDate.toString());
+                }
+                if (dueDate != null) {
+                    content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_DUE_DATE, dueDate.toString());
+                }
+                if (closeDate != null) {
+                    content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_CLOSE_DATE, closeDate.toString());
+                }
+                if (resubmissionAcceptUntil != null) {
+                    content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_RESUBMISSION_ACCEPT_UNTIL, resubmissionAcceptUntil.toString());
+                }
 
                 content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
                 String content_settings = content_json.toString();

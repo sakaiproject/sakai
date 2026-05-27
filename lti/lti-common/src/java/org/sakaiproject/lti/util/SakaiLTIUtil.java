@@ -199,10 +199,13 @@ public class SakaiLTIUtil {
 	public static final String MESSAGE_TYPE_PARAMETER_PRIVACY = "privacy";
 	public static final String MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW = "content_review";
 
-	// Sakai custom parameters
-	public static final String SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME = "Sakai.assignment.availableStartDateTime";
+	// Sakai assignment date substitution variables (referenced in tool custom as $Sakai.assignment.openDate, etc.)
+	public static final String SAKAI_LTI_SUBSTITUTION_VISIBLE_DATE = "Sakai.assignment.visibleDate";
+	public static final String SAKAI_LTI_SUBSTITUTION_OPEN_DATE = "Sakai.assignment.openDate";
 	public static final String SAKAI_LTI_SUBSTITUTION_DUE_DATE = "Sakai.assignment.dueDate";
-	public static final String SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL = "Sakai.assignment.acceptUntil";
+	public static final String SAKAI_LTI_SUBSTITUTION_CLOSE_DATE = "Sakai.assignment.closeDate";
+	public static final String SAKAI_LTI_SUBSTITUTION_RESUBMISSION_ACCEPT_UNTIL = "Sakai.assignment.resubmissionAcceptUntil";
+	public static final String SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME = "Sakai.assignment.availableStartDateTime";
 
 	// Default Outbound Role Mapping - Sakai role to a comma-separated list of LTI Roles
 	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
@@ -1197,9 +1200,12 @@ public class SakaiLTIUtil {
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME,
-				SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME,
-				SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL,
+				SAKAI_LTI_SUBSTITUTION_VISIBLE_DATE,
+				SAKAI_LTI_SUBSTITUTION_OPEN_DATE,
 				SAKAI_LTI_SUBSTITUTION_DUE_DATE,
+				SAKAI_LTI_SUBSTITUTION_CLOSE_DATE,
+				SAKAI_LTI_SUBSTITUTION_RESUBMISSION_ACCEPT_UNTIL,
+				SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME,
 				LTICustomVars.COURSEGROUP_ID
 			};
 
