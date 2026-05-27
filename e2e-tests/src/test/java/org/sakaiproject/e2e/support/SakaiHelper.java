@@ -109,10 +109,11 @@ public class SakaiHelper {
     }
 
     public void selectDate(String selector, String value) {
-        Locator input = page.locator(selector).first();
-        assertThat(input).isVisible();
-        input.click(new Locator.ClickOptions().setForce(true));
+        Locator host = page.locator(selector).first();
+        assertThat(host).isVisible();
+        host.click(new Locator.ClickOptions().setForce(true));
 
+        Locator input = resolveDateInput(host);
         String type = input.getAttribute("type");
         if ("datetime-local".equals(type)) {
             input.fill(toDateTimeLocal(value));
@@ -123,6 +124,16 @@ public class SakaiHelper {
         input.dispatchEvent("input");
         input.dispatchEvent("change");
         input.dispatchEvent("blur");
+    }
+
+    private Locator resolveDateInput(Locator host) {
+        String tagName = (String) host.evaluate("el => el.tagName.toLowerCase()");
+        if ("sakai-date-picker".equals(tagName)) {
+            Locator shadowInput = host.locator("input[type=\"datetime-local\"]").first();
+            assertThat(shadowInput).isVisible();
+            return shadowInput;
+        }
+        return host;
     }
 
     public String createCourse(String username, List<String> toolIds) {

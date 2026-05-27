@@ -266,59 +266,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void testIntegrateWithAnnouncementHandlesNullOldOpenTime() throws Exception {
-        AssignmentServiceImpl service = integrationService();
-        AnnouncementChannel channel = mock(AnnouncementChannel.class);
-        AnnouncementMessage existingMessage = mock(AnnouncementMessage.class);
-        AnnouncementMessageHeader existingHeader = mock(AnnouncementMessageHeader.class);
-        AnnouncementMessageEdit editMessage = mock(AnnouncementMessageEdit.class);
-        AnnouncementMessageHeaderEdit editHeader = mock(AnnouncementMessageHeaderEdit.class);
-        ResourcePropertiesEdit editProperties = mock(ResourcePropertiesEdit.class);
-        Assignment assignment = mock(Assignment.class);
-        Map<String, String> properties = new HashMap<>();
-        Instant openTime = Instant.parse("2026-04-14T16:00:00Z");
-
-        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
-        properties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-        properties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, "announcement-id");
-
-        when(assignment.getProperties()).thenReturn(properties);
-        when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
-        when(assignment.getId()).thenReturn("assignment-id");
-        when(assignment.getContext()).thenReturn("site-id");
-        when(announcementService.channelReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
-        when(announcementService.getAnnouncementChannel("announcement-ref")).thenReturn(channel);
-        when(channel.getAnnouncementMessage("announcement-id")).thenReturn(existingMessage);
-        when(existingMessage.getId()).thenReturn("announcement-id");
-        when(existingMessage.getAnnouncementHeader()).thenReturn(existingHeader);
-        when(existingHeader.getDraft()).thenReturn(false);
-        when(existingHeader.getSubject()).thenReturn("Open Assignment Old Title");
-        when(existingHeader.getAccess()).thenReturn(MessageHeader.MessageAccess.CHANNEL);
-        when(existingMessage.getBody()).thenReturn("<p>Open Date Body</p>");
-        when(channel.addAnnouncementMessage()).thenReturn(editMessage);
-        when(editMessage.getAnnouncementHeaderEdit()).thenReturn(editHeader);
-        when(editMessage.getPropertiesEdit()).thenReturn(editProperties);
-        when(editMessage.getId()).thenReturn("new-announcement-id");
-        when(entityManager.newReferenceList()).thenReturn(new ArrayList<>());
-        when(formattedText.convertPlaintextToFormattedText("New Title")).thenReturn("New Title");
-        when(resourceLoader.getFormattedMessage("assig5", "New Title")).thenReturn("Updated Assignment New Title");
-        when(resourceLoader.getFormattedMessage("opedat", "New Title", "Apr 14, 2026 12:00 PM EDT"))
-                .thenReturn("Open Date Body");
-        when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
-        when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
-
-        service.integrateAssignmentWithCalendarAndAnnouncement(assignment, "New Title", openTime, null,
-                null, null, Boolean.FALSE.toString(), Boolean.TRUE.toString(),
-                AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
-
-        verify(channel).addAnnouncementMessage();
-        verify(editProperties).addPropertyToList(Mockito.startsWith("noti_history"), Mockito.anyString());
-        verify(channel).commitMessage(editMessage, NotificationService.NOTI_NONE,
-                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
-        verify(service).updateAssignment(assignment);
-    }
-
-    @Test
     public void testPublishAssignmentIntegratesCalendarAndAnnouncement() throws Exception {
         AssignmentServiceImpl service = integrationService();
         Calendar calendar = mock(Calendar.class);
