@@ -145,7 +145,6 @@
                 <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
                 <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
                 <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
-                <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
             </bean>
         </property>
@@ -170,6 +169,8 @@
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+                <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+                <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
             </bean>
         </property>
          <property name="transactionAttributes">

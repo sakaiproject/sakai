@@ -66,7 +66,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private SessionManager sessionManager;
 	private IdManager idManager;
 	private MessageForumsTypeManager typeManager;
-	private AreaManager areaManager;
 	private PlatformTransactionManager transactionManager;
 	private TransactionTemplate transactionTemplate;
 	
@@ -597,10 +596,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
-	}
-
-	public void setAreaManager(AreaManager areaManager) {
-		this.areaManager = areaManager;
 	}
 
     public List getAllMembershipItemsForForumsForSite(final Long areaId) {

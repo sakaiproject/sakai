@@ -1586,12 +1586,27 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			if (topicId == null) {
 				throw new IllegalArgumentException("Null Argument");
-			}      
+			}
 
 			HibernateCallback<Topic> hcb = session -> {
                 Query q = session.getNamedQuery("findTopicByIdWithMemberships");
                 q.setParameter("id", topicId, LongType.INSTANCE);
                 return (Topic) q.uniqueResult();
+            };
+
+			return getHibernateTemplate().execute(hcb);
+		}
+
+		public BaseForum getForumByIdWithMemberships(final Long forumId) {
+
+			if (forumId == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}
+
+			HibernateCallback<BaseForum> hcb = session -> {
+                Query q = session.getNamedQuery("findForumByIdWithMemberships");
+                q.setParameter("id", forumId, LongType.INSTANCE);
+                return (BaseForum) q.uniqueResult();
             };
 
 			return getHibernateTemplate().execute(hcb);

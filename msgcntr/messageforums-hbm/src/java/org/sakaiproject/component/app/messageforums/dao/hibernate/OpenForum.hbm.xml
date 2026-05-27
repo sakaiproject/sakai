@@ -176,7 +176,15 @@
              where f.id = :id
     ]]>
   </query>
-  
+
+  <query name="findForumByIdWithMemberships">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
+             left join fetch f.area
+             left join fetch f.membershipItemSet
+             where f.id = :id
+    ]]>
+  </query>
+
   <query name="findForumByIdWithTopicsAndAttachmentsAndMessages">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
              left join fetch f.topicsSet as topic
