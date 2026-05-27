@@ -211,7 +211,7 @@ $(document).ready(function() {
     studentNumberHeader: TrimPath.parseTemplate(
         $("#studentNumberHeaderTemplate").html().trim().toString()),
     studentNumberCell: new TrimPathFragmentCache('studentNumberCell', TrimPath.parseTemplate(
-        $("#studentNumberCellTemplate").html().trim(),toString())),
+        $("#studentNumberCellTemplate").html().trim().toString())),
     sectionsHeader: TrimPath.parseTemplate(
         $("#sectionsHeaderTemplate").html().trim().toString()),
     sectionsCell: new TrimPathFragmentCache('sectionsCell', TrimPath.parseTemplate(
