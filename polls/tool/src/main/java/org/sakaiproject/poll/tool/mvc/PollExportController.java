@@ -3,7 +3,8 @@ package org.sakaiproject.poll.tool.mvc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
@@ -28,11 +29,11 @@ import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -53,29 +54,33 @@ public class PollExportController {
     private final ToolManager toolManager;
     private final SecurityService securityService;
     private final SiteService siteService;
+    private final TimeService timeService;
     private final SessionManager sessionManager;
 
     @GetMapping("/polls/export/xlsx/{pollId}")
-    public ResponseEntity<?> exportXlsx(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
+    public Object exportXlsx(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
 
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         Optional<Poll> pollOpt = pollsService.getPollById(pollId);
 
         if (pollOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
 
         Poll poll = pollOpt.get();
 
         if (!poll.getSiteId().equals(currentSiteId) || !canEditPoll(poll)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
 
         List<Option> options = poll.getOptions();
         List<Vote> allVotes = pollsService.getAllVotesForPoll(poll.getId());
         long totalVotes = allVotes.size();
+        int distinctVoters = pollsService.getDistinctVotersForPoll(poll);
+        long percentageDenominator = getPercentageDenominator(poll, totalVotes, distinctVoters);
+        ZonedDateTime now = nowInSakaiZone();
 
         try (Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
@@ -106,7 +111,7 @@ public class PollExportController {
             );
             title2.getCell(0).setCellStyle(titleStyle);
 
-            String formattedDate = LocalDateTime.now().format(
+            String formattedDate = now.format(
                     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
             );
 
@@ -135,7 +140,7 @@ public class PollExportController {
                         .filter(v -> v.getOption().getId().equals(opt.getId()))
                         .count();
 
-                double percentValue = totalVotes == 0 ? 0.0 : ((double) votes / totalVotes);
+                double percentValue = percentageDenominator == 0 ? 0.0 : ((double) votes / percentageDenominator);
 
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(opt.getText());
@@ -154,7 +159,7 @@ public class PollExportController {
 
             wb.write(bos);
 
-            String filename = buildExportFilename(poll.getText(), "xlsx");
+            String filename = buildExportFilename(poll.getText(), "xlsx", now);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -163,34 +168,37 @@ public class PollExportController {
 
         } catch (IOException | RuntimeException e) {
             log.error("Error generating XLSX for poll {}", pollId, e);
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
     }
 
     @GetMapping("/polls/export/csv/{pollId}")
-    public ResponseEntity<?> exportCsv(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
+    public Object exportCsv(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
 
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         Optional<Poll> pollOpt = pollsService.getPollById(pollId);
 
         if (pollOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
 
         Poll poll = pollOpt.get();
 
         if (!poll.getSiteId().equals(currentSiteId) || !canEditPoll(poll)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
 
         List<Option> options = poll.getOptions();
         List<Vote> allVotes = pollsService.getAllVotesForPoll(poll.getId());
         long totalVotes = allVotes.size();
+        int distinctVoters = pollsService.getDistinctVotersForPoll(poll);
+        long percentageDenominator = getPercentageDenominator(poll, totalVotes, distinctVoters);
+        ZonedDateTime now = nowInSakaiZone();
 
         try {
-            String formattedDate = LocalDateTime.now().format(
+            String formattedDate = now.format(
                     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
             );
 
@@ -215,7 +223,7 @@ public class PollExportController {
                         .filter(v -> v.getOption().getId().equals(opt.getId()))
                         .count();
 
-                double percentValue = totalVotes == 0 ? 0.0 : ((double) votes / totalVotes) * 100;
+                double percentValue = percentageDenominator == 0 ? 0.0 : ((double) votes / percentageDenominator) * 100;
                 String percentLabel = String.format(locale, "%.2f%%", percentValue);
 
                 csv.append(escapeCsv(opt.getText())).append(',')
@@ -224,8 +232,8 @@ public class PollExportController {
                         .append("\r\n");
             }
 
-            String filename = buildExportFilename(poll.getText(), "csv");
-                String csvContent = "\uFEFF" + csv;
+            String filename = buildExportFilename(poll.getText(), "csv", now);
+            String csvContent = "\uFEFF" + csv;
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -234,18 +242,30 @@ public class PollExportController {
 
         } catch (RuntimeException e) {
             log.error("Error generating CSV for poll {}", pollId, e);
-            return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/votePolls").build();
+            return "redirect:/votePolls";
         }
     }
 
-    private String buildExportFilename(String pollText, String extension) {
+    private String buildExportFilename(String pollText, String extension, ZonedDateTime now) {
         String safePollText = pollText.replaceAll("[^a-zA-Z0-9-_]", "_");
         if (safePollText.length() > 30) {
             safePollText = safePollText.substring(0, 30);
         }
 
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
+        String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
         return "Poll_" + safePollText + "_" + timestamp + "." + extension;
+    }
+
+    private ZonedDateTime nowInSakaiZone() {
+        ZoneId sakaiZone = timeService.getLocalTimeZone().toZoneId();
+        return ZonedDateTime.now(sakaiZone);
+    }
+
+    private long getPercentageDenominator(Poll poll, long totalVotes, int distinctVoters) {
+        if (poll.getMaxOptions() == 1) {
+            return totalVotes;
+        }
+        return distinctVoters;
     }
 
     private String escapeCsv(String value) {
