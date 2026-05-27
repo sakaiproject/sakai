@@ -11603,6 +11603,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String openDateNotification = StringUtils.defaultIfBlank(properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION),
                 AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
 
+        // Bulk publish has no edit-form "old" values; first publish intentionally treats current values as both old and new.
         integrateAssignmentWithCalendarAndAnnouncement(state, assignment, title, openTime, dueTime, title, openTime, dueTime,
                 Boolean.toString(BooleanUtils.toBoolean(checkAddDueTime)),
                 Boolean.toString(BooleanUtils.toBoolean(checkAutoAnnounce)),
@@ -11614,6 +11615,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private void postFirstPublishEvents(Assignment assignment, Instant openTime) {
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
+        // Match the edit-form first-publish event behavior for drafts released through bulk publish.
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
 
         if (openTime.isBefore(Instant.now())) {
