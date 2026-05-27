@@ -2033,11 +2033,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("height",SakaiLTIUtil.getFrameHeight(tool, content, "1200px"));
                 context.put("browser-feature-allow", serverConfigurationService.getBrowserFeatureAllowString());
 
+                // Copy title, description, and dates from Assignment to content if mis-match
                 int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
-
-                // Normally Sakai does not show, populate nor use visibleDate
                 Instant visibleDate = assignment.getVisibleDate();
                 String assignmentVisibleDate = StringUtils.trimToEmpty(visibleDate == null ? null : visibleDate.toString());
                 Instant openDate = assignment.getOpenDate();
@@ -2046,50 +2045,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 String assignmentDueDate = StringUtils.trimToEmpty(dueDate == null ? null : dueDate.toString());
                 Instant closeDate = assignment.getCloseDate();
                 String assignmentCloseDate = StringUtils.trimToEmpty(closeDate == null ? null : closeDate.toString());
-                String assignmentResubmissionAcceptUntil = null;
-                String allowResubmitCloseTime = assignment.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                if (StringUtils.isNotBlank(allowResubmitCloseTime)) {
-                    try {
-                        assignmentResubmissionAcceptUntil = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime)).toString();
-                    } catch (NumberFormatException e) {
-                        log.warn("Invalid resubmission close time for assignment {}: {}", assignment.getId(), allowResubmitCloseTime);
-                    }
-                }
 
-                JSONObject content_json = new JSONObject();
-                // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
-                content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
-                content_json.put(LTIService.LTI_PROTECT, new Integer(1));
-
-                // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
-                // Normally Sakai does not show, populate nor use visibleDate so we fall back to open date
-                content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
-                content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentDueDate);
-                if ( ! StringUtils.isBlank(assignmentVisibleDate) ) {
-                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
-                } else {
-                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentOpenDate);
-                }
-                content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentCloseDate);
-
-
-                // There is no real place for due date in the variables most tools treat close date as due date
-                content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_DUE_DATE, assignmentDueDate);
-                content_json.put(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_ACCEPT_UNTIL, assignmentResubmissionAcceptUntil);
-
-                content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
-                String content_settings = content_json.toString();
-
-                String old_content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-
-                // Copy title, description, and dates from Assignment to content if mis-match
                 String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
                 String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
 
                 String placement_secret = StringUtils.trimToNull((String) content.get(LTIService.LTI_PLACEMENTSECRET));
 
+                String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+                JSONObject content_json = LTIUtil.parseJSONObject(content_settings);
+                String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
+                String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
+                String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
+                String contentCloseDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME));
                 if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
-                        ! content_settings.equals(old_content_settings) ||
+                        ! contentVisibleDate.equals(assignmentVisibleDate) || ! contentOpenDate.equals(assignmentOpenDate) ||
+                        ! contentDueDate.equals(assignmentDueDate) || ! contentCloseDate.equals(assignmentCloseDate) ||
                         placement_secret == null ) {
                     Map<String, Object> updates = new TreeMap<String, Object>();
                     updates.put(LTIService.LTI_TITLE, assignmentTitle);
@@ -2102,11 +2072,21 @@ public class AssignmentAction extends PagedResourceActionII {
                         content.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
                     }
 
-                    updates.put(LTIService.LTI_SETTINGS, content_settings);
+                    // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
+                    content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
+                    content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+
+                    // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
+                    content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
+                    content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
+                    updates.put(LTIService.LTI_SETTINGS, content_json.toString());
 
                     // This uses the Dao access since 99% of the time we are launching as a student
                     // after the instructor updates the assignment, and the student is
-                    // the first to launch after the change.:
+                    // the first to launch after the change.
                     ltiService.updateContentDao(contentKey, updates);
                     log.debug("Content Item id={} updated.", contentKey);
                 }
