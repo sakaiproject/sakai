@@ -1705,7 +1705,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// TODO: this is almost right (see chef_announcements-revise.vm)... ideally, we would let the check groups that they can add to,
 				// and uncheck groups they can remove from... only matters if the user does not have both add and remove -ggolden
 				final boolean own = edit == null ? true : edit.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId());
-				Collection groups = channel.getGroupsAllowRemoveMessage(own);
+				Collection<Group> groups = channel.getGroupsAllowRemoveMessage(own);
 				context.put("allowedRemoveGroups", groups);
 				
 				// group list which user can add message to
@@ -1714,11 +1714,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				// add to these any groups that the message already has
 				if (edit != null)
 				{
-					final Collection otherGroups = edit.getHeader().getGroupObjects();
-					for (Iterator i = otherGroups.iterator(); i.hasNext();)
+					final Collection<Group> otherGroups = edit.getHeader().getGroupObjects();
+					for (Group g : otherGroups)
 					{
-						Group g = (Group) i.next();
-						
 						if (!groups.contains(g))
 						{
 							groups.add(g);
@@ -1728,11 +1726,9 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (groups.size() > 0)
 				{
-					Collection sortedGroups = new Vector();
-					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true, getLocale())); i.hasNext();)
-					{
-						sortedGroups.add(i.next());
-					}
+					Locale locale = getLocale();
+					List<Group> sortedGroups = new ArrayList<>(groups);
+					sortedGroups.sort(new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true, locale));
 					context.put("groups", sortedGroups);
 				}
 			}
