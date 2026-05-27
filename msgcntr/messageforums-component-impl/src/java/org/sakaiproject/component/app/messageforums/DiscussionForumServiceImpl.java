@@ -1397,7 +1397,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 	
 	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
-		DBMembershipItem newItem = permissionManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(), 
+	DBMembershipItem newItem = permissionManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(),
 				itemToCopy.getType());
 		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
 		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {

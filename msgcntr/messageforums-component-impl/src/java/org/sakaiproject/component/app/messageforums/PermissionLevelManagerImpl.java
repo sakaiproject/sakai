@@ -62,11 +62,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
-	private EventTrackingService eventTrackingService;
 	private SessionManager sessionManager;
 	private IdManager idManager;
 	private MessageForumsTypeManager typeManager;
-	private AreaManager areaManager;
 	private PlatformTransactionManager transactionManager;
 	private TransactionTemplate transactionTemplate;
 	
@@ -583,10 +581,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		return (user == null) ? "test-user" : user;    
   }
 	
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
-
 	public void setTypeManager(MessageForumsTypeManager typeManager) {
 		this.typeManager = typeManager;
 	}
@@ -597,10 +591,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
-	}
-
-	public void setAreaManager(AreaManager areaManager) {
-		this.areaManager = areaManager;
 	}
 
     public List getAllMembershipItemsForForumsForSite(final Long areaId) {

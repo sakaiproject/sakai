@@ -41,14 +41,20 @@ public class PermissionBean {
   
   private String selectedLevel;
   private DBMembershipItem item;
-  private PermissionLevelManager permissionLevelManager; 
+  private PermissionLevelManager permissionLevelManager;
+  private PermissionLevel displayLevel;
 
   public PermissionBean(DBMembershipItem item,
       PermissionLevelManager permissionLevelManager)
   {
     this.permissionLevelManager = permissionLevelManager;
     this.item = item;
-    selectedLevel= item.getPermissionLevel().getName();
+    this.selectedLevel = item.getPermissionLevelName();
+    PermissionLevel level = item.getPermissionLevel();
+    this.displayLevel = (level != null) ? level : permissionLevelManager.getPermissionLevelByName(selectedLevel);
+    if (this.displayLevel == null) {
+      setPermissionsForLevel(selectedLevel);
+    }
   }
 
   /**
@@ -72,58 +78,59 @@ public class PermissionBean {
   private void setPermissionsForLevel(String selectedLevel)
   {
     if (selectedLevel != null)
-    {      
-     if (!"Custom".equals(selectedLevel))
-     {
-       PermissionLevel permLevel= permissionLevelManager.getPermissionLevelByName(selectedLevel);
-       this.item.setPermissionLevel(permLevel);
-     }
-     else
-     {
-    	 MessageForumsTypeManager typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
-    	 if(!this.item.getPermissionLevel().getTypeUuid().equals(typeManager.getCustomLevelType()))
-    	 {
-    		 PermissionLevel permLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new PermissionsMask());
-    		 this.item.setPermissionLevel(permLevel);
-    	 }
-     }
+    {
+      if (!"Custom".equals(selectedLevel))
+      {
+        PermissionLevel level = permissionLevelManager.getPermissionLevelByName(selectedLevel);
+        if (level != null) {
+          this.displayLevel = level;
+        }
+      }
+      else
+      {
+        MessageForumsTypeManager typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
+        if (this.displayLevel == null || !typeManager.getCustomLevelType().equals(this.displayLevel.getTypeUuid()))
+        {
+          this.displayLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new PermissionsMask());
+        }
+      }
     }
   }
 
   public boolean getChangeSettings()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getChangeSettings() != null)
-      return item.getPermissionLevel().getChangeSettings().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getChangeSettings() != null)
+      return displayLevel.getChangeSettings().booleanValue();
     else
       return false;
   }
 
   public void setChangeSettings(boolean changeSettings)
   {
-    this.item.getPermissionLevel().setChangeSettings(
+    this.displayLevel.setChangeSettings(
         Boolean.valueOf(changeSettings));
   }
 
   public boolean getDeleteAny()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getDeleteAny() != null)
-      return item.getPermissionLevel().getDeleteAny().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getDeleteAny() != null)
+      return displayLevel.getDeleteAny().booleanValue();
     else
       return false;
   }
 
   public void setDeleteAny(boolean deleteAny)
   {
-    this.item.getPermissionLevel().setDeleteAny(Boolean.valueOf(deleteAny));
+    this.displayLevel.setDeleteAny(Boolean.valueOf(deleteAny));
   }
 
   public boolean getDeleteOwn()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getDeleteOwn() != null)
-      return item.getPermissionLevel().getDeleteOwn().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getDeleteOwn() != null)
+      return displayLevel.getDeleteOwn().booleanValue();
 
     else
       return false;
@@ -131,176 +138,176 @@ public class PermissionBean {
 
   public void setDeleteOwn(boolean deleteOwn)
   {
-    this.item.getPermissionLevel().setDeleteOwn(Boolean.valueOf(deleteOwn));
+    this.displayLevel.setDeleteOwn(Boolean.valueOf(deleteOwn));
   }
 
   public boolean getMarkAsRead()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getMarkAsRead() != null)
-      return item.getPermissionLevel().getMarkAsRead().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getMarkAsRead() != null)
+      return displayLevel.getMarkAsRead().booleanValue();
     else
       return false;
   }
 
   public void setMarkAsRead(boolean markAsRead)
   {
-    this.item.getPermissionLevel().setMarkAsRead(Boolean.valueOf(markAsRead));
+    this.displayLevel.setMarkAsRead(Boolean.valueOf(markAsRead));
   }
 
   public boolean getModeratePostings()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getModeratePostings() != null)
-      return item.getPermissionLevel().getModeratePostings().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getModeratePostings() != null)
+      return displayLevel.getModeratePostings().booleanValue();
     else
       return false;
   }
 
   public void setModeratePostings(boolean moderatePostings)
   {
-    this.item.getPermissionLevel().setModeratePostings(
+    this.displayLevel.setModeratePostings(
         Boolean.valueOf(moderatePostings));
   }
 
   public boolean getIdentifyAnonAuthors()
   {
-    return item != null && item.getPermissionLevel() != null 
-        && item.getPermissionLevel().getIdentifyAnonAuthors() != null 
-        && item.getPermissionLevel().getIdentifyAnonAuthors();
+    return item != null && displayLevel != null 
+        && displayLevel.getIdentifyAnonAuthors() != null 
+        && displayLevel.getIdentifyAnonAuthors();
   }
 
   public void setIdentifyAnonAuthors(boolean identifyAnonAuthors)
   {
-    this.item.getPermissionLevel().setIdentifyAnonAuthors(
+    this.displayLevel.setIdentifyAnonAuthors(
         Boolean.valueOf(identifyAnonAuthors));
   }
 
   public boolean getMovePosting()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getMovePosting() != null)
-      return item.getPermissionLevel().getMovePosting().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getMovePosting() != null)
+      return displayLevel.getMovePosting().booleanValue();
     else
       return false;
   }
 
   public void setMovePosting(boolean movePosting)
   {
-    this.item.getPermissionLevel().setMovePosting(Boolean.valueOf(movePosting));
+    this.displayLevel.setMovePosting(Boolean.valueOf(movePosting));
   }
 
   public boolean getNewForum()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getNewForum() != null)
-      return item.getPermissionLevel().getNewForum().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getNewForum() != null)
+      return displayLevel.getNewForum().booleanValue();
     else
       return false;
   }
 
   public void setNewForum(boolean newForum)
   {
-    this.item.getPermissionLevel().setNewForum(Boolean.valueOf(newForum));
+    this.displayLevel.setNewForum(Boolean.valueOf(newForum));
   }
 
   public boolean getNewResponse()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getNewResponse() != null)
-      return item.getPermissionLevel().getNewResponse().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getNewResponse() != null)
+      return displayLevel.getNewResponse().booleanValue();
     else
       return false;
   }
 
   public void setNewResponse(boolean newResponse)
   {
-    this.item.getPermissionLevel().setNewResponse(Boolean.valueOf(newResponse));
+    this.displayLevel.setNewResponse(Boolean.valueOf(newResponse));
   }
 
   public boolean getNewTopic()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getNewTopic() != null)
-      return item.getPermissionLevel().getNewTopic().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getNewTopic() != null)
+      return displayLevel.getNewTopic().booleanValue();
     else
       return false;
   }
 
   public void setNewTopic(boolean newTopic)
   {
-    this.item.getPermissionLevel().setNewTopic(Boolean.valueOf(newTopic));
+    this.displayLevel.setNewTopic(Boolean.valueOf(newTopic));
   }
 
   public boolean getPostToGradebook()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getPostToGradebook() != null)
-      return item.getPermissionLevel().getPostToGradebook() .booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getPostToGradebook() != null)
+      return displayLevel.getPostToGradebook() .booleanValue();
     else
       return false;
   }
 
   public void setPostToGradebook(boolean postGrades)
   {
-    this.item.getPermissionLevel().setPostToGradebook(Boolean.valueOf(postGrades));
+    this.displayLevel.setPostToGradebook(Boolean.valueOf(postGrades));
   }
 
   public boolean getRead()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getRead() != null)
-      return item.getPermissionLevel().getRead().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getRead() != null)
+      return displayLevel.getRead().booleanValue();
     else
       return false;
   }
 
   public void setRead(boolean read)
   {
-    this.item.getPermissionLevel().setRead(Boolean.valueOf(read));
+    this.displayLevel.setRead(Boolean.valueOf(read));
   }
 
   public boolean getResponseToResponse()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getNewResponseToResponse() != null)
-      return item.getPermissionLevel().getNewResponseToResponse().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getNewResponseToResponse() != null)
+      return displayLevel.getNewResponseToResponse().booleanValue();
     else
       return false;
   }
 
   public void setResponseToResponse(boolean responseToResponse)
   {
-    this.item.getPermissionLevel().setNewResponseToResponse(
+    this.displayLevel.setNewResponseToResponse(
         Boolean.valueOf(responseToResponse));
   }
 
   public boolean getReviseAny()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getReviseAny() != null)
-      return item.getPermissionLevel().getReviseAny().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getReviseAny() != null)
+      return displayLevel.getReviseAny().booleanValue();
     else
       return false;
   }
 
   public void setReviseAny(boolean reviseAny)
   {
-    this.item.getPermissionLevel().setReviseAny(Boolean.valueOf(reviseAny));
+    this.displayLevel.setReviseAny(Boolean.valueOf(reviseAny));
   }
 
   public boolean getReviseOwn()
   {
-    if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getReviseOwn() != null)
-      return item.getPermissionLevel().getReviseOwn().booleanValue();
+    if (item != null && displayLevel != null
+        && displayLevel.getReviseOwn() != null)
+      return displayLevel.getReviseOwn().booleanValue();
     else
       return false;
   }
 
   public void setReviseOwn(boolean reviseOwn)
   {
-    this.item.getPermissionLevel().setReviseOwn(Boolean.valueOf(reviseOwn));
+    this.displayLevel.setReviseOwn(Boolean.valueOf(reviseOwn));
   }
 
   /**

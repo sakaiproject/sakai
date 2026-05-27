@@ -352,6 +352,8 @@
   
   <query name="findTopicByIdWithMemberships">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.openForum forum
+             left join fetch forum.area
              left join fetch topic.membershipItemSet
              where topic.id = :id
     ]]>
