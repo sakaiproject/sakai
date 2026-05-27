@@ -221,37 +221,37 @@ public class SiteListBean {
 						if(fieldName.equals(SORT_SITE_NAME)){
 							String s1 = r1.getSiteTitle();
 							String s2 = r2.getSiteTitle();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_TYPE)){
 							String s1 = r1.getSiteType();
 							String s2 = r2.getSiteType();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_RID)){
 							String s1 = r1.getRoleName();
 							String s2 = r2.getRoleName();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_PV)){
 							String s1 = r1.getPubView();
 							String s2 = r2.getPubView();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_STATUS)){
 							String s1 = r1.getUserStatus();
 							String s2 = r2.getUserStatus();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_TERM)){
 							String s1 = r1.getSiteTerm();
 							String s2 = r2.getSiteTerm();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}
