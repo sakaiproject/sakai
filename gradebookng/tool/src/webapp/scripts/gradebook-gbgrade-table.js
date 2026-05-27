@@ -895,14 +895,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
-  // Prevent clicks on interactive cell elements from triggering the cell editor
-  const editBlockSelectors = [".dropdown-toggle", ".gb-comment-notification", ".gb-notification", ".gb-view-grade-summary"];
-  GbGradeTable.domElement[0].addEventListener("click", e => {
-    if (e.target.closest(editBlockSelectors.map(s => `.tabulator-cell ${s}`).join(", "))) {
-      e.stopPropagation();
-    }
-  }, true);
-
   GbGradeTable.instance.on("headerClick", (e, column) => {
     if (e.target.classList.contains('gb-title')) {
       const table = column.getTable();
@@ -947,11 +939,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
       GbGradeTable.setScore(studentId, assignmentId, oldScore, newScore)
         .then(() => {
-          cell.getRow().reformat();
+          GbGradeTable.reformatPreservingEditor(cell.getRow());
         })
         .catch(error => {
           console.error("Error updating score:", error);
-          cell.getRow().reformat();
+          GbGradeTable.reformatPreservingEditor(cell.getRow());
         });
     }
   });
@@ -1820,6 +1812,15 @@ GbGradeTable.redrawCells = function(cells) {
 
     rowComponent && rowComponent.reformat();
   });
+};
+
+GbGradeTable.reformatPreservingEditor = function(row) {
+  const editingEl = document.querySelector(".tabulator-cell.tabulator-editing");
+  row.reformat();
+  if (editingEl && !editingEl.querySelector("input")) {
+    const editRow = GbGradeTable.instance.getRows()[+editingEl.dataset.rowIndex];
+    editRow?.getCells()?.[+editingEl.dataset.colIndex]?.edit(true);
+  }
 };
 
 GbGradeTable.formatCategoryAverage = function(value) {
