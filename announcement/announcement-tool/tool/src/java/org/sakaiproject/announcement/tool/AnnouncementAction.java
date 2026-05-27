@@ -4082,24 +4082,29 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						try
 						{
-							AnnouncementMessageEdit msg = (AnnouncementMessageEdit) channel.getAnnouncementMessage(messageId);
-							AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
-							header2.setMessage_order(messageOrder--);
-							channel.commitMessage_order(msg);
+							AnnouncementMessageEdit messageEdit = channel.editAnnouncementMessage(messageId);
+							AnnouncementMessageHeaderEdit headerEdit = messageEdit.getAnnouncementHeaderEdit();
+							headerEdit.setMessage_order(messageOrder--);
+							channel.commitMessage_order(messageEdit);
 						}
 						catch (IdUnusedException e)
 						{
-							if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
+							log.debug("Unable to reorder announcement message {} because it no longer exists", messageId, e);
 							// addAlert(sstate, e.toString());
 						}
 						catch (PermissionException e)
 						{
-							if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
-							addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageId));
+							log.debug("Permission denied while reordering announcement message {}", messageId, e);
+							addAlert(sstate, rb.getFormattedMessage("java.alert.youreorder.ref", messageId));
+						}
+						catch (InUseException e)
+						{
+							log.debug("Unable to reorder announcement message {} because it is being edited", messageId, e);
+							addAlert(sstate, rb.getString("java.alert.thisitem"));
 						}
 					}
-				} catch (PermissionException | IdUnusedException e1) {
-					log.error(e1.getMessage());
+				} catch (PermissionException | IdUnusedException e) {
+					log.error("Unable to load announcement channel {} while reordering announcements", state.getChannelId(), e);
 				}
 			}
 		}
