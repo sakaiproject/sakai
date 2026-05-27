@@ -2001,7 +2001,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		private List<AnnouncementMessage> findStoredMessages(Filter filter, boolean ascending)
 		{
-			return ((List<AnnouncementMessage>) findSortedMessages(ascending)).stream()
+			return findSortedMessages(ascending).stream()
+				.map(AnnouncementMessage.class::cast)
 				.filter(m -> filter == null || filter.accept(m))
 				.collect(Collectors.toList());
 		}
