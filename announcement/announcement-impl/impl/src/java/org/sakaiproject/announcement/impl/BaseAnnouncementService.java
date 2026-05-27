@@ -1468,7 +1468,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
 		return messageList.stream()
-			.filter(m -> (instructorView && canManageAllAnnouncements(m.getReference())) || roleFilter.accept(m))
+			.filter(m -> (instructorView && canManageAllAnnouncements(m.getOriginChannel())) || roleFilter.accept(m))
 			.collect(Collectors.toList());
 	}
 

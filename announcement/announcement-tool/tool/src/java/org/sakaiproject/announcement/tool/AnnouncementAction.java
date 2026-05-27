@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1460,7 +1459,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private boolean canManageAnnouncement(AnnouncementMessage msg)
 	{
-		return m_securityService.unlock(AnnouncementService.SECURE_ANNC_UPDATE_ANY, msg.getReference());
+		return m_securityService.unlock(AnnouncementService.SECURE_ANNC_UPDATE_ANY, getChannelIdFromReference(msg.getReference()));
 	}
 	
 	/**
@@ -4051,36 +4050,42 @@ public class AnnouncementAction extends PagedResourceActionII
 					// Reorder is part of the full Announcements management surface, so it must
 					// operate on the same unfiltered local-channel message set the instructor can manage.
 					AnnouncementChannelEdit channel = (AnnouncementChannelEdit) announcementService.getChannel(state.getChannelId());
-					List<AnnouncementMessage> allMessages = channel.getMessagesForInstructors(null, true);
-					int msgCount = allMessages.size(); //used to find msg order number
-					//store the updated message ids so we know which ones didn't get updated
-					List<String> updatedMessageIds = new ArrayList<String>();
-					Vector v2 = new Vector();
-
-					//find starting message index (0 - x) based on number of messages displayed per page
-					int j= allMessages.size();
-					if ((sstate.getAttribute(STATE_TOP_PAGE_MESSAGE) != null) && (sstate.getAttribute(STATE_PAGESIZE) != null))
+					List<AnnouncementMessage> allMessages = channel.getMessagesForInstructors(null, false);
+					List<String> finalMessageIds = new ArrayList<String>();
+					for (AnnouncementMessage message : allMessages)
 					{
-						j = ((Integer) sstate.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue();
+						finalMessageIds.add(message.getId());
 					}
 
-					for (int i = 0; i < messageReferences2.length; i++, j++)
+					List<String> reorderedMessageIds = new ArrayList<String>();
+					for (String messageReference : messageReferences2)
 					{
-						// get the updated/reordered message object through service
+						String messageId = getMessageIDFromReference(messageReference);
+						if (finalMessageIds.contains(messageId) && !reorderedMessageIds.contains(messageId))
+						{
+							reorderedMessageIds.add(messageId);
+						}
+					}
+
+					//find starting message index (0 - x) based on number of messages displayed per page
+					int insertAt = finalMessageIds.size();
+					if ((sstate.getAttribute(STATE_TOP_PAGE_MESSAGE) != null) && (sstate.getAttribute(STATE_PAGESIZE) != null))
+					{
+						insertAt = ((Integer) sstate.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue();
+					}
+					finalMessageIds.removeAll(reorderedMessageIds);
+					insertAt = Math.min(insertAt, finalMessageIds.size());
+					finalMessageIds.addAll(insertAt, reorderedMessageIds);
+
+					int messageOrder = finalMessageIds.size();
+					for (String messageId : finalMessageIds)
+					{
 						try
 						{
-							// get the channel id throught announcement service
-							AnnouncementChannel channel2 = announcementService.getAnnouncementChannel(this
-									.getChannelIdFromReference(messageReferences2[i]));
-							// get the message object through service
-							AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
-									.getMessageIDFromReference(messageReferences2[i]));
-							AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
+							AnnouncementMessageEdit msg = (AnnouncementMessageEdit) channel.getAnnouncementMessage(messageId);
 							AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
-							header2.setMessage_order(msgCount - j);
-							channel2.commitMessage_order(msg);
-							updatedMessageIds.add(msg.getId());
-							//v2.addElement(message2);
+							header2.setMessage_order(messageOrder--);
+							channel.commitMessage_order(msg);
 						}
 						catch (IdUnusedException e)
 						{
@@ -4090,32 +4095,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						catch (PermissionException e)
 						{
 							if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
-							addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences2[i]));
-						}
-					}
-					if(allMessages.size() > messageReferences2.length){
-						//need to update the message order of the remaining untouched messages (only sorts the top 10)
-
-						//order by message order:
-						Comparator<AnnouncementMessage> comparing = Comparator.comparing(o -> (o.getAnnouncementHeader().getMessage_order()));
-						SortedIterator<AnnouncementMessage> messagesSorted = new SortedIterator<>(allMessages.iterator(), comparing);
-						//start at last message and increment up
-						int messageOrder = 1;
-						while(messagesSorted.hasNext()){
-							Message message = messagesSorted.next();
-							if(!updatedMessageIds.contains(message.getId())){
-								//since this list is ordered, we can assign the message order in order:
-								AnnouncementChannel channel2 = announcementService.getAnnouncementChannel(this
-										.getChannelIdFromReference(message.getReference()));
-								// get the message object through service
-								AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
-										.getMessageIDFromReference(message.getReference()));
-								AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
-								AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
-								header2.setMessage_order(messageOrder);
-								channel2.commitMessage_order(msg);
-							}
-							messageOrder++;
+							addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageId));
 						}
 					}
 				} catch (PermissionException | IdUnusedException e1) {
