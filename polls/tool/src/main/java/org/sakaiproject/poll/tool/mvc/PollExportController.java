@@ -2,6 +2,8 @@ package org.sakaiproject.poll.tool.mvc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.opencsv.CSVWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -48,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class PollExportController {
+
+    private static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
 
     private final PollsService pollsService;
     private final MessageSource messageSource;
@@ -158,13 +163,19 @@ public class PollExportController {
             }
 
             wb.write(bos);
+            byte[] fileBytes = bos.toByteArray();
 
             String filename = buildExportFilename(poll.getText(), "xlsx", now);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
+                    .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
                     .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(bos.toByteArray());
+                    .body(fileBytes);
 
         } catch (IOException | RuntimeException e) {
             log.error("Error generating XLSX for poll {}", pollId, e);
@@ -197,26 +208,37 @@ public class PollExportController {
         long percentageDenominator = getPercentageDenominator(poll, totalVotes, distinctVoters);
         ZonedDateTime now = nowInSakaiZone();
 
-        try {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+            CSVWriter csvWriter = new CSVWriter(writer,
+                    CSVWriter.DEFAULT_SEPARATOR,
+                    CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                    CSVWriter.RFC4180_LINE_END)) {
             String formattedDate = now.format(
                     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
             );
 
-            StringBuilder csv = new StringBuilder();
-            csv.append(escapeCsv(messageSource.getMessage("poll_export_title", null, locale))).append("\r\n");
-            csv.append(escapeCsv(messageSource.getMessage("poll_export_poll_label", null, locale)))
-                    .append(',')
-                    .append(escapeCsv(poll.getText()))
-                    .append("\r\n");
-            csv.append(escapeCsv(messageSource.getMessage("poll_export_download_date", null, locale)))
-                    .append(',')
-                    .append(escapeCsv(formattedDate))
-                    .append("\r\n\r\n");
+            bos.write(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
 
-            csv.append(escapeCsv(messageSource.getMessage("poll_export_header_option", null, locale))).append(',')
-                    .append(escapeCsv(messageSource.getMessage("poll_export_header_votes", null, locale))).append(',')
-                    .append(escapeCsv(messageSource.getMessage("poll_export_header_percentage", null, locale)))
-                    .append("\r\n");
+            csvWriter.writeNext(new String[] {
+                sanitizeCsvCell(messageSource.getMessage("poll_export_title", null, locale))
+            }, false);
+            csvWriter.writeNext(new String[] {
+                sanitizeCsvCell(messageSource.getMessage("poll_export_poll_label", null, locale)),
+                sanitizeCsvCell(poll.getText())
+            }, false);
+            csvWriter.writeNext(new String[] {
+                sanitizeCsvCell(messageSource.getMessage("poll_export_download_date", null, locale)),
+                sanitizeCsvCell(formattedDate)
+            }, false);
+            csvWriter.writeNext(new String[0], false);
+
+            csvWriter.writeNext(new String[] {
+                sanitizeCsvCell(messageSource.getMessage("poll_export_header_option", null, locale)),
+                sanitizeCsvCell(messageSource.getMessage("poll_export_header_votes", null, locale)),
+                sanitizeCsvCell(messageSource.getMessage("poll_export_header_percentage", null, locale))
+            }, false);
 
             for (Option opt : options) {
                 long votes = allVotes.stream()
@@ -226,21 +248,28 @@ public class PollExportController {
                 double percentValue = percentageDenominator == 0 ? 0.0 : ((double) votes / percentageDenominator) * 100;
                 String percentLabel = String.format(locale, "%.2f%%", percentValue);
 
-                csv.append(escapeCsv(opt.getText())).append(',')
-                        .append(votes).append(',')
-                        .append(escapeCsv(percentLabel))
-                        .append("\r\n");
+                csvWriter.writeNext(new String[] {
+                    sanitizeCsvCell(opt.getText()),
+                    String.valueOf(votes),
+                    sanitizeCsvCell(percentLabel)
+                }, false);
             }
 
+            csvWriter.flush();
+            byte[] fileBytes = bos.toByteArray();
             String filename = buildExportFilename(poll.getText(), "csv", now);
-            String csvContent = "\uFEFF" + csv;
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
+                    .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
                     .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
-                    .body(csvContent.getBytes(StandardCharsets.UTF_8));
+                    .body(fileBytes);
 
-        } catch (RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             log.error("Error generating CSV for poll {}", pollId, e);
             return "redirect:/votePolls";
         }
@@ -268,18 +297,13 @@ public class PollExportController {
         return distinctVoters;
     }
 
-    private String escapeCsv(String value) {
+    private String sanitizeCsvCell(String value) {
         String text = StringUtils.defaultString(value);
         String trimmed = StringUtils.stripStart(text, null);
         if (StringUtils.startsWithAny(trimmed, "=", "+", "-", "@")) {
             text = "'" + text;
         }
-
-        String escaped = text.replace("\"", "\"\"");
-        if (StringUtils.containsAny(escaped, ',', '\r', '\n', '"')) {
-            return '\"' + escaped + '\"';
-        }
-        return escaped;
+        return text;
     }
 
     private boolean canEditPoll(Poll poll) {
