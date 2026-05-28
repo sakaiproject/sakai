@@ -32,6 +32,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -91,6 +92,7 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
     @Override
     public PermissionLevel getPermissionLevelByName(String name) {
         log.debug("Resolving permission level '{}'", name);
+        if (StringUtils.isBlank(name)) return null;
 
         return switch (name) {
             case PERMISSION_LEVEL_NAME_OWNER -> getDefaultOwnerPermissionLevel();
