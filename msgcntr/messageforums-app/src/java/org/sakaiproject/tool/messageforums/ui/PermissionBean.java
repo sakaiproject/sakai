@@ -20,11 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.HashMap;
+
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -91,7 +92,7 @@ public class PermissionBean {
         MessageForumsTypeManager typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
         if (this.displayLevel == null || !typeManager.getCustomLevelType().equals(this.displayLevel.getTypeUuid()))
         {
-          this.displayLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new PermissionsMask());
+          this.displayLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new HashMap<>());
         }
       }
     }

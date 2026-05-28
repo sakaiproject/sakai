@@ -54,7 +54,6 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -1406,7 +1405,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 										{
 											Element customPermElement = (Element)customPermNode;
 											if (customPermElement.getTagName().equals(CUSTOM_PERMISSIONS)) {
-												PermissionsMask mask = new PermissionsMask();
+												Map<String, Boolean> mask = new HashMap<>();
 												List customPermList = permissionManager.getCustomPermissions();
 												for (int c=0; c < customPermList.size(); c++) {
 													String customPermName = (String) customPermList.get(c);
@@ -1482,7 +1481,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				itemToCopy.getType());
 		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
 		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
-			PermissionsMask mask = new PermissionsMask();
+			Map<String, Boolean> mask = new HashMap<>();
 			List customPermList = permissionManager.getCustomPermissions();
 			for (int c=0; c < customPermList.size(); c++) {
 				String customPermName = (String) customPermList.get(c);
