@@ -49,7 +49,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.Assert;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -69,13 +68,10 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
 
     public void init() {
         log.info("Initializing permission level manager");
-        Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         try {
-
             // add the default permission level and type data, if necessary
-            if (autoDdl != null && autoDdl) {
-                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            if (autoDdl != null && autoDdl && transactionManager != null) {
+                new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
                     @Override
                     protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                         loadDefaultTypeAndPermissionLevelData();
@@ -96,21 +92,15 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
     public PermissionLevel getPermissionLevelByName(String name) {
         log.debug("Resolving permission level '{}'", name);
 
-        if (PERMISSION_LEVEL_NAME_OWNER.equals(name)) {
-            return getDefaultOwnerPermissionLevel();
-        } else if (PERMISSION_LEVEL_NAME_AUTHOR.equals(name)) {
-            return getDefaultAuthorPermissionLevel();
-        } else if (PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(name)) {
-            return getDefaultNoneditingAuthorPermissionLevel();
-        } else if (PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(name)) {
-            return getDefaultContributorPermissionLevel();
-        } else if (PERMISSION_LEVEL_NAME_REVIEWER.equals(name)) {
-            return getDefaultReviewerPermissionLevel();
-        } else if (PERMISSION_LEVEL_NAME_NONE.equals(name)) {
-            return getDefaultNonePermissionLevel();
-        } else {
-            return null;
-        }
+        return switch (name) {
+            case PERMISSION_LEVEL_NAME_OWNER -> getDefaultOwnerPermissionLevel();
+            case PERMISSION_LEVEL_NAME_AUTHOR -> getDefaultAuthorPermissionLevel();
+            case PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR -> getDefaultNoneditingAuthorPermissionLevel();
+            case PERMISSION_LEVEL_NAME_CONTRIBUTOR -> getDefaultContributorPermissionLevel();
+            case PERMISSION_LEVEL_NAME_REVIEWER -> getDefaultReviewerPermissionLevel();
+            case PERMISSION_LEVEL_NAME_NONE -> getDefaultNonePermissionLevel();
+            default -> null;
+        };
     }
 
     @Override
@@ -341,7 +331,6 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
             // return the default contributor permission
             Map<String, Boolean> mask = getDefaultContributorPermissionsMask();
             level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
-
         }
 
         return level;
@@ -364,7 +353,6 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
             // return the default None permission
             Map<String, Boolean> mask = getDefaultNonePermissionsMask();
             level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
-
         }
 
         return level;
