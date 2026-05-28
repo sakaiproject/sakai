@@ -891,7 +891,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick",
+    editTriggerEvent:"click",
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
@@ -946,13 +946,18 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       const studentId = student.userId;
       const assignmentId = column.assignmentId;
 
+      const row = cell.getRow();
       GbGradeTable.setScore(studentId, assignmentId, oldScore, newScore)
         .then(() => {
-          cell.getRow().reformat();
+          if (!row.getElement().querySelector(".tabulator-cell.tabulator-editing")) {
+            row.reformat();
+          }
         })
         .catch(error => {
           console.error("Error updating score:", error);
-          cell.getRow().reformat();
+          if (!row.getElement().querySelector(".tabulator-cell.tabulator-editing")) {
+            row.reformat();
+          }
         });
     }
   });
