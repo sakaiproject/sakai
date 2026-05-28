@@ -110,6 +110,7 @@ function textCounter(field, maxlimit) {
   </h1>
 </div>
 
+<h:outputText value="#{questionpool.infoDuplicatedQuestion}" rendered ="#{!questionpool.infoDuplicatedQuestion.isEmpty()}" escape="false" styleClass="sak-banner-info"/>
 <h:messages styleClass="sak-banner-error" rendered="#{facesContext.maximumSeverity ne null}" layout="table"/>
 
 <h:outputText rendered="#{questionpool.importToAuthoring eq true}" value="#{questionPoolMessages.msg_imp_editpool}"/>
