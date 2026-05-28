@@ -937,13 +937,18 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       const studentId = student.userId;
       const assignmentId = column.assignmentId;
 
+      const row = cell.getRow();
       GbGradeTable.setScore(studentId, assignmentId, oldScore, newScore)
         .then(() => {
-          GbGradeTable.reformatPreservingEditor(cell.getRow());
+          if (!row.getElement().querySelector(".tabulator-cell.tabulator-editing")) {
+            row.reformat();
+          }
         })
         .catch(error => {
           console.error("Error updating score:", error);
-          GbGradeTable.reformatPreservingEditor(cell.getRow());
+          if (!row.getElement().querySelector(".tabulator-cell.tabulator-editing")) {
+            row.reformat();
+          }
         });
     }
   });
@@ -1812,15 +1817,6 @@ GbGradeTable.redrawCells = function(cells) {
 
     rowComponent && rowComponent.reformat();
   });
-};
-
-GbGradeTable.reformatPreservingEditor = function(row) {
-  const editingEl = document.querySelector(".tabulator-cell.tabulator-editing");
-  row.reformat();
-  if (editingEl && !editingEl.querySelector("input")) {
-    const editRow = GbGradeTable.instance.getRows()[+editingEl.dataset.rowIndex];
-    editRow?.getCells()?.[+editingEl.dataset.colIndex]?.edit(true);
-  }
 };
 
 GbGradeTable.formatCategoryAverage = function(value) {
