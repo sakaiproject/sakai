@@ -49,6 +49,23 @@ public class SakaiLTIUtilLtiApiSubstitutionTest {
     }
 
     @Test
+    public void addLtiApiLaunchSubstitutions_emptyScopesPresentsKey() {
+        Properties lti13subst = new Properties();
+        SakaiLTIUtil.addLtiApiLaunchSubstitutions(lti13subst, null, null);
+        assertEquals("", lti13subst.getProperty(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE));
+    }
+
+    @Test
+    public void substituteCustom_resolvesEmptyScopesAvailable() {
+        Properties lti13subst = new Properties();
+        lti13subst.setProperty(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE, "");
+        Properties custom = new Properties();
+        custom.setProperty("scopes", "$" + SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE);
+        LTI13Util.substituteCustom(custom, lti13subst);
+        assertEquals("", custom.getProperty("scopes"));
+    }
+
+    @Test
     public void substituteCustom_resolvesLtiApiSubstitutionVariables() {
         Properties lti13subst = new Properties();
         lti13subst.setProperty(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_DIRECT_URL, "https://lms.example.edu/direct");

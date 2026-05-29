@@ -21,6 +21,7 @@
 
 package org.sakaiproject.lti.impl;
 
+import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -1147,26 +1148,41 @@ public abstract class BaseLTIService implements LTIService {
 			return "Tool not found";
 		}
 
-		deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
-
-		if (functionNames == null || functionNames.isEmpty()) {
-			return toolId;
-		}
-
 		org.sakaiproject.authz.api.FunctionManager functionManager =
 				(org.sakaiproject.authz.api.FunctionManager) ComponentManager.get(org.sakaiproject.authz.api.FunctionManager.class);
 		Set<String> registered = new java.util.HashSet<>(functionManager.getRegisteredFunctions());
 
-		for (String functionName : functionNames) {
-			if (!registered.contains(functionName)) {
-				log.warn("Ignoring unregistered function {} for tool {}", functionName, toolId);
-				continue;
+		Set<String> toInsert = new LinkedHashSet<>();
+		if (functionNames != null) {
+			for (String functionName : functionNames) {
+				if (!registered.contains(functionName)) {
+					log.warn("Ignoring unregistered function {} for tool {}", functionName, toolId);
+					continue;
+				}
+				toInsert.add(functionName);
 			}
+		}
+
+		if (toInsert.isEmpty()) {
+			deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
+			return toolId;
+		}
+
+		List<String> previous = getGrantedToolFunctionNames(toolId.longValue());
+		deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
+
+		for (String functionName : toInsert) {
 			Properties props = new Properties();
 			props.setProperty(LTIService.LTI_TOOL_ID, String.valueOf(toolId));
 			props.setProperty(LTIService.LTI_FUNCTION_NAME, functionName);
 			Object retval = insertToolFunctionDao(props, siteId, true, true);
 			if (retval instanceof String) {
+				for (String previousName : previous) {
+					Properties restoreProps = new Properties();
+					restoreProps.setProperty(LTIService.LTI_TOOL_ID, String.valueOf(toolId));
+					restoreProps.setProperty(LTIService.LTI_FUNCTION_NAME, previousName);
+					insertToolFunctionDao(restoreProps, siteId, true, true);
+				}
 				return retval;
 			}
 		}

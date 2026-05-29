@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.entitybroker.lti;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +29,7 @@ import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti.util.LtiBearerSessionSupport;
 import org.sakaiproject.tool.api.SessionManager;
+import org.tsugi.jackson.JacksonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -79,8 +83,13 @@ public class LtiBearerDirectInterceptor implements HandlerInterceptor {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             try {
-                response.getWriter().write(
-                        "{\"error\":\"" + e.getErrorKey() + "\",\"message\":\"" + e.getMessage() + "\"}");
+                Map<String, String> body = new HashMap<>();
+                body.put("error", e.getErrorKey());
+                body.put("message", e.getMessage());
+                String json = JacksonUtil.toString(body);
+                if (json != null) {
+                    response.getWriter().write(json);
+                }
             } catch (Exception ex) {
                 log.debug("Could not write 401 body", ex);
             }

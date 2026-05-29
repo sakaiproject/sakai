@@ -15,20 +15,28 @@
  */
 package org.sakaiproject.entitybroker.lti;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.sakaiproject.lti.api.SakaiAccessTokenException;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -65,5 +73,23 @@ public class LtiBearerDirectInterceptorTest {
 
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verify(sakaiAccessTokenService, never()).validateToken(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    public void preHandleWritesValidJsonWhenTokenRejected() throws Exception {
+        StringWriter body = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(body));
+        when(request.getHeader("Authorization")).thenReturn("Bearer token");
+        when(sakaiAccessTokenService.isLtiBearerDirectEnabled()).thenReturn(true);
+        when(sakaiAccessTokenService.extractBearerToken("Bearer token")).thenReturn("token");
+        when(sakaiAccessTokenService.validateToken("token"))
+                .thenThrow(new SakaiAccessTokenException("signature_error", "Bad \"quote\" and \\slash"));
+
+        assertFalse(interceptor.preHandle(request, response, null));
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        JsonNode node = new ObjectMapper().readTree(body.toString());
+        assertEquals("signature_error", node.get("error").asText());
+        assertEquals("Bad \"quote\" and \\slash", node.get("message").asText());
     }
 }

@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.lti13.util;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -46,20 +49,32 @@ public class SakaiAccessToken extends org.tsugi.lti13.objects.BaseJWT {
 	public String site_id;
 
 	public void addScope(String newScope) {
-		if (this.scope == null) {
-			this.scope = newScope;
-		}
-		if (this.scope.contains(newScope)) {
+		if (newScope == null || newScope.isEmpty()) {
 			return;
 		}
-		this.scope += " " + newScope;
+		Set<String> scopes = getScopeTokens();
+		if (scopes.add(newScope)) {
+			this.scope = String.join(" ", scopes);
+		}
 	}
 
 	public boolean hasScope(String scope) {
-		if (this.scope == null) {
+		if (scope == null || this.scope == null) {
 			return false;
 		}
-		return this.scope.contains(scope);
+		return getScopeTokens().contains(scope);
+	}
+
+	private Set<String> getScopeTokens() {
+		Set<String> tokens = new LinkedHashSet<>();
+		if (this.scope != null) {
+			for (String token : this.scope.trim().split("\\s+")) {
+				if (!token.isEmpty()) {
+					tokens.add(token);
+				}
+			}
+		}
+		return tokens;
 	}
 
 	/** OAuth/SAT scope for an LTI API function (e.g. {@code content.read} → {@code sakai.lti.api.content.read}). */

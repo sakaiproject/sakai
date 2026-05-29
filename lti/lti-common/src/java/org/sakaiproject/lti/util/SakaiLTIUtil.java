@@ -1136,7 +1136,7 @@ public class SakaiLTIUtil {
 				availableScopes = formatLtiApiAvailableScopes(ltiService.getGrantedToolFunctionNames(toolId.longValue()));
 			}
 		}
-		setProperty(lti13subst, SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE, availableScopes);
+		lti13subst.put(SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE, availableScopes);
 	}
 
 		// This must return an HTML message as the [0] in the array

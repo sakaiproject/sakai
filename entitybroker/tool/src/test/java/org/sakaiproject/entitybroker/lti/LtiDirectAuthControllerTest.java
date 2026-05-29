@@ -16,6 +16,7 @@
 package org.sakaiproject.entitybroker.lti;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +62,8 @@ public class LtiDirectAuthControllerTest {
         Map<String, Object> result = controller.bearerProbe();
 
         assertEquals(Boolean.TRUE, result.get("ok"));
-        assertEquals("session-abc", result.get("sessionId"));
+        assertEquals("sess", result.get("sessionIdPrefix"));
+        assertFalse(result.containsKey("sessionId"));
         assertEquals(LtiBearerSessionConstants.LTI_TOOL_USER_ID_PREFIX + TOOL_ID, result.get("sessionUserId"));
         assertEquals(Boolean.TRUE, result.get("ltiAuthenticated"));
         assertEquals(TOOL_ID, result.get("toolId"));

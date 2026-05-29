@@ -124,7 +124,8 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             claims = Jwts.parser().setSigningKey(tokenKeyPair.getPublic()).parseClaimsJws(jws).getBody();
         } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
                 | io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-            log.error("{} Signature error {}\n{}", e.getClass().getName(), e.getMessage(), jws, e);
+            String tokenHash = jws != null ? LTI13Util.sha256(jws) : "[none]";
+            log.error("{} Signature error {} tokenHash={}", e.getClass().getName(), e.getMessage(), tokenHash, e);
             throw new SakaiAccessTokenException("signature_error", e.getMessage(), e);
         }
 
@@ -203,7 +204,13 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             throw new SakaiAccessTokenException("invalid_client_assertion", "Could not verify signature", e);
         }
 
-        String scope = requestedScope.toLowerCase();
+        Set<String> requestedScopes = new HashSet<>();
+        for (String token : requestedScope.toLowerCase().split("\\s+")) {
+            if (!token.isEmpty()) {
+                requestedScopes.add(token);
+            }
+        }
+
         SakaiAccessToken sat = new SakaiAccessToken();
         sat.tool_id = toolId;
         Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
@@ -211,7 +218,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
 
         Set<String> returnScopeSet = new HashSet<>();
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
             if (!Boolean.TRUE.equals(tool.allowlineitems)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
             }
@@ -219,7 +226,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
         }
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
             if (!Boolean.TRUE.equals(tool.allowlineitems)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
             }
@@ -228,7 +235,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
         }
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
             if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
             }
@@ -236,7 +243,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_SCORE);
         }
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
             if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
             }
@@ -244,7 +251,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_RESULT_READONLY);
         }
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
             if (!Boolean.TRUE.equals(tool.allowroster)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
             }
@@ -252,7 +259,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
         }
 
-        if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
+        if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
             if (!Boolean.TRUE.equals(tool.allowroster)) {
                 throw new SakaiAccessTokenException("invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
             }
@@ -261,7 +268,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
         }
 
         Set<String> grantedFunctions = new HashSet<>(ltiService.getGrantedToolFunctionNames(toolId));
-        for (String ltiApiScope : scope.split("\\s+")) {
+        for (String ltiApiScope : requestedScopes) {
             String functionName = SakaiAccessToken.ltiApiScopeToFunction(ltiApiScope);
             if (functionName == null) {
                 continue;

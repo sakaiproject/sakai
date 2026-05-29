@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -201,6 +203,28 @@ public class SakaiAccessTokenServiceImplTest {
         SakaiAccessToken sat = service.validateToken(at.access_token);
         assertEquals(Long.valueOf(TOOL_ID), sat.tool_id);
         assertTrue(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY));
+    }
+
+    @Test
+    public void issueAccessTokenLineitemReadonlyDoesNotGrantLineitemScope() throws Exception {
+        LtiToolBean tool = toolWithServices(true, true, true);
+        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
+
+        Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
+                new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
+                toolKeyPair, "client-1", "deployment-1", null, null);
+        String assertion = (String) clientParams.get(ClientAssertion.CLIENT_ASSERTION);
+        String scope = (String) clientParams.get(ClientAssertion.SCOPE);
+
+        AccessToken at = service.issueAccessToken(TOOL_ID, assertion, scope);
+        assertNotNull(at.access_token);
+        Set<String> grantedScopes = new HashSet<>(Arrays.asList(at.scope.split("\\s+")));
+        assertTrue(grantedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY));
+        assertFalse(grantedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
+
+        SakaiAccessToken sat = service.validateToken(at.access_token);
+        assertTrue(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY));
+        assertFalse(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS));
     }
 
     @Test

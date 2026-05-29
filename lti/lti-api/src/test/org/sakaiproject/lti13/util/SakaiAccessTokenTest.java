@@ -44,4 +44,12 @@ public class SakaiAccessTokenTest {
         SakaiAccessToken sat = new SakaiAccessToken();
         assertFalse(sat.hasScope(SakaiAccessToken.SCOPE_SCORE));
     }
+
+    @Test
+    public void hasScopeRequiresExactTokenMatch() {
+        SakaiAccessToken sat = new SakaiAccessToken();
+        sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
+        assertTrue(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY));
+        assertFalse(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS));
+    }
 }

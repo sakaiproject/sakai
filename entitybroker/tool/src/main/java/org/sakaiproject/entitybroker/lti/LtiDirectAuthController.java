@@ -53,7 +53,10 @@ public class LtiDirectAuthController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("ok", Boolean.TRUE);
-        result.put("sessionId", session.getId());
+        String sessionId = session.getId();
+        if (StringUtils.length(sessionId) > 4) {
+            result.put("sessionIdPrefix", sessionId.substring(0, 4));
+        }
         result.put("sessionUserId", session.getUserId());
         result.put("ltiAuthenticated", sat != null);
 
