@@ -225,6 +225,15 @@ public interface AnnouncementService extends MessageService
 												boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException;
 
 	/**
+	 * Return announcement messages for the Announcements tool instructor view.
+	 * Users with annc.revise.any on a channel receive all stored messages from that channel,
+	 * including future, retracted, draft, grouped, and role-targeted messages.
+	 */
+	public List<AnnouncementMessage> getChannelMessagesForInstructors(String channelReference, Filter filter, boolean ascending,
+												String mergedChannelDelimitedList, boolean allUserSites,
+												boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException;
+
+	/**
 	 * Returns visible MOTD announcements from the MOTD channel.
 	 * Visibility is enforced by {@link #isMessageViewable(org.sakaiproject.message.api.Message)}.
 	 *

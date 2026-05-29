@@ -21,6 +21,10 @@
 
 package org.sakaiproject.announcement.api;
 
+import java.util.List;
+
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.MessageChannelEdit;
 
 /**
@@ -30,4 +34,9 @@ import org.sakaiproject.message.api.MessageChannelEdit;
  */
 public interface AnnouncementChannelEdit extends AnnouncementChannel<AnnouncementMessageEdit>, MessageChannelEdit<AnnouncementMessageEdit>
 {
+	/**
+	 * Return all stored messages in this channel for instructor management actions.
+	 * This bypasses announcement view filters; callers must have annc.revise.any.
+	 */
+	public List<AnnouncementMessage> getMessagesForInstructors(Filter filter, boolean ascending) throws PermissionException;
 }
