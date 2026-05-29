@@ -856,6 +856,39 @@ public interface LTIService extends LTISubstitutionsFilter {
         return contentMap != null ? LtiContentBean.of(contentMap) : null;
     }
 
+    /**
+     * Get a single LTI content item as a Bean, bypassing security checks (DAO method).
+     * @param key The content ID
+     * @return LtiContentBean or null if not found
+     */
+    default LtiContentBean getContentDaoAsBean(Long key) {
+        Map<String, Object> contentMap = getContentDao(key);
+        return contentMap != null ? LtiContentBean.of(contentMap) : null;
+    }
+
+    /**
+     * Get a single LTI content item as a Bean, bypassing security checks (DAO method).
+     * @param key The content ID
+     * @param siteId The site ID
+     * @return LtiContentBean or null if not found
+     */
+    default LtiContentBean getContentDaoAsBean(Long key, String siteId) {
+        Map<String, Object> contentMap = getContentDao(key, siteId);
+        return contentMap != null ? LtiContentBean.of(contentMap) : null;
+    }
+
+    /**
+     * Get a single LTI content item as a Bean (DAO method).
+     * @param key The content ID
+     * @param siteId The site ID
+     * @param isAdminRole Whether to bypass site-scoped security filters
+     * @return LtiContentBean or null if not found
+     */
+    default LtiContentBean getContentDaoAsBean(Long key, String siteId, boolean isAdminRole) {
+        Map<String, Object> contentMap = getContentDao(key, siteId, isAdminRole);
+        return contentMap != null ? LtiContentBean.of(contentMap) : null;
+    }
+
     // ------------------------------------------------------------------------------------
     // CONTENT BEAN METHODS - Multiple Content Retrieval
     // ------------------------------------------------------------------------------------

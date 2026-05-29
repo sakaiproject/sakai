@@ -315,7 +315,7 @@ public class SakaiIFrame extends GenericPortlet {
 		}
 
 		Long contentKey = (Long) retval;
-		LtiContentBean newContentBean = m_ltiService.getContentAsBean(contentKey, siteId);
+		LtiContentBean newContentBean = m_ltiService.getContentDaoAsBean(contentKey, siteId);
 		String contentUrl = m_ltiService.getContentLaunch(newContentBean);
 		if ( newContentBean == null || contentUrl == null ) {
 			log.error("Unable to set contentUrl tool={} placement={}",tool_id,placement.getId());
@@ -473,7 +473,7 @@ public class SakaiIFrame extends GenericPortlet {
 					return;
 				} else if ( retval instanceof Long ) {
 					Long contentKey = (Long) retval;
-					LtiContentBean newContentBean = m_ltiService.getContentAsBean(contentKey, siteId);
+					LtiContentBean newContentBean = m_ltiService.getContentDaoAsBean(contentKey, siteId);
 					String contentUrl = m_ltiService.getContentLaunch(newContentBean);
 					if ( newContentBean == null || contentUrl == null ) {
 						log.error("Unable to set contentUrl tool={} placement={}",toolIdStr,placement.getId());
