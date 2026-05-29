@@ -331,7 +331,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>dompurify</artifactId>
-			<version>2.3.6</version>
+			<version>3.4.6</version>
 		</dependency>
 	</dependencies>
 	<profiles>
