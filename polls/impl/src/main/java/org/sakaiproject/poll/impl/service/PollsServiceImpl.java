@@ -316,8 +316,15 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             || (securityService.unlock(userId, PERMISSION_DELETE_OWN, siteRef) && poll.getOwner().equals(userId));
     }
 
-    private boolean isSiteOwner(final String siteId) {
+    public boolean isSiteOwner(final String siteId) {
         return securityService.unlock("site.upd", siteService.siteReference(siteId));
+    }
+
+    @Override
+    public boolean isAllowedPollAdd(final String siteId) {
+        String siteRef = siteService.siteReference(siteId);
+        String userId = sessionManager.getCurrentSessionUserId();
+        return securityService.isSuperUser() || securityService.unlock(userId, PERMISSION_ADD, siteRef);
     }
 
     public String getLabel() {

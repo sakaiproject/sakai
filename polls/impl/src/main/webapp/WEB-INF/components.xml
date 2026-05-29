@@ -84,4 +84,8 @@
             </list>
         </constructor-arg>
     </bean>
+
+    <bean id="org.sakaiproject.poll.api.service.PollImportService"
+          class="org.sakaiproject.poll.impl.service.PollImportServiceImpl"
+          autowire="constructor" />
 </beans>

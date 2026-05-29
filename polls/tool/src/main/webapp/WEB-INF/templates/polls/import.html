@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head}"></head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/common :: menu('import')}"></div>
+
+    <div th:if="${errorMessage}" class="sak-banner-error" role="alert" th:text="${errorMessage}">Error</div>
+
+    <h1 th:text="#{poll_import_header}">Upload a file or type in the text box the polls you wish to create</h1>
+
+    <div class="row mb-3">
+      <div class="col-lg-8">
+        <div id="bulkCreationRequirements">
+          <strong th:utext="#{poll_import_requirements}"></strong>
+          <ul>
+            <li th:utext="#{poll_import_requirements_step1}">Each CSV row should contain the poll details in the same order as the manual form.</li>
+            <li th:utext="#{poll_import_requirements_step2}">Columns must be in the order above, but do not include a row of column headers.</li>
+            <li th:text="#{poll_import_requirements_step3}">Leave a field blank to use the same defaults as the manual form. Dates must use ISO 8601 local date-time format yyyy-MM-dd'T'HH:mm. The server will interpret the value using the user's time zone.</li>
+            <li th:text="#{poll_import_requirements_step4}">Results visibility codes: 1=open, 2=after participants who have voted or after the closing date, 3=after closing date, 4=never.</li>
+            <li th:text="#{poll_import_requirements_step5}">Each poll must have at least two options. Minimum and maximum options must fit within the number of options provided.</li>
+          </ul>
+          <div id="example">
+            <pre><code th:utext="#{poll_import_example}">What is your favorite color?,,2026-05-29T09:00,2026-05-30T17:00,1,1,1,Blue,Green,Red</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form id="bulkcreation-form" th:action="@{/pollImport}" method="post" enctype="multipart/form-data">
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <label class="form-label" for="pollUploadedText" th:text="#{poll_import_typetext}">Type or paste in the text box</label>
+          <textarea class="form-control" id="pollUploadedText" name="pollUploadedText" rows="10" cols="45" th:text="${pollUploadedText}"></textarea>
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label" for="pollUploadFile" th:text="#{poll_import_chooseone}">Or choose a file</label>
+          <input class="form-control" id="pollUploadFile" name="pollUploadFile" type="file" accept=".csv,text/csv" />
+        </div>
+      </div>
+      <div class="act mt-3">
+        <input accesskey="s" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{poll_import_submit}" />
+        <input type="button" class="btn-link" th:onclick="|location.href='@{/votePolls}'|" accesskey="x" id="bulk-creation-cancel-button" th:value="#{poll_import_cancel}" value="Cancel" />
+      </div>
+    </form>
+  </div>
+</body>
+</html>

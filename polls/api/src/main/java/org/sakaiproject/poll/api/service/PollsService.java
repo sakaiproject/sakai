@@ -160,6 +160,20 @@ public interface PollsService {
      */
     boolean userCanDeletePoll(Poll poll);
 
+    /**
+     * Check whether the current user is allowed to add polls in the given site.
+     * @param siteId the site id
+     * @return true if allowed
+     */
+    boolean isAllowedPollAdd(String siteId);
+
+    /**
+     * Check whether the current user is a site owner for the given site.
+     * @param siteId the site id
+     * @return true if site owner
+     */
+    boolean isSiteOwner(String siteId);
+
     // Vote Management Methods
 
     /**
