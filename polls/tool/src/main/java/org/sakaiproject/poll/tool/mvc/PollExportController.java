@@ -179,6 +179,7 @@ public class PollExportController {
 
         } catch (IOException | RuntimeException e) {
             log.error("Error generating XLSX for poll {}", pollId, e);
+            addExportFailureAlert(redirectAttributes, locale, pollId);
             return "redirect:/votePolls";
         }
     }
@@ -271,6 +272,7 @@ public class PollExportController {
 
         } catch (IOException | RuntimeException e) {
             log.error("Error generating CSV for poll {}", pollId, e);
+            addExportFailureAlert(redirectAttributes, locale, pollId);
             return "redirect:/votePolls";
         }
     }
@@ -304,6 +306,11 @@ public class PollExportController {
             text = "'" + text;
         }
         return text;
+    }
+
+    private void addExportFailureAlert(RedirectAttributes redirectAttributes, Locale locale, String pollId) {
+        String localizedMessage = messageSource.getMessage("poll_export_failed", new Object[] { pollId }, locale);
+        redirectAttributes.addFlashAttribute("alert", localizedMessage);
     }
 
     private boolean canEditPoll(Poll poll) {
