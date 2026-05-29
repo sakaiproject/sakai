@@ -227,6 +227,8 @@ import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -2003,7 +2005,7 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 Long contentKey = assignment.getContentId().longValue();
                 Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-                Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+                LtiContentBean content = ltiService.getContentAsBean(contentKey, site.getId());
                 String content_launch = ltiService.getContentLaunch(content);
                 context.put("value_ContentLaunchURL", content_launch);
                 context.put("placement", "assignment_launch_"+contentKey);
@@ -2017,10 +2019,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 } catch(PermissionException e) {
                     courseGroupId = null;
                 }
-                Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
-                Map<String, Object> tool = null;
+                LtiToolBean tool = null;
+                Long toolKey = content.getToolId();
                 if (toolKey != null) {
-                    tool = ltiService.getTool(toolKey, site.getId());
+                    tool = ltiService.getToolAsBean(toolKey, site.getId());
                 }
 
                 // Ignore the Content Item - use the value in the assignment if tool allows
@@ -2028,7 +2030,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("height",SakaiLTIUtil.getFrameHeight(tool, content, "1200px"));
                 context.put("browser-feature-allow", serverConfigurationService.getBrowserFeatureAllowString());
 
-                int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
+                int protect = Boolean.TRUE.equals(content.getProtect()) ? 1 : 0;
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
 
@@ -2102,13 +2104,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
                 String content_settings = content_json.toString();
 
-                String old_content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+                String old_content_settings = StringUtils.trimToEmpty(content.getSettings());
 
                 // Copy title, description, and dates from Assignment to content if mis-match
-                String contentTitle = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_TITLE));
-                String contentDesc = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_DESCRIPTION));
+                String contentTitle = StringUtils.trimToEmpty(content.getTitle());
+                String contentDesc = StringUtils.trimToEmpty(content.getDescription());
 
-                String placement_secret = StringUtils.trimToNull((String) content.get(LTIService.LTI_PLACEMENTSECRET));
+                String placement_secret = StringUtils.trimToNull(content.getPlacementsecret());
 
                 if ( protect < 1 || !assignmentTitle.equals(contentTitle) || !assignmentDesc.equals(contentDesc) ||
                         ! content_settings.equals(old_content_settings) ||
@@ -2121,7 +2123,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         placement_secret = UUID.randomUUID().toString();
                         updates.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
                         // Need to update for the protection key computation to work
-                        content.put(LTIService.LTI_PLACEMENTSECRET, placement_secret);
+                        content.setPlacementsecret(placement_secret);
                     }
 
                     updates.put(LTIService.LTI_SETTINGS, content_settings);
@@ -3208,13 +3210,13 @@ public class AssignmentAction extends PagedResourceActionII {
     public boolean isContentToolIdValid(Integer contentKey, Site site) {
         if ( contentKey == null ) return true;
         Long contentLong = contentKey.longValue();
-        Map<String, Object> content = ltiService.getContent(contentLong, site.getId());
+        LtiContentBean content = ltiService.getContentAsBean(contentLong, site.getId());
         if ( content == null ) return false;
 
-        Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
+        Long toolKey = content.getToolId();
         if ( toolKey == null ) return false;
 
-        Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+        LtiToolBean tool = ltiService.getToolAsBean(toolKey, site.getId());
         if ( tool == null ) return false;
 
         return true;
@@ -5657,7 +5659,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 log.warn("contentId not set {} ", assignment);
                 return false;
             }
-            Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+            LtiContentBean content = ltiService.getContentAsBean(contentKey, site.getId());
             if ( content == null ) {
                 log.warn("contentId not loaded {} ", contentKey);
                 return false;
@@ -5666,15 +5668,14 @@ public class AssignmentAction extends PagedResourceActionII {
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
 
-            Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
+            Long toolKey = content.getToolId();
             if (toolKey != null) {
-                Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                LtiToolBean tool = ltiService.getToolAsBean(toolKey, site.getId());
                 if ( tool == null ) {
                     log.warn("tool not loaded {} ", toolKey);
                     return false;
                 }
-                String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-                context.put("value_ContentTitle", toolTitle);
+                context.put("value_ContentTitle", tool.getTitle());
             }
             return true;
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
@@ -10723,19 +10724,25 @@ public class AssignmentAction extends PagedResourceActionII {
                    try {
                         Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
                         Long contentKey = a.getContentId().longValue();
-                        Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-                        Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
-                        if (toolKey != null) {
-                            Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
-                            if ( tool == null ) {
-                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
-                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_DELETED, Boolean.TRUE);
-                                addAlert(state, rb.getString("contentitem.tool.deleted"));
-                            } else {
-                                String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                                Long toolNewpage = LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE));
-                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
+                        LtiContentBean content = ltiService.getContentAsBean(contentKey, site.getId());
+                        if (content == null) {
+                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_DELETED, Boolean.TRUE);
+                            addAlert(state, rb.getString("contentitem.tool.deleted"));
+                        } else {
+                            Long toolKey = content.getToolId();
+                            if (toolKey != null) {
+                                LtiToolBean tool = ltiService.getToolAsBean(toolKey, site.getId());
+                                if ( tool == null ) {
+                                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_DELETED, Boolean.TRUE);
+                                    addAlert(state, rb.getString("contentitem.tool.deleted"));
+                                } else {
+                                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, tool.getTitle());
+                                    Integer toolNewpage = tool.getNewpage();
+                                    state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE,
+                                            toolNewpage != null ? Long.valueOf(toolNewpage.longValue()) : null);
+                                }
                             }
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {

@@ -749,7 +749,7 @@ public class LineItemUtil {
 			if (ltiService == null) {
 				return null;
 			}
-			Map<String, Object> content = ltiService.getContent(asn.getContentId().longValue(), contextId);
+			LtiContentBean content = ltiService.getContentAsBean(asn.getContentId().longValue(), contextId);
 			if (content == null) {
 				return null;
 			}

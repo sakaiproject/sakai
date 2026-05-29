@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -948,19 +949,29 @@ public class SakaiLTIUtilTest {
 		Element root = doc.createElement("root");
 		doc.appendChild(root);
 
-		Map<String, Object> tool = new HashMap();
-		tool.put(LTIService.LTI_FRAMEHEIGHT, 42);
-		tool.put(LTIService.LTI13, LTIService.LTI13_LTI13);
-		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
-		tool.put(LTIService.LTI_TITLE, "An LTI title");
-		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		tool.put(LTIService.LTI_NEWPAGE, 1);
-		tool.put(LTIService.LTI_SENDNAME, 0);
-		tool.put(LTIService.LTI_SECRET, "verysecure");
-		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");
+		LtiToolBean tool = new LtiToolBean();
+		tool.setFrameheight(42);
+		tool.setLti13(LTIService.LTI13_LTI13.intValue());
+		tool.setLaunch("http://localhost:a-launch?x=42");
+		tool.setTitle("An LTI title");
+		tool.setDescription("An LTI DESCRIPTION");
+		tool.setNewpage(1);
+		tool.setSendname(Boolean.FALSE);
+		tool.setSecret("verysecure");
+		tool.setConsumerkey("key12345");
 
-		Element element = SakaiLTIUtil.archiveTool(doc, tool);
-		root.appendChild(element);
+		Stack<Element> stack = new Stack<>();
+		stack.push(root);
+		Element element = tool.toXml(doc, stack);
+		assertNotNull(element);
+
+		// Checksum is appended separately (same as SakaiLTIUtil.archiveTool for maps).
+		String checksum = SakaiLTIUtil.computeToolCheckSum(tool);
+		assertNotNull(checksum);
+		Element checksumEl = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
+		checksumEl.setTextContent(checksum);
+		element.appendChild(checksumEl);
+
 		Map<String, String> expectedToolElements = new HashMap<>();
 		expectedToolElements.put("title", "An LTI title");
 		expectedToolElements.put("description", "An LTI DESCRIPTION");
@@ -972,22 +983,22 @@ public class SakaiLTIUtilTest {
 		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
 		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, expectedToolElements, null);
 
-		// Round-trip: merge XML back into a map and verify we get the same tool data.
-		// mergeTool parses the sakai-lti-tool element and populates tool2 with element values.
-		// Checksum is excluded from rehydration (getExcludedArchiveFieldNames), so we assert it is null.
-		Map<String, Object> tool2 = new HashMap();
-		SakaiLTIUtil.mergeTool(element, tool2);
-		assertNull("Checksum is excluded from rehydration", tool2.get(LTIService.SAKAI_TOOL_CHECKSUM));
-		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
-		Map<String, Object> expected = new HashMap();
-		expected.put(LTIService.LTI_TITLE, "An LTI title");
-		expected.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		expected.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
-		expected.put(LTIService.LTI_NEWPAGE, 1L);
-		expected.put(LTIService.LTI_FRAMEHEIGHT, 42L);
-		expected.put(LTIService.LTI_SENDNAME, 0L);
-		expected.put(LTIService.LTI13, 1L);
-		assertEquals(expected, tool2);
+		LtiToolBean restored = LtiToolBean.fromXml(element);
+		assertNotNull(restored);
+		assertNull("Checksum is excluded from rehydration (getExcludedArchiveFieldNames)", restored.getSakaiToolChecksum());
+		assertNull("Secret is not archived", restored.getSecret());
+		assertNull("Consumer key is not archived", restored.getConsumerkey());
+
+		assertEquals("An LTI title", restored.getTitle());
+		assertEquals("An LTI DESCRIPTION", restored.getDescription());
+		assertEquals("http://localhost:a-launch?x=42", restored.getLaunch());
+		assertEquals(Integer.valueOf(1), restored.getNewpage());
+		assertEquals(Integer.valueOf(42), restored.getFrameheight());
+		assertEquals(Boolean.FALSE, restored.getSendname());
+		assertEquals(Integer.valueOf(LTIService.LTI13_LTI13.intValue()), restored.getLti13());
+
+		assertEquals("verysecure", tool.getSecret());
+		assertEquals("key12345", tool.getConsumerkey());
 	}
 
 	/**
