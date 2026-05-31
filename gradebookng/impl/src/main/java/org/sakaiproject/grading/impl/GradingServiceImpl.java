@@ -1838,19 +1838,17 @@ public class GradingServiceImpl implements GradingService {
 
         // Build comprehensive comment map: assignmentId -> studentId -> commentText
         final Map<Long, Map<String, String>> allCommentsMap = new HashMap<>();
-        for (final Long assignmentId : gradableObjectIds) {
-            final GradebookAssignment assignment = recordsByAssignment.containsKey(assignmentId) ?
-                    (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject() :
-                    getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
+        for (final Long assignmentId : recordsByAssignment.keySet()) {
+            // Get assignment from first grade record (they all have same assignment)
+            final GradebookAssignment assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
 
+            // Get comments for this assignment and all students
+            final List<Comment> commentRecs = getComments(assignment, studentIds);
             final Map<String, String> studentCommentMap = new HashMap<>();
-            if (assignment != null) {
-                final List<Comment> commentRecs = getComments(assignment, studentIds);
-                if (commentRecs != null) {
-                    for (final Comment comment : commentRecs) {
-                        if (comment != null) {
-                            studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
-                        }
+            if (commentRecs != null) {
+                for (final Comment comment : commentRecs) {
+                    if (comment != null) {
+                        studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
                     }
                 }
             }
@@ -1867,7 +1865,7 @@ public class GradingServiceImpl implements GradingService {
             }
 
             // Get comment for this specific student and assignment
-            final String commentText = allCommentsMap.getOrDefault(gboId, Collections.emptyMap()).get(gradeRecord.getStudentId());
+            final String commentText = allCommentsMap.get(gboId).get(gradeRecord.getStudentId());
             final GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(gradeRecord, gbo, gradebook, commentText);
 
             List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(gboId, k -> new ArrayList<>());
