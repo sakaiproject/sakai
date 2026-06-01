@@ -129,8 +129,9 @@ public class IcalendarReader extends Reader {
 				// sites get distinct display names and survive deduplication.
 				Property sakaiSiteName = event.getProperty("X-SAKAI-SITE-NAME");
 				String effectiveSummary = summary.getValue();
-				if (sakaiSiteName != null && !sakaiSiteName.getValue().isEmpty()) {
-					effectiveSummary = effectiveSummary + " (" + sakaiSiteName.getValue() + ")";
+				String sakaiSiteNameValue = sakaiSiteName != null ? sakaiSiteName.getValue() : null;
+				if (sakaiSiteNameValue != null && !sakaiSiteNameValue.isBlank()) {
+					effectiveSummary = effectiveSummary + " (" + sakaiSiteNameValue + ")";
 				}
 
 				if ( start == null || end == null) {
