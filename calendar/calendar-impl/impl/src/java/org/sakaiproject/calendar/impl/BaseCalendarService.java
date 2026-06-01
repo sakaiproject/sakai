@@ -158,6 +158,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    	private PDFExportService pdfExportService;
 
 	private GroupComparator groupComparator = new GroupComparator();
+
+	// Carries the comma-separated siteId chain for the current ICS request thread.
+	// Set in handleAccessIcalCommon, read by loadCalendarSubscriptionFromUrl to propagate the chain.
+	static final ThreadLocal<String> calendarSubscriptionChain = new ThreadLocal<>();
 	
 	public static final String UI_SERVICE = "ui.service";
 	
@@ -383,6 +387,28 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 					allEvents.addAll(new CalendarEventVector(calEvent));
 				}
+			}
+
+			// When Sakai-to-Sakai subscriptions are enabled, remove subscription events that
+			// duplicate another subscription event already seen (same display name and start
+			// time).  Because generateICal only exports primary events and appends the
+			// originating site name via X-SAKAI-SITE-NAME, events from different source sites
+			// have distinct display names and are not collapsed — only genuine duplicates
+			// (same event arriving via multiple subscription paths) are removed.
+			// Primary (non-subscription) events are always kept.
+			// This block is intentionally skipped when the feature is disabled so that
+			// pre-existing external (non-Sakai) subscriptions are not affected.
+			if (serverConfigurationService.getBoolean("calendar.subscription.sakai.enabled", false)) {
+				Set<String> seenSubscriptionKeys = new HashSet<>();
+				allEvents.removeIf(e -> {
+					CalendarEvent ce = (CalendarEvent) e;
+					if (REF_TYPE_CALENDAR_SUBSCRIPTION.equals(
+							entityManager.newReference(ce.getCalendarReference()).getSubType())) {
+						String key = ce.getDisplayName() + "|" + ce.getRange().firstTime().getTime();
+						return !seenSubscriptionKeys.add(key);
+					}
+					return false;
+				});
 			}
 
 			// Do a sort since each of the events implements the Comparable interface.
@@ -5086,19 +5112,41 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		CalendarEventVector calendarEventVector = getEvents(calRefs, currentTimeRange);
 		Iterator itEvent = calendarEventVector.iterator();
 
+		// When Sakai-to-Sakai subscriptions are enabled (calendar.subscription.sakai.enabled=true)
+		// we only export primary events and tag them with the originating site name.
+		boolean sakaiToSakaiEnabled = serverConfigurationService.getBoolean("calendar.subscription.sakai.enabled", false);
+
 		// Generate XML for all the events.
 		while (itEvent.hasNext())
 		{
 			CalendarEvent event = (CalendarEvent) itEvent.next();
 
+			// Only export events that originate in this site's own calendar.
+			// Re-exporting subscription events (imported from other sites) causes
+			// cascading duplicates and wrong site attribution for subscribers.
+			if (sakaiToSakaiEnabled && REF_TYPE_CALENDAR_SUBSCRIPTION.equals(
+					entityManager.newReference(event.getCalendarReference()).getSubType())) {
+				continue;
+			}
+
 			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
-			
-			long seconds = event.getRange().duration() / 1000;
-			VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName() );
-			
+			DateTime icalEndDate = new DateTime(event.getRange().lastTime().getTime());
+			VEvent icalEvent = new VEvent(icalStartDate, icalEndDate, event.getDisplayName() );
+
+			// Tag the event with the originating site name so that subscribers can
+			// display it with the correct attribution in their calendar view.
+			if (sakaiToSakaiEnabled) {
+				String siteName = event.getSiteName();
+				if (siteName != null && !siteName.isEmpty()) {
+					icalEvent.getProperties().add(new XProperty("X-SAKAI-SITE-NAME", siteName));
+				}
+			}
+
 			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( timeService.getLocalTimeZone().getID() );
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
+			icalEvent.getProperty(Property.DTEND).getParameters().add(new net.fortuna.ical4j.model.parameter.TzId( timeService.getLocalTimeZone().getID() ));
+			icalEvent.getProperty(Property.DTEND).getParameters().add(Value.DATE_TIME);
 			icalEvent.getProperties().add(new Uid(event.getId()));
 			// build the description, adding links to attachments if necessary
 			StringBuffer description = new StringBuffer("");
@@ -5581,66 +5629,86 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected void handleAccessIcalCommon(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, PermissionException, IOException {
 
-		// Ok so we need to check to see if we've handled this reference before.
-		// This is to prevent loops when including calendars
-		// that currently includes other calendars we only do the check in here.
-		if (getUserAgent().equals(req.getHeader("User-Agent"))) {
-			res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			log.warn("Reject internal request for: "+ calRef);
-			return;
-		}
-
-		// Extract the alias name to use for the filename.
-		List<Alias> alias =  aliasService.getAliases(calRef);
-		String aliasName = "schedule.ics";
-		if ( ! alias.isEmpty() )
-			aliasName =  alias.get(0).getId();
-		
-		List<String> referenceList = getCalendarReferences(ref.getContext());
-		Time modDate = timeService.newTime(0);
-
-		// update date/time reference
-		for (String curCalRef: referenceList)
-		{
-			Calendar curCal = findCalendar(curCalRef);
-			/*
-			 * TODO: This null check is required to handle the references 
-			 * pertaining to external calendar subscriptions as they are 
-			 * currently broken in (at least) the 2 following ways:
-			 * 
-			 * (i) findCalendar will return null rather than a calendar object.
-			 * (ii) getCalendar(String) will return a calendar object that is 
-			 * not null, but the corresponding getModified() method returns a
-			 * date than can not be parsed.  
-			 *  
-			 * Clearly such references to need to be improved to make them 
-			 * consistent with other types as at the moment they have to be
-			 * excluded as part of this process to find the most recent modified
-			 * date. 
-			 */
-			if (curCal == null)
-			{	
-				continue;
+		if (serverConfigurationService.getBoolean("calendar.subscription.sakai.enabled", false)) {
+			// Sakai-to-Sakai subscriptions enabled: use chain-based circular detection.
+			// X-Sakai-Calendar-Chain carries the comma-separated siteId path accumulated
+			// so far. If this site is already in the chain, a circular subscription exists.
+			String incomingChain = req.getHeader("X-Sakai-Calendar-Chain");
+			String currentSiteId = ref.getContext();
+			if (incomingChain != null && Arrays.asList(incomingChain.split(",")).contains(currentSiteId)) {
+				res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				log.warn("Circular calendar subscription detected for site: {} in chain: {}", currentSiteId, incomingChain);
+				return;
 			}
-			Time curModDate = curCal.getModified();
-			if ( curModDate != null && curModDate.after(modDate))
-			{
-				modDate = curModDate;
+			// Build the outgoing chain and store it so outbound subscription fetches can include it.
+			String outgoingChain = incomingChain != null ? incomingChain + "," + currentSiteId : currentSiteId;
+			calendarSubscriptionChain.set(outgoingChain);
+		} else {
+			// Legacy behavior: reject ICS requests that come from another Sakai instance
+			// to prevent infinite subscription loops.  Enable Sakai-to-Sakai subscriptions
+			// with loop detection by setting calendar.subscription.sakai.enabled=true in
+			// sakai.properties.
+			String userAgent = req.getHeader("User-Agent");
+			if (userAgent != null && userAgent.contains("Sakai")) {
+				res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return;
 			}
 		}
-		res.addHeader("Content-Disposition", "inline; filename=\"" + aliasName + "\"");
-		res.setContentType(ICAL_MIME_TYPE);
-		res.setDateHeader("Last-Modified", modDate.getTime() );
-		String calendarName = "";
 		try {
-			calendarName = siteService.getSite(ref.getContext()).getTitle();
-			boolean isMyDashboard = siteService.isUserSite(ref.getContext());
-			if (isMyDashboard){
-				calendarName = serverConfigurationService.getString(UI_SERVICE, SAKAI);
+			// Extract the alias name to use for the filename.
+			List<Alias> alias =  aliasService.getAliases(calRef);
+			String aliasName = "schedule.ics";
+			if ( ! alias.isEmpty() )
+				aliasName =  alias.get(0).getId();
+
+			List<String> referenceList = getCalendarReferences(ref.getContext());
+			Time modDate = timeService.newTime(0);
+
+			// update date/time reference
+			for (String curCalRef: referenceList)
+			{
+				Calendar curCal = findCalendar(curCalRef);
+				/*
+				 * TODO: This null check is required to handle the references
+				 * pertaining to external calendar subscriptions as they are
+				 * currently broken in (at least) the 2 following ways:
+				 *
+				 * (i) findCalendar will return null rather than a calendar object.
+				 * (ii) getCalendar(String) will return a calendar object that is
+				 * not null, but the corresponding getModified() method returns a
+				 * date than can not be parsed.
+				 *
+				 * Clearly such references to need to be improved to make them
+				 * consistent with other types as at the moment they have to be
+				 * excluded as part of this process to find the most recent modified
+				 * date.
+				 */
+				if (curCal == null)
+				{
+					continue;
+				}
+				Time curModDate = curCal.getModified();
+				if ( curModDate != null && curModDate.after(modDate))
+				{
+					modDate = curModDate;
+				}
 			}
-		} catch (IdUnusedException e) {
+			res.addHeader("Content-Disposition", "inline; filename=\"" + aliasName + "\"");
+			res.setContentType(ICAL_MIME_TYPE);
+			res.setDateHeader("Last-Modified", modDate.getTime() );
+			String calendarName = "";
+			try {
+				calendarName = siteService.getSite(ref.getContext()).getTitle();
+				boolean isMyDashboard = siteService.isUserSite(ref.getContext());
+				if (isMyDashboard){
+					calendarName = serverConfigurationService.getString(UI_SERVICE, SAKAI);
+				}
+			} catch (IdUnusedException e) {
+			}
+			printICalSchedule(calendarName, referenceList, res.getOutputStream());
+		} finally {
+			calendarSubscriptionChain.remove();
 		}
-		printICalSchedule(calendarName, referenceList, res.getOutputStream());
 	}
 	
 	protected void handleAccessIcal(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
