@@ -5116,10 +5116,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Iterator itEvent = calendarEventVector.iterator();
 
 		// When Sakai-to-Sakai subscriptions are enabled (calendar.subscription.sakai.enabled=true)
-		// primary events are tagged with X-SAKAI-SITE-NAME so that subscribers can display
-		// the originating site name.  Subscription events (from external or Sakai sources)
-		// are exported as-is; circular loops are prevented by X-Sakai-Calendar-Chain detection
-		// and multi-path duplicates are collapsed by the dedup in getEvents().
+		// primary events are tagged with X-SAKAI-SITE-NAME so that subscribers display the
+		// originating site name.  Subscription events imported from other Sakai instances are
+		// skipped to prevent cascading re-export and duplicate titles with site-name suffixes.
+		// Subscription events from external providers (Google, Outlook, etc.) are exported
+		// as-is so they remain visible to downstream subscribers.
 		boolean sakaiToSakaiEnabled = serverConfigurationService.getBoolean("calendar.subscription.sakai.enabled", false);
 
 		// Generate XML for all the events.
@@ -5127,14 +5128,24 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			CalendarEvent event = (CalendarEvent) itEvent.next();
 
+			if (sakaiToSakaiEnabled && REF_TYPE_CALENDAR_SUBSCRIPTION.equals(
+					entityManager.newReference(event.getCalendarReference()).getSubType())) {
+				// Skip events imported from other Sakai instances to avoid cascading re-export
+				// and duplicate titles.  External feeds (no Sakai ICS path) are still included.
+				String subUrl = externalCalendarSubscriptionService.getSubscriptionUrlFromId(
+						entityManager.newReference(event.getCalendarReference()).getId());
+				if (subUrl != null && subUrl.contains("/access/calendar/ical/")) {
+					continue;
+				}
+			}
+
 			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
 			DateTime icalEndDate = new DateTime(event.getRange().lastTime().getTime());
 			VEvent icalEvent = new VEvent(icalStartDate, icalEndDate, event.getDisplayName() );
 
 			// Tag primary events with the originating site name so that subscribers can
 			// display the correct attribution.  Subscription events already carry the
-			// site name baked into their display name by IcalendarReader, so they are
-			// exported without an additional X-SAKAI-SITE-NAME property.
+			// site name baked into their display name by IcalendarReader.
 			if (sakaiToSakaiEnabled && !REF_TYPE_CALENDAR_SUBSCRIPTION.equals(
 					entityManager.newReference(event.getCalendarReference()).getSubType())) {
 				String siteName = event.getSiteName();
