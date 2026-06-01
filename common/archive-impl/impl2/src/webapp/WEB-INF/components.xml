@@ -35,6 +35,7 @@
 				<value>LessonBuilderEntityProducer</value>
 				<value>PollsService</value>
 				<value>rubrics</value>
+				<value>scorm</value>
 			</list>
 		</property>
 		<property name="mergeFilteredSakaiRoles">

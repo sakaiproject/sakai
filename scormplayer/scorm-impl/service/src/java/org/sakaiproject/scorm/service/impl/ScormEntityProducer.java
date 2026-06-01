@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.scorm.service.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -24,15 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
@@ -41,20 +49,20 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.adl.validator.contentpackage.LaunchData;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.HardDeleteAware;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.scorm.api.ScormConstants;
@@ -66,10 +74,16 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.MergeConfig;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
- * Entity producer enabling Import from Site for SCORM Player.
+ * Entity producer for the SCORM Player, supporting Import from Site (transfer/copy),
+ * CC+ archive/merge (export and re-import), and hard delete of a site's SCORM content.
  */
 @Setter
 @Slf4j
@@ -88,6 +102,18 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     );
     private static final String SCORM_REFERENCE_PREFIX = ContentHostingService.REFERENCE_ROOT + ScormConstants.ROOT_DIRECTORY;
 
+    // Archive/merge (CC+ archive) constants
+    private static final String ARCHIVE_ELEMENT = "contentpackage";
+    private static final String ATTR_TITLE = "title";
+    private static final String ATTR_ARCHIVE = "archive";
+    private static final String ATTR_RESOURCE_ID = "resourceId";
+    private static final String ATTR_NUMBER_OF_TRIES = "numberOfTries";
+    private static final String ATTR_SHOW_TOC = "showToc";
+    private static final String ATTR_SHOW_NAV_BAR = "showNavBar";
+    private static final String ATTR_RELEASE_ON = "releaseOn";
+    private static final String ATTR_DUE_ON = "dueOn";
+    private static final String ATTR_ACCEPT_UNTIL = "acceptUntil";
+
     private EntityManager entityManager;
     private ScormContentService scormContentService;
     private ContentPackageDao contentPackageDao;
@@ -95,8 +121,8 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     private ScormResourceService scormResourceService;
     private ContentHostingService contentHostingService;
     private SecurityService securityService;
-    private SessionManager sessionManager;
     private GradingService gradingService;
+    private ServerConfigurationService serverConfigurationService;
 
     public void init() {
         try {
@@ -132,7 +158,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         try {
             return scormContentService.getContentPackages(fromContext).stream()
                     .map(cp -> Map.of("id", String.valueOf(cp.getContentPackageId()), "title", cp.getTitle()))
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (ResourceStorageException e) {
             log.warn("Unable to build SCORM entity map for {}: {}", fromContext, e.getMessage());
             return Collections.emptyList();
@@ -295,21 +321,18 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 return null;
             }
 
-            // Create a deep copy that is completely detached from Hibernate session
+            // Deep copy fully detached from the Hibernate session, including each LaunchData
             ContentPackageManifest clone = SerializationUtils.clone(manifest);
             clone.setId(null);
 
-            // Get the launch data list from the clone
-            List<LaunchData> launchDataList = clone.getLaunchData();
-            if (launchDataList != null) {
-                // Create a new list with cloned LaunchData objects to ensure complete detachment
-                List<LaunchData> newLaunchDataList = new java.util.ArrayList<>();
-                for (LaunchData ld : launchDataList) {
-                    LaunchData ldClone = SerializationUtils.clone(ld);
-                    ldClone.setId(null);
-                    newLaunchDataList.add(ldClone);
-                }
-                clone.setLaunchData(newLaunchDataList);
+            if (clone.getLaunchData() != null) {
+                clone.setLaunchData(clone.getLaunchData().stream()
+                        .map(ld -> {
+                            LaunchData ldClone = SerializationUtils.clone(ld);
+                            ldClone.setId(null);
+                            return ldClone;
+                        })
+                        .collect(Collectors.toList()));
             }
 
             return contentPackageManifestDao.save(clone);
@@ -464,10 +487,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     private String fallbackDisplayName(String displayName, String collectionId) {
-        if (displayName == null || displayName.trim().isEmpty()) {
-            return getDisplayName(collectionId);
-        }
-        return displayName;
+        return StringUtils.isBlank(displayName) ? getDisplayName(collectionId) : displayName;
     }
 
     private void removeCollectionQuietly(String collectionId) {
@@ -518,15 +538,237 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         }
     }
 
-    private String extractResourceId(String collectionId) {
-        if (collectionId == null) {
+    @Override
+    public boolean willArchiveMerge() {
+        return true;
+    }
+
+    /**
+     * Archive the SCORM content packages for a site as part of a CC+ (Common Cartridge plus archive) export.
+     * Each package is written as a self-contained zip alongside the archive XML so it can be re-imported via {@link #merge}.
+     */
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
+        StringBuilder results = new StringBuilder();
+
+        // The element tag must be the producer label ("scorm"): SiteArchiver writes this producer's
+        // output to "{label}.xml" and SiteMerger dispatches/filters merge by the element's tag name
+        // (matched against the archive.merge.filtered.services list, see getLabel()).
+        Element root = doc.createElement(getLabel());
+        ((Element) stack.peek()).appendChild(root);
+        stack.push(root);
+
+        int archived = 0;
+        try {
+            List<ContentPackage> packages = scormContentService.getContentPackages(siteId);
+            for (ContentPackage pkg : packages) {
+                try {
+                    String zipName = "scorm_" + pkg.getResourceId() + ".zip";
+                    if (writePackageArchive(pkg.getResourceId(), archivePath + zipName)) {
+                        Element element = doc.createElement(ARCHIVE_ELEMENT);
+                        element.setAttribute(ATTR_TITLE, StringUtils.trimToEmpty(pkg.getTitle()));
+                        element.setAttribute(ATTR_RESOURCE_ID, StringUtils.trimToEmpty(pkg.getResourceId()));
+                        element.setAttribute(ATTR_ARCHIVE, zipName);
+                        element.setAttribute(ATTR_NUMBER_OF_TRIES, String.valueOf(pkg.getNumberOfTries()));
+                        element.setAttribute(ATTR_SHOW_TOC, String.valueOf(pkg.isShowTOC()));
+                        element.setAttribute(ATTR_SHOW_NAV_BAR, String.valueOf(pkg.isShowNavBar()));
+                        setDateAttribute(element, ATTR_RELEASE_ON, pkg.getReleaseOn());
+                        setDateAttribute(element, ATTR_DUE_ON, pkg.getDueOn());
+                        setDateAttribute(element, ATTR_ACCEPT_UNTIL, pkg.getAcceptUntil());
+                        root.appendChild(element);
+                        archived++;
+                    }
+                } catch (Exception e) {
+                    log.warn("Unable to archive SCORM package {} for site {}: {}", pkg.getContentPackageId(), siteId, e.getMessage());
+                }
+            }
+        } catch (ResourceStorageException e) {
+            log.warn("Unable to list SCORM packages while archiving site {}: {}", siteId, e.getMessage());
+        }
+
+        stack.pop();
+        results.append("archiving ").append(archived).append(" SCORM content package(s).\n");
+        return results.toString();
+    }
+
+    /**
+     * Re-import the SCORM content packages produced by {@link #archive} into the destination site.
+     */
+    @Override
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+        StringBuilder results = new StringBuilder();
+
+        if (StringUtils.isBlank(siteId)) {
+            return "SCORM merge stopped, no siteId provided\n";
+        }
+
+        Set<String> reservedTitles = new HashSet<>();
+        try {
+            scormContentService.getContentPackages(siteId).forEach(cp -> reservedTitles.add(cp.getTitle()));
+        } catch (ResourceStorageException e) {
+            log.debug("Unable to preload SCORM titles for {}: {}", siteId, e.getMessage());
+        }
+
+        // On merge, archivePath is the path to this producer's archive file (e.g. ".../sakai_archive/scorm.xml"),
+        // not a directory (unlike archive()). The package zips live alongside it, so resolve against its parent.
+        File archiveFile = new File(archivePath);
+        File archiveDir = archiveFile.isDirectory() ? archiveFile : archiveFile.getParentFile();
+
+        NodeList packages = root.getElementsByTagName(ARCHIVE_ELEMENT);
+        int merged = 0;
+        for (int i = 0; i < packages.getLength(); i++) {
+            Node node = packages.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            Element element = (Element) node;
+            String title = element.getAttribute(ATTR_TITLE);
+
+            if (StringUtils.isNotBlank(title) && reservedTitles.contains(title)) {
+                log.debug("Skipping SCORM package '{}', a package with that title already exists in {}", title, siteId);
+                continue;
+            }
+
+            File zip = new File(archiveDir, element.getAttribute(ATTR_ARCHIVE));
+            if (!zip.isFile()) {
+                log.warn("SCORM archive zip {} not found while merging into {}", zip.getPath(), siteId);
+                continue;
+            }
+
+            try {
+                ContentPackage created = importPackageArchive(siteId, zip, title);
+                if (created != null) {
+                    restoreSettings(created, element);
+                    reservedTitles.add(created.getTitle());
+                    merged++;
+                }
+            } catch (Exception e) {
+                log.warn("Unable to merge SCORM package '{}' into {}: {}", title, siteId, e.getMessage(), e);
+            }
+        }
+
+        results.append("merging ").append(merged).append(" SCORM content package(s).\n");
+        return results.toString();
+    }
+
+    /**
+     * Stream the unpacked SCORM content collection at {@code /private/scorm/{uuid}/} into a zip archive,
+     * preserving paths relative to the package root (so {@code imsmanifest.xml} lands at the zip root).
+     */
+    private boolean writePackageArchive(String resourceId, String zipPath) throws Exception {
+        if (StringUtils.isBlank(resourceId)) {
+            return false;
+        }
+
+        final String collectionId = buildCollectionPath(resourceId);
+
+        Callable<Boolean> task = () -> {
+            ContentCollection collection;
+            try {
+                collection = contentHostingService.getCollection(collectionId);
+            } catch (IdUnusedException e) {
+                log.warn("SCORM content collection {} not found, skipping archive", collectionId);
+                return false;
+            }
+
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipPath))) {
+                zipCollection(collection, collectionId, zos);
+            }
+            return true;
+        };
+
+        return runWithAdvisor(task);
+    }
+
+    private void zipCollection(ContentCollection collection, String rootCollectionId, ZipOutputStream zos) throws Exception {
+        for (ContentEntity member : collection.getMemberResources()) {
+            if (member.isCollection()) {
+                zipCollection((ContentCollection) member, rootCollectionId, zos);
+            } else {
+                String entryName = StringUtils.removeStart(member.getId(), rootCollectionId);
+                zos.putNextEntry(new ZipEntry(entryName));
+                try (InputStream in = ((ContentResource) member).streamContent()) {
+                    in.transferTo(zos);
+                } finally {
+                    zos.closeEntry();
+                }
+            }
+        }
+    }
+
+    /**
+     * Recreate a SCORM content package from an archived zip, mirroring the interactive upload flow
+     * ({@code putArchive} followed by {@code storeAndValidate}). Returns the newly created package.
+     */
+    private ContentPackage importPackageArchive(String siteId, File zip, String title) throws Exception {
+        Set<Long> existingIds = collectPackageIds(siteId);
+
+        Callable<ContentPackage> task = () -> {
+            String name = StringUtils.isNotBlank(title) ? title + ".zip" : zip.getName();
+            try (InputStream in = new FileInputStream(zip)) {
+                String resourceId = scormResourceService.putArchive(in, name, "application/zip", false, NotificationService.NOTI_NONE);
+                String encoding = serverConfigurationService.getString("scorm.zip.encoding", "UTF-8");
+                scormContentService.storeAndValidate(resourceId, false, encoding);
+            }
+            return findNewPackage(siteId, existingIds);
+        };
+
+        return runWithAdvisor(task);
+    }
+
+    private Set<Long> collectPackageIds(String siteId) {
+        return contentPackageDao.find(siteId).stream()
+                .map(ContentPackage::getContentPackageId)
+                .collect(Collectors.toSet());
+    }
+
+    private ContentPackage findNewPackage(String siteId, Set<Long> existingIds) {
+        return contentPackageDao.find(siteId).stream()
+                .filter(cp -> !existingIds.contains(cp.getContentPackageId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void restoreSettings(ContentPackage pkg, Element element) {
+        // storeAndValidate() derives the title from the manifest, which loses any rename made in the UI.
+        // Restore the archived title so the package matches what Lessons references when relinking SCORM items.
+        String title = element.getAttribute(ATTR_TITLE);
+        if (StringUtils.isNotBlank(title)) {
+            pkg.setTitle(title);
+        }
+        pkg.setNumberOfTries(NumberUtils.toInt(element.getAttribute(ATTR_NUMBER_OF_TRIES), pkg.getNumberOfTries()));
+        pkg.setShowTOC(parseBoolean(element.getAttribute(ATTR_SHOW_TOC), pkg.isShowTOC()));
+        pkg.setShowNavBar(parseBoolean(element.getAttribute(ATTR_SHOW_NAV_BAR), pkg.isShowNavBar()));
+
+        Date releaseOn = parseDate(element.getAttribute(ATTR_RELEASE_ON));
+        if (releaseOn != null) {
+            pkg.setReleaseOn(releaseOn);
+        }
+        pkg.setDueOn(parseDate(element.getAttribute(ATTR_DUE_ON)));
+        pkg.setAcceptUntil(parseDate(element.getAttribute(ATTR_ACCEPT_UNTIL)));
+
+        contentPackageDao.save(pkg);
+    }
+
+    private void setDateAttribute(Element element, String name, Date date) {
+        if (date != null) {
+            element.setAttribute(name, String.valueOf(date.getTime()));
+        }
+    }
+
+    private Date parseDate(String value) {
+        if (StringUtils.isBlank(value)) {
             return null;
         }
-        String trimmed = collectionId.endsWith(Entity.SEPARATOR) ? collectionId.substring(0, collectionId.length() - 1) : collectionId;
-        if (trimmed.startsWith(ScormConstants.ROOT_DIRECTORY)) {
-            return trimmed.substring(ScormConstants.ROOT_DIRECTORY.length());
+        try {
+            return new Date(Long.parseLong(value));
+        } catch (NumberFormatException e) {
+            return null;
         }
-        return trimmed;
+    }
+
+    private boolean parseBoolean(String value, boolean fallback) {
+        return StringUtils.isBlank(value) ? fallback : Boolean.parseBoolean(value);
     }
 
     private String buildPackageReference(String context, Long contentPackageId) {
