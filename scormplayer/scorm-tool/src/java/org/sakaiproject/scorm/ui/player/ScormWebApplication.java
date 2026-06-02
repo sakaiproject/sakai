@@ -30,7 +30,7 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
 import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
 import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 /**
@@ -47,6 +47,9 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     @Getter @Setter
     private ContentHostingService contentHostingService;
 
+    @Getter @Setter
+    private LocaleService localeService;
+
     @Override
     public void init()
     {
@@ -55,6 +58,7 @@ public abstract class ScormWebApplication extends SakaiWebApplication
         mountPage( "scormCompletionPage", ScormCompletionPage.class );
         Objects.requireNonNull(serverConfigurationService, "serverConfigurationService must be set before init()");
         Objects.requireNonNull(contentHostingService, "contentHostingService must be set before init()");
+        Objects.requireNonNull(localeService, "localeService must be set before init()");
 
         mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}",
             new ContentPackageResourceReference(serverConfigurationService, contentHostingService) );
@@ -70,7 +74,7 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     public Session newSession( Request request, Response response )
     {
         Session session = super.newSession( request, response );
-        session.setLocale( new ResourceLoader().getLocale() );
+        session.setLocale( localeService.getLocaleForCurrentSiteAndUser() );
         return session;
     }
 }
