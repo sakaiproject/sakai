@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -161,7 +163,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows = PagerRenderer.MAX_PAGE_SIZE;
+  private int maxDisplayedScoreRows = getDefaultPageSize();
   private int scoreDataRows;
   
   // Searching
@@ -189,6 +191,8 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   @Getter @Setter
   private boolean resultsAlreadyCalculated = false;
+
+  private static final String DEFAULT_PAGE_SIZES = "10,20,50,100";
 
   /**
    * Creates a new TotalScoresBean object.
@@ -1199,6 +1203,73 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
   public int getDataRows() {
       return scoreDataRows;
+  }
+
+  public String getPageSizes() {
+    try {
+        Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+
+        String sitePageSizes = site.getProperties().getProperty("site.pagesizes");
+        String siteAllowAll = site.getProperties().getProperty("site.pagesize.allowall");
+
+        String pageSizesConfig = StringUtils.isNotBlank(sitePageSizes)
+                ? sitePageSizes
+                : serverConfigurationService.getString(
+                        "sakai.pager.pageSizes",
+                        DEFAULT_PAGE_SIZES);
+
+        String allowAllConfig = StringUtils.isNotBlank(siteAllowAll)
+                ? siteAllowAll
+                : serverConfigurationService.getString(
+                        "sakai.pager.allowAll",
+                        "false");
+
+        Set<Integer> pageSizes = Arrays.stream(pageSizesConfig.split(","))
+                .map(String::trim)
+                .filter(s -> s.matches("\\d+"))
+                .map(Integer::parseInt)
+                .filter(n -> n > 0)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (pageSizes.isEmpty()) {
+            pageSizes = Arrays.stream(DEFAULT_PAGE_SIZES.split(","))
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+
+        if ("true".equalsIgnoreCase(allowAllConfig)) {
+            pageSizes.add(0);
+        }
+
+        return pageSizes.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+    } catch (Exception ex) {
+        log.warn("Error getting page sizes configuration", ex);
+        return DEFAULT_PAGE_SIZES;
+    }
+  }
+
+  public int getDefaultPageSize() {
+    try {
+        return Arrays.stream(getPageSizes().split(","))
+                .map(String::trim)
+                .mapToInt(Integer::parseInt)
+                .filter(n -> n > 0)
+                .findFirst()
+                .orElse(10);
+    } catch (Exception ex) {
+        log.warn("Error getting default page size: {}", ex.toString());
+        return 10;
+    }
+  }
+
+  public int getEffectiveMaxDisplayedRows() {
+    if (maxDisplayedScoreRows <= 0) {
+        return getDataRows();
+    }
+    return maxDisplayedScoreRows;
   }
   
   public void setAllAgents(List allAgents) {

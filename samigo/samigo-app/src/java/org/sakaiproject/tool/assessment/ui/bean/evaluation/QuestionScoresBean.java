@@ -23,12 +23,15 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -42,6 +45,8 @@ import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -146,13 +151,11 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows = PagerRenderer.MAX_PAGE_SIZE;
+  private int maxDisplayedRows = getDefaultPageSize();
   @Getter @Setter
   private int dataRows;
   @Getter @Setter
   private int audioMaxDisplayedScoreRows;
-  @Getter @Setter
-  private int otherMaxDisplayedScoreRows;
   @Getter @Setter
   private boolean hasAudioMaxDisplayedScoreRowsChanged;
   
@@ -191,7 +194,10 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter @Getter
   private String associatedRubricType;
 
+  private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+
+  private static final String DEFAULT_PAGE_SIZES = "10,20,50,100";
 
   /**
    * Creates a new QuestionScoresBean object.
@@ -239,6 +245,66 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
 		agents = newAgents;
 	}
+
+    public String getPageSizes() {
+    try {
+        Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+
+        String sitePageSizes = site.getProperties().getProperty("site.pagesizes");
+        String siteAllowAll = site.getProperties().getProperty("site.pagesize.allowall");
+
+        String pageSizesConfig = StringUtils.isNotBlank(sitePageSizes)
+                ? sitePageSizes
+                : ServerConfigurationService.getString(
+                        "sakai.pager.pageSizes",
+                        DEFAULT_PAGE_SIZES);
+
+        String allowAllConfig = StringUtils.isNotBlank(siteAllowAll)
+                ? siteAllowAll
+                : ServerConfigurationService.getString(
+                        "sakai.pager.allowAll",
+                        "false");
+
+        Set<Integer> pageSizes = Arrays.stream(pageSizesConfig.split(","))
+                .map(String::trim)
+                .filter(s -> s.matches("\\d+"))
+                .map(Integer::parseInt)
+                .filter(n -> n > 0)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (pageSizes.isEmpty()) {
+            pageSizes = Arrays.stream(DEFAULT_PAGE_SIZES.split(","))
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+
+        if ("true".equalsIgnoreCase(allowAllConfig)) {
+            pageSizes.add(0);
+        }
+
+        return pageSizes.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+    } catch (Exception ex) {
+        log.warn("Error getting page sizes configuration", ex);
+        return DEFAULT_PAGE_SIZES;
+    }
+  }
+
+  public int getDefaultPageSize() {
+    try {
+        return Arrays.stream(getPageSizes().split(","))
+                .map(String::trim)
+                .mapToInt(Integer::parseInt)
+                .filter(n -> n > 0)
+                .findFirst()
+                .orElse(10);
+    } catch (Exception ex) {
+        log.warn("Error getting default page size: {}", ex.toString());
+        return 10;
+    }
+  }
  
 	// Following three methods are for interface PhaseAware
 	public void endProcessValidators() {

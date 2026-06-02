@@ -408,7 +408,7 @@ $Id$
     </h:panelGroup>
 
     <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
-        <sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
+        <sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" pageSizes="#{totalScores.pageSizes}" textStatus="#{evaluationMessages.paging_status}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
         </sakai:pager>
     </h:panelGroup>
@@ -460,7 +460,7 @@ $Id$
   </h:panelGroup>
   
   <h:panelGroup>
-	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
+	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" pageSizes="#{totalScores.pageSizes}" textStatus="#{evaluationMessages.paging_status}" >
 	  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
 	</sakai:pager>
   </h:panelGroup>

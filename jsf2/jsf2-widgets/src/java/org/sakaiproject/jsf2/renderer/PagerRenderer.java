@@ -17,6 +17,7 @@ package org.sakaiproject.jsf2.renderer;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -30,12 +31,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.jsf2.util.RendererUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class PagerRenderer extends Renderer {
 
     private static final String BUNDLE_NAME = "pager";
     public static final int MAX_PAGE_SIZE = 200;
+
+    private static final ResourceLoader toolBundle = new ResourceLoader("pager");
 
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         if (!component.isRendered()) return;
@@ -46,7 +50,10 @@ public class PagerRenderer extends Renderer {
         String clientId = component.getClientId(context);
         //String formId = getFormId(context, component);
 
-        int pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
+        int pageSize = getInt(context, component, "pageSize", 0);
+        if (pageSize < 0) {
+            pageSize = 0;
+        }
         int totalItems = getInt(context, component, "totalItems", 0);
         int firstItem = getInt(context, component, "firstItem", 0);
         int lastItem = getInt(context, component, "lastItem", -1);
@@ -112,12 +119,20 @@ public class PagerRenderer extends Renderer {
         // prepare the dropdown for selecting the
         // TODO: Probably need to cache this for performance
         String onchangeHandler = "javascript:this.form.submit(); return false;";
-        String selectedValue = pageSize <= 0 || pageSize > MAX_PAGE_SIZE ? String.valueOf(MAX_PAGE_SIZE) : String.valueOf(pageSize);
+        String selectedValue = String.valueOf(pageSize);
+        selectedValue = selectedValue == null ? "0" : selectedValue.trim();
         String[] optionTexts = new String[pageSizes.length];
         String[] optionValues = new String[pageSizes.length];
-        for (int i=0; i<pageSizes.length; i++) {
-            optionTexts[i] = MessageFormat.format(textPageSize, new Object[] {pageSizes[i]});
-            optionValues[i] = pageSizes[i];
+        for (int i = 0; i < pageSizes.length; i++) {
+            String val = pageSizes[i].trim();
+
+            optionValues[i] = val;
+
+            if ("0".equals(val)) {
+                optionTexts[i] = toolBundle.getString("pager_textPageSizeAll");
+            } else {
+                optionTexts[i] = MessageFormat.format(textPageSize, val);
+            }
         }
 
         // Output HTML
@@ -221,7 +236,10 @@ public class PagerRenderer extends Renderer {
 
         int firstItem = getInt(context, component, "firstItem", 0);
         int lastItem = getInt(context, component, "lastItem", 0);
-        int pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
+        int pageSize = getInt(context, component, "pageSize", 0);
+        if (pageSize < 0) {
+            pageSize = 0;
+        }
         int totalItems = getInt(context, component, "totalItems", 0);
         if (log.isDebugEnabled()) log.debug("decode: firstItem=" + firstItem + ", pageSize=" + pageSize + ", value=" + getString(context, component, "value", null));
 

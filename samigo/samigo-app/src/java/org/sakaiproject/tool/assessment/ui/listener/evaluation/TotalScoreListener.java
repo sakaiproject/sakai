@@ -195,16 +195,17 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
     questionbean.setMaxScore(0.0d);
     questionbean.setDeliveryItem(new ArrayList());
     questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_INLINE);
-    
+
     // if comes from scores link in author index (means to view the score of a different assessment)
     // we reset the following values for paging (for audio, displays 5 records; for others, display all)
     if (ae == null) {
-    	submissionbean.setMaxDisplayedRows(0);
-    	bean.setMaxDisplayedRows(0);
-    	questionbean.setHasAudioMaxDisplayedScoreRowsChanged(false);
-    	questionbean.setMaxDisplayedRows(0);
-    	questionbean.setOtherMaxDisplayedScoreRows(0);
-    	questionbean.setAudioMaxDisplayedScoreRows(5);
+        submissionbean.setMaxDisplayedRows(submissionbean.getDefaultPageSize());
+        bean.setMaxDisplayedRows(bean.getDefaultPageSize());
+
+        questionbean.setHasAudioMaxDisplayedScoreRowsChanged(false);
+        questionbean.setMaxDisplayedRows(questionbean.getDefaultPageSize());
+
+        questionbean.setAudioMaxDisplayedScoreRows(5);
     }
 
     if (!totalScores(pubAssessment, bean, false))

@@ -101,9 +101,6 @@ public class QuestionScorePagerListener
 			  bean.setAudioMaxDisplayedScoreRows(bean.getMaxDisplayedRows());
 			  bean.setHasAudioMaxDisplayedScoreRowsChanged(true);
 		  }
-		  else {
-			  bean.setOtherMaxDisplayedScoreRows(bean.getMaxDisplayedRows());
-		  }
 	  }
 	  else {
 		  if (itemType.equals(Long.valueOf("7"))){
@@ -111,12 +108,9 @@ public class QuestionScorePagerListener
 				  bean.setMaxDisplayedRows(bean.getAudioMaxDisplayedScoreRows());
 			  }
 			  else {
-				  bean.setMaxDisplayedRows(0);
+				  bean.setMaxDisplayedRows(bean.getDefaultPageSize());
 				  bean.setAudioMaxDisplayedScoreRows(5);
 			  }
-		  }
-		  else {
-			  bean.setMaxDisplayedRows(bean.getOtherMaxDisplayedScoreRows());
 		  }
 	  }
   }
