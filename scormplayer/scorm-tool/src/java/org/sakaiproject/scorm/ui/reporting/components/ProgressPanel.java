@@ -22,7 +22,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 import org.sakaiproject.scorm.model.api.Progress;
 import org.sakaiproject.scorm.ui.reporting.util.ScormDurationFormatter;
@@ -63,10 +65,12 @@ public class ProgressPanel extends Panel
 		}
 		add(percentBar);
 
-		Label successLabel = new Label("successStatus");
-		Label completionLabel = new Label("completionStatus");
-		successLabel.setVisible(progress.getSuccessStatus() != null && progress.getSuccessStatus().trim().length() != 0);
-		completionLabel.setVisible(progress.getCompletionStatus() != null && progress.getCompletionStatus().trim().length() != 0);
+		String successStatus = progress.getSuccessStatus();
+		String completionStatus = progress.getCompletionStatus();
+		Label successLabel = new Label("successStatus", localizeStatus("success.status.", successStatus));
+		Label completionLabel = new Label("completionStatus", localizeStatus("completion.status.", completionStatus));
+		successLabel.setVisible(successStatus != null && successStatus.trim().length() != 0);
+		completionLabel.setVisible(completionStatus != null && completionStatus.trim().length() != 0);
 		add(successLabel);
 		add(completionLabel);
 
@@ -75,5 +79,20 @@ public class ProgressPanel extends Panel
 		Label totalTimeLabel = new Label("totalTime", Model.of(formattedTotalTime != null ? formattedTotalTime : ""));
 		totalTimeLabel.setVisible(formattedTotalTime != null);
 		add(totalTimeLabel);
+	}
+
+	/**
+	 * Builds a model that translates a raw SCORM status value (e.g. "passed", "completed") via the
+	 * key "{keyPrefix}{value}", falling back to the raw value when no translation exists.
+	 */
+	private static IModel<String> localizeStatus(String keyPrefix, String value)
+	{
+		if (value == null || value.trim().isEmpty())
+		{
+			return Model.of("");
+		}
+
+		String key = keyPrefix + value.trim().toLowerCase(Locale.ROOT).replace(' ', '_');
+		return new ResourceModel(key, value);
 	}
 }

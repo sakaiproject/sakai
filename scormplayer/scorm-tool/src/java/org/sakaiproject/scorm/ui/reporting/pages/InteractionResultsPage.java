@@ -17,6 +17,7 @@ package org.sakaiproject.scorm.ui.reporting.pages;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -38,6 +39,7 @@ import org.sakaiproject.scorm.ui.reporting.components.InteractionPanel;
 import org.sakaiproject.scorm.ui.reporting.util.ObjectiveProvider;
 import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
 public class InteractionResultsPage extends BaseResultsPage
 {
@@ -156,9 +158,44 @@ public class InteractionResultsPage extends BaseResultsPage
 
 		columns.add(new PropertyColumn(idHeader, "id", "id"));
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));
-		columns.add(new PropertyColumn(completionStatusHeader, "completionStatus", "completionStatus"));
-		columns.add(new PropertyColumn(successStatusHeader, "successStatus", "successStatus"));
+		columns.add(new StatusPropertyColumn(completionStatusHeader, "completionStatus", "completionStatus", "completion.status."));
+		columns.add(new StatusPropertyColumn(successStatusHeader, "successStatus", "successStatus", "success.status."));
 
 		return columns;
+	}
+
+	/**
+	 * Translates a raw SCORM status value (e.g. "completed", "passed") via the key "{keyPrefix}{value}",
+	 * falling back to the raw value when no translation exists.
+	 */
+	private class StatusPropertyColumn extends DecoratedPropertyColumn
+	{
+		private static final long serialVersionUID = 1L;
+
+		private final String keyPrefix;
+
+		public StatusPropertyColumn(IModel displayModel, String sortProperty, String propertyExpression, String keyPrefix)
+		{
+			super(displayModel, sortProperty, propertyExpression);
+			this.keyPrefix = keyPrefix;
+		}
+
+		@Override
+		public Object convertObject(Object object)
+		{
+			if (object == null)
+			{
+				return "";
+			}
+
+			String value = object.toString().trim();
+			if (value.isEmpty())
+			{
+				return "";
+			}
+
+			String key = keyPrefix + value.toLowerCase(Locale.ROOT).replace(' ', '_');
+			return getLocalizer().getString(key, InteractionResultsPage.this, value);
+		}
 	}
 }

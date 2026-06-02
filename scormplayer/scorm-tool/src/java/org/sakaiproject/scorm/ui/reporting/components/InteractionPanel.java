@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.ui.reporting.components;
 
+import java.util.Locale;
+
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -58,12 +60,12 @@ public class InteractionPanel extends Panel
 		add(new Label("weighting", String.valueOf(interaction.getWeighting())));
 		add(new Label("timestamp"));
 		add(new Label("latency"));
-		add(new Label("result"));
 
 		boolean showIcon = true;
 		boolean isNeutral = false;
 		ResourceReference resultIconReference = BLANK_ICON;
 		String result = interaction.getResult();
+		Label resultLabel;
 		if (result != null)
 		{
 			if (result.equalsIgnoreCase("correct"))
@@ -87,11 +89,16 @@ public class InteractionPanel extends Panel
 			{
 				showIcon = false;
 			}
+
+			// Translate the known result values, falling back to the raw value for anything unexpected
+			resultLabel = new Label("result", new ResourceModel("result." + result.toLowerCase(Locale.ROOT), result));
 		}
 		else
 		{
 			showIcon = false;
+			resultLabel = new Label("result", "");
 		}
+		add(resultLabel);
 
 		Icon resultIcon = new Icon("resultIcon", resultIconReference);
 		resultIcon.setVisible(showIcon);
