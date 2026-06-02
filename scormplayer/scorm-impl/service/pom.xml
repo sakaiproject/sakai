@@ -72,6 +72,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
+        <!-- Test-only: GradingService signatures reference CourseSection; grading-api is provided-scope
+             so its transitive sections-api is absent at test time, which breaks mocking GradingService. -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

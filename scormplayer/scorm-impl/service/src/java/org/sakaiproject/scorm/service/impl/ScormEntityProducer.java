@@ -113,6 +113,13 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     private static final String ATTR_RELEASE_ON = "releaseOn";
     private static final String ATTR_DUE_ON = "dueOn";
     private static final String ATTR_ACCEPT_UNTIL = "acceptUntil";
+    private static final String SCO_TYPE = "sco";
+    // Per-SCO Gradebook binding persisted within each <contentpackage>
+    private static final String GRADEBOOK_ELEMENT = "gradebookitem";
+    private static final String ATTR_ITEM_IDENTIFIER = "itemIdentifier";
+    private static final String ATTR_GB_NAME = "name";
+    private static final String ATTR_GB_POINTS = "points";
+    private static final String ATTR_GB_CATEGORY_ID = "categoryId";
 
     private EntityManager entityManager;
     private ScormContentService scormContentService;
@@ -398,31 +405,113 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         }
 
         for (LaunchData launchData : manifest.getLaunchData()) {
-            if (!"sco".equalsIgnoreCase(launchData.getSCORMType())) {
+            if (!SCO_TYPE.equalsIgnoreCase(launchData.getSCORMType())) {
                 continue;
             }
 
             String itemIdentifier = launchData.getItemIdentifier();
-            String sourceExternalId = source.getContentPackageId() + ":" + itemIdentifier;
-            String destExternalId = copy.getContentPackageId() + ":" + itemIdentifier;
+            String sourceExternalId = scoExternalId(source.getContentPackageId(), itemIdentifier);
+            String destExternalId = scoExternalId(copy.getContentPackageId(), itemIdentifier);
 
             if (!gradingService.isExternalAssignmentDefined(fromContext, sourceExternalId)) {
                 continue;
             }
 
+            Assignment sourceAssignment = gradingService.getExternalAssignment(fromContext, sourceExternalId);
+            if (sourceAssignment == null) {
+                log.warn("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
+                continue;
+            }
+
+            recreateScoAssessment(toContext, destExternalId, sourceAssignment.getName(),
+                    sourceAssignment.getPoints(), copy.getDueOn(), sourceAssignment.getCategoryId());
+        }
+    }
+
+    /** External assessment id for a SCO, as used by the SCORM Gradebook integration: "{contentPackageId}:{itemIdentifier}". */
+    private String scoExternalId(Long contentPackageId, String itemIdentifier) {
+        return contentPackageId + ":" + itemIdentifier;
+    }
+
+    /**
+     * Create (remap) a SCO's Gradebook external assessment in the given site. Shared by site-copy and archive merge.
+     * Failures (e.g. duplicate or invalid category in the destination) are logged and skipped so one SCO can't abort the rest.
+     */
+    private void recreateScoAssessment(String context, String externalId, String name, Double points, Date dueOn, Long categoryId) {
+        try {
+            gradingService.addExternalAssessment(context, context, externalId, null, name, points, dueOn,
+                    ScormConstants.SCORM_DFLT_TOOL_NAME, null, false, categoryId, null);
+        } catch (Exception e) {
+            log.warn("Could not create gradebook item {} in {}: {}", externalId, context, e.toString());
+        }
+    }
+
+    /**
+     * Persist each SCO's Gradebook binding (external assessment name/points/category) for the package into the archive XML,
+     * so {@link #mergeGradebookBindings} can re-create them against the new contentPackageId on import.
+     */
+    private void archiveGradebookBindings(Document doc, Element element, String siteId, ContentPackage pkg) {
+        if (pkg.getManifestId() == null) {
+            return;
+        }
+        ContentPackageManifest manifest = contentPackageManifestDao.load(pkg.getManifestId());
+        if (manifest == null || manifest.getLaunchData() == null) {
+            return;
+        }
+
+        for (LaunchData launchData : manifest.getLaunchData()) {
+            if (!SCO_TYPE.equalsIgnoreCase(launchData.getSCORMType())) {
+                continue;
+            }
+            String itemIdentifier = launchData.getItemIdentifier();
+            String externalId = scoExternalId(pkg.getContentPackageId(), itemIdentifier);
+            if (!gradingService.isExternalAssignmentDefined(siteId, externalId)) {
+                continue;
+            }
             try {
-                Assignment sourceAssignment = gradingService.getExternalAssignment(fromContext, sourceExternalId);
-                if (sourceAssignment == null) {
-                    log.warn("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
+                Assignment assignment = gradingService.getExternalAssignment(siteId, externalId);
+                if (assignment == null) {
                     continue;
                 }
-
-                gradingService.addExternalAssessment(toContext, toContext, destExternalId, null, sourceAssignment.getName(),
-                        sourceAssignment.getPoints(), copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME,
-                        null, false, sourceAssignment.getCategoryId(), null);
+                Element gb = doc.createElement(GRADEBOOK_ELEMENT);
+                gb.setAttribute(ATTR_ITEM_IDENTIFIER, StringUtils.trimToEmpty(itemIdentifier));
+                gb.setAttribute(ATTR_GB_NAME, StringUtils.trimToEmpty(assignment.getName()));
+                if (assignment.getPoints() != null) {
+                    gb.setAttribute(ATTR_GB_POINTS, String.valueOf(assignment.getPoints()));
+                }
+                if (assignment.getCategoryId() != null) {
+                    gb.setAttribute(ATTR_GB_CATEGORY_ID, String.valueOf(assignment.getCategoryId()));
+                }
+                element.appendChild(gb);
             } catch (Exception e) {
-                log.warn("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.toString());
+                log.warn("Unable to archive gradebook binding for SCO {} in {}: {}", itemIdentifier, siteId, e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Re-create the SCO Gradebook bindings captured by {@link #archiveGradebookBindings} against the merged package's
+     * new contentPackageId.
+     */
+    private void mergeGradebookBindings(String siteId, ContentPackage pkg, Element element) {
+        NodeList items = element.getElementsByTagName(GRADEBOOK_ELEMENT);
+        for (int i = 0; i < items.getLength(); i++) {
+            Node node = items.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            Element gb = (Element) node;
+            String itemIdentifier = gb.getAttribute(ATTR_ITEM_IDENTIFIER);
+            if (StringUtils.isBlank(itemIdentifier)) {
+                continue;
+            }
+            String externalId = scoExternalId(pkg.getContentPackageId(), itemIdentifier);
+            if (gradingService.isExternalAssignmentDefined(siteId, externalId)) {
+                continue;
+            }
+            Double points = gb.hasAttribute(ATTR_GB_POINTS) ? NumberUtils.toDouble(gb.getAttribute(ATTR_GB_POINTS)) : null;
+            Long categoryId = gb.hasAttribute(ATTR_GB_CATEGORY_ID) ? NumberUtils.toLong(gb.getAttribute(ATTR_GB_CATEGORY_ID)) : null;
+            recreateScoAssessment(siteId, externalId, gb.getAttribute(ATTR_GB_NAME), points, pkg.getDueOn(), categoryId);
         }
     }
 
@@ -575,6 +664,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                         setDateAttribute(element, ATTR_RELEASE_ON, pkg.getReleaseOn());
                         setDateAttribute(element, ATTR_DUE_ON, pkg.getDueOn());
                         setDateAttribute(element, ATTR_ACCEPT_UNTIL, pkg.getAcceptUntil());
+                        archiveGradebookBindings(doc, element, siteId, pkg);
                         root.appendChild(element);
                         archived++;
                     }
@@ -639,6 +729,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 ContentPackage created = importPackageArchive(siteId, zip, title);
                 if (created != null) {
                     restoreSettings(created, element);
+                    mergeGradebookBindings(siteId, created, element);
                     reservedTitles.add(created.getTitle());
                     merged++;
                 }

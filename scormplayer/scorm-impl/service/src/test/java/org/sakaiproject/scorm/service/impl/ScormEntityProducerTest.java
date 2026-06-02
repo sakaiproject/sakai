@@ -39,18 +39,25 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.adl.validator.contentpackage.LaunchData;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
+import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.util.MergeConfig;
@@ -74,8 +81,10 @@ public class ScormEntityProducerTest
     private ScormResourceService scormResourceService;
     private ContentHostingService contentHostingService;
     private ContentPackageDao contentPackageDao;
+    private ContentPackageManifestDao contentPackageManifestDao;
     private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
+    private GradingService gradingService;
 
     private ScormEntityProducer producer;
 
@@ -89,16 +98,20 @@ public class ScormEntityProducerTest
         scormResourceService = mock(ScormResourceService.class);
         contentHostingService = mock(ContentHostingService.class);
         contentPackageDao = mock(ContentPackageDao.class);
+        contentPackageManifestDao = mock(ContentPackageManifestDao.class);
         securityService = mock(SecurityService.class);
         serverConfigurationService = mock(ServerConfigurationService.class);
+        gradingService = mock(GradingService.class);
 
         producer = new ScormEntityProducer();
         producer.setScormContentService(scormContentService);
         producer.setScormResourceService(scormResourceService);
         producer.setContentHostingService(contentHostingService);
         producer.setContentPackageDao(contentPackageDao);
+        producer.setContentPackageManifestDao(contentPackageManifestDao);
         producer.setSecurityService(securityService);
         producer.setServerConfigurationService(serverConfigurationService);
+        producer.setGradingService(gradingService);
     }
 
     @After
@@ -238,6 +251,94 @@ public class ScormEntityProducerTest
         // Nothing imported because the title collides
         verify(scormResourceService, org.mockito.Mockito.never())
                 .putArchive(any(), any(), any(), anyBoolean(), anyInt());
+    }
+
+    @Test
+    public void archivePersistsScoGradebookBindings() throws Exception
+    {
+        ContentPackage pkg = new ContentPackage("My Package", UUID_1);
+        pkg.setContentPackageId(100L);
+        pkg.setManifestId(7L);
+        when(scormContentService.getContentPackages(SITE_ID)).thenReturn(List.of(pkg));
+
+        // Minimal content collection so writePackageArchive() succeeds and the element is emitted
+        ContentResource manifestFile = mock(ContentResource.class);
+        when(manifestFile.getId()).thenReturn(COLLECTION_ID + "imsmanifest.xml");
+        when(manifestFile.isCollection()).thenReturn(false);
+        when(manifestFile.streamContent()).thenReturn(new ByteArrayInputStream("<manifest/>".getBytes(StandardCharsets.UTF_8)));
+        ContentCollection collection = mock(ContentCollection.class);
+        when(collection.getMemberResources()).thenReturn(List.<ContentEntity>of(manifestFile));
+        when(contentHostingService.getCollection(COLLECTION_ID)).thenReturn(collection);
+
+        // One SCO in the manifest with a gradebook external assessment defined
+        LaunchData sco = mock(LaunchData.class);
+        when(sco.getSCORMType()).thenReturn("sco");
+        when(sco.getItemIdentifier()).thenReturn("ITEM-1");
+        ContentPackageManifest manifest = mock(ContentPackageManifest.class);
+        when(manifest.getLaunchData()).thenReturn(List.of(sco));
+        when(contentPackageManifestDao.load(7L)).thenReturn(manifest);
+
+        when(gradingService.isExternalAssignmentDefined(SITE_ID, "100:ITEM-1")).thenReturn(true);
+        Assignment assignment = mock(Assignment.class);
+        when(assignment.getName()).thenReturn("Quiz");
+        when(assignment.getPoints()).thenReturn(10.0);
+        when(assignment.getCategoryId()).thenReturn(5L);
+        when(gradingService.getExternalAssignment(SITE_ID, "100:ITEM-1")).thenReturn(assignment);
+
+        Document doc = newDocument();
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        Stack<Element> stack = new Stack<>();
+        stack.push(root);
+
+        producer.archive(SITE_ID, doc, stack, archivePath, null);
+
+        Element cp = (Element) root.getElementsByTagName("contentpackage").item(0);
+        Element gb = (Element) cp.getElementsByTagName("gradebookitem").item(0);
+        assertNotNull("expected a gradebookitem element", gb);
+        assertEquals("ITEM-1", gb.getAttribute("itemIdentifier"));
+        assertEquals("Quiz", gb.getAttribute("name"));
+        assertEquals("10.0", gb.getAttribute("points"));
+        assertEquals("5", gb.getAttribute("categoryId"));
+    }
+
+    @Test
+    public void mergeRecreatesScoGradebookBindings() throws Exception
+    {
+        writeZip(new File(archivePath + ZIP_NAME), "imsmanifest.xml", "<manifest/>");
+
+        Document doc = newDocument();
+        Element scormRoot = doc.createElement("scorm");
+        doc.appendChild(scormRoot);
+        Element cp = doc.createElement("contentpackage");
+        cp.setAttribute("title", "My Package");
+        cp.setAttribute("archive", ZIP_NAME);
+        cp.setAttribute("dueOn", "2000");
+        Element gb = doc.createElement("gradebookitem");
+        gb.setAttribute("itemIdentifier", "ITEM-1");
+        gb.setAttribute("name", "Quiz");
+        gb.setAttribute("points", "10.0");
+        gb.setAttribute("categoryId", "5");
+        cp.appendChild(gb);
+        scormRoot.appendChild(cp);
+
+        when(scormContentService.getContentPackages(SITE_ID)).thenReturn(List.of());
+        when(serverConfigurationService.getString("scorm.zip.encoding", "UTF-8")).thenReturn("UTF-8");
+        when(scormResourceService.putArchive(any(), any(), eq("application/zip"), anyBoolean(), anyInt())).thenReturn("res-1");
+        when(scormContentService.storeAndValidate(eq("res-1"), anyBoolean(), eq("UTF-8"))).thenReturn(0);
+
+        ContentPackage created = new ContentPackage("My Package", UUID_1);
+        created.setContentPackageId(42L);
+        when(contentPackageDao.find(SITE_ID)).thenReturn(List.of()).thenReturn(List.of(created));
+        // No existing assessment under the new contentPackageId yet
+        when(gradingService.isExternalAssignmentDefined(SITE_ID, "42:ITEM-1")).thenReturn(false);
+
+        producer.merge(SITE_ID, scormRoot, archivePath + "scorm.xml", FROM_SITE_ID, new MergeConfig());
+
+        // External assessment recreated against the NEW contentPackageId, with the archived settings
+        verify(gradingService).addExternalAssessment(eq(SITE_ID), eq(SITE_ID), eq("42:ITEM-1"),
+                isNull(), eq("Quiz"), eq(10.0), eq(new Date(2000L)), eq(ScormConstants.SCORM_DFLT_TOOL_NAME),
+                isNull(), eq(false), eq(5L), isNull());
     }
 
     private static Document newDocument() throws Exception
