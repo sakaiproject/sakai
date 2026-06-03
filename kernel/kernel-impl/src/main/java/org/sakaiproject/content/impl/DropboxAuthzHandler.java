@@ -206,7 +206,7 @@ public class DropboxAuthzHandler
 		String dropboxOwner = getDropboxOwner(entityId);
 
 		// Return true if the current user has dropbox.maintain.own.groups and they share a group with the dropbox owner
-		if (contentService.isDropboxGroups(siteId))
+		if (currentUser != null && contentService.isDropboxGroups(siteId))
 		{
 			try
 			{
@@ -225,7 +225,7 @@ public class DropboxAuthzHandler
 			}
 		}
 
-		return currentUser.equals(dropboxOwner) && securityService.unlock(ContentHostingService.AUTH_DROPBOX_OWN, siteService.siteReference(siteId));
+		return currentUser != null && currentUser.equals(dropboxOwner) && securityService.unlock(ContentHostingService.AUTH_DROPBOX_OWN, siteService.siteReference(siteId));
 	}
 
 	/**
