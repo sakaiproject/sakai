@@ -73,6 +73,7 @@ import com.lowagie.text.Paragraph;
 import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPRow;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
@@ -318,11 +319,10 @@ public class PDFAssessmentBean implements Serializable {
 					partIntros.append(section.getTitle());
 					partIntros.append("</h2>");
 				}
-				partIntros.append("<br />");
-				if (section.getDescription() != null) {
+				if (StringUtils.isNotBlank(section.getDescription())) {
+					partIntros.append("<br />");
 					partIntros.append(section.getDescription());
 				}
-				partIntros.append("<br />");
 
 				
 				if (section.getAttachmentList() != null && section.getAttachmentList().size() > 0) {
@@ -366,9 +366,8 @@ public class PDFAssessmentBean implements Serializable {
 
 				StringBuffer contentBuffer = new StringBuffer(); 
 
-				if (!(TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())  
+				if (!(TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())
 					    || TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId()))) {
-					contentBuffer.append("<br />");
 					if (StringUtils.isNotEmpty(item.getItemData().getText())) {
 						contentBuffer.append(convertFormattedText(item.getItemData().getText()));
 					}
@@ -402,13 +401,11 @@ public class PDFAssessmentBean implements Serializable {
 						|| TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
 					String text = item.getItemData().getText();
 					if (item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
-						contentBuffer.append("<br />");
 						contentBuffer.append(deliveryMessages.getString("fin_accepted_instruction"));
 						contentBuffer.append("<br />");
 					} else if (TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
 						text = item.getCalculatedQuestionText();
 					}
-					contentBuffer.append("<br />");
 					contentBuffer.append(convertFormattedText(text));
 					contentBuffer.append("<br />");
 				}
@@ -915,7 +912,7 @@ public class PDFAssessmentBean implements Serializable {
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-		Document document = new Document(PageSize.A4, 20, 20, 20, 20);
+		Document document = new Document(PageSize.A4, 20, 20, 40, 20);
 
 		try {
 			PdfWriter docWriter = PdfWriter.getInstance(document, output);
@@ -944,16 +941,17 @@ public class PDFAssessmentBean implements Serializable {
 			head.append(printMessages.getString("print_score_form"));
 			head.append("<br /><br /><h1>");
 			head.append(title);
-			head.append("</h1><br />");
+			head.append("</h1>");
 			if (StringUtils.isNotBlank(intro)) {
-				head.append(intro);
 				head.append("<br />");
+				head.append(intro);
 			}
 
 			//head = head.replaceAll("[ \t\n\f\r]+", " ");
 
 			//parse out the elements from the html
 			List elementBuffer = HTMLWorker.parseToList(safeReader(head.toString()), style, props);
+			applyTightLeading(elementBuffer);
 			float[] singleWidth = {1f};
 			PdfPTable single = new PdfPTable(singleWidth);
 			single.setWidthPercentage(100f);
@@ -968,7 +966,6 @@ public class PDFAssessmentBean implements Serializable {
 			//TODO do we want a new page here ... thus giving the cover page look?
 
 			document.add(single);
-			document.add(Chunk.NEWLINE);
 
 			//extract the html and parse it into pdf
 			List parts = getHtmlChunks();
@@ -981,6 +978,7 @@ public class PDFAssessmentBean implements Serializable {
 				PDFPartBean pBean = (PDFPartBean) parts.get(i);
 				if (pBean.getIntro() != null && !"".equals(pBean.getIntro())) {
 					elementBuffer = HTMLWorker.parseToList(safeReader(pBean.getIntro()), style, props);
+					applyTightLeading(elementBuffer);
 					single = new PdfPTable(singleWidth);
 					single.setWidthPercentage(100f);
 					cell = new PdfPCell();
@@ -999,7 +997,7 @@ public class PDFAssessmentBean implements Serializable {
 				for (int j = 0; j < items.size(); j++) {
 					PDFItemBean iBean = (PDFItemBean) items.get(j);
 
-					float[] widths = {0.1f, 0.9f};
+					float[] widths = {0.05f, 0.95f};
 					PdfPTable table = new PdfPTable(widths);
 					table.setWidthPercentage(100f);
 					PdfPCell leftCell = new PdfPCell();
@@ -1024,10 +1022,9 @@ public class PDFAssessmentBean implements Serializable {
 					table.addCell(leftCell);
 
 					elementBuffer = HTMLWorker.parseToList(safeReader(iBean.getContent()), style, props);
+					applyTightLeading(elementBuffer);
 					for (int k = 0; k < elementBuffer.size(); k++) {
-						Element element = (Element)elementBuffer.get(k);
-
-						rightCell.addElement(element);
+						rightCell.addElement((Element)elementBuffer.get(k));
 					}
 					table.addCell(rightCell);
 
@@ -1035,7 +1032,6 @@ public class PDFAssessmentBean implements Serializable {
 						document.newPage();
 
 					document.add(table);
-					document.add(Chunk.NEWLINE);
 
 					//TODO add PDFTable and a collumn
 
@@ -1095,6 +1091,34 @@ public class PDFAssessmentBean implements Serializable {
 
 		}
 		return String.valueOf(items);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void applyTightLeading(List elements) {
+		applyTightLeading(elements, false);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void applyTightLeading(List elements, boolean insideTable) {
+		for (Object obj : elements) {
+			if (obj instanceof Paragraph) {
+				((Paragraph) obj).setLeading(insideTable ? 0f : 2f, insideTable ? 1.2f : 1.05f);
+			} else if (obj instanceof PdfPTable) {
+				((PdfPTable) obj).setSpacingBefore(8f);
+				for (PdfPRow row : ((PdfPTable) obj).getRows()) {
+					if (row == null) continue;
+					for (PdfPCell c : row.getCells()) {
+						if (c == null) continue;
+						c.setLeading(0f, 1.2f);
+						c.setPaddingTop(1f);
+						c.setPaddingBottom(1f);
+						if (c.getCompositeElements() != null) {
+							applyTightLeading(c.getCompositeElements(), true);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
