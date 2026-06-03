@@ -236,8 +236,6 @@ public class QuestionPoolBean implements Serializable {
   @Autowired
   private SecurityService securityService;
 
-  @Getter private String infoDuplicatedQuestion = StringUtils.EMPTY;
-
   /**
    * Creates a new QuestionPoolBean object.
    */
@@ -1384,7 +1382,6 @@ public String getAddOrEdit()
 	}
   
      public String moveQuestion() {
-		infoDuplicatedQuestion = StringUtils.EMPTY;
 		Long sourceId = getCurrentPool().getId();
 		List<Long> sourceItemIds = getCurrentItemIds();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
@@ -1403,7 +1400,7 @@ public String getAddOrEdit()
 					// return to an irrelevant screen. I think it's better
 					// just to skip that item. One could argue for a warning
 					// message.
-					if (StringUtils.isEmpty(infoDuplicatedQuestion)) infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+					addMessageIfDuplicatedInSameDestPool(sourceItemId, destId);
 					delegate.moveItemToPool(sourceItemId, sourceId, destId);
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
 				}
@@ -1481,15 +1478,14 @@ public String getAddOrEdit()
 		return EDIT_ASSESSMENT;
 	}
 
-  public String addMessageIfDuplicatedInDestPool(Long sourceItemId, Long destId){
+  public void addMessageIfDuplicatedInSameDestPool(Long sourceItemId, Long destId){
       QuestionPoolService delegate = new QuestionPoolService();
       // check if the item already exists in the destPool
       // if has duplicated items, show message
-      return delegate.hasItem(sourceItemId, destId) ? rb.getString("copy_duplicate_error") : StringUtils.EMPTY;
+      if (delegate.hasItem(sourceItemId, destId)) FacesContext.getCurrentInstance().getExternalContext().getFlash().put("infoDuplicatedQuestion", rb.getString("copy_duplicate_error"));
   }
 
   public String copyQuestion() {
-		infoDuplicatedQuestion = StringUtils.EMPTY;
 		if (getSourcePart() != null)
 			return copyQuestionsFromPart();
 
@@ -1517,7 +1513,7 @@ public String getAddOrEdit()
 						// return to an irrelevant screen. I think it's better
 						// just to skip that item. One could argue for a warning
 						// message.
-						if (StringUtils.isEmpty(infoDuplicatedQuestion)) infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+						addMessageIfDuplicatedInSameDestPool(sourceItemId, destId);
 						Long copyItemFacadeId = questionPoolService
 								.copyItemFacade(sourceItem.getData());
 						delegate.addItemToPool(copyItemFacadeId, new Long(
