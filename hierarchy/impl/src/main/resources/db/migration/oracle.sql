@@ -29,23 +29,28 @@ EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 
--- Migrate encoded parent IDs to HIERARCHY_NODE_PARENTS (upgrade from pre-JPA schema)
+-- Migrate encoded child IDs to HIERARCHY_NODE_PARENTS (upgrade from pre-JPA schema).
+-- We derive the parent/child links from the parent-side DIRECTCHILDIDS rather than the
+-- child-side DIRECTPARENTIDS. The pre-JPA removeNode only cleaned up the parent's
+-- DIRECTCHILDIDS when a node was removed and left the removed node's own DIRECTPARENTIDS
+-- pointing at its former parent. DIRECTCHILDIDS therefore reflects the live tree (and is what
+-- the old top-down traversal read), so sourcing from it avoids resurrecting orphaned nodes.
 DECLARE
     v_count NUMBER;
 BEGIN
     SELECT COUNT(*) INTO v_count
     FROM   USER_TAB_COLUMNS
     WHERE  TABLE_NAME  = 'HIERARCHY_NODE'
-      AND  COLUMN_NAME = 'DIRECTPARENTIDS';
+      AND  COLUMN_NAME = 'DIRECTCHILDIDS';
 
     IF v_count > 0 THEN
         INSERT INTO HIERARCHY_NODE_PARENTS (NODE_ID, PARENT_NODE_ID)
-        SELECT DISTINCT n.ID,
-               TO_NUMBER(REGEXP_SUBSTR(n.DIRECTPARENTIDS, '\d+', 1, LEVEL))
+        SELECT DISTINCT TO_NUMBER(REGEXP_SUBSTR(n.DIRECTCHILDIDS, '\d+', 1, LEVEL)),
+               n.ID
         FROM   HIERARCHY_NODE n
-        WHERE  n.DIRECTPARENTIDS IS NOT NULL
-          AND  REGEXP_LIKE(n.DIRECTPARENTIDS, '\d+')
-        CONNECT BY LEVEL <= REGEXP_COUNT(n.DIRECTPARENTIDS, '\d+')
+        WHERE  n.DIRECTCHILDIDS IS NOT NULL
+          AND  REGEXP_LIKE(n.DIRECTCHILDIDS, '\d+')
+        CONNECT BY LEVEL <= REGEXP_COUNT(n.DIRECTCHILDIDS, '\d+')
             AND PRIOR n.ID        = n.ID
             AND PRIOR SYS_GUID() IS NOT NULL;
 
