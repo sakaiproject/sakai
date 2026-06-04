@@ -1,5 +1,6 @@
 package org.sakaiproject.hierarchy.impl.test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import static org.junit.Assert.*;
 
 @ContextConfiguration(classes = {HierarchyTestConfiguration.class})
 @RunWith(SpringJUnit4ClassRunner.class)
-public class HierarchyServiceImplTest {
+public class HierarchyServiceTest {
 
     @Autowired private HierarchyNodeRepository nodeRepository;
     @Autowired private HierarchyServiceImpl hierarchyService;
@@ -297,6 +298,83 @@ public class HierarchyServiceImplTest {
         } catch (IllegalArgumentException e) {
             assertNotNull(e);
         }
+    }
+
+    @Test
+    public void testGetParentNodeIds() {
+        String node1Id = tdp.node1.getId().toString();
+        String node5Id = tdp.node5.getId().toString();
+        String node7Id = tdp.node7.getId().toString();
+        String node10Id = tdp.node10.getId().toString();
+
+        // batch resolves transitive ancestors per node in one call
+        Map<String, Set<String>> result = hierarchyService.getParentNodeIds(
+                new String[]{node5Id, node7Id, node10Id, node1Id});
+        assertEquals(4, result.size());
+        // node5 -> node3, node1
+        assertEquals(Set.of(tdp.node3.getId().toString(), node1Id), result.get(node5Id));
+        // node7 -> node4, node1
+        assertEquals(Set.of(tdp.node4.getId().toString(), node1Id), result.get(node7Id));
+        // node10 has two parents (node9, node11)
+        assertEquals(Set.of(tdp.node9.getId().toString(), tdp.node11.getId().toString()), result.get(node10Id));
+        // root node has no ancestors but is still present with an empty set
+        assertEquals(Set.of(), result.get(node1Id));
+
+        // empty input yields an empty map
+        assertTrue(hierarchyService.getParentNodeIds(new String[]{}).isEmpty());
+    }
+
+    @Test
+    public void testGetChildNodeIds() {
+        String node1Id = tdp.node1.getId().toString();
+        String node4Id = tdp.node4.getId().toString();
+        String node5Id = tdp.node5.getId().toString();
+
+        Map<String, Set<String>> result = hierarchyService.getChildNodeIds(
+                new String[]{node1Id, node4Id, node5Id});
+        assertEquals(3, result.size());
+        // node1 -> all 7 descendants
+        assertEquals(Set.of(tdp.node2.getId().toString(), tdp.node3.getId().toString(),
+                node4Id, node5Id, tdp.node6.getId().toString(),
+                tdp.node7.getId().toString(), tdp.node8.getId().toString()), result.get(node1Id));
+        // node4 -> node6, node7, node8
+        assertEquals(Set.of(tdp.node6.getId().toString(), tdp.node7.getId().toString(),
+                tdp.node8.getId().toString()), result.get(node4Id));
+        // leaf node has no descendants but is still present with an empty set
+        assertEquals(Set.of(), result.get(node5Id));
+    }
+
+    @Test
+    public void testGetDirectParentNodeIds() {
+        String node5Id = tdp.node5.getId().toString();
+        String node7Id = tdp.node7.getId().toString();
+        String node10Id = tdp.node10.getId().toString();
+
+        Map<String, Set<String>> result = hierarchyService.getDirectParentNodeIds(
+                new String[]{node5Id, node7Id, node10Id});
+        assertEquals(3, result.size());
+        assertEquals(Set.of(tdp.node3.getId().toString()), result.get(node5Id));
+        assertEquals(Set.of(tdp.node4.getId().toString()), result.get(node7Id));
+        // node10 has two direct parents
+        assertEquals(Set.of(tdp.node9.getId().toString(), tdp.node11.getId().toString()), result.get(node10Id));
+    }
+
+    @Test
+    public void testGetDirectChildNodeIds() {
+        String node1Id = tdp.node1.getId().toString();
+        String node4Id = tdp.node4.getId().toString();
+        String node5Id = tdp.node5.getId().toString();
+
+        Map<String, Set<String>> result = hierarchyService.getDirectChildNodeIds(
+                new String[]{node1Id, node4Id, node5Id});
+        assertEquals(3, result.size());
+        // node1 -> node2, node3, node4 (direct only)
+        assertEquals(Set.of(tdp.node2.getId().toString(), tdp.node3.getId().toString(), node4Id),
+                result.get(node1Id));
+        assertEquals(Set.of(tdp.node6.getId().toString(), tdp.node7.getId().toString(),
+                tdp.node8.getId().toString()), result.get(node4Id));
+        // leaf has no children but is present with an empty set
+        assertEquals(Set.of(), result.get(node5Id));
     }
 
     @Test
@@ -1391,5 +1469,133 @@ public class HierarchyServiceImplTest {
         assertNotNull(node);
         assertEquals(node.getId().toString(), targetId);
         assertEquals(node.getIsDisabled(), Boolean.TRUE);
+    }
+
+    @Test
+    public void testGetNodesByTitles() {
+        String id = "hierarchyTitles_" + UUID.randomUUID().toString().substring(0, 8);
+        HierarchyNode root = hierarchyService.createHierarchy(id);
+
+        HierarchyNode siteA = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(siteA.getId().toString(), "/site/aaa", null, null);
+        // a second node carrying the same title - the result groups both ids under that title
+        HierarchyNode siteAdup = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(siteAdup.getId().toString(), "/site/aaa", null, null);
+        HierarchyNode siteB = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(siteB.getId().toString(), "/site/bbb", null, null);
+        // disabled node with a matching title is excluded
+        HierarchyNode siteC = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(siteC.getId().toString(), "/site/ccc", null, null);
+        hierarchyService.setNodeDisabled(siteC.getId().toString(), Boolean.TRUE);
+
+        Map<String, List<String>> result = hierarchyService.getNodesByTitles(id,
+                new String[]{"/site/aaa", "/site/bbb", "/site/ccc", "/site/zzz"});
+
+        assertEquals(2, result.size());
+        assertEquals(Set.of(siteA.getId().toString(), siteAdup.getId().toString()),
+                Set.copyOf(result.get("/site/aaa")));
+        assertEquals(List.of(siteB.getId().toString()), result.get("/site/bbb"));
+        assertFalse("disabled node must be excluded", result.containsKey("/site/ccc"));
+        assertFalse("unmatched title must be absent", result.containsKey("/site/zzz"));
+
+        // empty / null titles yield an empty map
+        assertTrue(hierarchyService.getNodesByTitles(id, new String[]{}).isEmpty());
+        assertTrue(hierarchyService.getNodesByTitles(id, null).isEmpty());
+    }
+
+    @Test
+    public void testGetEmptyNonSiteNodes() {
+        String id = "hierarchyEmpty_" + UUID.randomUUID().toString().substring(0, 8);
+        HierarchyNode root = hierarchyService.createHierarchy(id);
+
+        // a non-site node that still has a child -> not a leaf, excluded
+        HierarchyNode department = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(department.getId().toString(), "Department", null, null);
+        HierarchyNode siteLeaf = hierarchyService.addNode(id, department.getId().toString());
+        hierarchyService.saveNodeMetaData(siteLeaf.getId().toString(), "/site/xyz", null, null);
+        // a childless non-site node -> the one we expect back
+        HierarchyNode emptyLeaf = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(emptyLeaf.getId().toString(), "EmptySubject", null, null);
+        // a childless non-site node that is disabled -> excluded
+        HierarchyNode disabledLeaf = hierarchyService.addNode(id, root.getId().toString());
+        hierarchyService.saveNodeMetaData(disabledLeaf.getId().toString(), "DisabledSubject", null, null);
+        hierarchyService.setNodeDisabled(disabledLeaf.getId().toString(), Boolean.TRUE);
+
+        List<String> emptyNodes = hierarchyService.getEmptyNonSiteNodes(id);
+
+        assertEquals(List.of(emptyLeaf.getId().toString()), emptyNodes);
+    }
+
+    @Test
+    public void testGetNodePermsForUser() {
+        // ACCESS_USER_ID holds: node5->PERM_ONE, node7->PERM_ONE, node8->PERM_TWO
+        Map<String, Set<String>> perms = hierarchyService.getNodePermsForUser(
+                TestDataPreload.ACCESS_USER_ID,
+                new String[]{tdp.node5.getId().toString(), tdp.node7.getId().toString(), tdp.node8.getId().toString()});
+        assertEquals(3, perms.size());
+        assertEquals(Set.of(TestDataPreload.PERM_ONE), perms.get(tdp.node5.getId().toString()));
+        assertEquals(Set.of(TestDataPreload.PERM_ONE), perms.get(tdp.node7.getId().toString()));
+        assertEquals(Set.of(TestDataPreload.PERM_TWO), perms.get(tdp.node8.getId().toString()));
+
+        // a node the user has no permission on is absent from the map
+        perms = hierarchyService.getNodePermsForUser(TestDataPreload.ACCESS_USER_ID,
+                new String[]{tdp.node5.getId().toString(), tdp.node1.getId().toString()});
+        assertEquals(1, perms.size());
+        assertEquals(Set.of(TestDataPreload.PERM_ONE), perms.get(tdp.node5.getId().toString()));
+        assertFalse(perms.containsKey(tdp.node1.getId().toString()));
+
+        // multiple permissions on a single node are grouped together (MAINT holds both on node2)
+        perms = hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID,
+                new String[]{tdp.node2.getId().toString()});
+        assertEquals(Set.of(TestDataPreload.PERM_ONE, TestDataPreload.PERM_TWO),
+                perms.get(tdp.node2.getId().toString()));
+
+        // empty nodeIds yields an empty map
+        assertTrue(hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID, new String[]{}).isEmpty());
+
+        try {
+            hierarchyService.getNodePermsForUser(null, new String[]{"XXXX"});
+            fail("Should have thrown exception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+        try {
+            hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID, null);
+            fail("Should have thrown exception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetUserIdsForPerms() {
+        // getUserIdsForPerms is a global query across all nodes/hierarchies, so this test uses
+        // permission names and user ids unique to itself to stay isolated from other tests' grants.
+        String suffix = UUID.randomUUID().toString().substring(0, 8);
+        String permA = "perm.a." + suffix;
+        String permB = "perm.b." + suffix;
+        String userAlpha = "alpha-" + suffix;
+        String userBeta = "beta-" + suffix;
+
+        String id = "hierarchyPerms_" + suffix;
+        HierarchyNode root = hierarchyService.createHierarchy(id);
+        HierarchyNode node = hierarchyService.addNode(id, root.getId().toString());
+        String nodeId = node.getId().toString();
+
+        hierarchyService.assignUserNodePerm(userAlpha, nodeId, permA, false);
+        hierarchyService.assignUserNodePerm(userBeta, nodeId, permA, false);
+        hierarchyService.assignUserNodePerm(userBeta, nodeId, permB, false);
+
+        // permA is held by both users, permB only by beta
+        assertEquals(Set.of(userAlpha, userBeta), hierarchyService.getUserIdsForPerms(permA));
+        assertEquals(Set.of(userBeta), hierarchyService.getUserIdsForPerms(permB));
+
+        // the union across multiple permissions is returned, distinctly
+        assertEquals(Set.of(userAlpha, userBeta), hierarchyService.getUserIdsForPerms(permA, permB));
+
+        // unknown permission, no permissions, and null all yield an empty set
+        assertTrue(hierarchyService.getUserIdsForPerms("no.such.permission." + suffix).isEmpty());
+        assertTrue(hierarchyService.getUserIdsForPerms().isEmpty());
+        assertTrue(hierarchyService.getUserIdsForPerms((String[]) null).isEmpty());
     }
 }

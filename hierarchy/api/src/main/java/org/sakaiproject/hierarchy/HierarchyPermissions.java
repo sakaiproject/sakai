@@ -140,4 +140,25 @@ public interface HierarchyPermissions {
      */
     public Map<String, Map<String, Set<String>>> getNodesAndPermsForUser(String... userIds);
 
+    /**
+     * Get the permissions a single user holds on each of the given nodes, grouped by node.
+     * Only nodes on which the user holds at least one permission appear in the returned map.
+     *
+     * @param userId the internal user id (not username)
+     * @param nodeIds an array of unique ids for hierarchy nodes to restrict the lookup to
+     * @return a map of nodeId -&gt; set of permission keys the user holds on that node; nodes on
+     * which the user holds no permission are absent, and an empty array of nodeIds yields an empty map
+     */
+    public Map<String, Set<String>> getNodePermsForUser(String userId, String[] nodeIds);
+
+    /**
+     * Get the distinct userIds of every user that holds at least one of the given permissions on
+     * any node in any hierarchy.
+     *
+     * @param hierarchyPermissions the permission keys to match (e.g. delete.item)
+     * @return the set of matching userIds (not username/eid), or an empty set if none match or no
+     * permissions are supplied
+     */
+    public Set<String> getUserIdsForPerms(String... hierarchyPermissions);
+
 }

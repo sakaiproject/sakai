@@ -103,7 +103,6 @@ public class HierarchyNode implements PersistableEntity<Long> {
      * 
      * @see #children
      */
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "HIERARCHY_NODE_PARENTS",
@@ -124,7 +123,6 @@ public class HierarchyNode implements PersistableEntity<Long> {
      *
      * @see #parents
      */
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(mappedBy = "parents", fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<HierarchyNode> children = new HashSet<>();

@@ -112,6 +112,23 @@ public class HierarchyNodePermissionRepositoryImpl
 
     @Override
     @Transactional(readOnly = true)
+    public List<HierarchyNodePermission> findByPermissionIn(Collection<String> permissions) {
+        if (permissions == null || permissions.isEmpty()) return List.of();
+
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<HierarchyNodePermission> query = cb.createQuery(HierarchyNodePermission.class);
+        Root<HierarchyNodePermission> root = query.from(HierarchyNodePermission.class);
+
+        query.select(root)
+                .where(HibernateCriterionUtils.PredicateInSplitter(cb, root.get("permission"), permissions));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<HierarchyNodePermission> findByUserIdAndPermissionAndNodeIdIn(String userId, String permission, Collection<String> nodeIds) {
         if (userId == null || permission == null || nodeIds == null || nodeIds.isEmpty()) return List.of();
 

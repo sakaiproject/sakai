@@ -34,6 +34,7 @@
 
 package org.sakaiproject.hierarchy;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,5 +94,67 @@ public interface HierarchyNodeReader {
     * empty set if no children found
     */
    public Set<HierarchyNode> getChildNodes(String nodeId, boolean directOnly);
+
+   /**
+    * Batch-resolves the transitive parent (ancestor) node ids for each of the given nodes in a
+    * single query. Preferred over calling {@link #getParentNodes(String, boolean)} per node when
+    * resolving many nodes.
+    *
+    * @param nodeIds the nodes to resolve ancestors for
+    * @return a map keyed by node id whose value is that node's set of ancestor node ids; a node
+    * with no ancestors maps to an empty set
+    */
+   public Map<String, Set<String>> getParentNodeIds(String[] nodeIds);
+
+   /**
+    * Batch-resolves the transitive child (descendant) node ids for each of the given nodes in a
+    * single query. Preferred over calling {@link #getChildNodes(String, boolean)} per node when
+    * resolving many nodes.
+    *
+    * @param nodeIds the nodes to resolve descendants for
+    * @return a map keyed by node id whose value is that node's set of descendant node ids; a node
+    * with no descendants maps to an empty set
+    */
+   public Map<String, Set<String>> getChildNodeIds(String[] nodeIds);
+
+   /**
+    * Batch-resolves the direct parent node ids for each of the given nodes in a single query.
+    *
+    * @param nodeIds the nodes to resolve direct parents for
+    * @return a map keyed by node id whose value is that node's set of direct parent node ids; a
+    * node with no parents maps to an empty set
+    */
+   public Map<String, Set<String>> getDirectParentNodeIds(String[] nodeIds);
+
+   /**
+    * Batch-resolves the direct child node ids for each of the given nodes in a single query.
+    *
+    * @param nodeIds the nodes to resolve direct children for
+    * @return a map keyed by node id whose value is that node's set of direct child node ids; a node
+    * with no children maps to an empty set
+    */
+   public Map<String, Set<String>> getDirectChildNodeIds(String[] nodeIds);
+
+   /**
+    * Finds the enabled nodes in a hierarchy whose title matches one of the given titles, grouped by
+    * title. A node's title typically holds an entity reference (e.g. a site reference), so this is
+    * the lookup used to resolve references to the nodes that represent them.
+    *
+    * @param hierarchyId a unique string which identifies this hierarchy
+    * @param titles the node titles to look up
+    * @return a map of title -&gt; list of node ids that carry that title; titles with no matching
+    * (enabled) node are absent from the map
+    */
+   public Map<String, List<String>> getNodesByTitles(String hierarchyId, String[] titles);
+
+   /**
+    * Finds the structural leaf nodes of a hierarchy that should be pruned: enabled, non-root nodes
+    * that have no children and do not represent a site. Used to clean up empty branches left behind
+    * after their site nodes are removed.
+    *
+    * @param hierarchyId a unique string which identifies this hierarchy
+    * @return the ids of the empty (childless) non-site nodes, or an empty list if none
+    */
+   public List<String> getEmptyNonSiteNodes(String hierarchyId);
 
 }

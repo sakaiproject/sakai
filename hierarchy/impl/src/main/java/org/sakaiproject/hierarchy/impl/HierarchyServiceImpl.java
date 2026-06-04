@@ -1,5 +1,6 @@
 package org.sakaiproject.hierarchy.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,9 @@ public class HierarchyServiceImpl implements HierarchyService {
 
     @Setter private HierarchyNodeRepository nodeRepository;
     @Setter private HierarchyNodePermissionRepository permissionRepository;
+
+    /** SQL LIKE pattern matching node titles that represent a site; such nodes are not pruned as empty. */
+    private static final String SITE_TITLE_PATTERN = "/site/%";
 
     public void init() {
         log.info("init");
@@ -86,8 +90,14 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Could not find hierarchy to remove with the following id: "
                     + hierarchyId);
         }
-        List<Long> ids = nodes.stream().map(HierarchyNode::getId).collect(Collectors.toList());
-        nodeRepository.deleteRelationsByNodeIds(ids);
+        // Detach every node from its parents so the HIERARCHY_NODE_PARENTS join rows are removed via
+        // the managed many-to-many collection. The join table has no entity, so it cannot be targeted
+        // by a Criteria/JPQL bulk delete; clearing the owning side on all nodes empties the join table
+        // for this self-contained hierarchy and lets the subsequent deleteAll run without violating the
+        // foreign keys.
+        for (HierarchyNode node : nodes) {
+            node.getParents().clear();
+        }
         nodeRepository.deleteAll(nodes);
     }
 
@@ -136,6 +146,69 @@ public class HierarchyServiceImpl implements HierarchyService {
         } else {
             return nodeRepository.findAllAncestors(childNode.getId());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set<String>> getParentNodeIds(String[] nodeIds) {
+        if (nodeIds == null || nodeIds.length == 0) return new HashMap<>();
+        List<Long> ids = Arrays.stream(nodeIds).map(Long::parseLong).collect(Collectors.toList());
+        return toStringIdMap(ids, nodeRepository.findAncestorIdsByNodeIds(ids));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set<String>> getChildNodeIds(String[] nodeIds) {
+        if (nodeIds == null || nodeIds.length == 0) return new HashMap<>();
+        List<Long> ids = Arrays.stream(nodeIds).map(Long::parseLong).collect(Collectors.toList());
+        return toStringIdMap(ids, nodeRepository.findDescendantIdsByNodeIds(ids));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set<String>> getDirectParentNodeIds(String[] nodeIds) {
+        if (nodeIds == null || nodeIds.length == 0) return new HashMap<>();
+        List<Long> ids = Arrays.stream(nodeIds).map(Long::parseLong).collect(Collectors.toList());
+        return toStringIdMap(ids, nodeRepository.findDirectParentIdsByNodeIds(ids));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set<String>> getDirectChildNodeIds(String[] nodeIds) {
+        if (nodeIds == null || nodeIds.length == 0) return new HashMap<>();
+        List<Long> ids = Arrays.stream(nodeIds).map(Long::parseLong).collect(Collectors.toList());
+        return toStringIdMap(ids, nodeRepository.findDirectChildIdsByNodeIds(ids));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, List<String>> getNodesByTitles(String hierarchyId, String[] titles) {
+        Map<String, List<String>> result = new HashMap<>();
+        if (titles == null || titles.length == 0) return result;
+
+        for (HierarchyNode node : nodeRepository.findByHierarchyIdAndTitleInAndIsDisabled(
+                hierarchyId, Arrays.asList(titles), Boolean.FALSE)) {
+            result.computeIfAbsent(node.getTitle(), k -> new ArrayList<>()).add(node.getId().toString());
+        }
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getEmptyNonSiteNodes(String hierarchyId) {
+        return nodeRepository.findChildlessByHierarchyIdAndTitleNotLike(hierarchyId, SITE_TITLE_PATTERN)
+                .stream()
+                .map(node -> node.getId().toString())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Converts a repository (Long -> Set&lt;Long&gt;) id map to a (String -> Set&lt;String&gt;) map,
+     * ensuring every requested id is present with at least an empty set.
+     */
+    private Map<String, Set<String>> toStringIdMap(List<Long> ids, Map<Long, Set<Long>> raw) {
+        Map<String, Set<String>> result = new HashMap<>();
+        for (Long id : ids) {
+            Set<Long> related = raw.get(id);
+            result.put(id.toString(), related == null
+                    ? new HashSet<>()
+                    : related.stream().map(String::valueOf).collect(Collectors.toSet()));
+        }
+        return result;
     }
 
     public HierarchyNode addNode(String hierarchyId, String parentNodeId) {
@@ -544,6 +617,35 @@ public class HierarchyServiceImpl implements HierarchyService {
             m.get(userId).computeIfAbsent(nodePerm.getNodeId(), k -> new HashSet<>()).add(nodePerm.getPermission());
         }
         return m;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set<String>> getNodePermsForUser(String userId, String[] nodeIds) {
+        if (userId == null || userId.isEmpty() || nodeIds == null) {
+            throw new IllegalArgumentException("Invalid arguments to getNodePermsForUser, no arguments can be null or blank: userId=" + userId);
+        }
+        Map<String, Set<String>> m = new HashMap<>();
+        if (nodeIds.length > 0) {
+            List<HierarchyNodePermission> nodePerms = permissionRepository
+                    .findByUserIdAndNodeIdIn(userId, Arrays.asList(nodeIds));
+            for (HierarchyNodePermission nodePerm : nodePerms) {
+                m.computeIfAbsent(nodePerm.getNodeId(), k -> new HashSet<>()).add(nodePerm.getPermission());
+            }
+        }
+        return m;
+    }
+
+    @Transactional(readOnly = true)
+    public Set<String> getUserIdsForPerms(String... hierarchyPermissions) {
+        Set<String> userIds = new HashSet<>();
+        if (hierarchyPermissions != null && hierarchyPermissions.length > 0) {
+            List<HierarchyNodePermission> nodePerms = permissionRepository
+                    .findByPermissionIn(Arrays.asList(hierarchyPermissions));
+            for (HierarchyNodePermission nodePerm : nodePerms) {
+                userIds.add(nodePerm.getUserId());
+            }
+        }
+        return userIds;
     }
 
     private HierarchyNode getNode(String nodeId) {

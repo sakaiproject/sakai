@@ -45,10 +45,12 @@ public class HierarchyNodeSerialized implements Serializable {
 			this.title = hierarchyNode.getTitle() != null ? hierarchyNode.getTitle() : "";
 			this.description = hierarchyNode.getDescription() != null ? hierarchyNode.getDescription() : "";
 			this.id = hierarchyNode.getId().toString();
-			hierarchyNode.getChildren().forEach(n -> this.directChildNodeIds.add(n.getId().toString()));
-			hierarchyNode.getParents().forEach(n -> this.directParentNodeIds.add(n.getId().toString()));
 			this.permKey = hierarchyNode.getPermToken() != null ? hierarchyNode.getPermToken() : "";
-			// childNodeIds and parentNodeIds (transitive closure) are no longer pre-computed on the entity
+			// Only scalar fields are read here. The direct and transitive relationship id sets
+			// (directChildNodeIds, directParentNodeIds, childNodeIds, parentNodeIds) are lazy JPA
+			// collections on the entity and are populated externally from HierarchyService batch
+			// lookups while a session is open (see ProjectLogicImpl#buildSerializedNodes) to avoid
+			// LazyInitializationException once this serializable object is detached.
 		}
 	}
 }

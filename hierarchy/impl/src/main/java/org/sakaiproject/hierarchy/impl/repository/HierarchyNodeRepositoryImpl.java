@@ -17,8 +17,10 @@ package org.sakaiproject.hierarchy.impl.repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +44,10 @@ public class HierarchyNodeRepositoryImpl
         extends SpringCrudRepositoryImpl<HierarchyNode, Long>
         implements HierarchyNodeRepository {
 
+    // TODO: Hibernate 6 supports CTEs natively in HQL/Criteria (JpaCriteriaQuery#with / CteCriteria).
+    // These recursive-CTE native queries are the only native SQL in this repository; migrate them to
+    // the Criteria CTE API on the Hibernate 6 upgrade so the data layer is fully native-SQL free.
+    // This also resolves the Oracle "WITH RECURSIVE" syntax incompatibility (Oracle omits the keyword).
     private static final String ANCESTORS_IDS_CTE =
         "WITH RECURSIVE ancestors (ID) AS (" +
         "  SELECT PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID = :nodeId " +
@@ -57,6 +63,30 @@ public class HierarchyNodeRepositoryImpl
         "  SELECT p.NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
         "  INNER JOIN descendants d ON p.PARENT_NODE_ID = d.ID" +
         ") SELECT ID FROM descendants";
+
+    // Batch, origin-tracking variants: each row is (ORIGIN node id, related node id) so a single
+    // query resolves the closure for many origin nodes at once.
+    private static final String ANCESTOR_IDS_BATCH_CTE =
+        "WITH RECURSIVE ancestors (ORIGIN, ID) AS (" +
+        "  SELECT NODE_ID, PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:nodeIds) " +
+        "  UNION ALL " +
+        "  SELECT a.ORIGIN, p.PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
+        "  INNER JOIN ancestors a ON p.NODE_ID = a.ID" +
+        ") SELECT ORIGIN, ID FROM ancestors";
+
+    private static final String DESCENDANT_IDS_BATCH_CTE =
+        "WITH RECURSIVE descendants (ORIGIN, ID) AS (" +
+        "  SELECT PARENT_NODE_ID, NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:nodeIds) " +
+        "  UNION ALL " +
+        "  SELECT d.ORIGIN, p.NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
+        "  INNER JOIN descendants d ON p.PARENT_NODE_ID = d.ID" +
+        ") SELECT ORIGIN, ID FROM descendants";
+
+    private static final String DIRECT_PARENT_IDS_BATCH =
+        "SELECT NODE_ID, PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:nodeIds)";
+
+    private static final String DIRECT_CHILD_IDS_BATCH =
+        "SELECT PARENT_NODE_ID, NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:nodeIds)";
 
     @Override
     @Transactional(readOnly = true)
@@ -103,6 +133,48 @@ public class HierarchyNodeRepositoryImpl
 
         query.select(root)
                 .where(cb.equal(root.get("hierarchyId"), hierarchyId));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<HierarchyNode> findByHierarchyIdAndTitleInAndIsDisabled(String hierarchyId, Collection<String> titles, Boolean isDisabled) {
+        if (hierarchyId == null || titles == null || titles.isEmpty() || isDisabled == null) return List.of();
+
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<HierarchyNode> query = cb.createQuery(HierarchyNode.class);
+        Root<HierarchyNode> root = query.from(HierarchyNode.class);
+
+        query.select(root)
+                .where(cb.and(
+                        cb.equal(root.get("hierarchyId"), hierarchyId),
+                        cb.equal(root.get("isDisabled"), isDisabled),
+                        HibernateCriterionUtils.PredicateInSplitter(cb, root.get("title"), titles)));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<HierarchyNode> findChildlessByHierarchyIdAndTitleNotLike(String hierarchyId, String titlePattern) {
+        if (hierarchyId == null || titlePattern == null) return List.of();
+
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<HierarchyNode> query = cb.createQuery(HierarchyNode.class);
+        Root<HierarchyNode> root = query.from(HierarchyNode.class);
+
+        query.select(root)
+                .where(cb.and(
+                        cb.equal(root.get("hierarchyId"), hierarchyId),
+                        cb.equal(root.get("isRootNode"), Boolean.FALSE),
+                        cb.equal(root.get("isDisabled"), Boolean.FALSE),
+                        cb.notLike(root.get("title"), titlePattern),
+                        cb.isEmpty(root.get("children"))));
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)
@@ -181,20 +253,51 @@ public class HierarchyNodeRepositoryImpl
     }
 
     @Override
-    public void deleteRelationsByNodeIds(Collection<Long> nodeIds) {
-        if (nodeIds == null || nodeIds.isEmpty()) return;
+    @Transactional(readOnly = true)
+    public Map<Long, Set<Long>> findAncestorIdsByNodeIds(Collection<Long> nodeIds) {
+        return queryIdPairs(ANCESTOR_IDS_BATCH_CTE, nodeIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Set<Long>> findDescendantIdsByNodeIds(Collection<Long> nodeIds) {
+        return queryIdPairs(DESCENDANT_IDS_BATCH_CTE, nodeIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Set<Long>> findDirectParentIdsByNodeIds(Collection<Long> nodeIds) {
+        return queryIdPairs(DIRECT_PARENT_IDS_BATCH, nodeIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Set<Long>> findDirectChildIdsByNodeIds(Collection<Long> nodeIds) {
+        return queryIdPairs(DIRECT_CHILD_IDS_BATCH, nodeIds);
+    }
+
+    /**
+     * Runs a native query that returns (origin id, related id) pairs and groups it into a map keyed
+     * by origin id. The id collection is chunked to stay within the SQL parameter-list limit.
+     */
+    @SuppressWarnings("unchecked")
+    private Map<Long, Set<Long>> queryIdPairs(String sql, Collection<Long> nodeIds) {
+        Map<Long, Set<Long>> result = new HashMap<>();
+        if (nodeIds == null || nodeIds.isEmpty()) return result;
         List<Long> ids = new ArrayList<>(nodeIds);
         int chunkSize = HibernateCriterionUtils.MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
         for (int i = 0; i < ids.size(); i += chunkSize) {
             List<Long> chunk = ids.subList(i, Math.min(i + chunkSize, ids.size()));
-            sessionFactory.getCurrentSession()
-                    .createNativeQuery("DELETE FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:ids)")
-                    .setParameterList("ids", chunk)
-                    .executeUpdate();
-            sessionFactory.getCurrentSession()
-                    .createNativeQuery("DELETE FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:ids)")
-                    .setParameterList("ids", chunk)
-                    .executeUpdate();
+            List<Object[]> rows = sessionFactory.getCurrentSession()
+                    .createNativeQuery(sql)
+                    .setParameterList("nodeIds", chunk)
+                    .getResultList();
+            for (Object[] row : rows) {
+                Long origin = ((Number) row[0]).longValue();
+                Long related = ((Number) row[1]).longValue();
+                result.computeIfAbsent(origin, k -> new HashSet<>()).add(related);
+            }
         }
+        return result;
     }
 }

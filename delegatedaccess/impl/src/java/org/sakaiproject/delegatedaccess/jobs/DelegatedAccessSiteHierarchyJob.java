@@ -31,7 +31,6 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -66,10 +65,8 @@ import org.sakaiproject.site.api.Site;
 public class DelegatedAccessSiteHierarchyJob implements Job{
 	@Getter @Setter
 	private HierarchyService hierarchyService;
-	@Getter @Setter	
-	private SakaiProxy sakaiProxy;
 	@Getter @Setter
-	private DelegatedAccessDao dao;
+	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
 		
@@ -170,7 +167,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 							if(orderByModifiedDate){
 								//the job grabs all sites when orderBy is set, so this site was recently updated
 								//we need to make sure it wasn't removed from the hierarchy:
-								Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
+								Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
 								if(nodeIds != null && nodeIds.containsKey(site.getReference())){
 									for(String nodeId : nodeIds.get(site.getReference())){
 										projectLogic.removeNode(hierarchyService.getNodeById(nodeId));
@@ -214,7 +211,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.getId().toString());
 			}
 
-			projectLogic.clearNodeCache();
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
 	//		removeMissingNodes(rootNode);
 
@@ -231,7 +227,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		HierarchyNode node = null;
 		if(title != null && !"".equals(title)){
 
-			Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
+			Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
 			boolean hasChild = false;
 			String childNodeId = "";
 			if (nodeIds != null && nodeIds.containsKey(title) && !nodeIds.get(title).isEmpty()) {
