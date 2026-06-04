@@ -93,7 +93,7 @@
                         <ul class="nav flex-column">
                             #foreach($childSite in $site.childSites)
                                 <li class="nav-item">
-                                    <a class="btn btn-nav w-100 rounded-end text-start ps-5" href="/portal/site/$childSite.id">
+                                    <a class="btn btn-nav w-100 rounded-end text-start ps-5" href="$!{childSite.url}">
                                         <span class="me-2 bi bi-arrow-return-right" aria-hidden="true"></span>
                                         <span>$ftext.escapeHtml(${childSite.title})</span>
                                     </a>
