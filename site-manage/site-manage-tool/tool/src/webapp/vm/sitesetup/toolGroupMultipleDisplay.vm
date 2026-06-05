@@ -205,7 +205,7 @@
           $tlang.getString("sinfo.synchronization.microsoft.allowForSite")
       </label>
       <div class="onoffswitch">
-          <input type="checkbox" name="isMicrosoftSynchronizationEnabled" class="onoffswitch-checkbox" id="isMicrosoftSynchronizationEnabled" #if($isMicrosoftSynchronizationEnabled)checked="checked"#end>
+          <input type="checkbox" name="isMicrosoftSynchronizationEnabled" class="onoffswitch-checkbox" id="isMicrosoftSynchronizationEnabled" #if($isMicrosoftSynchronizationEnabled)checked="checked"#end #if(!$isEnabledForSiteByJobFilter)disabled#end>
       </div>
     </div>
     #end
