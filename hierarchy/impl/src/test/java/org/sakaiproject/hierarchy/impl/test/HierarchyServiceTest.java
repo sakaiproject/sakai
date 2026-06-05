@@ -651,6 +651,12 @@ public class HierarchyServiceTest {
         assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.addChildRelation(null, nodes[5])).getMessage());
 
         assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.addChildRelation(nodes[1], null)).getMessage());
+
+        // nodes from different hierarchies cannot be linked
+        String[] otherNodes = buildHierarchyB(UUID.randomUUID().toString());
+        IllegalArgumentException crossHierarchy = assertThrows(IllegalArgumentException.class,
+                () -> hierarchyService.addChildRelation(nodes[1], otherNodes[1]));
+        assertTrue(crossHierarchy.getMessage().contains("different hierarchies"));
     }
 
     @Test
@@ -700,6 +706,11 @@ public class HierarchyServiceTest {
         assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.removeChildRelation(null, nodesA[5])).getMessage());
 
         assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.removeChildRelation(nodesA[1], null)).getMessage());
+
+        // nodes from different hierarchies cannot be unlinked
+        IllegalArgumentException crossHierarchy = assertThrows(IllegalArgumentException.class,
+                () -> hierarchyService.removeChildRelation(nodesA[1], nodesB[1]));
+        assertTrue(crossHierarchy.getMessage().contains("different hierarchies"));
     }
 
     @Test
@@ -1140,6 +1151,9 @@ public class HierarchyServiceTest {
         assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(null, nodes[2], TestDataPreload.PERM_ONE, false)).getMessage());
         assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, null, TestDataPreload.PERM_ONE, false)).getMessage());
         assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, nodes[2], null, false)).getMessage());
+        // a non-numeric node id is rejected with IllegalArgumentException for both cascade modes
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, "not-a-number", TestDataPreload.PERM_ONE, false)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, "not-a-number", TestDataPreload.PERM_ONE, true)).getMessage());
     }
 
     @Test

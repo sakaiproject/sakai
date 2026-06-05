@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -350,6 +351,12 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Invalid childNodeId: " + childNodeId);
         }
 
+        if (!Objects.equals(pNode.getHierarchyId(), addPNode.getHierarchyId())) {
+            throw new IllegalArgumentException("Cannot add " + childNodeId + " as a child of " + nodeId
+                    + " because they belong to different hierarchies (" + addPNode.getHierarchyId()
+                    + " and " + pNode.getHierarchyId() + ")");
+        }
+
         if (!pNode.getChildren().contains(addPNode)) {
             Set<String> descendantIds = nodeRepository.findAllDescendants(pNode.getId())
                     .stream().map(n -> n.getId().toString()).collect(Collectors.toSet());
@@ -390,6 +397,12 @@ public class HierarchyServiceImpl implements HierarchyService {
         HierarchyNode removePNode = getNode(childNodeId);
         if (removePNode == null) {
             throw new IllegalArgumentException("Invalid childNodeId: " + childNodeId);
+        }
+
+        if (!Objects.equals(pNode.getHierarchyId(), removePNode.getHierarchyId())) {
+            throw new IllegalArgumentException("Cannot remove " + childNodeId + " as a child of " + nodeId
+                    + " because they belong to different hierarchies (" + removePNode.getHierarchyId()
+                    + " and " + pNode.getHierarchyId() + ")");
         }
 
         if (pNode.getChildren().contains(removePNode)) {
@@ -453,19 +466,19 @@ public class HierarchyServiceImpl implements HierarchyService {
                     + ", hierarchyPermission="
                     + hierarchyPermission);
         }
+        long parsedNodeId;
+        try {
+            parsedNodeId = Long.parseLong(nodeId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Node id ("
+                    + nodeId
+                    + ") provided is invalid, must be a valid identifier from an existing node");
+        }
         HierarchyNodePermission nodePerm = permissionRepository
                 .findByUserIdAndNodeIdAndPermission(userId, nodeId, hierarchyPermission)
                 .orElse(null);
         if (nodePerm == null) {
-            long nodeIdNum;
-            try {
-                nodeIdNum = Long.parseLong(nodeId);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Node id ("
-                        + nodeId
-                        + ") provided is invalid, must be a valid identifier from an existing node");
-            }
-            if (!nodeRepository.existsById(nodeIdNum)) {
+            if (!nodeRepository.existsById(parsedNodeId)) {
                 throw new IllegalArgumentException("Node id ("
                         + nodeId
                         + ") provided is invalid, node does not exist");
@@ -473,7 +486,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             permissionRepository.save(new HierarchyNodePermission(userId, nodeId, hierarchyPermission));
         }
         if (cascade) {
-            Set<HierarchyNode> descendants = nodeRepository.findAllDescendants(Long.parseLong(nodeId));
+            Set<HierarchyNode> descendants = nodeRepository.findAllDescendants(parsedNodeId);
             if (!descendants.isEmpty()) {
                 Set<String> childNodeIds = descendants.stream()
                         .map(n -> n.getId().toString())
