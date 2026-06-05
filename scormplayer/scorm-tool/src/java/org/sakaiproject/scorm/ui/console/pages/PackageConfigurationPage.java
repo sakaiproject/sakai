@@ -356,7 +356,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 							}
 							catch (Exception ex)
 							{
-								error(MessageFormat.format("form.error.unknown", ex.getMessage()));
+								error(MessageFormat.format(getLocalizer().getString("form.error.unknown", this), ex.getMessage()));
 								onError(target);
 							}
 						}
