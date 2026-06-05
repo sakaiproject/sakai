@@ -21,66 +21,24 @@
         query it
     </description>
 
-    <profiles>
-        <profile>
-            <id>full</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>api</id>
-            <modules>
-                <module>api</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ddl</id>
-            <modules>
-                <module>impl/src/ddl</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+    </modules>
 
-    <developers>
-        <developer>
-            <id>aaronz</id>
-            <name>Aaron Zeckoski</name>
-            <email>azeckoski@unicon.net</email>
-            <roles>
-                <role>Project Manager</role>
-                <role>Architect</role>
-                <role>Developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-    </developers>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+    </build>
 
-    <contributors>
-        <contributor>
-            <name>Anthony Whyte</name>
-            <email>arwhyte@umich.edu</email>
-        </contributor>
-    </contributors>
-
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                 <groupId>org.sakaiproject.hierarchy</groupId>
-                 <artifactId>hierarchy-api</artifactId>
-                 <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                 <groupId>org.sakaiproject.hierarchy</groupId>
-                 <artifactId>hierarchy-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

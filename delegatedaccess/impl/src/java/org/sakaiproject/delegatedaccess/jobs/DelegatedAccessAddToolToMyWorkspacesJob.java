@@ -47,7 +47,7 @@ public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocat
 		log.info("DelegatedAccessAddToolToMyWorkspacesJob started");
 		long startTime = System.currentTimeMillis();
 		
-		List<String> userIds = dao.getDelegatedAccessUsers();
+		List<String> userIds = projectLogic.getDelegatedAccessUsers();
 		if(userIds != null){
 			//convert userIds to workspace site ids by adding a ~ to the front
 			List<String> userWorkspaceIds = new ArrayList<String>();
