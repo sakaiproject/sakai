@@ -2651,9 +2651,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 			if(includeLowerPerms){
 				//we want to look at the lowest level and find all users who have access at that level or below
 				HierarchyNode searchNode = hierarchyService.getNodeById(nodeSelectOrder.get(nodeSelectOrder.size() - 1));
-				String searchNodeId = searchNode.getId().toString();
-				searchNodes.add(searchNodeId);
-				searchNodes.addAll(hierarchyService.getChildNodeIds(new String[]{searchNodeId}).get(searchNodeId));
+				if(searchNode != null){
+					String searchNodeId = searchNode.getId().toString();
+					searchNodes.add(searchNodeId);
+					searchNodes.addAll(hierarchyService.getChildNodeIds(new String[]{searchNodeId}).get(searchNodeId));
+				}
 			}
 			//we also want to audit as well, so include the hierarchy node ids above the last 
 			searchNodes.addAll(nodeSelectOrder);

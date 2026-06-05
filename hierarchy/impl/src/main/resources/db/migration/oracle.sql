@@ -44,13 +44,16 @@ BEGIN
       AND  COLUMN_NAME = 'DIRECTCHILDIDS';
 
     IF v_count > 0 THEN
+        -- Split DIRECTCHILDIDS on ':' into whole tokens and keep only purely numeric ones, so a
+        -- malformed token (e.g. "abc456") is rejected outright rather than contributing a digit
+        -- run. This matches the strict whole-token validation used in the MySQL migration.
         INSERT INTO HIERARCHY_NODE_PARENTS (NODE_ID, PARENT_NODE_ID)
-        SELECT DISTINCT TO_NUMBER(REGEXP_SUBSTR(n.DIRECTCHILDIDS, '\d+', 1, LEVEL)),
+        SELECT DISTINCT TO_NUMBER(REGEXP_SUBSTR(n.DIRECTCHILDIDS, '[^:]+', 1, LEVEL)),
                n.ID
         FROM   HIERARCHY_NODE n
         WHERE  n.DIRECTCHILDIDS IS NOT NULL
-          AND  REGEXP_LIKE(n.DIRECTCHILDIDS, '\d+')
-        CONNECT BY LEVEL <= REGEXP_COUNT(n.DIRECTCHILDIDS, '\d+')
+          AND  REGEXP_LIKE(REGEXP_SUBSTR(n.DIRECTCHILDIDS, '[^:]+', 1, LEVEL), '^[0-9]+$')
+        CONNECT BY LEVEL <= REGEXP_COUNT(n.DIRECTCHILDIDS, '[^:]+')
             AND PRIOR n.ID        = n.ID
             AND PRIOR SYS_GUID() IS NOT NULL;
 

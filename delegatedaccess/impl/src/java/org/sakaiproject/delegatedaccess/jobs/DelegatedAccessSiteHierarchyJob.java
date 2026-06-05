@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.Getter;
@@ -254,7 +255,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}else{
 				//just grab the node
 				node = hierarchyService.getNodeById(childNodeId);
-				if(!node.getDescription().equals(description) || !node.getTitle().equals(title)){
+				if(!Objects.equals(node.getDescription(), description) || !Objects.equals(node.getTitle(), title)){
 					node = hierarchyService.saveNodeMetaData(node.getId().toString(), title, description, term);
 				}
 			}

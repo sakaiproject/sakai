@@ -90,19 +90,9 @@ public class HierarchyServiceTest {
         assertTrue(directParentIds(node.getId().toString()).isEmpty());
         assertTrue(directChildIds(node.getId().toString()).isEmpty());
 
-        try {
-            hierarchyService.createHierarchy(TestDataPreload.HIERARCHYA);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.createHierarchy(TestDataPreload.HIERARCHYA));
 
-        try {
-            hierarchyService.createHierarchy("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.createHierarchy("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
     }
 
     @Test
@@ -127,19 +117,17 @@ public class HierarchyServiceTest {
         assertEquals(idB, node.getHierarchyId());
         assertEquals(nodesB[1], node.getId().toString());
 
-        try {
-            hierarchyService.setHierarchyRootNode(idA, nodesA[2]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.setHierarchyRootNode(idA, nodesA[2]));
 
-        try {
-            hierarchyService.setHierarchyRootNode(idB, nodesA[0]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.setHierarchyRootNode(idB, nodesA[0]));
+
+        // a numeric node id that does not exist -> not found
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.setHierarchyRootNode(idA, "999999999"));
+
+        // a node from another hierarchy cannot become the root of a hierarchy that has no root yet
+        String idNoRoot = UUID.randomUUID().toString();
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> hierarchyService.setHierarchyRootNode(idNoRoot, nodesA[0]));
+        assertTrue(e.getMessage().contains("different hierarchy"));
     }
 
     @Test
@@ -151,12 +139,7 @@ public class HierarchyServiceTest {
         long count = nodeRepository.countByHierarchyId(id);
         assertEquals(0, count);
 
-        try {
-            hierarchyService.destroyHierarchy(id);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.destroyHierarchy(id));
     }
 
     @Test
@@ -191,12 +174,7 @@ public class HierarchyServiceTest {
         assertEquals(tdp.node6, node);
         assertEquals(tdp.node6.getId().toString(), node.getId().toString());
 
-        try {
-            node = hierarchyService.getNodeById(TestDataPreload.INVALID_NODE_ID);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodeById(TestDataPreload.INVALID_NODE_ID));
     }
 
     @Test
@@ -243,12 +221,7 @@ public class HierarchyServiceTest {
         assertNotNull(nodes);
         assertEquals(0, nodes.size());
 
-        try {
-            nodes = hierarchyService.getChildNodes(TestDataPreload.INVALID_NODE_ID, true);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.getChildNodes(TestDataPreload.INVALID_NODE_ID, true));
     }
 
     @Test
@@ -292,12 +265,7 @@ public class HierarchyServiceTest {
         assertNotNull(nodes);
         assertEquals(0, nodes.size());
 
-        try {
-            nodes = hierarchyService.getParentNodes(TestDataPreload.INVALID_NODE_ID, true);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.getParentNodes(TestDataPreload.INVALID_NODE_ID, true));
     }
 
     @Test
@@ -519,19 +487,8 @@ public class HierarchyServiceTest {
         assertTrue(c2AllChildIds.contains(newNodeId));
         assertTrue(c2AllChildIds.contains(nodesA[4]));
 
-        try {
-            hierarchyService.addNode(idA, null);
-            fail("Should have thrown exception");
-        } catch (RuntimeException e) {
-            assertNotNull(e);
-        }
-
-        try {
-            hierarchyService.addNode(idA, TestDataPreload.INVALID_NODE_ID);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.addNode(idA, null));
+        assertThrows(IllegalArgumentException.class, () -> hierarchyService.addNode(idA, TestDataPreload.INVALID_NODE_ID));
     }
 
     @Test
@@ -594,47 +551,17 @@ public class HierarchyServiceTest {
         assertTrue(rootAllChildIds3.contains(nodesA[5]));
         assertTrue(rootAllChildIds3.contains(nodesA[6]));
 
-        try {
-            hierarchyService.removeNode(nodesA[0]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeNode(nodesA[0])).getMessage());
 
-        try {
-            hierarchyService.removeNode(nodesA[3]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeNode(nodesA[3])).getMessage());
 
-        try {
-            hierarchyService.removeNode(nodesA[2]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeNode(nodesA[2])).getMessage());
 
-        try {
-            hierarchyService.removeNode(nodesB[2]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeNode(nodesB[2])).getMessage());
 
-        try {
-            hierarchyService.removeNode(TestDataPreload.INVALID_NODE_ID);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeNode(TestDataPreload.INVALID_NODE_ID)).getMessage());
 
-        try {
-            hierarchyService.removeNode(null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.removeNode(null)).getMessage());
     }
 
     @Test
@@ -671,19 +598,9 @@ public class HierarchyServiceTest {
         assertNull(node.getDescription());
         assertNull(node.getPermToken());
 
-        try {
-            hierarchyService.saveNodeMetaData(TestDataPreload.INVALID_NODE_ID, null, null, null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.saveNodeMetaData(TestDataPreload.INVALID_NODE_ID, null, null, null)).getMessage());
 
-        try {
-            hierarchyService.saveNodeMetaData(null, null, null, null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.saveNodeMetaData(null, null, null, null)).getMessage());
     }
 
     @Test
@@ -719,61 +636,21 @@ public class HierarchyServiceTest {
         assertEquals(3, c3After.size());
         assertTrue(c3After.contains(nodes[5]));
 
-        try {
-            hierarchyService.addChildRelation(nodes[6], nodes[6]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(nodes[6], nodes[6])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(nodes[6], nodes[3]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(nodes[6], nodes[3])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(nodes[6], nodes[0]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(nodes[6], nodes[0])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(nodes[4], nodes[2]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(nodes[4], nodes[2])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(TestDataPreload.INVALID_NODE_ID, nodes[5]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(TestDataPreload.INVALID_NODE_ID, nodes[5])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(nodes[1], TestDataPreload.INVALID_NODE_ID);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.addChildRelation(nodes[1], TestDataPreload.INVALID_NODE_ID)).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(null, nodes[5]);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.addChildRelation(null, nodes[5])).getMessage());
 
-        try {
-            hierarchyService.addChildRelation(nodes[1], null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.addChildRelation(nodes[1], null)).getMessage());
     }
 
     @Test
@@ -810,54 +687,19 @@ public class HierarchyServiceTest {
         hierarchyService.removeChildRelation(nodesA[2], nodesA[5]);
         hierarchyService.removeChildRelation(nodesA[2], nodesA[1]);
 
-        try {
-            hierarchyService.removeChildRelation(nodesA[1], nodesA[1]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeChildRelation(nodesA[1], nodesA[1])).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(nodesA[0], nodesA[2]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeChildRelation(nodesA[0], nodesA[2])).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(nodesA[2], nodesA[4]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeChildRelation(nodesA[2], nodesA[4])).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(TestDataPreload.INVALID_NODE_ID, nodesA[5]);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeChildRelation(TestDataPreload.INVALID_NODE_ID, nodesA[5])).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(nodesA[1], TestDataPreload.INVALID_NODE_ID);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeChildRelation(nodesA[1], TestDataPreload.INVALID_NODE_ID)).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(null, nodesA[5]);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.removeChildRelation(null, nodesA[5])).getMessage());
 
-        try {
-            hierarchyService.removeChildRelation(nodesA[1], null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.removeChildRelation(nodesA[1], null)).getMessage());
     }
 
     @Test
@@ -885,19 +727,9 @@ public class HierarchyServiceTest {
         assertNotNull(nodeIds);
         assertEquals(0, nodeIds.size());
 
-        try {
-            hierarchyService.getNodesWithToken(TestDataPreload.INVALID_HIERARCHY, TestDataPreload.PERM_TOKEN_1);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesWithToken(TestDataPreload.INVALID_HIERARCHY, TestDataPreload.PERM_TOKEN_1)).getMessage());
 
-        try {
-            hierarchyService.getNodesWithToken(TestDataPreload.HIERARCHYA, null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.getNodesWithToken(TestDataPreload.HIERARCHYA, null)).getMessage());
     }
 
     @Test
@@ -932,19 +764,9 @@ public class HierarchyServiceTest {
         nodeIds = tokenNodes.get(TestDataPreload.INVALID_PERM_TOKEN);
         assertEquals(0, nodeIds.size());
 
-        try {
-            hierarchyService.getNodesWithTokens(TestDataPreload.INVALID_HIERARCHY, new String[]{TestDataPreload.PERM_TOKEN_1});
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesWithTokens(TestDataPreload.INVALID_HIERARCHY, new String[]{TestDataPreload.PERM_TOKEN_1})).getMessage());
 
-        try {
-            hierarchyService.getNodesWithTokens(TestDataPreload.HIERARCHYA, null);
-            fail("Should have thrown exception");
-        } catch (NullPointerException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(NullPointerException.class, () -> hierarchyService.getNodesWithTokens(TestDataPreload.HIERARCHYA, null)).getMessage());
     }
 
     @Test
@@ -998,24 +820,9 @@ public class HierarchyServiceTest {
         assertFalse(hierarchyService.checkUserNodePerm(TestDataPreload.MAINT_USER_ID, tdp.node7.getId().toString(), TestDataPreload.PERM_TWO));
         assertFalse(hierarchyService.checkUserNodePerm(TestDataPreload.MAINT_USER_ID, tdp.node8.getId().toString(), TestDataPreload.PERM_TWO));
 
-        try {
-            hierarchyService.checkUserNodePerm(null, "BBBBBB", "CCCCCCCCCCCCCCC");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.checkUserNodePerm("AAAAAAAAAA", null, "CCCCCCCCCCCCCCC");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.checkUserNodePerm("AAAAAAAAAA", "BBBBBB", null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.checkUserNodePerm(null, "BBBBBB", "CCCCCCCCCCCCCCC")).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.checkUserNodePerm("AAAAAAAAAA", null, "CCCCCCCCCCCCCCC")).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.checkUserNodePerm("AAAAAAAAAA", "BBBBBB", null)).getMessage());
     }
 
     @Test
@@ -1067,19 +874,9 @@ public class HierarchyServiceTest {
         assertNotNull(nodes);
         assertEquals(0, nodes.size());
 
-        try {
-            hierarchyService.getNodesForUserPerm(null, "XXXXXXXXX");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesForUserPerm(null, "XXXXXXXXX")).getMessage());
 
-        try {
-            hierarchyService.getNodesForUserPerm("XXXXXXXX", null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesForUserPerm("XXXXXXXX", null)).getMessage());
     }
 
     @Test
@@ -1193,19 +990,9 @@ public class HierarchyServiceTest {
         assertNotNull(userIds);
         assertEquals(0, userIds.size());
 
-        try {
-            hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX");
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getUserIdsForNodesPerm(null, "XXXXXXXXX")).getMessage());
 
-        try {
-            hierarchyService.getUserIdsForNodesPerm(new String[]{"XXXXXXXX"}, null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getUserIdsForNodesPerm(new String[]{"XXXXXXXX"}, null)).getMessage());
     }
 
     @Test
@@ -1270,19 +1057,9 @@ public class HierarchyServiceTest {
         assertNotNull(perms);
         assertEquals(0, perms.size());
 
-        try {
-            hierarchyService.getPermsForUserNodes(null, new String[]{"XXXXXXXX"});
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getPermsForUserNodes(null, new String[]{"XXXXXXXX"})).getMessage());
 
-        try {
-            hierarchyService.getPermsForUserNodes("XXXXXXXXXXX", null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getPermsForUserNodes("XXXXXXXXXXX", null)).getMessage());
     }
 
     @Test
@@ -1297,18 +1074,8 @@ public class HierarchyServiceTest {
         assertEquals(userPerms.get(TestDataPreload.USER_ID).size(), 1);
         assertEquals(userPerms.get(TestDataPreload.MAINT_USER_ID).size(), 1);
 
-        try {
-            hierarchyService.getUsersAndPermsForNodes((String[]) null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.getUsersAndPermsForNodes();
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getUsersAndPermsForNodes((String[]) null)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getUsersAndPermsForNodes()).getMessage());
     }
 
     @Test
@@ -1320,18 +1087,8 @@ public class HierarchyServiceTest {
         assertEquals(1, map.size());
         assertEquals(3, map.get(TestDataPreload.ACCESS_USER_ID).size());
 
-        try {
-            hierarchyService.getNodesAndPermsForUser((String[]) null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.getNodesAndPermsForUser();
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesAndPermsForUser((String[]) null)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodesAndPermsForUser()).getMessage());
     }
 
     @Test
@@ -1380,24 +1137,9 @@ public class HierarchyServiceTest {
         nodeSet = hierarchyService.getNodesForUserPerm(user, TestDataPreload.PERM_THREE);
         assertEquals(8, nodeSet.size());
 
-        try {
-            hierarchyService.assignUserNodePerm(null, nodes[2], TestDataPreload.PERM_ONE, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.assignUserNodePerm(maintUser, null, TestDataPreload.PERM_ONE, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.assignUserNodePerm(maintUser, nodes[2], null, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(null, nodes[2], TestDataPreload.PERM_ONE, false)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, null, TestDataPreload.PERM_ONE, false)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.assignUserNodePerm(maintUser, nodes[2], null, false)).getMessage());
     }
 
     @Test
@@ -1429,24 +1171,9 @@ public class HierarchyServiceTest {
         hierarchyService.removeUserNodePerm(maintUser, "XXXX", "XXXXX", false);
         hierarchyService.removeUserNodePerm("XXX", "XXXX", "XXXXX", false);
 
-        try {
-            hierarchyService.removeUserNodePerm(null, nodes[2], TestDataPreload.PERM_ONE, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.removeUserNodePerm(maintUser, null, TestDataPreload.PERM_ONE, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.removeUserNodePerm(maintUser, nodes[2], null, false);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeUserNodePerm(null, nodes[2], TestDataPreload.PERM_ONE, false)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeUserNodePerm(maintUser, null, TestDataPreload.PERM_ONE, false)).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.removeUserNodePerm(maintUser, nodes[2], null, false)).getMessage());
     }
 
     @Test
@@ -1553,18 +1280,8 @@ public class HierarchyServiceTest {
         // empty nodeIds yields an empty map
         assertTrue(hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID, new String[]{}).isEmpty());
 
-        try {
-            hierarchyService.getNodePermsForUser(null, new String[]{"XXXX"});
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID, null);
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodePermsForUser(null, new String[]{"XXXX"})).getMessage());
+        assertNotNull(assertThrows(IllegalArgumentException.class, () -> hierarchyService.getNodePermsForUser(TestDataPreload.MAINT_USER_ID, null)).getMessage());
     }
 
     @Test

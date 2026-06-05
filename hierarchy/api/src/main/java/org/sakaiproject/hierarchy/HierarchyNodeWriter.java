@@ -62,17 +62,6 @@ public interface HierarchyNodeWriter {
    public HierarchyNode removeNode(String nodeId);
 
    /**
-    * Add parents to a node (creates the association),
-    * only adds direct parents (directly connected to this node),
-    * others are implicitly defined,<br/>
-    * this will not create loops in the hierarchy
-    * @param nodeId a unique id for a hierarchy node
-    * @param parentNodeId a unique id for a hierarchy node which will be a parent of this node
-    * @return the object representing the updated node
-    */
-   public HierarchyNode addParentRelation(String nodeId, String parentNodeId);
-
-   /**
     * Add children to a node (creates the association),
     * only adds direct children (directly connected to this node),
     * others are implicitly defined,<br/>
@@ -82,17 +71,6 @@ public interface HierarchyNodeWriter {
     * @return the object representing the updated node
     */
    public HierarchyNode addChildRelation(String nodeId, String childNodeId);
-
-   /**
-    * Remove a parent relation from a node,
-    * this will not be allowed to orphan a node,
-    * only extra parents may be removed, 
-    * the last parent for a node cannot currently be removed
-    * @param nodeId a unique id for a hierarchy node
-    * @param parentNodeId a unique id for a hierarchy node which is a parent of this node
-    * @return the object representing the updated node
-    */
-   public HierarchyNode removeParentRelation(String nodeId, String parentNodeId);
 
    /**
     * Remove a child relation from a node,

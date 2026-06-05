@@ -58,6 +58,9 @@ public class HierarchyServiceImpl implements HierarchyService {
 
     public HierarchyNode setHierarchyRootNode(String hierarchyId, String nodeId) {
         HierarchyNode node = getNode(nodeId);
+        if (node == null) {
+            throw new IllegalArgumentException("Invalid node id, cannot find node with id: " + nodeId);
+        }
         HierarchyNode rootNode = nodeRepository.findByHierarchyIdAndIsRootNode(hierarchyId, Boolean.TRUE).orElse(null);
 
         if (rootNode != null) {
@@ -72,6 +75,14 @@ public class HierarchyServiceImpl implements HierarchyService {
             }
             rootNode.setIsRootNode(Boolean.FALSE);
             nodeRepository.save(rootNode);
+        } else if (!node.getHierarchyId().equals(hierarchyId)) {
+            throw new IllegalArgumentException("Cannot assign a node ("
+                    + nodeId
+                    + ") from hierarchy ("
+                    + node.getHierarchyId()
+                    + ") as the root of a different hierarchy ("
+                    + hierarchyId
+                    + ")");
         }
 
         if (!node.getParents().isEmpty()) {
@@ -213,7 +224,7 @@ public class HierarchyServiceImpl implements HierarchyService {
 
     public HierarchyNode addNode(String hierarchyId, String parentNodeId) {
         if (parentNodeId == null) {
-            throw new RuntimeException("Setting parentNodeId to null is not yet supported");
+            throw new IllegalArgumentException("Setting parentNodeId to null is not yet supported");
         }
 
         HierarchyNode parentNode = getNode(parentNodeId);
@@ -398,14 +409,6 @@ public class HierarchyServiceImpl implements HierarchyService {
         }
 
         return pNode;
-    }
-
-    public HierarchyNode addParentRelation(String nodeId, String parentNodeId) {
-        throw new RuntimeException("This method is not implemented yet");
-    }
-
-    public HierarchyNode removeParentRelation(String nodeId, String parentNodeId) {
-        throw new RuntimeException("This method is not implemented yet");
     }
 
     @Transactional(readOnly = true)
