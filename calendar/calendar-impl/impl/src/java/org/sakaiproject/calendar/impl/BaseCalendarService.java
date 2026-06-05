@@ -44,8 +44,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.WeekDay;
+import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.*;
@@ -5078,75 +5081,182 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected int generateICal(net.fortuna.ical4j.model.Calendar ical, List<String> calRefs)
 	{
 		int numEvents = 0;
-		
-		// This list will have an entry for every week day that we care about.
 		TimeRange currentTimeRange = getICalTimeRange();
 
-		// Get a list of events.
-		CalendarEventVector calendarEventVector = getEvents(calRefs, currentTimeRange);
-		Iterator itEvent = calendarEventVector.iterator();
-
-		// Generate XML for all the events.
-		while (itEvent.hasNext())
+		for (Object calRefObj : calRefs)
 		{
-			CalendarEvent event = (CalendarEvent) itEvent.next();
-
-			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
-			
-			long seconds = event.getRange().duration() / 1000;
-			VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName() );
-			
-			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( timeService.getLocalTimeZone().getID() );
-			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
-			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
-			icalEvent.getProperties().add(new Uid(event.getId()));
-			// build the description, adding links to attachments if necessary
-			StringBuffer description = new StringBuffer("");
-			if ( event.getDescription() != null && !event.getDescription().equals("") )
-				description.append(event.getDescription());
-			
-			List attachments = event.getAttachments();
-			if(attachments != null){
-				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
-					Reference attachment = (Reference) iter.next();
-					description.append("\n");
-					description.append(attachment.getUrl());
-					description.append("\n");
-				}
-			}
-			if(description.length() > 0) {
-				//Replace \r with \n
-				icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));
-			}
-
-			if ( event.getLocation() != null && !event.getLocation().equals("") ) {
-				icalEvent.getProperties().add(new Location(event.getLocation().replace('\r', '\n')));
-			}
-
+			String calRef = (String) calRefObj;
+			Calendar calendarObj;
 			try
 			{
-				String organizer = userDirectoryService.getUser( event.getCreator() ).getDisplayName();
-				organizer = organizer.replaceAll(" ","%20"); // get rid of illegal URI characters
-				icalEvent.getProperties().add(new Organizer(new URI("CN="+organizer)));
+				calendarObj = getCalendar(calRef);
 			}
-			catch (UserNotDefinedException e) {} // ignore
-			catch (URISyntaxException e) {} // ignore
-         
-			StringBuffer comment = new StringBuffer(event.getType());
-			comment.append(" (");
-			comment.append(event.getSiteName());
-			comment.append(")");
-			icalEvent.getProperties().add(new Comment(comment.toString()));
-			
-			ical.getComponents().add( icalEvent );
-			numEvents++;
-			
-			/* TBD: add to VEvent: recurring schedule, ...
-			RecurenceRUle x = event.getRecurrenceRule();
-			*/
+			catch (IdUnusedException | PermissionException e)
+			{
+				continue;
+			}
+
+			List events;
+			try
+			{
+				// Passing null range returns base events without expanding recurring occurrences,
+				// which allows us to emit a single VEVENT+RRULE instead of individual occurrences.
+				events = calendarObj.getEvents(null, null);
+			}
+			catch (PermissionException e)
+			{
+				continue;
+			}
+
+			for (Object obj : events)
+			{
+				CalendarEvent event = (CalendarEvent) obj;
+				RecurrenceRule rule = event.getRecurrenceRule();
+
+				// One-time events outside the export window can be skipped.
+				// Recurring events are always included so subscribers see the full series.
+				if (rule == null && !currentTimeRange.overlaps(event.getRange()))
+				{
+					continue;
+				}
+
+				DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
+				long seconds = event.getRange().duration() / 1000;
+				VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName());
+
+				net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId(timeService.getLocalTimeZone().getID());
+				icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
+				icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
+				icalEvent.getProperties().add(new Uid(event.getId()));
+
+				// Build the description, appending attachment URLs if present.
+				StringBuffer description = new StringBuffer("");
+				if (event.getDescription() != null && !event.getDescription().equals(""))
+					description.append(event.getDescription());
+
+				List attachments = event.getAttachments();
+				if (attachments != null)
+				{
+					for (Iterator iter = attachments.iterator(); iter.hasNext();)
+					{
+						Reference attachment = (Reference) iter.next();
+						description.append("\n");
+						description.append(attachment.getUrl());
+						description.append("\n");
+					}
+				}
+				if (description.length() > 0)
+				{
+					icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));
+				}
+
+				if (event.getLocation() != null && !event.getLocation().equals(""))
+				{
+					icalEvent.getProperties().add(new Location(event.getLocation().replace('\r', '\n')));
+				}
+
+				try
+				{
+					String organizer = userDirectoryService.getUser(event.getCreator()).getDisplayName();
+					organizer = organizer.replaceAll(" ", "%20");
+					icalEvent.getProperties().add(new Organizer(new URI("CN=" + organizer)));
+				}
+				catch (UserNotDefinedException e) {} // ignore
+				catch (URISyntaxException e) {} // ignore
+
+				StringBuffer comment = new StringBuffer(event.getType());
+				comment.append(" (");
+				comment.append(event.getSiteName());
+				comment.append(")");
+				icalEvent.getProperties().add(new Comment(comment.toString()));
+
+				if (rule != null)
+				{
+					RRule rrule = buildRRule(rule);
+					if (rrule != null)
+					{
+						icalEvent.getProperties().add(rrule);
+					}
+				}
+
+				ical.getComponents().add(icalEvent);
+				numEvents++;
+			}
 		}
-		
+
 		return numEvents;
+	}
+
+	/**
+	 * Converts a Sakai RecurrenceRule to an iCal4j RRule property.
+	 * Returns null for rule types that have no standard iCal equivalent.
+	 */
+	private RRule buildRRule(RecurrenceRule rule)
+	{
+		Recur.Builder builder;
+		switch (rule.getFrequency())
+		{
+			case DailyRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.DAILY);
+				break;
+			case WeeklyRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY);
+				break;
+			case MonthlyRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.MONTHLY);
+				break;
+			case YearlyRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.YEARLY);
+				break;
+			case MWFRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.MO, WeekDay.WE, WeekDay.FR));
+				break;
+			case TThRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.TU, WeekDay.TH));
+				break;
+			case MWRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.MO, WeekDay.WE));
+				break;
+			case SMWRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.SU, WeekDay.MO, WeekDay.WE));
+				break;
+			case SMTWRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.SU, WeekDay.MO, WeekDay.TU, WeekDay.WE));
+				break;
+			case STTRecurrenceRule.FREQ:
+				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
+						.dayList(weekDayList(WeekDay.SU, WeekDay.TU, WeekDay.TH));
+				break;
+			default:
+				return null;
+		}
+
+		if (rule.getInterval() > 1)
+		{
+			builder.interval(rule.getInterval());
+		}
+		if (rule.getCount() > 0)
+		{
+			builder.count(rule.getCount());
+		}
+		else if (rule.getUntil() != null)
+		{
+			builder.until(new DateTime(rule.getUntil().getTime()));
+		}
+
+		return new RRule(builder.build());
+	}
+
+	private static WeekDayList weekDayList(WeekDay... days)
+	{
+		WeekDayList list = new WeekDayList();
+		for (WeekDay d : days) list.add(d);
+		return list;
 	}
 	
 	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
