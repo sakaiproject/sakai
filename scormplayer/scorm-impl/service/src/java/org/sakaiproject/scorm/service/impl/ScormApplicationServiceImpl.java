@@ -320,10 +320,11 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 		IErrorManager errorManager = sessionBean.getErrorManager();
 		String result = errorManager.getCurrentErrorCode();
 
-		if (!result.equals("0") && log.isWarnEnabled())
+		// GetLastError is a routine state probe; a non-zero code here (e.g. 403 on an unset element) is normal flow, not an error.
+		if (!result.equals("0") && log.isDebugEnabled())
 		{
 			String description = errorManager.getErrorDescription(result);
-			log.warn("API threw an error: {}", description);
+			log.debug("API GetLastError (code {}): {}", result, description);
 		}
 
 		log.debug("API GetLastError (result): {}", result);
