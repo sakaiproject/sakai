@@ -43,6 +43,7 @@
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
@@ -219,6 +220,7 @@
 	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 	<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
     
@@ -231,6 +233,7 @@
 	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 	<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
 

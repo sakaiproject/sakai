@@ -40,6 +40,11 @@
             <property-name>prefs</property-name>
             <value>#{preferencesBean}</value>
         </managed-property>
+        <managed-property>
+            <description>Locale Service</description>
+            <property-name>localeService</property-name>
+            <value>#{org_sakaiproject_util_api_LocaleService}</value>
+        </managed-property>
     </managed-bean>
 
     <managed-bean>

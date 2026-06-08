@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.scorm.service.impl;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +49,8 @@ import org.sakaiproject.scorm.model.api.Progress;
 import org.sakaiproject.scorm.model.api.Score;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResultService;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 @Slf4j
 public abstract class ScormResultServiceImpl implements ScormResultService
@@ -63,6 +64,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 
 	// Dependency injection method lookup signatures
 	protected abstract LearningManagementSystem lms();
+	protected abstract LocaleService localeService();
 
 	@Override
 	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId)
@@ -448,7 +450,9 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 			// We just have the above ids
 			String context = lms().currentContext();
 			List<Learner> learners = filterLearnersByVisibility(learnerDao().find(context), context);
-			Collections.sort(learners);
+			UserSortNameComparator userSortNameComparator = new UserSortNameComparator(localeService().getLocaleForCurrentSiteAndUser());
+			learners.sort((learner1, learner2) -> userSortNameComparator.compareSortNames(learner1.getSortName(), learner1.getDisplayId(),
+					learner2.getSortName(), learner2.getDisplayId()));
 
 			for (int i = 0; i < learners.size(); i++)
 			{

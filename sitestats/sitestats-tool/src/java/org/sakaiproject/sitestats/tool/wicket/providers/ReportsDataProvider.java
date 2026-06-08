@@ -19,14 +19,12 @@
 package org.sakaiproject.sitestats.tool.wicket.providers;
 
 import java.io.Serializable;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.wicket.Session;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
@@ -45,6 +43,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 @Slf4j
 public class ReportsDataProvider extends SortableSearchableDataProvider {
@@ -142,20 +141,13 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, 
 			final StatsManager SST_sm, final EventRegistryService SST_ers, final UserDirectoryService M_uds) {
 		return new Comparator<Stat>() {
-			private transient Collator collator= Collator.getInstance();
-			{
-				try{
-					collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				}catch(ParseException e){
-				    log.error("Unable to create RuleBasedCollator");
-				}		
-			}			
+			private transient Comparator<String> comparator = new AlphaNumericComparator(Session.get().getLocale());
 			
 			public int compare(Stat r1, Stat r2) {
 				if(fieldName.equals(COL_SITE)){
 					String s1 = Locator.getFacade().getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
 					String s2 = Locator.getFacade().getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
@@ -172,14 +164,14 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					}catch(UserNotDefinedException e){
 						s2 = "-";
 					}
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
 				}else if(fieldName.equals(COL_USERNAME)){
 					String s1 = Locator.getFacade().getStatsManager().getUserNameForDisplay(r1.getUserId()).toLowerCase();
 					String s2 = Locator.getFacade().getStatsManager().getUserNameForDisplay(r2.getUserId()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
@@ -188,7 +180,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					EventStat es2 = (EventStat) r2;
 					String s1 = SST_ers.getEventName(es1.getEventId()).toLowerCase();
 					String s2 = SST_ers.getEventName(es2.getEventId()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
@@ -197,7 +189,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					EventStat es2 = (EventStat) r2;
 					String s1 = SST_ers.getToolName(es1.getToolId()).toLowerCase();
 					String s2 = SST_ers.getToolName(es2.getToolId()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
@@ -206,7 +198,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					ResourceStat rs2 = (ResourceStat) r2;
 					String s1 = SST_sm.getResourceName(rs1.getResourceRef()).toLowerCase();
 					String s2 = SST_sm.getResourceName(rs2.getResourceRef()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;
@@ -215,7 +207,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					ResourceStat rs2 = (ResourceStat) r2;
 					String s1 = ((String) rs1.getResourceAction()).toLowerCase();
 					String s2 = ((String) rs2.getResourceAction()).toLowerCase();
-					int res = collator.compare(s1, s2);
+					int res = comparator.compare(s1, s2);
 					if(sortAscending)
 						return res;
 					else return -res;

@@ -196,7 +196,8 @@ public class GroupController {
         }
         //Sort the members of the site by sort name.
         List<User> siteMemberList = new ArrayList<>(siteMemberSet);
-        Collections.sort(siteMemberList, new UserSortNameComparator());
+        Collections.sort(siteMemberList, new UserSortNameComparator(
+                sakaiService.getLocaleForCurrentSiteAndUser()));
         selectableMemberList = new ArrayList<>(siteMemberList);
 
         // Get all the joinable sets from all the site groups.
@@ -217,7 +218,7 @@ public class GroupController {
             }
         });
         List<String> joinableSetList = new ArrayList<>(groupJoinableSet);
-        Collections.sort(joinableSetList, new AlphaNumericComparator());
+        Collections.sort(joinableSetList, new AlphaNumericComparator(sakaiService.getLocaleForCurrentSiteAndUser()));
 
         // Add the attributes to the model
         model.addAttribute("groupForm", groupForm);

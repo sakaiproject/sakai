@@ -32,6 +32,7 @@ import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.service.impl.ScormLaunchServiceImpl;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,8 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+import java.util.Locale;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -145,6 +148,14 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 		public org.sakaiproject.grading.api.GradingService gradingService()
 		{
 			return mock(org.sakaiproject.grading.api.GradingService.class);
+		}
+
+		@Bean(name = "org.sakaiproject.util.api.LocaleService")
+		public LocaleService localeService()
+		{
+			LocaleService localeService = mock(LocaleService.class);
+			when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
+			return localeService;
 		}
 	
 }

@@ -85,6 +85,7 @@ import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 @Slf4j
 @Setter
@@ -112,6 +113,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private ServerConfigurationService serverConfigurationService;
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
+    private LocaleService localeService;
     private FormattedText formattedText;
     private LTIService ltiService;
 
@@ -1056,7 +1058,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 .filter(submission -> submission.getSubmitters().stream()
                         .map(AssignmentSubmissionSubmitter::getSubmitter)
                         .anyMatch(visibleUserIds::contains))
-                .sorted(new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService))
+                .sorted(new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService,
+                        localeService.getLocaleForSiteAndUser(site.getId(), sessionManager.getCurrentSessionUserId())))
                 .collect(Collectors.toList());
 
         int submissionIndex = -1;

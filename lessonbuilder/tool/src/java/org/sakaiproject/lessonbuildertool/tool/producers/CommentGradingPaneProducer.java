@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -67,6 +68,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 	private MessageLocator messageLocator;
         private SecurityService securityService;
         private SiteService siteService;
+        private LocaleService localeService;
 	public LocaleGetter localeGetter;
          
 	
@@ -92,6 +94,10 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 
 	public void setMessageLocator(MessageLocator messageLocator) {
 		this.messageLocator = messageLocator;
+	}
+
+	public void setLocaleService(LocaleService localeService) {
+		this.localeService = localeService;
 	}
 	
 	private class SimpleUser implements Comparable<SimpleUser> {
@@ -214,7 +220,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		    	} catch (Exception e) {
 		        }
 		    }
-		    Collections.sort(missing, new UserSortNameComparator());
+		    Collections.sort(missing, new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
 		    UIOutput.make(tofill, "missing-head");
 		    UIOutput.make(tofill, "missing-div");
 		    for (User user : missing) {

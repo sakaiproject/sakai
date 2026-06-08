@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -83,6 +84,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * Allows some basic functions on announcements.
@@ -267,7 +269,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				for (Message msg : announcements) {
 					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, defaultChannel, null, null));
 				}
-				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
+				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc, getLocale());
 				messageList.sort(sortedAnnouncements);
 				announcements.clear();
 				announcements.addAll(messageList);
@@ -864,5 +866,12 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	
 	@Setter
 	private ToolManager toolManager;
+
+	@Setter
+	private LocaleService localeService;
+
+	private Locale getLocale() {
+		return localeService.getLocaleForCurrentSiteAndUser();
+	}
 	
 }

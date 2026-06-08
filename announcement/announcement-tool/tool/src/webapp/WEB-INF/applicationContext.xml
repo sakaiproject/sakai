@@ -15,7 +15,7 @@
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
 	</bean>
 	
 </beans>
-

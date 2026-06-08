@@ -15,38 +15,26 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.util;
 
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.Session;
 
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.LoadableDisplayUserListModel.DisplayUser;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 /**
- * Utility class to house Comparators using a common RuleBasedCollator
+ * Utility class to house comparators using the current Wicket session locale.
  * @author plukasew
  */
-@Slf4j
 public class Comparators
 {
-	private static Collator collator = Collator.getInstance();
-	static
+	private static Comparator<String> getStringComparatorForLocale()
 	{
-		try
-		{
-			collator = new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-		}
-		catch (ParseException e)
-		{
-			log.error("Unable to create RuleBasedCollator", e);
-		}
+		return new AlphaNumericComparator(Session.get().getLocale());
 	}
 
 	/**
@@ -55,7 +43,7 @@ public class Comparators
 	 */
 	public static final Comparator<String> getStringComparator()
 	{
-		return (String o1, String o2) -> collator.compare(o1, o2);
+		return getStringComparatorForLocale();
 	}
 
 	/**
@@ -64,11 +52,12 @@ public class Comparators
 	 */
 	public static final Comparator<ToolInfo> getToolInfoComparator()
 	{
+		Comparator<String> comparator = getStringComparatorForLocale();
 		return (ToolInfo o1, ToolInfo o2) ->
 		{
 			String toolName1 = Locator.getFacade().getEventRegistryService().getToolName(o1.getToolId());
 			String toolName2 = Locator.getFacade().getEventRegistryService().getToolName(o2.getToolId());
-			return collator.compare(toolName1, toolName2);
+			return comparator.compare(toolName1, toolName2);
 		};
 	}
 
@@ -79,7 +68,8 @@ public class Comparators
 	 */
 	public static final Comparator<Object> getOptionRendererComparator(final IOptionRenderer renderer)
 	{
-		return (Object o1, Object o2) -> collator.compare(renderer.getDisplayValue(o1), renderer.getDisplayValue(o2));
+		Comparator<String> comparator = getStringComparatorForLocale();
+		return (Object o1, Object o2) -> comparator.compare(String.valueOf(renderer.getDisplayValue(o1)), String.valueOf(renderer.getDisplayValue(o2)));
 	}
 
 	/**
@@ -89,7 +79,8 @@ public class Comparators
 	 */
 	public static final Comparator<Object> getChoiceRendererComparator(final IChoiceRenderer renderer)
 	{
-		return (Object o1, Object o2) -> collator.compare(renderer.getDisplayValue(o1), renderer.getDisplayValue(o2));
+		Comparator<String> comparator = getStringComparatorForLocale();
+		return (Object o1, Object o2) -> comparator.compare(String.valueOf(renderer.getDisplayValue(o1)), String.valueOf(renderer.getDisplayValue(o2)));
 	}
 
 	/**
@@ -98,6 +89,7 @@ public class Comparators
 	 */
 	public static final Comparator<DisplayUser> getDisplayUserComparator()
 	{
-		return (DisplayUser d1, DisplayUser d2) -> collator.compare(d1.display, d2.display);
+		Comparator<String> comparator = getStringComparatorForLocale();
+		return (DisplayUser d1, DisplayUser d2) -> comparator.compare(d1.display, d2.display);
 	}
 }

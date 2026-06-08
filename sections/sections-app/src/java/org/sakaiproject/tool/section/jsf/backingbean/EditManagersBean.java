@@ -21,9 +21,6 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +40,7 @@ import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,26 +66,6 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	protected String sectionDescription;
 	
 	protected boolean externallyManaged;
-
-	/**
-	 * Compares ParticipationRecords by users' sortNames.
-	 */
-	static Comparator sortNameComparator = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			ParticipationRecord manager1 = (ParticipationRecord)o1;
-			ParticipationRecord manager2 = (ParticipationRecord)o2;
-			Collator collator;
-			try {
-				collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			} catch (ParseException e) {
-				// error with init RuleBasedCollator with rules
-				// use the default Collator
-				collator = Collator.getInstance();
-				log.warn("{} sortNameComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
-			}
-			return collator.compare(manager1.getUser().getSortName(), manager2.getUser().getSortName());
-		}
-	};
 
 	protected SectionDecorator initializeFields() {
 		// Determine whether this course is externally managed
@@ -128,6 +106,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	public void init() {
 		initializeFields();
+		Comparator<ParticipationRecord> sortNameComparator = getSortNameComparator();
 
 		// Get the current users in the manager role for this section
 		List<ParticipationRecord> selectedManagers = getSectionManager().getSectionTeachingAssistants(sectionUuid);
@@ -156,6 +135,13 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 				availableUsers.add(new SelectItem(manager.getUserUid(), manager.getSortName()));
 			}
 		}
+	}
+
+	protected Comparator<ParticipationRecord> getSortNameComparator() {
+		UserSortNameComparator userComparator = new UserSortNameComparator(false, getLocale());
+		return (ParticipationRecord manager1, ParticipationRecord manager2) -> userComparator.compareSortNames(
+				manager1.getUser().getSortName(), manager1.getUser().getDisplayId(),
+				manager2.getUser().getSortName(), manager2.getUser().getDisplayId());
 	}
 	
 	public String update() {

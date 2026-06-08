@@ -35,9 +35,10 @@
 package org.sakaiproject.roster.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.util.comparator.UserNameComparator;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
@@ -48,10 +49,11 @@ import java.util.Comparator;
 public class RosterMemberComparator implements Comparator<RosterMember> {
 
     private final boolean firstNameLastName;
-    private UserNameComparator userNameComparator = new UserNameComparator();
+    private final UserSortNameComparator userSortNameComparator;
 
-    public RosterMemberComparator(boolean firstNameLastName) {
+    public RosterMemberComparator(boolean firstNameLastName, Locale locale) {
         this.firstNameLastName = firstNameLastName;
+        this.userSortNameComparator = new UserSortNameComparator(locale);
     }
 	
     /**
@@ -63,9 +65,11 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
     public int compare(RosterMember member1, RosterMember member2) {
 
         if (firstNameLastName) {
-            return userNameComparator.compare(member1.getDisplayName(), member2.getDisplayName());
+            return userSortNameComparator.compareSortNames(member1.getDisplayName(), member1.getDisplayId(),
+                    member2.getDisplayName(), member2.getDisplayId());
         } else {
-            return userNameComparator.compare(member1.getSortName(), member2.getSortName());
+            return userSortNameComparator.compareSortNames(member1.getSortName(), member1.getDisplayId(),
+                    member2.getSortName(), member2.getDisplayId());
         }
     }
 }

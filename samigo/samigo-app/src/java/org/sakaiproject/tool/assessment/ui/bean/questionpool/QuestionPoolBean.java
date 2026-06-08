@@ -26,8 +26,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.Collator;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,6 +113,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -235,6 +235,8 @@ public class QuestionPoolBean implements Serializable {
 
   @Autowired
   private SecurityService securityService;
+  @Autowired
+  private LocaleService localeService;
 
   /**
    * Creates a new QuestionPoolBean object.
@@ -326,13 +328,13 @@ public class QuestionPoolBean implements Serializable {
 		  if (i2.getTitle() == null && i1.getTitle() == null) {
 			  return 0;
 		  }
-		  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-		  try {
-			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			return collator.compare(i1.getTitle(), i2.getTitle());
-		  } catch (ParseException e) {}
-		  return Collator.getInstance().compare(i1.getTitle(), i2.getTitle());
+		  return getCollator().compare(i1.getTitle(), i2.getTitle());
 	  }
+  }
+
+  private Collator getCollator() {
+	  return SakaiCollators.getCollatorWithUnderscoreAfterSpace(
+			  localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
   }
 
   class QuestionSizeComparator implements Comparator<QuestionPoolFacade> {

@@ -23,8 +23,6 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,6 +64,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -494,13 +493,12 @@ private List attachmentList;
 	  public int compare(Object o1, Object o2) {
 		  SelectItem i1 = (SelectItem)o1;
 		  SelectItem i2 = (SelectItem)o2;
-			try{
-				RuleBasedCollator r_collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				return r_collator.compare(i1.getLabel(), i2.getLabel());
-			}catch(ParseException e){
-				  return Collator.getInstance().compare(i1.getLabel(),i2.getLabel());
-			}
+		  return getCollator().compare(i1.getLabel(), i2.getLabel());
 	  }
+  }
+
+  private Collator getCollator() {
+    return SakaiCollators.getCollatorWithUnderscoreAfterSpace(rb.getLocale(), Collator.TERTIARY);
   }
 
   /**List of available question pools.

@@ -54,6 +54,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 @Slf4j
 public class MembershipManagerImpl implements MembershipManager {
@@ -62,6 +63,7 @@ public class MembershipManagerImpl implements MembershipManager {
   @Setter private PrivacyManager privacyManager;
   @Setter private PrivateMessageManager prtMsgManager;
   @Setter private ServerConfigurationService serverConfigurationService;
+  @Setter private LocaleService localeService;
   @Setter private SiteService siteService;
   @Setter private ToolManager toolManager;
   @Setter private UserDirectoryService userDirectoryService;
@@ -445,7 +447,8 @@ public class MembershipManagerImpl implements MembershipManager {
             
     MembershipItem[] membershipArray = new MembershipItem[memberMap.size()];
     membershipArray = (MembershipItem[]) memberMap.values().toArray(membershipArray);
-    Arrays.sort(membershipArray);
+    Arrays.sort(membershipArray, MembershipItem.compareByType.thenComparing(
+        MembershipItem.getNameComparator(localeService.getLocaleForCurrentSiteAndUser())));
     
     return Arrays.asList(membershipArray);     
   }
