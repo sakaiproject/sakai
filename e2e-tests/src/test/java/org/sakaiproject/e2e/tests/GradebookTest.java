@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import java.util.List;
@@ -103,5 +104,69 @@ class GradebookTest extends SakaiUiTestBase {
         if (cancelButton.count() > 0) {
             cancelButton.click(new Locator.ClickOptions().setForce(true));
         }
+    }
+
+    @Test
+    @Order(4)
+    void courseGradePreviewIsReadableInDarkMode() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText("Settings"))
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        Locator gradeReleaseButton = page.locator(".accordion button")
+            .filter(new Locator.FilterOptions().setHasText("Grade Release Rules"))
+            .first();
+        assertThat(gradeReleaseButton).isVisible();
+        if (!"true".equals(gradeReleaseButton.getAttribute("aria-expanded"))) {
+            gradeReleaseButton.click(new Locator.ClickOptions().setForce(true));
+        }
+
+        Locator displayCourseGrade = page.locator("label")
+            .filter(new Locator.FilterOptions().setHasText("Display final course grade to students"))
+            .locator("input[type=\"checkbox\"]")
+            .first();
+        assertThat(displayCourseGrade).isVisible();
+        if (!displayCourseGrade.isChecked()) {
+            displayCourseGrade.check(new Locator.CheckOptions().setForce(true));
+        }
+
+        Locator preview = page.locator("#settingsGradeRelease .form-group")
+            .filter(new Locator.FilterOptions().setHasText("Preview"))
+            .locator("span")
+            .nth(1);
+        assertThat(preview).isVisible();
+
+        page.evaluate("() => document.documentElement.classList.add('sakaiUserTheme-dark')");
+        assertThat(preview).isVisible();
+        assertTrue(contrastRatio(preview) >= 4.5,
+            "Course grade preview should have readable contrast in dark mode");
+
+        page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
+        assertTrue(contrastRatio(preview) >= 4.5,
+            "Course grade preview should have readable contrast in light mode");
+    }
+
+    private double contrastRatio(Locator locator) {
+        Number contrast = (Number) locator.evaluate("el => {"
+            + "const style = getComputedStyle(el);"
+            + "const rgb = value => value.match(/\\d+(\\.\\d+)?/g).slice(0, 3).map(Number);"
+            + "const channel = value => {"
+            + "  const normalized = value / 255;"
+            + "  return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);"
+            + "};"
+            + "const luminance = values => 0.2126 * channel(values[0])"
+            + "  + 0.7152 * channel(values[1]) + 0.0722 * channel(values[2]);"
+            + "const foreground = luminance(rgb(style.color));"
+            + "const background = luminance(rgb(style.backgroundColor));"
+            + "const light = Math.max(foreground, background);"
+            + "const dark = Math.min(foreground, background);"
+            + "return (light + 0.05) / (dark + 0.05);"
+            + "}");
+        return contrast.doubleValue();
     }
 }
