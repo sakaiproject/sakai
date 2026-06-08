@@ -201,12 +201,15 @@ RESTful, ActionsExecutable {
         try {
             siteService.unjoin(siteId);
             //String user = sessionManager().getCurrentSessionUserId();
-            String currentUserId = userEntityProvider.getCurrentUser(view).getId(); //userDirectoryService.getCurrentUser().getEid();
-            String roleId = siteService.getSite(siteId).getJoinerRole();
-            List<UserAuditEntry> userAuditList = Collections.singletonList(UserAuditEntry.of(siteId, currentUserId,
-                    roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,
-                    userAuditRegistration.getDatabaseSourceKey(), currentUserId));
-            userAuditService.addToUserAuditing(userAuditList);
+            EntityUser currentUser = userEntityProvider.getCurrentUser(view);
+            if (currentUser != null) {
+                String currentUserId = currentUser.getId(); //userDirectoryService.getCurrentUser().getEid();
+                String roleId = siteService.getSite(siteId).getJoinerRole();
+                List<UserAuditEntry> userAuditList = Collections.singletonList(UserAuditEntry.of(siteId, currentUserId,
+                        roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                        userAuditRegistration.getDatabaseSourceKey(), currentUserId));
+                userAuditService.addToUserAuditing(userAuditList);
+            }
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
                     + ") could not be found: " + e, e);

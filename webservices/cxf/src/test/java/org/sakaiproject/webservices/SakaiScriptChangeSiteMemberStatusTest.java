@@ -82,7 +82,7 @@ public class SakaiScriptChangeSiteMemberStatusTest extends AbstractCXFTest {
 			when(mockUser2.getId()).thenReturn("userEidNoPerm");
 			when(mockAuthzGroup.getMember("userId")).thenReturn(mockMember);
 			when(mockAuthzGroup.getMember("userIdNoPerm")).thenReturn(null);
-			when(mockSite.getUserRole("userId")).thenReturn(mockRole);
+			when(mockMember.getRole()).thenReturn(mockRole);
 			when(mockRole.getId()).thenReturn("role");
 		} catch (Exception e) {
 

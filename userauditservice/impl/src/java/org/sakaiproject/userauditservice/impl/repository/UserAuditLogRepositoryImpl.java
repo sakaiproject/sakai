@@ -17,6 +17,7 @@
 package org.sakaiproject.userauditservice.impl.repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -65,7 +66,7 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		if (query.getOffset() > 0) {
 			hibernateQuery.setFirstResult(query.getOffset());
 		}
-		if (query.getLimit() > 0) {
+		if (query.getLimit() > UserAuditLogQuery.NO_LIMIT) {
 			hibernateQuery.setMaxResults(query.getLimit());
 		}
 		return hibernateQuery.getResultList();
@@ -88,10 +89,12 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 			predicates.add(cb.equal(root.get("userId"), query.getUserId()));
 		}
 		if (query.getFromAuditStamp() != null) {
-			predicates.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), query.getFromAuditStamp()));
+			Date fromAuditStamp = Date.from(query.getFromAuditStamp());
+			predicates.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), fromAuditStamp));
 		}
 		if (query.getToAuditStamp() != null) {
-			predicates.add(cb.lessThan(root.get("auditStamp"), query.getToAuditStamp()));
+			Date toAuditStamp = Date.from(query.getToAuditStamp());
+			predicates.add(cb.lessThan(root.get("auditStamp"), toAuditStamp));
 		}
 		return predicates;
 	}

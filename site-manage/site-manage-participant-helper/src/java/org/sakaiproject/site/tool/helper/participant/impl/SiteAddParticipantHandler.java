@@ -391,6 +391,7 @@ public class SiteAddParticipantHandler {
 					
 					// List used for user auditing
 					List<UserAuditEntry> userAuditList = new ArrayList<>();
+					String auditorId = sessionManager.getCurrentSessionUserId();
 
 					for (UserRoleEntry entry: userRoleEntries) {
 						String eId = entry.getEid();
@@ -430,9 +431,11 @@ public class SiteAddParticipantHandler {
 								addedUserReferences.add(userDirectoryService.userReference(user.getId()));
 								
 								// Add the user to the list for the User Auditing Event Logger
-								userAuditList.add(UserAuditEntry.of(site.getId(), user.getId(), role,
-										UserAuditService.USER_AUDIT_ACTION_ADD,
-										userAuditRegistration.getDatabaseSourceKey(), sessionManager.getCurrentSessionUserId()));
+								if (auditorId != null) {
+									userAuditList.add(UserAuditEntry.of(site.getId(), user.getId(), role,
+											UserAuditService.USER_AUDIT_ACTION_ADD,
+											userAuditRegistration.getDatabaseSourceKey(), auditorId));
+								}
 
 								// send notification
 								if (notify) {

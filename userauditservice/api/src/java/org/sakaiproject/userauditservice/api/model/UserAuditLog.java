@@ -31,11 +31,15 @@ import javax.persistence.TemporalType;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "user_audits_log", indexes = { @Index(name = "user_audits_log_index", columnList = "site_id") })
-@Data
+@Getter
+@Setter
+@ToString
 public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Id
@@ -65,4 +69,21 @@ public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Column(name = "action_user_id", length = 99)
 	private String actionUserId;
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other == null || getClass() != other.getClass()) {
+			return false;
+		}
+		UserAuditLog that = (UserAuditLog) other;
+		return id != null && id.equals(that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : System.identityHashCode(this);
+	}
 }

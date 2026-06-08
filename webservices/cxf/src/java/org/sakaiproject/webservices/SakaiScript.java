@@ -5017,7 +5017,8 @@ public class SakaiScript extends AbstractWebService {
             userMember.setActive(active);
             authzGroupService.save(realmEdit);
 
-            List<UserAuditEntry> userAuditList = Collections.singletonList(UserAuditEntry.of(siteid, user.getId(), "s",
+            String role = userMember.getRole() != null ? userMember.getRole().getId() : "s";
+            List<UserAuditEntry> userAuditList = Collections.singletonList(UserAuditEntry.of(siteid, user.getId(), role,
                     UserAuditService.USER_AUDIT_ACTION_UPDATE, userAuditRegistration.getDatabaseSourceKey(),
                     userDirectoryService.getCurrentUser().getId()));
             userAuditService.addToUserAuditing(userAuditList);

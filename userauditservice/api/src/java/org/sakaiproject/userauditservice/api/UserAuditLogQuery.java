@@ -16,7 +16,7 @@
 
 package org.sakaiproject.userauditservice.api;
 
-import java.util.Date;
+import java.time.Instant;
 
 import lombok.Builder;
 import lombok.Value;
@@ -25,13 +25,22 @@ import lombok.Value;
 @Builder
 public class UserAuditLogQuery {
 
+	/** Sentinel value for {@link #limit}: do not cap the number of returned rows. */
+	public static final int NO_LIMIT = 0;
+
 	private String siteId;
 	private String userId;
-	private Date fromAuditStamp;
-	private Date toAuditStamp;
+	private Instant fromAuditStamp;
+	private Instant toAuditStamp;
 	@Builder.Default
 	private UserAuditSortColumn sortColumn = UserAuditSortColumn.AUDIT_STAMP;
 	private boolean sortAscending;
+	/** Number of rows to skip before returning results; 0 starts at the first match. */
 	private int offset;
-	private int limit;
+	/**
+	 * Maximum number of rows to return. Defaults to {@link #NO_LIMIT}, meaning no
+	 * max-results cap and all matching rows are returned.
+	 */
+	@Builder.Default
+	private int limit = NO_LIMIT;
 }

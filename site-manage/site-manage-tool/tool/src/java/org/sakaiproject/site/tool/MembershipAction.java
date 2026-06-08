@@ -485,21 +485,18 @@ public class MembershipAction extends PagedResourceActionII
 				{
 					String msg = RB.getFormattedMessage( "mb.youhave2", new Object[] {SITE_SERV.getSite( id ).getTitle()} );
 					addAlert( state, msg );
+
+					// add to user auditing
+					List<UserAuditEntry> userAuditList = new ArrayList<>();
+					String currentUserId = userDirectoryService.getCurrentUser().getId();
+					String roleId = SITE_SERV.getSite(id).getJoinerRole();
+					userAuditList.add(UserAuditEntry.of(id, currentUserId, roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+							userAuditRegistration.getDatabaseSourceKey(), currentUserId));
+					userAuditService.addToUserAuditing(userAuditList);
 				}
 				else
 				{
 					addAlert( state, RB.getString( "mb.join.notAllowed" ) );
-				}
-
-				// add to user auditing
-				List<UserAuditEntry> userAuditList = new ArrayList<>();
-				String currentUserId = userDirectoryService.getCurrentUser().getId();
-				String roleId = SITE_SERV.getSite(id).getJoinerRole();
-				userAuditList.add(UserAuditEntry.of(id, currentUserId, roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
-						userAuditRegistration.getDatabaseSourceKey(), currentUserId));
-				if (!userAuditList.isEmpty())
-				{
-					userAuditService.addToUserAuditing(userAuditList);
 				}
 			}
 			catch (IdUnusedException | PermissionException e)

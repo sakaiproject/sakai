@@ -24,6 +24,7 @@ package org.sakaiproject.userauditservice.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.userauditservice.api.UserAuditLogQuery;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
@@ -40,13 +41,18 @@ import lombok.Setter;
 public class UserAuditServiceImpl implements UserAuditService {
 
 	private List<UserAuditRegistration> registeredItems = new ArrayList<>();
-	private List<String> keys = new ArrayList<>();
 	private UserAuditLogRepository userAuditLogRepository;
 
 	@Override
 	public void register(UserAuditRegistration userAuditRegistration) {
 		registeredItems.add(userAuditRegistration);
-		keys.add(userAuditRegistration.getDatabaseSourceKey());
+	}
+
+	@Override
+	public List<String> getKeys() {
+		return registeredItems.stream()
+				.map(UserAuditRegistration::getDatabaseSourceKey)
+				.collect(Collectors.toList());
 	}
 
 	@Override

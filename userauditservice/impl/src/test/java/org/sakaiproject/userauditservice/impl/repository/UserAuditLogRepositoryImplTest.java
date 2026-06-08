@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.TimeZone;
@@ -71,8 +72,8 @@ public class UserAuditLogRepositoryImplTest {
 	public void countFiltersByDateRange() {
 		UserAuditLogQuery query = UserAuditLogQuery.builder()
 				.siteId(SITE_ID)
-				.fromAuditStamp(timestamp(2026, 6, 2, 0))
-				.toAuditStamp(timestamp(2026, 6, 4, 0))
+				.fromAuditStamp(instant(2026, 6, 2, 0))
+				.toAuditStamp(instant(2026, 6, 4, 0))
 				.build();
 		assertEquals(2L, userAuditLogRepository.count(query));
 	}
@@ -142,8 +143,8 @@ public class UserAuditLogRepositoryImplTest {
 		UserAuditLogQuery query = UserAuditLogQuery.builder()
 				.siteId(SITE_ID)
 				.userId("user-a")
-				.fromAuditStamp(timestamp(2026, 6, 8, 0))
-				.toAuditStamp(timestamp(2026, 6, 9, 0))
+				.fromAuditStamp(instant(2026, 6, 8, 0))
+				.toAuditStamp(instant(2026, 6, 9, 0))
 				.build();
 
 		assertEquals(1L, userAuditLogRepository.count(query));
@@ -173,7 +174,14 @@ public class UserAuditLogRepositoryImplTest {
 	}
 
 	private java.util.Date timestamp(int year, int month, int day, int hour) {
-		return Timestamp.from(LocalDate.of(year, month, day).atTime(hour, 0)
-				.atZone(UTC.toZoneId()).toInstant());
+		return Timestamp.from(instant(year, month, day, hour));
+	}
+
+	private Instant instant(int year, int month, int day) {
+		return instant(year, month, day, 0);
+	}
+
+	private Instant instant(int year, int month, int day, int hour) {
+		return LocalDate.of(year, month, day).atTime(hour, 0).atZone(UTC.toZoneId()).toInstant();
 	}
 }

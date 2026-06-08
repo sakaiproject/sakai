@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.TimeZone;
 
@@ -62,9 +61,9 @@ public class EventLogQueryBuilderTest {
 		EventLogFilter filter = EventLogFilter.of(null, "2026-06-01", "2026-06-30", timeZone);
 		UserAuditLogQuery query = EventLogQueryBuilder.build("site-a", filter, "auditStamp", false, 0, 0);
 
-		assertEquals(Timestamp.from(LocalDate.of(2026, 6, 1).atStartOfDay(timeZone.toZoneId()).toInstant()),
+		assertEquals(LocalDate.of(2026, 6, 1).atStartOfDay(timeZone.toZoneId()).toInstant(),
 				query.getFromAuditStamp());
-		assertEquals(Timestamp.from(LocalDate.of(2026, 7, 1).atStartOfDay(timeZone.toZoneId()).toInstant()),
+		assertEquals(LocalDate.of(2026, 7, 1).atStartOfDay(timeZone.toZoneId()).toInstant(),
 				query.getToAuditStamp());
 	}
 

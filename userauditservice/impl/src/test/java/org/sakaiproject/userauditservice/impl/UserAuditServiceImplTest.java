@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sakaiproject.userauditservice.api.UserAuditLogQuery;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.userauditservice.api.model.UserAuditLog;
 import org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository;
@@ -47,6 +48,20 @@ public class UserAuditServiceImplTest {
 		userAuditLogRepository = mock(UserAuditLogRepository.class);
 		userAuditService = new UserAuditServiceImpl();
 		userAuditService.setUserAuditLogRepository(userAuditLogRepository);
+	}
+
+	@Test
+	public void registerTracksItemsAndDerivesKeysOnDemand() {
+		UserAuditRegistration first = mock(UserAuditRegistration.class);
+		when(first.getDatabaseSourceKey()).thenReturn("M");
+		UserAuditRegistration second = mock(UserAuditRegistration.class);
+		when(second.getDatabaseSourceKey()).thenReturn("S");
+
+		userAuditService.register(first);
+		userAuditService.register(second);
+
+		assertEquals(List.of(first, second), userAuditService.getRegisteredItems());
+		assertEquals(List.of("M", "S"), userAuditService.getKeys());
 	}
 
 	@Test
@@ -71,7 +86,7 @@ public class UserAuditServiceImplTest {
 	}
 
 	@Test
-	public void addToUserAuditingUsesDistinctAuditStampsPerRow() {
+	public void addToUserAuditingUsesNonDecreasingAuditStamps() {
 		List<UserAuditEntry> userAuditEntries = List.of(
 				UserAuditEntry.of("site-a", "user-a", "maintain", "A", "M", "admin-a"),
 				UserAuditEntry.of("site-a", "user-b", "access", "R", "S", "admin-b"));
