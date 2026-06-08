@@ -101,8 +101,8 @@ public class UserAuditEventLogTest {
 	public void appendPagingUsesOracleRowNumWrapper() {
 		String sql = UserAuditEventLog.appendPaging(UserAuditEventLog.GET_EVENTS_BASE_SQL, 400, 200, "oracle");
 		assertTrue(sql.contains("rownum rnum"));
-		assertTrue(sql.contains("rnum >= 400"));
-		assertTrue(sql.contains("rownum <= 599"));
+		assertTrue(sql.contains("rnum >= 401"));
+		assertTrue(sql.contains("rownum <= 600"));
 	}
 
 	@Test

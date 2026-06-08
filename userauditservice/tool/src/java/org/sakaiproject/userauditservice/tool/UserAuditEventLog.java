@@ -25,11 +25,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 
@@ -40,10 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jsf2.util.LocaleUtil;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoader;
@@ -64,11 +68,30 @@ public class UserAuditEventLog {
 	private transient SqlService sqlService = ComponentManager.get(SqlService.class);
 	private transient UserAuditService userAuditService = ComponentManager.get(UserAuditService.class);
 	private transient UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+	private transient UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 	private transient ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private transient SessionManager sessionManager = ComponentManager.get(SessionManager.class);
 
 	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
 	private final String STATE_SITE_ID = "site.instance.id";
+
+	private static final class EventLogRow {
+		private final String userId;
+		private final String roleName;
+		private final String actionTaken;
+		private final Date auditStamp;
+		private final String source;
+		private final String actionUserId;
+
+		private EventLogRow(String userId, String roleName, String actionTaken, Date auditStamp, String source, String actionUserId) {
+			this.userId = userId;
+			this.roleName = roleName;
+			this.actionTaken = actionTaken;
+			this.auditStamp = auditStamp;
+			this.source = source;
+			this.actionUserId = actionUserId;
+		}
+	}
 
     @Getter @Setter
 	public class EventLog {
@@ -112,6 +135,7 @@ public class UserAuditEventLog {
 
 		public String getAuditStamp() {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, rb.getLocale());
+			df.setTimeZone(userTimeService.getLocalTimeZone());
 			return df.format(auditStamp);
 		}
 
@@ -155,8 +179,33 @@ public class UserAuditEventLog {
 			statement = conn.prepareStatement(sql);
 			statement.setString(1, siteId);
 			result = statement.executeQuery();
+			List<EventLogRow> rows = new ArrayList<EventLogRow>();
+			Set<String> userIds = new HashSet<String>();
 			while (result.next()) {
-				eventLog.add(mapRow(result));
+				String userId = result.getString("user_id");
+				String actionUserId = result.getString("action_user_id");
+				rows.add(new EventLogRow(userId, result.getString("role_name"),
+						result.getString("action_taken"), result.getTimestamp("audit_stamp"),
+						result.getString("source"), actionUserId));
+				if (userId != null) {
+					userIds.add(userId);
+				}
+				if (actionUserId != null) {
+					userIds.add(actionUserId);
+				}
+			}
+			Map<String, String> eidsById = new HashMap<String, String>();
+			if (!userIds.isEmpty()) {
+				for (User user : userDirectoryService.getUsers(userIds)) {
+					eidsById.put(user.getId(), user.getEid());
+				}
+			}
+			for (EventLogRow row : rows) {
+				String userEid = eidsById.get(row.userId);
+				String actionUserEid = eidsById.get(row.actionUserId);
+				eventLog.add(new EventLog(userEid != null ? userEid : row.userId, row.roleName,
+						row.actionTaken, row.auditStamp, row.source,
+						actionUserEid != null ? actionUserEid : row.actionUserId));
 			}
 		}
 		catch (SQLException e) {
@@ -187,23 +236,6 @@ public class UserAuditEventLog {
 			closeQuietly(result, statement, conn);
 		}
 		return 0;
-	}
-
-	private EventLog mapRow(ResultSet result) throws SQLException {
-		String userId = result.getString("user_id");
-		String actionUserId = result.getString("action_user_id");
-		try {
-			userId = userDirectoryService.getUserEid(result.getString("user_id"));
-			actionUserId = userDirectoryService.getUserEid(result.getString("action_user_id"));
-		}
-		catch (UserNotDefinedException ex) {
-			log.debug("User audit log references undefined user id(s), using raw id(s)", ex);
-		}
-		String roleName = result.getString("role_name");
-		String actionTaken = result.getString("action_taken");
-		Timestamp auditStamp = result.getTimestamp("audit_stamp");
-		String source = result.getString("source");
-		return new EventLog(userId, roleName, actionTaken, auditStamp, source, actionUserId);
 	}
 
 	private String resolveSiteId() {
@@ -261,9 +293,9 @@ public class UserAuditEventLog {
 		}
 		if ("oracle".equalsIgnoreCase(vendor)) {
 			// Same rownum/rnum wrapper used in kernel storage SQL (e.g. SingleStorageSqlOracle).
-			int lastRow = offset + limit - 1;
+			int lastRow = offset + limit;
 			return "select * from ( select page_rows.*, rownum rnum from ( " + sql
-					+ " ) page_rows where rownum <= " + lastRow + " ) where rnum >= " + offset;
+					+ " ) page_rows where rownum <= " + lastRow + " ) where rnum >= " + (offset + 1);
 		}
 		if ("hsqldb".equalsIgnoreCase(vendor)) {
 			String trimmed = sql.trim();
