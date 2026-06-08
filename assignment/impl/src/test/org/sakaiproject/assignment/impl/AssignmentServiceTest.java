@@ -37,6 +37,7 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -54,11 +55,19 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Resource;
 
+import org.mockito.Mockito;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +75,7 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -79,12 +89,21 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -92,6 +111,7 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -107,6 +127,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -123,10 +145,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private static final Faker faker = new Faker();
 
+    @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
+    private AnnouncementService announcementService;
     @Autowired private AssignmentEventObserver assignmentEventObserver;
     @Autowired private AssignmentService assignmentService;
     @Autowired private AuthzGroupService authzGroupService;
+    @Resource(name = "org.sakaiproject.calendar.api.CalendarService")
+    private CalendarService calendarService;
     @Autowired private EntityManager entityManager;
+    @Resource(name = "org.sakaiproject.event.api.EventTrackingService")
+    private EventTrackingService eventTrackingService;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
@@ -134,6 +162,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
     @Autowired private TaskService taskService;
+    @Resource(name = "org.sakaiproject.time.api.TimeService")
+    private TimeService timeService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -169,6 +199,162 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     public void checkAssignmentToolId() {
         Assert.assertNotNull(assignmentService.getToolId());
+    }
+
+    @Test
+    public void testIntegrateWithAnnouncementPublishesLinkedDraftImport() throws Exception {
+        AssignmentServiceImpl service = integrationService();
+        AnnouncementChannel channel = mock(AnnouncementChannel.class);
+        AnnouncementMessage existingMessage = mock(AnnouncementMessage.class);
+        AnnouncementMessageHeader existingHeader = mock(AnnouncementMessageHeader.class);
+        AnnouncementMessageEdit editMessage = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit editHeader = mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit editProperties = mock(ResourcePropertiesEdit.class);
+        Assignment assignment = mock(Assignment.class);
+        Map<String, String> properties = new HashMap<>();
+        Instant openTime = Instant.parse("2026-04-14T16:00:00Z");
+
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        properties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, "draft-announcement-id");
+
+        when(assignment.getProperties()).thenReturn(properties);
+        when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
+        when(assignment.getId()).thenReturn("assignment-id");
+        when(assignment.getContext()).thenReturn("site-id");
+        when(announcementService.channelReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
+        when(announcementService.getAnnouncementChannel("announcement-ref")).thenReturn(channel);
+        when(channel.getAnnouncementMessage("draft-announcement-id")).thenReturn(existingMessage);
+        when(existingMessage.getId()).thenReturn("draft-announcement-id");
+        when(existingMessage.getAnnouncementHeader()).thenReturn(existingHeader);
+        when(existingHeader.getDraft()).thenReturn(true);
+        when(existingHeader.getSubject()).thenReturn("Open Assignment Imported Assignment");
+        when(existingHeader.getAccess()).thenReturn(MessageHeader.MessageAccess.CHANNEL);
+        when(existingMessage.getBody()).thenReturn("<p>Open Date Body</p>");
+        when(channel.editAnnouncementMessage("draft-announcement-id")).thenReturn(editMessage);
+        when(editMessage.getAnnouncementHeaderEdit()).thenReturn(editHeader);
+        when(editMessage.getPropertiesEdit()).thenReturn(editProperties);
+        when(editMessage.getId()).thenReturn("draft-announcement-id");
+        when(entityManager.newReferenceList()).thenReturn(new ArrayList<>());
+        when(formattedText.convertPlaintextToFormattedText("Imported Assignment")).thenReturn("Imported Assignment");
+        when(resourceLoader.getFormattedMessage("assig6", "Imported Assignment")).thenReturn("Open Assignment Imported Assignment");
+        when(resourceLoader.getFormattedMessage("opedat", "Imported Assignment", "Apr 14, 2026 12:00 PM EDT"))
+                .thenReturn("Open Date Body");
+        when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+        when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+
+        service.integrateAssignmentWithCalendarAndAnnouncement(assignment, "Imported Assignment", openTime, null,
+                openTime, null, false, true, OpenDateNotification.NONE);
+
+        verify(channel).editAnnouncementMessage("draft-announcement-id");
+        verify(editHeader).setDraft(false);
+        verify(channel).commitMessage(editMessage, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertEquals("draft-announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        verify(service).updateAssignment(assignment);
+    }
+
+    @Test
+    public void testPublishAssignmentIntegratesCalendarAndAnnouncement() throws Exception {
+        AssignmentServiceImpl service = integrationService();
+        Calendar calendar = mock(Calendar.class);
+        CalendarEvent calendarEvent = mock(CalendarEvent.class);
+        CalendarEventEdit calendarEventEdit = mock(CalendarEventEdit.class);
+        AnnouncementChannel channel = mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit message = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit messageProperties = mock(ResourcePropertiesEdit.class);
+        Event updateEvent = mock(Event.class);
+        Event availableEvent = mock(Event.class);
+        Assignment assignment = mock(Assignment.class);
+        Map<String, String> properties = new HashMap<>();
+        Instant openTime = Instant.parse("2099-04-14T16:00:00Z");
+        Instant dueTime = Instant.parse("2099-04-21T16:00:00Z");
+
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        properties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION,
+                AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+
+        when(assignment.getProperties()).thenReturn(properties);
+        when(assignment.getDraft()).thenReturn(Boolean.TRUE);
+        when(assignment.getTitle()).thenReturn("Bulk Publish Assignment");
+        when(assignment.getDueDate()).thenReturn(dueTime);
+        when(assignment.getOpenDate()).thenReturn(openTime);
+        when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
+        when(assignment.getId()).thenReturn("assignment-id");
+        when(assignment.getContext()).thenReturn("site-id");
+        when(calendarService.calendarReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("calendar-ref");
+        when(calendarService.getCalendar("calendar-ref")).thenReturn(calendar);
+        when(calendar.addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
+                Mockito.anyList(), Mockito.isNull())).thenReturn(calendarEvent);
+        when(calendarEvent.getId()).thenReturn("calendar-event-id");
+        when(calendar.getEditEvent("calendar-event-id", CalendarService.EVENT_ADD_CALENDAR)).thenReturn(calendarEventEdit);
+        when(announcementService.channelReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
+        when(announcementService.getAnnouncementChannel("announcement-ref")).thenReturn(channel);
+        when(channel.addAnnouncementMessage()).thenReturn(message);
+        when(message.getAnnouncementHeaderEdit()).thenReturn(header);
+        when(message.getPropertiesEdit()).thenReturn(messageProperties);
+        when(message.getId()).thenReturn("announcement-id");
+        when(entityManager.newReferenceList()).thenReturn(new ArrayList<>());
+        when(formattedText.convertPlaintextToFormattedText("Bulk Publish Assignment")).thenReturn("Bulk Publish Assignment");
+        when(resourceLoader.getString("gen.due")).thenReturn("Due");
+        when(resourceLoader.getFormattedMessage("assign_due_event_desc", "Bulk Publish Assignment", "Apr 21, 2026 12:00 PM EDT"))
+                .thenReturn("Due Date Body");
+        when(resourceLoader.getFormattedMessage("assig6", "Bulk Publish Assignment")).thenReturn("Open Assignment Bulk Publish Assignment");
+        when(resourceLoader.getFormattedMessage("opedat", "Bulk Publish Assignment", "Apr 14, 2026 12:00 PM EDT"))
+                .thenReturn("Open Date Body");
+        when(userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+        when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
+        when(userTimeService.dateTimeFormat(dueTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 21, 2026 12:00 PM EDT");
+        when(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT,
+                "/assignment/a/site-id/assignment-id", true)).thenReturn(updateEvent);
+        when(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT,
+                "/assignment/a/site-id/assignment-id", true)).thenReturn(availableEvent);
+
+        service.publishAssignment(assignment);
+
+        verify(assignment).setDraft(Boolean.FALSE);
+        verify(calendar).addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
+                Mockito.anyList(), Mockito.isNull());
+        verify(calendar).commitEvent(calendarEventEdit);
+        verify(channel).addAnnouncementMessage();
+        verify(header).setDraft(false);
+        verify(channel).commitMessage(message, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED));
+        Assert.assertEquals("calendar-event-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID));
+        Assert.assertEquals(Boolean.TRUE.toString(), properties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        Assert.assertEquals("announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        verify(eventTrackingService).post(updateEvent);
+        verify(eventTrackingService).delay(availableEvent, openTime);
+        verify(service, Mockito.atLeast(3)).updateAssignment(assignment);
+    }
+
+    private AssignmentServiceImpl integrationService() throws PermissionException {
+        AssignmentServiceImpl service = Mockito.spy(new AssignmentServiceImpl());
+        TransactionTemplate transactionTemplate = mock(TransactionTemplate.class);
+        service.setAnnouncementService(announcementService);
+        service.setAdditionalCalendarService(mock(CalendarService.class));
+        service.setCalendarService(calendarService);
+        service.setEntityManager(entityManager);
+        service.setEventTrackingService(eventTrackingService);
+        service.setFormattedText(formattedText);
+        service.setResourceLoader(resourceLoader);
+        service.setServerConfigurationService(serverConfigurationService);
+        service.setSiteService(siteService);
+        service.setTimeService(timeService);
+        service.setTransactionTemplate(transactionTemplate);
+        service.setUserTimeService(userTimeService);
+        Mockito.doAnswer(invocation -> {
+            Consumer<TransactionStatus> callback = invocation.getArgument(0);
+            callback.accept(null);
+            return null;
+        }).when(transactionTemplate).executeWithoutResult(Mockito.any());
+        Mockito.doNothing().when(service).updateAssignment(Mockito.any(Assignment.class));
+        return service;
     }
 
     @Test

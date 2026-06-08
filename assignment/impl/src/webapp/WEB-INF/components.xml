@@ -22,6 +22,12 @@
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="additionalCalendarService">
+            <bean class="org.sakaiproject.util.OptionalProviderFactoryBean">
+                <property name="targetName" value="org.sakaiproject.additional.calendar"/>
+                <property name="proxyInterface" value="org.sakaiproject.calendar.api.CalendarService"/>
+            </bean>
+        </property>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="candidateDetailProvider">
             <bean class="org.sakaiproject.assignment.impl.OptionalFactoryBean"/>
