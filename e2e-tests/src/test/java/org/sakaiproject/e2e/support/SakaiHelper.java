@@ -218,9 +218,11 @@ public class SakaiHelper {
         }
 
         Map<String, String> toolLabelFallbacks = toolLabelFallbacks();
+        List<String> requestedToolIds = normalizedToolIds(toolIds);
 
-        for (String rawToolId : toolIds) {
-            String toolId = normalizeToolId(rawToolId);
+        uncheckUnrequestedToolCheckboxes(requestedToolIds);
+
+        for (String toolId : requestedToolIds) {
             Locator checkbox = page.locator("input#" + cssEscape(toolId)).first();
             boolean selected = false;
             if (checkbox.count() > 0 && checkbox.isVisible()) {
@@ -245,7 +247,9 @@ public class SakaiHelper {
             }
         }
 
-        if (toolIds.stream().map(this::normalizeToolId).anyMatch("sakai.lessonbuildertool"::equals)) {
+        uncheckUnrequestedToolCheckboxes(requestedToolIds);
+
+        if (requestedToolIds.stream().anyMatch("sakai.lessonbuildertool"::equals)) {
             Locator lessonContinue = page.locator("#btnContinue").first();
             if (lessonContinue.count() > 0 && lessonContinue.isVisible()) {
                 lessonContinue.click(new Locator.ClickOptions().setForce(true));
@@ -660,15 +664,35 @@ public class SakaiHelper {
     }
 
     private String courseCacheKey(String username, List<String> toolIds) {
+        List<String> normalizedToolIds = normalizedToolIds(toolIds);
+        Collections.sort(normalizedToolIds);
+        String toolKey = String.join(",", normalizedToolIds);
+        return username + "|" + toolKey;
+    }
+
+    private List<String> normalizedToolIds(List<String> toolIds) {
         List<String> normalizedToolIds = new ArrayList<>();
         if (toolIds != null) {
             for (String toolId : toolIds) {
                 normalizedToolIds.add(normalizeToolId(toolId));
             }
         }
-        Collections.sort(normalizedToolIds);
-        String toolKey = String.join(",", normalizedToolIds);
-        return username + "|" + toolKey;
+        return normalizedToolIds;
+    }
+
+    private void uncheckUnrequestedToolCheckboxes(List<String> requestedToolIds) {
+        Locator checkboxes = page.locator("input[type=\"checkbox\"][name=\"selectedTools\"]");
+        int count = checkboxes.count();
+
+        for (int index = 0; index < count; index++) {
+            Locator checkbox = checkboxes.nth(index);
+            String toolId = checkbox.getAttribute("value");
+            if (toolId == null || requestedToolIds.contains(toolId) || !checkbox.isChecked() || checkbox.isDisabled()) {
+                continue;
+            }
+
+            checkbox.uncheck(new Locator.UncheckOptions().setForce(true));
+        }
     }
 
     private String toDateTimeLocal(String value) {
