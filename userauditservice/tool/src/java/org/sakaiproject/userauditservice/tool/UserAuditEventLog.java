@@ -21,10 +21,6 @@
 
 package org.sakaiproject.userauditservice.tool;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,7 +40,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -53,6 +48,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditLog;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -69,7 +65,6 @@ public class UserAuditEventLog {
 	@Getter @Setter private String fromDateFilter;
 	@Getter @Setter private String toDateFilter;
 	private Optional<EventLogFilter> activeFilter = Optional.of(EventLogFilter.empty());
-	private transient SqlService sqlService = ComponentManager.get(SqlService.class);
 	private transient UserAuditService userAuditService = ComponentManager.get(UserAuditService.class);
 	private transient UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private transient UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
@@ -78,24 +73,6 @@ public class UserAuditEventLog {
 
 	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
 	private final String STATE_SITE_ID = "site.instance.id";
-
-	private static final class EventLogRow {
-		private final String userId;
-		private final String roleName;
-		private final String actionTaken;
-		private final Date auditStamp;
-		private final String source;
-		private final String actionUserId;
-
-		private EventLogRow(String userId, String roleName, String actionTaken, Date auditStamp, String source, String actionUserId) {
-			this.userId = userId;
-			this.roleName = roleName;
-			this.actionTaken = actionTaken;
-			this.auditStamp = auditStamp;
-			this.source = source;
-			this.actionUserId = actionUserId;
-		}
-	}
 
     @Getter @Setter
 	public class EventLog {
@@ -169,40 +146,30 @@ public class UserAuditEventLog {
 			return;
 		}
 		EventLogFilter filter = activeFilter.get();
-		totalItems = countEvents(siteId, filter);
-		if (totalItems <= 0) {
-			totalItems = 0;
-			return;
-		}
-
-		normalizeFirstItem();
-		int fetchSize = getRowsNumber();
-		if (fetchSize <= 0) {
-			return;
-		}
-
-		String sql = EventLogSqlBuilder.buildPagedEventsSql(filter, getSortColumn(), sortAscending, firstItem, fetchSize, sqlService.getVendor());
-		Connection conn = null;
-		PreparedStatement statement = null;
-		ResultSet result = null;
 		try {
-			conn = sqlService.borrowConnection();
-			statement = conn.prepareStatement(sql);
-			EventLogSqlBuilder.bindParameters(statement, siteId, filter);
-			result = statement.executeQuery();
-			List<EventLogRow> rows = new ArrayList<EventLogRow>();
+			totalItems = (int) Math.min(userAuditService.countUserAuditLogs(
+					EventLogQueryBuilder.build(siteId, filter, getSortColumn(), sortAscending, 0, 0)),
+					Integer.MAX_VALUE);
+			if (totalItems <= 0) {
+				totalItems = 0;
+				return;
+			}
+
+			normalizeFirstItem();
+			int fetchSize = getRowsNumber();
+			if (fetchSize <= 0) {
+				return;
+			}
+
+			List<UserAuditLog> rows = userAuditService.getUserAuditLogs(
+					EventLogQueryBuilder.build(siteId, filter, getSortColumn(), sortAscending, firstItem, fetchSize));
 			Set<String> userIds = new HashSet<String>();
-			while (result.next()) {
-				String userId = result.getString("user_id");
-				String actionUserId = result.getString("action_user_id");
-				rows.add(new EventLogRow(userId, result.getString("role_name"),
-						result.getString("action_taken"), result.getTimestamp("audit_stamp"),
-						result.getString("source"), actionUserId));
-				if (userId != null) {
-					userIds.add(userId);
+			for (UserAuditLog row : rows) {
+				if (row.getUserId() != null) {
+					userIds.add(row.getUserId());
 				}
-				if (actionUserId != null) {
-					userIds.add(actionUserId);
+				if (row.getActionUserId() != null) {
+					userIds.add(row.getActionUserId());
 				}
 			}
 			Map<String, String> eidsById = new HashMap<String, String>();
@@ -211,42 +178,20 @@ public class UserAuditEventLog {
 					eidsById.put(user.getId(), user.getEid());
 				}
 			}
-			for (EventLogRow row : rows) {
-				String userEid = eidsById.get(row.userId);
-				String actionUserEid = eidsById.get(row.actionUserId);
-				eventLog.add(new EventLog(userEid != null ? userEid : row.userId, row.roleName,
-						row.actionTaken, row.auditStamp, row.source,
-						actionUserEid != null ? actionUserEid : row.actionUserId));
+			for (UserAuditLog row : rows) {
+				String userEid = eidsById.get(row.getUserId());
+				String actionUserEid = eidsById.get(row.getActionUserId());
+				eventLog.add(new EventLog(userEid != null ? userEid : row.getUserId(), row.getRoleName(),
+						row.getActionTaken(), row.getAuditStamp(), row.getSource(),
+						actionUserEid != null ? actionUserEid : row.getActionUserId()));
 			}
 		}
-		catch (SQLException e) {
-			log.warn("ERROR getting the user audit logs!", e);
+		catch (RuntimeException e) {
+			log.warn("ERROR loading user audit logs for site {}", siteId, e);
+			totalItems = 0;
+			firstItem = 0;
+			addErrorMessage("event_log_load_error");
 		}
-		finally {
-			closeQuietly(result, statement, conn);
-		}
-	}
-
-	private int countEvents(String siteId, EventLogFilter filter) {
-		Connection conn = null;
-		PreparedStatement statement = null;
-		ResultSet result = null;
-		try {
-			conn = sqlService.borrowConnection();
-			statement = conn.prepareStatement(EventLogSqlBuilder.buildCountEventsSql(filter));
-			EventLogSqlBuilder.bindParameters(statement, siteId, filter);
-			result = statement.executeQuery();
-			if (result.next()) {
-				return result.getInt(1);
-			}
-		}
-		catch (SQLException e) {
-			log.warn("ERROR counting user audit logs!", e);
-		}
-		finally {
-			closeQuietly(result, statement, conn);
-		}
-		return 0;
 	}
 
 	private Optional<EventLogFilter> resolveEventFilter() {
@@ -293,28 +238,6 @@ public class UserAuditEventLog {
 		if (firstItem >= totalItems) {
 			int lastPage = (totalItems - 1) / pageSize;
 			firstItem = lastPage * pageSize;
-		}
-	}
-
-	private void closeQuietly(ResultSet result, PreparedStatement statement, Connection conn) {
-		try {
-			if (result != null) {
-				result.close();
-			}
-		}
-		catch (SQLException e) {
-			log.warn("Error closing result set in user audit event log", e);
-		}
-		try {
-			if (statement != null) {
-				statement.close();
-			}
-		}
-		catch (SQLException e) {
-			log.warn("Error closing statement in user audit event log", e);
-		}
-		if (conn != null) {
-			sqlService.returnConnection(conn);
 		}
 	}
 

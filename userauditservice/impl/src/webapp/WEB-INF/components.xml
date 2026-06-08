@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.userauditservice"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.userauditservice.api.model.UserAuditLog</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository"
+        class="org.sakaiproject.userauditservice.impl.repository.UserAuditLogRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
     
 	<bean id="org.sakaiproject.userauditservice.api.UserAuditService" 
-		class="org.sakaiproject.userauditservice.impl.UserAuditServiceImpl"
-		init-method="init" >
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-		<property name="autoDdl"><value>${auto.ddl}</value></property>
+		class="org.sakaiproject.userauditservice.impl.UserAuditServiceImpl">
+		<property name="userAuditLogRepository"><ref bean="org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository"/></property>
 	</bean>
 		
 	<bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration"
 		class="org.sakaiproject.userauditservice.util.UserAuditRegistrationUtil" >
 		<property name="userAuditService"><ref bean="org.sakaiproject.userauditservice.api.UserAuditService"/></property>
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 	</bean>
 	
 	<bean id="org.sakaiproject.userauditservice.impl.UserAuditSiteDeleteListener"
@@ -21,6 +36,6 @@
 		init-method="init">
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-		<property name="userAuditRegistration"><ref bean="org.sakaiproject.userauditservice.api.UserAuditRegistration"/></property>
+		<property name="userAuditService"><ref bean="org.sakaiproject.userauditservice.api.UserAuditService"/></property>
     </bean>
 </beans>

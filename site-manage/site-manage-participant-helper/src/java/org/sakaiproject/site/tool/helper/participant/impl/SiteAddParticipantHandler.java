@@ -59,6 +59,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.api.PasswordFactory;
 
 import lombok.Setter;
@@ -85,6 +86,7 @@ public class SiteAddParticipantHandler {
     @Setter private ToolManager toolManager;
     @Getter @Setter private TargettedMessageList targettedMessageList;
     @Setter private UserAuditRegistration userAuditRegistration;
+    @Setter private UserAuditService userAuditService;
     @Setter private UserDirectoryService userDirectoryService;
 
     @Setter public String csrfToken = null;
@@ -388,7 +390,7 @@ public class SiteAddParticipantHandler {
 					Set<String>okRoles = new HashSet<>();
 					
 					// List used for user auditing
-					List<String[]> userAuditList = new ArrayList<>();
+					List<UserAuditEntry> userAuditList = new ArrayList<>();
 
 					for (UserRoleEntry entry: userRoleEntries) {
 						String eId = entry.getEid();
@@ -428,14 +430,9 @@ public class SiteAddParticipantHandler {
 								addedUserReferences.add(userDirectoryService.userReference(user.getId()));
 								
 								// Add the user to the list for the User Auditing Event Logger
-								String[] userAuditString = {
-										site.getId(),
-										user.getId(),
-										role,
-										UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),
-										sessionManager.getCurrentSessionUserId()
-								};
-								userAuditList.add(userAuditString);
+								userAuditList.add(UserAuditEntry.of(site.getId(), user.getId(), role,
+										UserAuditService.USER_AUDIT_ACTION_ADD,
+										userAuditRegistration.getDatabaseSourceKey(), sessionManager.getCurrentSessionUserId()));
 
 								// send notification
 								if (notify) {
@@ -459,7 +456,7 @@ public class SiteAddParticipantHandler {
 						// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 						// but seems to be a better solution than call this multiple time for every update
 						if (!userAuditList.isEmpty()) {
-							userAuditRegistration.addToUserAuditing(userAuditList);
+							userAuditService.addToUserAuditing(userAuditList);
 						}
 						
 						// post event about adding participant

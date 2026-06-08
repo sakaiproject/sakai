@@ -1,9 +1,5 @@
 /**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2013 The Sakai Foundation
+ * Copyright (c) 2026 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  **********************************************************************************/
 
 package org.sakaiproject.userauditservice.api;
 
-/**
- * <p>
- * UserAuditRegistrationService controls calls relating to tracking user auditing.
- * </p>
- */
-public interface UserAuditRegistration
-{
-	/** One character key a tool will use to show where the change came from */
-	public String getDatabaseSourceKey();
-	
-	/** The text to register that will be associated with the databaseSourceKey */
-	String getSourceText(String parameter);
-	
-	/**
-	 * This method will allow registering tools to supply their own location for resource loaders
-	 * @param location
-	 * @return
-	 */
-	public Object getResourceLoader(String location);
-} 
+import java.util.Date;
+
+import lombok.Builder;
+import lombok.Value;
+
+@Value
+@Builder
+public class UserAuditLogQuery {
+
+	private String siteId;
+	private String userId;
+	private Date fromAuditStamp;
+	private Date toAuditStamp;
+	@Builder.Default
+	private UserAuditSortColumn sortColumn = UserAuditSortColumn.AUDIT_STAMP;
+	private boolean sortAscending;
+	private int offset;
+	private int limit;
+}

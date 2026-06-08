@@ -22,89 +22,71 @@
 package org.sakaiproject.userauditservice.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.userauditservice.api.UserAuditLogQuery;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
+import org.sakaiproject.userauditservice.api.model.UserAuditLog;
+import org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UserAuditServiceImpl implements UserAuditService {
 
-	private List<UserAuditRegistration> registeredItems = new ArrayList<UserAuditRegistration>();
-	private List<String> keys = new ArrayList<String>();
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void register(UserAuditRegistration uar) {
-		getRegisteredItems().add(uar);
-		getKeys().add(uar.getDatabaseSourceKey());
+	private List<UserAuditRegistration> registeredItems = new ArrayList<>();
+	private List<String> keys = new ArrayList<>();
+	private UserAuditLogRepository userAuditLogRepository;
+
+	@Override
+	public void register(UserAuditRegistration userAuditRegistration) {
+		registeredItems.add(userAuditRegistration);
+		keys.add(userAuditRegistration.getDatabaseSourceKey());
 	}
-	
-	/**
-	 * Setter
-	 * @param registeredItems
-	 */
-	public void setRegisteredItems(List<UserAuditRegistration> registeredItems) {
-		this.registeredItems = registeredItems;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<UserAuditRegistration> getRegisteredItems() {
-		return registeredItems;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<String> getKeys() {
-		return keys;
-	}
-	
-	/**
-	 * Setter
-	 * @param keys
-	 */
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
-	}
-	
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-	
-	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
-	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
-	
-	/** Configuration: to run the ddl on init or not. */
-	protected boolean m_autoDdl = false;
-	
-	/**
-	 * Configuration: to run the ddl on init or not.
-	 * 
-	 * @param value
-	 *        the auto ddl value.
-	 */
-	public void setAutoDdl(String value)
-	{
-	    m_autoDdl = Boolean.valueOf(value).booleanValue();
-	}
-	
-	public void init()
-	{
-		// if we are auto-creating our schema, check and create
-		if (m_autoDdl)
-		{
-			m_sqlService.ddl(this.getClass().getClassLoader(), "user_audits");
+
+	@Override
+	public void addToUserAuditing(List<UserAuditEntry> userAuditList) {
+		if (userAuditList == null || userAuditList.isEmpty()) {
+			return;
 		}
+
+		List<UserAuditLog> auditLogs = new ArrayList<UserAuditLog>();
+		for (UserAuditEntry entry : userAuditList) {
+			if (entry != null) {
+				auditLogs.add(UserAuditLogMapper.from(entry));
+			}
+		}
+		if (!auditLogs.isEmpty()) {
+			userAuditLogRepository.saveAll(auditLogs);
+		}
+	}
+
+	@Override
+	public void deleteUserAuditingFromSite(String siteId) {
+		if (siteId == null) {
+			return;
+		}
+		userAuditLogRepository.deleteBySiteId(siteId);
+	}
+
+	@Override
+	public long countUserAuditLogs(UserAuditLogQuery query) {
+		if (query == null || query.getSiteId() == null) {
+			return 0;
+		}
+		return userAuditLogRepository.count(query);
+	}
+
+	@Override
+	public List<UserAuditLog> getUserAuditLogs(UserAuditLogQuery query) {
+		if (query == null || query.getSiteId() == null) {
+			return Collections.emptyList();
+		}
+		return userAuditLogRepository.find(query);
 	}
 }

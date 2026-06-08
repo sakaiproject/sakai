@@ -194,6 +194,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
@@ -9478,7 +9479,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				HashSet<String>roles = new HashSet<String>();
 
 				// List used for user auditing
-				List<String[]> userAuditList = new ArrayList<String[]>();
+				List<UserAuditEntry> userAuditList = new ArrayList<UserAuditEntry>();
 
 				// remove all roles and then add back those that were checked
 				for (Participant participant : participants) {
@@ -9534,15 +9535,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									fromProvider);
 							String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
 							String internalUserId = userDirectoryService.getUserId(currentUserId);
-							String[] userAuditString = {
-									s.getId(),
-									id,
-									roleId,
+							userAuditList.add(UserAuditEntry.of(s.getId(), id, roleId,
 									userAuditService.USER_AUDIT_ACTION_UPDATE,
-									userAuditRegistration.getDatabaseSourceKey(),
-									internalUserId
-							};
-							userAuditList.add(userAuditString);
+									userAuditRegistration.getDatabaseSourceKey(), internalUserId));
 							
 								// construct the event string
 								String userUpdatedString = "uid=" + id;
@@ -9593,15 +9588,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									usersDeleted.add("uid=" + userId);
 									String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
 									String internalUserId = userDirectoryService.getUserId(currentUserId);
-									String[] userAuditString = {
-											s.getId(),
-											userId,
-											role.getId(),
+									userAuditList.add(UserAuditEntry.of(s.getId(), userId, role.getId(),
 											userAuditService.USER_AUDIT_ACTION_REMOVE,
-											userAuditRegistration.getDatabaseSourceKey(),
-											internalUserId
-									};
-									userAuditList.add(userAuditString);
+											userAuditRegistration.getDatabaseSourceKey(), internalUserId));
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -9643,7 +9632,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				// but seems to be a better solution than call this multiple time for every update
 				if (!userAuditList.isEmpty())
 				{
-					userAuditRegistration.addToUserAuditing(userAuditList);
+					userAuditService.addToUserAuditing(userAuditList);
 				}
 
 				// then update all related group realms for the role

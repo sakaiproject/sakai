@@ -66,6 +66,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -690,10 +691,10 @@ public class RealmsAction extends PagedResourceActionII
 			{
 				authzGroupService.save(realm);
 				// Grab the list from session state and save it, if appropriate
-				List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
+				List<UserAuditEntry> userAuditList = (List<UserAuditEntry>) state.getAttribute("userAuditList");
 				if (userAuditList!=null && !userAuditList.isEmpty())
 				{
-					userAuditRegistration.addToUserAuditing(userAuditList);
+					userAuditService.addToUserAuditing(userAuditList);
 					state.removeAttribute("userAuditList");
 				}
 			}
@@ -1456,17 +1457,17 @@ public class RealmsAction extends PagedResourceActionII
 		return false;
 	}
 	
-	private List<String[]> retrieveAuditLogList(SessionState state)
+	private List<UserAuditEntry> retrieveAuditLogList(SessionState state)
 	{
 		// user auditing
-		List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
+		List<UserAuditEntry> userAuditList = (List<UserAuditEntry>) state.getAttribute("userAuditList");
 		if (userAuditList!=null && !userAuditList.isEmpty())
 		{
 			state.removeAttribute("userAuditList");
 		}
 		else
 		{
-			userAuditList = new ArrayList<String[]>();
+			userAuditList = new ArrayList<UserAuditEntry>();
 		}
 		
 		return userAuditList;
@@ -1474,7 +1475,7 @@ public class RealmsAction extends PagedResourceActionII
 	
 	private void addToAuditLogList(SessionState state, AuthzGroup realm, String userId, String userRole)
 	{
-		List<String[]> userAuditList = retrieveAuditLogList(state);
+		List<UserAuditEntry> userAuditList = retrieveAuditLogList(state);
 		
 		String realmId = realm.getId();
 		String siteId = "";
@@ -1496,8 +1497,8 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			userAuditAction = userAuditService.USER_AUDIT_ACTION_ADD;
 		}
-		String[] userAuditString = {siteId,userId,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
-		userAuditList.add(userAuditString);
+		userAuditList.add(UserAuditEntry.of(siteId, userId, userRole, userAuditAction,
+				userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()));
 		
 		state.setAttribute("userAuditList", userAuditList);
 	}

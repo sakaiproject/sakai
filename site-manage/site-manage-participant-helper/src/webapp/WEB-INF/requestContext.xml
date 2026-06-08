@@ -18,6 +18,7 @@
         <property name="targettedMessageList" ref="targettedMessageList"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userAuditRegistration" ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"/>
+        <property name="userAuditService" ref="org.sakaiproject.userauditservice.api.UserAuditService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 

@@ -50,6 +50,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +72,7 @@ public class MembershipAction extends PagedResourceActionII
 	private static final String STATE_TOP_PAGE_MESSAGE = "msg-top";
 
 	private static final UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.membership");
+	private static final UserAuditService userAuditService = ComponentManager.get(UserAuditService.class);
 	private static final UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 
 	// SAK-32087
@@ -490,14 +492,14 @@ public class MembershipAction extends PagedResourceActionII
 				}
 
 				// add to user auditing
-				List<String[]> userAuditList = new ArrayList<>();
+				List<UserAuditEntry> userAuditList = new ArrayList<>();
 				String currentUserId = userDirectoryService.getCurrentUser().getId();
 				String roleId = SITE_SERV.getSite(id).getJoinerRole();
-				String[] userAuditString = {id,currentUserId,roleId,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
-				userAuditList.add(userAuditString);
+				userAuditList.add(UserAuditEntry.of(id, currentUserId, roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+						userAuditRegistration.getDatabaseSourceKey(), currentUserId));
 				if (!userAuditList.isEmpty())
 				{
-					userAuditRegistration.addToUserAuditing(userAuditList);
+					userAuditService.addToUserAuditing(userAuditList);
 				}
 			}
 			catch (IdUnusedException | PermissionException e)
@@ -530,7 +532,7 @@ public class MembershipAction extends PagedResourceActionII
 			String msg = RB.getString("mb.youhave") + " "; 
 			
 			// add to user auditing
-			List<String[]> userAuditList = new ArrayList<>();
+			List<UserAuditEntry> userAuditList = new ArrayList<>();
 			// get the User object since we need a couple of lookups
 			User tempUser = userDirectoryService.getCurrentUser();
 			String currentUserId = tempUser.getId();
@@ -549,8 +551,8 @@ public class MembershipAction extends PagedResourceActionII
 					}
 					msg = msg+SITE_SERV.getSite(id[i]).getTitle();
 
-					String[] userAuditString = {id[i],currentUserId,roleId,UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
-					userAuditList.add(userAuditString);
+					userAuditList.add(UserAuditEntry.of(id[i], currentUserId, roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+							userAuditRegistration.getDatabaseSourceKey(), currentUserId));
 				}
 				catch (IdUnusedException ignore)
 				{
@@ -565,7 +567,7 @@ public class MembershipAction extends PagedResourceActionII
 			addAlert(state, msg);
 			if (!userAuditList.isEmpty())
 			{
-				userAuditRegistration.addToUserAuditing(userAuditList);
+				userAuditService.addToUserAuditing(userAuditList);
 			}
 		}
 
