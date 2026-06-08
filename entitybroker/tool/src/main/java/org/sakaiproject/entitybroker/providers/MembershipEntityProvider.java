@@ -966,7 +966,7 @@ RESTful, ActionsExecutable {
 
                 // Add change to user_audits_log table.
                 String role = site.getUserRole(userIds[i]).getId();
-                userAuditList.add(UserAuditEntry.of(site.getId(), userId, role,
+                userAuditList.add(UserAuditEntry.of(site.getId(), userIds[i], role,
                         UserAuditService.USER_AUDIT_ACTION_REMOVE, userAuditRegistration.getDatabaseSourceKey(),
                         userDirectoryService.getCurrentUser().getId()));
 
