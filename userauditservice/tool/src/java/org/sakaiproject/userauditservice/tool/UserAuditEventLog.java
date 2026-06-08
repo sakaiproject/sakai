@@ -39,7 +39,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -65,11 +64,11 @@ public class UserAuditEventLog {
 	@Getter @Setter private String fromDateFilter;
 	@Getter @Setter private String toDateFilter;
 	private Optional<EventLogFilter> activeFilter = Optional.of(EventLogFilter.empty());
-	private transient UserAuditService userAuditService = ComponentManager.get(UserAuditService.class);
-	private transient UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-	private transient UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
-	private transient ToolManager toolManager = ComponentManager.get(ToolManager.class);
-	private transient SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+	@Setter private transient UserAuditService userAuditService;
+	@Setter private transient UserDirectoryService userDirectoryService;
+	@Setter private transient UserTimeService userTimeService;
+	@Setter private transient ToolManager toolManager;
+	@Setter private transient SessionManager sessionManager;
 
 	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
 	private final String STATE_SITE_ID = "site.instance.id";
@@ -77,7 +76,6 @@ public class UserAuditEventLog {
     @Getter @Setter
 	public class EventLog {
 		protected String actionTaken;
-		protected String actionText;
 		protected String actionUserEid;
 		protected Date auditStamp;
 		protected String roleName;
@@ -99,19 +97,15 @@ public class UserAuditEventLog {
 		}
 
 		public String getActionText() {
-			if (userAuditService.USER_AUDIT_ACTION_ADD.equals(actionTaken))
-			{
-				actionText = LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(),"UserAuditMessages", "event_log_add");
-			}
-			else if (userAuditService.USER_AUDIT_ACTION_REMOVE.equals(actionTaken))
-			{
-				actionText = LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(),"UserAuditMessages", "event_log_remove");
-			}
-			else if (userAuditService.USER_AUDIT_ACTION_UPDATE.equals(actionTaken))
-			{
-				actionText = LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(),"UserAuditMessages", "event_log_update");
-			}
-			return actionText;
+			return switch (actionTaken) {
+				case UserAuditService.USER_AUDIT_ACTION_ADD ->
+					LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "UserAuditMessages", "event_log_add");
+				case UserAuditService.USER_AUDIT_ACTION_REMOVE ->
+					LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "UserAuditMessages", "event_log_remove");
+				case UserAuditService.USER_AUDIT_ACTION_UPDATE ->
+					LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "UserAuditMessages", "event_log_update");
+				default -> null;
+			};
 		}
 
 		public String getAuditStamp() {

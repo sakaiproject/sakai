@@ -29,7 +29,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true)
+@EnableTransactionManagement
 @PropertySource("classpath:/hibernate.properties")
 public class UserAuditTestConfiguration extends SakaiTestConfiguration {
 

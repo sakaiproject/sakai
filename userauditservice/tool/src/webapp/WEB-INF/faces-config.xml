@@ -16,6 +16,26 @@
     <managed-bean-name>eventLog</managed-bean-name>
     <managed-bean-class>org.sakaiproject.userauditservice.tool.UserAuditEventLog</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>userAuditService</property-name>
+      <value>#{Components['org.sakaiproject.userauditservice.api.UserAuditService']}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>userDirectoryService</property-name>
+      <value>#{Components['org.sakaiproject.user.api.UserDirectoryService']}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>userTimeService</property-name>
+      <value>#{Components['org.sakaiproject.time.api.UserTimeService']}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>toolManager</property-name>
+      <value>#{Components['org.sakaiproject.tool.api.ToolManager']}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>sessionManager</property-name>
+      <value>#{Components['org.sakaiproject.tool.api.SessionManager']}</value>
+    </managed-property>
   </managed-bean>
   
   <navigation-rule>

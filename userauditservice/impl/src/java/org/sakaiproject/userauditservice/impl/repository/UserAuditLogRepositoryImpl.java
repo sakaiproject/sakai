@@ -44,7 +44,7 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		CriteriaQuery<Long> criteria = cb.createQuery(Long.class);
 		Root<UserAuditLog> root = criteria.from(UserAuditLog.class);
 
-		criteria.select(cb.count(root)).where(predicates(query, cb, root).toArray(new Predicate[0]));
+		criteria.select(cb.count(root)).where(filters(query, cb, root).toArray(new Predicate[0]));
 		return session.createQuery(criteria).uniqueResult();
 	}
 
@@ -58,7 +58,7 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 
 		String sortProperty = query.getSortColumn().getEntityProperty();
 		criteria.select(root)
-				.where(predicates(query, cb, root).toArray(new Predicate[0]))
+				.where(filters(query, cb, root).toArray(new Predicate[0]))
 				.orderBy(query.isSortAscending() ? cb.asc(root.get(sortProperty)) : cb.desc(root.get(sortProperty)),
 						cb.asc(root.get("userId")));
 
@@ -82,20 +82,20 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		return session.createQuery(delete).executeUpdate();
 	}
 
-	private List<Predicate> predicates(UserAuditLogQuery query, CriteriaBuilder cb, Root<UserAuditLog> root) {
-		List<Predicate> predicates = new ArrayList<>();
-		predicates.add(cb.equal(root.get("siteId"), query.getSiteId()));
+	private List<Predicate> filters(UserAuditLogQuery query, CriteriaBuilder cb, Root<UserAuditLog> root) {
+		List<Predicate> filters = new ArrayList<>();
+		filters.add(cb.equal(root.get("siteId"), query.getSiteId()));
 		if (query.getUserId() != null) {
-			predicates.add(cb.equal(root.get("userId"), query.getUserId()));
+			filters.add(cb.equal(root.get("userId"), query.getUserId()));
 		}
 		if (query.getFromAuditStamp() != null) {
 			Date fromAuditStamp = Date.from(query.getFromAuditStamp());
-			predicates.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), fromAuditStamp));
+			filters.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), fromAuditStamp));
 		}
 		if (query.getToAuditStamp() != null) {
 			Date toAuditStamp = Date.from(query.getToAuditStamp());
-			predicates.add(cb.lessThan(root.get("auditStamp"), toAuditStamp));
+			filters.add(cb.lessThan(root.get("auditStamp"), toAuditStamp));
 		}
-		return predicates;
+		return filters;
 	}
 }

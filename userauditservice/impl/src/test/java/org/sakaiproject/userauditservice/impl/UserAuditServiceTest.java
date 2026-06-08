@@ -34,20 +34,22 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sakaiproject.userauditservice.api.UserAuditLogQuery;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.userauditservice.api.model.UserAuditLog;
 import org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository;
 
-public class UserAuditServiceImplTest {
+public class UserAuditServiceTest {
 
 	private UserAuditLogRepository userAuditLogRepository;
-	private UserAuditServiceImpl userAuditService;
+	private UserAuditService userAuditService;
 
 	@Before
 	public void setUp() {
 		userAuditLogRepository = mock(UserAuditLogRepository.class);
-		userAuditService = new UserAuditServiceImpl();
-		userAuditService.setUserAuditLogRepository(userAuditLogRepository);
+		UserAuditServiceImpl userAuditServiceImpl = new UserAuditServiceImpl();
+		userAuditServiceImpl.setUserAuditLogRepository(userAuditLogRepository);
+		userAuditService = userAuditServiceImpl;
 	}
 
 	@Test

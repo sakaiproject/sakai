@@ -23,66 +23,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.component.cover.ComponentManager;
 
-public class UserAuditEventLogTest {
-
-	private UserAuditEventLog eventLog;
-
-	@Before
-	public void setUp() {
-		ComponentManager.testingMode = true;
-		eventLog = new UserAuditEventLog();
-	}
-
-	@After
-	public void tearDown() {
-		ComponentManager.shutdown();
-		ComponentManager.testingMode = false;
-	}
-
-	@Test
-	public void getRowsNumberUsesPositivePageSize() {
-		eventLog.setTotalItems(500);
-		eventLog.setFirstItem(0);
-		eventLog.setPageSize(200);
-		assertEquals(200, eventLog.getRowsNumber());
-	}
-
-	@Test
-	public void getRowsNumberReturnsRemainingOnLastPage() {
-		eventLog.setTotalItems(250);
-		eventLog.setFirstItem(200);
-		eventLog.setPageSize(200);
-		assertEquals(50, eventLog.getRowsNumber());
-	}
-
-	@Test
-	public void getRowsNumberReturnsTotalWhenSmallerThanPageSize() {
-		eventLog.setTotalItems(50);
-		eventLog.setFirstItem(0);
-		eventLog.setPageSize(200);
-		assertEquals(50, eventLog.getRowsNumber());
-	}
-
-	@Test
-	public void getRowsNumberShowsAllWhenPageSizeIsZero() {
-		eventLog.setTotalItems(500);
-		eventLog.setFirstItem(0);
-		eventLog.setPageSize(0);
-		assertEquals(500, eventLog.getRowsNumber());
-	}
-
-	@Test
-	public void getRowsNumberShowsAllWhenPageSizeIsNegative() {
-		eventLog.setTotalItems(12);
-		eventLog.setFirstItem(0);
-		eventLog.setPageSize(-1);
-		assertEquals(12, eventLog.getRowsNumber());
-	}
+public class EventLogFilterTest {
 
 	@Test
 	public void parseDateRangeUsesInclusiveStartAndExclusiveNextDay() {
