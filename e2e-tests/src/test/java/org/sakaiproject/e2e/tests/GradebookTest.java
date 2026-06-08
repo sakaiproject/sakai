@@ -18,9 +18,14 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.deque.html.axecore.playwright.AxeBuilder;
+import com.deque.html.axecore.results.AxeResults;
+import com.deque.html.axecore.results.CheckedNode;
+import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.Locator;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -108,7 +113,7 @@ class GradebookTest extends SakaiUiTestBase {
 
     @Test
     @Order(4)
-    void courseGradePreviewIsReadableInDarkMode() {
+    void courseGradePreviewHasAccessibleContrast() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
@@ -143,30 +148,33 @@ class GradebookTest extends SakaiUiTestBase {
 
         page.evaluate("() => document.documentElement.classList.add('sakaiUserTheme-dark')");
         assertThat(preview).isVisible();
-        assertTrue(contrastRatio(preview) >= 4.5,
-            "Course grade preview should have readable contrast in dark mode");
+        assertNoAxeContrastViolations("dark mode");
 
         page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
-        assertTrue(contrastRatio(preview) >= 4.5,
-            "Course grade preview should have readable contrast in light mode");
+        assertNoAxeContrastViolations("light mode");
     }
 
-    private double contrastRatio(Locator locator) {
-        Number contrast = (Number) locator.evaluate("el => {"
-            + "const style = getComputedStyle(el);"
-            + "const rgb = value => value.match(/\\d+(\\.\\d+)?/g).slice(0, 3).map(Number);"
-            + "const channel = value => {"
-            + "  const normalized = value / 255;"
-            + "  return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);"
-            + "};"
-            + "const luminance = values => 0.2126 * channel(values[0])"
-            + "  + 0.7152 * channel(values[1]) + 0.0722 * channel(values[2]);"
-            + "const foreground = luminance(rgb(style.color));"
-            + "const background = luminance(rgb(style.backgroundColor));"
-            + "const light = Math.max(foreground, background);"
-            + "const dark = Math.min(foreground, background);"
-            + "return (light + 0.05) / (dark + 0.05);"
-            + "}");
-        return contrast.doubleValue();
+    private void assertNoAxeContrastViolations(String theme) {
+        AxeResults results = new AxeBuilder(page)
+            .include("#settingsGradeRelease")
+            .withRules(List.of("color-contrast"))
+            .analyze();
+
+        assertTrue(results.violationFree(),
+            "Grade Release Rules should have no axe color-contrast violations in " + theme
+                + System.lineSeparator() + formatAxeViolations(results.getViolations()));
+    }
+
+    private String formatAxeViolations(List<Rule> violations) {
+        return violations.stream()
+            .map(rule -> rule.getId() + ": " + rule.getHelp() + System.lineSeparator()
+                + rule.getNodes().stream()
+                    .map(this::formatAxeNode)
+                    .collect(Collectors.joining(System.lineSeparator())))
+            .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    private String formatAxeNode(CheckedNode node) {
+        return "  " + node.getTarget() + " - " + node.getFailureSummary();
     }
 }
