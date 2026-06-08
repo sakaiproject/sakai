@@ -123,6 +123,7 @@ public class MainController {
     public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
 		String siteId = dateManagerService.getCurrentSiteId();
 		model = getModelWithLocale(model, request, response);
+		model.addAttribute("bulkDateFields", dateManagerService.getBulkDateFieldsForCurrentSite());
 
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
 			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
@@ -409,16 +410,7 @@ public class MainController {
 			int idx = data.index;
 			String[] toolColumnsAux = data.columns;
 			
-			// Note: columnsNames would need to be retrieved from service or made accessible
-			String[][] columnsNames = {{"id", "title", "open_date", "due_date", "accept_until"},
-					{"id", "title", "open_date", "due_date", "accept_until", "feedback_start", "feedback_end"},
-					{"id", "title", "due_date"}, 
-					{"id", "title", "open_date", "due_date", "signup_begins", "signup_deadline"},
-					{"id", "title", "open_date", "due_date"},
-					{"id", "title", "open_date", "due_date", "extraInfo"},
-					{"id", "title", "open_date"}};
-			
-			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, columnsNames, toolColumnsAux);
+			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, toolColumnsAux);
 			if (dateValidation != null) {
 				if (!dateValidation.getErrors().isEmpty()) {
 					List<Object> error = new ArrayList<>();
