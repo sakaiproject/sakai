@@ -22,7 +22,11 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
@@ -36,6 +40,7 @@ class AssignmentTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
     private static final String ASSIGN_TITLE = "Playwright Assignment " + System.currentTimeMillis();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a", Locale.US);
 
     private String ensureCourseUrl() {
         if (sakaiUrl != null && !sakaiUrl.isBlank()) {
@@ -44,6 +49,8 @@ class AssignmentTest extends SakaiUiTestBase {
 
         sakai.login("instructor1");
         sakaiUrl = sakai.createCourse("instructor1", List.of(
+            "sakai\\.announcements",
+            "sakai\\.schedule",
             "sakai\\.rubrics",
             "sakai\\.assignment\\.grades",
             "sakai\\.gradebookng"
@@ -238,6 +245,49 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(nonElectronicTitle);
     }
 
+    @Test
+    @Order(9)
+    void bulkPublishCreatesCalendarEventAndAnnouncement() {
+        String courseUrl = ensureCourseUrl();
+        String bulkPublishTitle = "Bulk Publish Assignment " + System.currentTimeMillis();
+        String openDate = LocalDate.now().minusDays(1).atTime(LocalTime.of(8, 30)).format(DATE_TIME_FORMATTER);
+        String dueDate = LocalDate.now().atTime(LocalTime.of(23, 45)).format(DATE_TIME_FORMATTER);
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        goToAssignmentsList();
+
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(bulkPublishTitle);
+        sakai.selectDate("#opendate", openDate);
+        sakai.selectDate("#duedate", dueDate);
+
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck(new Locator.UncheckOptions().setForce(true));
+        }
+
+        page.locator("#new_assignment_check_add_due_date").check(new Locator.CheckOptions().setForce(true));
+        page.locator("#new_assignment_check_auto_announce").check(new Locator.CheckOptions().setForce(true));
+        fillAssignmentInstructions("<p>Bulk publish side effects prompt.</p>");
+        saveAssignmentDraft();
+
+        goToAssignmentsList();
+        Locator assignmentRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(bulkPublishTitle)).first();
+        assertThat(assignmentRow).isVisible();
+        assignmentRow.locator("input[type=\"checkbox\"]").first().check(new Locator.CheckOptions().setForce(true));
+        page.locator("#btnPublish").click(new Locator.ClickOptions().setForce(true));
+        page.locator("input[name=\"eventSubmit_doPublish_assignment\"]").click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+
+        sakai.toolClick("Calendar");
+        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+
+        sakai.toolClick("Announcements");
+        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 
@@ -295,6 +345,16 @@ class AssignmentTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
+    }
+
+    private void saveAssignmentDraft() {
+        Locator saveDraft = page.locator(
+            "div.act input[type=\"button\"][value*=\"Save Draft\"]:visible, .act input[type=\"button\"][value*=\"Save Draft\"]:visible, " +
+            "div.act input[type=\"submit\"][value*=\"Save Draft\"]:visible, .act input[type=\"submit\"][value*=\"Save Draft\"]:visible, " +
+            "div.act button:has-text(\"Save Draft\"):visible, .act button:has-text(\"Save Draft\"):visible"
+        ).first();
+        assertThat(saveDraft).isVisible();
+        saveDraft.click(new Locator.ClickOptions().setForce(true));
     }
 
     private void fillAssignmentInstructions(String html) {
