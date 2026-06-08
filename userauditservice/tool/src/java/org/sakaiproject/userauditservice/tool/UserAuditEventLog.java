@@ -32,8 +32,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import lombok.Getter;
@@ -56,15 +59,16 @@ import org.sakaiproject.util.ResourceLoader;
 public class UserAuditEventLog {
 	private static final int DEFAULT_PAGE_SIZE = 200;
 
-	static final String COUNT_EVENTS_SQL = "select count(*) from user_audits_log where site_id=?";
-	static final String GET_EVENTS_BASE_SQL = "select user_id, role_name, action_taken, audit_stamp, source, action_user_id from user_audits_log where site_id=?";
-
 	protected List<EventLog> eventLog = new ArrayList<EventLog>();
 	@Setter protected String sortColumn;
 	@Getter @Setter protected boolean sortAscending;
 	@Getter @Setter private int totalItems = -1;
 	@Getter @Setter private int firstItem = 0;
 	@Getter @Setter private int pageSize = DEFAULT_PAGE_SIZE;
+	@Getter @Setter private String userIdFilter;
+	@Getter @Setter private String fromDateFilter;
+	@Getter @Setter private String toDateFilter;
+	private Optional<EventLogFilter> activeFilter = Optional.of(EventLogFilter.empty());
 	private transient SqlService sqlService = ComponentManager.get(SqlService.class);
 	private transient UserAuditService userAuditService = ComponentManager.get(UserAuditService.class);
 	private transient UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
@@ -158,7 +162,14 @@ public class UserAuditEventLog {
 	private void loadEvents() {
 		eventLog = new ArrayList<EventLog>();
 		String siteId = resolveSiteId();
-		totalItems = countEvents(siteId);
+		Optional<EventLogFilter> activeFilter = getActiveFilter();
+		if (activeFilter.isEmpty()) {
+			totalItems = 0;
+			firstItem = 0;
+			return;
+		}
+		EventLogFilter filter = activeFilter.get();
+		totalItems = countEvents(siteId, filter);
 		if (totalItems <= 0) {
 			totalItems = 0;
 			return;
@@ -170,14 +181,14 @@ public class UserAuditEventLog {
 			return;
 		}
 
-		String sql = buildPagedEventsSql(firstItem, fetchSize);
+		String sql = EventLogSqlBuilder.buildPagedEventsSql(filter, getSortColumn(), sortAscending, firstItem, fetchSize, sqlService.getVendor());
 		Connection conn = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		try {
 			conn = sqlService.borrowConnection();
 			statement = conn.prepareStatement(sql);
-			statement.setString(1, siteId);
+			EventLogSqlBuilder.bindParameters(statement, siteId, filter);
 			result = statement.executeQuery();
 			List<EventLogRow> rows = new ArrayList<EventLogRow>();
 			Set<String> userIds = new HashSet<String>();
@@ -216,14 +227,14 @@ public class UserAuditEventLog {
 		}
 	}
 
-	private int countEvents(String siteId) {
+	private int countEvents(String siteId, EventLogFilter filter) {
 		Connection conn = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		try {
 			conn = sqlService.borrowConnection();
-			statement = conn.prepareStatement(COUNT_EVENTS_SQL);
-			statement.setString(1, siteId);
+			statement = conn.prepareStatement(EventLogSqlBuilder.buildCountEventsSql(filter));
+			EventLogSqlBuilder.bindParameters(statement, siteId, filter);
 			result = statement.executeQuery();
 			if (result.next()) {
 				return result.getInt(1);
@@ -236,6 +247,30 @@ public class UserAuditEventLog {
 			closeQuietly(result, statement, conn);
 		}
 		return 0;
+	}
+
+	private Optional<EventLogFilter> resolveEventFilter() {
+		EventLogFilterResolver.Result result = EventLogFilterResolver.resolve(userIdFilter, fromDateFilter, toDateFilter,
+				userDirectoryService, userTimeService);
+		userIdFilter = result.userIdFilter;
+		fromDateFilter = result.fromDateFilter;
+		toDateFilter = result.toDateFilter;
+		result.messageKey.ifPresent(this::addErrorMessage);
+		return result.filter;
+	}
+
+	private void addErrorMessage(String messageKey) {
+		FacesContext context = FacesContext.getCurrentInstance();
+		if (context != null) {
+			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, rb.getString(messageKey), null));
+		}
+	}
+
+	private Optional<EventLogFilter> getActiveFilter() {
+		if (activeFilter == null) {
+			activeFilter = Optional.of(EventLogFilter.empty());
+		}
+		return activeFilter;
 	}
 
 	private String resolveSiteId() {
@@ -259,53 +294,6 @@ public class UserAuditEventLog {
 			int lastPage = (totalItems - 1) / pageSize;
 			firstItem = lastPage * pageSize;
 		}
-	}
-
-	String buildPagedEventsSql(int offset, int limit) {
-		String sql = GET_EVENTS_BASE_SQL + " order by " + orderByClause(getSortColumn(), sortAscending);
-		return appendPaging(sql, offset, limit, sqlService.getVendor());
-	}
-
-	static String orderByClause(String sortColumn, boolean sortAscending) {
-		String column;
-		if ("userId".equals(sortColumn)) {
-			column = "user_id";
-		}
-		else if ("roleName".equals(sortColumn)) {
-			column = "role_name";
-		}
-		else if ("actionText".equals(sortColumn)) {
-			column = "action_taken";
-		}
-		else if ("sourceText".equals(sortColumn)) {
-			column = "source";
-		}
-		else {
-			column = "audit_stamp";
-		}
-		String direction = sortAscending ? "asc" : "desc";
-		return column + " " + direction + ", user_id asc";
-	}
-
-	static String appendPaging(String sql, int offset, int limit, String vendor) {
-		if (limit <= 0) {
-			return sql;
-		}
-		if ("oracle".equalsIgnoreCase(vendor)) {
-			// Same rownum/rnum wrapper used in kernel storage SQL (e.g. SingleStorageSqlOracle).
-			int lastRow = offset + limit;
-			return "select * from ( select page_rows.*, rownum rnum from ( " + sql
-					+ " ) page_rows where rownum <= " + lastRow + " ) where rnum >= " + (offset + 1);
-		}
-		if ("hsqldb".equalsIgnoreCase(vendor)) {
-			String trimmed = sql.trim();
-			int position = trimmed.toLowerCase().indexOf("select ");
-			if (position != 0) {
-				return sql;
-			}
-			return "select limit " + offset + " " + limit + " " + trimmed.substring(position + 7);
-		}
-		return sql + " limit " + offset + "," + limit;
 	}
 
 	private void closeQuietly(ResultSet result, PreparedStatement statement, Connection conn) {
@@ -332,6 +320,21 @@ public class UserAuditEventLog {
 
 	public String getInitValues() {
 		loadEvents();
+		return "";
+	}
+
+	public String processActionSearch() {
+		activeFilter = resolveEventFilter();
+		firstItem = 0;
+		return "";
+	}
+
+	public String processActionClearSearch() {
+		userIdFilter = null;
+		fromDateFilter = null;
+		toDateFilter = null;
+		activeFilter = Optional.of(EventLogFilter.empty());
+		firstItem = 0;
 		return "";
 	}
 
@@ -364,4 +367,5 @@ public class UserAuditEventLog {
 		}
 		return Math.min(pageSize, remaining);
 	}
+
 }

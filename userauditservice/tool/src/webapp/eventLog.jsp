@@ -12,6 +12,27 @@ response.setContentType("text/html; charset=UTF-8");
 	<sakai:view title="#{msgs.title_event_log}">
 		<h:form id="useraudit_form">
 			<h:outputText value="#{eventLog.initValues}"/>
+			<h:messages showSummary="true" showDetail="false" styleClass="sak-banner-error" />
+			<h:panelGroup layout="block" styleClass="sakai-table-searchFilter mb-3">
+				<h:panelGroup layout="block" styleClass="sakai-table-searchFilterControls d-flex flex-wrap gap-2 align-items-end">
+					<h:panelGroup layout="block">
+						<h:outputLabel for="userIdFilter" value="#{msgs.event_log_filter_user_id}" />
+						<h:inputText id="userIdFilter" value="#{eventLog.userIdFilter}" styleClass="form-control" size="20" />
+					</h:panelGroup>
+					<h:panelGroup layout="block">
+						<h:outputLabel for="fromDateFilter" value="#{msgs.event_log_filter_from_date}" />
+						<h:inputText id="fromDateFilter" value="#{eventLog.fromDateFilter}" styleClass="form-control" size="10" maxlength="10" title="#{msgs.event_log_filter_date_hint}" />
+					</h:panelGroup>
+					<h:panelGroup layout="block">
+						<h:outputLabel for="toDateFilter" value="#{msgs.event_log_filter_to_date}" />
+						<h:inputText id="toDateFilter" value="#{eventLog.toDateFilter}" styleClass="form-control" size="10" maxlength="10" title="#{msgs.event_log_filter_date_hint}" />
+					</h:panelGroup>
+					<h:panelGroup layout="block" styleClass="act">
+						<h:commandButton id="searchButton" action="#{eventLog.processActionSearch}" value="#{msgs.event_log_filter_search}" styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<h:commandButton id="clearSearchButton" action="#{eventLog.processActionClearSearch}" value="#{msgs.event_log_filter_clear}" immediate="true" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
 			
 			<sakai:pager
 				id="pager" 
