@@ -102,7 +102,7 @@ public class UserAuditServiceTest {
 		for (UserAuditLog auditLog : auditLogsCaptor.getValue()) {
 			auditLogs.add(auditLog);
 		}
-		assertTrue(auditLogs.get(0).getAuditStamp().getTime() <= auditLogs.get(1).getAuditStamp().getTime());
+		assertTrue(auditLogs.get(0).getAuditStamp().compareTo(auditLogs.get(1).getAuditStamp()) <= 0);
 	}
 
 	@Test

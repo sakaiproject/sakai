@@ -64,6 +64,7 @@
 - **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
 - **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
 - **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the user's preferred timezone from account preferences.
+- **Java Time API**: Prefer `java.time` types such as `Instant`, `LocalDate`, and `ZonedDateTime` over legacy `java.util.Date`/`Calendar` for new or touched Java code. Use legacy conversions only at framework or display boundaries that require them.
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible

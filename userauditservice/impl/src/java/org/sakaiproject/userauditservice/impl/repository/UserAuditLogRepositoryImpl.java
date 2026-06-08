@@ -17,7 +17,6 @@
 package org.sakaiproject.userauditservice.impl.repository;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -89,12 +88,10 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 			filters.add(cb.equal(root.get("userId"), query.getUserId()));
 		}
 		if (query.getFromAuditStamp() != null) {
-			Date fromAuditStamp = Date.from(query.getFromAuditStamp());
-			filters.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), fromAuditStamp));
+			filters.add(cb.greaterThanOrEqualTo(root.get("auditStamp"), query.getFromAuditStamp()));
 		}
 		if (query.getToAuditStamp() != null) {
-			Date toAuditStamp = Date.from(query.getToAuditStamp());
-			filters.add(cb.lessThan(root.get("auditStamp"), toAuditStamp));
+			filters.add(cb.lessThan(root.get("auditStamp"), query.getToAuditStamp()));
 		}
 		return filters;
 	}

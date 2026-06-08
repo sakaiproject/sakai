@@ -19,7 +19,6 @@ package org.sakaiproject.userauditservice.impl.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -150,14 +149,14 @@ public class UserAuditLogRepositoryImplTest {
 		assertEquals(1L, userAuditLogRepository.count(query));
 		List<UserAuditLog> rows = userAuditLogRepository.find(query);
 		assertEquals(1, rows.size());
-		assertTrue(rows.get(0).getAuditStamp().after(timestamp(2026, 6, 7, 23)));
+		assertTrue(rows.get(0).getAuditStamp().isAfter(instant(2026, 6, 7, 23)));
 	}
 
-	private UserAuditLog saveLog(String userId, String actionTaken, java.util.Date auditStamp) {
+	private UserAuditLog saveLog(String userId, String actionTaken, Instant auditStamp) {
 		return saveLog(SITE_ID, userId, actionTaken, auditStamp);
 	}
 
-	private UserAuditLog saveLog(String siteId, String userId, String actionTaken, java.util.Date auditStamp) {
+	private UserAuditLog saveLog(String siteId, String userId, String actionTaken, Instant auditStamp) {
 		UserAuditLog auditLog = new UserAuditLog();
 		auditLog.setSiteId(siteId);
 		auditLog.setUserId(userId);
@@ -169,12 +168,12 @@ public class UserAuditLogRepositoryImplTest {
 		return userAuditLogRepository.save(auditLog);
 	}
 
-	private java.util.Date timestamp(int year, int month, int day) {
+	private Instant timestamp(int year, int month, int day) {
 		return timestamp(year, month, day, 0);
 	}
 
-	private java.util.Date timestamp(int year, int month, int day, int hour) {
-		return Timestamp.from(instant(year, month, day, hour));
+	private Instant timestamp(int year, int month, int day, int hour) {
+		return instant(year, month, day, hour);
 	}
 
 	private Instant instant(int year, int month, int day) {

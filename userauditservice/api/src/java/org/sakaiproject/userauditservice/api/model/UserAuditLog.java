@@ -16,7 +16,7 @@
 
 package org.sakaiproject.userauditservice.api.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,8 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -59,9 +57,8 @@ public class UserAuditLog implements PersistableEntity<Long> {
 	@Column(name = "action_taken", nullable = false, length = 1)
 	private String actionTaken;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "audit_stamp", nullable = false)
-	private Date auditStamp;
+	private Instant auditStamp;
 
 	@Column(name = "source", length = 1)
 	private String source;

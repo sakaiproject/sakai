@@ -16,7 +16,7 @@
 
 package org.sakaiproject.userauditservice.impl;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.userauditservice.api.model.UserAuditLog;
@@ -32,7 +32,7 @@ final class UserAuditLogMapper {
 		auditLog.setUserId(entry.getUserId());
 		auditLog.setRoleName(entry.getRoleName());
 		auditLog.setActionTaken(entry.getActionTaken());
-		auditLog.setAuditStamp(new Date());
+		auditLog.setAuditStamp(Instant.now());
 		auditLog.setSource(entry.getSource());
 		auditLog.setActionUserId(entry.getActionUserId());
 		return auditLog;

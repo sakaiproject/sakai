@@ -22,6 +22,7 @@
 package org.sakaiproject.userauditservice.tool;
 
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,13 +78,13 @@ public class UserAuditEventLog {
 	public class EventLog {
 		protected String actionTaken;
 		protected String actionUserEid;
-		protected Date auditStamp;
+		protected Instant auditStamp;
 		protected String roleName;
 		protected String source;
 		protected String sourceText;
 		protected String userEid;
 
-		public EventLog(String userEid, String roleName, String actionTaken, Date auditStamp, String source, String actionUserEid) {
+		public EventLog(String userEid, String roleName, String actionTaken, Instant auditStamp, String source, String actionUserEid) {
 			this.userEid = userEid;
 			this.roleName = roleName;
 			this.actionTaken = actionTaken;
@@ -111,7 +112,7 @@ public class UserAuditEventLog {
 		public String getAuditStamp() {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, rb.getLocale());
 			df.setTimeZone(userTimeService.getLocalTimeZone());
-			return df.format(auditStamp);
+			return df.format(Date.from(auditStamp));
 		}
 
 		public String getSourceText() {
