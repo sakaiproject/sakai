@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.datemanager.api;
 
+import java.util.Map;
+
 public class DateManagerConstants {
 	public static final String COMMON_ID_ASSIGNMENTS = "sakai.assignment.grades";
 	public static final String COMMON_ID_ASSESSMENTS = "sakai.samigo";
@@ -51,4 +53,13 @@ public class DateManagerConstants {
 
 	public static final String DATEPICKER_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 	public static final int LIST_VIEW_YEAR_RANGE = 18;
+
+	public static final Map<String, String> BULK_DATE_FIELD_LABEL_KEYS = Map.of(
+			JSON_OPENDATE_PARAM_NAME, "column.open.date",
+			JSON_DUEDATE_PARAM_NAME, "column.due.date",
+			JSON_ACCEPTUNTIL_PARAM_NAME, "column.accept.until",
+			JSON_FEEDBACKSTART_PARAM_NAME, "column.feedback.start.date",
+			JSON_FEEDBACKEND_PARAM_NAME, "column.feedback.end.date",
+			JSON_SIGNUPBEGINS_PARAM_NAME, "column.signup.begins.date",
+			JSON_SIGNUPDEADLINE_PARAM_NAME, "column.signup.deadline.date");
 }

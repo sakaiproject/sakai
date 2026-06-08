@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.time.LocalDate;
@@ -279,13 +280,14 @@ class AssignmentTest extends SakaiUiTestBase {
         assignmentRow.locator("input[type=\"checkbox\"]").first().check(new Locator.CheckOptions().setForce(true));
         page.locator("#btnPublish").click(new Locator.ClickOptions().setForce(true));
         page.locator("input[name=\"eventSubmit_doPublish_assignment\"]").click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        assertAssignmentRowVisible(bulkPublishTitle);
 
         sakai.toolClick("Calendar");
-        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+        assertVisibleCalendarEntry(bulkPublishTitle);
 
         sakai.toolClick("Announcements");
-        assertThat(page.locator("body")).containsText(bulkPublishTitle);
+        assertVisibleAnnouncement(bulkPublishTitle);
     }
 
     private void openAddAssignmentForm() {
@@ -373,5 +375,20 @@ class AssignmentTest extends SakaiUiTestBase {
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    private void assertAssignmentRowVisible(String title) {
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(title)).first())
+            .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+    }
+
+    private void assertVisibleCalendarEntry(String title) {
+        assertThat(page.locator("a, td, span").filter(new Locator.FilterOptions().setHasText(title)).first())
+            .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+    }
+
+    private void assertVisibleAnnouncement(String title) {
+        assertThat(page.locator("table a").filter(new Locator.FilterOptions().setHasText(title)).first())
+            .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
     }
 }

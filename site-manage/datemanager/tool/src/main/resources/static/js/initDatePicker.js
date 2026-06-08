@@ -2,7 +2,7 @@ var DTMN = DTMN || {};
 
 DTMN.toolList = [ "assignments", "assessments", "signup", "gradebook", "resources", "calendar", "forums", "announcements", "lessons" ];
 DTMN.collapseElements = [ ];
-DTMN.bulkFields = [ "open_date", "due_date", "accept_until", "feedback_start", "feedback_end", "signup_begins", "signup_deadline" ];
+DTMN.bulkFields = DTMN.bulkFields || [];
 DTMN.nextIndex = -1;
 
 DTMN.initDatePicker = function(updates, notModified) {
@@ -78,6 +78,15 @@ DTMN.initBulkSetter = function(updates, notModified) {
   DTMN.bulkAllBtn = document.getElementById("applyAllDates");
   DTMN.bulkVisibleBtn = document.getElementById("applyVisibleDates");
   DTMN.bulkInputs = Array.from(document.querySelectorAll(".bulk-date-input"));
+
+  if (!DTMN.bulkAllBtn || !DTMN.bulkVisibleBtn) {
+    return;
+  }
+
+  if (DTMN.bulkFields.length === 0) {
+    DTMN.bulkFields = Array.from(document.querySelectorAll(".date-manager-setter [data-field]"))
+      .map(function(el) { return el.getAttribute("data-field"); });
+  }
 
   DTMN.initBulkDatePickers();
 

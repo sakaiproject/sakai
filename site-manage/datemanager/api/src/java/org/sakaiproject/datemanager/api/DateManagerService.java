@@ -49,6 +49,7 @@ public interface DateManagerService {
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
+	public List<String> getBulkDateFieldsForCurrentSite();
 
 	// Assignments methods
 	public JSONArray getAssignmentsForContext(String siteId);
@@ -99,6 +100,7 @@ public interface DateManagerService {
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception;
 
 	public DateManagerValidation validateTool(String toolId, int idx, String[][] columnsNames, String[] toolColumnsAux);
+	public DateManagerValidation validateTool(String toolId, int idx, String[] toolColumnsAux);
 	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
 
 	public boolean isChanged(String toolId, String[] columns);
