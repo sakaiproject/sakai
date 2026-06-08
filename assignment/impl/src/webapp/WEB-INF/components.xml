@@ -37,6 +37,7 @@
         <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
         <property name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
@@ -108,6 +109,8 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"

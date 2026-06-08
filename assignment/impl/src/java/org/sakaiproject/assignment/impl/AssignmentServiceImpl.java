@@ -186,6 +186,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectFactory;
@@ -236,6 +237,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private GradingService gradingService;
     @Setter private LearningResourceStoreService learningResourceStoreService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
+    @Setter private LocaleService localeService;
     @Setter private TransactionTemplate transactionTemplate;
     @Setter private ResourceLoader resourceLoader;
     @Setter private RubricsService rubricsService;
@@ -2427,7 +2429,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 				log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
 			}
 		});
-        users.sort(new UserSortNameComparator());
+        users.sort(new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
         return users;
     }
 
@@ -2574,7 +2576,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade().toString(),
                                 assignment.getTypeOfSubmission(),
-                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService)),
+                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService,
+                                        localeService.getLocaleForSiteAndUser(assignment.getContext(), sessionManager.getCurrentSessionUserId()))),
                                 out,
                                 exceptionMessage,
                                 withStudentSubmissionText,
@@ -2607,9 +2610,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     StringBuilder exceptionMessage = new StringBuilder();
                     SortedIterator sortedIterator;
                     if (assignmentUsesAnonymousGrading(assignment)){
-                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator(
+                                localeService.getLocaleForSiteAndUser(assignment.getContext(), sessionManager.getCurrentSessionUserId())));
                     } else {
-                        sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService));
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService,
+                                localeService.getLocaleForSiteAndUser(assignment.getContext(), sessionManager.getCurrentSessionUserId())));
                     }
                     if (allowGradeSubmission(reference)) {
                         zipSubmissions(reference,

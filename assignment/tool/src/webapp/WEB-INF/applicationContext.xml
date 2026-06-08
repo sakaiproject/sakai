@@ -35,6 +35,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 	</bean>
 	

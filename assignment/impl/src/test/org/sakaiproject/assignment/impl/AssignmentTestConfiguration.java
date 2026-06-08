@@ -18,6 +18,7 @@ package org.sakaiproject.assignment.impl;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -71,6 +72,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -270,6 +272,14 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        LocaleService localeService = mock(LocaleService.class);
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
+        Mockito.when(localeService.getLocaleForSiteAndUser(Mockito.any(), Mockito.any())).thenReturn(Locale.US);
+        return localeService;
     }
 
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")

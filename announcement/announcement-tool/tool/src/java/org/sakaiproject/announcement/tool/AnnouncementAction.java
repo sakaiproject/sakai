@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
@@ -105,6 +106,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.event.api.Event;
 
 /**
@@ -255,6 +257,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
     private FormattedText formattedText;
 
+    private LocaleService localeService;
+
     private enum BulkOperation {
 
         DELETE("delete"),
@@ -280,6 +284,11 @@ public class AnnouncementAction extends PagedResourceActionII
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
         formattedText = ComponentManager.get(FormattedText.class);
+        localeService = ComponentManager.get(LocaleService.class);
+    }
+
+    private Locale getLocale() {
+        return localeService.getLocaleForCurrentSiteAndUser();
     }
 
 	public String getCurrentOrder() {
@@ -953,7 +962,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				//context.put("groups", groups);
 				Collection<Group> sortedGroups = new ArrayList<>();
 
-				for (Iterator<Group> i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true)); i.hasNext();)
+				for (Iterator<Group> i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true, getLocale())); i.hasNext();)
 					{
 						sortedGroups.add(i.next());
 					}
@@ -991,10 +1000,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		SortedIterator<AnnouncementWrapper> sortedMessageIterator;
 		//For Announcement in User's MyWorkspace, the sort order for announcement is by date SAK-22667
 		if (isOnWorkspaceTab()){
-			sortedMessageIterator = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(SORT_DATE, state.getCurrentSortAsc()));
+			sortedMessageIterator = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(SORT_DATE, state.getCurrentSortAsc(), getLocale()));
 		} else {
 			sortedMessageIterator = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(state
-					.getCurrentSortedBy(), state.getCurrentSortAsc()));
+					.getCurrentSortedBy(), state.getCurrentSortAsc(), getLocale()));
 		}
 		
 		while (sortedMessageIterator.hasNext())
@@ -1709,7 +1718,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// TODO: this is almost right (see chef_announcements-revise.vm)... ideally, we would let the check groups that they can add to,
 				// and uncheck groups they can remove from... only matters if the user does not have both add and remove -ggolden
 				final boolean own = edit == null ? true : edit.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId());
-				Collection groups = channel.getGroupsAllowRemoveMessage(own);
+				Collection<Group> groups = channel.getGroupsAllowRemoveMessage(own);
 				context.put("allowedRemoveGroups", groups);
 				
 				// group list which user can add message to
@@ -1718,11 +1727,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				// add to these any groups that the message already has
 				if (edit != null)
 				{
-					final Collection otherGroups = edit.getHeader().getGroupObjects();
-					for (Iterator i = otherGroups.iterator(); i.hasNext();)
+					final Collection<Group> otherGroups = edit.getHeader().getGroupObjects();
+					for (Group g : otherGroups)
 					{
-						Group g = (Group) i.next();
-						
 						if (!groups.contains(g))
 						{
 							groups.add(g);
@@ -1732,11 +1739,9 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (groups.size() > 0)
 				{
-					Collection sortedGroups = new Vector();
-					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true)); i.hasNext();)
-					{
-						sortedGroups.add(i.next());
-					}
+					Locale locale = getLocale();
+					List<Group> sortedGroups = new ArrayList<>(groups);
+					sortedGroups.sort(new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true, locale));
 					context.put("groups", sortedGroups);
 				}
 			}
@@ -4285,7 +4290,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			sortedBy = isOnWorkspaceTab() ? SORT_DATE : getCurrentOrder();
 			asc = false;
 		}
-		SortedIterator<AnnouncementWrapper> rvSorted = new SortedIterator<>(rv.iterator(), new AnnouncementWrapperComparator(sortedBy, asc));
+		SortedIterator<AnnouncementWrapper> rvSorted = new SortedIterator<>(rv.iterator(), new AnnouncementWrapperComparator(sortedBy, asc, getLocale()));
 
 		PagingPosition page = new PagingPosition(first, last);
 		page.validate(rv.size());

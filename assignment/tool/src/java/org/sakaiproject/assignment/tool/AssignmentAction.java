@@ -41,8 +41,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -232,7 +230,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
@@ -1167,6 +1167,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private FormattedText formattedText;
     private GradingService gradingService;
     private LearningResourceStoreService learningResourceStoreService;
+    private LocaleService localeService;
     private NotificationService notificationService;
 	private PreferencesService preferencesService;
 	private RubricsService rubricsService;
@@ -1212,6 +1213,7 @@ public class AssignmentAction extends PagedResourceActionII {
         formattedText = ComponentManager.get(FormattedText.class);
         gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
+        localeService = ComponentManager.get(LocaleService.class);
         notificationService = ComponentManager.get(NotificationService.class);
 		preferencesService  = ComponentManager.get(PreferencesService.class);
 		rubricsService  = ComponentManager.get(RubricsService.class);
@@ -3777,7 +3779,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             log.warn(this + ":setAssignmentFormContext cannot get user " + e.getMessage() + " user id=" + userId);
                         }
                     }
-                    Collections.sort(usersList, new UserSortNameComparator());
+                    Collections.sort(usersList, new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
                     roleUsers.put(r.getId(), usersList);
                 }
             }
@@ -16978,6 +16980,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private class AssignmentComparator implements Comparator {
         Collator collator = null;
+        UserSortNameComparator userSortNameComparator = null;
         Map<String, Integer> crSubmissionScoreMap = new HashMap<>();
 
         /**
@@ -17028,14 +17031,9 @@ public class AssignmentAction extends PagedResourceActionII {
             m_criteria = criteria;
             m_asc = asc;
             m_user = user;
-            try {
-                collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-            } catch (ParseException e) {
-                // error with init RuleBasedCollator with rules
-                // use the default Collator
-                collator = Collator.getInstance();
-                log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
-            }
+            Locale locale = localeService.getLocaleForCurrentSiteAndUser();
+            userSortNameComparator = new UserSortNameComparator(locale);
+            collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
         } // constructor
 
         /**
@@ -17147,7 +17145,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 try {
                     User u1 = userDirectoryService.getUser(((Assignment) o1).getModifier());
                     User u2 = userDirectoryService.getUser(((Assignment) o2).getModifier());
-                    result = new UserSortNameComparator().compare(u1, u2);
+                    result = userSortNameComparator.compare(u1, u2);
                 } catch (UserNotDefinedException e) {
                     log.error("Could not get user {} or {}: {}", ((Assignment) o1).getModifier(), ((Assignment) o2).getModifier(), e.getMessage());
                 }
@@ -17312,7 +17310,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
                 } else if (u1.getUser() != null && u2.getUser() != null) {
-                    result = new UserSortNameComparator().compare(u1.getUser(), u2.getUser());
+                    result = userSortNameComparator.compare(u1.getUser(), u2.getUser());
                 } else {
                     String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();
                     String lName2 = u2.getUser() == null ? u2.getGroup().getTitle() : u2.getUser().getSortName();

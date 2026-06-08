@@ -23,6 +23,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,10 +68,11 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	public void init() {
 		SectionDecorator currentSection = initializeFields();
 		sectionMax = currentSection.getMaxEnrollments();
+		Comparator<ParticipationRecord> sortNameComparator = getSortNameComparator();
 		
 		// Get the current users
 		List enrollments = getSectionManager().getSectionEnrollments(currentSection.getUuid());
-		Collections.sort(enrollments, EditManagersBean.sortNameComparator);
+		Collections.sort(enrollments, sortNameComparator);
 
 		populateSelectedUsers(enrollments);
 
@@ -121,29 +123,31 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 			List available2= getSectionManager().getSectionEnrollments(availableSectionUuid);
 			available=new ArrayList();
 			
-			Collections.sort(available1, EditManagersBean.sortNameComparator);
-			Collections.sort(available2, EditManagersBean.sortNameComparator);
-			
-			int k1 = 0; int k2 = 0;
-			while (k1<available1.size() && k2 < available2.size()) {
-				ParticipationRecord p1=(ParticipationRecord)available1.get(k1);
-				ParticipationRecord p2=(ParticipationRecord)available2.get(k2);
-				String a1=p1.getUser().getSortName();
-				String a2=p2.getUser().getSortName();
-				if (a1.compareTo(a2)==0) {
+				Collections.sort(available1, sortNameComparator);
+				Collections.sort(available2, sortNameComparator);
+
+				// This walks two sorted lists to keep only students present in both lists.
+				int unsectionedIndex = 0;
+				int sectionIndex = 0;
+			while (unsectionedIndex < available1.size() && sectionIndex < available2.size()) {
+				ParticipationRecord p1 = (ParticipationRecord) available1.get(unsectionedIndex);
+				ParticipationRecord p2 = (ParticipationRecord) available2.get(sectionIndex);
+				int comparison = sortNameComparator.compare(p1, p2);
+				if (comparison == 0) {
 				   available.add(p2);
-				   k1++; k2++;
-				} else if (a1.compareTo(a2) < 0) {
-				   k1++;
+				   unsectionedIndex++;
+				   sectionIndex++;
+				} else if (comparison < 0) {
+				   unsectionedIndex++;
 				} else {
-				   k2++;
+				   sectionIndex++;
 			   }
 			}
 		}
 		else {
 			available = getSectionManager().getSectionEnrollments(availableSectionUuid);
 		}
-		Collections.sort(available, EditManagersBean.sortNameComparator);
+		Collections.sort(available, sortNameComparator);
 
 		availableUsers = new ArrayList();
 		for(Iterator iter = available.iterator(); iter.hasNext();) {

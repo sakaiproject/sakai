@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.business;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Locale;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.user.api.User;
@@ -24,14 +25,23 @@ import org.sakaiproject.user.api.User;
 /**
  * Comparator class for sorting a list of users by first name. Secondary sort is on last name to maintain consistent order for those with
  * the same first name
+ * TODO: Move this to kernel next to UserSortNameComparator if first-name sorting is needed outside Gradebook.
  */
 public class FirstNameComparator implements Comparator<User> {
 
-	private final Collator collator = Collator.getInstance();
+	private final Collator collator;
+
+	public FirstNameComparator() {
+		this(Locale.getDefault());
+	}
+
+	public FirstNameComparator(Locale locale) {
+		this.collator = Collator.getInstance(locale);
+		this.collator.setStrength(Collator.PRIMARY);
+	}
 
 	@Override
 	public int compare(final User u1, final User u2) {
-		this.collator.setStrength(Collator.PRIMARY);
 		return new CompareToBuilder()
 				.append(u1.getFirstName(), u2.getFirstName(), this.collator)
 				.append(u1.getLastName(), u2.getLastName(), this.collator)
