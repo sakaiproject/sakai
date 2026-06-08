@@ -31,21 +31,20 @@ import javax.persistence.TemporalType;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "user_audits_log", indexes = { @Index(name = "user_audits_log_index", columnList = "site_id") })
-@Getter
-@Setter
-@ToString
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "user_audits_log_seq")
 	@SequenceGenerator(name = "user_audits_log_seq", sequenceName = "user_audits_log_seq")
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	@Column(name = "site_id", nullable = false, length = 99)
@@ -69,21 +68,4 @@ public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Column(name = "action_user_id", length = 99)
 	private String actionUserId;
-
-	@Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof UserAuditLog)) {
-			return false;
-		}
-		UserAuditLog that = (UserAuditLog) other;
-		return id != null && id.equals(that.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
-	}
 }
