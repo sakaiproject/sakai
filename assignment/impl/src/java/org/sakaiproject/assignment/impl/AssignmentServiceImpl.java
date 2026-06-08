@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,6 +57,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -73,6 +75,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -81,6 +84,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
 import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
@@ -111,7 +115,9 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -153,6 +159,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -191,6 +198,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -215,7 +223,8 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ContentExistsAware, ApplicationContextAware {
 
-	@Setter private AnnouncementService announcementService;
+    @Setter private AnnouncementService announcementService;
+    @Setter private CalendarService additionalCalendarService;
     @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentDueReminderService assignmentDueReminderService;
@@ -260,6 +269,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean createGroupsOnImport;
 
     private static final String ASSIGNMENT_REFERENCE_PROPERTY = "assignmentReference";
+    private static final String ASSIGNMENT_OPEN_DATE_PROPERTY = "assignmentOpenDate";
     private static final String ANNOUNCEMENT_NOTIFICATION_INVOKEE = "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc";
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
@@ -1684,6 +1694,431 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Priorities.HIGH);
         }
 
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignment(Assignment assignment) throws PermissionException {
+        Assert.notNull(assignment, "Assignment cannot be null");
+
+        boolean wasDraft = BooleanUtils.toBoolean(assignment.getDraft());
+        assignment.setDraft(Boolean.FALSE);
+        updateAssignmentInTransaction(assignment);
+
+        if (wasDraft) {
+            integrateOnFirstPublish(assignment);
+        }
+    }
+
+    private void updateAssignmentInTransaction(Assignment assignment) throws PermissionException {
+        AtomicReference<PermissionException> permissionException = new AtomicReference<>();
+
+        transactionTemplate.executeWithoutResult(status -> {
+            try {
+                updateAssignment(assignment);
+            } catch (PermissionException e) {
+                status.setRollbackOnly();
+                permissionException.set(e);
+            }
+        });
+
+        if (permissionException.get() != null) {
+            throw permissionException.get();
+        }
+    }
+
+    private void integrateOnFirstPublish(Assignment assignment) {
+        Map<String, String> properties = assignment.getProperties();
+        String title = assignment.getTitle();
+        Instant openTime = assignment.getOpenDate();
+        Instant dueTime = assignment.getDueDate();
+        String checkAddDueTime = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+        String checkAutoAnnounce = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+        OpenDateNotification openDateNotification = OpenDateNotification.fromProperty(
+                properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
+
+        integrateAssignmentWithCalendarAndAnnouncement(assignment, title, openTime, dueTime, openTime, dueTime,
+                BooleanUtils.toBoolean(checkAddDueTime),
+                BooleanUtils.toBoolean(checkAutoAnnounce),
+                openDateNotification);
+
+        postFirstPublishEvents(assignment, openTime);
+    }
+
+    private void postFirstPublishEvents(Assignment assignment, Instant openTime) {
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
+        if (openTime.isBefore(Instant.now())) {
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+        } else {
+            eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void integrateAssignmentWithCalendarAndAnnouncement(Assignment assignment, String title, Instant openTime, Instant dueTime,
+            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce,
+            OpenDateNotification openDateNotification) {
+
+        try {
+            integrateWithCalendar(assignment, title, dueTime, checkAddDueTime, oldDueTime);
+        } catch (PermissionException e) {
+            log.warn("Cannot update assignment calendar integration, {}", e.getMessage());
+        }
+
+        try {
+            integrateWithAnnouncement(assignment, title, openTime, checkAutoAnnounce, openDateNotification, oldOpenTime);
+        } catch (PermissionException e) {
+            log.warn("Cannot update assignment announcement integration, {}", e.getMessage());
+        }
+    }
+
+    private void integrateWithAnnouncement(Assignment assignment, String title, Instant openTime, boolean checkAutoAnnounce,
+            OpenDateNotification openDateNotification, Instant oldOpenTime) throws PermissionException {
+        if (!checkAutoAnnounce) {
+            return;
+        }
+        if (openDateNotification == null) {
+            openDateNotification = OpenDateNotification.NONE;
+        }
+
+        AnnouncementChannel channel = getAnnouncementChannel(assignment.getContext());
+        if (channel == null) {
+            return;
+        }
+
+        boolean updatedTitle = false;
+        boolean updatedOpenDate = false;
+        boolean updateAccess = false;
+        boolean linkedDraftAnnouncement = false;
+
+        String openDateAnnounced = StringUtils.trimToNull(assignment.getProperties().get(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        String openDateAnnouncementId = StringUtils.trimToNull(assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        AnnouncementMessage existingMessage = null;
+        if (openDateAnnouncementId != null) {
+            try {
+                existingMessage = channel.getAnnouncementMessage(openDateAnnouncementId);
+                linkedDraftAnnouncement = existingMessage.getAnnouncementHeader().getDraft();
+                if (!existingMessage.getAnnouncementHeader().getSubject().contains(title)) {
+                    updatedTitle = true;
+                }
+                updatedOpenDate = !Objects.equals(getAnnouncementOpenDate(existingMessage, oldOpenTime), openTime);
+                if ((existingMessage.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !assignment.getTypeOfAccess().equals(Assignment.Access.SITE))
+                        || (!existingMessage.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && assignment.getTypeOfAccess().equals(Assignment.Access.SITE))) {
+                    updateAccess = true;
+                } else if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
+                    Collection<String> assnGroups = assignment.getGroups();
+                    Collection<String> anncGroups = existingMessage.getAnnouncementHeader().getGroups();
+                    if (!assnGroups.equals(anncGroups)) {
+                        updateAccess = true;
+                    }
+                }
+            } catch (IdUnusedException | PermissionException e) {
+                log.warn("integrateWithAnnouncement {}", e.getMessage());
+            }
+
+            if (updateAccess && existingMessage != null) {
+                try {
+                    channel.removeAnnouncementMessage(existingMessage.getId());
+                    existingMessage = null;
+                    linkedDraftAnnouncement = false;
+                } catch (PermissionException e) {
+                    log.warn("PermissionException for remove message id={} for assignment id={}, {}", openDateAnnouncementId, assignment.getId(), e.getMessage());
+                }
+            }
+        }
+
+        boolean previouslyPublishedAnnouncement = openDateAnnounced != null && !linkedDraftAnnouncement;
+        if (openDateAnnounced == null || updatedTitle || updatedOpenDate || updateAccess || linkedDraftAnnouncement) {
+            try {
+                AnnouncementMessageEdit message = null;
+                if (linkedDraftAnnouncement && existingMessage != null) {
+                    try {
+                        message = channel.editAnnouncementMessage(existingMessage.getId());
+                    } catch (IdUnusedException | InUseException e) {
+                        log.warn("integrateWithAnnouncement {}", e.getMessage());
+                    }
+                }
+                if (message == null) {
+                    message = channel.addAnnouncementMessage();
+                }
+                if (message != null) {
+                    String subjectKey = previouslyPublishedAnnouncement ? "assig5" : "assig6";
+                    String bodyKey = updatedOpenDate && previouslyPublishedAnnouncement ? "newope" : "opedat";
+                    AnnouncementMessageHeaderEdit header = setOpenDateAnnouncementContent(message, assignment, title,
+                            openTime, false, subjectKey, bodyKey);
+
+                    if (assignment.getTypeOfAccess().equals(Assignment.Access.GROUP)) {
+                        try {
+                            Site site = siteService.getSite(assignment.getContext());
+                            Collection<Group> groups = new ArrayList<>();
+                            for (String groupRef : assignment.getGroups()) {
+                                groups.add(site.getGroup(groupRef));
+                            }
+                            header.setGroupAccess(groups);
+                        } catch (Exception exception) {
+                            log.warn("integrateWithAnnouncement {}", exception.getMessage());
+                        }
+                    } else {
+                        header.clearGroupAccess();
+                    }
+
+                    int notiLevel;
+                    String notification;
+                    switch (openDateNotification) {
+                        case OPTIONAL:
+                            notiLevel = NotificationService.NOTI_OPTIONAL;
+                            notification = "o";
+                            break;
+                        case REQUIRED:
+                            notiLevel = NotificationService.NOTI_REQUIRED;
+                            notification = "r";
+                            break;
+                        case NONE:
+                        default:
+                            notiLevel = NotificationService.NOTI_NONE;
+                            notification = "n";
+                            break;
+                    }
+
+                    Instant now = Instant.now();
+                    if (previouslyPublishedAnnouncement && oldOpenTime != null && now.isBefore(oldOpenTime)) {
+                        message.getPropertiesEdit().addProperty("notificationLevel", notification);
+                        message.getPropertiesEdit().addPropertyToList("noti_history", now.toString() + "_" + notiLevel + "_" + openDateAnnounced);
+                    } else {
+                        message.getPropertiesEdit().addPropertyToList("noti_history", now.toString() + "_" + notiLevel);
+                    }
+
+                    channel.commitMessage(message, notiLevel, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
+                }
+
+                assignment.getProperties().put(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+                if (message != null) {
+                    assignment.getProperties().put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+                }
+                updateAssignmentInTransaction(assignment);
+
+            } catch (PermissionException e) {
+                log.warn("IntegrateWithAnnouncement {}", resourceLoader.getString("cannotmak"));
+                throw e;
+            }
+        }
+    }
+
+    private AnnouncementMessageHeaderEdit setOpenDateAnnouncementContent(AnnouncementMessageEdit message, Assignment assignment,
+            String title, Instant openTime, boolean draft, String subjectKey, String bodyKey) {
+
+        AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+        message.getPropertiesEdit().addProperty(ASSIGNMENT_REFERENCE_PROPERTY,
+                AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+        message.getPropertiesEdit().addProperty(ASSIGNMENT_OPEN_DATE_PROPERTY, openTime.toString());
+
+        header.setDraft(draft);
+        header.replaceAttachments(entityManager.newReferenceList());
+
+        String subject = resourceLoader.getFormattedMessage(subjectKey, title);
+        if (subject == null) {
+            subject = title;
+        }
+        header.setSubject(subject);
+
+        String formattedOpenTime = userTimeService.dateTimeFormat(openTime, FormatStyle.MEDIUM, FormatStyle.LONG);
+        String body = resourceLoader.getFormattedMessage(bodyKey,
+                formattedText.convertPlaintextToFormattedText(title), formattedOpenTime);
+        if (body == null) {
+            body = formattedText.convertPlaintextToFormattedText(title);
+        }
+        message.setBody("<p>" + body + "</p>");
+
+        return header;
+    }
+
+    private Instant getAnnouncementOpenDate(AnnouncementMessage message, Instant defaultOpenTime) {
+        ResourceProperties properties = message.getProperties();
+        if (properties == null) {
+            return defaultOpenTime;
+        }
+
+        String openDate = StringUtils.trimToNull(properties.getProperty(ASSIGNMENT_OPEN_DATE_PROPERTY));
+        if (openDate == null) {
+            return defaultOpenTime;
+        }
+
+        try {
+            return Instant.parse(openDate);
+        } catch (DateTimeParseException e) {
+            log.warn("Invalid assignment open date property on announcement {}: {}", message.getId(), openDate);
+            return defaultOpenTime;
+        }
+    }
+
+    private void integrateWithCalendar(Assignment assignment, String title, Instant dueTime, boolean checkAddDueTime, Instant oldDueTime) throws PermissionException {
+        Map<String, String> properties = assignment.getProperties();
+        if (!checkAddDueTime
+                && properties.get(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED) == null
+                && properties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID) == null
+                && properties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID) == null) {
+            return;
+        }
+
+        Calendar calendar = getCalendar(assignment.getContext());
+
+        integrateWithCalendarTool(assignment, title, dueTime, checkAddDueTime, oldDueTime, calendar,
+                ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+
+        Calendar additionalCalendar = getAdditionalCalendar(assignment.getContext());
+        if (additionalCalendar != null) {
+            integrateWithCalendarTool(assignment, title, dueTime, checkAddDueTime, oldDueTime, additionalCalendar,
+                    ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
+        }
+    }
+
+    private void integrateWithCalendarTool(Assignment assignment, String title, Instant dueTime, boolean checkAddDueTime, Instant oldDueTime,
+            Calendar calendar, String dueDateProperty) throws PermissionException {
+        if (calendar == null) {
+            return;
+        }
+
+        Map<String, String> properties = assignment.getProperties();
+        String dueDateScheduled = assignment.getProperties().get(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+        String oldEventId = properties.get(dueDateProperty);
+        CalendarEvent event = null;
+
+        if (dueDateScheduled != null || oldEventId != null) {
+            boolean found = false;
+            if (oldEventId != null) {
+                try {
+                    event = calendar.getEvent(oldEventId);
+                    found = true;
+                } catch (IdUnusedException e) {
+                    log.warn("integrateWithCalendarTool The old event has been deleted: event id={}. {}", oldEventId, calendar.getClass().getName());
+                } catch (PermissionException e) {
+                    log.warn("integrateWithCalendarTool You do not have the permission to view the schedule event id={}. {}",
+                            oldEventId, calendar.getClass().getName());
+                }
+            } else if (oldDueTime != null) {
+                Instant startTime = ZonedDateTime.ofInstant(oldDueTime, userTimeService.getLocalTimeZone().toZoneId())
+                        .toLocalDate().atStartOfDay(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+                Instant endTime = startTime.plus(Duration.ofDays(1)).minus(Duration.ofSeconds(1));
+                try {
+                    Iterator events = calendar.getEvents(timeService.newTimeRange(timeService.newTime(startTime.toEpochMilli()),
+                            timeService.newTime(endTime.toEpochMilli())), null).iterator();
+
+                    while (!found && events.hasNext()) {
+                        event = (CalendarEvent) events.next();
+                        String dueTitle = resourceLoader.getString("gen.due") + " " + title;
+                        String assignmentTitle = resourceLoader.getString("gen.assig") + " " + title;
+                        if (event.getDisplayName().contains(dueTitle) || event.getDisplayName().contains(assignmentTitle)) {
+                            found = true;
+                        }
+                    }
+                } catch (PermissionException e) {
+                    // Ignore PermissionException to preserve existing behavior.
+                }
+            }
+            if (found) {
+                removeOldEvent(title, calendar, event);
+            }
+        }
+
+        if (checkAddDueTime) {
+            updateAssignmentWithEventId(assignment, title, dueTime, calendar, dueDateProperty);
+        }
+    }
+
+    private void updateAssignmentWithEventId(Assignment assignment, String title, Instant dueTime, Calendar calendar, String dueDateProperty)
+            throws PermissionException {
+        try {
+            CalendarEvent.EventAccess eventAccess = CalendarEvent.EventAccess.SITE;
+            List<Group> eventGroups = new ArrayList<>();
+
+            if (assignment.getTypeOfAccess().equals(Assignment.Access.GROUP)) {
+                eventAccess = CalendarEvent.EventAccess.GROUPED;
+                Site site = siteService.getSite(assignment.getContext());
+                for (String groupRef : assignment.getGroups()) {
+                    Group group = site.getGroup(groupRef);
+                    if (group != null) {
+                        eventGroups.add(group);
+                    }
+                }
+            }
+            String formattedDueTime = userTimeService.dateTimeFormat(dueTime, FormatStyle.MEDIUM, FormatStyle.LONG);
+            CalendarEvent event = calendar.addEvent(timeService.newTimeRange(dueTime.toEpochMilli(), 0),
+                    resourceLoader.getString("gen.due") + " " + title,
+                    resourceLoader.getFormattedMessage("assign_due_event_desc", title, formattedDueTime),
+                    "Deadline", "", eventAccess, eventGroups, null);
+
+            assignment.getProperties().put(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+            if (event != null) {
+                assignment.getProperties().put(dueDateProperty, event.getId());
+                addAssignmentIdToCalendar(assignment, calendar, event);
+            }
+        } catch (IdUnusedException e) {
+            log.warn("updateAssignmentWithEventId {}", e.getMessage());
+        } catch (PermissionException e) {
+            log.warn("updateAssignmentWithEventId {}", resourceLoader.getString("cannotfin1"));
+            throw e;
+        } catch (Exception e) {
+            log.warn("updateAssignmentWithEventId {}", e.getMessage());
+        }
+
+        updateAssignmentInTransaction(assignment);
+    }
+
+    private void addAssignmentIdToCalendar(Assignment assignment, Calendar calendar, CalendarEvent event)
+            throws IdUnusedException, PermissionException, InUseException {
+        if (calendar != null && event != null && assignment != null) {
+            CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
+
+            edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, AssignmentConstants.TOOL_ID);
+            edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, getUsersLocalDateTimeString(assignment.getOpenDate()));
+
+            calendar.commitEvent(edit);
+        }
+    }
+
+    private void removeOldEvent(String title, Calendar calendar, CalendarEvent event) {
+        if (calendar != null && event != null) {
+            try {
+                calendar.removeEvent(calendar.getEditEvent(event.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+            } catch (PermissionException e) {
+                log.warn("removeOldEvent {}", resourceLoader.getFormattedMessage("cannotrem", title));
+            } catch (InUseException e) {
+                log.warn("removeOldEvent {}", resourceLoader.getString("somelsis_calendar"));
+            } catch (IdUnusedException e) {
+                log.warn("removeOldEvent {}", resourceLoader.getFormattedMessage("cannotfin6", event.getId()));
+            }
+        }
+    }
+
+    private Calendar getAdditionalCalendar(String context) {
+        if (additionalCalendarService == null || !additionalCalendarService.isCalendarToolInitialized(context)
+                || !siteHasTool(context, additionalCalendarService.getToolId())) {
+            return null;
+        }
+
+        try {
+            return additionalCalendarService.getCalendar(null);
+        } catch (IdUnusedException e) {
+            log.info("No additional calendar found for site {} {}", context, e.getMessage());
+        } catch (PermissionException e) {
+            log.info("No permission to get the additional calendar for site {} {}", context, e.getMessage());
+        }
+        return null;
+    }
+
+    private boolean siteHasTool(String siteId, String toolId) {
+        try {
+            Site site = siteService.getSite(siteId);
+            return site.getToolForCommonId(toolId) != null;
+        } catch (Exception e) {
+            log.warn("siteHasTool {} {}", e.getMessage(), siteId);
+        }
+        return false;
     }
 
     @Override
@@ -3616,20 +4051,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private Calendar getCalendar(String context) {
         Calendar calendar = null;
 
-        String calendarId = serverConfigurationService.getString("calendar", null);
-        if (calendarId == null) {
-            calendarId = calendarService.calendarReference(context, siteService.MAIN_CONTAINER);
-            try {
-                calendar = calendarService.getCalendar(calendarId);
-            } catch (IdUnusedException e) {
-                log.warn("No calendar found for site: " + context);
-                calendar = null;
-            } catch (PermissionException e) {
-                log.error("The current user does not have permission to access the calendar for context: {}", context, e);
-            } catch (Exception ex) {
-                log.error("Unknown exception occurred retrieving calendar for site: {}", context, ex);
-                calendar = null;
-            }
+        String calendarId = calendarService.calendarReference(context, siteService.MAIN_CONTAINER);
+        try {
+            calendar = calendarService.getCalendar(calendarId);
+        } catch (IdUnusedException e) {
+            log.warn("No calendar found for site: {}", context);
+            calendar = null;
+        } catch (PermissionException e) {
+            log.error("The current user does not have permission to access the calendar for context: {}", context, e);
+        } catch (Exception ex) {
+            log.error("Unknown exception occurred retrieving calendar for site: {}", context, ex);
+            calendar = null;
         }
 
         return calendar;
@@ -5140,16 +5572,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             boolean committed = false;
             try {
                 message = channel.addAnnouncementMessage();
-                AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-                header.setDraft(draftAnnouncement);
-                header.replaceAttachments(entityManager.newReferenceList());
-                message.getPropertiesEdit().addProperty(ASSIGNMENT_REFERENCE_PROPERTY,
-                    AssignmentReferenceReckoner.reckoner().assignment(importedAssignment).reckon().getReference());
-                String subject = resourceLoader.getFormattedMessage("assig6", importedAssignment.getTitle());
-                if (subject == null) {
-                    subject = importedAssignment.getTitle();
-                }
-                header.setSubject(subject);
+                AnnouncementMessageHeaderEdit header = setOpenDateAnnouncementContent(message, importedAssignment,
+                        importedAssignment.getTitle(), importedAssignment.getOpenDate(), draftAnnouncement, "assig6", "opedat");
 
                 if (importedAssignment.getTypeOfAccess() == GROUP) {
                     Collection<Group> groups = getImportedAssignmentGroups(importedAssignment);
@@ -5165,15 +5589,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else {
                     header.clearGroupAccess();
                 }
-
-                String formattedOpenTime = userTimeService.dateTimeFormat(importedAssignment.getOpenDate(),
-                    FormatStyle.MEDIUM, FormatStyle.LONG);
-                String body = resourceLoader.getFormattedMessage("opedat",
-                    formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle()), formattedOpenTime);
-                if (body == null) {
-                    body = formattedText.convertPlaintextToFormattedText(importedAssignment.getTitle());
-                }
-                message.setBody("<p>" + body + "</p>");
 
                 channel.commitMessage(message, NotificationService.NOTI_NONE, ANNOUNCEMENT_NOTIFICATION_INVOKEE);
                 committed = true;
