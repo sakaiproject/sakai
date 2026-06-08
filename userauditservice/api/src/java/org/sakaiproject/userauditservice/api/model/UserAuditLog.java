@@ -75,7 +75,7 @@ public class UserAuditLog implements PersistableEntity<Long> {
 		if (this == other) {
 			return true;
 		}
-		if (other == null || getClass() != other.getClass()) {
+		if (!(other instanceof UserAuditLog)) {
 			return false;
 		}
 		UserAuditLog that = (UserAuditLog) other;
@@ -84,6 +84,6 @@ public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : System.identityHashCode(this);
+		return id != null ? id.hashCode() : 0;
 	}
 }

@@ -700,15 +700,21 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (GroupNotDefinedException e)
 			{
-				// TODO: GroupNotDefinedException
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{realm.getId()}));
+				return;
 			}
 			catch (AuthzPermissionException e)
 			{
-				// TODO: AuthzPermissionException
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getString("realm.notpermis1"));
+				return;
 			}
 			catch (Exception e)
 			{
-			 	log.warn("realmId = {} {}", realm.getId(), e.getMessage());
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getString("alert.prbset"));
+				return;
 			}
 		}
 
@@ -1524,7 +1530,9 @@ public class RealmsAction extends PagedResourceActionII
 		String fullReferenceRoot = SiteService.REFERENCE_ROOT + Entity.SEPARATOR;
 		if (realmId.startsWith(fullReferenceRoot))
 		{
-			return realmId.substring(fullReferenceRoot.length());
+			String siteReference = realmId.substring(fullReferenceRoot.length());
+			int separatorIndex = siteReference.indexOf(Entity.SEPARATOR);
+			return separatorIndex == -1 ? siteReference : siteReference.substring(0, separatorIndex);
 		}
 		return realmId;
 	}

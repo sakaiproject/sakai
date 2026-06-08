@@ -41,6 +41,7 @@ import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -161,6 +162,11 @@ public class EntityRestTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.userauditservice.api.UserAuditRegistration.direct")
     public UserAuditRegistration userAuditRegistration() {
         return mock(UserAuditRegistration.class);
+    }
+
+    @Bean(name = "org.sakaiproject.userauditservice.api.UserAuditService")
+    public UserAuditService userAuditService() {
+        return mock(UserAuditService.class);
     }
 
     @Bean(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
