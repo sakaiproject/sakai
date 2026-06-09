@@ -67,10 +67,10 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 			}
 
 			// If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-			if (acceptLate && retractDate != null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) {
+			if (acceptLate && retractDate != null && currentTime.before(retractDate)) {
 				return true;
 			}
-			else if ( (!acceptLate || retractDate == null) && dueDate != null && currentTime.before(dueDate)) {
+			else if ((!acceptLate || retractDate == null) && dueDate != null && currentTime.before(dueDate)) {
 				return true;
 			}
 
