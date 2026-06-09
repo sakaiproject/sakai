@@ -596,6 +596,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * The pinned site ids for the current user.
+	 */
+	public List<String> getPinnedSites() {
+		return portalService.getPinnedSites();
+	}
+
+	/**
 	* Get all provider IDs for the given site.
 	*
 	* @param site the site to retrieve all provider IDs

@@ -26,9 +26,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
@@ -71,33 +72,10 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	{
 		// Get the list of sites in the right order,
 		// My WorkSpace will be the first in the list
-
-		// if public workgroup/gateway site is not included, add to list
-		boolean siteFound = false;
-		for (int i = 0; i < mySites.size(); i++)
-		{
-			if (((Site) mySites.get(i)).getId().equals(currentSiteId))
-			{
-				siteFound = true;
-			}
-		}
-
-		try
-		{
-			if (!siteFound)
-			{
-				mySites.add(siteService.getSite(currentSiteId));
-			}
-		}
-		catch (IdUnusedException e)
-		{
-
-		} // ignore
+		ensureCurrentSiteIncluded();
 
 		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<>();
-		
-		processMySites();
 
 		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
@@ -145,24 +123,31 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", true));
 
-		List<Map<String, Object>> l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
+		// The favorites bar shows tabsToDisplay sites plus one leading slot for the user's workspace.
+		int favoritesBarSize = tabsToDisplay + 1;
+
+		Set<String> pinnedSiteIds = new HashSet<>(siteHelper.getPinnedSites());
+		List<Site> sitesForFavorites = new ArrayList<>();
+		for (int position = 0; position < mySites.size(); position++) {
+			Site site = mySites.get(position);
+			if (position < favoritesBarSize || pinnedSiteIds.contains(site.getId()) || site.getId().equals(currentSiteId)) {
+				sitesForFavorites.add(site);
+			}
+		}
+
+		List<Map<String, Object>> l = siteHelper.convertSitesToMaps(request, sitesForFavorites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
 				serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
-		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
-
 		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
-
 		List<Map<String, Object>> pinned
 			= l.stream().filter(map -> map.containsKey("isPinned") && (Boolean) map.get("isPinned"))
 				.collect(Collectors.toList());
 
 		renderContextMap.put("pinned", pinned);
 
-		// Bump it up by one to make room for the user's workspace
-		tabsToDisplay++;
-
-		if (l.size() > tabsToDisplay) {
-			List<Map<String, Object>> sublist = l.subList(0, tabsToDisplay);
+		if (l.size() > favoritesBarSize) {
+			List<Map<String, Object>> sublist = l.subList(0, favoritesBarSize);
 
 			boolean listContainsCurrentSite = false;
 			for (Map<String, Object> entry : sublist) {
@@ -179,7 +164,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 				for (Map<String, Object> entry : l) {
 					if (entry.get("isCurrentSite") instanceof Boolean ? (Boolean) entry.get("isCurrentSite") : false) {
-						modifiedList.set(tabsToDisplay - 1, entry);
+						modifiedList.set(favoritesBarSize - 1, entry);
 						break;
 					}
 				}
@@ -209,6 +194,30 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		}
 
 		return renderContextMap;
+	}
+
+	/**
+	 * Builds the term-grouped "More Sites" drawer content on demand. This is the expensive part of
+	 * the view (it converts every member site), so it is only invoked when the drawer is actually
+	 * opened - see {@link org.sakaiproject.portal.charon.handlers.MoreSitesHandler}.
+	 *
+	 * @return the render context map populated with the {@code tabsMore*} keys consumed by
+	 *         moresites-drawer.vm
+	 */
+	public Map<String, Object> getMoreSitesDrawerContext() {
+		ensureCurrentSiteIncluded();
+		moreSites = new ArrayList<>();
+		processMySites();
+		return renderContextMap;
+	}
+
+	/**
+	 * Ensure the current site is part of mySites so it is represented in the rendered lists.
+	 */
+	private void ensureCurrentSiteIncluded() {
+		if (mySites.stream().noneMatch(s -> s.getId().equals(currentSiteId))) {
+			siteService.getOptionalSite(currentSiteId).ifPresent(mySites::add);
+		}
 	}
 
 	protected void processMySites()

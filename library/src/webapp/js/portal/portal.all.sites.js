@@ -252,8 +252,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const newState = e.detail.pinned ? "pinned" : "unpinned";
     const button = document.querySelector(`#selectSite button.site-favorite-btn[data-site-id='${e.detail.siteId}']`);
-    allsites.updateButton(button, newState);
-    allsites.setAllOrNoneStarStates();
+    if (button) {
+      // The "other sites" term panes are loaded lazily; their pin buttons only exist once the
+      // drawer has been opened. The organize-favorites list below is rendered eagerly, so it is
+      // always updated.
+      allsites.updateButton(button, newState);
+      allsites.setAllOrNoneStarStates();
+    }
 
     if (!e.detail.pinned) {
       document.querySelector(`#organize-favorites-list li.organize-favorite-item[data-site-id='${e.detail.siteId}']`)?.remove();
@@ -280,10 +285,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("select-site-sidebar")?.addEventListener("shown.bs.offcanvas", function() {
+  const sidebar = document.getElementById("select-site-sidebar");
 
-    allsites.setup();
-  });
+  if (sidebar) {
+
+    let drawerLoaded = false;
+
+    // The term-grouped list of every accessible site is expensive to build, and the drawer is
+    // hidden until opened, so we fetch its content on demand the first time it is shown.
+    sidebar.addEventListener("show.bs.offcanvas", async () => {
+
+      if (drawerLoaded) return;
+
+      const content = document.getElementById("moresites-content");
+      const siteId = sidebar.dataset.currentSiteId || "";
+
+      try {
+        const response = await fetch(`/portal/sites-drawer/${siteId}`, { credentials: "include" });
+
+        if (!response.ok) {
+          throw new Error(`Network error while loading the sites drawer from ${response.url}`);
+        }
+
+        content.innerHTML = await response.text();
+        drawerLoaded = true;
+        allsites.setup();
+      } catch (error) {
+        // Leave drawerLoaded false so reopening the drawer retries the fetch.
+        console.error(error);
+        document.getElementById("moresites-loading")?.style.setProperty("display", "none");
+        document.getElementById("moresites-error")?.style.setProperty("display", "block");
+      }
+    });
+  }
 
   const organizeTab = document.getElementById('allsites-organize-favourites-tab');
   const refreshNotification = document.getElementById("allsites-refresh-notification");
