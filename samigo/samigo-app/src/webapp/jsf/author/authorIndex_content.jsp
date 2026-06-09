@@ -40,7 +40,7 @@
     <script>includeWebjarLibrary('bootstrap-multiselect');</script>
     <script src="/samigo-app/js/info.js"></script>
     <script>
-        $(document).ready(function() {
+        sakaiDataTables.onReady(function() {
             const pageLengthStorageKey = `samigo-pageLength-${portal.user.id}`;
 
             function getPageLength() {
@@ -52,11 +52,12 @@
                 localStorage.setItem(pageLengthStorageKey, pageLength);
             }
 
-            const notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
+            const tableElement = document.getElementById("authorIndexForm:coreAssessments");
+            const notEmptyTableTd = tableElement?.querySelector("td:not(:empty)");
             const assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
-            if (notEmptyTableTd > 0) {
-                var table = sakaiDataTables.init('authorIndexForm:coreAssessments', {
+            if (notEmptyTableTd) {
+                const table = sakaiDataTables.init(tableElement, {
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
@@ -92,7 +93,7 @@
                         }
                     },
                     "drawCallback": function(oSettings) {
-                        $(".select-checkbox").prop("checked", false);
+                        document.querySelectorAll(".select-checkbox").forEach(checkbox => checkbox.checked = false);
                         updateRemoveButton();
                     },
                     "stateSave": true,
@@ -146,16 +147,15 @@
                     setPageLength(len);
                 });
 
-                $("#authorIndexForm\\:filter-type").change(function() {
-                    spanClassName = $(this).val();
+                document.getElementById("authorIndexForm:filter-type")?.addEventListener("change", event => {
+                    spanClassName = event.target.value;
                     filterBy();
                 });
 
-                $("#authorIndexForm\\:group-select").attr("multiple", true);
-                $("#authorIndexForm\\:group-select").children("option").each(function() {
-                    $(this).prop("selected", true);
-                });
-                filterGroups = $("#authorIndexForm\\:group-select").val();
+                const groupSelect = document.getElementById("authorIndexForm:group-select");
+                groupSelect?.setAttribute("multiple", "multiple");
+                Array.from(groupSelect?.options || []).forEach(option => option.selected = true);
+                filterGroups = groupSelect ? Array.from(groupSelect.selectedOptions).map(option => option.value) : [];
 
                 const divElem = document.createElement('div');
                 let filterPlaceholder = <h:outputText value="`#{authorFrontDoorMessages.multiselect_filterPlaceholder}`" />;
@@ -184,38 +184,42 @@
                     nSelectedText: nSelectedText
                 });
 
-                $("#authorIndexForm\\:group-select").change(function() {
-                    filterGroups = $(this).val();
+                groupSelect?.addEventListener("change", event => {
+                    filterGroups = Array.from(event.target.selectedOptions).map(option => option.value);
                     filterBy();
                 });
             }
 
-            $("#authorIndexForm\\:coreAssessments").on("change", ".select-checkbox", function() {
+            tableElement?.addEventListener("change", event => {
+                if (!event.target.matches(".select-checkbox")) return;
                 updateRemoveButton();
             });
 
             function updateRemoveButton() {
-                var length = $(".select-checkbox:checked").length;
-                if (length > 0) {
-                    $("#authorIndexForm\\:remove-selected").removeClass("disabled");
-                    $("#authorIndexForm\\:remove-selected").attr("tabindex", 0);
-                    $("#authorIndexForm\\:publish-selected").removeClass("disabled");
-                    $("#authorIndexForm\\:publish-selected").attr("tabindex", 0);
+                const removeSelected = document.getElementById("authorIndexForm:remove-selected");
+                const publishSelected = document.getElementById("authorIndexForm:publish-selected");
+                const hasSelectedAssessments = Boolean(document.querySelector(".select-checkbox:checked"));
+
+                if (hasSelectedAssessments) {
+                    removeSelected?.classList.remove("disabled");
+                    removeSelected?.setAttribute("tabindex", 0);
+                    publishSelected?.classList.remove("disabled");
+                    publishSelected?.setAttribute("tabindex", 0);
                 } else {
-                    $("#authorIndexForm\\:remove-selected").addClass("disabled");
-                    $("#authorIndexForm\\:remove-selected").attr("tabindex", -1);
-                    $("#authorIndexForm\\:publish-selected").addClass("disabled");
-                    $("#authorIndexForm\\:publish-selected").attr("tabindex", -1);
+                    removeSelected?.classList.add("disabled");
+                    removeSelected?.setAttribute("tabindex", -1);
+                    publishSelected?.classList.add("disabled");
+                    publishSelected?.setAttribute("tabindex", -1);
                 }
             }
         });
 
         function removeSelectedButtonAction() {
-            if (!$("#authorIndexForm\\:remove-selected").hasClass("disabled")) {
-                var message = <h:outputText value="`#{authorMessages.cert_rem_assmt}`" />;
+            if (!document.getElementById("authorIndexForm:remove-selected").classList.contains("disabled")) {
+                let message = <h:outputText value="`#{authorMessages.cert_rem_assmt}`" />;
                 message += "\n\n";
                 message += <h:outputText value="`#{authorMessages.cert_rem_assmt2}`" />;
-                var elem = document.createElement('div');
+                const elem = document.createElement('div');
                 elem.innerHTML = message;
                 if(!confirm(elem.textContent)) {
                     event.preventDefault();

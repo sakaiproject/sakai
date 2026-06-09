@@ -12,10 +12,11 @@
           <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
             <script>
-                $(document).ready(function() {
-                    var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
-                    if (notEmptyTableTd > 0) {
-                        var table = sakaiDataTables.init('restoreAssessmentsForm:deletedAssessmentsTable', {
+                sakaiDataTables.onReady(function() {
+                    const tableElement = document.getElementById("restoreAssessmentsForm:deletedAssessmentsTable");
+                    const notEmptyTableTd = tableElement?.querySelector("td:not(:empty)");
+                    if (notEmptyTableTd) {
+                        const table = sakaiDataTables.init(tableElement, {
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                             "pageLength": 20,
@@ -44,7 +45,7 @@
                                 }
                             },
                             "drawCallback": function(oSettings) {
-                                $(".select-checkbox").prop("checked", false);
+                                document.querySelectorAll(".select-checkbox").forEach(checkbox => checkbox.checked = false);
                                 updateRestoreButton();
                             },
                             "stateSave": true,
@@ -57,21 +58,25 @@
                         });
                     }
 
-                    $("#restoreAssessmentsForm\\:deletedAssessmentsTable").on("change", ".select-checkbox", function() {
+                    tableElement?.addEventListener("change", event => {
+                        if (!event.target.matches(".select-checkbox")) return;
                         updateRestoreButton();
                     });
 
                     function updateRestoreButton() {
-                        var length = $(".select-checkbox:checked").length;
-                        var restoreButton = $("#restoreAssessmentsForm\\:restore-selected");
-                        if (length > 0) {
-                            restoreButton.removeClass("disabled");
-                            restoreButton.addClass("active");
-                            restoreButton.prop('disabled', false);
+                        const restoreButton = document.getElementById("restoreAssessmentsForm:restore-selected");
+                        const hasSelectedAssessments = Boolean(document.querySelector(".select-checkbox:checked"));
+
+                        if (!restoreButton) return;
+
+                        if (hasSelectedAssessments) {
+                            restoreButton.classList.remove("disabled");
+                            restoreButton.classList.add("active");
+                            restoreButton.disabled = false;
                         } else {
-                            restoreButton.removeClass("active");
-                            restoreButton.addClass("disabled");
-                            restoreButton.prop('disabled', true);
+                            restoreButton.classList.remove("active");
+                            restoreButton.classList.add("disabled");
+                            restoreButton.disabled = true;
                         }
                     }
             });
