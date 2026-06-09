@@ -298,7 +298,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (drawerLoaded) return;
 
       const content = document.getElementById("moresites-content");
+      const loading = document.getElementById("moresites-loading");
+      const errorBanner = document.getElementById("moresites-error");
       const siteId = sidebar.dataset.currentSiteId || "";
+
+      // Show the spinner (and clear any previous error) until the drawer content has fully loaded.
+      // This also resets the UI when the drawer is reopened after a failed attempt.
+      loading?.style.removeProperty("display");
+      errorBanner?.style.setProperty("display", "none");
 
       try {
         const response = await fetch(`/portal/sites-drawer/${siteId}`, { credentials: "include" });
@@ -307,14 +314,15 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(`Network error while loading the sites drawer from ${response.url}`);
         }
 
+        // Replacing the content removes the spinner once the drawer is completely loaded.
         content.innerHTML = await response.text();
         drawerLoaded = true;
         allsites.setup();
       } catch (error) {
         // Leave drawerLoaded false so reopening the drawer retries the fetch.
         console.error(error);
-        document.getElementById("moresites-loading")?.style.setProperty("display", "none");
-        document.getElementById("moresites-error")?.style.setProperty("display", "block");
+        loading?.style.setProperty("display", "none");
+        errorBanner?.style.setProperty("display", "block");
       }
     });
   }
