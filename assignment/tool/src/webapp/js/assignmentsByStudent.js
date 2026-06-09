@@ -7,26 +7,27 @@ window.includeWebjarLibrary('datatables-rowgroup');
 // Make sure assignments namespace exists
 window.assignments = window.assignments ?? {};
 
-// Function to normalize search text
-window.assignments.normalizeSearchText = function(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-let currentCustomSearchFunction = null;
-
 window.assignments.byStudent = {};
 
 // Assignments By Students "global" namespace
 window.assignments.byStudent.datatablesConfig = {
   dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
   stateSave: true,
+  initComplete() {
+    window.sakaiDataTables.attachSearch(this.api(), {
+      input: '#assignmentsByStudent_filter input',
+      tableId: 'assignmentsByStudent',
+      persistState: true,
+    });
+  },
   columnDefs: [
     {
-      sortable: false,
+      orderable: false,
       targets: "no-sort",
+    },
+    {
+      targets: "_all",
+      type: "sakai-data-order",
     },
   ],
   rowGroup: {
@@ -44,8 +45,6 @@ window.assignments.byStudent.datatablesConfig = {
     },
   },
 };
-
-// Private functions
 
 function parseDataCell(html) {
   const template = document.createElement('template');
@@ -87,89 +86,5 @@ function renderGrouping({ studentName, actionLink, expanded, studentUserId, user
   
   return template.content;
 }
-
-window.addEventListener("load", () => {
-  $(document).on('init.dt', '#assignmentsByStudent', function() {
-    const table = $('#assignmentsByStudent').DataTable();
-    const searchInput = document.querySelector('#assignmentsByStudent_filter input');
-
-    if (table && searchInput) {
-      if (searchInput.hasCustomSearch) {
-        return;
-      }
-      searchInput.hasCustomSearch = true;
-
-      // Load custom search term from DataTables state
-      const savedState = table.state.loaded();
-      let cachedSearchTerm = (savedState && savedState.customSearch) ? savedState.customSearch : '';
-
-      // Hook into state save to persist custom search
-      table.on('stateSaveParams.dt', function(e, settings, data) {
-        data.customSearch = cachedSearchTerm;
-      });
-
-      $(searchInput).off();
-      searchInput.removeAttribute('data-dt-search');
-
-      if (!cachedSearchTerm) {
-        searchInput.value = '';
-      }
-
-      if (currentCustomSearchFunction) {
-        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => 
-          fn !== currentCustomSearchFunction && !fn.__isAssignmentsByStudentSearch
-        );
-      }
-
-      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-        if (settings.nTable.id !== 'assignmentsByStudent') {
-          return true;
-        }
-
-        if (!cachedSearchTerm || cachedSearchTerm.trim() === '') {
-          return true;
-        }
-
-        const normalizedSearch = window.assignments.normalizeSearchText(cachedSearchTerm);
-
-        return searchData.some(cellData => {
-          if (cellData && typeof cellData === 'string') {
-            const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-            const normalizedCell = window.assignments.normalizeSearchText(cleanCellData);
-            return normalizedCell.includes(normalizedSearch);
-          }
-          return false;
-        });
-      };
-
-      customSearchFunction.__isAssignmentsByStudentSearch = true;
-
-      currentCustomSearchFunction = customSearchFunction;
-      $.fn.dataTable.ext.search.push(customSearchFunction);
-
-      const handleSearch = function() {
-        cachedSearchTerm = this.value;
-        table.state.save();
-        table.draw();
-      };
-
-      const handleKeyDown = function(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-      };
-
-      searchInput.addEventListener('input', handleSearch);
-      searchInput.addEventListener('keydown', handleKeyDown);
-
-      if (cachedSearchTerm) {
-        table.one('draw.dt', function() {
-          searchInput.value = cachedSearchTerm;
-        });
-        table.draw();
-      }
-    }
-  });
-});
 
 })();

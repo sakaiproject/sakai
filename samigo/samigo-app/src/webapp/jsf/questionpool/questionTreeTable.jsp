@@ -21,9 +21,7 @@
 -->
 
 <script>includeWebjarLibrary('datatables');</script>
-<script>includeWebjarLibrary('datatables-plugins');</script>
 <script src="/samigo-app/js/dataTables.js"></script>
-<script src="/samigo-app/js/sortHelper.js"></script>
 
 <div class="table-responsive">
   <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover table-bordered" id="questionpool-questions" rowIndexVar="row">
@@ -189,73 +187,16 @@
   </t:dataTable>
 
 <script>
-    // Function to normalize search text
-    window.normalizeSearchText = function(text) {
-        return text
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-    };
-
-    $(document).ready(function() {
+    sakaiDataTables.onReady(function() {
         const dataTableConfig = JSON.parse('<h:outputText value="#{questionpool.dataTableConfig.json}" />');
 
         const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
         dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
 
         const dataTable = setupDataTable("editform:questionpool-questions", dataTableConfig);
-
-        $(document).ready(function() {
-            const table = $('#editform\\:questionpool-questions').DataTable();
-            const searchInput = document.querySelector('#editform\\:questionpool-questions_filter input');
-
-            if (table && searchInput) {
-                if (searchInput.hasCustomSearch) {
-                    return;
-                }
-                searchInput.hasCustomSearch = true;
-
-                let lastSearchTerm = '';
-
-                $(searchInput).off();
-                searchInput.removeAttribute('data-dt-search');
-
-                const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                    if (settings.nTable.id !== 'editform:questionpool-questions') {
-                        return true;
-                    }
-
-                    if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                        return true;
-                    }
-
-                    const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                    return searchData.some(cellData => {
-                        if (cellData && typeof cellData === 'string') {
-                            const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                            const normalizedCell = window.normalizeSearchText(cleanCellData);
-                            return normalizedCell.includes(normalizedSearch);
-                        }
-                        return false;
-                    });
-                };
-
-                $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                const handleSearch = function() {
-                    lastSearchTerm = this.value;
-                    table.draw();
-                };
-
-                searchInput.addEventListener('input', handleSearch);
-                searchInput.addEventListener('keyup', handleSearch);
-
-                if (searchInput.value) {
-                    lastSearchTerm = searchInput.value;
-                    table.draw();
-                }
-            }
+        sakaiDataTables.attachSearch(dataTable, {
+            input: "#editform\\:questionpool-questions_filter input",
+            tableId: "editform:questionpool-questions",
         });
 
         dataTable.on( 'draw.dt', function () {

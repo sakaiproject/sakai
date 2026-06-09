@@ -35,12 +35,12 @@
       </table>
       <script>includeWebjarLibrary('datatables');</script>
       <script th:inline="javascript">
-        $(document).ready(function () {
-          $('#modifiedTable').DataTable({
-            "order": [],
-            "columnDefs": [{
-              "targets": 'no-sort',
-              "orderable": false,
+        sakaiDataTables.onReady(function () {
+          sakaiDataTables.init('#modifiedTable', {
+            order: [],
+            columnDefs: [{
+              targets: 'no-sort',
+              orderable: false,
             }]
           });
         });

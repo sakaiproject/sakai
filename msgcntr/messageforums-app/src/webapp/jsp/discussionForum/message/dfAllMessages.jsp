@@ -24,13 +24,11 @@
 <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
-		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
-		<script>includeWebjarLibrary('jquery.tablesorter');</script>
 		<script src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
 		<script>
  		jQuery(document).ready(function(){
  			//sort forum threads
- 			$('#msgForum\\:messagesInHierDataTable').threadsSorter();
+			sakaiForumThreadsSorter.init(document.getElementById('msgForum:messagesInHierDataTable'));
 			//add handles to list for thread operat
 			instrumentThreads('msgForum\\:messagesInHierDataTable');
 
@@ -294,6 +292,7 @@
 			<h:column id="_msg_subject">
 				<f:facet name="header">
 				        <h:outputLink value="#" title="#{msgs.sort_thread}">
+				          <f:verbatim><span data-sakai-forum-sort="thread"></span></f:verbatim>
 				          <h:outputText value="#{msgs.cdfm_thread}" /> 
 					</h:outputLink>
 				</f:facet>
@@ -414,6 +413,7 @@
 			<h:column>
 				<f:facet name="header">
 				   <h:outputLink value="#" title="#{msgs.sort_author}">
+					<f:verbatim><span data-sakai-forum-sort="author"></span></f:verbatim>
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				   </h:outputLink>
 				</f:facet>
@@ -430,6 +430,7 @@
 			<h:column>
 				<f:facet name="header">
 				    <h:outputLink value="#" title="#{msgs.sort_date}">
+					<f:verbatim><span data-sakai-forum-sort="date"></span></f:verbatim>
 					<h:outputText value="#{msgs.cdfm_date}" />
 				    </h:outputLink>
 				</f:facet>

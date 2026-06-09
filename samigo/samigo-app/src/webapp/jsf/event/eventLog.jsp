@@ -8,84 +8,21 @@
       <head><%= request.getAttribute("html.head") %>
         <title><h:outputText value="EventLog"/></title>
         <script>includeWebjarLibrary('datatables');</script>
-        <script>includeWebjarLibrary('datatables-plugins');</script>
         <script>
           var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
         </script>
         <script>
-          // Function to normalize search text
-          window.normalizeSearchText = function(text) {
-              return text
-                  .toLowerCase()
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "");
-          };
-
-          $(document).ready(() => {
+          sakaiDataTables.onReady(() => {
             const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
             const dataTable = setupDataTable("eventLogId:eventLogTable", dataTableConfig);
-
-            $(document).ready(function() {
-                const table = $('#eventLogId\\:eventLogTable').DataTable();
-                const searchInput = document.querySelector('#eventLogId\\:eventLogTable_filter input');
-                
-                if (table && searchInput && !searchInput.hasCustomSearch) {
-                    searchInput.hasCustomSearch = true;
-
-                    let lastSearchTerm = '';
-
-                    $(searchInput).off();
-                    searchInput.removeAttribute('data-dt-search');
-
-                    const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                        if (settings.nTable.id !== 'eventLogId:eventLogTable') {
-                            return true;
-                        }
-
-                        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                            return true;
-                        }
-
-                        const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                        return searchData.some(cellData => {
-                            if (cellData && typeof cellData === 'string') {
-                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                return normalizedCell.includes(normalizedSearch);
-                            }
-                            return false;
-                        });
-                    };
-
-                    $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                    const handleSearch = function() {
-                        lastSearchTerm = this.value;
-                        table.draw();
-                    };
-
-                    const handleKeyDown = function(event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                        }
-                    };
-
-                    searchInput.addEventListener('input', handleSearch);
-                    searchInput.addEventListener('keyup', handleSearch);
-                    searchInput.addEventListener('keydown', handleKeyDown);
-
-                    if (searchInput.value) {
-                        lastSearchTerm = searchInput.value;
-                        table.draw();
-                    }
-                }
+            sakaiDataTables.attachSearch(dataTable, {
+                input: "#eventLogId\\:eventLogTable_filter input",
+                tableId: "eventLogId:eventLogTable",
             });
           });
         </script>
         <%@ include file="/js/delivery.js" %>
         <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
-        <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
         <script type="text/javascript" src="/samigo-app/js/dataTables.js"></script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;">
@@ -237,4 +174,3 @@
 </body>
 </html>
   </f:view>
-

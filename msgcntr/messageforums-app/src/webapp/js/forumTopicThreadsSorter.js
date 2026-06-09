@@ -1,382 +1,191 @@
-/* Client side sorting for sakai forums topic threads page
- * 
- * threadsSorter:	jQuery plugin
- * @example		:	$('table').threadsSorter();
- * Version		:	1.2
- * @requires	:	tablesorter plugin
- * Author		:	Yuanhua Qu, Texas State University
- * Date			:	7/27/2010
- * Mail			:	yq12@txstate.edu
- * Description	:	This threadsSorter jquery is built on top of tablesorter jquery plguin.
- * 					It handles specifically for sakai forums topic threads sorting case. 
- * 					Should also handle sorting normal table correctly. Works tested with IE7 & IE8,
- * 					firefox 3 and safari 3 & 5 
- * 					Each thread in the topic is called -- parent
- * 					Each response directly to the thread (parent) is called -- child(ren)
- * 					Each response to the child and deeper from there is called grandchild(ren).
- * 					All responses are called descendants which should include children and grandchildren.
- * Sorting result expected:
- * 				1.	If sorted by threads, all parents are sorted; Each parent's children are also sorted;
- * 					but grandchildren are not sorted (This satisfies our users' need of no deeper sorting needed. 
- * 					Though potentially all could be sorted with same level of messages, only need little bit more
- * 					work to get it done if there is such requirement.) 
- * 					Thread/message/response still keep their logic relative layout after sorting.
- * 				2.	If sorted by date, all parents are sorted; Each parent's descendants (children and grandchildren) 
- * 					are also sorted. Descendants are not ordered by logic but date. 
- * 				3.	If sorted by author, it is absolutely sorted by author's firstname lastname order so that 
- * 					instructor will get all the messages grouped by author; Threads/messages/responses are
- * 					out of their logic relative layout after sorting. This satisfies the use case of 
- * 					instructor's insterest to see messages of certain students.
- * 					If you would like sorting by author behaves the same way as sorting by date, just comment out
- * 					3 lines:
- * 								if ($(e.currentTarget).text().toLowerCase().indexOf("author") != -1) {
- * 									return false;
- * 								}
- * Note			:	It depends on the row class, id and indent to identify parent-descendant relationship.
- * 					It is highly customized sorting result based on our users' needs.
- * 					version 1.1 fixed issue with IE browsers.
- * 					version 1.2 modified to work with sakai 2 trunk and 2.7 & 2.6 branch better with jQuery 1.1.4;
- * 							replaceWith() is only available after jQuery1.2
- */
+/* Client side sorting for Sakai forums topic threads page. */
+(function() {
+	"use strict";
 
-var emCache = {};
-
-
-/* This helps to convert padding value from px to relative value */	
-$.fn.toEm = function(settings){
-	
-		
-	if(!emCache[this[0]]){
-		settings = jQuery.extend({
-			scope: 'body'
-		}, settings);
-		
-		var that = parseInt(this[0],10);
-		var scopeTest = jQuery('<div style="display: none; font-size: 1em; margin: 0; padding:0; height: auto; line-height: 1; border:0;">&nbsp;</div>').appendTo(settings.scope);
-		var scopeVal = scopeTest.height();
-		scopeTest.remove();
-		
-		emCache[this[0]] = (that / scopeVal).toFixed(0) + 'em';
+	function isParent(row) {
+		return row.classList.contains("hierItemBlock");
 	}
-	return emCache[this[0]];
-};
 
+	function isDescendant(row) {
+		return /_id_[0-9]+__hide_division_/.test(row.id);
+	}
 
-/* add parser for link column 'Thread' , extend parser of tablesorter object */
-/* 'A' fix for IE  */
-$.tablesorter.addParser({
-	id: "link",
-	is: function(s) {
-		return /^<(a|A)/.test(s);
-	},
-	format: function(s) {
-		var title = jQuery.trim($(s).filter("a").filter(function(){return this.text!=""}).text().toLowerCase());
-		if(title ==""){
-			title = jQuery.trim($(s).find('a').text().toLowerCase());
+	function getDepth(row) {
+		const cell = row.cells[1];
+		if (!cell) return 0;
+
+		const padding = getComputedStyle(cell).paddingLeft;
+		if (padding.endsWith("px")) {
+			return Math.round(parseFloat(padding) / parseFloat(getComputedStyle(document.body).fontSize || "16"));
 		}
-		return title;	
-	},
-	type: "text"
-});
 
-jQuery.fn.threadsSorter = function() {
-	return this.each(function(){
-	
-		/* util */
-		function isParent(node){
-			if (node.className.match(new RegExp('hierItemBlock'))!= null)
-				return true;
-			else
-				return false;
-		}
-		
-		function isDescendant(node){
-				if (node.id.match(new RegExp('_id_[0-9]+__hide_division_')) != null)
-				return true;
-			else 
-				return false;  
-		}	
-		
-		function isChild(node){
-			var paddingValue = $(node).find("td").eq(1).css("padding-left");
-			if (paddingValue.indexOf("px")>=0){
-				paddingValue = $(parseInt(paddingValue.replace("px",""))).toEm();
+		return parseInt(padding, 10) || 0;
+	}
+
+	function cellText(row, columnIndex) {
+		return (row.cells[columnIndex]?.textContent || "").trim().toLocaleLowerCase();
+	}
+
+	function cellNumber(row, columnIndex) {
+		const text = cellText(row, columnIndex);
+		const number = parseFloat(text.replace(/[^0-9.-]/g, ""));
+		return Number.isNaN(number) ? 0 : number;
+	}
+
+	function rowKey(row, columnIndex) {
+		const text = cellText(row, columnIndex);
+		const number = cellNumber(row, columnIndex);
+		return text && /^[-+]?[\d,.]+$/.test(text) ? number : text;
+	}
+
+	function compareRows(columnIndex, ascending) {
+		return function(left, right) {
+			const leftValue = rowKey(left, columnIndex);
+			const rightValue = rowKey(right, columnIndex);
+			let result = 0;
+
+			if (typeof leftValue === "number" && typeof rightValue === "number") {
+				result = leftValue - rightValue;
+			} else {
+				result = String(leftValue).localeCompare(String(rightValue), undefined, { numeric: true });
 			}
-			if(paddingValue == "1em"){
-					return true;
+
+			return ascending ? result : -result;
+		};
+	}
+
+	function buildGroups(rows) {
+		const groups = [];
+		let currentGroup = null;
+
+		rows.forEach(row => {
+			if (isParent(row) || !currentGroup) {
+				currentGroup = { parent: row, descendants: [] };
+				groups.push(currentGroup);
+			} else if (isDescendant(row)) {
+				currentGroup.descendants.push(row);
+			} else {
+				currentGroup = { parent: row, descendants: [] };
+				groups.push(currentGroup);
 			}
-			else
-				return false;
-		}
-		
-			
-		/* get original table cache before it's sorted to 
-		   record and mark the parent/desendant relationship in each row.
-		   Need to remember row index for the children of each children node  */
-		function buildOriginalCache(table) {
-			var totalRows, cache;
-			totalRows = (table.tBodies[0] && table.tBodies[0].rows.length) || 0,
-			cache = {row:[], childrenId:[]};
-			var parentId = null;
-			var descendantCount;
-				
-			for (var i=0;i < totalRows; ++i) {
-				var c = table.tBodies[0].rows[i], cols = [];
-				if (isParent(c)) {
-					descendantCount = 0;
-					parentId = "parent" + i;
-					c.parentId = "parent" + i;
-					for(var k=i+1; k<totalRows; k++){
-						var b = table.tBodies[0].rows[k];
-						if(b.id.match(new RegExp('__hide_division_'))){
-							descendantCount = descendantCount + 1;
-						}
-						else 
-							break;
-					}
-					c.descendantCount = descendantCount;
-				}
+		});
 
-				if(isDescendant(c)) {
-					//Remember its parent
-					c.parent = parentId;
-					if(isChild(c)){
-						//checking siblings after it and identifying them and save row indexes if they are its children 
-						var index = c.rowIndex;
-						var grandChildrenRows = [];
-						var grandChildrenCount = 0;
-						var next = index +1;
-						var tempRowIndex = i+1;   //It's the array index in originalCacheTable;
-												  //Row index in the orginalCacheTable is different with table properties rowIndex
-						var row = table.rows[next];
-						var leftpadding;
-						var paddingDigitValue;    //Relative value without 'em', ex: 2 in '2em';
+		return groups;
+	}
 
-						//For css style 'padding-left: 1em', firefox returns pixels like 16px or else ; safari and IE returns 1em;
-						
-						leftpadding = $(row).find("td").eq(1).css("padding-left");
-						if(leftpadding != null){
-							if(leftpadding.indexOf("px") >= 0){
-								var pixels = parseInt(leftpadding.replace("px", ""));
-								paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
-							}
-							else{
-								paddingDigitValue = parseInt(leftpadding.replace("em",""));
-							}
- 						}						
+	function descendantsByThread(descendants, columnIndex, ascending) {
+		const result = [];
+		const childGroups = [];
+		let currentChildGroup = null;
 
-						//  while (next ) is a grandchild, save the array index in the originalCacheTable for the row;
-						while(paddingDigitValue > 1){
-							grandChildrenCount++;
-							grandChildrenRows.push(tempRowIndex);
-							next = next + 1;
-							tempRowIndex = tempRowIndex +1;
-							if(next < table.rows.length){
-								row = table.rows[next];
-								leftpadding = $(row).find("td").eq(1).css("padding-left");
-								if(leftpadding.indexOf("px") >= 0){
-									var pixels = parseInt(leftpadding.replace("px", ""));
-									paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
-								}
-								else{
-									paddingDigitValue = parseInt(leftpadding.replace("em",""));
-								}
-							}else{
-								paddingDigitValue = -1;
-							}
-						} //end of while loop
-						c.grandChildrenCount = grandChildrenCount;
-						c.grandChildrenRows = grandChildrenRows;
-					}// end of isChild
-				}//end of isDescendant
-				cache.row.push($(c));
-			}; //end of first for loop
-			return cache;
-		};//end of buildOriginalCache
-			
-		/* Record order of sorted list for children nodes */
-		function buildSortedCache(table){
-			var totalRows, cache;
-			totalRows = (table.tBodies[0] && table.tBodies[0].rows.length) || 0,
-			cache = {row:[]};
-		
-			for (var i=0;i < totalRows; ++i) {
-				var c = table.tBodies[0].rows[i];
-				var descendantRow = [];
-				if (isParent(c)) {
-					var parentId = c.parentId;
-					var totalDescendant = c.descendantCount;
-					if (totalDescendant != 0) {
-						var descendant = 0;
-						for(var k=0; k<totalRows; k++){
-							var b = table.tBodies[0].rows[k];
-							if(isDescendant(b) && b.parent == parentId){
-								descendantRow.push(k);
-								descendant = descendant + 1;
-							}
-							if(! (descendant < totalDescendant)){
-								break;
-							}
-						}
-						c.descendantRow = descendantRow;
-					}
-				}
-				cache.row.push($(c));
-			};
-			return cache;
-		};  //end of buildSortedCache
-		
-		/* 
-		 * Build final sorted table for forum topic threads maintaining 
-		 * parent - children - grandchildren relationship as needed
-		**/
-		function buildForumSortedTable(table,cache,sortedByThread,original){
+		descendants.forEach(row => {
+			if (getDepth(row) <= 1 || !currentChildGroup) {
+				currentChildGroup = { child: row, children: [] };
+				childGroups.push(currentChildGroup);
+			} else {
+				currentChildGroup.children.push(row);
+			}
+		});
 
-			//remove all the children, then insert all the sorted children for each parent row
-			$(table.tBodies[0].rows).not($("tr.hierItemBlock")).remove();
+		childGroups.sort((left, right) => compareRows(columnIndex, ascending)(left.child, right.child));
+		childGroups.forEach(group => result.push(group.child, ...group.children));
 
-			//Treating each parent row, adding children and grandchildren
-			$(table.tBodies[0].rows).each(function(i){
-				if(this.descendantCount == 0){
-					return true;
-				}
-				else{
-				
-					if (!sortedByThread){
-						for (var m = this.descendantCount -1; m > 0 || m == 0;  m--){
-							//get child row number in the sorted cache
-							var childRow = this.descendantRow[m];
-							//append child
-							$(cache.row[childRow]).insertAfter(this);
-						}
-					}
-					else{
-						//Get children sorted, keep logic of grandchildren and deeper descendents.
-						for (var m = this.descendantCount -1; m > 0 || m == 0;  m--){
-							//get children row numbers in the sorted cache
-							var childRow = this.descendantRow[m];
-							var leftpadding;
-							var paddingValue;
-							//make it working cross browsers and versions hopefully, fixed IE7 & 8
-							leftpadding = $(cache.row[childRow][0].children[1]).css("padding-left");
-							if(leftpadding.indexOf("px")>=0){
-								var pixels = leftpadding.replace("px","");
-								paddingValue = $(parseInt(pixels)).toEm();
-							}
-							else{
-								   paddingValue = leftpadding;	
-							}
-							if(paddingValue == "1em"){
-								// Insert child
-								var insertedRow = $(cache.row[childRow]).insertAfter(this);
-								// Find its grandchildren and insert them in the original order 
-								var count = cache.row[childRow][0].grandChildrenCount;
-								if(count != 0 ){
-									var rowIndexArray = cache.row[childRow][0].grandChildrenRows;
-									for (var n = 0; n < count; n++){
-										insertedRow = $(original.row[rowIndexArray[n]]).insertAfter(insertedRow);
-									}
-								}
-								
-							}
-						}//end of for	
-					}
+		return result;
+	}
+
+	function sortTable(table, columnIndex, ascending) {
+		const tbody = table.tBodies[0];
+		if (!tbody) return;
+
+		const rows = Array.from(tbody.rows);
+		const sortMode = table.tHead.rows[0].cells[columnIndex]?.querySelector("[data-sakai-forum-sort]")?.dataset.sakaiForumSort;
+		const sortFlat = sortMode === "author";
+		const sortByThread = sortMode === "thread";
+		const sortedRows = [];
+
+		if (sortFlat) {
+			sortedRows.push(...rows.sort(compareRows(columnIndex, ascending)));
+		} else {
+			const groups = buildGroups(rows).sort((left, right) =>
+				compareRows(columnIndex, ascending)(left.parent, right.parent));
+
+			groups.forEach(group => {
+				sortedRows.push(group.parent);
+				if (sortByThread) {
+					sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending));
+				} else {
+					sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending)));
 				}
 			});
-		}// end of buildForumSortedTable
+		}
 
-		/* build original table cache to mark parent-child relationship */
-		cacheOriginalTable = buildOriginalCache(this);
-		
-		/* Calling jquery library tablesorter plugin function to do general sorting */
-		/* disable sorting on first column */
-		/* Classnames for asc and desc in jquery.tablesorter.js seem defined in a opposite way.*/
-		/* Pass in the classnames to make sorting correct. */
-		
-		$(this).tablesorter({
-			headers:{
-				0:{ sorter: false}
-			},
-			cssAsc:"headerSortDown",
-			cssDesc:"headerSortUp"
+		sortedRows.forEach(row => tbody.appendChild(row));
+	}
+
+	function setSortClasses(header, ascending) {
+		header.parentElement.querySelectorAll("th").forEach(th => {
+			th.classList.remove("headerSortDown", "headerSortUp");
+			th.querySelector(".sakai-forum-sort-icon")?.remove();
+		});
+		header.classList.add(ascending ? "headerSortUp" : "headerSortDown");
+
+		const icon = document.createElement("span");
+		icon.className = `bi ${ascending ? "bi-caret-up-fill" : "bi-caret-down-fill"} sakai-forum-sort-icon`;
+		icon.setAttribute("aria-hidden", "true");
+		(header.querySelector("a") || header).appendChild(icon);
+	}
+
+	function toggleThreadVisibility(table, show, imageObj) {
+		Array.from(table.tBodies[0].rows).forEach(row => {
+			if (!isParent(row)) row.style.display = show ? "" : "none";
 		});
 
-		//Showing headers clickable and sortable like sakai style
-		//decorateHeaders();
-		
-		$this = $(this);
-
-		/* 
-		 * add another click handler doing customized sorting for forum topic threads table 
-		 * except first column
-		 */
-		
-		$(this).find("th:gt(0)").click(function(e){
-		
-			//IE supports srcElement, not currentTarget
-			if(!e.currentTarget)
-					e.currentTarget = e.srcElement;	
-
-			//If sorted by Author, sort all authors regardless of parent/descendent relationship.
-
-			//Comment out following 3 lines if you would like to keep parent/descendent relationship
-			//and keep Author sorted within each level.
-
-			if ($(e.currentTarget).text().toLowerCase().indexOf("author") != -1) {
-				return false;
-			}
-			
-			//Sort and keep parent/descendent relationship after sorting
-			//Set timer to be 10 ms to be executed later than executing functions in tablesorter; this
-			//fixes latency issue with IE browser.bugid:3565
-			setTimeout(function() {			
-				//build cache for normally sorted table
-				cacheSortedTable = buildSortedCache($this[0]);
-				//build forum special sorted table
-				sortedByThread = ($(e.currentTarget).get(0).cellIndex) ==1;
-				buildForumSortedTable($this[0],cacheSortedTable,sortedByThread,cacheOriginalTable);
-			},3);
-			return false;
-		});	
-		
-		
-		/* 
-		 * The sakai expand/collapse will reload the tables which wipe out the sorted rows when expending/collapsing.
-		 * We added handler for expand/collapse when clicking on first column header  -- the expand/collapse icon 
-		 * to overwrite the out of box behavior, so that the table still remains sorted and sorting direction indicator
-		 * still shows up while it's expanding/collapsing.
-		 */
-		var imageCollapseExpandUrl = "../../images/collapse-expand.gif";
-		var imageExpandCollapseUrl = "../../images/expand-collapse.gif";		
-		var imageCollapseUrl = "../../images/collapse.gif";
-		var imageExpandUrl = "../../images/expand.gif";
-	
-		var expandCollapseCol = $this[0].tHead.rows[0].cells[0];
-		
-		//replaceWith added in jQuery 1.2, not in 1.1.4
-		//$(expandCollapseCol).find("a").replaceWith("<img src=" + imageCollapseUrl + " alt='Expand All/Collapse All' title='Expand All/Collapse All'/>");
-		$(expandCollapseCol).find("a").remove();
-		$(expandCollapseCol).css("cursor", "pointer");
-		var flip = 1;   //indicates click times for expand all/collapse all
-
-		$(this).find("th:eq(0)").click(function(e){
-			flip++;
-			var imageObj = $(e.target).is("img")?$(e.target):$(e.target).find("img");
-			
-			var toggleThreadSorter = function (el, show) {
-				$(el.tBodies[0].rows).not(".hierItemBlock").toggle(show); 
-				imageObj.attr({'src': show ? imageExpandCollapseUrl : imageCollapseExpandUrl});
-				$("tr.hierItemBlock td:first-child img").attr({'src': show ? imageCollapseUrl : imageExpandUrl})
-			};
-			toggleThreadSorter($this[0], flip %2 === 0);
-
-			if($('iframe.portletMainIframe',parent.document).length > 0){
-				mySetMainFrameHeight($('iframe.portletMainIframe',parent.document)[0].id);
-			}
-			return false;
-		
+		if (imageObj) {
+			imageObj.src = show ? "../../images/expand-collapse.gif" : "../../images/collapse-expand.gif";
+		}
+		table.querySelectorAll("tr.hierItemBlock td:first-child img").forEach(img => {
+			img.src = show ? "../../images/collapse.gif" : "../../images/expand.gif";
 		});
-		
- });
+	}
 
-}; //end of jquery threadsSorter plugin 
+	function init(table) {
+		if (!table?.tHead?.rows.length) return;
+
+		const headers = Array.from(table.tHead.rows[0].cells);
+		let expanded = true;
+
+		headers.forEach((header, columnIndex) => {
+			header.style.cursor = "pointer";
+
+			if (columnIndex === 0) {
+				header.querySelector("a")?.remove();
+				header.addEventListener("click", event => {
+					expanded = !expanded;
+					const imageObj = event.target instanceof HTMLImageElement
+						? event.target
+						: event.currentTarget.querySelector("img");
+					toggleThreadVisibility(table, expanded, imageObj);
+
+					if (parent?.document?.querySelector("iframe.portletMainIframe") && window.mySetMainFrameHeight) {
+						mySetMainFrameHeight(parent.document.querySelector("iframe.portletMainIframe").id);
+					}
+				});
+				return;
+			}
+
+			if (!header.querySelector("[data-sakai-forum-sort]")) {
+				header.style.cursor = "";
+				return;
+			}
+
+			header.addEventListener("click", () => {
+				const ascending = header.dataset.sortDirection !== "asc";
+				header.dataset.sortDirection = ascending ? "asc" : "desc";
+				setSortClasses(header, ascending);
+				sortTable(table, columnIndex, ascending);
+			});
+		});
+	}
+
+	window.sakaiForumThreadsSorter = { init };
+}());

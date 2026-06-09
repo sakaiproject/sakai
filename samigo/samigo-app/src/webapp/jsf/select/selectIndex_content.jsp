@@ -37,329 +37,81 @@
 
     <!--JAVASCRIPT -->
     <script>includeWebjarLibrary('datatables');</script>
-    <script src="/samigo-app/js/naturalSort.js"></script>
     <script>
-        // Function to normalize search text
-        window.normalizeSearchText = function(text) {
-            return text
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "");
-        };
-
-        $(document).ready(function() {
-            jQuery.extend(jQuery.fn.dataTableExt.oSort, {
-                "span-asc": function (a, b) {
-                    return naturalSort($(a).find(".spanValue").text().toLowerCase(), $(b).find(".spanValue").text().toLowerCase(), false);
+        sakaiDataTables.onReady(function() {
+            const viewAllText = <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />;
+            const language = {
+                search: <h:outputText value="'#{dataTablesMessages.search}'" />,
+                lengthMenu: <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />,
+                zeroRecords: <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />,
+                info: <h:outputText value="'#{dataTablesMessages.info}'" />,
+                infoEmpty: <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                infoFiltered: <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />,
+                emptyTable: <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                paginate: {
+                    next: <h:outputText value="'#{dataTablesMessages.paginate_next}'" />,
+                    previous: <h:outputText value="'#{dataTablesMessages.paginate_previous}'" />,
                 },
-                "span-desc": function (a, b) {
-                    return naturalSort($(a).find(".spanValue").text().toLowerCase(), $(b).find(".spanValue").text().toLowerCase(), false) * -1;
-                },
-                "numeric-asc": function (a, b) {
-                    var numA = parseInt($(a).text()) || 0;
-                    var numB = parseInt($(b).text()) || 0;
-                    return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
-                },
-                "numeric-desc": function (a, b) {
-                    var numA = parseInt($(a).text()) || 0;
-                    var numB = parseInt($(b).text()) || 0;
-                    return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
+                aria: {
+                    sortAscending: <h:outputText value="'#{dataTablesMessages.aria_sortAscending}'" />,
+                    sortDescending: <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />,
                 }
+            };
+            const lengthMenu = [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]];
+            const commonOptions = {
+                paging: true,
+                lengthMenu,
+                pageLength: 20,
+                language,
+                stateSave: true,
+                stateDuration: -1
+            };
+
+            const selectTable = sakaiDataTables.initIfNotEmpty('selectIndexForm:selectTable', {
+                ...commonOptions,
+                order: [[2, "asc"]],
+                columns: [
+                    { orderable: true, searchable: true, type: "span" },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: true, type: "num" },
+                ],
             });
 
-            var viewAllText = <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />;
-            var searchText = <h:outputText value="'#{dataTablesMessages.search}'" />;
-            var lengthMenuText = <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />;
-            var zeroRecordsText = <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />;
-            var infoText = <h:outputText value="'#{dataTablesMessages.info}'" />;
-            var infoEmptyText = <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />;
-            var infoFilteredText = <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />;
-            var emptyTableText = <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />;
-            var nextText = <h:outputText value="'#{dataTablesMessages.paginate_next}'" />;
-            var previousText = <h:outputText value="'#{dataTablesMessages.paginate_previous}'" />;
-            var sortAscendingText = <h:outputText value="'#{dataTablesMessages.aria_sortAscending}'" />;
-            var sortDescendingText = <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />;
-
-            var notEmptySelectTableTd = $("#selectIndexForm\\:selectTable td:not(:empty)").length;
-            if (notEmptySelectTableTd > 0) {
-              $.fn.dataTable.ext.classes.sLengthSelect = 'input-form-control';
-              var table = $("#selectIndexForm\\:selectTable").DataTable({
-                    "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
-                    "pageLength": 20,
-                    "aaSorting": [[2, "asc"]],
-                    "columns": [
-                        {"bSortable": true, "bSearchable": true, "type": "span"},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
-                    ],
-                    "language": {
-                        "search": searchText,
-                        "lengthMenu": lengthMenuText,
-                        "zeroRecords": zeroRecordsText,
-                        "info": infoText,
-                        "infoEmpty": infoEmptyText,
-                        "infoFiltered": infoFilteredText,
-                        "emptyTable": emptyTableText,
-                        "paginate": {
-                            "next": nextText,
-                            "previous": previousText,
-                        },
-                        "aria": {
-                            "sortAscending": sortAscendingText,
-                            "sortDescending": sortDescendingText,
-                        }
-                    },
-                    "stateSave": true,
-                    "stateDuration": -1
-              });
-
-              $(document).ready(function() {
-                  const table = $('#selectIndexForm\\:selectTable').DataTable();
-                  const searchInput = document.querySelector('#selectIndexForm\\:selectTable_filter input');
-
-                  if (table && searchInput && !searchInput.hasCustomSearch) {
-                      searchInput.hasCustomSearch = true;
-
-                      let lastSearchTerm = '';
-
-                      const savedState = table.state.loaded();
-                      if (savedState && savedState.search && savedState.search.search) {
-                        lastSearchTerm = savedState.search.search;
-                        searchInput.value = lastSearchTerm;
-                      }
-
-                      $(searchInput).off();
-                      searchInput.removeAttribute('data-dt-search');
-
-                      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                          if (settings.nTable.id !== 'selectIndexForm:selectTable') {
-                              return true;
-                          }
-
-                          if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                              return true;
-                          }
-
-                          const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                          return searchData.some(cellData => {
-                              if (cellData && typeof cellData === 'string') {
-                                  const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                  const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                  return normalizedCell.includes(normalizedSearch);
-                              }
-                              return false;
-                          });
-                      };
-
-                      $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                      const handleSearch = function() {
-                          lastSearchTerm = this.value;
-                          table.search(lastSearchTerm);
-                          table.draw();
-                      };
-
-                      searchInput.addEventListener('input', handleSearch);
-                      searchInput.addEventListener('keyup', handleSearch);
-
-                      if (searchInput.value) {
-                          lastSearchTerm = searchInput.value;
-                          table.draw();
-                      }
-                  }
-              });
+            if (selectTable) {
+                sakaiDataTables.attachSearch(selectTable, {
+                    input: "#selectIndexForm\\:selectTable_filter input",
+                    tableId: "selectIndexForm:selectTable",
+                });
             }
 
-            var notEmptyReviewTableTd = $("#selectIndexForm\\:reviewTable td:not(:empty)").length;
-            if (notEmptyReviewTableTd > 0) {
-              if ($("#selectIndexForm\\:reviewTable .displayAllAssessments").length > 0) {
-                var table = $("#selectIndexForm\\:reviewTable").DataTable({
-                    "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
-                    "pageLength": 20,
-                    "aaSorting": [[6, "desc"]],
-                    "paging": false,
-                    "ordering": false,
-                    "info": false,
-                    "columns": [
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true}
-                    ],
-                    "language": {
-                        "search": searchText,
-                        "lengthMenu": lengthMenuText,
-                        "zeroRecords": zeroRecordsText,
-                        "info": infoText,
-                        "infoEmpty": infoEmptyText,
-                        "infoFiltered": infoFilteredText,
-                        "emptyTable": emptyTableText,
-                        "paginate": {
-                            "next": nextText,
-                            "previous": previousText,
-                        },
-                        "aria": {
-                            "sortAscending": sortAscendingText,
-                            "sortDescending": sortDescendingText,
-                        }
-                    },
-                    "stateSave": true,
-                    "stateDuration": -1
+            const displayAllAssessments = document.querySelector("#selectIndexForm\\:reviewTable .displayAllAssessments");
+            const reviewTable = sakaiDataTables.initIfNotEmpty('selectIndexForm:reviewTable', {
+                ...commonOptions,
+                order: displayAllAssessments ? [[6, "desc"]] : [],
+                paging: false,
+                ordering: false,
+                info: false,
+                columns: displayAllAssessments ? [
+                    { orderable: true, searchable: true },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: true },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: true }
+                ] : [
+                    { orderable: true, searchable: true },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: false },
+                    { orderable: true, searchable: true }
+                ],
+            });
+
+            if (reviewTable) {
+                sakaiDataTables.attachSearch(reviewTable, {
+                    input: "#selectIndexForm\\:reviewTable_filter input",
+                    tableId: "selectIndexForm:reviewTable",
                 });
-
-                const searchInput = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
-                if (table && searchInput) {
-                    if (searchInput.hasCustomSearch) {
-                        return;
-                    }
-                    searchInput.hasCustomSearch = true;
-
-                    let lastSearchTerm = '';
-
-                    const savedState = table.state.loaded();
-                    if (savedState && savedState.search && savedState.search.search) {
-                        lastSearchTerm = savedState.search.search;
-                        searchInput.value = lastSearchTerm;
-                    }
-
-                    $(searchInput).off();
-                    searchInput.removeAttribute('data-dt-search');
-
-                    const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                        if (settings.nTable.id !== 'selectIndexForm:reviewTable') {
-                            return true;
-                        }
-
-                        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                            return true;
-                        }
-
-                        const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                        return searchData.some(cellData => {
-                            if (cellData && typeof cellData === 'string') {
-                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                return normalizedCell.includes(normalizedSearch);
-                            }
-                            return false;
-                        });
-                    };
-
-                    $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                    const handleSearch = function() {
-                        lastSearchTerm = this.value;
-                        table.search(lastSearchTerm);
-                        table.draw();
-                    };
-
-                    searchInput.addEventListener('input', handleSearch);
-                    searchInput.addEventListener('keyup', handleSearch);
-
-                    if (searchInput.value) {
-                        lastSearchTerm = searchInput.value;
-                        table.draw();
-                    }
-                }
-
-              } else {
-                var table = $("#selectIndexForm\\:reviewTable").DataTable({
-                    "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
-                    "pageLength": 20,
-                    "paging": false,
-                    "ordering": false,
-                    "info": false,
-                    "columns": [
-                        {"bSortable": true, "bSearchable": true},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true},
-                    ],
-                    "language": {
-                        "search": searchText,
-                        "lengthMenu": lengthMenuText,
-                        "zeroRecords": zeroRecordsText,
-                        "info": infoText,
-                        "infoEmpty": infoEmptyText,
-                        "infoFiltered": infoFilteredText,
-                        "emptyTable": emptyTableText,
-                        "paginate": {
-                            "next": nextText,
-                            "previous": previousText,
-                        },
-                        "aria": {
-                            "sortAscending": sortAscendingText,
-                            "sortDescending": sortDescendingText,
-                        }
-                    },
-                    "stateSave": true,
-                    "stateDuration": -1
-                });
-
-                const searchInput2 = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
-                if (table && searchInput2) {
-                    if (searchInput2.hasCustomSearch) {
-                        return;
-                    }
-                    searchInput2.hasCustomSearch = true;
-
-                    let lastSearchTerm2 = '';
-
-                    const savedState = table.state.loaded();
-                    if (savedState && savedState.search && savedState.search.search) {
-                        lastSearchTerm2 = savedState.search.search;
-                        searchInput2.value = lastSearchTerm2;
-                    }
-
-                    $(searchInput2).off();
-                    searchInput2.removeAttribute('data-dt-search');
-
-                    const customSearchFunction2 = function(settings, searchData, index, rowData, counter) {
-                        if (settings.nTable.id !== 'selectIndexForm:reviewTable') {
-                            return true;
-                        }
-
-                        if (!lastSearchTerm2 || lastSearchTerm2.trim() === '') {
-                            return true;
-                        }
-
-                        const normalizedSearch2 = window.normalizeSearchText(lastSearchTerm2);
-
-                        return searchData.some(cellData => {
-                            if (cellData && typeof cellData === 'string') {
-                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                return normalizedCell.includes(normalizedSearch2);
-                            }
-                            return false;
-                        });
-                    };
-
-                    $.fn.dataTable.ext.search.push(customSearchFunction2);
-
-                    const handleSearch2 = function() {
-                        lastSearchTerm2 = this.value;
-                        table.search(lastSearchTerm2);
-                        table.draw();
-                    };
-
-                    searchInput2.addEventListener('input', handleSearch2);
-                    searchInput2.addEventListener('keyup', handleSearch2);
-
-                    if (searchInput2.value) {
-                        lastSearchTerm2 = searchInput2.value;
-                        table.draw();
-                    }
-                }
-              }
             }
         });
     </script>

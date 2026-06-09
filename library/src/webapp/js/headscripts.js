@@ -682,6 +682,7 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library, options = {}) {
+	let psp = (window.portal && window.portal.pageScriptPath) ? window.portal.pageScriptPath : '/library/js/';
 	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
@@ -692,6 +693,10 @@ function includeWebjarLibrary(library, options = {}) {
 	const includeCss = options.includeCss || false;
 
 	switch (library) {
+		case 'datatables':
+		case 'datatables-rowgroup':
+			includeWebjarLoader('datatables', library, psp, webjars, ver);
+			return;
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
@@ -701,14 +706,6 @@ function includeWebjarLibrary(library, options = {}) {
 			libraryVersion = "1.1.1";
 			jsReferences.push('/js/bootstrap-multiselect.js');
 			cssReferences.push('/css/bootstrap-multiselect.css');
-			break;
-		case 'jquery.tablesorter':
-			libraryVersion = "2.27.7";
-			jsReferences.push('/dist/js/jquery.tablesorter.combined.min.js');
-			jsReferences.push('/dist/js/extras/jquery.tablesorter.pager.min.js');
-			jsReferences.push('/dist/js/extras/jquery.metadata.min.js');
-			cssReferences.push('/dist/css/theme.jui.min.css');
-			cssReferences.push('/dist/css/jquery.tablesorter.pager.min.css');
 			break;
 		case 'featherlight':
 			libraryVersion = "1.7.14";
@@ -728,22 +725,6 @@ function includeWebjarLibrary(library, options = {}) {
 			libraryVersion = "4.0.13";
 			jsReferences.push('/js/select2.full.min.js');
 			cssReferences.push('/css/select2.min.css');
-			break;
-		case 'datatables':
-			libraryVersion = "1.10.25";
-			jsReferences.push('/js/jquery.dataTables.min.js');
-			jsReferences.push('/js/dataTables.bootstrap5.min.js');
-			cssReferences.push('/css/dataTables.bootstrap5.min.css');
-			break;
-		case 'datatables-plugins':
-			libraryVersion = "1.13.1";
-			// any-number plugin
-			jsReferences.push('/sorting/any-number.js');
-			break;
-		case 'datatables-rowgroup':
-			libraryVersion = "1.1.3";
-			// This webjar has a different convention without version and library name.
-			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
 		case 'ckeditor4':
 			libraryVersion = "4.22.1";
@@ -826,6 +807,12 @@ function includeWebjarLibrary(library, options = {}) {
 	jsReferences.forEach( (jsReference) => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
 	cssReferences.forEach( (cssReference) => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
 
+}
+
+function includeWebjarLoader(loader, library, psp, webjars, ver) {
+	const args = JSON.stringify({ library, psp, webjars, ver });
+	document.write(`<script src="${psp}webjar-loaders/${loader}.js${ver}"></script>`);
+	document.write(`<script>window.sakaiWebjarLoaders.${loader}(${args});</script>`);
 }
 
 // Ensures consistent theming across all Sakai pages by dynamically loading a theme

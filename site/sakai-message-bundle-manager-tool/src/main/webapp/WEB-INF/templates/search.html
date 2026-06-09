@@ -48,12 +48,12 @@
           </table>
           <script>includeWebjarLibrary('datatables');</script>
           <script th:inline="javascript">
-            $(document).ready(function () {
-              $('#searchTable').DataTable({
-                "order": [],
-                "columnDefs": [{
-                  "targets": 'no-sort',
-                  "orderable": false,
+            sakaiDataTables.onReady(function () {
+              sakaiDataTables.init('#searchTable', {
+                order: [],
+                columnDefs: [{
+                  targets: 'no-sort',
+                  orderable: false,
                 }]
               });
             });
