@@ -26,7 +26,7 @@ response.setContentType("text/html; charset=UTF-8");
 	                        var="audit"
 	                        sortColumn="#{eventLog.sortColumn}"
 	                        sortAscending="#{eventLog.sortAscending}"
-	                        first="#{eventLog.firstItem}"
+	                        first="0"
 	                        rows="#{eventLog.rowsNumber}"
 	                        styleClass="table table table-hover table-striped">
 	               <h:column>
