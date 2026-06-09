@@ -476,7 +476,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					.map(this::getSite)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
-			List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, userId,true, true, parentToChildSites);
+			List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, userId, true, false, parentToChildSites);
             contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			// Get most recent sites
