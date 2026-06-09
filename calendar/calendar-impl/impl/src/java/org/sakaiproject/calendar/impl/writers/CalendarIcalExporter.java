@@ -21,7 +21,6 @@
 package org.sakaiproject.calendar.impl.writers;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Comment;
@@ -52,6 +52,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -185,12 +186,16 @@ public class CalendarIcalExporter
 
 		try
 		{
-			String organizer = userDirectoryService.getUser(event.getCreator()).getDisplayName();
-			organizer = organizer.replaceAll(" ", "%20");
-			icalEvent.getProperties().add(new Organizer(new URI("CN=" + organizer)));
+			User creator = userDirectoryService.getUser(event.getCreator());
+			String email = creator.getEmail();
+			if (StringUtils.isNotBlank(email))
+			{
+				Organizer organizer = new Organizer(URI.create("mailto:" + email));
+				organizer.getParameters().add(new Cn(creator.getDisplayName()));
+				icalEvent.getProperties().add(organizer);
+			}
 		}
 		catch (UserNotDefinedException e) { log.warn("Creator not found for calendar event [{}]", event.getId()); }
-		catch (URISyntaxException e) { log.warn("Could not build organizer URI for calendar event [{}]", event.getId()); }
 
 		StringBuffer comment = new StringBuffer(event.getType());
 		comment.append(" (");
