@@ -65,11 +65,13 @@ public class UserAuditEventLog {
 	@Getter @Setter private String fromDateFilter;
 	@Getter @Setter private String toDateFilter;
 	private Optional<EventLogFilter> activeFilter = Optional.of(EventLogFilter.empty());
-	@Setter private transient UserAuditService userAuditService;
+	private transient UserAuditService userAuditService;
 	@Setter private transient UserDirectoryService userDirectoryService;
 	@Setter private transient UserTimeService userTimeService;
 	@Setter private transient ToolManager toolManager;
 	@Setter private transient SessionManager sessionManager;
+	private transient Map<String, UserAuditRegistration> sourceRegistrationsBySource = new HashMap<String, UserAuditRegistration>();
+	private transient int sourceRegistrationCount = -1;
 
 	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
 	private final String STATE_SITE_ID = "site.instance.id";
@@ -117,18 +119,46 @@ public class UserAuditEventLog {
 
 		public String getSourceText() {
 			sourceText = LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "UserAuditMessages", "event_log_not_available");
-			for (UserAuditRegistration uar : userAuditService.getRegisteredItems()) {
-				if (uar.getDatabaseSourceKey().equals(source)) {
-					sourceText = uar.getSourceText(actionUserEid);
-					break;
-				}
+			refreshSourceRegistrationCacheIfNeeded();
+			UserAuditRegistration uar = sourceRegistrationsBySource.get(source);
+			if (uar != null) {
+				sourceText = uar.getSourceText(actionUserEid);
 			}
 			return sourceText;
 		}
 	}
 
+	public void setUserAuditService(UserAuditService userAuditService) {
+		this.userAuditService = userAuditService;
+		refreshSourceRegistrationCache();
+	}
+
 	public List<EventLog> getEventLog() {
 		return eventLog;
+	}
+
+	private void refreshSourceRegistrationCacheIfNeeded() {
+		if (userAuditService == null) {
+			return;
+		}
+		List<UserAuditRegistration> registeredItems = userAuditService.getRegisteredItems();
+		if (sourceRegistrationsBySource == null || registeredItems.size() != sourceRegistrationCount) {
+			refreshSourceRegistrationCache(registeredItems);
+		}
+	}
+
+	private void refreshSourceRegistrationCache() {
+		if (userAuditService != null) {
+			refreshSourceRegistrationCache(userAuditService.getRegisteredItems());
+		}
+	}
+
+	private void refreshSourceRegistrationCache(List<UserAuditRegistration> registeredItems) {
+		sourceRegistrationsBySource = new HashMap<String, UserAuditRegistration>();
+		for (UserAuditRegistration uar : registeredItems) {
+			sourceRegistrationsBySource.put(uar.getDatabaseSourceKey(), uar);
+		}
+		sourceRegistrationCount = registeredItems.size();
 	}
 
 	private void loadEvents() {

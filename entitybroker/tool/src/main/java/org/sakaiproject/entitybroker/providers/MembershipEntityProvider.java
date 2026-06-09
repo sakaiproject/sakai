@@ -895,15 +895,16 @@ RESTful, ActionsExecutable {
                     sg.site.addMember(userIds[i], roleId, active, false);
                     saveSiteMembership(sg.site);
                 }
-                User user = null;
                 // Add change to user_audits_log table.
+                String auditUserId = userIds[i];
                 try {
-                    user = userDirectoryService.getUser(userIds[i]);
+                    User user = userDirectoryService.getUser(userIds[i]);
+                    auditUserId = user.getId();
                 }
                 catch (UserNotDefinedException e) {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
-                userAuditList.add(UserAuditEntry.of(sg.site.getId(), user.getId(), roleId,
+                userAuditList.add(UserAuditEntry.of(sg.site.getId(), auditUserId, roleId,
                         UserAuditService.USER_AUDIT_ACTION_ADD, userAuditRegistration.getDatabaseSourceKey(),
                         userDirectoryService.getCurrentUser().getId()));
             } else {
@@ -968,7 +969,8 @@ RESTful, ActionsExecutable {
                 Site site = sg.site;
 
                 // Add change to user_audits_log table.
-                String role = site.getUserRole(userIds[i]).getId();
+                Role userRole = site.getUserRole(userIds[i]);
+                String role = userRole != null ? userRole.getId() : "unknown";
                 userAuditList.add(UserAuditEntry.of(site.getId(), userIds[i], role,
                         UserAuditService.USER_AUDIT_ACTION_REMOVE, userAuditRegistration.getDatabaseSourceKey(),
                         userDirectoryService.getCurrentUser().getId()));
