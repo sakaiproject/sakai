@@ -123,13 +123,15 @@
 
     let attachment = null;
     const destroyHandler = function(e, settings) {
-      if (settings.table.id === tableId) {
+      const currentId = settings.nTable?.id || settings.sTableId;
+      if (currentId === tableId) {
         attachment?.destroy();
       }
     };
 
     const customSearchFunction = function(settings, searchData, rowIndex) {
-      if (settings.table.id !== tableId) {
+      const currentId = settings.nTable?.id || settings.sTableId;
+      if (currentId !== tableId) {
         return true;
       }
 

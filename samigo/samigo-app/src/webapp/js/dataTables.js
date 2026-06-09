@@ -25,10 +25,14 @@ function setupDataTable(tableId, dataTableConfig) {
     if (!table) return;
 
     const pageLength = getPageLength();
+    const callerHandler = dataTableConfig?.on?.["length.dt"];
 
     const eventHandlers = {
         ...(dataTableConfig?.on || {}),
-        "length.dt": onPageLengthChange,
+        "length.dt": function() {
+            callerHandler?.apply(this, arguments);
+            onPageLengthChange.apply(this, arguments);
+        },
     };
 
     const dataTable = sakaiDataTables.init(table, {

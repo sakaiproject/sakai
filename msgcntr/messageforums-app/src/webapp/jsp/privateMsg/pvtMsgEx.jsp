@@ -29,27 +29,23 @@
 						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
 							initTagSelector("prefs_pvt_form");
 						</f:verbatim>
-				});
-		</script>
 
-		<script>
-			sakaiDataTables.onReady(function() {
-				// Initialize DataTables for search results
-				sakaiDataTables.init('prefs_pvt_form:pvtmsgs', {
-					"paging": false,
-					"info": false,
-					"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
-				});
-				
-				// Initialize DataTables for threaded view if it exists
-				if (document.getElementById("prefs_pvt_form:threaded_pvtmsgs")) {
-					sakaiDataTables.init('prefs_pvt_form:threaded_pvtmsgs', {
-						"paging": false,
-						"info": false,
-						"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+						// Initialize DataTables for search results
+						sakaiDataTables.init('prefs_pvt_form:pvtmsgs', {
+							"paging": false,
+							"info": false,
+							"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+						});
+
+						// Initialize DataTables for threaded view if it exists
+						if (document.getElementById("prefs_pvt_form:threaded_pvtmsgs")) {
+							sakaiDataTables.init('prefs_pvt_form:threaded_pvtmsgs', {
+								"paging": false,
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
 					});
-				}
-			});
 		</script>
 
 		<h:form id="prefs_pvt_form">

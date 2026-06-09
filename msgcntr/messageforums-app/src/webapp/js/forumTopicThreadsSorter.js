@@ -158,16 +158,25 @@
 			header.style.cursor = "pointer";
 
 			if (columnIndex === 0) {
-				header.querySelector("a")?.remove();
-				header.addEventListener("click", event => {
+				const toggleThreads = event => {
 					expanded = !expanded;
 					const imageObj = event.target instanceof HTMLImageElement
 						? event.target
-						: event.currentTarget.querySelector("img");
+						: header.querySelector("img");
 					toggleThreadVisibility(table, expanded, imageObj);
 
 					if (parent?.document?.querySelector("iframe.portletMainIframe") && window.mySetMainFrameHeight) {
 						mySetMainFrameHeight(parent.document.querySelector("iframe.portletMainIframe").id);
+					}
+				};
+				header.querySelector("a")?.remove();
+				header.tabIndex = 0;
+				header.setAttribute("role", "button");
+				header.addEventListener("click", toggleThreads);
+				header.addEventListener("keydown", event => {
+					if (event.key === "Enter" || event.key === " " || event.keyCode === 13 || event.keyCode === 32) {
+						event.preventDefault();
+						toggleThreads(event);
 					}
 				});
 				return;

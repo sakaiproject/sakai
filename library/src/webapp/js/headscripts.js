@@ -811,8 +811,24 @@ function includeWebjarLibrary(library, options = {}) {
 
 function includeWebjarLoader(loader, library, psp, webjars, ver) {
 	const args = JSON.stringify({ library, psp, webjars, ver });
-	document.write(`<script src="${psp}webjar-loaders/${loader}.js${ver}"></script>`);
-	document.write(`<script>window.sakaiWebjarLoaders.${loader}(${args});</script>`);
+	const scriptId = `webjar-loader-${loader}`;
+	if (!window.sakaiWebjarLoaders?.[loader] && !document.getElementById(scriptId)) {
+		document.write(`<script id="${scriptId}" src="${psp}webjar-loaders/${loader}.js${ver}"></script>`);
+	}
+	document.write(`<script>
+		(function() {
+			const loader = ${JSON.stringify(loader)};
+			const args = ${args};
+			const runLoader = function() {
+				window.sakaiWebjarLoaders[loader](args);
+			};
+			if (window.sakaiWebjarLoaders?.[loader]) {
+				runLoader();
+			} else {
+				document.getElementById(${JSON.stringify(scriptId)})?.addEventListener("load", runLoader, { once: true });
+			}
+		}());
+	</script>`);
 }
 
 // Ensures consistent theming across all Sakai pages by dynamically loading a theme
