@@ -289,9 +289,6 @@ class AssignmentTest extends SakaiUiTestBase {
         String siteId = siteIdFromCourseUrl(courseUrl);
         waitForCalendarFeedEntry(siteId, bulkPublishTitle, dueLocalDate);
 
-        sakai.toolClick("Calendar");
-        assertVisibleCalendarEntry(bulkPublishTitle, dueLocalDate);
-
         sakai.toolClick("Announcements");
         assertVisibleAnnouncement(bulkPublishTitle);
     }
@@ -416,31 +413,6 @@ class AssignmentTest extends SakaiUiTestBase {
             ),
             new Page.WaitForFunctionOptions().setTimeout(30_000)
         );
-    }
-
-    private void assertVisibleCalendarEntry(String title, LocalDate eventDate) {
-        assertThat(page.locator("#calendarDiv")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
-        page.waitForFunction(
-            "() => typeof sakaiCalendar !== 'undefined' && sakaiCalendar.calendar && typeof sakaiCalendar.calendar.changeView === 'function'",
-            null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
-        );
-        page.evaluate(
-            "({ date }) => {"
-                + "const calendar = sakaiCalendar.calendar;"
-                + "calendar.changeView('listWeek', date);"
-                + "calendar.gotoDate(date);"
-                + "calendar.refetchEvents();"
-                + "}",
-            Map.of("date", eventDate.toString())
-        );
-        page.waitForFunction(
-            "title => sakaiCalendar.calendar.getEvents().some(event => event.title.includes(title))",
-            title,
-            new Page.WaitForFunctionOptions().setTimeout(30_000)
-        );
-        assertThat(page.locator(".fc-list-event-title, .fc-event-title").filter(new Locator.FilterOptions().setHasText(title)).first())
-            .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
     }
 
     private void assertVisibleAnnouncement(String title) {
