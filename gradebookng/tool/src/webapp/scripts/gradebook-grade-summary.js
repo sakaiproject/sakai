@@ -308,23 +308,24 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 };
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
-  var $table = this.$content.find(".gb-summary-grade-panel table");
+  const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  $table.find("td, th").each(function() {
-    var $node = $(this);
-    var sortValue = $node.text().trim();
+  if (!table) return;
 
-    if ($node.is(".gb-summary-grade-duedate")) {
-      var time = $node.data("sort-key");
-      sortValue = time == 0 ? Math.pow(2, 53) - 1 : time;
-    } else if ($node.is(".gb-summary-grade-score")) {
-      sortValue = $node.find(".gb-summary-grade-score-raw").text().trim() || "-1";
+  table.querySelectorAll("td, th").forEach(node => {
+    let sortValue = node.textContent.trim();
+
+    if (node.classList.contains("gb-summary-grade-duedate")) {
+      const time = node.dataset.sortKey;
+      sortValue = time == 0 ? Number.MAX_SAFE_INTEGER : time;
+    } else if (node.classList.contains("gb-summary-grade-score")) {
+      sortValue = node.querySelector(".gb-summary-grade-score-raw")?.textContent.trim() || "-1";
     }
 
-    this.setAttribute("data-order", sortValue);
+    node.setAttribute("data-order", sortValue);
   });
 
-  sakaiDataTables.initIfNotEmpty($table[0], {
+  sakaiDataTables.initIfNotEmpty(table, {
     paging: false,
     info: false,
     searching: false,
