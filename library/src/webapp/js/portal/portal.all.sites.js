@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
       errorBanner?.style.setProperty("display", "none");
 
       try {
-        const response = await fetch(`/portal/sites-drawer/${siteId}`, { credentials: "include" });
+        const response = await fetch(`/portal/sites-drawer/${encodeURIComponent(siteId)}`, { credentials: "include" });
 
         if (!response.ok) {
           throw new Error(`Network error while loading the sites drawer from ${response.url}`);

@@ -70,10 +70,10 @@ public class MoreSitesHandler extends BasePortalHandler {
             return NEXT;
         }
 
-        try {
-            // /portal/sites-drawer/{siteId} - siteId identifies the current site for highlighting
-            String siteId = (parts.length >= 3) ? parts[2] : null;
+        // /portal/sites-drawer/{siteId} - siteId identifies the current site for highlighting
+        String siteId = (parts.length >= 3) ? parts[2] : null;
 
+        try {
             SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
             siteView.setToolContextPath(null);
             Map<String, Object> drawerContext = ((MoreSiteViewImpl) siteView).getMoreSitesDrawerContext();
@@ -88,6 +88,7 @@ public class MoreSitesHandler extends BasePortalHandler {
             portal.sendResponse(rcontext, res, "moresites-drawer", "text/html; charset=UTF-8");
             return END;
         } catch (Exception e) {
+            log.warn("Failed to render the More Sites drawer for site [{}]", siteId, e);
             throw new PortalHandlerException(e);
         }
     }
