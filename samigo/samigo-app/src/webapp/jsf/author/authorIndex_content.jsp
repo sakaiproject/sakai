@@ -39,17 +39,7 @@
     <script>includeWebjarLibrary('datatables');</script>
     <script>includeWebjarLibrary('bootstrap-multiselect');</script>
     <script src="/samigo-app/js/info.js"></script>
-    <script src="/samigo-app/js/naturalSort.js"></script>
-    <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
     <script>
-        // Function to normalize search text
-        window.normalizeSearchText = function(text) {
-            return text
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "");
-        };
-
         $(document).ready(function() {
             const pageLengthStorageKey = `samigo-pageLength-${portal.user.id}`;
 
@@ -66,24 +56,23 @@
             const assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
             if (notEmptyTableTd > 0) {
-                $.fn.dataTable.ext.classes.sLengthSelect = 'input-form-control';
-                var table = $("#authorIndexForm\\:coreAssessments").DataTable({
+                var table = sakaiDataTables.init('authorIndexForm:coreAssessments', {
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
-                    "aaSorting": [[parseInt(assessmentSortingColumn), "desc"]],
+                    "order": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
-                        {"bSortable": true, "bSearchable": true, "type": "span"},
-                        {"bSortable": false, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
-                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
-                        {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": true, "type": "numeric"},
-                        {"bSortable": false, "bSearchable": false},
+                        {"orderable": true, "searchable": true, "type": "span"},
+                        {"orderable": false, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": true, "searchable": true, "type": "num"},
+                        {"orderable": true, "searchable": true, "type": "num"},
+                        {"orderable": true, "searchable": false},
+                        {"orderable": true, "searchable": true, "type": "num"},
+                        {"orderable": false, "searchable": false},
                     ],
                     "language": {
                         "search": <h:outputText value="`#{dataTablesMessages.search}`" />,
@@ -102,7 +91,7 @@
                             "sortDescending": <h:outputText value="`#{dataTablesMessages.aria_sortDescending}`" />,
                         }
                     },
-                    "fnDrawCallback": function(oSettings) {
+                    "drawCallback": function(oSettings) {
                         $(".select-checkbox").prop("checked", false);
                         updateRemoveButton();
                     },
@@ -110,117 +99,46 @@
                     "stateDuration": -1
                 });
 
-                const searchInput = document.querySelector('#authorIndexForm\\:coreAssessments_filter input');
-                if (table && searchInput) {
-                    if (searchInput.hasCustomSearch) {
-                        return;
-                    }
-                    searchInput.hasCustomSearch = true;
-
-                    let lastSearchTerm = '';
-
-                    const savedState = table.state.loaded();
-                    if (savedState && savedState.search && savedState.search.search) {
-                        lastSearchTerm = savedState.search.search;
-                        searchInput.value = lastSearchTerm;
-                    }
-
-                    $(searchInput).off();
-                    searchInput.removeAttribute('data-dt-search');
-
-                    const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                        if (settings.nTable.id !== 'authorIndexForm:coreAssessments') {
-                            return true;
-                        }
-
-                        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                            return true;
-                        }
-
-                        const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                        return searchData.some(cellData => {
-                            if (cellData && typeof cellData === 'string') {
-                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                return normalizedCell.includes(normalizedSearch);
-                            }
-                            return false;
-                        });
-                    };
-
-                    $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                    const handleSearch = function() {
-                        lastSearchTerm = this.value;
-                        table.search(lastSearchTerm);
-                        table.draw();
-                    };
-
-                    const handleKeyDown = function(event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                        }
-                    };
-
-                    searchInput.addEventListener('input', handleSearch);
-                    searchInput.addEventListener('keyup', handleSearch);
-                    searchInput.addEventListener('keydown', handleKeyDown);
-
-                    if (searchInput.value) {
-                        lastSearchTerm = searchInput.value;
-                        table.draw();
-                    }
-                }
-
                 let spanClassName = "";
                 let filterGroups = [];
-                function filterBy() {
-                    $.fn.dataTableExt.afnFiltering.push(
-                        function (oSettings, aData, iDataIndex) {
-                            let showBySpan = true;
-                            let showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
+                const assessmentFilter = function (settings, searchData, rowIndex) {
+                    const row = table.row(rowIndex).node();
+                    const cells = row ? Array.from(row.cells) : [];
+                    let showBySpan = true;
+                    let showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
 
-                            if (spanClassName != "") {
-                                showBySpan = (($(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length > 0) ? true : false);
+                    if (spanClassName != "") {
+                        showBySpan = cells.some(cell => cell.querySelector(`span.${CSS.escape(spanClassName)}`));
+                    }
+                    if (filterGroups != null) {
+                        for (let i = 0; i < filterGroups.length; i++) {
+                            const filter = filterGroups[i];
+                            if (filter.startsWith("releaseto")) {
+                                showByGroups = cells.some(cell => cell.querySelector(`.${CSS.escape(filter)}`));
+                            } else {
+                                showByGroups = Array.from(cells[5]?.querySelectorAll(".groupList > li > .hidden") || [])
+                                    .some(item => item.textContent.includes(filter));
                             }
-                            if (filterGroups != null) {
-                                for (var i=0; i<filterGroups.length; i++) {
-                                    const filter = filterGroups[i];
-                                    if (filter.startsWith("releaseto")) {
-                                        showByGroups = (($(oSettings.aoData[iDataIndex].anCells).children("." + filterGroups[i]).length > 0) ? true : false);
-                                    } else {
-                                        showByGroups = (($(oSettings.aoData[iDataIndex].anCells[5]).find(".groupList > li > .hidden:contains('" + filter + "')").length > 0) ? true : false);  
-                                    }
-                                    if (showByGroups) {
-                                        break;
-                                    }
-                                }
+                            if (showByGroups) {
+                                break;
                             }
-
-                            if (showBySpan && showByGroups) {
-                                return true;
-                            }
-                            return false;
                         }
-                    );
+                    }
+
+                    return showBySpan && showByGroups;
+                };
+
+                sakaiDataTables.attachSearch(table, {
+                    input: "#authorIndexForm\\:coreAssessments_filter input",
+                    tableId: "authorIndexForm:coreAssessments",
+                    filter: assessmentFilter,
+                });
+
+                function filterBy() {
                     table.draw();
-                    $.fn.dataTableExt.afnFiltering.pop();
                 }
 
                 table.on('order.dt', function () {
-                    $.fn.dataTableExt.afnFiltering.push(
-                        function (oSettings, aData, iDataIndex) {
-                            if (spanClassName != "") {
-                                const spanLength = $(oSettings.aoData[iDataIndex].anCells).children("." + spanClassName).length;
-                                if (spanLength > 0) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                            return true;
-                        }
-                    );
                     updateRemoveButton();
                 });
 

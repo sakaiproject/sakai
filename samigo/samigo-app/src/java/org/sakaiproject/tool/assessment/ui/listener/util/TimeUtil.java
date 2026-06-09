@@ -86,7 +86,7 @@ public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
   }
 
   /**
-   * SAM-2323: this is useful for simple sorting by jQuery tablesorter plugin
+   * SAM-2323: this is useful for simple client-side sorting.
    * In USA, I expect a date like 2015-02-15 04:00pm
    * In Sweden, I expect a date like 2015-02-15 16:00
    * @param dateToConvert

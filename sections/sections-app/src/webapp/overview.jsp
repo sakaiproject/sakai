@@ -169,8 +169,8 @@
     <script type="text/javascript">includeWebjarLibrary('datatables');</script>
     <script type="text/javascript">includeWebjarLibrary('datatables-rowgroup')</script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#overviewForm\\:sectionsTable').DataTable({
+        sakaiDataTables.onReady(function () {
+            sakaiDataTables.init('overviewForm:sectionsTable', {
                 order: [[0, 'asc']],
                 ordering: false,
                 paging: false,

@@ -383,6 +383,12 @@ div.wicket-modal .w_blue div.w_content
 .gb-summary-grade-panel {
   position: relative;
 }
+.gb-summary-grade-panel #gradeSummaryTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--sakai-background-color-1);
+}
 .gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }

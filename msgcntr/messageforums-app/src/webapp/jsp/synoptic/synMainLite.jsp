@@ -8,9 +8,9 @@
 </jsp:useBean>
 
 <f:view>
-  <sakai:view id="synopticView">
+<sakai:view id="synopticView">
 <script>includeLatestJQuery("msgcntr");</script>
-<script>includeWebjarLibrary('jquery.tablesorter');</script>
+<script>includeWebjarLibrary('datatables');</script>
 
  <%
   	String thisId = request.getParameter("panel");
@@ -45,98 +45,25 @@ SynMainLite.setupTableHeaders = function (){
 
 
 SynMainLite.setupTableParsers = function (){
+	var columns = [
+		{ type: "sakai-checkbox" },
+		{ type: "sakai-html-text" }
+	];
 
-	 //add message count orderer
-	 $.tablesorter.addParser({
-	        id: 'newMessageCount',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            //this is used to parse out the number of messages from the html, or 
-	            //convert 'none' to the number 0, so we can order numberically
-	            return s.toLowerCase().replace('<h:outputText value="#{msgs.syn_no_messages}"/>',0).replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'').replace(new RegExp('<img.*>'),'');           
-	        },
-	        type: "numeric"
-	    });  
-	 //add title sorter
-	    $.tablesorter.addParser({
-	        id: 'title',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            //this is used to parse out the number of messages from the html, or 
-	            //convert 'none' to the number 0, so we can order numberically
-	            return s.toLowerCase().replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'');           
-	        },
-	        type: "text"
-	    });
-	    
-	    //add checkbox sorter
-	    $.tablesorter.addParser({
-	        id: 'checkbox',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            var integer = 0;
-	            if (s.toLowerCase().match(/<input[^>]*checked*/i)) {
-	                integer = 1;
-	            }
-	            return integer;
-	        },
-	        type: "numeric"
-	    }); 
-	    
-	    //apply orderers to workspaceTable
-	    
-	    if(!messagesDisabled && !forumsDisabled){
-		    $(".workspaceTable").tablesorter({ 
-			    
-		        headers: {
-		    	0: { 
-		    	    sorter:'checkbox' 
-		    	},
-		    	1: { 
-		 	       sorter:'title' 
-		    	}, 
-		    	2: { 
-			        sorter:'newMessageCount' 
-			    }, 
-		        3: { 
-		            sorter:'newMessageCount' 
-		        } 
-		        } 
-		    });
-	    }else if(messagesDisabled && forumsDisabled){
-	    	 $(".workspaceTable").tablesorter({ 
-				    
-			        headers: {
-			    	0: { 
-			    	    sorter:'checkbox' 
-			    	},
-			    	1: { 
-			 	       sorter:'title' 
-			    	} 
-			        } 
-			    });
-	    }else{
-	    	 $(".workspaceTable").tablesorter({ 
-				    
-			        headers: {
-			    	0: { 
-			    	    sorter:'checkbox' 
-			    	},
-			    	1: { 
-			 	       sorter:'title' 
-			    	}, 
-			    	2: { 
-				        sorter:'newMessageCount' 
-				    }
-			        } 
-			    });
-	    }
+	if (!messagesDisabled) {
+		columns.push({ type: "sakai-any-number" });
+	}
+	if (!forumsDisabled) {
+		columns.push({ type: "sakai-any-number" });
+	}
+
+	sakaiDataTables.initIfNotEmpty(".workspaceTable", {
+		paging: false,
+		info: false,
+		searching: false,
+		order: [],
+		columns: columns
+	});
 	};
 
 
@@ -243,7 +170,7 @@ function mySetMainFrameHeightViewCell(id)
 			
 			<t:div styleClass="table" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
 				<t:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
-						styleClass="table table-striped table-bordered table-hover tablesorter workspaceTable">
+						styleClass="table table-striped table-bordered table-hover workspaceTable">
 
 					<t:column headerstyleClass="hideHeader">
 						<f:facet name="header">
