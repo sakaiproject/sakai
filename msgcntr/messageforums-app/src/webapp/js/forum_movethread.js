@@ -8,7 +8,7 @@ BSD license. You may not use this file except in compliance with one these
 Licenses.
 */
 
-/*global jQuery, recipients */
+/*global jQuery */
 
 (function ($) {
 	var jsonData = [];
@@ -17,8 +17,8 @@ Licenses.
     var sourceList = {};
 
     var templates = {
-        sourceItem: '<div class="%forumid"><input style="margin-right:.7em" type="radio" id = "topicradios" value="%topicvalue" name="topicradios"/>%topiclabel</div>',
-        sourceItemDisabled: '<div class="%forumid"><input style="margin-right:.7em" type="radio" disabled id="topicradios" value="%topicvalue" name="topicradios"/>%topiclabel</div>'
+        sourceItem: '<div class="%forumid"><input style="margin-right:.7em" type="radio" id="topicradio-%topicvalue" value="%topicvalue" name="topicradios"/>%topiclabel</div>',
+        sourceItemDisabled: '<div class="%forumid"><input style="margin-right:.7em" type="radio" disabled id="topicradio-%topicvalue" value="%topicvalue" name="topicradios"/>%topiclabel</div>'
     };
 
     var escapeHtml = function (value) {
@@ -136,25 +136,28 @@ Licenses.
     };
 
     var buildThreadList = function() {
-        var itemHTML = "";
+        var threadsToMove = $(".threads-to-move", container).empty();
 
         $("#checkbox input[type=checkbox]:checked").each(function() {
             var thetitle = $(this).parent().siblings(".messageTitle").find(".messagetitlelink").text();
-            itemHTML += " - " + thetitle + "<br/>";
+            threadsToMove.append(document.createTextNode(" - " + thetitle));
+            threadsToMove.append(document.createElement("br"));
         });
-
-	$(".threads-to-move", container).html(itemHTML);
     }
 
-    var buildSourceListScroller = function () {
-        var itemHTML = "";
-        var topics= getJSONData("topics").topics;
-        var totalTopics= topics.length;
-        for (var j = 0; j < totalTopics; j++) {
-            var sourcetopicid = $("[id^='sourcetopicid-']")[0].id.split("-")[1];
-            var currtopicid = topics[j].topicid;
-            if (sourcetopicid == currtopicid) {
-                // if current topic, greyed out disable radio selection
+	    var buildSourceListScroller = function () {
+	        var itemHTML = "";
+	        var topics= getJSONData("topics").topics;
+	        var totalTopics= topics.length;
+	        var sourceTopicElement = $("[id^='sourcetopicid-']")[0];
+	        if (!sourceTopicElement) {
+	            return;
+	        }
+	        var sourcetopicid = sourceTopicElement.id.split("-")[1];
+	        for (var j = 0; j < totalTopics; j++) {
+	            var currtopicid = topics[j].topicid;
+	            if (sourcetopicid == currtopicid) {
+	                // if current topic, greyed out disable radio selection
                 itemHTML += makeSourceListItemDisabled(topics[j]);
             }
             else {

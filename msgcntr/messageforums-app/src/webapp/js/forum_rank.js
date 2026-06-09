@@ -472,7 +472,7 @@ String.prototype.hashCode = function() {
     }; 
     
     var isActivationKey = function (event) {
-        return event.key === "Enter" || event.key === " " || event.key === "Spacebar";
+        return event.key === "Enter" || event.key === " ";
     };
 
     var bindCollectionRowKeyboard = function (row) {
