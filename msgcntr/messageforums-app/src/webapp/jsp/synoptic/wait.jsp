@@ -196,17 +196,24 @@ SynMainLite.setupTableHeaders = function (){
 
 
 SynMainLite.setupTableParsers = function (){
+	var columns = [
+		{ type: "sakai-checkbox" }
+	];
+
+	if (document.getElementById("messagesHeader")) {
+		columns.push({ type: "sakai-any-number" });
+	}
+	if (document.getElementById("forumsHeader")) {
+		columns.push({ type: "sakai-any-number" });
+	}
+	columns.push({ type: "sakai-html-text" });
+
 	sakaiDataTables.initIfNotEmpty(".workspaceTable", {
 		paging: false,
 		info: false,
 		searching: false,
 		order: [],
-		columns: [
-			{ type: "sakai-checkbox" },
-			{ type: "sakai-html-text" },
-			{ type: "sakai-any-number" },
-			{ type: "sakai-any-number" }
-		]
+		columns: columns
 	});
 	};
 

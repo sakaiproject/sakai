@@ -46,8 +46,7 @@ SynMainLite.setupTableHeaders = function (){
 
 SynMainLite.setupTableParsers = function (){
 	var columns = [
-		{ type: "sakai-checkbox" },
-		{ type: "sakai-html-text" }
+		{ type: "sakai-checkbox" }
 	];
 
 	if (!messagesDisabled) {
@@ -56,6 +55,7 @@ SynMainLite.setupTableParsers = function (){
 	if (!forumsDisabled) {
 		columns.push({ type: "sakai-any-number" });
 	}
+	columns.push({ type: "sakai-html-text" });
 
 	sakaiDataTables.initIfNotEmpty(".workspaceTable", {
 		paging: false,

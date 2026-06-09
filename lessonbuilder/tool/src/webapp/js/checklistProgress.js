@@ -12,7 +12,7 @@
 
         document.querySelectorAll(".headerNum").forEach(header => {
             header.addEventListener("click", function () {
-                const itemTitle = this.querySelector("span.itemText")?.textContent || "";
+                const itemTitle = this.querySelector("span")?.textContent || "";
                 const descRowTip = document.getElementById("descRowTip");
                 if (descRowTip) {
                     descRowTip.textContent = itemTitle;

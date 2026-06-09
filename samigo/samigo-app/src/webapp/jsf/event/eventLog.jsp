@@ -15,10 +15,12 @@
           sakaiDataTables.onReady(() => {
             const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
             const dataTable = setupDataTable("eventLogId:eventLogTable", dataTableConfig);
-            sakaiDataTables.attachSearch(dataTable, {
+            if (dataTable) {
+              sakaiDataTables.attachSearch(dataTable, {
                 input: "#eventLogId\\:eventLogTable_filter input",
                 tableId: "eventLogId:eventLogTable",
-            });
+              });
+            }
           });
         </script>
         <%@ include file="/js/delivery.js" %>

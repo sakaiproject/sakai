@@ -117,7 +117,7 @@
                             if (filter.startsWith("releaseto")) {
                                 showByGroups = cells.some(cell => cell.querySelector(`.${CSS.escape(filter)}`));
                             } else {
-                                showByGroups = Array.from(cells[5]?.querySelectorAll(".groupList > li > .hidden") || [])
+                                showByGroups = Array.from(cells[5]?.querySelectorAll(".groupList > li > .d-none") || [])
                                     .some(item => item.textContent.includes(filter));
                             }
                             if (showByGroups) {

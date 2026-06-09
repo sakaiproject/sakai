@@ -13,11 +13,20 @@ ${includeLatestJQuery}
 			var link = elem.querySelector("a");
 
 			if (link) {
-				elem.classList.add("tablesorter-header");
-				elem.addEventListener("click", function() {
+				var sortTable = function() {
 					window.location.href = '#toolLinkParam("ToolSite" "doSort" "criteria=#elemId#")'
 						.replace(/&amp;/g, '&')
 						.replace('#elemId#', elemId);
+				};
+				elem.classList.add("tablesorter-header");
+				elem.tabIndex = 0;
+				elem.setAttribute('role', 'button');
+				elem.addEventListener("click", sortTable);
+				elem.addEventListener("keydown", function(event) {
+					if (event.key === 'Enter' || event.key === ' ' || event.keyCode === 13 || event.keyCode === 32) {
+						event.preventDefault();
+						sortTable();
+					}
 				});
 
 				#if($!LAST_SORTED_FIELD)
@@ -41,7 +50,7 @@ ${includeLatestJQuery}
 		};
 
 		document.querySelectorAll("#tools_site thead tr td input").forEach(function(input) {
-			input.addEventListener("keyup", onInputchange);
+			input.addEventListener("input", onInputchange);
 			var id = input.id;
 			if(id) {
 				var header = document.getElementById(id.replace('input_', ''));
@@ -76,8 +85,8 @@ ${includeLatestJQuery}
 		});
 
 		document.querySelectorAll(".pager_button").forEach(function(elem) {
-			elem.addEventListener("click", function() {
-			if(!elem.classList.contains("disabled")) {
+			var changePage = function() {
+				if(!elem.classList.contains("disabled")) {
 				var ev = null;
 				if(elem.classList.contains('first')) ev = 'first';
 				if(elem.classList.contains('prev')) ev = 'prev';
@@ -89,6 +98,15 @@ ${includeLatestJQuery}
 						.replace('#pageEvent#', ev);
 				}
 			}
+			};
+			elem.tabIndex = 0;
+			elem.setAttribute('role', 'button');
+			elem.addEventListener("click", changePage);
+			elem.addEventListener("keydown", function(event) {
+				if (event.key === 'Enter' || event.key === ' ' || event.keyCode === 13 || event.keyCode === 32) {
+					event.preventDefault();
+					changePage();
+				}
 			});
 		});
 

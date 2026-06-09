@@ -13,7 +13,7 @@
 		// Clear the table if the tool has been reset
 		// Unfortunatly resetting the state requres creating a temporary instance
 		if ("$!resetTableState" != "false") {
-			let tempDatatable = sakaiDataTables.init(table);
+			const tempDatatable = sakaiDataTables.init(table);
 			tempDatatable.state.clear();
 			tempDatatable.destroy();
 		}
