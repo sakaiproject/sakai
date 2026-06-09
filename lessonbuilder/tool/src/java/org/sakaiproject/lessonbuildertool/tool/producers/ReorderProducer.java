@@ -62,7 +62,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 
 /**
- * Uses the Fluid reorderer to reorder elements on the page.
+ * Uses native browser drag and drop to reorder elements on the page.
  * 
  * @author Eric Jeney <jeney@rutgers.edu>
  * 

@@ -8,21 +8,37 @@ BSD license. You may not use this file except in compliance with one these
 Licenses.
 */
 
-/*global jQuery, fluid, fluid_1_0, recipients */
+/*global jQuery, recipients */
 
-(function ($, fluid) {
+(function ($) {
 	var jsonData = [];
 	var forumFilterSelect = {};
     var container = {};
-    var sourceStructure = {};
     var sourceList = {};
-    var sourceListScroller = {};
 
     var templates = {
         sourceItem: '<div class="%forumid"><input style="margin-right:.7em" type="radio" id = "topicradios" value="%topicvalue" name="topicradios"/>%topiclabel</div>',
         sourceItemDisabled: '<div class="%forumid"><input style="margin-right:.7em" type="radio" disabled id="topicradios" value="%topicvalue" name="topicradios"/>%topiclabel</div>'
-    };  
-    
+    };
+
+    var escapeHtml = function (value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (match) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "\"": "&quot;",
+                "'": "&#39;"
+            }[match];
+        });
+    };
+
+    var formatTemplate = function (template, values) {
+        return template.replace(/%([A-Za-z0-9_]+)/g, function (match, key) {
+            return Object.prototype.hasOwnProperty.call(values, key) ? escapeHtml(values[key]) : match;
+        });
+    };
+
     var getJSONData = function (key) {
         var dataSet = {};
         for (var i = 0; i < jsonData.length; i++) {
@@ -32,19 +48,6 @@ Licenses.
         }
         return dataSet;
     };
-    
-/*
-    var stripeList = function (list) {
-        $("div.even", list).removeClass("even");
-        $("div:nth-child(even)", list).addClass("even");
-    };
-*/
-    
-    var clearHighlight = function (rowElm) {
-        rowElm = (rowElm) ? $(rowElm) : $("div.highlight");
-        rowElm.removeClass("highlight");
-    };
-    
     var updateSourceCounter = function (count) {
         count = (count !== undefined) ? count : $("div:visible",sourceList).length;
         $(".topic-source-counter", container).text(count);
@@ -69,27 +72,13 @@ Licenses.
             filteredItems.show();
         }
         // restore the text filter if it's not empty
-        if ($("#searchTopic").val().replace(/^\s+|\s+$/g, '') !== "") { 
+        if ($("#searchTopic").val().replace(/^\s+|\s+$/g, '') !== "") {
             searchByName();
         } else {
-            updateSourceCounter(filteredItems.length);        
+            updateSourceCounter(filteredItems.length);
         }
-
-/*
-	// clear radio buttons 
-
-	// disable Move Threads button
-	$(".topic-btn-save").attr("disabled", "disabled");
-*/
      };
-    
-    var saveRestorePoint = function () {
-        $("#searchTopic").val("");
-	$(".forumDropdown").val("select-forum");
-	
-	
-    };
-    
+
     var searchByName = function () {
         var contents = $("#searchTopic").val().replace(/^\s+|\s+$/g, '').toLowerCase();
         if (!(contents === "")) {
@@ -129,34 +118,29 @@ Licenses.
     };
 
     var makeSourceListItem = function (topics) {
-        var itemHTML = fluid.stringTemplate(templates.sourceItem, {
+        var itemHTML = formatTemplate(templates.sourceItem, {
 	    forumid: topics.forumid,
             topicvalue: topics.topicid,
-            topiclabel: $('<p></p>').text(topics.topictitle).html() 
+            topiclabel: topics.topictitle
         });
         return itemHTML;
     };
 
     var makeSourceListItemDisabled = function (topics) {
-        var itemHTML = fluid.stringTemplate(templates.sourceItemDisabled, {
+        var itemHTML = formatTemplate(templates.sourceItemDisabled, {
             forumid: topics.forumid,
             topicvalue: topics.topicid,
-            topiclabel: $('<p></p>').text(topics.topictitle).html()
+            topiclabel: topics.topictitle
         });
         return itemHTML;
     };
 
     var buildThreadList = function() {
-	var idlist = []; 
         var itemHTML = "";
-	//  #checkbox is the <div id="checkbox">  in dfAllMessages.jsp 
-	// we want to find out which messages are selected to move,  
 
-	$("#checkbox input[type=checkbox]:checked").each(function() {
-               var threadid = ($(this).val());
-		idlist.push(threadid);
-		var thetitle = $(this).parent().siblings(".messageTitle").find(".messagetitlelink").text();  
-        	itemHTML += " - " + thetitle + "<br/>";
+        $("#checkbox input[type=checkbox]:checked").each(function() {
+            var thetitle = $(this).parent().siblings(".messageTitle").find(".messagetitlelink").text();
+            itemHTML += " - " + thetitle + "<br/>";
         });
 
 	$(".threads-to-move", container).html(itemHTML);
@@ -178,65 +162,26 @@ Licenses.
             }
         }
         $(sourceList).html(itemHTML);
-/*
-        if (window.parent.recipientData) {
-            restoreSourceListSettings();
-        }
-*/
         $(".topic-source-total, .topic-source-counter", container).text(totalTopics);
-    };	
+    };
 
-    /* KEYBOARD NAVIGATION
-     */
-    
     var moveThreadEnabled = function (){
-                        //function to check total number of CheckBoxes that are checked in a form
-    			//if there is no elements in form, disable the move link
-    	 		if (typeof document.forms['msgForum'].moveCheckbox === 'undefined') { return false; }
-                //initialize total count to zero
-                var totalChecked = 0;
-                                //get total number of CheckBoxes in form
-                        if (typeof document.forms['msgForum'].moveCheckbox.length === 'undefined') {
-                   /*when there is just one checkbox moveCheckbox is not an array,  document.forms['msgForum'].moveCheckbox.length returns undefined */
-                        if (document.forms['msgForum'].moveCheckbox.checked == true )
-                        {
-                                        totalChecked += 1;
-                        }
-                        }
-                        else {
-                // more than one checkbox is checked.
-                var chkBoxCount = document.forms['msgForum'].moveCheckbox.length;
-                //loop through each CheckBox
-                        for (var i = 0; i < chkBoxCount; i++)
-                        {
-                                //check the state of each CheckBox
-                                if (eval("document.forms['msgForum'].moveCheckbox[" + i + "].checked") == true)
-                                {
-                                        //it's checked so increment the counter
-                                        totalChecked += 1;
-                                }
-                        }
-                        }
-                        if (totalChecked >0){
-                                // enable the move link
-                                return true;
-                        }
-                        else {
-                                return false;
-                        }
+        var moveCheckbox = document.forms['msgForum'].moveCheckbox;
+        if (typeof moveCheckbox === 'undefined') {
+            return false;
+        }
 
-                }
+        return Array.from(moveCheckbox.length === undefined ? [moveCheckbox] : moveCheckbox)
+            .some(function (checkbox) {
+                return checkbox.checked;
+            });
+    };
 
-    /* SETUP DOM EVENTS */
-   
     var bindDOMelements = function () {
-                
         $(".topic-btn-save").click(function () {
-            // call processMoveThread 
-	var linkid = "msgForum:hidden_move_message_commandLink";
-        var hiddenmovelink = document.getElementById(linkid);
-	hiddenmovelink.onclick();
-//	$(".topic-picker").dialog("close");
+            var linkid = "msgForum:hidden_move_message_commandLink";
+            var hiddenmovelink = document.getElementById(linkid);
+            hiddenmovelink.onclick();
         });
         
         $("#searchTopic").keyup(function (event) {
@@ -250,55 +195,33 @@ Licenses.
         });
         
         $(".checkbox-reminder").click(function () {
-	var reminder = $("#checkbox-reminder:checked").val();
-	if (reminder != undefined) {
-		// reminder checkbox is checked 
-		$(".moveReminder").val(true);
-	}
-	else {
-		// reminder checkbox is NOT checked 
-		$(".moveReminder").val(false);
-	}
-	});
+            $(".moveReminder").val($("#checkbox-reminder:checked").val() !== undefined);
+        });
 
         $(".topic-btn-cancel").click(function () {
-			var linkid = "msgForum:hidden_close_move_thread";
-			var hiddenmovelink = document.getElementById(linkid);
-			hiddenmovelink.onclick();
-			//$(".topic-picker").dialog("close");
+            var linkid = "msgForum:hidden_close_move_thread";
+            var hiddenmovelink = document.getElementById(linkid);
+            hiddenmovelink.onclick();
         });
-        
-	$('input:radio',sourceList).click(function () {
-	 	var radiovalue = $(this).val();	
-		// enable Move Threads button 
-		$(".topic-btn-save").removeAttr("disabled");
-		var topichidden = $(".selectedTopicid");
-		$(".selectedTopicid").val(radiovalue);
-	});
 
-        $(sourceList).click(function (event) { 
-            var elm = ($(event.target).is('div')) ? $(event.target) : $(event.target).parent("div");
-          //   addSingleRow(elm);
-		});
-        
+        $('input:radio',sourceList).click(function () {
+            var radiovalue = $(this).val();
+            $(".topic-btn-save").removeAttr("disabled");
+            $(".selectedTopicid").val(radiovalue);
+        });
+
         $(".forumDropdown").change(function () {
             filterList();
         });
-        
+
         $(".display-topic-picker").click(function () {
-		if (moveThreadEnabled()) {
-			buildThreadList();
- 			//buildSourceListScroller();
-            		$(".topic-picker").dialog("open");
-            		$(".topic-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
-            		$(".topic-source-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
-            		//saveRestorePoint();
-		}
-		else {
-			// do nothing
-		}
+            if (moveThreadEnabled()) {
+                buildThreadList();
+                $(".topic-picker").dialog("open");
+                $(".topic-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
+                $(".topic-source-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
+            }
         });
-                
     };
 
     /* Initialization Routine */
@@ -312,7 +235,6 @@ Licenses.
         container = $("#topic-picker");
         forumFilterSelect = $(".forumDropdown", container);
         sourceList = $(".topic-source-list", container);
-        sourceStructure = $(".topic-source", container);
     };
     
     var initDialog = function () {
@@ -321,17 +243,15 @@ Licenses.
  
     $(function () {
         window.parent.scrollTo(0,0);
-    	parseData();
+        parseData();
         collectElements();
         initDialog();
-        sourceListScroller = fluid.scroller($(".topic-source-scroller-inner"), { maxHeight: 270});
-        //buildThreadList();
+        $(".topic-source-scroller-inner").css({ maxHeight: 270, overflowY: "auto" });
         buildSourceListScroller();
-	buildForumSelect();
+        buildForumSelect();
         $(".forumDropdown").val("select-forum");
         filterList();
-        bindDOMelements(); 
-        // stripeList(sourceList);
+        bindDOMelements();
     });
         
-})(jQuery, fluid_1_0);
+})(jQuery);

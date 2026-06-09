@@ -8,9 +8,9 @@ BSD license. You may not use this file except in compliance with one these
 Licenses.
 */
 
-/*global jQuery, fluid, fluid_1_0, recipients */
+/*global jQuery, recipients */
 
-(function ($, fluid) {
+(function ($) {
 	var jsonData = [];
 	var assignToBox = {};
 	var assignToChoice = {};
@@ -22,11 +22,8 @@ Licenses.
     var container = {};
     var sourceStructure = {};
     var sourceList = {};
-    var sourceListScroller = {};
     var collectionStructure = {};
     var collectionList = {};
-    var collectionListScroller = {};
-    var toListScroller = {};
     var currCollectionRow = {};
     var restorePoint = "";
     
@@ -36,7 +33,25 @@ Licenses.
         sourceItem: '<div id="source-list-%membershipItemId" class="role-%roleId%groupsClasses" title="%titleEid">%displayName</div>',
         collectionItem: '<div id="%membershipItemId" title="%memberEid">%displayName</div>'
     };  
-    
+
+    var escapeHtml = function (value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (match) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "\"": "&quot;",
+                "'": "&#39;"
+            }[match];
+        });
+    };
+
+    var formatTemplate = function (template, values) {
+        return template.replace(/%([A-Za-z0-9_]+)/g, function (match, key) {
+            return Object.prototype.hasOwnProperty.call(values, key) ? escapeHtml(values[key]) : match;
+        });
+    };
+
     var getJSONData = function (key) {
         var dataSet = {};
         for (var i = 0; i < jsonData.length; i++) {
@@ -102,7 +117,7 @@ Licenses.
     };
     
     var buildCollectionItem = function (rowElm) { 
-        return fluid.stringTemplate(templates.collectionItem, {
+        return formatTemplate(templates.collectionItem, {
             membershipItemId: srcIDtoMemberID(rowElm.attr("id")), 
             memberEid: rowElm.attr("title"), 
             displayName: rowElm.text()
@@ -144,6 +159,7 @@ Licenses.
         hilightRow(rowElm);
         var newRow = $(buildCollectionItem(rowElm));
 		$(collectionList).append(newRow);
+        bindCollectionRowKeyboard(newRow);
 		return newRow;
 	};
     
@@ -157,7 +173,7 @@ Licenses.
         	clearHighlight();
         	var newRow = addRow(rowElm);
         	//setFocus(rowElm); // used for keyboard navigation which needs reworking
-            collectionListScroller.scrollBottom();
+            collectionList[0].scrollTop = collectionList[0].scrollHeight;
             newRow.addClass("highlight");
             $("#source-scroller").focus();
         	currCollectionRow = newRow;
@@ -182,7 +198,7 @@ Licenses.
     };
     
    var buildExistingIndividualSelectItems= function (user) {
-        return fluid.stringTemplate(templates.toTokenTemplate, {
+        return formatTemplate(templates.toTokenTemplate, {
             membershipItemId: user.membershipItemId,
             membershipItemIdAgain: user.membershipItemId,
             eid: user.eid,
@@ -192,7 +208,7 @@ Licenses.
 
 
     var buildExistingUsersCollectionItem = function (user) {
-        return fluid.stringTemplate(templates.collectionItem, {
+        return formatTemplate(templates.collectionItem, {
             membershipItemId: user.membershipItemId,
             memberEid: user.eid,
             displayName: user.userDisplayName,
@@ -222,6 +238,9 @@ Licenses.
         }
 
         $(collectionList).append(existingCollection);
+        $("div", collectionList).each(function () {
+            bindCollectionRowKeyboard(this);
+        });
         updateCollectionCounter();
         stripeList(collectionList);
         clearHighlight(); // reset the last highlight
@@ -341,7 +360,7 @@ Licenses.
        
     var buildMailToBoxIndividual = function (recipientRow) {
     	var userID = recipientRow.attr("id");
-        return fluid.stringTemplate(templates.toTokenTemplate, {
+        return formatTemplate(templates.toTokenTemplate, {
             membershipItemId: userID, 
             membershipItemIdAgain: userID, 
             eid: recipientRow.attr("title"), 
@@ -412,7 +431,7 @@ String.prototype.hashCode = function() {
 			groupClasses += " group-" + groupMemberships[i].groupId.hashCode();   // use hashCode instead, since groupID might contain special char.
 
 		}
-        var itemHTML = fluid.stringTemplate(templates.sourceItem, {
+        var itemHTML = formatTemplate(templates.sourceItem, {
             membershipItemId: user.membershipItemId, 
             roleId: user.roleId.hashCode(), 
             groupsClasses: groupClasses,
@@ -430,9 +449,13 @@ String.prototype.hashCode = function() {
             itemHTML += makeSourceListItem(users[j]);
         }
         $(sourceList).html(itemHTML);
+        $("div", sourceList).attr("tabindex", 0);
         if (window.parent.recipientData) {
             restoreCollectionList(window.parent.recipientData.collection);
             restoreSourceListSettings();
+            $("div", collectionList).each(function () {
+                bindCollectionRowKeyboard(this);
+            });
         }
         $(".sakai-ppkr-source-total, .sakai-ppkr-source-counter", container).text(totalUsers);
     };	
@@ -445,52 +468,19 @@ String.prototype.hashCode = function() {
             newContent += buildMailToBoxIndividual($(this));
         });
         assignToBox.append(newContent);
-        
-        toListScroller.refreshView();
         displayDirections();
     }; 
     
-    /* KEYBOARD NAVIGATION
-     * this needs work
-     */
-    
-    var addKeyboardNavigation = function () {
-    /*
-        fluid.tabbable(sourceList);
-        fluid.tabbable(collectionList);
-        
-        selectableContext = fluid.selectable(sourceListScroller, {
-            selectableSelector: "li",
-            onSelect: function (itemToSelect) {
-                $(itemToSelect).addClass("key-highlight");
-            },
-            onUnselect: function (selectedItem) {
-                $(selectedItem).removeClass("key-highlight");
-            }
-        });
-        
-        selectableContext = fluid.selectable(collectionList, {
-            selectableSelector: "li",
-            onSelect: function (itemToSelect) {
-                $(itemToSelect).addClass("key-highlight");
-            },
-            onUnselect: function (selectedItem) {
-                $(selectedItem).removeClass("key-highlight");
-            }
-        });
-    */
+    var isActivationKey = function (event) {
+        return event.key === "Enter" || event.key === " " || event.key === "Spacebar";
     };
-    
-    var bindDeleteKey = function (row) {
-        var deleteHandler = function () {
-            removeSingleRow(row);
-        };
-       
-        fluid.activatable(row, null, {
-            additionalBindings: [{
-                key: $.ui.keyCode.DELETE, 
-                activateHandler: deleteHandler
-            }]
+
+    var bindCollectionRowKeyboard = function (row) {
+        $(row).attr("tabindex", 0).off("keydown.sakai-rank-picker").on("keydown.sakai-rank-picker", function (event) {
+            if (isActivationKey(event) || event.key === "Delete" || event.keyCode === $.ui.keyCode.DELETE) {
+                event.preventDefault();
+                removeSingleRow(row);
+            }
         });
     };
     
@@ -540,6 +530,16 @@ String.prototype.hashCode = function() {
             var elm = ($(event.target).is('div')) ? $(event.target) : $(event.target).parent("div");
             addSingleRow(elm);
 		});
+
+        $(sourceList).keydown(function (event) {
+            if (isActivationKey(event)) {
+                var elm = ($(event.target).is('div')) ? $(event.target) : $(event.target).parent("div");
+                if (elm.length) {
+                    event.preventDefault();
+                    addSingleRow(elm);
+                }
+            }
+        });
         
         $(".sectionDropdown, .roleDropdown").change(function () {
             filterList();
@@ -628,15 +628,13 @@ String.prototype.hashCode = function() {
         buildMailToBox();
         buildGroupSelect();
         buildRoleSelect();
-        sourceListScroller = fluid.scroller($(".sakai-ppkr-source-scroller-inner"), { maxHeight: 248});
-        collectionListScroller = fluid.scroller(collectionList, { maxHeight: 248});
-        toListScroller = fluid.scroller($(".sakai-ppkr-to-container"), { maxHeight: 115});
+        $(".sakai-ppkr-source-scroller-inner").css({ maxHeight: 248, overflowY: "auto" });
+        collectionList.css({ maxHeight: 248, overflowY: "auto" });
+        $(".sakai-ppkr-to-container").css({ maxHeight: 115, overflowY: "auto" });
         buildSourceListScroller();
         filterList();
         bindDOMelements(); 
-        addKeyboardNavigation();
         stripeList(sourceList);
     });
         
-})(jQuery, fluid_1_0);
-
+})(jQuery);
