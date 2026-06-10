@@ -142,6 +142,7 @@ public class PollImportServiceImpl implements PollImportService {
         poll.setMaxOptions(maxOptions);
         poll.setLimitVoting(true);
         poll.setPublic(false);
+        // poll.setAccessType("SITE"); // SAK-10208
 
         if (importedPoll.openDate() != null) {
             poll.setVoteOpen(importedPoll.openDate().atZone(getUserZoneId()).toInstant());
