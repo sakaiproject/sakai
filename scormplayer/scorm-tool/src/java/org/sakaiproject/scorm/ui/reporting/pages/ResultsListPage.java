@@ -63,6 +63,7 @@ import org.sakaiproject.scorm.ui.console.components.AttemptNumberAction;
 import org.sakaiproject.scorm.ui.console.components.ContentPackageDetailPanel;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
@@ -81,6 +82,9 @@ public class ResultsListPage extends ConsoleBasePage
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
+
+	@SpringBean(name="org.sakaiproject.util.api.LocaleService")
+	LocaleService localeService;
 
 	private static final String NEW_LINE			= "\n";
 	private static final String DOUBLE_QUOTE		= "\"";
@@ -376,10 +380,11 @@ public class ResultsListPage extends ConsoleBasePage
 	{
 		private static final long serialVersionUID = 1L;
 		private final List<LearnerExperience> learnerExperiences;
-		private final LearnerExperienceComparator comp = new LearnerExperienceComparator();
+		private final LearnerExperienceComparator comp;
 
 		public AttemptDataProvider(long contentPackageId, Date dueOn)
 		{
+			comp = new LearnerExperienceComparator(localeService.getLocaleForCurrentSiteAndUser());
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
 			if (dueOn != null)
 			{

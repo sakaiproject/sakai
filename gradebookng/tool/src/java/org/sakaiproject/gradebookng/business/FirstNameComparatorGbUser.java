@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.business;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Locale;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -27,11 +28,19 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
  */
 public class FirstNameComparatorGbUser implements Comparator<GbUser> {
 
-    private final Collator collator = Collator.getInstance();
+    private final Collator collator;
+
+    public FirstNameComparatorGbUser() {
+        this(Locale.getDefault());
+    }
+
+    public FirstNameComparatorGbUser(Locale locale) {
+        this.collator = Collator.getInstance(locale);
+        this.collator.setStrength(Collator.PRIMARY);
+    }
 
     @Override
     public int compare(final GbUser u1, final GbUser u2) {
-        this.collator.setStrength(Collator.PRIMARY);
         return new CompareToBuilder()
                 .append(u1.getFirstName(), u2.getFirstName(), this.collator)
                 .append(u1.getLastName(), u2.getLastName(), this.collator)

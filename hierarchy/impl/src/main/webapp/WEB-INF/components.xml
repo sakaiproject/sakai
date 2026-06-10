@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- register JPA-annotated entity classes with the global session factory -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.hierarchy"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.hierarchy.model.HierarchyNode</value>
+                <value>org.sakaiproject.hierarchy.model.HierarchyNodePermission</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.repository.HierarchyNodeRepository"
+          class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodeRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.repository.HierarchyNodePermissionRepository"
+          class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodePermissionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.HierarchyService"
+          class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl"
+          init-method="init">
+        <property name="nodeRepository" ref="org.sakaiproject.hierarchy.repository.HierarchyNodeRepository"/>
+        <property name="permissionRepository" ref="org.sakaiproject.hierarchy.repository.HierarchyNodePermissionRepository"/>
+    </bean>
+
+</beans>

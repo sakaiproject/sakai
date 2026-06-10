@@ -19,6 +19,7 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService" />
 	</bean>
@@ -36,6 +37,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
 	</bean>
 	
 	<bean

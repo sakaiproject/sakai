@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.Getter;
@@ -31,7 +32,6 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -66,10 +66,8 @@ import org.sakaiproject.site.api.Site;
 public class DelegatedAccessSiteHierarchyJob implements Job{
 	@Getter @Setter
 	private HierarchyService hierarchyService;
-	@Getter @Setter	
-	private SakaiProxy sakaiProxy;
 	@Getter @Setter
-	private DelegatedAccessDao dao;
+	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
 		
@@ -99,10 +97,10 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				// create the hierarchy if it is not there already
 				rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.HIERARCHY_ID);
 				String rootTitle = sakaiProxy.getRootName();
-				hierarchyService.saveNodeMetaData(rootNode.id, rootTitle, rootTitle, null);
+				hierarchyService.saveNodeMetaData(rootNode.getId().toString(), rootTitle, rootTitle, null);
 				log.info("Created the root node for the delegated access hierarchy: " + DelegatedAccessConstants.HIERARCHY_ID);
 			}else{
-				hierarchyJobLastRunDate = projectLogic.getHierarchyJobLastRunDate(rootNode.id);
+				hierarchyJobLastRunDate = projectLogic.getHierarchyJobLastRunDate(rootNode.getId().toString());
 			}
 
 			//get hierarchy structure:
@@ -162,7 +160,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 						}
 
 
-						if(!rootNode.id.equals(siteParentNode.id)){
+						if(!rootNode.getId().equals(siteParentNode.getId())){
 							//save the site under the parent hierarchy if any data was found
 							//Site
 							checkAndAddNode(siteParentNode, site.getReference(), site.getTitle(), props.getProperty(sakaiProxy.getTermField()));
@@ -170,7 +168,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 							if(orderByModifiedDate){
 								//the job grabs all sites when orderBy is set, so this site was recently updated
 								//we need to make sure it wasn't removed from the hierarchy:
-								Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
+								Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
 								if(nodeIds != null && nodeIds.containsKey(site.getReference())){
 									for(String nodeId : nodeIds.get(site.getReference())){
 										projectLogic.removeNode(hierarchyService.getNodeById(nodeId));
@@ -211,10 +209,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				//to ensure that any modifications made while
 				//this job was running will be picked up by the
 				//next job run.
-				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.id);
+				projectLogic.saveHierarchyJobLastRunDate(startTime, rootNode.getId().toString());
 			}
 
-			projectLogic.clearNodeCache();
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
 	//		removeMissingNodes(rootNode);
 
@@ -231,12 +228,12 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		HierarchyNode node = null;
 		if(title != null && !"".equals(title)){
 
-			Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
+			Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
 			boolean hasChild = false;
 			String childNodeId = "";
-			if(nodeIds != null && nodeIds.containsKey(title) && nodeIds.get(title).size() > 0){
-				for(String id : nodeIds.get(title)){
-					if(parentNode.directChildNodeIds.contains(id)){
+			if (nodeIds != null && nodeIds.containsKey(title) && !nodeIds.get(title).isEmpty()) {
+				for (String id : nodeIds.get(title)) {
+					if (hierarchyService.getChildNodes(parentNode.getId().toString(), true).stream().anyMatch(c -> c.getId().toString().equals(id))) {
 						hasChild = true;
 						childNodeId = id;
 					}else if(title.startsWith("/site/")){
@@ -248,18 +245,18 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}
 			if(!hasChild){
 				//if this parent/child relationship hasn't been created, create it
-				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentNode.id);
-				hierarchyService.saveNodeMetaData(newNode.id, title, description, term);
-				hierarchyService.addChildRelation(parentNode.id, newNode.id);
+				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentNode.getId().toString());
+				hierarchyService.saveNodeMetaData(newNode.getId().toString(), title, description, term);
+				hierarchyService.addChildRelation(parentNode.getId().toString(), newNode.getId().toString());
 				node = newNode;
-				//since we don't want to keep lookup up the parent id after every child is added,
-				//(b/c the data is stale), just add this id to the set
-				parentNode.directChildNodeIds.add(node.id);
+				//since we don't want to keep look up the parent id after every child is added,
+				//(b/c the data is stale), just add this node to the in-memory directChildren set
+				parentNode.getChildren().add(node);
 			}else{
 				//just grab the node
 				node = hierarchyService.getNodeById(childNodeId);
-				if(!node.description.equals(description) || !node.title.equals(title)){
-					node = hierarchyService.saveNodeMetaData(node.id, title, description, term);
+				if(!Objects.equals(node.getDescription(), description) || !Objects.equals(node.getTitle(), title)){
+					node = hierarchyService.saveNodeMetaData(node.getId().toString(), title, description, term);
 				}
 			}
 		}

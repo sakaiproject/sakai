@@ -82,6 +82,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.Getter;
@@ -116,6 +117,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private TimeService timeService;
 	private ContentHostingService contentHostingService;
     private Optional<CalendarService> additionalCalendarService;
+	private LocaleService localeService;
 
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
@@ -458,7 +460,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 		
 		List<User> sakaiUsers = userDirectoryService.getUsers(userIdsHasPermissionToCreate);
-		Collections.sort(sakaiUsers, new UserSortNameComparator());
+		Collections.sort(sakaiUsers, new UserSortNameComparator(localeService.getLocaleForCurrentSiteAndUser()));
 		for (User user : sakaiUsers) {
 			SignupUser signupUser = new SignupUser(user.getEid(), user.getId(), user.getFirstName(), user.getLastName(), 
 					null, "", true);
@@ -681,7 +683,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private void addAndPopulateSignupUsersInfo(List<SignupUser> signupUsers, Map<String,Role> memberRoleMap, List<String> userIds, Site site){
 		//it should filter out non-existing userIds
 		List<User> sakaiUsers = userDirectoryService.getUsers(userIds);
-		Collections.sort(sakaiUsers, new UserSortNameComparator());
+		Collections.sort(sakaiUsers, new UserSortNameComparator(localeService.getLocaleForSiteAndUser(site.getId(), sessionManager.getCurrentSessionUserId())));
 		
 		if(sakaiUsers !=null){
 			for (User user : sakaiUsers) {

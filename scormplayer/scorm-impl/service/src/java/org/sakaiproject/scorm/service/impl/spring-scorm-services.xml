@@ -20,6 +20,7 @@
 		<property name="attemptDao" ref="org.sakaiproject.scorm.dao.api.AttemptDao"/>
 		<property name="dataManagerDao" ref="org.sakaiproject.scorm.dao.api.DataManagerDao"/>
 		<property name="learnerDao" ref="org.sakaiproject.scorm.dao.LearnerDao"/>
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.service.api.ScormContentService"

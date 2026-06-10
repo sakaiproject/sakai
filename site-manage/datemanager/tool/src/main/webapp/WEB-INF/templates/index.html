@@ -45,47 +45,19 @@
       <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
     </div>
 
-    <div class="date-manager-setter mb-3">
+    <div th:if="${bulkDateFields != null and !bulkDateFields.isEmpty()}" class="date-manager-setter mb-3">
       <div class="sak-banner-error d-none" id="dateBulkSetterError">
         <span data-error="empty" th:text="#{datesetter.error.empty}"></span>
         <span data-error="dateonly" class="d-none" th:text="#{datesetter.error.dateonly}"></span>
       </div>
       <p th:text="#{datesetter.instructions}">Enter one or more dates below, then apply them to all items or expanded sections only. Remember to click Save Changes at the bottom of the page to save your adjustments.</p>
       <div class="row g-3">
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-open-date" th:text="#{column.open.date}">Open Date</label>
-          <input id="bulk-open-date" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-open-date" type="hidden" data-field="open_date" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-due-date" th:text="#{column.due.date}">Due Date</label>
-          <input id="bulk-due-date" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-due-date" type="hidden" data-field="due_date" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-accept-until" th:text="#{column.accept.until}">Accept Until Date</label>
-          <input id="bulk-accept-until" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-accept-until" type="hidden" data-field="accept_until" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-feedback-start" th:text="#{column.feedback.start.date}">Show Feedback On</label>
-          <input id="bulk-feedback-start" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-feedback-start" type="hidden" data-field="feedback_start" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-feedback-end" th:text="#{column.feedback.end.date}">Show Feedback Until</label>
-          <input id="bulk-feedback-end" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-feedback-end" type="hidden" data-field="feedback_end" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-signup-begins" th:text="#{column.signup.begins.date}">Sign-up Begin Date</label>
-          <input id="bulk-signup-begins" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-signup-begins" type="hidden" data-field="signup_begins" />
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <label class="form-label" for="bulk-signup-deadline" th:text="#{column.signup.deadline.date}">Sign-up End Date</label>
-          <input id="bulk-signup-deadline" type="text" class="form-control bulk-date-input" />
-          <input id="bulk-hidden-signup-deadline" type="hidden" data-field="signup_deadline" />
+        <div th:each="field : ${bulkDateFields}" class="col-sm-6 col-lg-3"
+             th:with="inputId=${'bulk-' + #strings.replace(field, '_', '-')}">
+          <label class="form-label" th:for="${inputId}"
+                 th:text="#{${T(org.sakaiproject.datemanager.api.DateManagerConstants).BULK_DATE_FIELD_LABEL_KEYS.get(field)}}">Date</label>
+          <input th:id="${inputId}" type="text" class="form-control bulk-date-input" />
+          <input th:id="${'bulk-hidden-' + #strings.replace(field, '_', '-')}" type="hidden" th:attr="data-field=${field}" />
         </div>
       </div>
       <button class="btn btn-link m-2" id="applyAllDates" th:text="#{datesetter.all.button}" disabled></button>
@@ -317,6 +289,8 @@
           /*[/]*/
 
           var notModified = [];
+
+          DTMN.bulkFields = /*[[${bulkDateFields}]]*/ [];
 
           DTMN.initDatePicker(updates, notModified);
           DTMN.initShifter(updates, notModified);

@@ -27,8 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,6 +65,8 @@ import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
@@ -103,8 +103,8 @@ public class SiteListBean {
 	private AuthzGroupService			authzGroupService	= (AuthzGroupService) ComponentManager.get( AuthzGroupService.class.getName() );
 	private UserDirectoryService		userDirectoryService= (UserDirectoryService) ComponentManager.get( UserDirectoryService.class.getName() );
 	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+	private LocaleService				localeService		= ComponentManager.get(LocaleService.class);
 	/** Private vars */
-	private RuleBasedCollator					collator;
 	private long						timeSpentInGroups	= 0;
 	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
@@ -133,13 +133,6 @@ public class SiteListBean {
 		private String				siteTerm;
 		private boolean				selected;
 
-		{
-			try{
-				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			}catch(ParseException e){
-				collator = (RuleBasedCollator)Collator.getInstance();
-			}
-		}
 		public UserSitesRow() {
 			this.selected = false;
 		}
@@ -228,37 +221,37 @@ public class SiteListBean {
 						if(fieldName.equals(SORT_SITE_NAME)){
 							String s1 = r1.getSiteTitle();
 							String s2 = r2.getSiteTitle();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_TYPE)){
 							String s1 = r1.getSiteType();
 							String s2 = r2.getSiteType();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_RID)){
 							String s1 = r1.getRoleName();
 							String s2 = r2.getRoleName();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_PV)){
 							String s1 = r1.getPubView();
 							String s2 = r2.getPubView();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_STATUS)){
 							String s1 = r1.getUserStatus();
 							String s2 = r2.getUserStatus();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_SITE_TERM)){
 							String s1 = r1.getSiteTerm();
 							String s2 = r2.getSiteTerm();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							int res = collator.compare(s1!=null? s1:"", s2!=null? s2:"");
 							if(sortAscending) return res;
 							else return -res;
 						}
@@ -294,9 +287,13 @@ public class SiteListBean {
 				refreshQuery = false;
 			}
 			
-			if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
+			if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, getCollator()));
 		}
 		return "";
+	}
+
+	private Collator getCollator() {
+		return SakaiCollators.getCollatorWithUnderscoreAfterSpace(localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
 	}
 	
 	/**
@@ -557,7 +554,7 @@ public class SiteListBean {
 	}
 
 	public List getUserSitesRows() {		
-		if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
+		if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, getCollator()));
 		return userSitesRows;
 	}
 

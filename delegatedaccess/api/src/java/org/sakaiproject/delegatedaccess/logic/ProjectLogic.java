@@ -211,7 +211,14 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public Map<String, List<String>> getNodesBySiteRef(String siteRef[], String hierarchyId);
-	
+
+	/**
+	 * Returns the user ids of everyone who holds at least one delegated-access permission
+	 * (site.visit, accessAdmin, or shoppingAdmin) on any hierarchy node.
+	 * @return the list of user ids, empty if none
+	 */
+	public List<String> getDelegatedAccessUsers();
+
 	/**
 	 * Saves the date for the last time the hierarchy job ran successfully
 	 * @param runDate
@@ -245,12 +252,7 @@ public interface ProjectLogic {
 	 * @param hierarchyId
 	 */
 	public void deleteEmptyNonSiteNodes(String hierarchyId);
-	
-	/**
-	 * clears DelegatedAccess's own node cache
-	 */
-	public void clearNodeCache();
-	
+
 	/**
 	 * returns a map of all role options and their realm/role ids separated by a ':'.  For example:
 	 * 

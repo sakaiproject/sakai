@@ -21,26 +21,24 @@
 package org.sakaiproject.api.app.messageforums;
 
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.comparator.SakaiCollators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Recipient Item for storing different types of recipients user/group/role
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
-@Slf4j
 public class MembershipItem implements Comparable<MembershipItem> {
 
     public static final int TYPE_NOT_SPECIFIED = 0;
@@ -52,22 +50,12 @@ public class MembershipItem implements Comparable<MembershipItem> {
     public static final int TYPE_MYGROUPROLES = 6;
     public static final int TYPE_MYGROUPMEMBERS = 7;
 
-    private static Collator collator = Collator.getInstance();
-    static
-    {
-        try
-        {
-            // collator to ignore spaces
-            collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        }
-        catch (ParseException e)
-        {
-            log.error("Unable to create RuleBasedCollator", e);
-        }
-    }
-
     public static final Comparator<MembershipItem> compareByType = Comparator.comparingInt(MembershipItem::getType);
-    public static final Comparator<MembershipItem> compareByName = (o1, o2) -> collator.compare(o1.getName(), o2.getName());
+
+    public static Comparator<MembershipItem> getNameComparator(Locale resolvedLocale) {
+        Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(resolvedLocale, Collator.TERTIARY);
+        return (o1, o2) -> collator.compare(o1.getName(), o2.getName());
+    }
 
     @EqualsAndHashCode.Include
     private String id;
@@ -103,7 +91,7 @@ public class MembershipItem implements Comparable<MembershipItem> {
 
     @Override
     public int compareTo(MembershipItem item) {
-        return compareByType.thenComparing(compareByName).compare(this, item);
+        return compareByType.thenComparing(getNameComparator(Locale.getDefault())).compare(this, item);
     }
 }
  

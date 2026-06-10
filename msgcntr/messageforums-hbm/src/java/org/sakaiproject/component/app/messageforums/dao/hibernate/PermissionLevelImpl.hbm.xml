@@ -47,14 +47,4 @@
                
   </class>
 
-  <query name="findPermissionLevelByTypeUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pli where pli.typeUuid = :typeUuid]]>
-  </query>
-  
-  <query name="findOrderedPermissionLevelNames">
-    <![CDATA[select distinct pli.name from org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pli order by pli.name]]>
-  </query>
-  
-  
-  
 </hibernate-mapping>
