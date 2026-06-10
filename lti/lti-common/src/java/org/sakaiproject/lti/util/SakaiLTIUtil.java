@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.util.Precision;
@@ -79,6 +80,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 // We don't import either of these to make sure we are never confused and always fully qualify
 // import org.sakaiproject.grading.api.Assignment;   // We call this a "column"
@@ -3033,17 +3035,25 @@ public class SakaiLTIUtil {
 				submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
 			}
 
-			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
-			submission.setGradeReleased(false);
-
 			// If we are in any of these states - set the grade to null
-			if ( gradingProgress.equals(Score.GRADING_PENDING) || gradingProgress.equals(Score.GRADING_PENDINGMANUAL) ||
-					gradingProgress.equals(Score.GRADING_FAILED) ||  gradingProgress.equals(Score.GRADING_NOTREADY) ) {
+			boolean gradingPending = gradingProgress.equals(Score.GRADING_PENDING) || gradingProgress.equals(Score.GRADING_PENDINGMANUAL) ||
+					gradingProgress.equals(Score.GRADING_FAILED) || gradingProgress.equals(Score.GRADING_NOTREADY);
+			if ( gradingPending ) {
 				submission.setGrade(null);
 				submission.setGraded(false);
 			} else {
 				submission.setGrade(stringGrade);  // Which might also be null
 				submission.setGraded(true);
+			}
+
+			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
+			// SAK-49972 - Unless auto-release is enabled for fully graded LTI assignments
+			if (isLtiAutoReleaseGradesEnabled(a) && submission.getGraded() && StringUtils.isNotBlank(submission.getGrade())) {
+				submission.setGradeReleased(true);
+				submission.setReturned(true);
+				submission.setDateReturned(now);
+			} else {
+				submission.setGradeReleased(false);
 			}
 
 			Instant previousDateSubmitted = submission.getDateSubmitted();
@@ -3091,6 +3101,9 @@ public class SakaiLTIUtil {
 
 			 try {
 				assignmentService.updateSubmission(submission);
+				if (submission.getGradeReleased()) {
+					syncReleasedLtiGradeToGradebook(a, submission, userId, assignmentService);
+				}
 				log.debug("Submitted submission={} userId={} submitted={} dateSubmitted={} log={}",
 						submission.getId(), userId, submission.getSubmitted(), submission.getDateSubmitted(), logEntry.toString());
 			} catch (org.sakaiproject.exception.PermissionException e) {
@@ -3104,6 +3117,77 @@ public class SakaiLTIUtil {
 			popAdvisor();
 		}
 		return Boolean.TRUE;
+	}
+
+	private static boolean isLtiAutoReleaseGradesEnabled(org.sakaiproject.assignment.api.model.Assignment a) {
+		if (a == null || a.getTypeOfSubmission() != org.sakaiproject.assignment.api.model.Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+			return false;
+		}
+		Map<String, String> properties = a.getProperties();
+		return properties != null && BooleanUtils.toBoolean(properties.get(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES));
+	}
+
+	private static void syncReleasedLtiGradeToGradebook(org.sakaiproject.assignment.api.model.Assignment a,
+			org.sakaiproject.assignment.api.model.AssignmentSubmission submission, String userId,
+			org.sakaiproject.assignment.api.AssignmentService assignmentService) {
+
+		Map<String, String> properties = a.getProperties();
+		if (properties == null) {
+			return;
+		}
+
+		String integrateWithGradebook = properties.get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+		if (integrateWithGradebook == null || AssignmentConstants.GRADEBOOK_INTEGRATION_NO.equals(integrateWithGradebook)) {
+			return;
+		}
+
+		if (!submission.getGradeReleased() || !submission.getGraded() || StringUtils.isBlank(submission.getGrade())) {
+			return;
+		}
+
+		GradingService gradingService = ComponentManager.get(GradingService.class);
+		if (gradingService == null) {
+			return;
+		}
+
+		String siteId = a.getContext();
+		String assignmentRef = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+		String associateGradebookAssignment = properties.get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+
+		Integer scaleFactor = a.getScaleFactor();
+		if (scaleFactor == null) {
+			scaleFactor = assignmentService.getScaleFactor();
+		}
+
+		String gradeString = assignmentService.getGradeDisplay(submission.getGrade(), a.getTypeOfGrade(), scaleFactor);
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
+		String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
+
+		// Gradebook writes require a grader user; LTI score posts have no instructor session.
+		Session sess = SessionManager.getCurrentSession();
+		String gb_user_id = ServerConfigurationService.getString("lti.outcomes.userid", "admin");
+		String gb_user_eid = ServerConfigurationService.getString("lti.outcomes.usereid", gb_user_id);
+		sess.setUserId(gb_user_id);
+		sess.setUserEid(gb_user_eid);
+		try {
+			if (associateGradebookAssignment != null) {
+				if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
+					gradingService.updateExternalAssessmentScore(siteId, siteId, associateGradebookAssignment, userId, gradeString);
+					gradingService.updateExternalAssessmentComment(siteId, siteId, associateGradebookAssignment, userId, commentString);
+				} else if (gradingService.isAssignmentDefined(siteId, siteId, associateGradebookAssignment)) {
+					final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, siteId, associateGradebookAssignment).getId();
+					gradingService.setAssignmentScoreString(siteId, siteId, associateGradebookAssignmentId, userId, gradeString, "External Outcome", null);
+					gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, userId, commentString);
+				}
+			} else {
+				gradingService.updateExternalAssessmentScore(siteId, siteId, assignmentRef, userId, gradeString);
+				gradingService.updateExternalAssessmentComment(siteId, siteId, assignmentRef, userId, commentString);
+			}
+		} catch (Exception e) {
+			log.warn("Could not sync released LTI grade to gradebook for assignment {} user {}: {}", a.getId(), userId, e.toString());
+		} finally {
+			sess.invalidate();
+		}
 	}
 
 	private static String getNextSubmissionLogKey(org.sakaiproject.assignment.api.model.AssignmentSubmission submission) {
