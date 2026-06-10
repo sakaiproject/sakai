@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.AttributeModifier;
@@ -110,7 +111,11 @@ public class ScormPlayerPage extends BaseToolPage
 	@Override
 	public void renderHead(IHeaderResponse response)
 	{
-		super.renderHead(response);
+		// Deliberately skip super.renderHead(): the standard Sakai tool head pulls in jQuery,
+		// CKEditor, headscripts, moment.js, the date-picker bundle and the portal skin CSS,
+		// none of which the REST launcher uses (it is plain JS driving an iframe, styled
+		// entirely by scorm.css).
+		response.render(CssHeaderItem.forUrl(SCORM_CSS));
 		response.render(JavaScriptHeaderItem.forUrl("scripts/scorm-rest-launcher.js"));
 	}
 

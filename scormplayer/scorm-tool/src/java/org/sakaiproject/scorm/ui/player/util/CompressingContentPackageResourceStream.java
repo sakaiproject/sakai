@@ -44,12 +44,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.apache.wicket.util.time.Time;
 
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
@@ -57,15 +58,20 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 {
 	private static final long serialVersionUID = 1L;
 
-	/** Cache for compressed data */
-	private SoftReference cache = new SoftReference(null);
+	/**
+	 * Cache for compressed data, shared across requests. A new stream instance is created for
+	 * every request, so an instance-level cache would never be hit; keying by resource path
+	 * (invalidated by last-modified time) lets every launch of a package reuse the gzipped
+	 * bytes. Values are SoftReferences so the cache shrinks under memory pressure.
+	 */
+	private static final ConcurrentMap<String, CacheEntry> CACHE = new ConcurrentHashMap<>();
 
-	/** Timestamp of the cache */
-	private Instant timeStamp = null;
+	private final String cacheKey;
 
 	public CompressingContentPackageResourceStream(ContentPackageResource resource)
 	{
 		super(resource);
+		this.cacheKey = resource.getPath();
 	}
 
 	@Override
@@ -76,32 +82,47 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	private byte[] getCompressedContent() throws ResourceStreamNotFoundException
 	{
-		InputStream stream = super.getInputStream();
-		try
+		Instant lastModified = lastModifiedTime();
+		CacheEntry entry = cacheKey != null ? CACHE.get(cacheKey) : null;
+		if (entry != null && entry.timeStamp.equals(lastModified))
 		{
-			byte ret[] = (byte[]) cache.get();
-			if (ret != null && timeStamp != null)
+			byte[] cached = entry.bytes.get();
+			if (cached != null)
 			{
-				if (timeStamp.equals(lastModifiedTime()))
-				{
-					return ret;
-				}
+				return cached;
 			}
+		}
 
+		try (InputStream stream = super.getInputStream())
+		{
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try (GZIPOutputStream zout = new GZIPOutputStream(out))
 			{
 				Streams.copy(stream, zout);
 			}
-			stream.close();
-			ret = out.toByteArray();
-			timeStamp = lastModifiedTime();
-			cache = new SoftReference(ret);
+
+			byte[] ret = out.toByteArray();
+			if (cacheKey != null)
+			{
+				CACHE.put(cacheKey, new CacheEntry(lastModified, ret));
+			}
 			return ret;
 		}
 		catch (IOException e)
 		{
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static final class CacheEntry
+	{
+		private final Instant timeStamp;
+		private final SoftReference<byte[]> bytes;
+
+		private CacheEntry(Instant timeStamp, byte[] bytes)
+		{
+			this.timeStamp = timeStamp;
+			this.bytes = new SoftReference<>(bytes);
 		}
 	}
 
