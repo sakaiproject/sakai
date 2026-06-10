@@ -69,24 +69,22 @@ public class PermissionLevelManagerImpl implements PermissionLevelManager {
 
     public void init() {
         log.info("Initializing permission level manager");
+
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         try {
-            // add the default permission level and type data, if necessary
-            if (autoDdl != null && autoDdl && transactionManager != null) {
-                new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                    if (autoDdl != null && autoDdl) {
+                        // add the default permission level and type data, if necessary
                         loadDefaultTypeAndPermissionLevelData();
                     }
-                });
-            }
-
-            // for performance, load the default permission level information now
-            // to make it reusable
-            initializePermissionLevelData();
+                    initializePermissionLevelData();
+                }
+            });
         } catch (Exception ex) {
-            log.error("Failed to initialize default permission levels", ex);
+            log.warn("Failed to initialize default permission levels", ex);
         }
-
     }
 
     @Override
