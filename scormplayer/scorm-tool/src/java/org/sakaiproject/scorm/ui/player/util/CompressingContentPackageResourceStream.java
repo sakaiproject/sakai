@@ -44,8 +44,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
@@ -58,13 +59,25 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 {
 	private static final long serialVersionUID = 1L;
 
+	private static final int MAX_CACHE_ENTRIES = 1024;
+
 	/**
 	 * Cache for compressed data, shared across requests. A new stream instance is created for
 	 * every request, so an instance-level cache would never be hit; keying by resource path
-	 * (invalidated by last-modified time) lets every launch of a package reuse the gzipped
-	 * bytes. Values are SoftReferences so the cache shrinks under memory pressure.
+	 * (the full content hosting ID, /private/scorm/{package-uuid}/..., so keys are unique
+	 * across packages and invalidated by last-modified time) lets every launch of a package
+	 * reuse the gzipped bytes. The map is a bounded LRU so keys cannot accumulate without
+	 * limit, and values are SoftReferences so the bytes can be reclaimed under memory pressure.
 	 */
-	private static final ConcurrentMap<String, CacheEntry> CACHE = new ConcurrentHashMap<>();
+	private static final Map<String, CacheEntry> CACHE = Collections.synchronizedMap(
+		new LinkedHashMap<String, CacheEntry>(64, 0.75f, true)
+		{
+			@Override
+			protected boolean removeEldestEntry(Map.Entry<String, CacheEntry> eldest)
+			{
+				return size() > MAX_CACHE_ENTRIES;
+			}
+		});
 
 	private final String cacheKey;
 
@@ -84,13 +97,18 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 	{
 		Instant lastModified = lastModifiedTime();
 		CacheEntry entry = cacheKey != null ? CACHE.get(cacheKey) : null;
-		if (entry != null && entry.timeStamp.equals(lastModified))
+		if (entry != null)
 		{
-			byte[] cached = entry.bytes.get();
-			if (cached != null)
+			if (entry.timeStamp.equals(lastModified))
 			{
-				return cached;
+				byte[] cached = entry.bytes.get();
+				if (cached != null)
+				{
+					return cached;
+				}
 			}
+			// Stale timestamp or GC-cleared bytes; drop the entry (only if still the one we saw)
+			CACHE.remove(cacheKey, entry);
 		}
 
 		try (InputStream stream = super.getInputStream())
