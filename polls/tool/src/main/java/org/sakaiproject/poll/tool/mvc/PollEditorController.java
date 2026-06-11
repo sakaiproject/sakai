@@ -33,6 +33,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.util.PollUtils;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -275,15 +276,21 @@ public class PollEditorController {
             poll = new Poll();
         }
 
-        poll.setText(StringUtils.trimToEmpty(form.getText()));
+        // Process and sanitize HTML in title
+        String sanitizedTitle = formattedText.processFormattedText(
+            form.getText() != null ? form.getText() : "",
+            null,
+            null
+        );
+        poll.setText(PollUtils.cleanupHtmlPtags(StringUtils.trimToEmpty(sanitizedTitle)));
 
         // Process and sanitize HTML in description
         String sanitizedDescription = formattedText.processFormattedText(
             form.getDetails() != null ? form.getDetails() : "",
             null,
-                null
+            null
         );
-        poll.setDescription(org.sakaiproject.poll.api.util.PollUtils.cleanupHtmlPtags(sanitizedDescription));
+        poll.setDescription(PollUtils.cleanupHtmlPtags(StringUtils.trimToEmpty(sanitizedDescription)));
 
         poll.setPublic(form.isPublic());
         poll.setMinOptions(form.getMinOptions());
