@@ -5687,9 +5687,16 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the instructor view of reordering assignments
      */
     private String build_instructor_reorder_assignment_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
+        String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+        context.put("context", contextString);
 
-        List assignments = prepPage(state);
+        List<Assignment> assignments = new ArrayList<>();
+
+        for (Assignment assignment : assignmentService.getAssignmentsForContext(contextString)) {
+            if (assignment != null && !assignment.getDeleted()) {
+                assignments.add(assignment);
+            }
+        }
 
         context.put("assignments", assignments.iterator());
         context.put("assignmentsize", assignments.size());
