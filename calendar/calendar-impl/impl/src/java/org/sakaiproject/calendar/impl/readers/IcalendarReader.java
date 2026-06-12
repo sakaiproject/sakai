@@ -123,6 +123,17 @@ public class IcalendarReader extends Reader {
 					continue;
 				}
 
+				// If the ICS was exported by Sakai it will carry X-SAKAI-SITE-NAME.
+				// Append the site name to the summary so that the event is displayed
+				// with its originating site, and so that same-name events from different
+				// sites get distinct display names and survive deduplication.
+				Property sakaiSiteName = event.getProperty("X-SAKAI-SITE-NAME");
+				String effectiveSummary = summary.getValue();
+				String sakaiSiteNameValue = sakaiSiteName != null ? sakaiSiteName.getValue() : null;
+				if (sakaiSiteNameValue != null && !sakaiSiteNameValue.isBlank()) {
+					effectiveSummary = effectiveSummary + " (" + sakaiSiteNameValue + ")";
+				}
+
 				if ( start == null || end == null) {
 					log.warn("Defer importing this calendar event as it has no START or END, [{}]", event);
 					continue;
@@ -143,7 +154,7 @@ public class IcalendarReader extends Reader {
 					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
 
 					processRow(handler,
-							summary.getValue(),
+							effectiveSummary,
 							description != null ? description.getValue() : "",
 							columnDescriptionArray,
 							location != null ? location.getValue() : "",
@@ -158,7 +169,7 @@ public class IcalendarReader extends Reader {
 					PeriodList periods = event.calculateRecurrenceSet(range);
 					for (Period period : periods) {
 						processRow(handler,
-								summary.getValue(),
+								effectiveSummary,
 								description != null ? description.getValue() : "",
 								columnDescriptionArray,
 								location != null ? location.getValue() : "",

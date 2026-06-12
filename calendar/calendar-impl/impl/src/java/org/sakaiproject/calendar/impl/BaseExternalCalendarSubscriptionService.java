@@ -727,8 +727,13 @@ public class BaseExternalCalendarSubscriptionService implements
 
 			// connect
 			URLConnection conn = _url.openConnection();
-			// Must set user agent so we can detect loops.
 			conn.addRequestProperty("User-Agent", m_calendarService.getUserAgent());
+			// Propagate the subscription chain only to Sakai ICS endpoints so that internal
+			// site IDs are not leaked to third-party calendar providers (Google, Outlook, etc.).
+			String chain = BaseCalendarService.calendarSubscriptionChain.get();
+			if (chain != null && url.contains("/access/calendar/ical/")) {
+				conn.addRequestProperty("X-Sakai-Calendar-Chain", chain);
+			}
 			conn.setConnectTimeout(TIMEOUT);
 			conn.setReadTimeout(TIMEOUT);
 			// Now make the connection.
