@@ -166,6 +166,50 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
     }
 
     @Test
+    public void transferCopyEntitiesWithCleanupRecreatesPublishedOpenDateAnnouncement() throws Exception {
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        Assignment sourceAssignment = createPublishedAssignment(fromContext);
+        sourceAssignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+        updateAssignment(sourceAssignment);
+
+        String toChannelId = "/announcement/" + toContext + "/main";
+        AnnouncementChannel announcementChannel = mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit message = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = mock(AnnouncementMessageHeaderEdit.class);
+        ResourcePropertiesEdit messageProperties = mock(ResourcePropertiesEdit.class);
+
+        when(announcementService.channelReference(toContext, SiteService.MAIN_CONTAINER)).thenReturn(toChannelId);
+        when(announcementService.getAnnouncementChannel(toChannelId)).thenReturn(announcementChannel);
+        when(announcementChannel.addAnnouncementMessage()).thenReturn(message);
+        when(message.getAnnouncementHeaderEdit()).thenReturn(header);
+        when(message.getPropertiesEdit()).thenReturn(messageProperties);
+        when(message.getId()).thenReturn("replace-import-announcement-id");
+
+        stubContextPermissions(toContext);
+
+        Map<String, String> copied = getAssignmentServiceImpl().transferCopyEntities(fromContext, toContext, null,
+            List.of(EntityTransferrer.PUBLISH_OPTION), true);
+
+        assertTrue(copied.containsKey("assignment/" + sourceAssignment.getId()));
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, importedAssignments.size());
+        Assignment importedAssignment = importedAssignments.iterator().next();
+        Assert.assertFalse(importedAssignment.getDraft());
+        assertEquals("replace-import-announcement-id",
+            importedAssignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+        assertEquals(Boolean.TRUE.toString(),
+            importedAssignment.getProperties().get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+        assertEquals(Boolean.TRUE.toString(),
+            importedAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+        verify(messageProperties, never()).addProperty(eq(AnnouncementService.RELEASE_DATE), anyString());
+        verify(announcementChannel).commitMessage(message, 0, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+    }
+
+    @Test
     public void transferCopyEntitiesRecreatesDraftOpenDateAnnouncementWhenImportDefaultsToDraft() throws Exception {
 
         String fromContext = UUID.randomUUID().toString();

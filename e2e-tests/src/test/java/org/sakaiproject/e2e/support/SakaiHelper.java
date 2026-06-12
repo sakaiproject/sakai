@@ -56,6 +56,13 @@ public class SakaiHelper {
         return Long.toString(System.currentTimeMillis());
     }
 
+    public String siteIdFromUrl(String siteUrl) {
+        if (siteUrl == null) {
+            return "";
+        }
+        return siteUrl.replaceFirst("^.*/portal/site/", "").replaceFirst("[/?#].*$", "");
+    }
+
     public String resolveUsername(String username) {
         return resolveUser(username);
     }
