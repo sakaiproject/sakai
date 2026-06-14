@@ -22,6 +22,7 @@
                 <value>org.sakaiproject.microsoft.api.model.MicrosoftConfigItem</value>
                 <value>org.sakaiproject.microsoft.api.model.MicrosoftLog</value>
                 <value>org.sakaiproject.microsoft.api.model.MicrosoftAccessToken</value>
+                <value>org.sakaiproject.microsoft.api.model.MicrosoftTeamArchiveRecord</value>
             </list>
         </property>
     </bean>
@@ -46,6 +47,10 @@
     <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository"
           class="org.sakaiproject.microsoft.impl.persistence.MicrosoftAccessTokenRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftTeamArchiveRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftTeamArchiveRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </bean>
 
     <!-- Microsoft Synchronization Service -->
@@ -126,5 +131,24 @@
         <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob" />
         <property name="jobName" value="Microsoft Run Synchronizations Job" />
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+    </bean>
+
+     <!-- Microsoft Archive -->
+    <bean id="org.sakaiproject.microsoft.impl.jobs.MicrosoftTeamArchiveJob"
+          class="org.sakaiproject.microsoft.impl.jobs.MicrosoftTeamArchiveJob"
+          init-method="init">
+        <property name="microsoftCommonService" ref="org.sakaiproject.microsoft.api.MicrosoftCommonService" />
+        <property name="microsoftLoggingService" ref="org.sakaiproject.microsoft.api.MicrosoftLoggingService" />
+        <property name="microsoftTeamArchiveRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftTeamArchiveRepository" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.org.sakaiproject.microsoft.impl.jobs.MicrosoftTeamArchiveJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+          init-method="init">
+       <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.MicrosoftTeamArchiveJob" />
+       <property name="jobName"  value="Microsoft Team Archive Job"/>
+       <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
     </bean>
 </beans>

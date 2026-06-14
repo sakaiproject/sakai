@@ -108,6 +108,10 @@ public class MicrosoftLog {
 
 	public static final String ERROR_TEAM_NAME_ALREADY_EXISTS = "error.team_name_already_exists";
 
+	public static final String EVENT_TEAM_ARCHIVED       = "microsoft.team.archived";
+	public static final String EVENT_TEAM_ARCHIVE_ERROR  = "microsoft.team.archive.error";
+	public static final String EVENT_ARCHIVE_JOB_RESULT  = "microsoft.team.archive.job.result";
+
 	public enum Status {
 		KO, OK
 	}
