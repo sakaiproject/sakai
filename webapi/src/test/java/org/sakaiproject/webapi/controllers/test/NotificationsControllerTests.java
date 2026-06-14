@@ -15,11 +15,13 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.CoreMatchers.is;
 
 import java.time.Instant;
 import java.util.List;
@@ -124,18 +126,28 @@ public class NotificationsControllerTests extends BaseControllerTests {
 
         mockMvc.perform(get("/users/me/notifications"))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$.[*].id", hasItems(noti1.id.intValue(), noti2.id.intValue())))
             .andExpect(jsonPath("$.[0].from", is(noti1.from)))
             .andExpect(jsonPath("$.[0].to", is(noti1.to)))
             .andExpect(jsonPath("$.[0].event", is(noti1.event)))
             .andExpect(jsonPath("$.[0].ref", is(noti1.ref)))
             .andExpect(jsonPath("$.[0].siteId", is(noti1.siteId)))
             .andExpect(jsonPath("$.[0].title", is(noti1.title)))
+            .andExpect(jsonPath("$.[0].tool", is(noti1.tool)))
+            .andExpect(jsonPath("$.[0].fromDisplayName", is(noti1.fromDisplayName)))
+            .andExpect(jsonPath("$.[0].siteTitle", is(noti1.siteTitle)))
+            .andExpect(jsonPath("$.[0].formattedEventDate", is(noti1.formattedEventDate)))
             .andExpect(jsonPath("$.[1].from", is(noti2.from)))
             .andExpect(jsonPath("$.[1].to", is(noti2.to)))
             .andExpect(jsonPath("$.[1].event", is(noti2.event)))
             .andExpect(jsonPath("$.[1].ref", is(noti2.ref)))
             .andExpect(jsonPath("$.[1].siteId", is(noti2.siteId)))
             .andExpect(jsonPath("$.[1].title", is(noti2.title)))
+            .andExpect(jsonPath("$.[1].tool", is(noti2.tool)))
+            .andExpect(jsonPath("$.[1].fromDisplayName", is(noti2.fromDisplayName)))
+            .andExpect(jsonPath("$.[1].siteTitle", is(noti2.siteTitle)))
+            .andExpect(jsonPath("$.[1].formattedEventDate", is(noti2.formattedEventDate)))
             .andDo(document("get-user-notifications"));
     }
 
