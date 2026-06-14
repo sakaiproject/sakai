@@ -22,6 +22,7 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +35,7 @@ public class WebApiTestConfiguration {
     }
 
     @Bean
+    @Qualifier("org.sakaiproject.tool.api.SessionManager")
     public SessionManager sessionManager() {
         return mock(SessionManager.class);
     }

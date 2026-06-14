@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -126,8 +124,8 @@ public class NotificationsControllerTests extends BaseControllerTests {
 
         mockMvc.perform(get("/users/me/notifications"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$.[*].id", hasItems(noti1.id.intValue(), noti2.id.intValue())))
+            .andExpect(jsonPath("$.length()", is(2)))
+            .andExpect(jsonPath("$.[0].id", is(noti1.id.intValue())))
             .andExpect(jsonPath("$.[0].from", is(noti1.from)))
             .andExpect(jsonPath("$.[0].to", is(noti1.to)))
             .andExpect(jsonPath("$.[0].event", is(noti1.event)))
@@ -138,6 +136,7 @@ public class NotificationsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.[0].fromDisplayName", is(noti1.fromDisplayName)))
             .andExpect(jsonPath("$.[0].siteTitle", is(noti1.siteTitle)))
             .andExpect(jsonPath("$.[0].formattedEventDate", is(noti1.formattedEventDate)))
+            .andExpect(jsonPath("$.[1].id", is(noti2.id.intValue())))
             .andExpect(jsonPath("$.[1].from", is(noti2.from)))
             .andExpect(jsonPath("$.[1].to", is(noti2.to)))
             .andExpect(jsonPath("$.[1].event", is(noti2.event)))
