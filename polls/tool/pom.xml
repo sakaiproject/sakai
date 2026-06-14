@@ -73,10 +73,6 @@
             <artifactId>poi-ooxml</artifactId>
             <version>${sakai.poi.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-        </dependency>
         <!-- Thymeleaf template engine for RSF replacement -->
         <dependency>
             <groupId>org.thymeleaf</groupId>

@@ -11,7 +11,7 @@
 
     <div class="row mb-3">
       <div class="col-lg-8">
-        <div id="bulkCreationRequirements">
+        <div id="bulk-creation-requirements">
           <strong th:utext="#{poll_import_requirements}"></strong>
           <ul>
             <li th:utext="#{poll_import_requirements_step1}">Each CSV row should contain the poll details in the same order as the manual form.</li>
@@ -31,12 +31,12 @@
       <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <div class="row g-3">
         <div class="col-lg-6">
-          <label class="form-label" for="pollUploadedText" th:text="#{poll_import_typetext}">Type or paste in the text box</label>
-          <textarea class="form-control" id="pollUploadedText" name="pollUploadedText" rows="10" cols="45" th:text="${pollUploadedText}"></textarea>
+          <label class="form-label" for="poll-uploaded-text" th:text="#{poll_import_typetext}">Type or paste in the text box</label>
+          <textarea class="form-control" id="poll-uploaded-text" name="pollUploadedText" rows="10" cols="45" th:text="${pollUploadedText}"></textarea>
         </div>
         <div class="col-lg-6">
-          <label class="form-label" for="pollUploadFile" th:text="#{poll_import_chooseone}">Or choose a file</label>
-          <input class="form-control" id="pollUploadFile" name="pollUploadFile" type="file" accept=".csv,text/csv" />
+          <label class="form-label" for="poll-upload-file" th:text="#{poll_import_chooseone}">Or choose a file</label>
+          <input class="form-control" id="poll-upload-file" name="pollUploadFile" type="file" accept=".csv,text/csv" />
         </div>
       </div>
       <div class="act mt-3">

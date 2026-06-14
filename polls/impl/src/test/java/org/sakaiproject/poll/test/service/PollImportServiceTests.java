@@ -87,6 +87,16 @@ public class PollImportServiceTests {
     }
 
     @Test
+    public void testImportBlankRowsThrows() {
+        String csv = "\uFEFF,,,\n,,,,,,,\n";
+
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+            importService.importFromStrings(List.of(csv), "site-1", "owner-1", Locale.ENGLISH)
+        );
+        Mockito.verifyNoInteractions(pollsService);
+    }
+
+    @Test
     public void testImportQuotedDescriptionWithCommas() {
         String csv = "Question?,\"This, description, has, commas\",2026-06-01T09:00,2026-06-02T17:00,1,1,1,Opt1,Opt2\\n";
 

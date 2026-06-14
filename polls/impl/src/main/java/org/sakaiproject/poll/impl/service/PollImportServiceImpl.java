@@ -69,6 +69,10 @@ public class PollImportServiceImpl implements PollImportService {
             importedPolls.addAll(parseImportedPolls(csv, locale));
         }
 
+        if (importedPolls.isEmpty()) {
+            throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_wrongformat", null, locale));
+        }
+
         for (ImportedPoll ip : importedPolls) {
             Poll poll = buildPoll(ip, siteId, ownerId, locale);
             pollsService.savePoll(poll);

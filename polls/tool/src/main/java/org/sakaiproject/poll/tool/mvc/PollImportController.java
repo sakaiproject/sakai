@@ -46,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PollImportController {
 
+    private static final long MAX_IMPORT_FILE_BYTES = 1024 * 1024;
+
     private final MessageSource messageSource;
     private final ToolManager toolManager;
     private final SessionManager sessionManager;
@@ -128,6 +130,10 @@ public class PollImportController {
     private String readUploadedFile(MultipartFile file, Locale locale) {
         if (file == null || file.isEmpty()) {
             return StringUtils.EMPTY;
+        }
+
+        if (file.getSize() > MAX_IMPORT_FILE_BYTES) {
+            throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale));
         }
 
         try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)) {
