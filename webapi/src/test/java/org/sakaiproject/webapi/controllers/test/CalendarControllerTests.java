@@ -24,15 +24,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -50,75 +48,51 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.CalendarController;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, CalendarController.class })
 public class CalendarControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
+    @Autowired
+    private CalendarController controller;
 
-    @Mock
+    @Autowired
     private ContentHostingService contentHostingService;
 
-    @Mock
+    @Autowired
     private CalendarService calendarService;
 
-    @Mock
+    @Autowired
     private EntityManager entityManager;
 
-    @Mock
+    @Autowired
     private PortalService portalService;
 
-    @Mock
-    private SessionManager sessionManager;
-
-    @Mock
+    @Autowired
     private SiteService siteService;
 
-    @Mock
+    @Autowired
     private UserDirectoryService userDirectoryService;
-
-    private AutoCloseable mocks;
 
     @Before
     public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
+        reset(calendarService, sessionManager);
 
-        reset(calendarService);
-
-        var controller = new CalendarController();
-
-        controller.setUserDirectoryService(userDirectoryService);
-        controller.setCalendarService(calendarService);
-        controller.setPortalService(portalService);
-        controller.setEntityManager(entityManager);
-
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
-        controller.setSessionManager(sessionManager);
 
-        controller.setSiteService(siteService);
-        controller.setContentHostingService(contentHostingService);
+        buildMockMvc(controller);
+	  }
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
-	}
-
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/current/calendar");
     }
 
     @Test

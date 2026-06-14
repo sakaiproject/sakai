@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -31,6 +30,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -67,8 +67,8 @@ public class GradesController extends AbstractSakaiApiController {
     @Resource
     private EntityManager entityManager;
 
-    @Resource(name = "org.sakaiproject.grading.api.GradingService")
-    private org.sakaiproject.grading.api.GradingService gradingService;
+    @Resource
+    private GradingService gradingService;
 
     @Resource
     private SecurityService securityService;

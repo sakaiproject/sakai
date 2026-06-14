@@ -1,0 +1,49 @@
+== Dashboard
+
+__See the login api about session cookies__
+
+=== GET /api/users/{userId}/dashboard
+Returns the dashboad json for the currently authenticated user across all their sites.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-user-dashboard/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a calendar object containing a list of calendar events.
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-user-dashboard/response-body.adoc[]
+
+=== PUT /api/sites/{siteId}/dashboard
+Updates the specified site dashboad
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+|===
+
+==== Example Request
+include::{snippets}/save-site-dashboard/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | No content returned
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/save-site-dashboard/response-body.adoc[]

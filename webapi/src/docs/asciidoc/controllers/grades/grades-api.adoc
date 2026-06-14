@@ -21,7 +21,7 @@ include::{snippets}/get-user-grades/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the sites and viewable grades for the current user
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -47,7 +47,7 @@ include::{snippets}/get-site-grades/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the viewable grades in the supplied site, for the current user
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -71,7 +71,7 @@ include::{snippets}/grade-user/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns nothing.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -95,7 +95,7 @@ include::{snippets}/get-item-data/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the item and category data for the supplied site
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -119,7 +119,7 @@ include::{snippets}/get-group-categories/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the group categories for the supplied site
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -143,7 +143,7 @@ include::{snippets}/get-site-items-for-app/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the application maintained assignments for the site
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -167,7 +167,7 @@ include::{snippets}/get-site-items-for-app-user/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the application maintained assignments for the supplied site and user
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -191,7 +191,7 @@ include::{snippets}/get-site-items-for-app-user-group/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a JSON document with the application maintained assignments for the supplied site, user and group
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response

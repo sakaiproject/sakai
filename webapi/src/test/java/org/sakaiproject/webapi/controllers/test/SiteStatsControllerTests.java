@@ -34,28 +34,19 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.SiteStatsController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SiteStatsControllerTests.TestConfiguration.class})
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, SiteStatsController.class })
 public class SiteStatsControllerTests extends BaseControllerTests {
 
 	private static final String SITE_ID = "site1";
 
-	private MockMvc mockMvc;
-
 	@Autowired private SiteStatsController controller;
 	@Autowired private PortalService portalService;
-	@Autowired private SessionManager sessionManager;
 	@Autowired private SiteService siteService;
 	@Autowired private SiteStatsViewService siteStatsViewService;
 
@@ -70,8 +61,13 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 		Site site = mock(Site.class);
 		when(siteService.getOptionalSite(SITE_ID)).thenReturn(Optional.of(site));
 
-		mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+		buildMockMvc(controller);
 	}
+
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/sites/" + SITE_ID + "/sitestats/overview");
+    }
 
 	@Test
 	public void getOverviewReturnsOverviewJson() throws Exception {
@@ -321,30 +317,5 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/report-previews/missing"))
 			.andExpect(status().isNotFound());
-	}
-
-	@Configuration
-	@Import(SiteStatsController.class)
-	public static class TestConfiguration {
-
-		@Bean
-		public PortalService portalService() {
-			return mock(PortalService.class);
-		}
-
-		@Bean(name = "org.sakaiproject.tool.api.SessionManager")
-		public SessionManager sessionManager() {
-			return mock(SessionManager.class);
-		}
-
-		@Bean
-		public SiteService siteService() {
-			return mock(SiteService.class);
-		}
-
-		@Bean
-		public SiteStatsViewService siteStatsViewService() {
-			return mock(SiteStatsViewService.class);
-		}
 	}
 }

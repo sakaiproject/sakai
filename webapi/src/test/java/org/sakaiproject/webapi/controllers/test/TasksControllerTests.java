@@ -40,8 +40,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -55,17 +53,17 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.TasksController;
 
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, TasksController.class })
 public class TasksControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
+    @Autowired
+    private TasksController controller;
 
     @Autowired
     private TaskService taskService;
@@ -80,9 +78,6 @@ public class TasksControllerTests extends BaseControllerTests {
     private SecurityService securityService;
 
     @Autowired
-    private SessionManager sessionManager;
-
-    @Autowired
     private SiteService siteService;
 
     @Autowired
@@ -95,22 +90,17 @@ public class TasksControllerTests extends BaseControllerTests {
 
         reset(taskService, entityManager, portalService, securityService, sessionManager, siteService, userDirectoryService);
 
-        TasksController controller = new TasksController();
-
-        controller.setUserDirectoryService(userDirectoryService);
-        controller.setTaskService(taskService);
-        controller.setPortalService(portalService);
-        controller.setEntityManager(entityManager);
-        controller.setSecurityService(securityService);
-        controller.setSiteService(siteService);
-
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
         when(securityService.unlock(anyString(), anyString())).thenReturn(true);
-        controller.setSessionManager(sessionManager);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+        buildMockMvc(controller);
+    }
+
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/me/tasks");
     }
 
     @Test
