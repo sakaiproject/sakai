@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.reset;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -34,14 +35,11 @@ import java.util.Optional;
 import org.adl.sequencer.IValidRequests;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormLaunchService;
@@ -49,46 +47,37 @@ import org.sakaiproject.scorm.service.api.launch.ScormLaunchContext;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
 import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.ScormController;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, ScormController.class })
 public class ScormControllerTest extends BaseControllerTests {
 
-    private MockMvc mockMvc;
+    @Autowired
+    private ScormController controller;
+
+    @Autowired
     private ScormLaunchService scormLaunchService;
 
     @Before
     public void setUp() {
 
-        scormLaunchService = mock(ScormLaunchService.class);
+        reset(sessionManager);
 
-        ScormController controller = new ScormController();
-        ReflectionTestUtils.setField(controller, "scormLaunchService", scormLaunchService);
-
-        SessionManager sessionManager = mock(SessionManager.class);
         Session session = mock(Session.class);
         when(sessionManager.getCurrentSession()).thenReturn(session);
         when(session.getUserId()).thenReturn("test-user");
 
-        controller.setSessionManager(sessionManager);
-        controller.setPortalService(mock(PortalService.class));
-        controller.setSiteService(mock(SiteService.class));
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+        buildMockMvc(controller);
     }
 
     @Test

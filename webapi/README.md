@@ -15,7 +15,7 @@ some tests and asciidocs for a controller, you can copy the src/docs/asciidoc/co
 directory and start from there.
 
 Once you've run a successful build and deployed the webapi project, the docs will be available at
-<http://localhost/api/docs/webapi.html>
+<http://localhost/api/docs/index.html>
 
 This documentation approach is a work in progress and we will be adding
 the rest endpoints one by one.

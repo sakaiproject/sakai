@@ -34,44 +34,37 @@ import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.TagsController;
-import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TagsControllerTests.TestConfiguration.class)
-public class TagsControllerTests {
-    @Configuration
-    @Import({WebApiTestConfiguration.class, TagsController.class})
-    public static class TestConfiguration {
-        @Bean
-        public TagService tagService() { return mock(TagService.class); }
-    }
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, TagsController.class })
+public class TagsControllerTests extends BaseControllerTests {
 
     @Autowired private TagsController controller;
     @Autowired private TagService tagService;
-    @Autowired private SessionManager sessionManager;
-    private MockMvc mockMvc;
 
     @Before
     public void setup() {
+
         reset(tagService, sessionManager);
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .setControllerAdvice(new GlobalExceptionHandler()).build();
+
+        buildMockMvc(controller);
+    }
+
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/sites/site-xyz/tools/tool-xyz/tags/collection-xyz");
     }
 
     @Test
     public void createsTagsThroughTheSharedService() throws Exception {
+
         Tag saved = Tag.builder().tagId("saved-tag").tagCollectionId("site1").tagLabel("First").build();
         when(tagService.createSiteTags(eq("site1"), eq("conversations"), anyList()))
             .thenReturn(Collections.singletonList(saved));

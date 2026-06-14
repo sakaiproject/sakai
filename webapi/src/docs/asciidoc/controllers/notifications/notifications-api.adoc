@@ -19,7 +19,7 @@ include::{snippets}/get-user-notifications/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns an array of notifications.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | Missing or invalid Sakai session
 |===
 
 ==== Example Success Response
@@ -41,7 +41,7 @@ include::{snippets}/clear-user-notification/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Notification was cleared.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 | 500 Internal Server Error | Error | Notification could not be cleared.
 |===
 
@@ -61,7 +61,7 @@ include::{snippets}/clear-user-notifications/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Notifications were cleared.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 | 500 Internal Server Error | Error | Notifications could not be cleared.
 |===
 
@@ -83,7 +83,7 @@ include::{snippets}/mark-user-notifications-viewed/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Notifications were marked as viewed.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 | 500 Internal Server Error | Error | Notifications could not be marked as viewed.
 |===
 
@@ -104,5 +104,5 @@ include::{snippets}/send-test-notification/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Test notification was requested.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===

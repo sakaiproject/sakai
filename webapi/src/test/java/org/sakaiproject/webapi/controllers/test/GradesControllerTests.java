@@ -25,16 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -50,42 +48,34 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.GradesController;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, GradesController.class })
 public class GradesControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
+    @Autowired
+    private GradesController controller;
 
-    @Mock
+    @Autowired
     private AuthzGroupService authzGroupService;
 
-    @Mock
+    @Autowired
     private EntityManager entityManager;
 
-    @Mock
+    @Autowired
     private GradingService gradingService;
 
-    @Mock
+    @Autowired
     protected PortalService portalService;
 
-    @Mock
+    @Autowired
     private SecurityService securityService;
 
-    @Mock
-    private SessionManager sessionManager;
-
-    @Mock
+    @Autowired
     private SiteService siteService;
-
-    private AutoCloseable mocks;
 
     private String site1Id = "site1";
     private String site1Title = "Site 1";
@@ -111,25 +101,13 @@ public class GradesControllerTests extends BaseControllerTests {
     @Before
     public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
-
-        reset(gradingService);
-
-        var controller = new GradesController();
-
-        controller.setAuthzGroupService(authzGroupService);
-        controller.setEntityManager(entityManager);
-        controller.setGradingService(gradingService);
-        controller.setPortalService(portalService);
-        controller.setSecurityService(securityService);
-        controller.setSiteService(siteService);
+        reset(gradingService, sessionManager);
 
         var session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
         when(sessionManager.getCurrentSession()).thenReturn(session);
-        controller.setSessionManager(sessionManager);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+        buildMockMvc(controller);
 
         // Setup some mock data
         when(portalService.getPinnedSites()).thenReturn(List.of(site1Id, site2Id));
@@ -170,12 +148,9 @@ public class GradesControllerTests extends BaseControllerTests {
         ass2.setPoints(44D);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/me/grades");
     }
 
     @Test

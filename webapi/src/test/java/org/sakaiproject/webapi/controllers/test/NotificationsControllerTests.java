@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,33 +31,28 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.UserNotificationTransferBean;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.NotificationsController;
 
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, NotificationsController.class })
 public class NotificationsControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
+    @Autowired
+    private NotificationsController controller;
 
     @Autowired
     private UserMessagingService userMessagingService;
 
     @Autowired
     private PortalService portalService;
-
-    @Autowired
-    private SessionManager sessionManager;
 
     @Autowired
     private SiteService siteService;
@@ -71,18 +64,16 @@ public class NotificationsControllerTests extends BaseControllerTests {
 
         reset(userMessagingService, portalService, sessionManager, siteService);
 
-        NotificationsController controller = new NotificationsController();
-
-        controller.setUserMessagingService(userMessagingService);
-        controller.setSiteService(siteService);
-        controller.setPortalService(portalService);
-
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
         when(sessionManager.getCurrentSession()).thenReturn(session);
-        controller.setSessionManager(sessionManager);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
+        buildMockMvc(controller);
+    }
+
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/me/notifications");
     }
 
     @Test
@@ -126,8 +117,8 @@ public class NotificationsControllerTests extends BaseControllerTests {
 
         mockMvc.perform(get("/users/me/notifications"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$.[*].id", hasItems(noti1.id.intValue(), noti2.id.intValue())))
+            .andExpect(jsonPath("$.length()", is(2)))
+            .andExpect(jsonPath("$.[0].id", is(noti1.id.intValue())))
             .andExpect(jsonPath("$.[0].from", is(noti1.from)))
             .andExpect(jsonPath("$.[0].to", is(noti1.to)))
             .andExpect(jsonPath("$.[0].event", is(noti1.event)))
@@ -138,6 +129,7 @@ public class NotificationsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.[0].fromDisplayName", is(noti1.fromDisplayName)))
             .andExpect(jsonPath("$.[0].siteTitle", is(noti1.siteTitle)))
             .andExpect(jsonPath("$.[0].formattedEventDate", is(noti1.formattedEventDate)))
+            .andExpect(jsonPath("$.[1].id", is(noti2.id.intValue())))
             .andExpect(jsonPath("$.[1].from", is(noti2.from)))
             .andExpect(jsonPath("$.[1].to", is(noti2.to)))
             .andExpect(jsonPath("$.[1].event", is(noti2.event)))
