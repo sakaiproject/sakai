@@ -42,12 +42,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import net.fortuna.ical4j.data.CalendarOutputter;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.util.MapTimeZoneCache;
 
@@ -103,6 +100,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
+import org.sakaiproject.calendar.impl.writers.CalendarIcalExporter;
 import org.sakaiproject.util.MergeConfig;
 
 /**
@@ -2308,6 +2306,27 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				events = filterEvents(events, range);
 			}
 
+			return applyEventAccessFilter(events, filter);
+		} // getEvents
+
+		/**
+		 * Returns stored calendar events without expanding recurring occurrences.
+		 * Optional range filtering is applied at storage level only.
+		 */
+		public List getBaseEvents(TimeRange range) throws PermissionException
+		{
+			return getBaseEvents(range, null);
+		}
+
+		public List getBaseEvents(TimeRange range, Filter filter) throws PermissionException
+		{
+			unlock(AUTH_READ_CALENDAR, getReference());
+			List events = m_storage.getEvents(this, range, null);
+			return applyEventAccessFilter(events, filter);
+		}
+
+		private List applyEventAccessFilter(List events, Filter filter) throws PermissionException
+		{
 			if (events.size() == 0) return events;
 
 			// filter out based on the filter
@@ -2333,7 +2352,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				{
 					allowedEvents.add(event);
 				}
-				
+
 				else
 				{
 					// if the user's Groups overlap the event's group refs it's grouped to, keep it
@@ -2348,7 +2367,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			Collections.sort(allowedEvents);
 
 			return allowedEvents;
-		} // getEvents
+		}
 
 		/**
 		 * Filter the events to only those in the time range.
@@ -5077,76 +5096,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected int generateICal(net.fortuna.ical4j.model.Calendar ical, List<String> calRefs)
 	{
-		int numEvents = 0;
-		
-		// This list will have an entry for every week day that we care about.
-		TimeRange currentTimeRange = getICalTimeRange();
-
-		// Get a list of events.
-		CalendarEventVector calendarEventVector = getEvents(calRefs, currentTimeRange);
-		Iterator itEvent = calendarEventVector.iterator();
-
-		// Generate XML for all the events.
-		while (itEvent.hasNext())
-		{
-			CalendarEvent event = (CalendarEvent) itEvent.next();
-
-			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
-			
-			long seconds = event.getRange().duration() / 1000;
-			VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName() );
-			
-			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( timeService.getLocalTimeZone().getID() );
-			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
-			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
-			icalEvent.getProperties().add(new Uid(event.getId()));
-			// build the description, adding links to attachments if necessary
-			StringBuffer description = new StringBuffer("");
-			if ( event.getDescription() != null && !event.getDescription().equals("") )
-				description.append(event.getDescription());
-			
-			List attachments = event.getAttachments();
-			if(attachments != null){
-				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
-					Reference attachment = (Reference) iter.next();
-					description.append("\n");
-					description.append(attachment.getUrl());
-					description.append("\n");
-				}
-			}
-			if(description.length() > 0) {
-				//Replace \r with \n
-				icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));
-			}
-
-			if ( event.getLocation() != null && !event.getLocation().equals("") ) {
-				icalEvent.getProperties().add(new Location(event.getLocation().replace('\r', '\n')));
-			}
-
-			try
-			{
-				String organizer = userDirectoryService.getUser( event.getCreator() ).getDisplayName();
-				organizer = organizer.replaceAll(" ","%20"); // get rid of illegal URI characters
-				icalEvent.getProperties().add(new Organizer(new URI("CN="+organizer)));
-			}
-			catch (UserNotDefinedException e) {} // ignore
-			catch (URISyntaxException e) {} // ignore
-         
-			StringBuffer comment = new StringBuffer(event.getType());
-			comment.append(" (");
-			comment.append(event.getSiteName());
-			comment.append(")");
-			icalEvent.getProperties().add(new Comment(comment.toString()));
-			
-			ical.getComponents().add( icalEvent );
-			numEvents++;
-			
-			/* TBD: add to VEvent: recurring schedule, ...
-			RecurenceRUle x = event.getRecurrenceRule();
-			*/
-		}
-		
-		return numEvents;
+		CalendarIcalExporter exporter = new CalendarIcalExporter(
+				timeService,
+				userDirectoryService,
+				this::getCalendar,
+				(calendar, range) -> ((BaseCalendarEdit) calendar).getBaseEvents(range));
+		return exporter.exportEvents(ical, calRefs, getICalTimeRange());
 	}
 	
 	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
