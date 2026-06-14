@@ -24,11 +24,11 @@ import static org.hamcrest.CoreMatchers.is;
 import java.time.Instant;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,58 +44,43 @@ import org.sakaiproject.webapi.controllers.NotificationsController;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { WebApiTestConfiguration.class })
 public class NotificationsControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
     private UserMessagingService userMessagingService;
 
-    @Mock
+    @Autowired
     private PortalService portalService;
 
-    @Mock
+    @Autowired
     private SessionManager sessionManager;
 
-    @Mock
+    @Autowired
     private SiteService siteService;
-
-    private AutoCloseable mocks;
 
     private String user1Id = "user1";
 
     @Before
     public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
+        reset(userMessagingService, portalService, sessionManager, siteService);
 
-        reset(userMessagingService);
-
-        var controller = new NotificationsController();
+        NotificationsController controller = new NotificationsController();
 
         controller.setUserMessagingService(userMessagingService);
         controller.setSiteService(siteService);
         controller.setPortalService(portalService);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
         when(sessionManager.getCurrentSession()).thenReturn(session);
         controller.setSessionManager(sessionManager);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
-	}
-
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
     }
 
     @Test
