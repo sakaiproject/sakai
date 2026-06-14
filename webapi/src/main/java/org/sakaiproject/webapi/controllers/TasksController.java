@@ -192,6 +192,9 @@ public class TasksController extends AbstractSakaiApiController {
                     groups.add(groupId);
                     users.addAll(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
                 }
+                if (groups.isEmpty() || users.isEmpty()) {
+                    throw new IllegalArgumentException("No valid groups/users found for group task assignment");
+                }
                 task = taskService.createTask(task, users, taskTransfer.getPriority());
                 result = UserTaskAdapterBean.from(taskService.createUserTask(task, taskTransfer));
                 taskService.assignTask(task, AssignationType.group, groups);

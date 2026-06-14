@@ -136,5 +136,5 @@ include::{snippets}/delete-task/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | -
-| 401 Forbidden | Error | User is not authenticated.
+| 401 Unauthorized | Error | User is not authenticated.
 |===

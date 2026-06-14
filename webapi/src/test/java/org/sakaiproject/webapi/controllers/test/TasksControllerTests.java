@@ -23,35 +23,28 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -61,8 +54,6 @@ import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -70,43 +61,39 @@ import org.sakaiproject.webapi.controllers.TasksController;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { WebApiTestConfiguration.class })
 public class TasksControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
     private TaskService taskService;
 
-    @Mock
+    @Autowired
     private EntityManager entityManager;
 
-    @Mock
+    @Autowired
     private PortalService portalService;
 
-    @Mock
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private SessionManager sessionManager;
 
-    @Mock
+    @Autowired
     private SiteService siteService;
 
-    @Mock
+    @Autowired
     private UserDirectoryService userDirectoryService;
-
-    private AutoCloseable mocks;
 
     private String site1Id = "site1";
 
     @Before
     public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
-
-        reset(taskService);
+        reset(taskService, entityManager, portalService, securityService, sessionManager, siteService, userDirectoryService);
 
         TasksController controller = new TasksController();
 
@@ -114,22 +101,16 @@ public class TasksControllerTests extends BaseControllerTests {
         controller.setTaskService(taskService);
         controller.setPortalService(portalService);
         controller.setEntityManager(entityManager);
+        controller.setSecurityService(securityService);
         controller.setSiteService(siteService);
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(securityService.unlock(anyString(), anyString())).thenReturn(true);
         controller.setSessionManager(sessionManager);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
     }
 
     @Test
@@ -173,6 +154,7 @@ public class TasksControllerTests extends BaseControllerTests {
 
         mockMvc.perform(get("/sites/" + site1Id + "/tasks"))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.canUpdateSite", is(true)))
             .andExpect(jsonPath("$.tasks[0].siteId", is(task.getSiteId())))
             .andDo(document("get-site-tasks"));
     }
@@ -224,8 +206,6 @@ public class TasksControllerTests extends BaseControllerTests {
         assigns.setTask(task);
         assigns.setType(AssignationType.site);
         when(taskService.getTaskAssignments(task.getId())).thenReturn(List.of(assigns));
-
-        List<TaskAssigned> taskAssignedList = taskService.getTaskAssignments(task.getId());
 
         when(taskService.createSingleUserTask(any())).thenReturn(userTask);
 
@@ -343,6 +323,8 @@ public class TasksControllerTests extends BaseControllerTests {
         String site1Title = "Site 1";
         Site site1 = mock(Site.class);
         when(site1.getTitle()).thenReturn(site1Title);
+        when(site1.getReference()).thenReturn("/site/" + site1Id);
+        when(site1.getGroups()).thenReturn(Set.of());
         when(siteService.getSite(site1Id)).thenReturn(site1);
 
         UserTaskAdapterBean task1 = new UserTaskAdapterBean();
