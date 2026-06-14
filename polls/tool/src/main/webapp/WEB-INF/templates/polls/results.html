@@ -9,7 +9,6 @@
     <h1 class="h4 mb-3" th:text="#{results_title}">Results</h1>
     <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
     <p th:text="${pollSizeMessage}">Poll size</p>
-    <input type="hidden" id="poll-export-translated-label" th:value="#{poll_export_link}" />
 
     <section class="card mb-4" aria-labelledby="poll-results-chart-heading">
       <div class="card-body">

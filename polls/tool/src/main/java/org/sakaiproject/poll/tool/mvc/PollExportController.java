@@ -21,11 +21,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -39,17 +37,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.sakaiproject.authz.api.SecurityService;
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
-import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
+import org.sakaiproject.poll.tool.service.PollResultsService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -61,11 +55,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.opencsv.CSVWriter;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@RequiredArgsConstructor
 @Slf4j
 public class PollExportController {
 
@@ -74,14 +66,35 @@ public class PollExportController {
     private final PollsService pollsService;
     private final MessageSource messageSource;
     private final ToolManager toolManager;
-    private final SecurityService securityService;
-    private final SiteService siteService;
-    private final TimeService timeService;
-    private final SessionManager sessionManager;
+    private final UserTimeService userTimeService;
+    private final PollResultsService pollResultsService;
+    private final PollPermissionsService pollPermissionsService;
+
+    public PollExportController(PollsService pollsService,
+                                MessageSource messageSource,
+                                ToolManager toolManager,
+                                @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
+                                PollResultsService pollResultsService,
+                                PollPermissionsService pollPermissionsService) {
+        this.pollsService = pollsService;
+        this.messageSource = messageSource;
+        this.toolManager = toolManager;
+        this.userTimeService = userTimeService;
+        this.pollResultsService = pollResultsService;
+        this.pollPermissionsService = pollPermissionsService;
+    }
 
     @GetMapping("/polls/export/xlsx/{pollId}")
     public Object exportXlsx(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
+        return exportPoll(pollId, ExportFormat.XLSX, locale, redirectAttributes);
+    }
 
+    @GetMapping("/polls/export/csv/{pollId}")
+    public Object exportCsv(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
+        return exportPoll(pollId, ExportFormat.CSV, locale, redirectAttributes);
+    }
+
+    private Object exportPoll(String pollId, ExportFormat format, Locale locale, RedirectAttributes redirectAttributes) {
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         Optional<Poll> pollOpt = pollsService.getPollById(pollId);
 
@@ -92,18 +105,29 @@ public class PollExportController {
 
         Poll poll = pollOpt.get();
 
-        if (!poll.getSiteId().equals(currentSiteId) || !canEditPoll(poll)) {
+        if (!poll.getSiteId().equals(currentSiteId) || !pollPermissionsService.canEditPoll(poll)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
             return "redirect:/votePolls";
         }
 
-        List<Option> options = poll.getOptions();
-        List<Vote> allVotes = pollsService.getAllVotesForPoll(poll.getId());
-        long totalVotes = allVotes.size();
-        int distinctVoters = pollsService.getDistinctVotersForPoll(poll);
-        long percentageDenominator = getPercentageDenominator(poll, totalVotes, distinctVoters);
+        PollResultsService.PollResults results = pollResultsService.buildResults(poll, currentSiteId, locale);
         ZonedDateTime now = nowInSakaiZone();
 
+        try {
+            byte[] fileBytes = switch (format) {
+                case XLSX -> buildXlsx(poll, results, now, locale);
+                case CSV -> buildCsv(poll, results, now, locale);
+            };
+            String filename = buildExportFilename(poll.getText(), format.extension, now);
+            return buildFileResponse(fileBytes, filename, format.mediaType);
+        } catch (IOException | RuntimeException e) {
+            log.error("Error generating {} for poll {}", format.extension.toUpperCase(Locale.ROOT), pollId, e);
+            addExportFailureAlert(redirectAttributes, locale, pollId);
+            return "redirect:/votePolls";
+        }
+    }
+
+    private byte[] buildXlsx(Poll poll, PollResultsService.PollResults results, ZonedDateTime now, Locale locale) throws IOException {
         try (Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
             Sheet sheet = wb.createSheet("Poll Results");
@@ -157,21 +181,15 @@ public class PollExportController {
             }
 
             int rowNum = 6;
-            for (Option opt : options) {
-                long votes = allVotes.stream()
-                        .filter(v -> v.getOption().getId().equals(opt.getId()))
-                        .count();
-
-                double percentValue = percentageDenominator == 0 ? 0.0 : ((double) votes / percentageDenominator);
-
+            for (PollResultsService.ResultRow resultRow : results.getRows()) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(opt.getText());
+                row.createCell(0).setCellValue(resultRow.getChartLabel());
 
                 Cell voteCell = row.createCell(1);
-                voteCell.setCellValue(votes);
+                voteCell.setCellValue(resultRow.getVotes());
 
                 Cell percentCell = row.createCell(2);
-                percentCell.setCellValue(percentValue);
+                percentCell.setCellValue(resultRow.getPercentageValue());
                 percentCell.setCellStyle(percentStyle);
             }
 
@@ -180,52 +198,11 @@ public class PollExportController {
             }
 
             wb.write(bos);
-            byte[] fileBytes = bos.toByteArray();
-
-            String filename = buildExportFilename(poll.getText(), "xlsx", now);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
-                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-                    .header(HttpHeaders.PRAGMA, "no-cache")
-                    .header(HttpHeaders.EXPIRES, "0")
-                    .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(fileBytes);
-
-        } catch (IOException | RuntimeException e) {
-            log.error("Error generating XLSX for poll {}", pollId, e);
-            addExportFailureAlert(redirectAttributes, locale, pollId);
-            return "redirect:/votePolls";
+            return bos.toByteArray();
         }
     }
 
-    @GetMapping("/polls/export/csv/{pollId}")
-    public Object exportCsv(@PathVariable("pollId") String pollId, Locale locale, RedirectAttributes redirectAttributes) {
-
-        String currentSiteId = toolManager.getCurrentPlacement().getContext();
-        Optional<Poll> pollOpt = pollsService.getPollById(pollId);
-
-        if (pollOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/votePolls";
-        }
-
-        Poll poll = pollOpt.get();
-
-        if (!poll.getSiteId().equals(currentSiteId) || !canEditPoll(poll)) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return "redirect:/votePolls";
-        }
-
-        List<Option> options = poll.getOptions();
-        List<Vote> allVotes = pollsService.getAllVotesForPoll(poll.getId());
-        long totalVotes = allVotes.size();
-        int distinctVoters = pollsService.getDistinctVotersForPoll(poll);
-        long percentageDenominator = getPercentageDenominator(poll, totalVotes, distinctVoters);
-        ZonedDateTime now = nowInSakaiZone();
-
+    private byte[] buildCsv(Poll poll, PollResultsService.PollResults results, ZonedDateTime now, Locale locale) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
             Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
             CSVWriter csvWriter = new CSVWriter(writer,
@@ -258,44 +235,21 @@ public class PollExportController {
                 sanitizeCsvCell(messageSource.getMessage("poll_export_header_percentage", null, locale))
             }, false);
 
-            for (Option opt : options) {
-                long votes = allVotes.stream()
-                        .filter(v -> v.getOption().getId().equals(opt.getId()))
-                        .count();
-
-                double percentValue = percentageDenominator == 0 ? 0.0 : ((double) votes / percentageDenominator) * 100;
-                String percentLabel = String.format(locale, "%.2f%%", percentValue);
-
+            for (PollResultsService.ResultRow resultRow : results.getRows()) {
                 csvWriter.writeNext(new String[] {
-                    sanitizeCsvCell(opt.getText()),
-                    String.valueOf(votes),
-                    sanitizeCsvCell(percentLabel)
+                    sanitizeCsvCell(resultRow.getChartLabel()),
+                    String.valueOf(resultRow.getVotes()),
+                    sanitizeCsvCell(resultRow.getPercentageLabel())
                 }, false);
             }
 
             csvWriter.flush();
-            byte[] fileBytes = bos.toByteArray();
-            String filename = buildExportFilename(poll.getText(), "csv", now);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
-                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-                    .header(HttpHeaders.PRAGMA, "no-cache")
-                    .header(HttpHeaders.EXPIRES, "0")
-                    .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
-                    .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
-                    .body(fileBytes);
-
-        } catch (IOException | RuntimeException e) {
-            log.error("Error generating CSV for poll {}", pollId, e);
-            addExportFailureAlert(redirectAttributes, locale, pollId);
-            return "redirect:/votePolls";
+            return bos.toByteArray();
         }
     }
 
     private String buildExportFilename(String pollText, String extension, ZonedDateTime now) {
-        String safePollText = pollText.replaceAll("[^a-zA-Z0-9-_]", "_");
+        String safePollText = StringUtils.defaultString(pollText, "poll").replaceAll("[^a-zA-Z0-9_-]", "_");
         if (safePollText.length() > 30) {
             safePollText = safePollText.substring(0, 30);
         }
@@ -305,15 +259,7 @@ public class PollExportController {
     }
 
     private ZonedDateTime nowInSakaiZone() {
-        ZoneId sakaiZone = timeService.getLocalTimeZone().toZoneId();
-        return ZonedDateTime.now(sakaiZone);
-    }
-
-    private long getPercentageDenominator(Poll poll, long totalVotes, int distinctVoters) {
-        if (poll.getMaxOptions() == 1) {
-            return totalVotes;
-        }
-        return distinctVoters;
+        return ZonedDateTime.now(userTimeService.getLocalTimeZone().toZoneId());
     }
 
     private String sanitizeCsvCell(String value) {
@@ -330,14 +276,28 @@ public class PollExportController {
         redirectAttributes.addFlashAttribute("alert", localizedMessage);
     }
 
-    private boolean canEditPoll(Poll poll) {
-        if (securityService.isSuperUser()) {
-            return true;
+    private ResponseEntity<byte[]> buildFileResponse(byte[] fileBytes, String filename, String mediaType) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .header(HttpHeaders.EXPIRES, "0")
+                .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
+                .contentType(MediaType.parseMediaType(mediaType))
+                .body(fileBytes);
+    }
+
+    private enum ExportFormat {
+        XLSX("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+        CSV("csv", "text/csv;charset=UTF-8");
+
+        private final String extension;
+        private final String mediaType;
+
+        ExportFormat(String extension, String mediaType) {
+            this.extension = extension;
+            this.mediaType = mediaType;
         }
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
-            return true;
-        }
-        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef) && StringUtils.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
     }
 }

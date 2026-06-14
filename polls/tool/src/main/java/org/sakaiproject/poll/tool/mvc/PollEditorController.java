@@ -22,20 +22,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.TimeZone;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.util.PollUtils;
 import org.sakaiproject.poll.tool.model.PollForm;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -53,40 +50,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.*;
-
 @Controller
 @RequestMapping
 @Slf4j
 public class PollEditorController {
     private final PollsService pollsService;
-    private final SecurityService securityService;
-    private final SiteService siteService;
     private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final ServerConfigurationService serverConfigurationService;
     private final FormattedText formattedText;
     private final UserTimeService userTimeService;
     private final MessageSource messageSource;
+    private final PollPermissionsService pollPermissionsService;
 
     public PollEditorController(PollsService pollsService,
-                                SecurityService securityService,
-                                SiteService siteService,
                                 SessionManager sessionManager,
                                 ToolManager toolManager,
                                 ServerConfigurationService serverConfigurationService,
                                 @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
                                 MessageSource messageSource,
-                                FormattedText formattedText) {
+                                FormattedText formattedText,
+                                PollPermissionsService pollPermissionsService) {
         this.pollsService = pollsService;
-        this.securityService = securityService;
-        this.siteService = siteService;
         this.sessionManager = sessionManager;
         this.toolManager = toolManager;
         this.serverConfigurationService = serverConfigurationService;
         this.userTimeService = userTimeService;
         this.messageSource = messageSource;
         this.formattedText = formattedText;
+        this.pollPermissionsService = pollPermissionsService;
     }
 
     @GetMapping("/voteAdd")
@@ -99,7 +91,7 @@ public class PollEditorController {
         boolean hasVotes = false;
 
         if (isNew) {
-            if (!isAllowedPollAdd()) {
+            if (!pollPermissionsService.canAddPoll()) {
                 model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
                 return "redirect:/votePolls";
             }
@@ -111,7 +103,7 @@ public class PollEditorController {
                 return "redirect:/votePolls";
             }
 
-            if (!canEditPoll(poll.get())) {
+            if (!pollPermissionsService.canEditPoll(poll.get())) {
                 model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
                 return "redirect:/votePolls";
             }
@@ -133,8 +125,8 @@ public class PollEditorController {
                 new DisplayOption("never", "new_poll_never")
         ));
 
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
         return "polls/edit";
@@ -150,7 +142,7 @@ public class PollEditorController {
         boolean isNewPoll = StringUtils.isBlank(pollForm.getPollId());
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         if (isNewPoll) {
-            if (!isAllowedPollAdd()) {
+            if (!pollPermissionsService.canAddPoll()) {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
                 populateModelForEdit(model, pollForm, List.of(), false);
                 return "polls/edit";
@@ -162,7 +154,7 @@ public class PollEditorController {
                 populateModelForEdit(model, pollForm, List.of(), false);
                 return "polls/edit";
             }
-            if (!canEditPoll(poll.get())) {
+            if (!pollPermissionsService.canEditPoll(poll.get())) {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
                 populateModelForEdit(model, pollForm, List.of(), false);
                 return "polls/edit";
@@ -242,8 +234,8 @@ public class PollEditorController {
                 new DisplayOption("never", "new_poll_never")
         ));
         model.addAttribute("isNew", StringUtils.isBlank(pollForm.getPollId()));
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
     }
@@ -348,31 +340,8 @@ public class PollEditorController {
         return LocalDateTime.ofInstant(instant, zoneId);
     }
 
-    private boolean isAllowedPollAdd() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
-    }
-
-    private boolean isSiteOwner() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
-    }
-
-    private boolean canEditPoll(Poll poll) {
-        if (securityService.isSuperUser()) {
-            return true;
-        }
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
-            return true;
-        }
-        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef)
-                && StringUtils.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
-    }
-
     private ZoneId getUserZoneId() {
-        TimeZone tz = userTimeService.getLocalTimeZone();
-        return tz != null ? tz.toZoneId() : ZoneId.systemDefault();
+        return userTimeService.getLocalTimeZone().toZoneId();
     }
 
     private LocalDateTime truncateToMinutes(LocalDateTime value) {

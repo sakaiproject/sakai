@@ -23,15 +23,12 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.tool.model.VoteForm;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,8 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
-
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
@@ -51,10 +46,8 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 public class VoteController {
 
     private final PollsService pollsService;
-    private final SecurityService securityService;
-    private final SiteService siteService;
-    private final ToolManager toolManager;
     private final MessageSource messageSource;
+    private final PollPermissionsService pollPermissionsService;
 
     @GetMapping("/voteQuestion")
     public String showVote(@RequestParam("pollId") String pollId,
@@ -87,8 +80,7 @@ public class VoteController {
         model.addAttribute("options", options);
         model.addAttribute("multipleChoice", multipleChoice);
         model.addAttribute("voteForm", voteForm);
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        addMenuPermissions(model);
         return "polls/vote";
     }
 
@@ -125,18 +117,12 @@ public class VoteController {
     public String showConfirmation(@RequestParam("voteRef") String voteRef,
                                    Model model) {
         model.addAttribute("voteRef", voteRef);
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        addMenuPermissions(model);
         return "polls/thanks";
     }
 
-    private boolean isAllowedPollAdd() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
-    }
-
-    private boolean isSiteOwner() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
+    private void addMenuPermissions(Model model) {
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
     }
 }

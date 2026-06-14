@@ -18,7 +18,6 @@
 
     <form th:if="${!#lists.isEmpty(polls)}" method="post" th:action="@{/polls/bulk}">
       <input type="hidden" name="siteId" th:value="${siteId}" />
-      <input type="hidden" id="poll-export-translated-label" th:value="#{poll_export_link}" />
 
       <div class="table-responsive">
         <table class="table table-striped table-hover align-middle">
