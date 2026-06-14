@@ -366,6 +366,7 @@ public final class AssignmentConstants {
     public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
 
     public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+    public static final String NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES = "new_assignment_check_lti_auto_release_grades";
     public static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
 
 	/**
