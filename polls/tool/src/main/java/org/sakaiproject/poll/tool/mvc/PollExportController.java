@@ -36,6 +36,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.service.PollsService;
@@ -122,7 +123,8 @@ public class PollExportController {
             return buildFileResponse(fileBytes, filename, format.mediaType);
         } catch (IOException | RuntimeException e) {
             log.error("Error generating {} for poll {}", format.extension.toUpperCase(Locale.ROOT), pollId, e);
-            addExportFailureAlert(redirectAttributes, locale, pollId);
+            redirectAttributes.addFlashAttribute("alert",
+                    messageSource.getMessage("poll_export_failed", new Object[] { pollId }, locale));
             return "redirect:/votePolls";
         }
     }
@@ -130,7 +132,8 @@ public class PollExportController {
     private byte[] buildXlsx(Poll poll, PollResultsService.PollResults results, ZonedDateTime now, Locale locale) throws IOException {
         try (Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
-            Sheet sheet = wb.createSheet("Poll Results");
+            String sheetName = messageSource.getMessage("poll_export_sheet_name", null, locale);
+            Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 
             Font boldFont = wb.createFont();
             boldFont.setBold(true);
@@ -214,6 +217,7 @@ public class PollExportController {
                     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
             );
 
+            // Write a UTF-8 BOM so spreadsheet applications detect non-ASCII characters correctly.
             bos.write(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
 
             csvWriter.writeNext(new String[] {
@@ -271,18 +275,11 @@ public class PollExportController {
         return text;
     }
 
-    private void addExportFailureAlert(RedirectAttributes redirectAttributes, Locale locale, String pollId) {
-        String localizedMessage = messageSource.getMessage("poll_export_failed", new Object[] { pollId }, locale);
-        redirectAttributes.addFlashAttribute("alert", localizedMessage);
-    }
-
     private ResponseEntity<byte[]> buildFileResponse(byte[] fileBytes, String filename, String mediaType) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileBytes.length))
-                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-                .header(HttpHeaders.PRAGMA, "no-cache")
-                .header(HttpHeaders.EXPIRES, "0")
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
                 .contentType(MediaType.parseMediaType(mediaType))
                 .body(fileBytes);
