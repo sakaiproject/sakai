@@ -14,7 +14,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package org.sakaiproject.poll.tool.mvc;
+package org.sakaiproject.poll.tool.service;
 
 import java.time.Instant;
 import java.util.List;
