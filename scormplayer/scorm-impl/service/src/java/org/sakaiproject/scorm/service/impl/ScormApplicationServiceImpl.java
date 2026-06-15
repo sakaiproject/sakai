@@ -321,17 +321,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	@Override
 	public String getLastError(SessionBean sessionBean)
 	{
-		log.debug("API GetLastError ");
 		IErrorManager errorManager = sessionBean.getErrorManager();
 		String result = errorManager.getCurrentErrorCode();
-
-		if (!result.equals("0") && log.isWarnEnabled())
-		{
-			String description = errorManager.getErrorDescription(result);
-			log.warn("API threw an error: {}", description);
-		}
-
-		log.debug("API GetLastError (result): {}", result);
+		log.debug("Last error code: {}", result);
 		return result;
 	}
 
