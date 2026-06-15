@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -48,7 +47,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -56,10 +54,10 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -291,7 +289,8 @@ public class XMLImportBean implements Serializable {
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
     List failedMatchingQuestions = new ArrayList();
-    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
+    List<String> skippedAttachments = new ArrayList<>();
+    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus, failedMatchingQuestions, skippedAttachments);
     if (failedMatchingQuestions.size() > 0)
     {
       String importedFilename = getImportedFilename(uploadFile);	
@@ -309,6 +308,21 @@ public class XMLImportBean implements Serializable {
       sb.append(". ");
       sb.append(rb.getString("respondus_matching_err_2"));
       FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    if (!skippedAttachments.isEmpty()) {
+      String importedFilename = getImportedFilename(uploadFile);
+      String warningText = MessageFormat.format(
+          rb.getString("import_attachment_warning"),
+          importedFilename,
+          buildSkippedAttachmentList(skippedAttachments));
+      if (skippedAttachments.size() > 5) {
+        warningText = warningText + MessageFormat.format(
+            rb.getString("import_attachment_warning_more"),
+            skippedAttachments.size() - 5);
+      }
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, warningText, null);
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     
@@ -378,6 +392,26 @@ public class XMLImportBean implements Serializable {
 	  String final_filename = temp_filename_3 + temp_filename_2;
 	  return final_filename;
   }
+
+  private String extractAttachmentName(String attachmentReference) {
+    if (attachmentReference == null) {
+      return "";
+    }
+    int lastSlash = attachmentReference.lastIndexOf('/');
+    return lastSlash > -1 ? attachmentReference.substring(lastSlash + 1) : attachmentReference;
+  }
+
+  private String buildSkippedAttachmentList(List<String> skippedAttachments) {
+    StringBuilder skippedList = new StringBuilder();
+    int displayed = Math.min(skippedAttachments.size(), 5);
+    for (int i = 0; i < displayed; i++) {
+      if (i > 0) {
+        skippedList.append(", ");
+      }
+      skippedList.append(extractAttachmentName(skippedAttachments.get(i)));
+    }
+    return skippedList.toString();
+  }
   
   private void deleteDirectory(File directory) {
 	try (Stream<Path> walk = Files.walk(directory.toPath())) {
@@ -402,7 +436,7 @@ public class XMLImportBean implements Serializable {
    * @return
    */
   
-  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions) throws Exception
+  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions, List<String> skippedAttachments) throws Exception
   {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document = null;
@@ -411,13 +445,12 @@ public class XMLImportBean implements Serializable {
 	} catch (Exception e) {
 		throw(e);
 	}
-    QTIService qtiService = new QTIService();
-    if (isCP) {
-    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions, null);
-    }
-    else {
-    	return qtiService.createImportedAssessment(document, qti, null, isRespondus, failedMatchingQuestions, null);
-    }
+    AuthoringHelper authoringHelper = new AuthoringHelper(qti);
+    AssessmentFacade assessment = isCP
+        ? authoringHelper.createImportedAssessment(document, new File(fullFileName).getParent(), isRespondus, failedMatchingQuestions)
+        : authoringHelper.createImportedAssessment(document, null, isRespondus, failedMatchingQuestions);
+    skippedAttachments.addAll(authoringHelper.getSkippedAttachments());
+    return assessment;
   }
 
   public AuthorBean getAuthorBean()
@@ -559,7 +592,7 @@ public class XMLImportBean implements Serializable {
    * @return
  * @throws Exception 
    */
-  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions) throws Exception {
+  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions, List<String> skippedAttachments) throws Exception {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document;
 	try {
@@ -567,12 +600,12 @@ public class XMLImportBean implements Serializable {
 	} catch (Exception e) {
 		throw(e);
 	}
-    QTIService qtiService = new QTIService();
-    if (isCP) {
-        return qtiService.createImportedQuestionPool(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions);
-    } else {
-        return qtiService.createImportedQuestionPool(document, qti, null, isRespondus, failedMatchingQuestions);
-    }
+    AuthoringHelper authoringHelper = new AuthoringHelper(qti);
+    QuestionPoolFacade questionPool = isCP
+        ? authoringHelper.createImportedQuestionPool(document, new File(fullFileName).getParent(), isRespondus, failedMatchingQuestions)
+        : authoringHelper.createImportedQuestionPool(document, null, isRespondus, failedMatchingQuestions);
+    skippedAttachments.addAll(authoringHelper.getSkippedAttachments());
+    return questionPool;
   }
   
   public QuestionPoolBean getQuestionPoolBean()
@@ -601,7 +634,8 @@ public class XMLImportBean implements Serializable {
     QuestionPoolService questionPoolService = new QuestionPoolService();
     // Create a pool based on the uploaded file
     List failedMatchingQuestions = new ArrayList();
-    QuestionPoolFacade questionPool = createImportedQuestionPool(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
+    List<String> skippedAttachments = new ArrayList<>();
+    QuestionPoolFacade questionPool = createImportedQuestionPool(fileName, qtiVersion, isRespondus, failedMatchingQuestions, skippedAttachments);
     if (failedMatchingQuestions.size() > 0) {
       String importedFilename = getImportedFilename(uploadFile);
       StringBuffer sb = new StringBuffer("\"");
@@ -618,6 +652,21 @@ public class XMLImportBean implements Serializable {
       sb.append(". ");
       sb.append(rb.getString("respondus_matching_err_2"));
       FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    if (!skippedAttachments.isEmpty()) {
+      String importedFilename = getImportedFilename(uploadFile);
+      String warningText = MessageFormat.format(
+          rb.getString("import_attachment_warning"),
+          importedFilename,
+          buildSkippedAttachmentList(skippedAttachments));
+      if (skippedAttachments.size() > 5) {
+        warningText = warningText + MessageFormat.format(
+            rb.getString("import_attachment_warning_more"),
+            skippedAttachments.size() - 5);
+      }
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, warningText, null);
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
