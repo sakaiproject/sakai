@@ -45,7 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.w3c.dom.Document;
@@ -110,6 +109,7 @@ public class AuthoringHelper
   private AuthoringXml ax;
 
   private int qtiVersion;
+  private List<String> skippedAttachments = new ArrayList<>();
   private static final String VALIDATE_XSD_PATH ="xml/xsd/";
 
 
@@ -131,6 +131,16 @@ public class AuthoringHelper
         "Version Codes supported: QTIVersion.VERSION_1_2, QTIVersion.VERSION_2_0");
     }
     ax = new AuthoringXml(qtiVersion);
+  }
+
+  public List<String> getSkippedAttachments()
+  {
+    return new ArrayList<>(skippedAttachments);
+  }
+
+  private void setSkippedAttachments(ExtractionHelper exHelper)
+  {
+    skippedAttachments = exHelper.getSkippedAttachments();
   }
 
   /**
@@ -1070,7 +1080,7 @@ public class AuthoringHelper
       
       // Assessment Attachment
       exHelper.makeAssessmentAttachmentSet(assessment);
-      QTIService.setLastSkippedAttachments(exHelper.getSkippedAttachments());
+      setSkippedAttachments(exHelper);
 
       assessmentService.saveAssessment(assessment);
       return assessment;
@@ -1227,7 +1237,6 @@ public class AuthoringHelper
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
-               QTIService.setLastSkippedAttachments(exHelper.getSkippedAttachments());
                questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());
                questionPoolItem.setItemId(item.getItemId());
                questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
@@ -1238,6 +1247,7 @@ public class AuthoringHelper
        
       // update the questionpoool with all sections and items
       questionpool = questionPoolService.savePool(questionpool);
+      setSkippedAttachments(exHelper);
        
  	  return questionpool;		
  	}

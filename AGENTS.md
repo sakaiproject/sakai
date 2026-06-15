@@ -13,6 +13,7 @@
 - `npm run analyze` - Run lit-analyzer for static type checking
 
 ## Architecture
+- **Request-Scoped State**: Do not use `ThreadLocal`, static fields, or singleton bean fields to pass request/import/user/site-specific state through service calls. Sakai runs on pooled application-server threads, so thread-bound state can leak across requests if cleanup is missed. Prefer explicit return values, operation-scoped helper instances, DTO/result objects, or method parameters.
 
 ### Kernel
 - **Core Services**: The Kernel provides core services that should be used by all tools

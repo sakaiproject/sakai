@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.services.qti;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -44,33 +43,8 @@ import org.w3c.dom.Document;
  */
 public class QTIService implements QTIServiceAPI
 {
-  private static final ThreadLocal<List<String>> lastSkippedAttachments = new ThreadLocal<>();
-
   public QTIService()
   {
-  }
-
-  public static void setLastSkippedAttachments(List<String> skippedAttachments)
-  {
-    if (skippedAttachments == null || skippedAttachments.isEmpty()) {
-      lastSkippedAttachments.remove();
-      return;
-    }
-    lastSkippedAttachments.set(new ArrayList<>(skippedAttachments));
-  }
-
-  public static List<String> getLastSkippedAttachments()
-  {
-    List<String> skippedAttachments = lastSkippedAttachments.get();
-    if (skippedAttachments == null) {
-      return new ArrayList<>();
-    }
-    return new ArrayList<>(skippedAttachments);
-  }
-
-  public static void clearLastSkippedAttachments()
-  {
-    lastSkippedAttachments.remove();
   }
 
     //IMPORTING ASSESSMENT
