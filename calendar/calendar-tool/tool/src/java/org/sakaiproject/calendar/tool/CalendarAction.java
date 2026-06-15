@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -4666,9 +4667,9 @@ extends VelocityPortletStateAction
 				state.setNewData(state.getPrimaryCalendarReference(), "", "", date.getMonthValue(), date.getDayOfMonth(),
 						String.valueOf(date.getYear()), hour, minute, -1, -1, "", am, "", new HashMap(), "");
 			}
-			catch (Exception e)
+			catch (DateTimeParseException e)
 			{
-				log.warn("doNew(): invalid date '{}' from calendar grid: {}", newEventDate, e.toString());
+				log.warn("doNew(): invalid date '{}' from calendar grid", newEventDate, e);
 			}
 		}
 	}	 // doNew

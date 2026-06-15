@@ -217,12 +217,24 @@ const sakaiCalendar = {
       toggleButton.setAttribute('aria-expanded', expanded);
     };
 
-    setExpanded(localStorage.getItem(storageKey) !== 'false');
+    // localStorage can throw in restricted contexts (e.g. browser private mode);
+    // fall back to the expanded-by-default behaviour in that case.
+    let storedValue = null;
+    try {
+      storedValue = localStorage.getItem(storageKey);
+    } catch (e) {
+      console.warn('Could not read calendar toolbar preference from localStorage', e);
+    }
+    setExpanded(storedValue !== 'false');
 
     toggleButton.addEventListener('click', () => {
       const expanded = toggleButton.getAttribute('aria-expanded') !== 'true';
       setExpanded(expanded);
-      localStorage.setItem(storageKey, expanded);
+      try {
+        localStorage.setItem(storageKey, expanded);
+      } catch (e) {
+        console.warn('Could not save calendar toolbar preference to localStorage', e);
+      }
     });
   },
 

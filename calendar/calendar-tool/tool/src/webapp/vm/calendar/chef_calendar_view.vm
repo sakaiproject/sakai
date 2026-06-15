@@ -18,7 +18,7 @@
     #if($menu)#toolbar($menu)#end
     <div class="sakai-sideHeading">
       #calendarView()
-      <a onclick="sakaiCalendar.printCalendar('$printableVersionUrl')" title="$!tlang.getString('java.print')" href="#">$!tlang.getString('java.print')</a>
+      <button type="button" class="btn-link" onclick="sakaiCalendar.printCalendar('$printableVersionUrl')" title="$!tlang.getString('java.print')">$!tlang.getString('java.print')</button>
     </div>
   </div>
   #if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
