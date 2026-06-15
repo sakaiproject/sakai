@@ -37,6 +37,20 @@ const sakaiCalendar = {
       datesSet: (dateInfo) => {
         // This event fires when the calendar is fully rendered and ready
         this.setupViewButtonHandlers();
+        this.updateHeightForView(dateInfo.view.type);
+      },
+      dateClick: (info) => {
+        // Clicking on a day cell in month view navigates to the day view for that date.
+        if (info.view.type === 'dayGridMonth') {
+          this.calendar.changeView('timeGridDay', info.date);
+          // The second click of a double-click may land on the new day view once it
+          // re-renders; ignore it so it doesn't also open the new event form.
+          this.ignoreDateClickUntil = Date.now() + 400;
+        } else if (info.jsEvent.detail === 2 && info.view.type.startsWith('timeGrid')
+            && Date.now() >= (this.ignoreDateClickUntil || 0)) {
+          // Double-clicking on a time slot opens the new event form with that date/time prefilled.
+          this.openNewEventForm(info.dateStr);
+        }
       },
       buttonIcons: {
         /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
@@ -127,6 +141,16 @@ const sakaiCalendar = {
         return {
           html: eventTitle.outerHTML
         };
+      },
+      // Show the full title, schedule, type and origin site as a native
+      // tooltip, since long titles get truncated in the month view cells.
+      eventDidMount: function (info) {
+        const { event } = info;
+        const { type, site_name } = event.extendedProps;
+        const startTime = sakaiCalendar.calendar.formatDate(event.start, { hour: 'numeric', minute: '2-digit' });
+        const endTime = sakaiCalendar.calendar.formatDate(event.end, { hour: 'numeric', minute: '2-digit' });
+        const schedule = `${startTime} - ${endTime}`;
+        info.el.title = [event.title, schedule, type, site_name].filter(Boolean).join('\n');
       }
     });
 
@@ -139,13 +163,67 @@ const sakaiCalendar = {
   gotoDate (currentDate) {
     this.calendar.gotoDate(currentDate);
   },
+
+  // Submit the hidden "new event" form, prefilling the date and time that was double-clicked.
+  openNewEventForm (dateStr) {
+    // dateStr is already expressed in the calendar's configured timezone, so parseZone
+    // keeps those literal values instead of converting to the browser's local timezone.
+    const m = moment.parseZone(dateStr);
+    document.getElementById('newEventDate').value = m.format('YYYY-MM-DD');
+    document.getElementById('newEventHour').value = m.format('H');
+    document.getElementById('newEventMinute').value = m.format('m');
+    document.getElementById('newEventForm').submit();
+  },
   
   setScrollTime (scrollTimeParam) {
+	// Update the option too (not just a one-off scroll), so that if a later option
+	// change (e.g. aspectRatio) causes the time grid to remount, it re-scrolls to
+	// this time instead of falling back to the default scrollTime.
+	this.calendar.setOption('scrollTime', scrollTimeParam);
 	this.calendar.scrollToTime(scrollTimeParam);
   },
   
   setAspectRatio (aspectRatio) {
 	this.calendar.setOption('aspectRatio', aspectRatio);
+  },
+
+  // Month view rows grow with the number of events per day, so a fixed
+  // aspectRatio leaves either too much empty space or makes busy weeks
+  // taller than the rest. Use 'auto' height for month view only, where
+  // each row sizes to its own content; other views keep using aspectRatio
+  // and its scroll-to-time behavior.
+  updateHeightForView (viewType) {
+    const desiredHeight = viewType === 'dayGridMonth' ? 'auto' : undefined;
+    if (this.currentHeight !== desiredHeight) {
+      this.currentHeight = desiredHeight;
+      this.calendar.setOption('height', desiredHeight);
+      if (viewType.startsWith('timeGrid')) {
+        // Changing height remounts the time grid's scroll container,
+        // resetting its scroll position; restore it once rendered.
+        requestAnimationFrame(() => {
+          this.calendar.scrollToTime(this.calendar.getOption('scrollTime'));
+        });
+      }
+    }
+  },
+
+  // Toggle the toolbar/view-selector/print-link section, remembering the user's
+  // preference (expanded by default) across visits via localStorage.
+  initToolbarToggle (toggleButton, collapseDiv) {
+    const storageKey = 'sakai-calendar-toolbar-expanded';
+
+    const setExpanded = (expanded) => {
+      collapseDiv.hidden = !expanded;
+      toggleButton.setAttribute('aria-expanded', expanded);
+    };
+
+    setExpanded(localStorage.getItem(storageKey) !== 'false');
+
+    toggleButton.addEventListener('click', () => {
+      const expanded = toggleButton.getAttribute('aria-expanded') !== 'true';
+      setExpanded(expanded);
+      localStorage.setItem(storageKey, expanded);
+    });
   },
 
   // When the user changes the view, reflect the change in a param to set the default view.
