@@ -467,6 +467,16 @@
 			<div id="selectAutoAnnounceOptions" style="display:none" class="indnt3">
 			#end
 				<div class="col-sm-offset-1">
+					<div class="checkbox">
+						<label for="$name_AnnounceOnOpenDate">
+						#if ($value_AnnounceOnOpenDate && $value_AnnounceOnOpenDate.equals("true"))
+							<input id="$name_AnnounceOnOpenDate" name="$name_AnnounceOnOpenDate" type="checkbox" value="true" checked="checked" />
+						#else
+							<input id="$name_AnnounceOnOpenDate" name="$name_AnnounceOnOpenDate" type="checkbox" value="true" />
+						#end
+						$tlang.getString("gen.anntheope.delay")
+						</label>
+					</div>
 					<select name="$name_OpenDateNotification" id="$name_OpenDateNotification">
 						<option value="$value_opendate_notification_none" #if($value_OpenDateNotification.equals($value_opendate_notification_none)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.none')</option>
 						<option value="$value_opendate_notification_low" #if($value_OpenDateNotification.equals($value_opendate_notification_low)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.low')</option>

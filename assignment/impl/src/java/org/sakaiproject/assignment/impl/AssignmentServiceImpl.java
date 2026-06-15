@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
@@ -1736,12 +1737,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant dueTime = assignment.getDueDate();
         String checkAddDueTime = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
         String checkAutoAnnounce = properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+        String announceOnOpenDate = properties.get(AssignmentConstants.NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
         OpenDateNotification openDateNotification = OpenDateNotification.fromProperty(
                 properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
 
         integrateAssignmentWithCalendarAndAnnouncement(assignment, title, openTime, dueTime, openTime, dueTime,
                 BooleanUtils.toBoolean(checkAddDueTime),
                 BooleanUtils.toBoolean(checkAutoAnnounce),
+                BooleanUtils.toBoolean(announceOnOpenDate),
                 openDateNotification);
 
         postFirstPublishEvents(assignment, openTime);
@@ -1762,7 +1765,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void integrateAssignmentWithCalendarAndAnnouncement(Assignment assignment, String title, Instant openTime, Instant dueTime,
-            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce,
+            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce, boolean announceOnOpenDate,
             OpenDateNotification openDateNotification) {
 
         try {
@@ -1772,14 +1775,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         try {
-            integrateWithAnnouncement(assignment, title, openTime, checkAutoAnnounce, openDateNotification, oldOpenTime);
+            integrateWithAnnouncement(assignment, title, openTime, checkAutoAnnounce, announceOnOpenDate, openDateNotification, oldOpenTime);
         } catch (PermissionException e) {
             log.warn("Cannot update assignment announcement integration, {}", e.getMessage());
         }
     }
 
     private void integrateWithAnnouncement(Assignment assignment, String title, Instant openTime, boolean checkAutoAnnounce,
-            OpenDateNotification openDateNotification, Instant oldOpenTime) throws PermissionException {
+            boolean announceOnOpenDate, OpenDateNotification openDateNotification, Instant oldOpenTime) throws PermissionException {
         if (!checkAutoAnnounce) {
             return;
         }
@@ -1866,6 +1869,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     } else {
                         header.clearGroupAccess();
+                    }
+
+                    // If instructor selected to schedule the announcement at the open date, set the RELEASE_DATE property.
+                    if (announceOnOpenDate) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").withZone(ZoneId.of("UTC"));
+                        message.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, formatter.format(openTime));
                     }
 
                     int notiLevel;
