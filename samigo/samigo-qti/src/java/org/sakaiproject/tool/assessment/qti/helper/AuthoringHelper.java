@@ -72,14 +72,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
@@ -117,6 +109,7 @@ public class AuthoringHelper
   private AuthoringXml ax;
 
   private int qtiVersion;
+  private List<String> skippedAttachments = new ArrayList<>();
   private static final String VALIDATE_XSD_PATH ="xml/xsd/";
 
 
@@ -138,6 +131,16 @@ public class AuthoringHelper
         "Version Codes supported: QTIVersion.VERSION_1_2, QTIVersion.VERSION_2_0");
     }
     ax = new AuthoringXml(qtiVersion);
+  }
+
+  public List<String> getSkippedAttachments()
+  {
+    return new ArrayList<>(skippedAttachments);
+  }
+
+  private void setSkippedAttachments(ExtractionHelper exHelper)
+  {
+    skippedAttachments = exHelper.getSkippedAttachments();
   }
 
   /**
@@ -1077,6 +1080,7 @@ public class AuthoringHelper
       
       // Assessment Attachment
       exHelper.makeAssessmentAttachmentSet(assessment);
+      setSkippedAttachments(exHelper);
 
       assessmentService.saveAssessment(assessment);
       return assessment;
@@ -1231,18 +1235,19 @@ public class AuthoringHelper
 
                item = itemService.saveItem(item);
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
-               
+
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
                questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());
-               questionPoolItem.setItemId(item.getItemId());         
+               questionPoolItem.setItemId(item.getItemId());
                questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
-               
+
              } // ... end for each item
       }
       // need error message if more than one section, for now
        
       // update the questionpoool with all sections and items
       questionpool = questionPoolService.savePool(questionpool);
+      setSkippedAttachments(exHelper);
        
  	  return questionpool;		
  	}
