@@ -447,7 +447,7 @@ public class XMLImportBean implements Serializable {
 	}
     AuthoringHelper authoringHelper = new AuthoringHelper(qti);
     AssessmentFacade assessment = isCP
-        ? authoringHelper.createImportedAssessment(document, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions)
+        ? authoringHelper.createImportedAssessment(document, new File(fullFileName).getParent(), isRespondus, failedMatchingQuestions)
         : authoringHelper.createImportedAssessment(document, null, isRespondus, failedMatchingQuestions);
     skippedAttachments.addAll(authoringHelper.getSkippedAttachments());
     return assessment;
@@ -602,7 +602,7 @@ public class XMLImportBean implements Serializable {
 	}
     AuthoringHelper authoringHelper = new AuthoringHelper(qti);
     QuestionPoolFacade questionPool = isCP
-        ? authoringHelper.createImportedQuestionPool(document, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions)
+        ? authoringHelper.createImportedQuestionPool(document, new File(fullFileName).getParent(), isRespondus, failedMatchingQuestions)
         : authoringHelper.createImportedQuestionPool(document, null, isRespondus, failedMatchingQuestions);
     skippedAttachments.addAll(authoringHelper.getSkippedAttachments());
     return questionPool;
