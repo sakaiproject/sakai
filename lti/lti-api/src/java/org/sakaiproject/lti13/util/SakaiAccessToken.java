@@ -18,12 +18,17 @@ package org.sakaiproject.lti13.util;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JWT payload for Sakai-issued access tokens (SAT).
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class SakaiAccessToken extends org.tsugi.lti13.objects.BaseJWT {
 
 	public static final String SCOPE_SCORE = "sakai.ims.ags.score";
@@ -49,7 +54,8 @@ public class SakaiAccessToken extends org.tsugi.lti13.objects.BaseJWT {
 	public String site_id;
 
 	public void addScope(String newScope) {
-		if (newScope == null || newScope.isEmpty()) {
+		if (StringUtils.isBlank(newScope)) {
+			log.warn("You cannot add a blank scope");
 			return;
 		}
 		Set<String> scopes = getScopeTokens();
@@ -79,6 +85,10 @@ public class SakaiAccessToken extends org.tsugi.lti13.objects.BaseJWT {
 
 	/** OAuth/SAT scope for an LTI API function (e.g. {@code content.read} → {@code sakai.lti.api.content.read}). */
 	public static String functionToLtiApiScope(String functionName) {
+		if (StringUtils.isBlank(functionName)) {
+			log.warn("functionName cannot be null or empty. Returning null token scope ...");
+			return null;
+		}
 		return SCOPE_LTI_API_PREFIX + functionName;
 	}
 

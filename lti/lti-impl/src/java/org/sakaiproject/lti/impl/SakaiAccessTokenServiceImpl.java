@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -66,10 +68,16 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
     private KeyPair tokenKeyPair;
     private Cache cache;
 
+    private ObjectWriter jsonWriter;
+    private ObjectReader jsonReader;
+
     @Override
     public void init() {
         // Ignite may not be started yet when lti-impl components load; resolve cache lazily.
         loadOrCreateSigningKeyPair();
+        ObjectMapper mapper = new ObjectMapper();
+        jsonWriter = mapper.writerWithDefaultPrettyPrinter();
+        jsonReader = mapper.reader();
     }
 
     @Override
@@ -130,9 +138,8 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
         }
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
-            SakaiAccessToken sat = mapper.readValue(jsonResult, SakaiAccessToken.class);
+            String jsonResult = jsonWriter.writeValueAsString(claims);
+            SakaiAccessToken sat = jsonReader.readValue(jsonResult, SakaiAccessToken.class);
             if (sat.tool_id != null && sat.scope != null && sat.expires != null) {
                 return sat;
             }
