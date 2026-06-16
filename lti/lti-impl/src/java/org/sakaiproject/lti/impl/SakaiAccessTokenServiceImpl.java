@@ -21,8 +21,10 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -211,12 +213,8 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             throw new SakaiAccessTokenException("invalid_client_assertion", "Could not verify signature", e);
         }
 
-        Set<String> requestedScopes = new HashSet<>();
-        for (String token : requestedScope.toLowerCase().split("\\s+")) {
-            if (!token.isEmpty()) {
-                requestedScopes.add(token);
-            }
-        }
+        final Set<String> requestedScopes = Arrays.stream(requestedScope.split("\\s+"))
+            .filter(t -> !t.isEmpty()).collect(Collectors.toSet());
 
         SakaiAccessToken sat = new SakaiAccessToken();
         sat.tool_id = toolId;
