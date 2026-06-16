@@ -113,6 +113,28 @@
                         <bean class="org.springframework.security.saml.metadata.ExtendedMetadata"/>
                     </constructor-arg>
                 </bean>
+                <!-- Example of HTTP metadata with a file backup. -->
+                <!--
+                <bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
+                    <constructor-arg>
+                        <bean class="org.sakaiproject.login.springframework.HttpFileBackedMetadataProvider">
+                            <constructor-arg>
+                                <value type="java.lang.String">https://idp.example.edu/idp-meta.xml</value>
+                            </constructor-arg>
+                            <constructor-arg>
+                                <value type="int">15000</value>
+                            </constructor-arg>
+                            <constructor-arg>
+                                <value type="java.lang.String">/opt/tomcat/sakai/idp-meta.xml</value>
+                            </constructor-arg>
+                            <property name="parserPool" ref="parserPool"/>
+                        </bean>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <bean class="org.springframework.security.saml.metadata.ExtendedMetadata"/>
+                    </constructor-arg>
+                </bean>
+                -->
             </list>
         </constructor-arg>
         <property name="defaultIDP" value="http://idp.ssocircle.com"/>
