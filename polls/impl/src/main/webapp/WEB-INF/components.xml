@@ -38,12 +38,14 @@
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
         <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
         <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
         <property name="optionDeletedBundle">
@@ -84,8 +86,4 @@
             </list>
         </constructor-arg>
     </bean>
-
-    <bean id="org.sakaiproject.poll.api.service.PollImportService"
-          class="org.sakaiproject.poll.impl.service.PollImportServiceImpl"
-          autowire="constructor" />
 </beans>

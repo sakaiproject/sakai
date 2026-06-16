@@ -21,7 +21,11 @@
 
 package org.sakaiproject.poll.impl.service;
 
+import java.io.StringReader;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +63,8 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.model.VoteCollection;
+import org.sakaiproject.poll.api.service.PollImportError;
+import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
@@ -66,8 +72,10 @@ import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.api.util.PollUtil;
+import org.sakaiproject.poll.api.util.PollUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -75,6 +83,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -82,6 +91,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
+
+import com.opencsv.CSVReader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +111,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private EmailTemplateService emailTemplateService;
     @Setter private EntityManager entityManager;
     @Setter private FunctionManager functionManager;
+    @Setter private FormattedText formattedText;
     @Setter private PollRepository pollRepository;
     @Setter private VoteRepository voteRepository;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -111,6 +123,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private SiteService siteService;
     @Setter private ToolManager toolManager;
     @Setter private UsageSessionService usageSessionService;
+    @Setter private UserTimeService userTimeService;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private ResourceLoader optionDeletedBundle;
 
@@ -193,6 +206,215 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
         return savedPoll;
     }
+
+    @Override
+    public void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId) {
+        List<ImportedPoll> importedPolls = new ArrayList<>();
+        for (String csv : csvContents) {
+            importedPolls.addAll(parseImportedPolls(csv));
+        }
+
+        if (importedPolls.isEmpty()) {
+            throw new PollImportException(PollImportError.WRONG_FORMAT);
+        }
+
+        for (ImportedPoll importedPoll : importedPolls) {
+            savePoll(buildImportedPoll(importedPoll, siteId, ownerId));
+        }
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent) {
+        List<ImportedPoll> importedPolls = new ArrayList<>();
+        if (StringUtils.isBlank(csvContent)) {
+            return importedPolls;
+        }
+
+        try (CSVReader reader = new CSVReader(new StringReader(csvContent))) {
+            String[] row;
+            while ((row = reader.readNext()) != null) {
+                if (isBlankImportedPollRow(row)) {
+                    continue;
+                }
+
+                String question = normalizeImportedPollCell(row[0]);
+                String details = importedPollCellValue(row, 1);
+                String openDate = importedPollCellValue(row, 2);
+                String closeDate = importedPollCellValue(row, 3);
+                String minOptions = importedPollCellValue(row, 4);
+                String maxOptions = importedPollCellValue(row, 5);
+                String displayResult = importedPollCellValue(row, 6);
+                List<String> options = new ArrayList<>();
+                for (int i = 7; i < row.length; i++) {
+                    String optionText = normalizeImportedPollCell(row[i]);
+                    if (StringUtils.isNotBlank(optionText)) {
+                        options.add(optionText);
+                    }
+                }
+
+                if (StringUtils.isBlank(question) || options.size() < 2) {
+                    throw new PollImportException(PollImportError.WRONG_FORMAT);
+                }
+
+                importedPolls.add(new ImportedPoll(
+                    question,
+                    details,
+                    parseImportedPollDateTime(openDate),
+                    parseImportedPollDateTime(closeDate),
+                    parseImportedPollInteger(minOptions, 1),
+                    parseImportedPollInteger(maxOptions, 1),
+                    parseImportedPollDisplayResult(displayResult),
+                    options
+                ));
+            }
+        } catch (PollImportException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new PollImportException(PollImportError.WRONG_FORMAT, e);
+        }
+
+        return importedPolls;
+    }
+
+    private Poll buildImportedPoll(ImportedPoll importedPoll, String siteId, String ownerId) {
+        Poll poll = new Poll();
+        int minOptions = importedPoll.minOptions();
+        int maxOptions = importedPoll.maxOptions();
+        List<String> sanitizedOptions = new ArrayList<>();
+        ZoneId userZoneId = getUserZoneId();
+
+        poll.setText(importedPoll.question());
+        poll.setDescription(cleanupImportedPollFormattedText(importedPoll.details()));
+        poll.setSiteId(siteId);
+        poll.setOwner(ownerId);
+        poll.setDisplayResult(StringUtils.defaultIfBlank(importedPoll.displayResult(), "open"));
+        poll.setMinOptions(minOptions);
+        poll.setMaxOptions(maxOptions);
+        poll.setLimitVoting(true);
+        poll.setPublic(false);
+        // poll.setAccessType("SITE"); // SAK-10208
+
+        if (importedPoll.openDate() != null) {
+            poll.setVoteOpen(importedPoll.openDate().atZone(userZoneId).toInstant());
+        } else {
+            poll.setVoteOpen(LocalDateTime.now(userZoneId).truncatedTo(ChronoUnit.MINUTES).atZone(userZoneId).toInstant());
+        }
+
+        if (importedPoll.closeDate() != null) {
+            poll.setVoteClose(importedPoll.closeDate().atZone(userZoneId).toInstant());
+        } else {
+            poll.setVoteClose(LocalDateTime.now(userZoneId).truncatedTo(ChronoUnit.MINUTES).plusYears(1).atZone(userZoneId).toInstant());
+        }
+
+        for (String optionText : importedPoll.options()) {
+            String cleanedOption = cleanupImportedPollFormattedText(optionText);
+            if (StringUtils.isNotBlank(cleanedOption)) {
+                sanitizedOptions.add(cleanedOption);
+            }
+        }
+
+        if (sanitizedOptions.size() < 2) {
+            throw new PollImportException(PollImportError.WRONG_FORMAT);
+        }
+
+        if (poll.getMinOptions() > poll.getMaxOptions()) {
+            throw new PollImportException(PollImportError.INVALID_LIMITS);
+        }
+
+        if (poll.getVoteOpen() != null && poll.getVoteClose() != null && poll.getVoteOpen().isAfter(poll.getVoteClose())) {
+            throw new PollImportException(PollImportError.INVALID_DATES);
+        }
+
+        if (poll.getMinOptions() > sanitizedOptions.size() || poll.getMaxOptions() > sanitizedOptions.size()) {
+            throw new PollImportException(PollImportError.INVALID_LIMITS);
+        }
+
+        for (String optionText : sanitizedOptions) {
+            Option option = new Option();
+            option.setText(optionText);
+            poll.addOption(option);
+        }
+
+        return poll;
+    }
+
+    private boolean isBlankImportedPollRow(String[] row) {
+        if (row == null || row.length == 0) {
+            return true;
+        }
+
+        for (String cell : row) {
+            if (StringUtils.isNotBlank(normalizeImportedPollCell(cell))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String normalizeImportedPollCell(String value) {
+        String normalized = StringUtils.defaultString(value);
+        if (normalized.startsWith("\uFEFF")) {
+            normalized = normalized.substring(1);
+        }
+        return StringUtils.trimToEmpty(normalized);
+    }
+
+    private String importedPollCellValue(String[] row, int index) {
+        if (row == null || index < 0 || index >= row.length) {
+            return StringUtils.EMPTY;
+        }
+        return normalizeImportedPollCell(row[index]);
+    }
+
+    private LocalDateTime parseImportedPollDateTime(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+
+        try {
+            return LocalDateTime.parse(value);
+        } catch (Exception e) {
+            throw new PollImportException(PollImportError.INVALID_DATES, e);
+        }
+    }
+
+    private int parseImportedPollInteger(String value, int defaultValue) {
+        if (StringUtils.isBlank(value)) {
+            return defaultValue;
+        }
+
+        try {
+            int parsed = Integer.parseInt(value);
+            if (parsed < 1) {
+                throw new PollImportException(PollImportError.INVALID_LIMITS);
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            throw new PollImportException(PollImportError.INVALID_NUMBER, e);
+        }
+    }
+
+    private String parseImportedPollDisplayResult(String value) {
+        String displayResultCode = StringUtils.defaultIfBlank(value, "1");
+        return switch (displayResultCode) {
+            case "1" -> "open";
+            case "2" -> "afterVoting";
+            case "3" -> "afterClosing";
+            case "4" -> "never";
+            default -> throw new PollImportException(PollImportError.INVALID_DISPLAY_RESULT);
+        };
+    }
+
+    private String cleanupImportedPollFormattedText(String text) {
+        String processed = formattedText.processFormattedText(StringUtils.defaultString(text), null, true, true);
+        return PollUtils.cleanupHtmlPtags(processed);
+    }
+
+    private ZoneId getUserZoneId() {
+        return userTimeService.getLocalTimeZone().toZoneId();
+    }
+
+    private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate,
+                                int minOptions, int maxOptions, String displayResult, List<String> options) { }
 
     @Override
     public void deletePoll(final String id) throws SecurityException, IllegalArgumentException {

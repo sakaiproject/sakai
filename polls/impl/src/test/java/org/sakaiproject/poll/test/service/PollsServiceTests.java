@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -38,11 +39,15 @@ import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.model.VoteCollection;
+import org.sakaiproject.poll.api.service.PollImportError;
+import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.impl.service.PollsServiceImpl;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -66,6 +71,8 @@ public class PollsServiceTests {
     @Autowired private SecurityService securityService;
     @Autowired private SiteService siteService;
     @Autowired private SessionManager sessionManager;
+    @Autowired private FormattedText formattedText;
+    @Autowired private UserTimeService userTimeService;
 
     @Before
     public void onSetUp() {
@@ -80,11 +87,15 @@ public class PollsServiceTests {
 
         Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
 
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         Mockito.when(securityService.unlock(USER, "site.visit", LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_OWN, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_ANY, LOCATION1_REF)).thenReturn(true);
         Mockito.when(securityService.unlock(USER_NO_ACCEESS, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+        Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
+               .thenAnswer(inv -> inv.getArgument(0));
+        Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
 
     private String createPoll(String ownerId, String siteId) {
@@ -697,6 +708,89 @@ public class PollsServiceTests {
 
         List<Vote> votes = pollsService.getAllVotesForPoll(pollId);
         Assert.assertTrue(votes.isEmpty());
+    }
+
+    // ========== Bulk Import Tests ==========
+
+    @Test
+    public void testImportPollsFromCsvCreatesPolls() {
+        String csv = "What is your favorite color?,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,Blue,Green,Red\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "What is your favorite color?".equals(p.getText()))
+            .findFirst()
+            .orElseThrow();
+        Assert.assertEquals(USER, saved.getOwner());
+        Assert.assertTrue(saved.getOptions().size() >= 2);
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidCsv() {
+        String csv = "Question?,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,OnlyOneOption\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsBlankRows() {
+        int pollCount = pollsService.findAllPolls(LOCATION1_ID).size();
+        String csv = "\uFEFF,,,\n,,,,,,,\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+        Assert.assertEquals(pollCount, pollsService.findAllPolls(LOCATION1_ID).size());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesQuotedDescriptionWithCommas() {
+        String csv = "Question with quoted description?,\"This, description, has, commas\",2026-06-01T09:00,2026-06-02T17:00,1,1,1,Opt1,Opt2\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Question with quoted description?".equals(p.getText()))
+            .findFirst()
+            .orElseThrow();
+        Assert.assertTrue(saved.getDescription().contains("This, description, has, commas"));
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidDates() {
+        String csv = "Q?,,06/01/2026 09:00,2026-06-02T17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidLimits() {
+        String csv = "Q?,,2026-06-01T09:00,2026-06-02T17:00,5,1,1,One,Two,Three\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_LIMITS, exception.getError());
+    }
+
+    @Test
+    public void testImportPollsFromCsvCreatesMultiplePolls() {
+        String csv1 = "Bulk import Q1,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,A,B\n";
+        String csv2 = "Bulk import Q2,,2026-07-01T09:00,2026-07-02T17:00,1,1,1,X,Y\n";
+
+        pollsService.importPollsFromCsv(List.of(csv1, csv2), LOCATION1_ID, USER);
+
+        List<String> pollTitles = pollsService.findAllPolls(LOCATION1_ID).stream().map(Poll::getText).toList();
+        Assert.assertTrue(pollTitles.contains("Bulk import Q1"));
+        Assert.assertTrue(pollTitles.contains("Bulk import Q2"));
     }
 
     // ========== Helper Methods ==========

@@ -146,6 +146,16 @@ public interface PollsService {
     Poll savePoll(Poll poll) throws SecurityException, IllegalArgumentException;
 
     /**
+     * Import polls from CSV content strings into the given site as the given owner.
+     *
+     * @param csvContents list of CSV content strings to parse
+     * @param siteId the site id where polls will be created
+     * @param ownerId the user id that will own the imported polls
+     * @throws PollImportException when the CSV content is empty, malformed, or fails poll validation
+     */
+    void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId);
+
+    /**
      * Is this poll public?
      * @param poll
      * @return

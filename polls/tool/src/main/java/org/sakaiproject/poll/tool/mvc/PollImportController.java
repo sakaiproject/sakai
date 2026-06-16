@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.api.service.PollImportService;
+import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -51,18 +51,15 @@ public class PollImportController {
     private final MessageSource messageSource;
     private final ToolManager toolManager;
     private final SessionManager sessionManager;
-    private final PollImportService pollImportService;
     private final PollsService pollsService;
 
     public PollImportController(MessageSource messageSource,
                                 ToolManager toolManager,
                                 SessionManager sessionManager,
-                                PollImportService pollImportService,
                                 PollsService pollsService) {
         this.messageSource = messageSource;
         this.toolManager = toolManager;
         this.sessionManager = sessionManager;
-        this.pollImportService = pollImportService;
         this.pollsService = pollsService;
     }
 
@@ -105,10 +102,12 @@ public class PollImportController {
 
             String currentUserId = sessionManager.getCurrentSessionUserId();
 
-            pollImportService.importFromStrings(contents, currentSiteId, currentUserId, locale);
+            pollsService.importPollsFromCsv(contents, currentSiteId, currentUserId);
 
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_import_success", null, locale));
             return "redirect:/votePolls";
+        } catch (PollImportException e) {
+            return showImportError(model, messageSource.getMessage(e.getError().getMessageKey(), null, locale), pollUploadedText);
         } catch (IllegalArgumentException e) {
             return showImportError(model, e.getMessage(), pollUploadedText);
         }

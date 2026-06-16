@@ -16,14 +16,21 @@
 
 package org.sakaiproject.poll.api.service;
 
-import java.util.List;
-import java.util.Locale;
+public class PollImportException extends IllegalArgumentException {
 
-public interface PollImportService {
+    private final PollImportError error;
 
-    /**
-     * Import polls from CSV content strings into the given site as the given owner.
-     */
-    void importFromStrings(List<String> csvContents, String siteId, String ownerId, Locale locale);
+    public PollImportException(PollImportError error) {
+        super(error.name());
+        this.error = error;
+    }
 
+    public PollImportException(PollImportError error, Throwable cause) {
+        super(error.name(), cause);
+        this.error = error;
+    }
+
+    public PollImportError getError() {
+        return error;
+    }
 }
