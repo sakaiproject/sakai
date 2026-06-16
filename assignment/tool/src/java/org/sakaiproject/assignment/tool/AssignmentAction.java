@@ -5690,13 +5690,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
 
-        List<Assignment> assignments = new ArrayList<>();
-
-        for (Assignment assignment : assignmentService.getAssignmentsForContext(contextString)) {
-            if (assignment != null && !assignment.getDeleted()) {
-                assignments.add(assignment);
-            }
-        }
+        List<Assignment> assignments = prepReorderAssignments(state);
 
         context.put("assignments", assignments.iterator());
         context.put("assignmentsize", assignments.size());
@@ -10423,13 +10417,10 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        List assignments = prepPage(state);
+        List<Assignment> assignments = prepReorderAssignments(state);
 
-        Iterator it = assignments.iterator();
-
-        while (it.hasNext()) // reads and writes the parameter for default ordering
+        for (Assignment a : assignments) // reads and writes the parameter for default ordering
         {
-            Assignment a = (Assignment) it.next();
             String assignmentid = a.getId();
             String assignmentposition = params.getString("position_" + assignmentid);
             SecurityAdvisor sa = new SecurityAdvisor() {
@@ -13837,6 +13828,12 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         return v;
     } // iterator_to_list
+
+    @SuppressWarnings("unchecked")
+    private List<Assignment> prepReorderAssignments(SessionState state) {
+        sizeResources(state);
+        return (List<Assignment>) state.getAttribute(STATE_PAGEING_TOTAL_ITEMS);
+    }
 
     /**
      * Implement this to return alist of all the resources that there are to page. Sort them as appropriate.
