@@ -263,7 +263,10 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#reorder-list")).containsText(lastTitle);
 
         Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-        lastAssignment.locator("select[name^=\"position_\"]").selectOption("1");
+        Locator lastAssignmentPosition = lastAssignment.locator("input[id^=\"index\"]");
+        lastAssignmentPosition.fill("1");
+        lastAssignmentPosition.dispatchEvent("change");
+        assertThat(lastAssignment.locator("select[name^=\"position_\"]")).hasValue("1");
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
