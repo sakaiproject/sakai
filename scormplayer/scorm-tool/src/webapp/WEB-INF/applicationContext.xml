@@ -10,6 +10,7 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 		<property name="localeService"><ref bean="org.sakaiproject.util.api.LocaleService"/></property>
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>
 
 	<!-- SCORM single-package player tool -->
@@ -18,5 +19,6 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 		<property name="localeService"><ref bean="org.sakaiproject.util.api.LocaleService"/></property>
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>
 </beans>
