@@ -280,7 +280,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         int minOptions = importedPoll.minOptions();
         int maxOptions = importedPoll.maxOptions();
         List<String> sanitizedOptions = new ArrayList<>();
-        ZoneId userZoneId = getUserZoneId();
+        ZoneId userZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
         poll.setText(importedPoll.question());
         poll.setDescription(cleanupImportedPollFormattedText(importedPoll.details()));
@@ -407,10 +407,6 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     private String cleanupImportedPollFormattedText(String text) {
         String processed = formattedText.processFormattedText(StringUtils.defaultString(text), null, true, true);
         return PollUtils.cleanupHtmlPtags(processed);
-    }
-
-    private ZoneId getUserZoneId() {
-        return userTimeService.getLocalTimeZone().toZoneId();
     }
 
     private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate,
