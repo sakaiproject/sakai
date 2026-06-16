@@ -95,7 +95,7 @@ public class PollsServiceTests {
         Mockito.when(securityService.unlock(USER_NO_ACCEESS, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
                .thenAnswer(inv -> inv.getArgument(0));
-        Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
+        Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
     }
 
     private String createPoll(String ownerId, String siteId) {
