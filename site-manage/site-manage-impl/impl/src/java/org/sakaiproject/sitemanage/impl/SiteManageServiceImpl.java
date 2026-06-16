@@ -688,11 +688,16 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// run before Assignments imports published assignments.
 		if (toolIds.contains(ANNOUNCEMENTS_TOOL_ID)) {
 			for (String toolId : toolIds) {
-				if (StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID) && importTools.containsKey(toolId)) {
+				if (StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID)) {
 					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
 					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 
-					for (String fromSiteId : importTools.get(toolId)) {
+					Set<String> sourceSiteIds = new LinkedHashSet<>();
+					sourceSiteIds.addAll(importTools.getOrDefault(toolId, Collections.EMPTY_LIST));
+					sourceSiteIds.addAll(siteItems.keySet());
+					sourceSiteIds.addAll(siteOptions.keySet());
+
+					for (String fromSiteId : sourceSiteIds) {
 						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
 					}
 				}

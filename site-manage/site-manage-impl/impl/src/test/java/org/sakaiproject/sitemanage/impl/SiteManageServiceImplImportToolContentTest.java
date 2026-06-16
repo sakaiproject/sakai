@@ -306,6 +306,60 @@ public class SiteManageServiceImplImportToolContentTest {
         InOrder inOrder = inOrder(announcementTransferrer, assignmentTransferrer);
         inOrder.verify(announcementTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
         inOrder.verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
+        verify(announcementTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
+        verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
+    }
+
+    @Test
+    public void importToolsIntoSiteImportsAnnouncementItemsBeforeAssignments() throws Exception {
+
+        final String oldSiteId = "site-old";
+        final String newSiteId = "site-new";
+        final List<String> announcementItems = List.of("announcement-1");
+
+        Site sourceSite = mock(Site.class);
+        Site destinationSite = mock(Site.class);
+        ResourceProperties sourceSiteProperties = mock(ResourceProperties.class);
+        ResourcePropertiesEdit destinationSiteProperties = mock(ResourcePropertiesEdit.class);
+
+        when(sourceSite.getProperties()).thenReturn(sourceSiteProperties);
+        when(sourceSiteProperties.getProperty(LTICustomVars.CONTEXT_ID_HISTORY)).thenReturn(null);
+        when(destinationSite.getId()).thenReturn(newSiteId);
+        when(destinationSite.getPropertiesEdit()).thenReturn(destinationSiteProperties);
+        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
+        when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
+
+        EntityProducer assignmentProducer = mock(EntityProducer.class, withSettings().extraInterfaces(EntityTransferrer.class));
+        EntityProducer announcementProducer = mock(EntityProducer.class, withSettings().extraInterfaces(EntityTransferrer.class));
+        EntityTransferrer assignmentTransferrer = (EntityTransferrer) assignmentProducer;
+        EntityTransferrer announcementTransferrer = (EntityTransferrer) announcementProducer;
+
+        when(assignmentTransferrer.myToolIds()).thenReturn(new String[] { "sakai.assignment.grades" });
+        when(announcementTransferrer.myToolIds()).thenReturn(new String[] { ANNOUNCEMENTS_TOOL_ID });
+        when(assignmentTransferrer.transferCopyEntities(oldSiteId, newSiteId, null, null, true)).thenReturn(Collections.emptyMap());
+        when(announcementTransferrer.transferCopyEntities(oldSiteId, newSiteId, announcementItems, null, true)).thenReturn(Collections.emptyMap());
+        when(entityManager.getEntityProducers()).thenReturn(List.of(assignmentProducer, announcementProducer));
+
+        Map<String, List<String>> importTools = new HashMap<>();
+        importTools.put("sakai.assignment.grades", List.of(oldSiteId));
+
+        Map<String, Map<String, List<String>>> toolItemMap = new HashMap<>();
+        toolItemMap.put(ANNOUNCEMENTS_TOOL_ID, Map.of(oldSiteId, announcementItems));
+
+        siteManageService.importToolsIntoSite(
+            destinationSite,
+            new ArrayList<>(List.of("sakai.assignment.grades", ANNOUNCEMENTS_TOOL_ID)),
+            importTools,
+            toolItemMap,
+            Collections.emptyMap(),
+            true
+        );
+
+        InOrder inOrder = inOrder(announcementTransferrer, assignmentTransferrer);
+        inOrder.verify(announcementTransferrer).transferCopyEntities(oldSiteId, newSiteId, announcementItems, null, true);
+        inOrder.verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
+        verify(announcementTransferrer).transferCopyEntities(oldSiteId, newSiteId, announcementItems, null, true);
+        verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
     }
 
     private SitePage mockSiteInfoPage() {

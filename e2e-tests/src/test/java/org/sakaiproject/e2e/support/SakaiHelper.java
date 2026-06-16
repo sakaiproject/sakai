@@ -60,7 +60,12 @@ public class SakaiHelper {
         if (siteUrl == null) {
             return "";
         }
-        return siteUrl.replaceFirst("^.*/portal/site/", "").replaceFirst("[/?#].*$", "");
+        String marker = "/portal/site/";
+        int start = siteUrl.indexOf(marker);
+        if (start < 0) {
+            return "";
+        }
+        return siteUrl.substring(start + marker.length()).replaceFirst("[/?#].*$", "");
     }
 
     public String resolveUsername(String username) {
