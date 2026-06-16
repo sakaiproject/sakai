@@ -106,7 +106,7 @@ The well-known configuration (`/imsblis/lti13/well_known`) advertises these vari
 ## webapi bearer authentication
 
 The `webapi` module can authenticate requests with `Authorization: Bearer <SAT>`.
-See `LtiBearerTokenInterceptor` and `LtiAuthController` (`/lti/bearer-probe` for diagnostics).
+See `LtiBearerTokenInterceptor` and `LtiAuthController` (`GET /api/lti/bearer-probe` for diagnostics).
 
 SAT validation: `SakaiAccessTokenService.validateToken()`.
 
