@@ -95,7 +95,10 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         page.onDialog(dialog -> dialog.accept());
         clickContinueOrFinish();
         page.waitForLoadState();
+        page.waitForTimeout(10_000);
 
+        page.navigate(destinationSite);
+        page.waitForLoadState();
         sakai.toolClick("Assignments");
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
         Locator assignmentRow = page.locator("tr, li, .assignment").filter(new Locator.FilterOptions().setHasText(ASSIGNMENT_TITLE)).first();
