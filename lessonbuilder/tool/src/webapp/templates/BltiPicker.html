@@ -13,6 +13,7 @@
     opacity:.75;
 }
 </style>
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
 </head>
 <body rsf:id="scr=sakai-body">
 	<div class="portletBody" id="portletBody">
@@ -49,7 +50,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-			      <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+            <div rsf:id="iframe-container"></div>
           </div>
         </div>
       </div>
@@ -72,13 +73,11 @@
 
       el.addEventListener("shown.bs.modal", e => {
         console.log('Height', modalDialogHeight());
-        $('#modal-iframe-div').attr('height', modalDialogHeight());
-        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-lti-admin-iframe').attr('height', modalDialogHeight()-50);
+        document.getElementById('#modal-iframe-div').setAttribute('height', modalDialogHeight());
       });
 
       el.addEventListener("hidden.bs.modal", e => {
-          $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+          document.getElementById('sakai-lti-admin-iframe').setAttribute('launch-url', '/library/image/sakai/spinner.gif');
           var form = document.getElementById("blti-cancel");
           if ( form != null ) {
               console.debug("Cancelling");
@@ -91,8 +90,6 @@
         modal.handleUpdate();
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
         console.log('Height', modalDialogHeight());
-        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-lti-admin-iframe').attr('height', modalDialogHeight()-50);
       });
     }
 
@@ -109,7 +106,7 @@ $( document ).ready(function() {
                 if ( shortcut_tag ) {
                     var shortcut_href = shortcut_tag.getAttribute('href');
                     if ( shortcut_href ) {
-                        document.getElementById('sakai-lti-admin-iframe').src = shortcut_href;
+                        document.getElementById('sakai-lti-admin-iframe').setAttribute('launch-url', shortcut_href);
                         showIframe();
                     }
                 }
