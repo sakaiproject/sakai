@@ -16,7 +16,6 @@
   <properties>
     <sakai.version>26-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
-    <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.22.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.20.0</sakai.commons.lang3.version>
@@ -750,18 +749,6 @@
         <artifactId>commons-fileupload</artifactId>
         <version>${sakai.commons.fileupload.version}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>${sakai.commons-httpclient.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -2805,6 +2792,7 @@
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-configuration:commons-configuration</exclude>
+                    <exclude>commons-httpclient:commons-httpclient</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>javax.mail:mail</exclude>
