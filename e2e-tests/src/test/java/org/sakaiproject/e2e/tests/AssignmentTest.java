@@ -237,6 +237,49 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(nonElectronicTitle);
     }
 
+    @Test
+    @Order(9)
+    void reorderShowsAndSavesAssignmentsBeyondFirstPage() {
+        String courseUrl = ensureCourseUrl();
+        String titlePrefix = "Reorder Assignment " + System.currentTimeMillis() + " ";
+        String firstTitle = titlePrefix + "01";
+        String lastTitle = titlePrefix + "21";
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+
+        for (int i = 1; i <= 21; i++) {
+            createSimpleAssignment(titlePrefix + String.format("%02d", i));
+        }
+
+        openReorderAssignments();
+
+        Locator reorderItems = page.locator("#reorder-list li.sortable");
+        if (reorderItems.count() < 21) {
+            fail("Expected the reorder list to include assignments beyond the first page.");
+        }
+        assertThat(page.locator("#reorder-list")).containsText(firstTitle);
+        assertThat(page.locator("#reorder-list")).containsText(lastTitle);
+
+        Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
+        Locator lastAssignmentPosition = lastAssignment.locator("input[id^=\"index\"]");
+        lastAssignmentPosition.fill("1");
+        lastAssignmentPosition.dispatchEvent("change");
+        assertThat(lastAssignment.locator("select[name^=\"position_\"]")).hasValue("1");
+
+        page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+
+        goToAssignmentsList();
+        String assignmentListText = page.locator("body").innerText();
+        int lastIndex = assignmentListText.indexOf(lastTitle);
+        int firstIndex = assignmentListText.indexOf(firstTitle);
+        if (lastIndex < 0 || firstIndex < 0 || lastIndex > firstIndex) {
+            fail("Expected reordered assignment beyond the first page to be saved before the first generated assignment.");
+        }
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 
@@ -262,6 +305,32 @@ class AssignmentTest extends SakaiUiTestBase {
         }
 
         assertThat(titleInput).isVisible();
+    }
+
+    private void openReorderAssignments() {
+        goToAssignmentsList();
+
+        Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(reorderLink).isVisible();
+        reorderLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#reorder-list")).isVisible();
+    }
+
+    private void createSimpleAssignment(String title) {
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(title);
+
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck(new Locator.UncheckOptions().setForce(true));
+        }
+
+        fillAssignmentInstructions("<p>Reorder regression assignment.</p>");
+        submitAssignmentForm();
+        goToAssignmentsList();
     }
 
     private void goToAssignmentsList() {
