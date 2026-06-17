@@ -75,16 +75,22 @@
 - **Internationalization**: Ensure code supports different languages
 - **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
 - **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
-- **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the user's preferred timezone from account preferences.
+- **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the site or user's preferred timezone from account preferences.
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible
 - **Tests**: Include tests where sensible/possible
 - **Test Public Behavior**: Do not use reflection to reach into private methods from tests. Private methods support public methods; test through the public method or service API that production code uses. If that makes the test brittle or excessively framework-heavy, prefer a narrower public seam or omit the low-value test.
+- **Test Real Tool Wiring**: For Sakai service and tool tests, prefer loading the real Spring wiring for the tool/module instead of constructing a tiny mocked object graph by hand. The class or service under test should be the real Spring bean whenever practical.
+- **Do Not Mock the Thing Under Test**: Never mock, spy, or partially mock the class, service, controller, or tool component whose behavior the test is meant to verify. A test that mocks the object under test is usually testing Mockito setup, not Sakai behavior.
+- **Do Not Mock Internal Tool Services**: Do not mock services, DAOs, repositories, managers, or collaborators that are part of the same tool/module simply to avoid wiring the test. Wire those collaborators through the module's Spring configuration so the test can catch real dependency, transaction, Hibernate mapping, and bean configuration problems.
+- **Mock Boundaries, Not Internals**: Mockito is appropriate for external systems, kernel services outside the behavior under test, expensive integrations, unavailable infrastructure, or unavoidable Sakai boundary services. Put reusable mocks in a module-specific test configuration as named beans rather than recreating local mocks in each test.
+- **Use SakaiTestConfiguration as the Pattern**: For Spring/Hibernate service tests, create a module-specific `*TestConfiguration` extending `org.sakaiproject.test.SakaiTestConfiguration`, import the module's normal Spring configuration where practical, load test Hibernate properties, enable transactions, and autowire the real service under test from the Spring context.
+- **Avoid Tiny Mock-Only Unit Tests for Wired Behavior**: Do not replace a meaningful Sakai service test with a tiny isolated unit test that verifies one helper-like concept while bypassing the tool's real wiring. If behavior depends on configured services, persistence, transactions, permissions, Hibernate mappings, or Sakai component wiring, test it through the public service/API with the real wired collaborators.
 - **Test Naming**: When a test verifies a public API or service contract, name the test class after the API/interface under test rather than the implementation class.
 - **Spring Test Wiring**: For service tests, prefer loading the same Spring component wiring used by the running application when practical. Put reusable mocks and bean overrides in test configuration rather than remocking the same dependencies in each test.
 - **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `e2e-tests/src/test/java/org/sakaiproject/e2e/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
-- **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
+- **Java Version**: Java 17 for master (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
