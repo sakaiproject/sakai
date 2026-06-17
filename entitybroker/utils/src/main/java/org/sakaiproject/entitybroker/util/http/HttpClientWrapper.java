@@ -72,7 +72,10 @@ public class HttpClientWrapper {
      */
     void seedInitialCookies(String host) {
         if (!initialCookiesSeeded) {
-            for (BasicClientCookie cookie : initialCookies) {
+            for (BasicClientCookie template : initialCookies) {
+                // copy the template so a per-request host never mutates the shared original,
+                // otherwise a domain set on the first seed would stick across resetState()
+                BasicClientCookie cookie = copyCookie(template);
                 if (cookie.getDomain() == null && host != null) {
                     cookie.setDomain(host);
                 }
@@ -80,6 +83,14 @@ public class HttpClientWrapper {
             }
             initialCookiesSeeded = true;
         }
+    }
+
+    private static BasicClientCookie copyCookie(BasicClientCookie source) {
+        BasicClientCookie copy = new BasicClientCookie(source.getName(), source.getValue());
+        copy.setDomain(source.getDomain());
+        copy.setPath(source.getPath());
+        copy.setSecure(source.isSecure());
+        return copy;
     }
 
     /**
@@ -100,7 +111,7 @@ public class HttpClientWrapper {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                log.warn("Failure while closing the reusable http client :: {}", e.getMessage());
+                log.warn("Failure while closing the reusable http client", e);
             }
         }
     }
