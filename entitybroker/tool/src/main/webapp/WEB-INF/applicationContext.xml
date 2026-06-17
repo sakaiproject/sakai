@@ -58,6 +58,8 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="userAuditRegistration"
                   ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.direct"/>
+        <property name="userAuditService"
+                  ref="org.sakaiproject.userauditservice.api.UserAuditService"/>
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

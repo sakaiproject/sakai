@@ -21,8 +21,6 @@
 
 package org.sakaiproject.userauditservice.api;
 
-import java.util.List;
-
 /**
  * <p>
  * UserAuditRegistrationService controls calls relating to tracking user auditing.
@@ -35,18 +33,6 @@ public interface UserAuditRegistration
 	
 	/** The text to register that will be associated with the databaseSourceKey */
 	String getSourceText(String parameter);
-	
-	/**
-	 * Processes a list of String[] to add records into the database about
-	 * @param userAuditList List of String[] to process
-	 */
-	public void addToUserAuditing(List<String[]> userAuditList);
-	
-	/**
-	 * Method to delete all the user auditing log entries for a site.  Used when deleting a site
-	 * @param siteId String site id to delete user auditing logs
-	 */
-	public void deleteUserAuditingFromSite(String siteId);
 	
 	/**
 	 * This method will allow registering tools to supply their own location for resource loaders

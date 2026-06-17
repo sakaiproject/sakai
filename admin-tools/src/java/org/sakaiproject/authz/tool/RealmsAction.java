@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +68,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -688,26 +691,30 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			try
 			{
+				List<UserAuditEntry> userAuditList = getUserAuditEntriesForSave(realm);
 				authzGroupService.save(realm);
-				// Grab the list from session state and save it, if appropriate
-				List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
-				if (userAuditList!=null && !userAuditList.isEmpty())
+				if (!userAuditList.isEmpty())
 				{
-					userAuditRegistration.addToUserAuditing(userAuditList);
-					state.removeAttribute("userAuditList");
+					userAuditService.addToUserAuditing(userAuditList);
 				}
 			}
 			catch (GroupNotDefinedException e)
 			{
-				// TODO: GroupNotDefinedException
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{realm.getId()}));
+				return;
 			}
 			catch (AuthzPermissionException e)
 			{
-				// TODO: AuthzPermissionException
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getString("realm.notpermis1"));
+				return;
 			}
 			catch (Exception e)
 			{
-			 	log.warn("realmId = {} {}", realm.getId(), e.getMessage());
+				log.warn("Unable to save realm {}", realm.getId(), e);
+				addAlert(state, rb.getString("alert.prbset"));
+				return;
 			}
 		}
 
@@ -1285,19 +1292,8 @@ public class RealmsAction extends PagedResourceActionII
 		
 		if (realm != null && user != null)
 		{
-			// Need to grab the role before removing the user from the realm
-			// Need to grab the role before removing the user from the realm
-			Role role = realm.getUserRole(user.getId());
-			String roleId = "";
-			if (role != null) {
-				roleId = role.getId();
-			}
-			
 			// clear out this user's settings
 			realm.removeMember(user.getId());
-			
-			// user auditing
-			addToAuditLogList(state, realm, user.getEid(), roleId);
 	
 			// done with the user
 			state.removeAttribute("user");
@@ -1402,9 +1398,6 @@ public class RealmsAction extends PagedResourceActionII
 			{
 				// TODO: active, provided
 				realm.addMember(user.getId(), roles, status, false);
-				
-				// user auditing
-				addToAuditLogList(state, realm, user.getEid(), roles);
 			}
 		}
 
@@ -1427,7 +1420,6 @@ public class RealmsAction extends PagedResourceActionII
 		state.removeAttribute("allLocks");
 		state.removeAttribute("roles");
 		state.removeAttribute("locks");
-		state.removeAttribute("userAuditList");
 
 	} // cleanState
 	
@@ -1456,50 +1448,93 @@ public class RealmsAction extends PagedResourceActionII
 		return false;
 	}
 	
-	private List<String[]> retrieveAuditLogList(SessionState state)
+	private List<UserAuditEntry> getUserAuditEntriesForSave(AuthzGroup updatedRealm)
 	{
-		// user auditing
-		List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
-		if (userAuditList!=null && !userAuditList.isEmpty())
+		AuthzGroup storedRealm = null;
+		try
 		{
-			state.removeAttribute("userAuditList");
+			storedRealm = authzGroupService.getAuthzGroup(updatedRealm.getId());
 		}
-		else
+		catch (GroupNotDefinedException e)
 		{
-			userAuditList = new ArrayList<String[]>();
+			log.debug("No stored realm found for {}; auditing saved members as additions", updatedRealm.getId());
 		}
-		
+		return getUserAuditEntries(storedRealm, updatedRealm);
+	}
+
+	private List<UserAuditEntry> getUserAuditEntries(AuthzGroup storedRealm, AuthzGroup updatedRealm)
+	{
+		Map<String, Member> storedMembers = getMembersByUserId(storedRealm);
+		Map<String, Member> updatedMembers = getMembersByUserId(updatedRealm);
+		List<UserAuditEntry> userAuditList = new ArrayList<UserAuditEntry>();
+		String siteId = getAuditSiteId(updatedRealm);
+		String source = userAuditRegistration.getDatabaseSourceKey();
+		String actionUserId = sessionManager.getCurrentSessionUserId();
+
+		for (Member updatedMember : updatedMembers.values())
+		{
+			Member storedMember = storedMembers.get(updatedMember.getUserId());
+			if (storedMember == null)
+			{
+				userAuditList.add(UserAuditEntry.of(siteId, updatedMember.getUserId(), getRoleId(updatedMember),
+						userAuditService.USER_AUDIT_ACTION_ADD, source, actionUserId));
+			}
+			else if (isMembershipChanged(storedMember, updatedMember))
+			{
+				userAuditList.add(UserAuditEntry.of(siteId, updatedMember.getUserId(), getRoleId(updatedMember),
+						userAuditService.USER_AUDIT_ACTION_UPDATE, source, actionUserId));
+			}
+		}
+
+		for (Member storedMember : storedMembers.values())
+		{
+			if (!updatedMembers.containsKey(storedMember.getUserId()))
+			{
+				userAuditList.add(UserAuditEntry.of(siteId, storedMember.getUserId(), getRoleId(storedMember),
+						userAuditService.USER_AUDIT_ACTION_REMOVE, source, actionUserId));
+			}
+		}
+
 		return userAuditList;
 	}
-	
-	private void addToAuditLogList(SessionState state, AuthzGroup realm, String userId, String userRole)
+
+	private Map<String, Member> getMembersByUserId(AuthzGroup realm)
 	{
-		List<String[]> userAuditList = retrieveAuditLogList(state);
-		
+		Map<String, Member> members = new HashMap<String, Member>();
+		if (realm != null)
+		{
+			for (Member member : realm.getMembers())
+			{
+				members.put(member.getUserId(), member);
+			}
+		}
+		return members;
+	}
+
+	private boolean isMembershipChanged(Member storedMember, Member updatedMember)
+	{
+		return !StringUtils.equals(getRoleId(storedMember), getRoleId(updatedMember))
+				|| storedMember.isActive() != updatedMember.isActive()
+				|| storedMember.isProvided() != updatedMember.isProvided();
+	}
+
+	private String getRoleId(Member member)
+	{
+		Role role = member.getRole();
+		return role != null ? role.getId() : "";
+	}
+
+	private String getAuditSiteId(AuthzGroup realm)
+	{
 		String realmId = realm.getId();
-		String siteId = "";
 		String fullReferenceRoot = SiteService.REFERENCE_ROOT + Entity.SEPARATOR;
 		if (realmId.startsWith(fullReferenceRoot))
 		{
-			siteId = realmId.substring(fullReferenceRoot.length());
+			String siteReference = realmId.substring(fullReferenceRoot.length());
+			int separatorIndex = siteReference.indexOf(Entity.SEPARATOR);
+			return separatorIndex == -1 ? siteReference : siteReference.substring(0, separatorIndex);
 		}
-		else
-		{
-			// this will likely never happen, but adding it in as a backup
-			siteId = realmId;
-		}
-		String newOrExistingUser = (String) state.getAttribute("newUser");
-		String userAuditAction = userAuditService.USER_AUDIT_ACTION_UPDATE;
-		
-		// if this using the Grant As functionality, it will be a new user being added
-		if (newOrExistingUser!=null && "true".equals(newOrExistingUser))
-		{
-			userAuditAction = userAuditService.USER_AUDIT_ACTION_ADD;
-		}
-		String[] userAuditString = {siteId,userId,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
-		userAuditList.add(userAuditString);
-		
-		state.setAttribute("userAuditList", userAuditList);
+		return realmId;
 	}
 
 } // RealmsAction
