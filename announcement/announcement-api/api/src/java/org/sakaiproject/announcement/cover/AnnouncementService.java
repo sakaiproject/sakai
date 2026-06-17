@@ -539,6 +539,17 @@ public class AnnouncementService
 		return service.getMessages(channelReference,filter, order, merged);	
 	}
 
+	public static java.util.List<AnnouncementMessage> getChannelMessagesForInstructors(String channelReference, Filter filter, boolean ascending,
+			String mergedChannelDelimitedList, boolean allUserSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays)
+			throws org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
+
+		return service.getChannelMessagesForInstructors(channelReference, filter, ascending, mergedChannelDelimitedList,
+				allUserSites, isSynopticTool, siteId, maxAgeInDays);
+	}
+
 	/**
 	 * Returns visible MOTD announcements from the MOTD channel.
 	 * @param afterDate Optional lower-bound date filter.

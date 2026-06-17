@@ -20,8 +20,6 @@ import java.io.File;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,6 +57,7 @@ import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -104,6 +103,8 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -2620,7 +2621,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 dataList.add(responseList);
             }
         }
-        Collections.sort(dataList, new ResponsesComparator(anonymous));
+        Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(
+                ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
+        Collections.sort(dataList, new ResponsesComparator(anonymous, collator));
         finalList.add(dataList);
         finalList.add(headerList);
         return finalList;
@@ -2794,60 +2797,54 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 separate with each user, so we need to use the hash to find the
 	 published question
 	 */
-    @Slf4j
     private static class ResponsesComparator implements Comparator {
+        private final Collator collator;
         boolean anonymous;
 
-        public ResponsesComparator(boolean anony) {
+        public ResponsesComparator(boolean anony, Collator collator) {
             anonymous = anony;
+            this.collator = collator;
         }
 
 		public int compare(Object a, Object b) {
-			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-			try{
-				RuleBasedCollator collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				// For anonymous, it should return after the first element comparison
-				if (anonymous) {
-					Long aFirstElement = (Long) ((ArrayList) a).get(0);
-					Long bFirstElement = (Long) ((ArrayList) b).get(0);
-					if (aFirstElement.compareTo(bFirstElement) < 0)
-						return -1;
-					else if (aFirstElement.compareTo(bFirstElement) > 0)
-						return 1;
-					else
-						return 0;
-				}
-				// For non-anonymous, it compares last names first, if it is the same,
-				// compares first name, and then Eid
+			// For anonymous, it should return after the first element comparison
+			if (anonymous) {
+				Long aFirstElement = (Long) ((ArrayList) a).get(0);
+				Long bFirstElement = (Long) ((ArrayList) b).get(0);
+				if (aFirstElement.compareTo(bFirstElement) < 0)
+					return -1;
+				else if (aFirstElement.compareTo(bFirstElement) > 0)
+					return 1;
+				else
+					return 0;
+			}
+			// For non-anonymous, it compares last names first, if it is the same,
+			// compares first name, and then Eid
+			else {
+				String aFirstElement = (String) ((ArrayList) a).get(0);
+				String bFirstElement = (String) ((ArrayList) b).get(0);
+				if (collator.compare(aFirstElement, bFirstElement) < 0)
+					return -1;
+				else if (collator.compare(aFirstElement, bFirstElement) > 0)
+					return 1;
 				else {
-					String aFirstElement = (String) ((ArrayList) a).get(0);
-					String bFirstElement = (String) ((ArrayList) b).get(0);
-					if (collator.compare(aFirstElement, bFirstElement) < 0)
+					String aSecondElement = (String) ((ArrayList) a).get(1);
+					String bSecondElement = (String) ((ArrayList) b).get(1);
+					if (collator.compare(aSecondElement,bSecondElement) < 0)
 						return -1;
-					else if (collator.compare(aFirstElement, bFirstElement) > 0)
+					else if (collator.compare(aSecondElement,bSecondElement) > 0)
 						return 1;
 					else {
-						String aSecondElement = (String) ((ArrayList) a).get(1);
-						String bSecondElement = (String) ((ArrayList) b).get(1);
-						if (collator.compare(aSecondElement,bSecondElement) < 0)
+						String aThirdElement = (String) ((ArrayList) a).get(2);
+						String bThirdElement = (String) ((ArrayList) b).get(2);
+						if (collator.compare(aThirdElement,bThirdElement) < 0)
 							return -1;
-						else if (collator.compare(aSecondElement,bSecondElement) > 0)
+						else if (collator.compare(aThirdElement,bThirdElement) > 0)
 							return 1;
-						else {
-							String aThirdElement = (String) ((ArrayList) a).get(2);
-							String bThirdElement = (String) ((ArrayList) b).get(2);
-							if (collator.compare(aThirdElement,bThirdElement) < 0)
-								return -1;
-							else if (collator.compare(aThirdElement,bThirdElement) > 0)
-								return 1;
-						}
 					}
-					return 0;
 				}
-			} catch (ParseException e) {
-	  			log.error("ERROR compare: ",e);
-	  		}
-			return Collator.getInstance().compare(a, b);	
+				return 0;
+			}
 		}
 	}
 

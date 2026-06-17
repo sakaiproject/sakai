@@ -81,25 +81,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private DelegatedAccessDao dao;
 	@Getter @Setter
 	private MemoryService memoryService;
-	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
-	private Cache nodeCache;
 	//Stores restricted tools map for users when they log back in
 	private Cache restrictedAuthToolsCache;
 	@Getter @Setter
 	private ScheduledInvocationManager scheduledInvocationManager;
-	
+
 	private Cache restrictedPublicToolsCache;
-	
-	private Cache hierarchySearchCache;
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
 		log.info("init");
-		nodeCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache");
 		restrictedAuthToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
 		restrictedPublicToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
-		hierarchySearchCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.hierarchySearchCache");
 	}
 
 	/**
@@ -108,16 +102,54 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	public HierarchyNodeSerialized getNode(String id){
-		return new HierarchyNodeSerialized(hierarchyService.getNodeById(id));
+		HierarchyNode entity = hierarchyService.getNodeById(id);
+		if(entity == null){
+			return new HierarchyNodeSerialized(null);
+		}
+		return buildSerializedNodes(Collections.singletonList(entity)).get(entity.getId().toString());
 	}
-	
+
 	public Map<String, HierarchyNodeSerialized> getNodes(String[] ids){
-		Map<String, HierarchyNodeSerialized> returnNodes = new HashMap<String, HierarchyNodeSerialized>();
 		Map<String, HierarchyNode> nodes = hierarchyService.getNodesByIds(ids);
-		for(Entry<String, HierarchyNode> entry : nodes.entrySet()){
-			returnNodes.put(entry.getKey(), new HierarchyNodeSerialized(entry.getValue()));
-		}		
-		return returnNodes;
+		return buildSerializedNodes(nodes.values());
+	}
+
+	/**
+	 * Builds fully-populated, serializable {@link HierarchyNodeSerialized} objects for the given
+	 * entities. Scalar fields come from the entity; the direct and transitive relationship id sets
+	 * are resolved in bulk from {@link HierarchyService} (one batch query each) while a session is
+	 * open, so the resulting objects carry no lazy state and are safe to cache/serialize.
+	 *
+	 * @param entities the hierarchy node entities to serialize
+	 * @return a map of node id to its serialized form
+	 */
+	private Map<String, HierarchyNodeSerialized> buildSerializedNodes(Collection<HierarchyNode> entities){
+		Map<String, HierarchyNodeSerialized> result = new HashMap<String, HierarchyNodeSerialized>();
+		if(entities == null || entities.isEmpty()){
+			return result;
+		}
+		for(HierarchyNode entity : entities){
+			if(entity != null){
+				result.put(entity.getId().toString(), new HierarchyNodeSerialized(entity));
+			}
+		}
+		if(result.isEmpty()){
+			return result;
+		}
+		String[] ids = result.keySet().toArray(new String[result.size()]);
+		Map<String, Set<String>> directParentIds = hierarchyService.getDirectParentNodeIds(ids);
+		Map<String, Set<String>> directChildIds = hierarchyService.getDirectChildNodeIds(ids);
+		Map<String, Set<String>> ancestorIds = hierarchyService.getParentNodeIds(ids);
+		Map<String, Set<String>> descendantIds = hierarchyService.getChildNodeIds(ids);
+		for(Entry<String, HierarchyNodeSerialized> entry : result.entrySet()){
+			String id = entry.getKey();
+			HierarchyNodeSerialized node = entry.getValue();
+			node.directParentNodeIds = directParentIds.getOrDefault(id, new HashSet<String>());
+			node.directChildNodeIds = directChildIds.getOrDefault(id, new HashSet<String>());
+			node.parentNodeIds = ancestorIds.getOrDefault(id, new HashSet<String>());
+			node.childNodeIds = descendantIds.getOrDefault(id, new HashSet<String>());
+		}
+		return result;
 	}
 
 
@@ -389,9 +421,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private Set<HierarchyNodeSerialized> convertToSerializedNodeSet(Set<HierarchyNode> nodeSet){
 		Set<HierarchyNodeSerialized> nodesForUserSerialized = new HashSet<HierarchyNodeSerialized>();
 		if(nodeSet != null){
-			for(HierarchyNode node : nodeSet){
-				nodesForUserSerialized.add(new HierarchyNodeSerialized(node));
-			}
+			nodesForUserSerialized.addAll(buildSerializedNodes(nodeSet).values());
 		}
 		return nodesForUserSerialized;
 	}
@@ -436,7 +466,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 
 	private HierarchyNodeSerialized getRootNode(){
-		return new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID));
+		HierarchyNode rootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+		if(rootNode == null){
+			return new HierarchyNodeSerialized(null);
+		}
+		return buildSerializedNodes(Collections.singletonList(rootNode)).get(rootNode.getId().toString());
 	}
 
 	/**
@@ -850,7 +884,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			HierarchyNode hierarchyRoot = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 			String hierarchyRootId = "-1";
 			if(hierarchyRoot != null){
-				hierarchyRootId = hierarchyRoot.id;
+				hierarchyRootId = hierarchyRoot.getId().toString();
 			}
 			for (Iterator iterator = l1.iterator(); iterator.hasNext();) {
 				List list = (List) iterator.next();
@@ -1313,50 +1347,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 
 	/**
-	 * Checks nodeCache for node with given id.  If not found,
-	 * looks up the node in the db and saves it in the cache
-	 * 
+	 * Looks up a single hierarchy node, fully populated and serializable. Fetching efficiency is
+	 * delegated to {@link HierarchyService} (and, once enabled, Hibernate's second-level/query
+	 * caches) rather than an application-level cache.
+	 *
 	 * @param id
 	 * @return
 	 */
 	public HierarchyNodeSerialized getCachedNode(String id){
-		Object el = nodeCache.get(id);
-		HierarchyNodeSerialized node = null;
-		if(el == null){
-			node = getNode(id);
-			try{
-				nodeCache.put(id, node);
-			}catch (Exception e) {
-				log.error("getCachedNode: " + id, e);
-			}
-		}else if(el instanceof HierarchyNodeSerialized){
-			node = (HierarchyNodeSerialized) el;
-		}
-		return node;
+		return getNode(id);
 	}
-	
+
 	public Map<String, HierarchyNodeSerialized> getCachedNodes(String[] ids){
-		Map<String, HierarchyNodeSerialized> returnNodes = new HashMap<String, HierarchyNodeSerialized>();
-		Set<String> lookupNodes = new HashSet<String>();
-		for(String id : ids){
-			Object el = nodeCache.get(id);
-			HierarchyNodeSerialized node = null;
-			if(el == null){
-				//look these up in bulk:
-				lookupNodes.add(id);
-			}else if(el instanceof HierarchyNodeSerialized){
-				returnNodes.put(id, (HierarchyNodeSerialized) el);
-			}
-		}
-		//now that we only have non cached ids, look them up in bulk:
-		Map<String, HierarchyNodeSerialized> lookupMap = getNodes(lookupNodes.toArray(new String[lookupNodes.size()]));
-		//store nodes in cache and add to return set
-		for(Entry<String, HierarchyNodeSerialized> entry : lookupMap.entrySet()){
-			returnNodes.put(entry.getKey(), entry.getValue());
-			nodeCache.put(entry.getKey(), entry.getValue());
-		}
-		
-		return returnNodes;
+		return getNodes(ids);
 	}
 
 	/**
@@ -1639,26 +1642,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	public void removeNode(HierarchyNode node){
 		if(node != null){
-			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
-				//we can delete this, otherwise, delete the children first the children
-				for(String childId : node.childNodeIds){		
-					removeNode(hierarchyService.getNodeById(childId));
+			String nodeId = node.getId().toString();
+			Set<HierarchyNode> directChildren = hierarchyService.getChildNodes(nodeId, true);
+			if(directChildren != null && !directChildren.isEmpty()){
+				//delete the children first
+				for(HierarchyNode child : directChildren){
+					removeNode(child);
 				}
 			}
 			//all the children nodes have been deleted, now its safe to delete
-			hierarchyService.removeNode(node.id);
-			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{node.id}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
+			hierarchyService.removeNode(nodeId);
+			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{nodeId}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
 			for(String userId : userIds){
-				removeAllUserPermissions(node.id, userId);
+				removeAllUserPermissions(nodeId, userId);
 			}
-			//since the hierarchy service doesn't really delete the nodes,
-			//we need to distinguish between deleted nodes
-			hierarchyService.setNodeDisabled(node.id, true);
+
 		}
 	}
 	
 	public void deleteEmptyNonSiteNodes(String hierarchyId){
-		List<String> emptyNodes = dao.getEmptyNonSiteNodes(hierarchyId);
+		List<String> emptyNodes = hierarchyService.getEmptyNonSiteNodes(hierarchyId);
 		//I don't like loops, loops shouldn't happen but never say never
 		int loopProtection = 1;
 		while(emptyNodes != null && emptyNodes.size() > 0 && loopProtection < 1000000){
@@ -1666,7 +1669,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				removeNode(hierarchyService.getNodeById(id));
 			}
 			//check again
-			emptyNodes = dao.getEmptyNonSiteNodes(hierarchyId);
+			emptyNodes = hierarchyService.getEmptyNonSiteNodes(hierarchyId);
 			loopProtection++;
 		}
 	}
@@ -1747,11 +1750,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	
 	public Map<String, List<String>> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
-		return dao.getNodesBySiteRef(siteRefs, hierarchyId);
+		return hierarchyService.getNodesByTitles(hierarchyId, siteRefs);
 	}
-	
-	public void clearNodeCache(){
-		nodeCache.clear();
+
+	public List<String> getDelegatedAccessUsers(){
+		return new ArrayList<String>(hierarchyService.getUserIdsForPerms(
+				DelegatedAccessConstants.NODE_PERM_SITE_VISIT,
+				DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN,
+				DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN));
 	}
 	
 	public String[] getCurrentUsersAccessToSite(String siteRef){
@@ -1864,18 +1870,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 				Map<String, HierarchyNode> siteNodes = hierarchyService.getNodesByIds(nodeIds.toArray(new String[nodeIds.size()]));
 				//create a set of parent ID's and lookup the user's permissions for this sub-set:
 				Set<String> subSetNodeIds = new HashSet<String>();
-				if(siteNodes != null){
-					for(HierarchyNode node : siteNodes.values()){
-						subSetNodeIds.add(node.id);
-						if(node.parentNodeIds != null){
-							for(String pId : node.parentNodeIds){
-								subSetNodeIds.add(pId);
-							}
-						}
+				if(siteNodes != null && !siteNodes.isEmpty()){
+					Set<String> siteNodeIds = siteNodes.keySet();
+					subSetNodeIds.addAll(siteNodeIds);
+					//batch-resolve the ancestors of all site nodes in a single query instead of one call per node
+					Map<String, Set<String>> ancestorsByNode = hierarchyService.getParentNodeIds(siteNodeIds.toArray(new String[siteNodeIds.size()]));
+					for(Set<String> ancestorIds : ancestorsByNode.values()){
+						subSetNodeIds.addAll(ancestorIds);
 					}
 				}
 				//find the node for the site
-				Map<String, Set<String>> userNodesAndPerms = dao.getNodesAndPermsForUser(userId, subSetNodeIds.toArray(new String[subSetNodeIds.size()]));
+				Map<String, Set<String>> userNodesAndPerms = hierarchyService.getNodePermsForUser(userId, subSetNodeIds.toArray(new String[subSetNodeIds.size()]));
 				Map<String, String> memberRoles = new HashMap<String, String>();
 				if(!shoppingPeriod){
 					memberRoles = sakaiProxy.isUserMember(userId, siteRefs);
@@ -1946,13 +1951,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 									nodeId = null;
 									break;
 								}else{
-									Set<String> parentIds = null;
-									if(siteNodes != null && siteNodes.containsKey(nodeId)){
-										//we've already spent the time looking this up in bulk
-										parentIds = siteNodes.get(nodeId).parentNodeIds;
-									}else{
-										parentIds = getCachedNode(nodeId).parentNodeIds;
-									}
+									//both site nodes and other nodes now carry their full transitive ancestor set
+									Set<String> parentIds = getCachedNode(nodeId).parentNodeIds;
 									nodeId = getFirstAccessParent(parentIds, userNodesAndPerms);
 								}
 							}
@@ -2453,7 +2453,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public String getAddDAMyworkspaceJobStatus(){
 		HierarchyNode root = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 		if(root != null){
-			Set<String> perms = hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{root.id});
+			Set<String> perms = hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{root.getId().toString()});
 			return getAddDAMyworkspaceJobStatus(perms);
 		}
 		return null;
@@ -2474,11 +2474,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(root != null){
 			String currentStatus = getAddDAMyworkspaceJobStatus();
 			if(currentStatus != null){
-				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + currentStatus, false);
+				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.getId().toString(), DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + currentStatus, false);
 			}
-			
+
 			//add new status:
-			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, 
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.getId().toString(),
 					DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + status, false);
 		}
 	}
@@ -2510,7 +2510,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public HierarchyNodeSerialized getRootNodeId(){
-		return new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID));
+		HierarchyNode rootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+		if(rootNode == null){
+			return new HierarchyNodeSerialized(null);
+		}
+		return buildSerializedNodes(Collections.singletonList(rootNode)).get(rootNode.getId().toString());
 	}
 	
 	public Set<HierarchyNodeSerialized> getDirectNodes(String nodeId){
@@ -2647,8 +2651,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 			if(includeLowerPerms){
 				//we want to look at the lowest level and find all users who have access at that level or below
 				HierarchyNode searchNode = hierarchyService.getNodeById(nodeSelectOrder.get(nodeSelectOrder.size() - 1));
-				searchNodes.add(searchNode.id);
-				searchNodes.addAll(searchNode.childNodeIds);
+				if(searchNode != null){
+					String searchNodeId = searchNode.getId().toString();
+					searchNodes.add(searchNodeId);
+					searchNodes.addAll(hierarchyService.getChildNodeIds(new String[]{searchNodeId}).get(searchNodeId));
+				}
 			}
 			//we also want to audit as well, so include the hierarchy node ids above the last 
 			searchNodes.addAll(nodeSelectOrder);
@@ -2767,22 +2774,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap){
-		List<String> orderedKeys = new ArrayList<String>(hierarchySearchMap.keySet());
-		Collections.sort(orderedKeys);
-		String key = "";
-		for(String k : orderedKeys){
-			key += k + ";" + (hierarchySearchMap.get(k) == null ? "" : hierarchySearchMap.get(k)) + ";";
-		}
-		Map<String, Set<String>> results = null;
-		if(hierarchySearchCache.containsKey(key)){
-			results = (Map<String, Set<String>>) hierarchySearchCache.get(key); 
-			if(results != null) {
-				return results;
-			}
-		}
-		results = dao.getHierarchySearchOptions(hierarchySearchMap);
-		hierarchySearchCache.put(key, results);
-		return results;
+		return dao.getHierarchySearchOptions(hierarchySearchMap);
 	}
 
 	@Override
@@ -2794,15 +2786,22 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public Set<String> filterShoppingPeriodEditNodes(Set<String> nodeIds, String userId) {
 		Set<String> returnNodes = new HashSet<String>();
 		Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN);
+		Set<String> adminNodeIds = new HashSet<String>();
+		for(HierarchyNode node : nodes){
+			adminNodeIds.add(node.getId().toString());
+		}
+		//batch-resolve the descendants of every admin node once instead of one call per (nodeId, adminNode) pair
+		Map<String, Set<String>> descendantsByNode = hierarchyService.getChildNodeIds(adminNodeIds.toArray(new String[adminNodeIds.size()]));
 		for(String nodeId : nodeIds){
-			for(HierarchyNode node : nodes){
-				if(nodeId.equals(node.id) || node.childNodeIds.contains(nodeId)){
+			for(String adminNodeId : adminNodeIds){
+				Set<String> descendants = descendantsByNode.get(adminNodeId);
+				if(nodeId.equals(adminNodeId) || (descendants != null && descendants.contains(nodeId))){
 					returnNodes.add(nodeId);
 					break;
 				}
 			}
 		}
-		
+
 		return returnNodes;
 	}
 }

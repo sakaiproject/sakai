@@ -27,6 +27,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.util.PollUtils;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -162,7 +163,7 @@ public class OptionController {
             true,
             true
         );
-        option.setText(org.sakaiproject.poll.api.util.PollUtils.cleanupHtmlPtags(sanitizedText));
+        option.setText(PollUtils.cleanupHtmlPtags(sanitizedText));
 
         // Validate after processing
         if (StringUtils.isBlank(option.getText())) {

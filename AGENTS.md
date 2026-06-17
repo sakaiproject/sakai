@@ -13,6 +13,14 @@
 - `npm run analyze` - Run lit-analyzer for static type checking
 
 ## Architecture
+- **Request-Scoped State**: Do not use `ThreadLocal`, static fields, or singleton bean fields to pass request/import/user/site-specific state through service calls. Sakai runs on pooled application-server threads, so thread-bound state can leak across requests if cleanup is missed. Prefer explicit return values, operation-scoped helper instances, DTO/result objects, or method parameters.
+
+### Service Boundaries
+- **Business Logic**: Put business rules, parsing, import/copy semantics, workflow decisions, and cross-object coordination in services, not controllers, JSF listeners, Wicket panels, entity producers, or repositories.
+- **Controllers and Listeners**: Keep request/response handling, navigation, model setup, and framework glue in the UI layer; delegate behavior to services.
+- **Repositories**: Keep repositories focused on persistence of mapped entities and queries. Create adapters, DTO assembly, and tool-specific workflow objects in services.
+- **Singleton State**: Do not store request-specific state such as user id, site id, locale, timezone, or request parameters in singleton Spring beans/controllers.
+- **Strategy Consistency**: Avoid mixing competing solutions for the same problem, such as backend locks plus UI state throttling, unless both are explicitly required and documented.
 
 ### Kernel
 - **Core Services**: The Kernel provides core services that should be used by all tools
@@ -23,6 +31,9 @@
 - **Session Management**: User session handling
 - **Service Location**: Use the Kernel's service location mechanisms to access these services
 - **New Services**: New core services should be added to the Kernel, not to individual tools
+- **Existing Helpers First**: Prefer existing Sakai services/utilities before adding local helpers or new infrastructure, including `ServerConfigurationService`, `LocaleService`, `SiteService.siteReference()`, `UserDirectoryService`, `SchedulingService`, optional site lookup helpers, and Sakai's standard Jackson/XML utilities.
+- **Configuration**: Put configurable behavior in Sakai configuration, with defaults in the normal default properties path when appropriate; avoid tool-local ad hoc config files.
+- **Background Work**: Prefer Kernel scheduling/executor services over creating new thread pools. Verify session, user, site, and security context assumptions for work running outside a request thread.
 
 ### Web Components
 - **Strategic Direction**: Web components are the strategic direction for Sakai frontend development
@@ -36,6 +47,7 @@
 - **Legacy Frameworks**: The codebase contains multiple Java frameworks from different eras
 - **Spring**: Crucial framework used throughout the codebase for dependency injection, MVC, and services
 - **Hibernate**: Critical ORM framework for database interactions, essential for future development
+- **Persistence Semantics**: Prefer JPA operations such as `persist` and `merge` when working in JPA-oriented code. Return the managed entity from `merge`, and avoid Hibernate-specific methods unless the surrounding code intentionally uses Hibernate APIs.
 - **JSF 2.3**: JavaServer Faces is used in many tools
 - **Wicket**: Used in several tools for component-based web development
 - **ThymeLeaf**: Preferred template engine for new development
@@ -63,7 +75,7 @@
 - **Internationalization**: Ensure code supports different languages
 - **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
 - **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
-- **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the user's preferred timezone from account preferences.
+- **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the site or user's preferred timezone from account preferences.
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible
@@ -75,11 +87,21 @@
 - **Mock Boundaries, Not Internals**: Mockito is appropriate for external systems, kernel services outside the behavior under test, expensive integrations, unavailable infrastructure, or unavoidable Sakai boundary services. Put reusable mocks in a module-specific test configuration as named beans rather than recreating local mocks in each test.
 - **Use SakaiTestConfiguration as the Pattern**: For Spring/Hibernate service tests, create a module-specific `*TestConfiguration` extending `org.sakaiproject.test.SakaiTestConfiguration`, import the module's normal Spring configuration where practical, load test Hibernate properties, enable transactions, and autowire the real service under test from the Spring context.
 - **Avoid Tiny Mock-Only Unit Tests for Wired Behavior**: Do not replace a meaningful Sakai service test with a tiny isolated unit test that verifies one helper-like concept while bypassing the tool's real wiring. If behavior depends on configured services, persistence, transactions, permissions, Hibernate mappings, or Sakai component wiring, test it through the public service/API with the real wired collaborators.
+- **Test Naming**: When a test verifies a public API or service contract, name the test class after the API/interface under test rather than the implementation class.
+- **Spring Test Wiring**: For service tests, prefer loading the same Spring component wiring used by the running application when practical. Put reusable mocks and bean overrides in test configuration rather than remocking the same dependencies in each test.
 - **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `e2e-tests/src/test/java/org/sakaiproject/e2e/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
-- **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
+- **Java Version**: Java 17 for master (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
+- **Secure XML Parsing**: For DOM XML parsing, use `org.sakaiproject.util.Xml.createSecureDocumentBuilderFactory()` instead of manually configuring `DocumentBuilderFactory`. `MapperFactory` is only for Jackson `ObjectMapper`/`XmlMapper` creation.
+
+## Review Heuristics
+- **Security Context**: Check links, entity providers, background jobs, site copy/import, and user/site operations for explicit permissions and trustworthy user/site/session context.
+- **Preserve Semantics**: Site import, duplication, user workspaces, gradebook integration, group locks, assessment settings, and availability rules have established behavior. Do not change these semantics as a side effect.
+- **Logging**: Use parameterized logging with useful operation/object context. Do not include class or method names when the logger already supplies them. Use `debug` for routine trace, `warn` for recoverable unexpected state, and include the exception object when the stack trace matters.
+- **Exception Handling**: Do not swallow exceptions silently. Collapse duplicate catch blocks, remove unreachable catches, and use try-with-resources for streams/files/resources.
+- **Review Focus**: Prefer small, concrete changes that fit existing Sakai patterns. When an approach is unclear, ask which strategy is intended before adding more code.
 
 ## Push Notifications
 - **Support Matrix**: Design for current evergreen builds of Chrome, Edge, Safari, and Firefox; no legacy branches.

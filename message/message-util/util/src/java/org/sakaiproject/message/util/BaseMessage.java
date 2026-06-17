@@ -3140,6 +3140,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			return msgs;
 		} // findMessages
 
+		protected List<Message> findSortedMessages(boolean ascending) {
+			List<Message> msgs = new ArrayList<>(findMessages());
+			if (msgs.isEmpty()) return msgs;
+
+			// Natural message order is date ascending.
+			Collections.sort(msgs);
+
+			if (!ascending)
+			{
+				Collections.reverse(msgs);
+			}
+
+			return msgs;
+		}
+
 		/**
 		 * Find messages, sort, filter by group and the provided filter.
 		 * 
@@ -3151,17 +3166,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public List findFilterMessages(Filter filter, boolean ascending)
 		{
-			List msgs = findMessages();
+			List msgs = findSortedMessages(ascending);
 			if (msgs.size() == 0) return msgs;
-			
-			// sort - natural order is date ascending
-			Collections.sort(msgs);
-
-			// reverse, if not ascending
-			if (!ascending)
-			{
-				Collections.reverse(msgs);
-			}
 
 			// filter out
 			List filtered = new Vector();

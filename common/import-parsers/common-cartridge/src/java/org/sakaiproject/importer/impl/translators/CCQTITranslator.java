@@ -28,7 +28,6 @@ import java.nio.file.Paths;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.XMLConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +35,7 @@ import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.XPathHelper;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -82,15 +82,7 @@ public class CCQTITranslator implements IMSResourceTranslator {
 				return null;
 			}
 			
-			// Configure secure XML parsing
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-			factory.setXIncludeAware(false);
-			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			
+			DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document qtiDocument;
 			

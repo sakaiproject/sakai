@@ -169,7 +169,7 @@ public class Participant {
 		}
 	}
 
-	public int compareTo(Participant participantB) {
+	public int compareTo(Participant participantB, UserSortNameComparator comparator) {
 		User userA = null;
 		User userB = null;
 		String uniqnameB = participantB.getUniqname();
@@ -194,7 +194,7 @@ public class Participant {
 			return 1;
 		}
 
-		return new UserSortNameComparator().compare(userA, userB);
+		return comparator.compare(userA, userB);
 	}
 
 } // Participant

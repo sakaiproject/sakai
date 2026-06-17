@@ -63,15 +63,10 @@ public class DelegatedAccessObserver implements Observer {
 			projectLogic.initializeDelegatedAccessSession();
 		}else if(SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())){
 			//Site has been deleted, check if it exists and remove all nodes:
-			boolean deleted = false;
 			Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{event.getResource()}, DelegatedAccessConstants.HIERARCHY_ID);
 			if(nodeIds != null && nodeIds.containsKey(event.getResource())){
 				for(String nodeId : nodeIds.get(event.getResource())){
 					projectLogic.removeNode(nodeId);
-					deleted = true;
-				}
-				if(deleted){
-					projectLogic.clearNodeCache();
 				}
 			}
 		}else if(DelegatedAccessConstants.EVENT_CHECK_ACCESS.equals(event.getEvent())){

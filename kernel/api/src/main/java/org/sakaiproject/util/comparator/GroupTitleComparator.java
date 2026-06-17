@@ -16,11 +16,20 @@
 package org.sakaiproject.util.comparator;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 import org.sakaiproject.site.api.Group;
 
 public class GroupTitleComparator implements Comparator<Group> {
-    private AlphaNumericComparator alphaNumeric = new AlphaNumericComparator();
+    private final AlphaNumericComparator alphaNumeric;
+
+    public GroupTitleComparator() {
+        this.alphaNumeric = new AlphaNumericComparator();
+    }
+
+    public GroupTitleComparator(Locale locale) {
+        this.alphaNumeric = new AlphaNumericComparator(locale);
+    }
 
     public int compare(Group lhs, Group rhs) {
         return alphaNumeric.compare(lhs.getTitle(), rhs.getTitle());

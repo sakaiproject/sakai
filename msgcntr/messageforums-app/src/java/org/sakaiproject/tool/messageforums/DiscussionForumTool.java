@@ -86,7 +86,6 @@ import org.sakaiproject.api.app.messageforums.MutableEntity;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.RankImage;
 import org.sakaiproject.api.app.messageforums.RankManager;
@@ -7287,7 +7286,7 @@ public class DiscussionForumTool {
   }
 
 	/**
-	 * Using a PermissionBean, constructs a PermissionMask, then constructs a PermissionLevel, and assigns it to a MembershipItem
+	 * Using a PermissionBean, constructs a permission map, then constructs a PermissionLevel, and assigns it to a MembershipItem
 	 * @param membershipItem membershipItem the item on which to apply the new permission level
 	 * @param permBean the PermissionBean from which the new PermissionLevel should be based
 	 */
@@ -7296,7 +7295,7 @@ public class DiscussionForumTool {
 		if (!PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(permBean.getSelectedLevel())) {
 			return;
 		}
-		PermissionsMask mask = new PermissionsMask();
+		Map<String, Boolean> mask = new HashMap<>();
 		mask.put(PermissionLevel.NEW_FORUM, permBean.getNewForum());
 		mask.put(PermissionLevel.NEW_TOPIC, permBean.getNewTopic());
 		mask.put(PermissionLevel.NEW_RESPONSE, permBean.getNewResponse());
@@ -8383,7 +8382,7 @@ public class DiscussionForumTool {
 				itemToCopy.getType());
 		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
 		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
-			PermissionsMask mask = new PermissionsMask();
+			Map<String, Boolean> mask = new HashMap<>();
 			List customPermList = permissionLevelManager.getCustomPermissions();
 			for (int c = 0; c < customPermList.size(); c++) {
 				String customPermName = (String) customPermList.get(c);

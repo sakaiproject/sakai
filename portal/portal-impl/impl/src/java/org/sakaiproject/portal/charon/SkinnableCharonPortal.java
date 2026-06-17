@@ -291,7 +291,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         timeoutDialogWarningSeconds = serverConfigurationService.getInt(PROP_PORTAL_TIMEOUT_DIALOG_WARN_SECONDS, 600);
         toolUrlPrefix = serverConfigurationService.getToolUrl();
         topLogin = serverConfigurationService.getBoolean(PROP_TOP_LOGIN, true);
-        universalAnalyticsId = serverConfigurationService.getString(PROP_GOOGLE_ANALYTICS_ID);
+        universalAnalyticsId = serverConfigurationService.getString(PROP_GOOGLE_ANALYTICS_ID, null);
         useBullhornAlerts = serverConfigurationService.getBoolean(PROP_BULLHORN_ALERTS_ENABLED, true);
 
         poweredBy = new ArrayList<>();

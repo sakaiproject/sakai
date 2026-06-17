@@ -26,8 +26,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.Collator;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,6 +113,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -235,8 +235,8 @@ public class QuestionPoolBean implements Serializable {
 
   @Autowired
   private SecurityService securityService;
-
-  @Getter private String infoDuplicatedQuestion = StringUtils.EMPTY;
+  @Autowired
+  private LocaleService localeService;
 
   /**
    * Creates a new QuestionPoolBean object.
@@ -328,13 +328,13 @@ public class QuestionPoolBean implements Serializable {
 		  if (i2.getTitle() == null && i1.getTitle() == null) {
 			  return 0;
 		  }
-		  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-		  try {
-			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			return collator.compare(i1.getTitle(), i2.getTitle());
-		  } catch (ParseException e) {}
-		  return Collator.getInstance().compare(i1.getTitle(), i2.getTitle());
+		  return getCollator().compare(i1.getTitle(), i2.getTitle());
 	  }
+  }
+
+  private Collator getCollator() {
+	  return SakaiCollators.getCollatorWithUnderscoreAfterSpace(
+			  localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
   }
 
   class QuestionSizeComparator implements Comparator<QuestionPoolFacade> {
@@ -1384,7 +1384,6 @@ public String getAddOrEdit()
 	}
   
      public String moveQuestion() {
-		infoDuplicatedQuestion = StringUtils.EMPTY;
 		Long sourceId = getCurrentPool().getId();
 		List<Long> sourceItemIds = getCurrentItemIds();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
@@ -1403,7 +1402,7 @@ public String getAddOrEdit()
 					// return to an irrelevant screen. I think it's better
 					// just to skip that item. One could argue for a warning
 					// message.
-					if (StringUtils.isEmpty(infoDuplicatedQuestion)) infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+					addMessageIfDuplicatedInSameDestPool(sourceItemId, destId);
 					delegate.moveItemToPool(sourceItemId, sourceId, destId);
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
 				}
@@ -1481,15 +1480,14 @@ public String getAddOrEdit()
 		return EDIT_ASSESSMENT;
 	}
 
-  public String addMessageIfDuplicatedInDestPool(Long sourceItemId, Long destId){
+  public void addMessageIfDuplicatedInSameDestPool(Long sourceItemId, Long destId){
       QuestionPoolService delegate = new QuestionPoolService();
       // check if the item already exists in the destPool
       // if has duplicated items, show message
-      return delegate.hasItem(sourceItemId, destId) ? rb.getString("copy_duplicate_error") : StringUtils.EMPTY;
+      if (delegate.hasItem(sourceItemId, destId)) FacesContext.getCurrentInstance().getExternalContext().getFlash().put("infoDuplicatedQuestion", rb.getString("copy_duplicate_error"));
   }
 
   public String copyQuestion() {
-		infoDuplicatedQuestion = StringUtils.EMPTY;
 		if (getSourcePart() != null)
 			return copyQuestionsFromPart();
 
@@ -1517,7 +1515,7 @@ public String getAddOrEdit()
 						// return to an irrelevant screen. I think it's better
 						// just to skip that item. One could argue for a warning
 						// message.
-						if (StringUtils.isEmpty(infoDuplicatedQuestion)) infoDuplicatedQuestion = addMessageIfDuplicatedInDestPool(sourceItemId, destId);
+						addMessageIfDuplicatedInSameDestPool(sourceItemId, destId);
 						Long copyItemFacadeId = questionPoolService
 								.copyItemFacade(sourceItem.getData());
 						delegate.addItemToPool(copyItemFacadeId, new Long(

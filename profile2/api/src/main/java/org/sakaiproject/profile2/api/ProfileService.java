@@ -62,6 +62,14 @@ public interface ProfileService {
     boolean saveUserProfile(ProfileTransferBean profileBean);
 
     /**
+     * Ensures the current user may modify the given user's profile.
+     *
+     * @param userUuid uuid of the profile to modify
+     * @throws SecurityException if there is no session or the user is not allowed
+     */
+    void assertCanModifyProfile(String userUuid);
+
+    /**
      * Check if a user has a pronunciation recording. This call does not get the actual bytes, it
      * just checks if the resource exists.
      *

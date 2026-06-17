@@ -53,6 +53,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -94,6 +95,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 	private ServerConfigurationService serverConfigurationService;
 	@Setter
 	private PrivacyManager privacyManager;
+	@Setter
+	private LocaleService localeService;
 
 	private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 	private ResourceLoader rl;
@@ -191,7 +194,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 
 		Map<User, Boolean> returnSet = null;
 		/** get List of unfiltered course members */
-		List allCourseUsers = convertMemberMapToList(getAllCourseUsersAsMap(pvtMsg));
+		List allCourseUsers = convertMemberMapToList(getAllCourseUsersAsMap(pvtMsg), pvtMsg);
 
 		Map courseMemberMap = null;
 		try {
@@ -203,7 +206,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			log.warn(e.getMessage(), e);
 			return Collections.EMPTY_MAP;
 		}
-		List<MembershipItem> members = convertMemberMapToList(courseMemberMap);
+		List<MembershipItem> members = convertMemberMapToList(courseMemberMap, pvtMsg);
 		SelectedLists selectedLists = populateDraftRecipients(pvtMsg.getId(), messageManager, members, members);
 
 		Map<User, Boolean> composeToSet = getRecipientsHelper(selectedLists.to, allCourseUsers, Boolean.FALSE, courseMemberMap);
@@ -355,10 +358,17 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 	}
 
 	public List<MembershipItem> convertMemberMapToList(Map<String, MembershipItem> memberMap) {
+		return convertMemberMapToList(memberMap, null);
+	}
+
+	private List<MembershipItem> convertMemberMapToList(Map<String, MembershipItem> memberMap, PrivateMessage pvtMsg) {
 
 		MembershipItem[] membershipArray = new MembershipItem[memberMap.size()];
 		membershipArray = (MembershipItem[]) memberMap.values().toArray(membershipArray);
-		Arrays.sort(membershipArray);
+		String siteId = pvtMsg != null ? pvtMsg.getRecipients().get(0).getContextId() : null;
+		String userId = pvtMsg != null ? pvtMsg.getAuthorId() : null;
+		Arrays.sort(membershipArray, MembershipItem.compareByType.thenComparing(
+				MembershipItem.getNameComparator(localeService.getLocaleForSiteAndUser(siteId, userId))));
 
 		return Arrays.asList(membershipArray);
 	}
@@ -519,7 +529,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 		// set FERPA status for all items in map - allCourseUsers
 		// needed by PrivacyManager to determine status
 
-		return setPrivacyStatus(convertMemberMapToList(getAllCourseUsersAsMap(pvtMsg)), returnMap, pvtMsg);
+		return setPrivacyStatus(convertMemberMapToList(getAllCourseUsersAsMap(pvtMsg), pvtMsg), returnMap, pvtMsg);
 	}
 
 	private boolean isGroupAlreadyInMap(Map<String, MembershipItem> returnMap, MembershipItem membershipItem) {

@@ -29,18 +29,7 @@ public interface DelegatedAccessDao {
 	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue);
 
 	public void removeSiteProperty(String[] siteIds, String propertyName);
-	
-	/**
-	 * returns a Map of -> {siteRef, {nodeId, nodeId ...}}
-	 * 
-	 * @param siteRef
-	 * @param hierarchyId
-	 * @return
-	 */
-	public Map<String, List<String>> getNodesBySiteRef(String[] siteRef, String hierarchyId);
-	
-	public List<String> getEmptyNonSiteNodes(String hierarchyId);
-	
+
 	/**
 	 * returns a list of {siteId, title} for sites returned in search
 	 * if you search for instructorsIds as well, then the results will be {siteId, title, userId}
@@ -61,24 +50,7 @@ public interface DelegatedAccessDao {
 	 * @return
 	 */
 	public Map<String, Map<String, String>> searchSitesForProp(String[] props, String[] siteIds);
-	
-	/**
-	 * When a node is deleted or a hierarchy is destroyed, HierarchyService just orphans the permissions table data
-	 * instead of deleting it.  This is an issue in Shopping Period job since it destroys the Shopping Period
-	 * Hierarchy every time its ran
-	 */
-	public void cleanupOrphanedPermissions();
-	
-	/**
-	 * returns a map of {nodeId -> {permission, permission...}) for the given user
-	 * if a user doesn't have permissions for a node, it won't show up in the map
-	 * 
-	 * @param userId
-	 * @param nodeIds
-	 * @return
-	 */
-	public Map<String, Set<String>> getNodesAndPermsForUser(String userId, String[] nodeIds);
-	
+
 	/**
 	 * Returns a subset of sites that are active.  This requires an external feature that populates a
 	 * tables named CMS_ACTIVATED
@@ -105,14 +77,7 @@ public interface DelegatedAccessDao {
 	 * @param toRole
 	 */
 	public void copyRole(String fromRealm, String fromRole, String[] toRealm, String toRole);
-	
-	/**
-	 * returns a list of user ids for users who have at least one of the following permissions in any node:
-	 * site.visit, accessAdmin, or shoppingAdmin
-	 * @return
-	 */
-	public List<String> getDelegatedAccessUsers();
-	
+
 	/**
 	 * returns a list of site id which have have the Delegated Access tool
 	 * @param siteIds

@@ -90,6 +90,8 @@ import org.sakaiproject.authz.api.Role;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
+    private static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
+
     @Setter private ContentHostingService contentHostingService;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
@@ -681,12 +683,34 @@ public class SiteManageServiceImpl implements SiteManageService {
 			}
 		}
 
+		// Now announcements. Assignment-generated announcements are intentionally skipped by
+		// the Announcements import and recreated by Assignments, so Announcements cleanup must
+		// run before Assignments imports published assignments.
+		if (toolIds.contains(ANNOUNCEMENTS_TOOL_ID)) {
+			for (String toolId : toolIds) {
+				if (StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID)) {
+					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+
+					Set<String> sourceSiteIds = new LinkedHashSet<>();
+					sourceSiteIds.addAll(importTools.getOrDefault(toolId, Collections.EMPTY_LIST));
+					sourceSiteIds.addAll(siteItems.keySet());
+					sourceSiteIds.addAll(siteOptions.keySet());
+
+					for (String fromSiteId : sourceSiteIds) {
+						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
+					}
+				}
+			}
+		}
+
 		// Now import the rest of the tools
 		if (!toolIds.isEmpty()) {
 			for (String toolId : toolIds) {
 				if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
-						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)) {
+						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)
+						&& !StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID)) {
 
 					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
 					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);

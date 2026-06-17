@@ -73,6 +73,8 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:title").fill(SAMIGO_TITLE);
         page.locator("#authorIndexForm\\:createnew").click(new Locator.ClickOptions().setForce(true));
 
+        assertExistingQuestionActionsAreSeparatedAtBottom();
+
         addMultipleChoiceQuestion(
             "99.99",
             "What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?",
@@ -432,6 +434,33 @@ class SamigoTest extends SakaiUiTestBase {
         }
 
         return false;
+    }
+
+    private void assertExistingQuestionActionsAreSeparatedAtBottom() {
+        Locator select = page.locator("#assessmentForm\\:parts\\:0\\:changeQType").first();
+        assertThat(select).isVisible();
+
+        Locator searchQuestions = select.locator("option").filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Search questions\\s*$", Pattern.CASE_INSENSITIVE)));
+        if (searchQuestions.count() == 0) {
+            return;
+        }
+
+        assertThat(select.locator("optgroup[label='Existing'] option").filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Search questions\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
+
+        Object result = select.evaluate("select => {"
+             + "const options = Array.from(select.options);"
+             + "const normalized = t => (t || '').trim().toLowerCase();"
+             + "const isExisting = option => option.parentElement"
+             + "  && option.parentElement.tagName === 'OPTGROUP'"
+             + "  && option.parentElement.label === 'Existing';"
+             + "const searchIndex = options.findIndex(option => normalized(option.textContent) === 'search questions');"
+             + "const firstExistingIndex = options.findIndex(option => isExisting(option));"
+             + "const lastIndex = options.length - 1;"
+             + "return searchIndex === lastIndex && firstExistingIndex > 0 && isExisting(options[searchIndex]);"
+             + "}");
+        assertEquals(Boolean.TRUE, result);
     }
 
     private void selectQuestionType(Pattern labelPattern) {

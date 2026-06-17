@@ -64,25 +64,7 @@ import org.xml.sax.helpers.DefaultHandler;
 @Slf4j
 public class StorageUtils {
 	private static volatile SAXParserFactory parserFactory;
-	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-
-	static {
-		dbFactory.setNamespaceAware(true);
-		try {
-			dbFactory.setXIncludeAware(false);
-		} catch (UnsupportedOperationException e) {
-			log.debug("DocumentBuilderFactory does not support XInclude control; skipping");
-		}
-		dbFactory.setExpandEntityReferences(false);
-		try {
-			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-		} catch (ParserConfigurationException | IllegalArgumentException e) {
-			log.warn("Failed to apply secure XML parser features; continuing with defaults: {}", e.toString());
-		}
-	}
+	private static final DocumentBuilderFactory dbFactory = createSecureDocumentBuilderFactory();
 
 	/**
 	 * Create a new DOM Document.
@@ -101,6 +83,18 @@ public class StorageUtils {
 		{
             log.warn("createDocument: {}", any.toString());
 			return null;
+		}
+	}
+
+	private static DocumentBuilderFactory createSecureDocumentBuilderFactory()
+	{
+		try
+		{
+			return Xml.createSecureDocumentBuilderFactory();
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new ExceptionInInitializerError(e);
 		}
 	}
 

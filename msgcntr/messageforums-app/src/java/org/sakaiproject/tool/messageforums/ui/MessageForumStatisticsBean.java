@@ -87,6 +87,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -428,6 +429,8 @@ public class MessageForumStatisticsBean {
 	private UIPermissionsManager uiPermissionsManager;
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.LocaleService\"]}")
+	private LocaleService localeService;
 
 	public boolean getDiscussionGeneric() {
 		return this.discussionGeneric;
@@ -485,6 +488,10 @@ public class MessageForumStatisticsBean {
 
 	public void setFormattedText(FormattedText formattedText) {
 		this.formattedText = formattedText;
+	}
+
+	public void setLocaleService(LocaleService localeService) {
+		this.localeService = localeService;
 	}
 
 	public void setSecurityService(SecurityService securityService) {
@@ -2616,7 +2623,8 @@ public class MessageForumStatisticsBean {
 			}
 		}
 
-		Collections.sort(list);
+		list.sort(MembershipItem.compareByType.thenComparing(
+				MembershipItem.getNameComparator(localeService.getLocaleForCurrentSiteAndUser())));
 
 		return list;
 	}

@@ -31,6 +31,7 @@ import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
+import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.ParameterParser;
@@ -44,6 +45,7 @@ public class MicrosoftSynchronizationEnabler {
     private static final String FORM_INPUT_ID       = "isMicrosoftSynchronizationEnabled";
     private static final String CONTEXT_ENABLED_KEY = "isMicrosoftSynchronizationEnabled";
     private static final String CONTEXT_ALLOWED_KEY = "isMicrosoftSynchronizationAllowed";
+    private static final String CONTEXT_JOB_FILTER_KEY = "isEnabledForSiteByJobFilter";
 
     private static final String SAKAI_PROPERTY_SITETYPE = "microsoft.forced.synchronization.sitetype";
     private static final String SAKAI_PROPERTY_SITE_PROPERTY_NAME = "microsoft.forced.synchronization.propertyname";
@@ -67,6 +69,7 @@ public class MicrosoftSynchronizationEnabler {
 
         if (isAllowed) {
             context.put(CONTEXT_ENABLED_KEY, isEnabledForSite(site));
+            context.put(CONTEXT_JOB_FILTER_KEY, isEnabledForSiteByJobFilter(site));
         }
 
         if (state != null) {
@@ -316,6 +319,22 @@ public class MicrosoftSynchronizationEnabler {
      */
     private static boolean isEnabledForSite(Site site) {
         return Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROPERTY));
+    }
+
+    /**
+     * Check whether the site matches the job filter defined in MicrosoftConfigurationService.
+     *
+     * @param site the site to check
+     * @return true if the site matches the job filter
+     */
+    private static boolean isEnabledForSiteByJobFilter(Site site) {
+        MicrosoftConfigurationService microsoftConfigurationService = (MicrosoftConfigurationService) ComponentManager.get(MicrosoftConfigurationService.class);
+        if (microsoftConfigurationService == null) {
+            log.warn("MicrosoftConfigurationService is null, disabling Microsoft sync toggle for site: {}", site.getId());
+            return false;
+        }
+        SakaiSiteFilter siteFilter = microsoftConfigurationService.getJobSiteFilter();
+        return siteFilter != null && siteFilter.match(site);
     }
 
     /**

@@ -46,6 +46,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
@@ -105,6 +106,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     @Autowired
     private SakaiPersonManager sakaiPersonManager;
+
+    @Autowired
+    private FormattedText formattedText;
 
     private List<String> courseWidgets = new ArrayList<>();
     private List<String> homeWidgets = new ArrayList<>();
@@ -313,7 +317,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         try {
             Site site = siteService.getSite(siteId);
-            site.setDescription(bean.getOverview());
+            site.setDescription(sanitizeFormattedText(bean.getOverview()));
             site.setShortDescription(bean.getProgramme());
             String configJson = (new ObjectMapper())
                 .writeValueAsString(Map.of("widgetLayout", bean.getWidgetLayout(), "template", bean.getTemplate()));
@@ -321,6 +325,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
             siteService.save(site);
         } catch (Exception e) {
         }
+    }
+
+    // Rich text is cleaned before persistence; read paths return stored values unchanged.
+    private String sanitizeFormattedText(String text) {
+        return formattedText.processFormattedText(text, null, FormattedText.Level.HIGH);
     }
 
     @Override
@@ -351,7 +360,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             String fromConfig = fromSite.getProperties().getProperty("dashboard-config");
             if (fromConfig != null) {
                 Site toSite = siteService.getSite(toContext);
-                toSite.setDescription(fromSite.getDescription());
+                toSite.setDescription(sanitizeFormattedText(fromSite.getDescription()));
                 toSite.getProperties().addProperty("dashboard-config", fromConfig);
                 siteService.save(toSite);
             }

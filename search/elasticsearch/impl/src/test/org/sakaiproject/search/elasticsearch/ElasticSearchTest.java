@@ -160,7 +160,9 @@ public class ElasticSearchTest {
         events.add(event);
 
         for (int i = 0; i < 105; i++) {
-            String name = faker.name().name();
+            // prefix with the loop index so faker can never produce a duplicate
+            // name, which would silently collapse two resources into one document
+            String name = i + " " + faker.name().name();
             Event newEvent = mock(Event.class);
             Resource resource1 = new Resource(generateContent(), faker.bothify("########-????????-########"), name);
             resources.put(name, resource1);

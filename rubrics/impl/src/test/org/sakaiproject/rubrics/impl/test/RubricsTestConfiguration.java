@@ -42,7 +42,12 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @EnableTransactionManagement
@@ -102,7 +107,12 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
 
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
-        return mock(FormattedText.class);
+        FormattedText formattedText = mock(FormattedText.class);
+        when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(formattedText.stripHtmlFromText(anyString(), anyBoolean()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        return formattedText;
     }
 
     @Bean(name = "org.sakaiproject.assignment.api.AssignmentService")

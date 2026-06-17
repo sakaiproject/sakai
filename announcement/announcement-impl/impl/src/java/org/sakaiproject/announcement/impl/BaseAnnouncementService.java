@@ -107,6 +107,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderBase;
@@ -1292,6 +1293,19 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
 			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
 
+		return getChannelMessages(channelReference, filter, ascending, mergedChannelDelimitedList, allUsersSites, isSynopticTool, siteId, maxAgeInDays, false);
+	}
+
+	@Override
+	public List<AnnouncementMessage> getChannelMessagesForInstructors(String channelReference, Filter filter, boolean ascending,
+			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
+
+		return getChannelMessages(channelReference, filter, ascending, mergedChannelDelimitedList, allUsersSites, isSynopticTool, siteId, maxAgeInDays, true);
+	}
+
+	private List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
+			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays, boolean instructorView) throws PermissionException {
+
 		if (filter == null && maxAgeInDays != null) {
 			filter = getMaxAgeInDaysAndAmountFilter(maxAgeInDays, Integer.MAX_VALUE);
 		}
@@ -1427,12 +1441,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				AnnouncementChannel curChannel = (AnnouncementChannel) getChannel(curEntry.getReference());
 				if (curChannel != null) {
 					if (allowGetChannel(curChannel.getReference())) {
-						messageList.addAll(((List<AnnouncementMessage>) curChannel.getMessages(filter, ascending)).stream().map(m -> {
+						List<AnnouncementMessage> channelMessages;
+						if (instructorView && canManageAllAnnouncements(curChannel.getReference()) && curChannel instanceof AnnouncementChannelEdit) {
+							channelMessages = ((AnnouncementChannelEdit) curChannel).getMessagesForInstructors(filter, ascending);
+						} else {
+							// Channels loaded by this service are AnnouncementChannelEdit; this fallback
+							// preserves the viewer-filtered contract if another implementation is supplied.
+							channelMessages = (List<AnnouncementMessage>) curChannel.getMessages(filter, ascending);
+						}
+						messageList.addAll(channelMessages.stream().map(m -> {
 
-								m.setOriginChannel(curEntry.getReference());
-								m.setOriginSite(curChannel.getContext());
-								return m;
-							}).collect(Collectors.toList()));
+							m.setOriginChannel(curEntry.getReference());
+							m.setOriginSite(curChannel.getContext());
+							return m;
+						}).collect(Collectors.toList()));
 					}
 				}
 			} catch (IdUnusedException e) {
@@ -1446,8 +1468,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
 		return messageList.stream()
-			.filter(roleFilter::accept)
+			.filter(m -> (instructorView && canManageAllAnnouncements(m.getOriginChannel())) || roleFilter.accept(m))
 			.collect(Collectors.toList());
+	}
+
+	private boolean canManageAllAnnouncements(String reference) {
+		return unlockCheck(SECURE_UPDATE_ANY, reference);
 	}
 
 	/**
@@ -1512,10 +1538,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
-		AnnouncementChannel oChannel = null;
+		BaseAnnouncementChannelEdit oChannel = null;
 		try
 		{
-			oChannel = (AnnouncementChannel) getChannel(oChannelRef);
+			oChannel = (BaseAnnouncementChannelEdit) getChannel(oChannelRef);
 			// the "to" message channel
 			String nChannelRef = channelReference(toContext, SiteService.MAIN_CONTAINER);
 			AnnouncementChannel nChannel = null;
@@ -1547,14 +1573,14 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			if (nChannel != null)
 			{
 				// pass the DOM to get new message ids, record the mapping from old to new, and adjust attachments
-				List oMessageList = oChannel.getMessages(null, true);
+				List<AnnouncementMessage> oMessageList = oChannel.getMessagesForImport(true);
 				AnnouncementMessage oMessage = null;
 				AnnouncementMessageHeader oMessageHeader = null;
 				AnnouncementMessageEdit nMessage = null;
 				for (int i = 0; i < oMessageList.size(); i++)
 				{
 					// the "from" message
-					oMessage = (AnnouncementMessage) oMessageList.get(i);
+					oMessage = oMessageList.get(i);
 					String oMessageId = oMessage.getId();
 
 					boolean toBeImported = true;
@@ -1599,7 +1625,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							nMessageHeader.setDraft(oMessageHeader.getDraft());
 						}
 
-						nMessageHeader.setFrom(oMessageHeader.getFrom());
+						// Imported announcements belong to the user performing the import in the
+						// destination site, so revise-own workflows such as bulk publish still work.
+						User importingUser = userDirectoryService.getCurrentUser();
+						nMessageHeader.setFrom(importingUser);
 						nMessageHeader.setSubject(oMessageHeader.getSubject());
 						// attachment
 						List oAttachments = oMessageHeader.getAttachments();
@@ -1711,13 +1740,16 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
 		try {
-			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
-			return ((List<AnnouncementMessage>) oChannel.getMessages(null, true)).stream()
+			BaseAnnouncementChannelEdit oChannel = (BaseAnnouncementChannelEdit) getChannel(oChannelRef);
+			// The selectable import picker uses the same stored-message inventory that
+			// transferCopyEntities uses, so a partial import can select anything a full
+			// tool import would copy.
+			return oChannel.getMessagesForImport(true).stream()
 				.map(ann -> Map.of("id", ann.getId(), "title", ann.getAnnouncementHeader().getSubject())).collect(Collectors.toList());
 		} catch (Exception e) {
 			log.warn("Failed to get channel for ref {}", e.toString());
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 
 
@@ -1732,8 +1764,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		// get the channel associated with this site
 		String oChannelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
 		try {
-			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
-			return !oChannel.getMessages(null, true).isEmpty();
+			BaseAnnouncementChannelEdit oChannel = (BaseAnnouncementChannelEdit) getChannel(oChannelRef);
+			return !oChannel.getMessagesForImport(true).isEmpty();
 		} catch (Exception e) {
 			log.warn("Failed to get channel for ref {}", e.toString());
 		}
@@ -1759,14 +1791,13 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					channelId = channelReference(toSiteId, SiteService.MAIN_CONTAINER);
 					try
 					{
-						AnnouncementChannel aChannel = getAnnouncementChannel(channelId);
+						BaseAnnouncementChannelEdit aChannel = (BaseAnnouncementChannelEdit) getAnnouncementChannel(channelId);
 						//need to clear the cache to grab the newly saved messages
 						threadLocalManager.set(aChannel.getReference() + ".msgs", null);
-						List mList = aChannel.getMessages(null, true);
+						List<AnnouncementMessage> mList = aChannel.getMessagesForImport(true);
 
-						for(Iterator iter = mList.iterator(); iter.hasNext();)
+						for (AnnouncementMessage msg : mList)
 						{
-							AnnouncementMessage msg = (AnnouncementMessage) iter.next();
 							String msgBody = msg.getBody();
 							boolean updated = false;
 							Iterator<Entry<String, String>> entryItr = entrySet.iterator();
@@ -1786,7 +1817,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							}
 						}
 					}
-					catch(Exception e)
+					catch (Exception e)
 					{
 						log.debug("Unable to remove Announcements ", e.getMessage(), e);
 					}
@@ -1906,20 +1937,22 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
+			// Single-message reads use allowEditMessage(), which permits revise-own as well
+			// as revise-any; list/management paths require channel-wide revise-any.
 			// Apply the privacy filter to check draft permissions
 			PrivacyFilter filter = new PrivacyFilter(null);
-			if (!filter.accept(msg)) {
+			if (!filter.accept(msg) && !allowEditMessage(messageId)) {
 				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
 			// Check group access permissions: empty list returned means no permission to view
-			if (filterGroupAccess(List.of(msg)).isEmpty()) {
+			if (filterGroupAccess(List.of(msg)).isEmpty() && !allowEditMessage(messageId)) {
 				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
 			String currentUserId = sessionManager.getCurrentSessionUserId();
 			RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
-			if (!roleFilter.accept(msg)) {
+			if (!roleFilter.accept(msg) && !allowEditMessage(messageId)) {
 				throw new PermissionException(currentUserId, SECURE_READ, msg.getReference());
 			}
 
@@ -1945,6 +1978,34 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			return super.getMessages(filter, ascending);
 
 		} // getMessages
+
+		public List<AnnouncementMessage> getMessagesForImport(boolean ascending) throws PermissionException
+		{
+			unlock(SECURE_READ, getReference());
+
+			// Site Import is an administrative copy path. Return all stored announcements,
+			// sorted, without PrivacyFilter or group visibility filtering.
+			return findStoredMessages(null, ascending);
+		}
+
+		@Override
+		public List<AnnouncementMessage> getMessagesForInstructors(Filter filter, boolean ascending) throws PermissionException
+		{
+			unlock(SECURE_UPDATE_ANY, getReference());
+
+			// The Announcements tool is an instructor management surface. Users who can edit all
+			// announcements in this channel need all stored messages, not only currently
+			// viewable messages.
+			return findStoredMessages(filter, ascending);
+		}
+
+		private List<AnnouncementMessage> findStoredMessages(Filter filter, boolean ascending)
+		{
+			return findSortedMessages(ascending).stream()
+				.map(AnnouncementMessage.class::cast)
+				.filter(m -> filter == null || filter.accept(m))
+				.collect(Collectors.toList());
+		}
 
 		
 		/**
@@ -2473,20 +2534,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				String channelId = serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 				
 				String toSiteId = toContext;
-				
+
 				if (channelId == null)
 				{
 					channelId = channelReference(toSiteId, SiteService.MAIN_CONTAINER);
 					try
 					{
-						AnnouncementChannel aChannel = getAnnouncementChannel(channelId);
-						
-						List mList = aChannel.getMessages(null, true);
-						
+						BaseAnnouncementChannelEdit aChannel = (BaseAnnouncementChannelEdit) getAnnouncementChannel(channelId);
+
+						List<AnnouncementMessage> mList = aChannel.getMessagesForImport(true);
+
 						for(Iterator iter = mList.iterator(); iter.hasNext();)
 						{
 							AnnouncementMessage msg = (AnnouncementMessage) iter.next();
-							
+
 							aChannel.removeMessage(msg.getId());
 						}
 					}

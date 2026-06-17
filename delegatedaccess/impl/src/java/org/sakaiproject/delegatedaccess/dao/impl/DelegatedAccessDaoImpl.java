@@ -127,73 +127,6 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public Map<String, List<String>> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
-		try{
-			Map<String, List<String>> returnMap = new HashMap<String, List<String>>();
-			if(siteRefs == null || siteRefs.length == 0){
-				return returnMap;
-			}
-			int subArrayIndex = 0;
-			do{
-				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
-				if(subArrayIndex + subArraySize > siteRefs.length){
-					subArraySize = (siteRefs.length - subArrayIndex);
-				}
-				String[] subSiteRefs = Arrays.copyOfRange(siteRefs, subArrayIndex, subArrayIndex + subArraySize);
-
-				String query = getStatement("select.hierarchyNode");
-				String inParams = "(";
-				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "?";
-					if(i < subSiteRefs.length - 1){
-						inParams += ",";
-					}
-				}
-				inParams += ")";
-				query = query.replace("(?)", inParams);				
-				List<String> parameters = new ArrayList<String>();
-				parameters.add(hierarchyId);
-				parameters.addAll(Arrays.asList(subSiteRefs));
-				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, parameters.toArray(), new RowMapper() {
-
-					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-						return new String[]{resultSet.getString("title"), resultSet.getString("ID")};
-					}
-				});
-				if(results != null){
-					for(String[] result : results){
-						if(result != null && result.length == 2){
-							if(!returnMap.containsKey(result[0])){
-								returnMap.put(result[0], new ArrayList<String>());
-							}
-							returnMap.get(result[0]).add(result[1]);
-						}
-					}
-				}
-				subArrayIndex = subArrayIndex + subArraySize;
-			}while(subArrayIndex < siteRefs.length);
-			
-			return returnMap;
-		}catch (DataAccessException ex) {
-            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
-			return null;
-		}
-	}
-	
-	public List<String> getEmptyNonSiteNodes(String hierarchyId){
-		try{
-			return (List<String>) getJdbcTemplate().query(getStatement("select.emptyNodes"), new Object[]{hierarchyId}, new RowMapper() {
-				
-				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-					return resultSet.getString("ID");
-				}
-			});
-		}catch (DataAccessException ex) {
-            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
-			return null;
-		}
-	}
-	
 	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue){
 		try {
 			if(siteIds == null || siteIds.length == 0){
@@ -389,67 +322,6 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public void cleanupOrphanedPermissions(){
-		try {
-			getJdbcTemplate().update(getStatement("delete.orphaned.permissions"));
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
-		}
-	}
-	
-	public Map<String, Set<String>> getNodesAndPermsForUser(String userId, String[] nodeIds){
-		try{
-			Map<String, Set<String>> returnMap = new HashMap<String, Set<String>>();
-			if(nodeIds == null || nodeIds.length == 0){
-				return returnMap;
-			}
-			int subArrayIndex = 0;
-			do{
-				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
-				if(subArrayIndex + subArraySize > nodeIds.length){
-					subArraySize = (nodeIds.length - subArrayIndex);
-				}
-				String[] subSiteRefs = Arrays.copyOfRange(nodeIds, subArrayIndex, subArrayIndex + subArraySize);
-
-				String query = getStatement("select.nodes.and.perms.for.user");
-				String inParams = "(";
-				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "?";
-					if(i < subSiteRefs.length - 1){
-						inParams += ",";
-					}
-				}
-				inParams += ")";
-				query = query.replace("(?)", inParams);		
-				List<String> parameters = new ArrayList<String>();
-				parameters.add(userId);
-				parameters.addAll(Arrays.asList(subSiteRefs));				
-				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, parameters.toArray(), new RowMapper() {
-
-					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-						return new String[]{resultSet.getString("NODEID"), resultSet.getString("PERMISSION")};
-					}
-				});
-				if(results != null){
-					for(String[] result : results){
-						if(result != null && result.length == 2){
-							if(!returnMap.containsKey(result[0])){
-								returnMap.put(result[0], new HashSet<String>());
-							}
-							returnMap.get(result[0]).add(result[1]);
-						}
-					}
-				}
-				subArrayIndex = subArrayIndex + subArraySize;
-			}while(subArrayIndex < nodeIds.length);
-			
-			return returnMap;
-		}catch (DataAccessException ex) {
-            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
-			return null;
-		}
-	}
-	
 	/**
 	 * DAC-40 Highlight Inactive Courses in site search
 	 * requires the job "InactiveCoursesJob" attached in the jira
@@ -572,19 +444,6 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			}while(subArrayIndex < toRealm.length);
 		}catch (DataAccessException ex) {
             log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
-		}
-	}
-	
-	public List<String> getDelegatedAccessUsers(){
-		try{
-			return getJdbcTemplate().query(getStatement("select.delegatedaccess.user"), new RowMapper() {
-			      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-			          return resultSet.getString("userId");
-			        }
-			      });
-		}catch (DataAccessException ex) {
-            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
-           return null;
 		}
 	}
 	

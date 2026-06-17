@@ -17,10 +17,10 @@
 package org.sakaiproject.site.util;
 
 import java.text.Collator;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -30,17 +30,17 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.user.cover.UserDirectoryService;
-
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.comparator.SakaiCollators;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
-@Slf4j
 public class SiteComparator implements Comparator {
 
 	Collator collator = Collator.getInstance();
 	Collator localeCollator = null;
+	UserSortNameComparator userSortNameComparator = null;
 	
 	/**
 	 * the criteria
@@ -59,6 +59,9 @@ public class SiteComparator implements Comparator {
 	 *            otherwise.
 	 */
 	public SiteComparator(String criterion, String asc) {
+		if (isParticipantCriterion(criterion)) {
+			throw new IllegalArgumentException("Participant sorting requires a locale");
+		}
 		m_criterion = criterion;
 		m_asc = asc;
 
@@ -66,32 +69,15 @@ public class SiteComparator implements Comparator {
 
 	
 
-        // create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used 
-	
-        public SiteComparator(String criterion, String asc, Locale locale) {
-	
-                this(criterion, asc);
-	
-                m_loc = locale;
-	
-                try {
-	
-        	RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale); 
-	
-               String rules = defaultCollator.getRules();
-	
-               localeCollator = new RuleBasedCollator(rules.replaceAll("<'\u005f'", "<' '<'\u005f'"));
-	
-               localeCollator.setStrength(Collator.TERTIARY);
-	
-                } catch (Exception e) {
-	
-                	log.warn("SiteComparator failed to create RuleBasedCollator for locale " + locale.toString(), e);
-                	localeCollator = null;
-	
-                }
-	
-        }	
+	// create a locale-sensitive comparator
+	public SiteComparator(String criterion, String asc, Locale locale) {
+		m_criterion = criterion;
+		m_asc = asc;
+
+		m_loc = Objects.requireNonNull(locale, "locale");
+		userSortNameComparator = new UserSortNameComparator(locale);
+		localeCollator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(locale, Collator.TERTIARY);
+	}
 	
 	
 	/**
@@ -152,7 +138,7 @@ public class SiteComparator implements Comparator {
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_NAME)) {
 			// Defer to the UserSortNameComparator if possible
 			if (o1.getClass().equals(Participant.class) && o2.getClass().equals(Participant.class)) {
-				result = ((Participant) o1).compareTo((Participant) o2);
+				result = ((Participant) o1).compareTo((Participant) o2, userSortNameComparator);
 			} else if (o1.getClass().equals(Participant.class)) {
 				result = compareString(((Participant) o1).getName(), null);
 			} else if (o2.getClass().equals(Participant.class)) {
@@ -343,7 +329,17 @@ public class SiteComparator implements Comparator {
 	 * @return
 	 */
 	private int compareParticipantName(Participant  o1, Participant o2) {
-		return compareString(o1.getName(), o2.getName());
+		return o1.compareTo(o2, userSortNameComparator);
+	}
+
+	private boolean isParticipantCriterion(String criterion) {
+		return SiteConstants.SORTED_BY_PARTICIPANT_NAME.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_UNIQNAME.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_ROLE.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_COURSE.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_ID.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_CREDITS.equals(criterion)
+				|| SiteConstants.SORTED_BY_PARTICIPANT_STATUS.equals(criterion);
 	}
 
 	private int compareBoolean(boolean b1, boolean b2) {

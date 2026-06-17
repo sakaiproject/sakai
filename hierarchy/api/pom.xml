@@ -16,28 +16,23 @@
         <deploy.target>shared</deploy.target>
     </properties>
 
-    <build>
-        <resources>
-            <!-- HBM files -->
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <!-- include the readme.txt file and the java source files -->
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>*.txt</include>
-                    <include>src/**/*.java</include>
-                    <include>src/**/*.html</include>
-                    <include>src/**/*.xml</include>
-                    <include>src/**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

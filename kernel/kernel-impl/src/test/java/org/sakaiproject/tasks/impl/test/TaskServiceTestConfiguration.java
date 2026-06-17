@@ -15,7 +15,11 @@
  */
 package org.sakaiproject.tasks.impl.test;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.hibernate.SessionFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -32,6 +36,7 @@ import org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.TaskRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
 import org.sakaiproject.test.SakaiTestConfiguration;
+import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,6 +81,14 @@ public class TaskServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean
     public FunctionManager functionManager() {
         return mock(FunctionManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.FormattedText")
+    public FormattedText formattedText() {
+        FormattedText formattedText = mock(FormattedText.class);
+        when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        return formattedText;
     }
 
     @Bean

@@ -59,6 +59,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -74,6 +75,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Locale;
 
 import static org.mockito.Mockito.mock;
 
@@ -165,6 +167,14 @@ public class MsgcntrTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         return mock(FormattedText.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        LocaleService localeService = mock(LocaleService.class);
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
+        Mockito.when(localeService.getLocaleForSiteAndUser(Mockito.any(), Mockito.any())).thenReturn(Locale.US);
+        return localeService;
     }
 
     @Bean(name = "org.sakaiproject.authz.api.FunctionManager")

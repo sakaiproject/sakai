@@ -16,10 +16,16 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.deque.html.axecore.playwright.AxeBuilder;
+import com.deque.html.axecore.results.AxeResults;
+import com.deque.html.axecore.results.CheckedNode;
+import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.Locator;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -103,5 +109,72 @@ class GradebookTest extends SakaiUiTestBase {
         if (cancelButton.count() > 0) {
             cancelButton.click(new Locator.ClickOptions().setForce(true));
         }
+    }
+
+    @Test
+    @Order(4)
+    void courseGradePreviewHasAccessibleContrast() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText("Settings"))
+            .first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        Locator gradeReleaseButton = page.locator(".accordion button")
+            .filter(new Locator.FilterOptions().setHasText("Grade Release Rules"))
+            .first();
+        assertThat(gradeReleaseButton).isVisible();
+        if (!"true".equals(gradeReleaseButton.getAttribute("aria-expanded"))) {
+            gradeReleaseButton.click(new Locator.ClickOptions().setForce(true));
+        }
+
+        Locator displayCourseGrade = page.locator("label")
+            .filter(new Locator.FilterOptions().setHasText("Display final course grade to students"))
+            .locator("input[type=\"checkbox\"]")
+            .first();
+        assertThat(displayCourseGrade).isVisible();
+        if (!displayCourseGrade.isChecked()) {
+            displayCourseGrade.check(new Locator.CheckOptions().setForce(true));
+        }
+
+        Locator preview = page.locator("#settingsGradeRelease .form-group")
+            .filter(new Locator.FilterOptions().setHasText("Preview"))
+            .locator("span")
+            .nth(1);
+        assertThat(preview).isVisible();
+
+        page.evaluate("() => document.documentElement.classList.add('sakaiUserTheme-dark')");
+        assertThat(preview).isVisible();
+        assertNoAxeContrastViolations("dark mode");
+
+        page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
+        assertNoAxeContrastViolations("light mode");
+    }
+
+    private void assertNoAxeContrastViolations(String theme) {
+        AxeResults results = new AxeBuilder(page)
+            .include("#settingsGradeRelease")
+            .withRules(List.of("color-contrast"))
+            .analyze();
+
+        assertTrue(results.violationFree(),
+            "Grade Release Rules should have no axe color-contrast violations in " + theme
+                + System.lineSeparator() + formatAxeViolations(results.getViolations()));
+    }
+
+    private String formatAxeViolations(List<Rule> violations) {
+        return violations.stream()
+            .map(rule -> rule.getId() + ": " + rule.getHelp() + System.lineSeparator()
+                + rule.getNodes().stream()
+                    .map(this::formatAxeNode)
+                    .collect(Collectors.joining(System.lineSeparator())))
+            .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    private String formatAxeNode(CheckedNode node) {
+        return "  " + node.getTarget() + " - " + node.getFailureSummary();
     }
 }
