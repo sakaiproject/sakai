@@ -8,43 +8,18 @@ package org.sakaiproject.sitestats.impl.view;
 import lombok.Setter;
 
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
-import org.sakaiproject.tool.api.SessionManager;
 
 public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportService {
 
 	@Setter private StatsManager statsManager;
-	private ReportManager reportManager;
-	private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
-	private SiteStatsReportAccess siteStatsReportAccess = new SiteStatsReportAccess();
-
-	public void setStatsAuthz(StatsAuthz statsAuthz) {
-		siteStatsReportAccess.setStatsAuthz(statsAuthz);
-	}
-
-	public void setReportManager(ReportManager reportManager) {
-		this.reportManager = reportManager;
-		siteStatsReportAccess.setReportManager(reportManager);
-	}
-
-	public void setSiteStatsReportPreviewService(SiteStatsReportPreviewService siteStatsReportPreviewService) {
-		siteStatsReportAccess.setSiteStatsReportPreviewService(siteStatsReportPreviewService);
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		siteStatsReportAccess.setSessionManager(sessionManager);
-	}
-
-	public void setSiteStatsWidgetCatalog(SiteStatsWidgetCatalog siteStatsWidgetCatalog) {
-		this.siteStatsWidgetCatalog = siteStatsWidgetCatalog;
-		siteStatsReportAccess.setSiteStatsWidgetCatalog(siteStatsWidgetCatalog);
-	}
+	@Setter private ReportManager reportManager;
+	@Setter private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
+	@Setter private SiteStatsReportAccess siteStatsReportAccess;
 
 	@Override
 	public boolean canExportPersistedReport(String siteId, long reportId) {

@@ -33,6 +33,7 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportExportServiceImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog;
@@ -82,14 +83,18 @@ public class SiteStatsReportExportServiceTest {
 		widgetCatalog.setSiteService(siteService);
 
 		previewService = new SiteStatsReportPreviewServiceImpl();
+		SiteStatsReportAccess reportAccess = new SiteStatsReportAccess();
+		reportAccess.setStatsAuthz(statsAuthz);
+		reportAccess.setReportManager(reportManager);
+		reportAccess.setSiteStatsReportPreviewService(previewService);
+		reportAccess.setSessionManager(sessionManager);
+		reportAccess.setSiteStatsWidgetCatalog(widgetCatalog);
 
 		service = new SiteStatsReportExportServiceImpl();
-		service.setStatsAuthz(statsAuthz);
 		service.setStatsManager(statsManager);
 		service.setReportManager(reportManager);
-		service.setSiteStatsReportPreviewService(previewService);
-		service.setSessionManager(sessionManager);
 		service.setSiteStatsWidgetCatalog(widgetCatalog);
+		service.setSiteStatsReportAccess(reportAccess);
 	}
 
 	@Test
