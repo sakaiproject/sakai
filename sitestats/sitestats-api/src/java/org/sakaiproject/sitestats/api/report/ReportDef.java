@@ -39,6 +39,32 @@ public class ReportDef implements Serializable {
 	private Date				modifiedOn;
 	private String				modifiedBy;
 
+	public ReportDef() {
+	}
+
+	public ReportDef(ReportDef source) {
+		this(source, source == null ? null : source.getSiteId());
+	}
+
+	public ReportDef(ReportDef source, String siteId) {
+		if (source == null) {
+			this.siteId = siteId;
+			this.reportParams = new ReportParams(siteId);
+			return;
+		}
+		this.id = source.id;
+		this.siteId = siteId;
+		this.title = source.title;
+		this.description = source.description;
+		this.hidden = source.hidden;
+		this.reportParams = source.reportParams == null ? new ReportParams(siteId) : new ReportParams(source.reportParams, siteId);
+		this.reportDefinitionXml = source.reportDefinitionXml;
+		this.createdOn = copyDate(source.createdOn);
+		this.createdBy = source.createdBy;
+		this.modifiedOn = copyDate(source.modifiedOn);
+		this.modifiedBy = source.modifiedBy;
+	}
+
 	/** Get the bd row id. */
 	public long getId() {
 		return id;
@@ -244,5 +270,9 @@ public class ReportDef implements Serializable {
 		}else{
 			return false;
 		}
+	}
+
+	private static Date copyDate(Date date) {
+		return date == null ? null : new Date(date.getTime());
 	}
 }

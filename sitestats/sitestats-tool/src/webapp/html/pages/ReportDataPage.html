@@ -67,7 +67,7 @@
                 </div>
 
 	            <!-- Header: data information -->
-	            <table class="summaryTable">
+	            <table wicket:id="summaryTable" class="summaryTable">
                     <tbody>
                         <tr wicket:id="trDescription">
                             <td class="autoSize labelColumn">
@@ -163,17 +163,20 @@
                 </table>
 	            
                     
-                <!-- Report chart -->
+                <!-- Report data -->
+                <sakai-sitestats-report-panel wicket:id="reportPanel"></sakai-sitestats-report-panel>
+
+                <!-- Legacy report chart for printable reports -->
                 <div wicket:id="reportChart" style="height: 300px; margin-top: 20px;" class="chartContainer"></div>
 	            
 	            
 	            <!-- FORM -->
 	            <form wicket:id="form">
-		            
-		            <!-- Report table -->
-		            <div class="table">
-		              <table class="table table-hover table-bordered table-striped" style="width: 99.9% !important" cellspacing="0" wicket:id="table">[table]</table>
-		            </div>
+
+                    <!-- Legacy report table for printable reports -->
+                    <div class="table">
+                      <table class="table table-hover table-bordered table-striped" style="width: 99.9% !important" cellspacing="0" wicket:id="table">[table]</table>
+                    </div>
 		                
 		            <!-- BUTTONS -->
 		            <p class="act noprint">

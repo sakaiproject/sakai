@@ -74,6 +74,45 @@ public class ReportParams implements Serializable {
 		whenFrom = Date.from(yesterday.toInstant());
 		whenTo = Date.from(today.toInstant());
 	}
+
+	public ReportParams(ReportParams source) {
+		this(source, source == null ? null : source.siteId);
+	}
+
+	public ReportParams(ReportParams source, String siteId) {
+		if (source == null) {
+			this.siteId = siteId;
+			return;
+		}
+		this.siteId = siteId;
+		this.what = source.what;
+		this.whatEventSelType = source.whatEventSelType;
+		this.whatToolIds = copyList(source.whatToolIds);
+		this.whatEventIds = copyList(source.whatEventIds);
+		this.whatLimitedAction = source.whatLimitedAction;
+		this.whatLimitedResourceIds = source.whatLimitedResourceIds;
+		this.whatResourceIds = copyList(source.whatResourceIds);
+		this.whatResourceAction = source.whatResourceAction;
+		this.when = source.when;
+		this.whenFrom = copyDate(source.whenFrom);
+		this.whenTo = copyDate(source.whenTo);
+		this.who = source.who;
+		this.whoRoleId = source.whoRoleId;
+		this.whoGroupId = source.whoGroupId;
+		this.whoUserIds = copyList(source.whoUserIds);
+		this.howTotalsBy = copyList(source.howTotalsBy);
+		this.howSort = source.howSort;
+		this.howSortBy = source.howSortBy;
+		this.howSortAscending = source.howSortAscending;
+		this.howLimitedMaxResults = source.howLimitedMaxResults;
+		this.howMaxResults = source.howMaxResults;
+		this.howPresentationMode = source.howPresentationMode;
+		this.howChartType = source.howChartType;
+		this.howChartSource = source.howChartSource;
+		this.howChartCategorySource = source.howChartCategorySource;
+		this.howChartSeriesSource = source.howChartSeriesSource;
+		this.howChartSeriesPeriod = source.howChartSeriesPeriod;
+	}
 	
 	public ReportParams(String siteId, String what, List<String> whatToolIds, List<String> whatEventIds, String whatResourceAction, List<String> whatResourceIds, String when, Date whenFrom, Date whenTo, String who, String whoRoleId, String whoGroupId, List<String> whoUserIds) {
 		this.siteId = siteId;
@@ -585,6 +624,14 @@ public class ReportParams implements Serializable {
 			str.append(", ");
 		}
 		return str.toString();
+	}
+
+	private static List<String> copyList(List<String> list) {
+		return list == null ? new ArrayList<String>() : new ArrayList<String>(list);
+	}
+
+	private static Date copyDate(Date date) {
+		return date == null ? null : new Date(date.getTime());
 	}
 	
 }

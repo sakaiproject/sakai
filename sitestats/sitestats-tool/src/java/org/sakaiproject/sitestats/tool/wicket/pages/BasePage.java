@@ -39,6 +39,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	private static final long		serialVersionUID	= 1L;
 	public static final String		COMMONSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/common.js";
 	public static final String		JQUERYSCRIPT		= "/library/webjars/jquery/1.12.4/jquery.min.js";
+	public static final String		SITESTATS_BUNDLE	= "/webcomponents/bundles/sitestats.js";
 	public static final String		LAST_PAGE			= "lastSiteStatsPage";
 
 	public BasePage(){
@@ -68,6 +69,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 		response.render(StringHeaderItem.forString(request.getAttribute("sakai.html.head").toString()));
 		response.render(JavaScriptHeaderItem.forUrl(COMMONSCRIPT));
+		response.render(StringHeaderItem.forString("<script type=\"module\" src=\"" + SITESTATS_BUNDLE + "\"></script>"));
 	}
 	
 	@Override

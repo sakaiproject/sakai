@@ -1,0 +1,31 @@
+{
+  "name": "@sakai-ui/sakai-sitestats",
+  "version": "1.0.0",
+  "description": "SiteStats report renderers",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-sitestats#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-sitestats"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./sakai-sitestats-report-panel.js": "./sakai-sitestats-report-panel.js",
+    "./sakai-sitestats-chart.js": "./sakai-sitestats-chart.js",
+    "./sakai-sitestats-table.js": "./sakai-sitestats-table.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "chart.js": "^4.5.0",
+    "lit": "^3.2.1"
+  }
+}

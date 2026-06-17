@@ -56,14 +56,14 @@
         <img wicket:id="icon" class="alpha"/>
         <div wicket:id="title" class="title">[title]</div>
         <div class="bottom">
-          <a wicket:id="showMore" href="#">
+          <a wicket:id="showMore" href="#" wicket:message="title:overview_show_more">
             <div class="showText">
                 <wicket:message key="overview_show_more">[show more]</wicket:message>
             </div>
-            <img src="/library/image//sakai/arrowDown.gif" alt="[ + ]" wicket:message="title:overview_show_more"/>
+            <span class="bi bi-chevron-down" aria-hidden="true"></span>
           </a>
-          <a wicket:id="showLess" href="#" style="display: none">
-            <img src="/library/image//sakai/arrowUp.gif" alt="[ - ]" wicket:message="title:overview_show_less"/>
+          <a wicket:id="showLess" href="#" style="display: none" wicket:message="title:overview_show_less">
+            <span class="bi bi-chevron-up" aria-hidden="true"></span>
             <div class="showText">
                 <wicket:message key="overview_show_less">[show less]</wicket:message>
             </div>            

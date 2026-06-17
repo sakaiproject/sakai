@@ -31,28 +31,12 @@
         </div>
         
         <!-- DATA -->
-        <table class="listHier nolines narrowTable" cellspacing="0">
-          <tr>
-          
-            <td wicket:id="chartTd" class="chartTd">
-              <!-- CHART -->
-              <div wicket:id="chart"></div>
-            </td>
-            
-            <td wicket:id="tableTd" class="tableTd">
-              <!-- TABLE -->
-              <table wicket:id="table" class="table listHier lines narrowTable" style="width: 99.9% !important; display: none;" cellspacing="0">[table]</table>
-              <!-- SHOW FULL REPORT -->
-              <div class="showAll">
-                <a wicket:id="link" href="#" style="display: none;">
-                    <wicket:message key="overview_show_report">[View complete report]</wicket:message>
-                </a>
-              </div>
-              <script wicket:id="tableJs" type="text/javascript"></script>
-            </td>
-            
-          </tr>
-        </table>
+        <sakai-sitestats-report-panel wicket:id="reportPanel"></sakai-sitestats-report-panel>
+        <div class="showAll">
+          <a wicket:id="link" href="#">
+              <wicket:message key="overview_show_report">[View complete report]</wicket:message>
+          </a>
+        </div>
         <span class="sitestats-widgetFooterMsg additionalInfo" wicket:id="widgetFooterMsg">[footer message]</span>
 </wicket:panel>
 </html>
