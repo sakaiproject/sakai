@@ -70,6 +70,7 @@ public class SiteStatsViewServiceTest {
 	private EventRegistryService eventRegistryService;
 	private SiteService siteService;
 	private SiteStatsReportPreviewServiceImpl previewService;
+	private SiteStatsTableMapperImpl tableMapper;
 	private SiteStatsViewServiceImpl service;
 
 	@Before
@@ -100,7 +101,7 @@ public class SiteStatsViewServiceTest {
 		ReportFormattedParams formattedParams = reportFormattedParams();
 		when(reportManager.getReportFormattedParams()).thenReturn(formattedParams);
 
-		SiteStatsTableMapperImpl tableMapper = new SiteStatsTableMapperImpl();
+		tableMapper = new SiteStatsTableMapperImpl();
 		tableMapper.setStatsManager(statsManager);
 		tableMapper.setReportManager(reportManager);
 		tableMapper.setEventRegistryService(eventRegistryService);
@@ -189,6 +190,34 @@ public class SiteStatsViewServiceTest {
 	}
 
 	@Test
+	public void getWidgetReportAggregatesDuplicateChartPoints() {
+		when(reportManager.getReport(any(ReportDef.class), anyBoolean(), any(), anyBoolean())).thenAnswer(invocation -> {
+			ReportDef reportDef = invocation.getArgument(0);
+			Report report = new Report();
+			report.setReportDefinition(reportDef);
+			report.setReportData(Arrays.asList(
+					visitStat(Date.valueOf("2026-06-17"), 3, 2),
+					visitStat(Date.valueOf("2026-06-17"), 4, 1)));
+			report.setReportGenerationDate(new java.util.Date());
+			return report;
+		});
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_LAST7DAYS);
+
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, "visits", "bydate", request);
+
+		assertEquals(1, view.getChart().getDatasets().get(0).getPoints().size());
+		assertEquals(7L, view.getChart().getDatasets().get(0).getPoints().get(0).getY().longValue());
+		assertEquals(3L, view.getChart().getDatasets().get(1).getPoints().get(0).getY().longValue());
+	}
+
+	@Test
+	public void tableMapperRejectsUnknownColumns() {
+		assertThrows(IllegalArgumentException.class, () -> tableMapper.getColumn("missing-column", false));
+	}
+
+	@Test
 	public void reportDefCopyEnforcesSiteAndDeepCopiesMutableValues() {
 		ReportDef source = new ReportDef();
 		source.setId(42);
@@ -212,6 +241,32 @@ public class SiteStatsViewServiceTest {
 		assertEquals("sakai.assignment", copy.getReportParams().getWhatToolIds().get(0));
 		assertEquals(Date.valueOf("2026-06-17"), copy.getReportParams().getWhenFrom());
 		assertEquals(1000L, copy.getCreatedOn().getTime());
+	}
+
+	@Test
+	public void previewServiceStoresAndReturnsDefensiveCopies() {
+		ReportDef preview = new ReportDef();
+		preview.setSiteId(SITE_ID);
+		preview.setTitle("Original");
+		ReportParams params = new ReportParams(SITE_ID);
+		params.setWhatToolIds(new ArrayList<String>(Arrays.asList("sakai.assignment")));
+		preview.setReportParams(params);
+
+		String previewId = previewService.register(SITE_ID, USER_ID, preview);
+		preview.setTitle("Changed after register");
+		params.getWhatToolIds().add("sakai.forums");
+
+		ReportDef firstRead = previewService.get(SITE_ID, USER_ID, previewId);
+		assertEquals("Original", firstRead.getTitle());
+		assertEquals(1, firstRead.getReportParams().getWhatToolIds().size());
+
+		firstRead.setTitle("Changed after read");
+		firstRead.getReportParams().getWhatToolIds().add("sakai.gradebookng");
+
+		ReportDef secondRead = previewService.get(SITE_ID, USER_ID, previewId);
+		assertEquals("Original", secondRead.getTitle());
+		assertEquals(1, secondRead.getReportParams().getWhatToolIds().size());
+		assertEquals("sakai.assignment", secondRead.getReportParams().getWhatToolIds().get(0));
 	}
 
 	@Test
@@ -316,6 +371,27 @@ public class SiteStatsViewServiceTest {
 		assertEquals("User type", summaryItem(view, "user-selection-type").getValue());
 	}
 
+	@Test
+	public void getReportReturnsExplicitUnsupportedChartState() {
+		ReportDef stored = new ReportDef();
+		stored.setId(42);
+		stored.setSiteId(SITE_ID);
+		ReportParams params = new ReportParams(SITE_ID);
+		params.setWhat(ReportManager.WHAT_VISITS_TOTALS);
+		params.setHowTotalsBy(Arrays.asList(StatsManager.T_DATE, StatsManager.T_VISITS));
+		params.setHowChartSource(StatsManager.T_DATE);
+		params.setHowChartType("radar");
+		stored.setReportParams(params);
+		when(reportManager.getReportDefinition(42)).thenReturn(stored);
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setIncludeTable(false);
+		SiteStatsReportView view = service.getReport(SITE_ID, 42, request);
+
+		assertTrue(view.getChart().getDatasets().isEmpty());
+		assertEquals("This chart configuration is not yet supported by the SiteStats JSON renderer.", view.getChart().getEmptyMessage());
+	}
+
 	private SiteStatsFilter filter(SiteStatsOverview overview, String widgetId, String tabId, String filterId) {
 		for (SiteStatsWidget widget : overview.getWidgets()) {
 			if (widgetId.equals(widget.getId())) {
@@ -334,18 +410,21 @@ public class SiteStatsViewServiceTest {
 	}
 
 	private Report report(ReportDef reportDef) {
-		SiteVisits stat = new SiteVisitsImpl();
-		stat.setSiteId(SITE_ID);
-		stat.setDate(Date.valueOf("2026-06-17"));
-		stat.setTotalVisits(3);
-		stat.setTotalUnique(2);
-		stat.setCount(3);
-
 		Report report = new Report();
 		report.setReportDefinition(reportDef);
-		report.setReportData(Arrays.asList(stat));
+		report.setReportData(Arrays.asList(visitStat(Date.valueOf("2026-06-17"), 3, 2)));
 		report.setReportGenerationDate(new java.util.Date());
 		return report;
+	}
+
+	private SiteVisits visitStat(Date date, long totalVisits, long totalUnique) {
+		SiteVisits stat = new SiteVisitsImpl();
+		stat.setSiteId(SITE_ID);
+		stat.setDate(date);
+		stat.setTotalVisits(totalVisits);
+		stat.setTotalUnique(totalUnique);
+		stat.setCount(totalVisits);
+		return stat;
 	}
 
 	private SiteStatsReportInfoItem summaryItem(SiteStatsReportView view, String id) {

@@ -223,7 +223,7 @@
 	</bean>
 
 	<!-- SiteStatsTableMapper ______________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsTableMapper"
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsTableMapper"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl">
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
@@ -244,7 +244,7 @@
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"/>
-		<property name="siteStatsTableMapper" ref="org.sakaiproject.sitestats.api.view.SiteStatsTableMapper"/>
+		<property name="siteStatsTableMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsTableMapper"/>
 		<property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"/>
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
