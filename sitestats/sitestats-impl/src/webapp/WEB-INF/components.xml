@@ -215,6 +215,41 @@
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 	</bean>
 
+	<!-- SiteStatsToolEventsService ________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"
+		  class="org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl">
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
+	</bean>
+
+	<!-- SiteStatsTableMapper ______________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsTableMapper"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl">
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+	</bean>
+
+	<!-- SiteStatsReportPreviewService _____________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"/>
+
+	<!-- SiteStatsViewService ______________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsViewService"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl">
+		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz"/>
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+		<property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"/>
+		<property name="siteStatsTableMapper" ref="org.sakaiproject.sitestats.api.view.SiteStatsTableMapper"/>
+		<property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"/>
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+
 
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"

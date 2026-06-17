@@ -20,17 +20,14 @@ package org.sakaiproject.sitestats.tool.wicket.widget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -47,19 +44,13 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.util.Tools;
-import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
-import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
-import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,21 +65,13 @@ public abstract class WidgetTabTemplate extends Panel {
 	public final static Integer		FILTER_RESOURCE_ACTION		= Integer.valueOf(4);
 	public final static Integer		FILTER_LESSON_ACTION		= Integer.valueOf(5);
 
-	private AjaxLazyLoadImage 		chart					= null;
-	private WebMarkupContainer 		tableTd					= null;
-	private SakaiDataTable 			table					= null;
+	private WebMarkupContainer 		reportPanel				= null;
 	private Link 					tableLink				= null;
-	private WebMarkupContainer 		tableJs					= null;
 	
-	private ReportsDataProvider		chartDataProvider		= null;
-	private ReportsDataProvider		tableDataProvider		= null;
 	private PrefsData				prefsdata				= null;
-	private int						chartWidth				= 0;
 	private String					siteId					= null;
-	private boolean					renderChart				= false;
-	private boolean					renderTable				= false;
-	private boolean					tabTemplateRendered		= false;
-	private transient Set<Role> 	roles					= null;
+	private String					widgetId				= null;
+	private String					tabId					= null;
 	
 	private String					dateFilter				= ReportManager.WHEN_LAST7DAYS;
 	private String					roleFilter				= ReportManager.WHO_ALL;
@@ -103,16 +86,16 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 	
 	public WidgetTabTemplate(String id, String siteId) {
-		super(id);	
-		this.siteId = siteId;
+		this(id, siteId, null, null);
 	}
 
-	public abstract ReportDef getChartReportDefinition();
+	public WidgetTabTemplate(String id, String siteId, String widgetId, String tabId) {
+		super(id);
+		this.siteId = siteId;
+		this.widgetId = widgetId;
+		this.tabId = tabId;
+	}
 
-	public abstract ReportDef getTableReportDefinition();
-
-	public abstract boolean useChartReportDefinitionForTable();
-	
 	public abstract List<Integer> getFilters();
 
 	/**
@@ -133,25 +116,9 @@ public abstract class WidgetTabTemplate extends Panel {
 			
 		removeAll();
 			
-		// get report data
-		ReportDef chartRD = getChartReportDefinition();
-		ReportDef tableRD = getTableReportDefinition();
-		if(chartRD != null) {
-			renderChart = true;
-			chartDataProvider = new ReportsDataProvider(getPrefsdata(), chartRD, false);
-		}
-		if(tableRD != null) {
-			renderTable = true;
-			if(!useChartReportDefinitionForTable()) {
-				tableDataProvider = new ReportsDataProvider(getPrefsdata(), tableRD, false);
-			}
-		}
-		
 		// render data
 		renderFilters();
-		renderChart();
-		renderTable();
-		tabTemplateRendered = true;
+		renderReportPanel();
 		
 		Optional<IModel<String>> footerModel = getFooterMsg();
 		add(new Label("widgetFooterMsg", footerModel.orElseGet(() -> Model.of(""))).setVisible(footerModel.isPresent()));
@@ -159,109 +126,36 @@ public abstract class WidgetTabTemplate extends Panel {
 		super.onBeforeRender();
 	}
 
-	private void renderChart() {
-		WebMarkupContainer chartTd = new WebMarkupContainer("chartTd");
-		chartTd.setOutputMarkupId(true);
-		chart = new AjaxLazyLoadImage("chart", OverviewPage.class) {
-			private static final long	serialVersionUID	= 1L;
+	private void renderReportPanel() {
+		reportPanel = new WebMarkupContainer("reportPanel");
+		reportPanel.setOutputMarkupId(true);
+		reportPanel.setVisible(StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(tabId));
+		reportPanel.add(AttributeModifier.replace("endpoint", getWidgetEndpoint()));
+		add(reportPanel);
 
-			@Override
-			public byte[] getImageData() {
-				return getChartImage(chartWidth, 200);
-			}
-
-			@Override
-			public byte[] getImageData(int width, int height) {
-				return getChartImage(width, height);
-			}
-			
-			private byte[] getChartImage(int width, int height) {
-				PrefsData prefsData = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
-				int _width = (width <= 0) ? 350 : width;
-				int _height = (height <= 0) ? 200: height;
-				return Locator.getFacade().getChartService().generateChart(
-							chartDataProvider.getReport(), _width, _height,
-							prefsData.isChartIn3D(), prefsData.getChartTransparency(),
-							prefsData.isItemLabelsVisible()
-				);
-			}
-		};
-		chart.setAutoDetermineChartSizeByAjax("#"+chartTd.getMarkupId());
-		chart.setOutputMarkupId(true);
-		chartTd.add(chart);
-		if(!renderChart) {
-			chartTd.setVisible(false);
-		}else if(!renderTable) {
-			chartTd.add(AttributeModifier.replace("colspan", "2"));
-		}
-		add(chartTd);
-	}
-	
-	private void renderTable() {
-		tableTd = new WebMarkupContainer("tableTd");
-		createTable();
-		if(!renderTable) {
-			tableTd.setVisible(false);
-		}else if(!renderChart) {
-			tableTd.add(AttributeModifier.replace("colspan", "2"));
-		}
 		tableLink = new StatelessLink("link") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public void onClick() {
-				ReportDef rd = null;
-				if(useChartReportDefinitionForTable()) {
-					rd = getChartReportDefinition();
-				}else{
-					rd = getTableReportDefinition();
+				PageParameters params = new PageParameters().set("siteId", siteId);
+				if (widgetId != null && tabId != null) {
+					params.set("widgetId", widgetId);
+					params.set("tabId", tabId);
+					params.set("date", getDateFilter());
+					params.set("role", getRoleFilter());
+					params.set("tool", getToolFilter());
+					if (getResactionFilter() != null) {
+						params.set("resourceAction", getResactionFilter());
+					}
+					if (getLessonActionFilter() != null) {
+						params.set("lessonAction", getLessonActionFilter());
+					}
 				}
-				String siteId = rd.getSiteId();
-				ReportDefModel reportDefModel = new ReportDefModel(rd);
-				setResponsePage(new ReportDataPage(reportDefModel, new PageParameters().set("siteId", siteId), getWebPage()));
+				setResponsePage(new ReportDataPage(null, params, getWebPage()));
 			}					
 		};
 		tableLink.setOutputMarkupId(true);
-		tableTd.add(tableLink);
-		
-		tableJs = new WebMarkupContainer("tableJs") {
-			private static final long	serialVersionUID	= 1L;
-			@Override
-			public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				StringBuilder js = new StringBuilder();
-				js.append("jQuery('#");
-				js.append(table.getMarkupId());
-				js.append("').fadeIn();");
-				js.append("jQuery('#");
-				js.append(tableLink.getMarkupId());
-				js.append("').fadeIn();");
-				replaceComponentTagBody(markupStream, openTag, js.toString());
-			}
-		};
-		tableJs.setOutputMarkupId(true);
-		tableTd.add(tableJs);
-		
-		tableTd.setOutputMarkupId(true);
-		add(tableTd);
-	}
-	
-	private void createTable() {
-		if(useChartReportDefinitionForTable()) {
-			table = new SakaiDataTable(
-					"table", 
-					ReportDataPage.getTableColumns(getChartReportDefinition().getReportParams(), false), 
-					chartDataProvider, false
-					);
-			
-		}else{
-			table = new SakaiDataTable(
-					"table", 
-					ReportDataPage.getTableColumns(getTableReportDefinition().getReportParams(), false), 
-					tableDataProvider, false
-					);
-		}
-		table.setItemsPerPage(MAX_TABLE_ROWS);
-		table.setOutputMarkupId(true);
-		tableTd.add(table);
+		add(tableLink);
 	}
 
 	private void renderFilters() {
@@ -315,7 +209,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		roleFilterOptions.add(ReportManager.WHO_ALL);
 		try{
 			Site site = Locator.getFacade().getSiteService().getSite(siteId);
-			roles = site.getRoles();
+			Set<Role> roles = site.getRoles();
 			for (Role r : roles) {
 				roleFilterOptions.add(r.getId());
 			}
@@ -481,51 +375,13 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 	
 	private void updateData(AjaxRequestTarget target) {
-		if(renderChart) {
-			chartDataProvider.setReportDef(getChartReportDefinition());
-			target.add(chart);
-		}
-		if(renderTable) {
-			if(useChartReportDefinitionForTable()) {
-				chartDataProvider.setReportDef(getChartReportDefinition());
-			}else{
-				tableDataProvider.setReportDef(getTableReportDefinition());
-			}
-			tableTd.remove(table);
-			createTable();
-			target.add(tableTd);
+		if (reportPanel != null) {
+			reportPanel.add(AttributeModifier.replace("endpoint", getWidgetEndpoint()));
+			target.add(reportPanel);
 		}
 		target.appendJavaScript("setMainFrameHeightNoScroll(window.name, 0, 300);");
 	}
 
-	private boolean isToolSuported(final ToolInfo toolInfo) {
-		if(Locator.getFacade().getStatsManager().isEventContextSupported()){
-			return true;
-		} else {
-			List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
-			for (ToolInfo t : siteTools) {
-				if (t.getToolId().equals(toolInfo.getToolId())) {
-					boolean match = t.getEventParserTips().stream()
-							.anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
-					if (match) {
-						return true;
-					}
-
-				}
-			}
-		}
-		return false;
-	}
-	
-	public boolean isRole(String role) {
-		for(Role r : roles) {
-			if(r.getId().equals(role)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
 			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
@@ -557,10 +413,6 @@ public abstract class WidgetTabTemplate extends Panel {
 		return toolFilter;
 	}
 
-	public List<String> getToolEventsFilter() {
-		return Tools.getEventsForToolFilter(toolFilter, siteId, getPrefsdata(), false);
-	}
-
 	public void setResactionFilter(String resactionFilter) {
 		if("".equals(resactionFilter)) {
 			this.resactionFilter = null;
@@ -571,6 +423,17 @@ public abstract class WidgetTabTemplate extends Panel {
 
 	public String getResactionFilter() {
 		return resactionFilter;
+	}
+
+	private String getWidgetEndpoint() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setPageSize(MAX_TABLE_ROWS);
+		request.setDate(getDateFilter());
+		request.setRole(getRoleFilter());
+		request.setTool(getToolFilter());
+		request.setResourceAction(getResactionFilter());
+		request.setLessonAction(getLessonActionFilter());
+		return SiteStatsApiUrls.widgetReport(siteId, widgetId, tabId, request);
 	}
 	
 }

@@ -639,169 +639,26 @@ public class VisitsWidget extends Panel {
 
 	/** WidgetTab: By date */
 	protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
-		WidgetTabTemplate wTab = new WidgetTabTemplate(panelId, VisitsWidget.this.siteId) {
+		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, "visits", "bydate") {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
 			public List<Integer> getFilters() {
 				return Arrays.asList(FILTER_DATE, FILTER_ROLE);
 			}
-
-			@Override
-			public boolean useChartReportDefinitionForTable() {
-				return true;
-			}
-			
-			@Override
-			public ReportDef getChartReportDefinition() {
-				return getTableReportDefinition();
-			}
-			
-			@Override
-			public ReportDef getTableReportDefinition() {
-				String dateFilter = getDateFilter();
-				String roleFilter = getRoleFilter();
-				
-				ReportDef r = new ReportDef();
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				// what
-				if(ReportManager.WHO_ALL.equals(roleFilter)) {
-					rp.setWhat(ReportManager.WHAT_VISITS_TOTALS);
-				}else{
-					rp.setWhat(ReportManager.WHAT_EVENTS);
-					rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-					rp.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
-				}
-				// when
-				rp.setWhen(dateFilter);
-				// who
-				if(!ReportManager.WHO_ALL.equals(roleFilter)) {
-					rp.setWho(ReportManager.WHO_ROLE);
-					rp.setWhoRoleId(roleFilter);
-				}
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					totalsBy.add(StatsManager.T_DATEMONTH);
-				}else{
-					totalsBy.add(StatsManager.T_DATE);
-				}
-				totalsBy.add(StatsManager.T_VISITS);
-				totalsBy.add(StatsManager.T_UNIQUEVISITS);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					rp.setHowSortBy(StatsManager.T_DATEMONTH);
-				}else{
-					rp.setHowSortBy(StatsManager.T_DATE);
-				}							
-				rp.setHowSortAscending(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
-				rp.setHowChartSource(StatsManager.T_DATE);
-				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-				}else if(dateFilter.equals(ReportManager.WHEN_LAST30DAYS)) {
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
-				}else{
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_WEEKDAY);
-				}
-				r.setReportParams(rp);
-				
-				return r;
-			}
 		};
-		return wTab;
-	}
-	
+		}
+
 	/** WidgetTab: By user */
 	protected WidgetTabTemplate getWidgetTabByUser(String panelId) {
-		WidgetTabTemplate wTab = new WidgetTabTemplate(panelId, VisitsWidget.this.siteId) {
+		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, "visits", "byuser") {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
 			public List<Integer> getFilters() {
 				return Arrays.asList(FILTER_DATE, FILTER_ROLE);
 			}
-
-			@Override
-			public boolean useChartReportDefinitionForTable() {
-				return false;
-			}
-			
-			@Override
-			public ReportDef getTableReportDefinition() {
-				ReportDef r = getChartReportDefinition();
-				ReportParams rp = r.getReportParams();
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_USER);
-				rp.setHowTotalsBy(totalsBy);
-				rp.setHowSortBy(StatsManager.T_TOTAL);
-				r.setReportParams(rp);
-				return r;
-			}
-			
-			@Override
-			public ReportDef getChartReportDefinition() {
-				String dateFilter = getDateFilter();
-				String roleFilter = getRoleFilter();
-				
-				ReportDef r = new ReportDef();
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				// what
-				rp.setWhat(ReportManager.WHAT_EVENTS);
-				rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-				rp.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
-				// when
-				rp.setWhen(dateFilter);
-				// who
-				if(!ReportManager.WHO_ALL.equals(roleFilter)) {
-					rp.setWho(ReportManager.WHO_ROLE);
-					rp.setWhoRoleId(roleFilter);
-				}
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					totalsBy.add(StatsManager.T_DATEMONTH);
-				}else{
-					totalsBy.add(StatsManager.T_DATE);
-				}
-				totalsBy.add(StatsManager.T_USER);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				/*if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					rp.setHowSortBy(StatsManager.T_DATEMONTH);
-				}else{
-					rp.setHowSortBy(StatsManager.T_DATE);
-				}*/		
-				rp.setHowSortBy(StatsManager.T_TOTAL);
-				rp.setHowSortAscending(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				/*rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIES);
-				rp.setHowChartSource(StatsManager.T_DATE);
-				rp.setHowChartSeriesSource(StatsManager.T_USER);
-				if(dateFilter.equals(ReportManager.WHEN_LAST365DAYS) || dateFilter.equals(ReportManager.WHEN_ALL)) {
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-				}else if(dateFilter.equals(ReportManager.WHEN_LAST30DAYS)) {
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
-				}else{
-					rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_WEEKDAY);
-				}*/
-				rp.setHowChartType(StatsManager.CHARTTYPE_PIE);
-				rp.setHowChartSource(StatsManager.T_USER);
-				r.setReportParams(rp);
-				
-				return r;
-			}
 		};
-		return wTab;
 	}
 	
 	// -------------------------------------------------------------------------------
