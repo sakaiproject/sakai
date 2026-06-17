@@ -21,7 +21,6 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -403,14 +402,9 @@ public class ReportDataPage extends BasePage {
 		String metricTitle = metricId;
 		String widgetTitle = null;
 		try {
-			List<SiteStatsWidgetMetric> metrics = Locator.getFacade().getSiteStatsViewService().getWidgetMetrics(siteId, widgetId);
-			for (SiteStatsWidgetMetric metric : metrics) {
-				if (metricId.equals(metric.getId())) {
-					metricTitle = metric.getLabel();
-					widgetTitle = metric.getWidgetTitle();
-					break;
-				}
-			}
+			SiteStatsWidgetMetric metric = Locator.getFacade().getSiteStatsViewService().getWidgetMetric(siteId, widgetId, metricId);
+			metricTitle = metric.getLabel();
+			widgetTitle = metric.getWidgetTitle();
 		} catch (RuntimeException e) {
 			log.warn("Unable to load SiteStats metric metadata for {}/{} in site {}: {}", widgetId, metricId, siteId, e.getMessage());
 		}

@@ -95,7 +95,7 @@ public final class SiteStatsApiUrls {
 	}
 
 	private static SiteStatsReportRequest safeRequest(SiteStatsReportRequest request) {
-		return request == null ? new SiteStatsReportRequest() : request;
+		return request == null ? new SiteStatsReportRequest() : new SiteStatsReportRequest(request);
 	}
 
 	private static void appendReportParams(StringBuilder endpoint, SiteStatsReportRequest request, boolean includeWidgetFilters) {

@@ -80,4 +80,14 @@ public class SiteStatsApiUrlsTest {
 		assertEquals("/api/sites/site+1/sitestats/widgets/activity/metrics/activity-most-active-tool"
 				+ "?include=chart&page=3&pageSize=10", url);
 	}
+
+	@Test
+	public void reportUrlsUseApiPageSizeCap() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setPageSize(1000);
+
+		String url = SiteStatsApiUrls.persistedReport("site1", 42, request);
+
+		assertEquals("/api/sites/site1/sitestats/reports/42?include=table,chart&page=1&pageSize=500", url);
+	}
 }

@@ -10,6 +10,10 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OW
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_EVENTS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_MOST_READ_PAGE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_READ_PAGES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_USER_READ_MORE_PAGES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_FILES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_MOST_OPENED_FILE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_OPENED_FILES;
@@ -124,6 +128,16 @@ public class SiteStatsWidgetCatalog {
 		return toMetrics(spec);
 	}
 
+	public SiteStatsWidgetMetric getWidgetMetric(String siteId, String widgetId, String metricId) {
+		ensureRegistry();
+		WidgetSpec spec = widgetSpecs.get(widgetId);
+		WidgetMetricSpec metric = metricSpecs.get(key(widgetId, metricId));
+		if (spec == null || metric == null || !spec.isAvailable()) {
+			throw new IllegalArgumentException("Unknown SiteStats widget metric: " + widgetId + "/" + metricId);
+		}
+		return toMetric(spec, metric);
+	}
+
 	public boolean isOwnOnlyWidget(String widgetId) {
 		ensureRegistry();
 		WidgetSpec spec = widgetSpecs.get(widgetId);
@@ -200,7 +214,11 @@ public class SiteStatsWidgetCatalog {
 						tabSpec(WIDGET_LESSONS, TAB_BY_DATE, "overview_tab_bydate", this::lessonsByDateDefinition, FILTER_DATE, FILTER_ROLE, FILTER_LESSON_ACTION),
 						tabSpec(WIDGET_LESSONS, TAB_BY_USER, "overview_tab_byuser", this::lessonsByUserDefinition, FILTER_DATE, FILTER_ROLE, FILTER_LESSON_ACTION),
 						tabSpec(WIDGET_LESSONS, TAB_BY_PAGE, "overview_tab_bypage", this::lessonsByPageDefinition, FILTER_DATE, FILTER_ROLE, FILTER_LESSON_ACTION)),
-				metrics()));
+				metrics(
+						metricSpec(WIDGET_LESSONS, METRIC_LESSONS_PAGES, "overview_title_pages_sum", AUDIENCE_ALL, null),
+						metricSpec(WIDGET_LESSONS, METRIC_LESSONS_READ_PAGES, "overview_title_readpages_sum", AUDIENCE_ALL, null),
+						metricSpec(WIDGET_LESSONS, METRIC_LESSONS_MOST_READ_PAGE, "overview_title_mostreadpage_sum", AUDIENCE_ALL, null),
+						metricSpec(WIDGET_LESSONS, METRIC_LESSONS_USER_READ_MORE_PAGES, "overview_title_userreadmorepage_sum", AUDIENCE_ALL, null))));
 
 		widgetSpecs = Collections.unmodifiableMap(widgets);
 		Map<String, WidgetTabSpec> tabs = new LinkedHashMap<String, WidgetTabSpec>();
@@ -281,11 +299,15 @@ public class SiteStatsWidgetCatalog {
 	private List<SiteStatsWidgetMetric> toMetrics(WidgetSpec spec) {
 		List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
 		for (WidgetMetricSpec metric : spec.metrics) {
-			SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.id, message(metric.labelKey), metric.audience, metric.reportFactory != null);
-			viewMetric.setWidgetTitle(message(spec.titleKey));
-			metrics.add(viewMetric);
+			metrics.add(toMetric(spec, metric));
 		}
 		return metrics;
+	}
+
+	private SiteStatsWidgetMetric toMetric(WidgetSpec spec, WidgetMetricSpec metric) {
+		SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.id, message(metric.labelKey), metric.audience, metric.reportFactory != null);
+		viewMetric.setWidgetTitle(message(spec.titleKey));
+		return viewMetric;
 	}
 
 	private String key(String widgetId, String id) {
@@ -645,11 +667,12 @@ public class SiteStatsWidgetCatalog {
 	}
 
 	private void applyDateGrouping(ReportParams params, SiteStatsReportRequest request, boolean sortByDate) {
-		params.setWhen(dateFilter(request));
-		if (dateFilter(request).equals(ReportManager.WHEN_LAST365DAYS) || dateFilter(request).equals(ReportManager.WHEN_ALL)) {
+		String date = dateFilter(request);
+		params.setWhen(date);
+		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
 			params.setHowSortBy(sortByDate ? StatsManager.T_DATEMONTH : params.getHowSortBy());
 			params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-		} else if (dateFilter(request).equals(ReportManager.WHEN_LAST30DAYS)) {
+		} else if (date.equals(ReportManager.WHEN_LAST30DAYS)) {
 			params.setHowSortBy(sortByDate ? StatsManager.T_DATE : params.getHowSortBy());
 			params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 		} else {

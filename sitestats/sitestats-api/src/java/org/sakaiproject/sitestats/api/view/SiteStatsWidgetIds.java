@@ -34,6 +34,10 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_RESOURCES_OPENED_FILES = "resources-opened-files";
 	public static final String METRIC_RESOURCES_MOST_OPENED_FILE = "resources-most-opened-file";
 	public static final String METRIC_RESOURCES_USER_OPENED_MORE_FILES = "resources-user-opened-more-files";
+	public static final String METRIC_LESSONS_PAGES = "lessons-pages";
+	public static final String METRIC_LESSONS_READ_PAGES = "lessons-read-pages";
+	public static final String METRIC_LESSONS_MOST_READ_PAGE = "lessons-most-read-page";
+	public static final String METRIC_LESSONS_USER_READ_MORE_PAGES = "lessons-user-read-more-pages";
 
 	private SiteStatsWidgetIds() {
 	}

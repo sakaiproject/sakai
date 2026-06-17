@@ -13,10 +13,13 @@ public class SiteStatsReportRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final int DEFAULT_PAGE_SIZE = 50;
+	public static final int MAX_PAGE_SIZE = 500;
+
 	private boolean includeTable = true;
 	private boolean includeChart = true;
 	private int page = 1;
-	private int pageSize = 50;
+	private int pageSize = DEFAULT_PAGE_SIZE;
 	private String date = ReportManager.WHEN_LAST7DAYS;
 	private String role = ReportManager.WHO_ALL;
 	private String tool = ReportManager.WHAT_EVENTS_ALLTOOLS;
@@ -30,8 +33,8 @@ public class SiteStatsReportRequest implements Serializable {
 		if (source != null) {
 			this.includeTable = source.includeTable;
 			this.includeChart = source.includeChart;
-			this.page = source.page;
-			this.pageSize = source.pageSize;
+			setPage(source.page);
+			setPageSize(source.pageSize);
 			this.date = source.date;
 			this.role = source.role;
 			this.tool = source.tool;
@@ -69,7 +72,7 @@ public class SiteStatsReportRequest implements Serializable {
 	}
 
 	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize < 1 ? 50 : pageSize;
+		this.pageSize = pageSize < 1 ? DEFAULT_PAGE_SIZE : Math.min(pageSize, MAX_PAGE_SIZE);
 	}
 
 	public String getDate() {

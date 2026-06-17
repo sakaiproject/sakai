@@ -80,6 +80,12 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	}
 
 	@Override
+	public SiteStatsWidgetMetric getWidgetMetric(String siteId, String widgetId, String metricId) {
+		siteStatsReportAccess.assertCanViewMetric(siteId, widgetId, metricId);
+		return siteStatsWidgetCatalog.getWidgetMetric(siteId, widgetId, metricId);
+	}
+
+	@Override
 	public List<SiteStatsReportSummary> getReports(String siteId) {
 		siteStatsReportAccess.assertCanViewAll(siteId);
 
@@ -169,7 +175,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 			throw new IllegalArgumentException(unknownReportMessage);
 		}
 
-		SiteStatsReportView view = siteStatsReportViewMapper.mapReportView(siteId, baseReport, safeRequest, prefsData);
+		SiteStatsReportView view = siteStatsReportViewMapper.mapReportShell(siteId, baseReport);
 		view.setWidgetId(widgetId);
 		if (StringUtils.isNotBlank(tabId)) {
 			view.setTabId(tabId);
