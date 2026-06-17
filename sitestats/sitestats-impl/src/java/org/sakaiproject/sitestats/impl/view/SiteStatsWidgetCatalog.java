@@ -683,7 +683,8 @@ public class SiteStatsWidgetCatalog {
 
 	private List<String> dateTotals(SiteStatsReportRequest request, String... extraColumns) {
 		List<String> totalsBy = new ArrayList<String>();
-		if (dateFilter(request).equals(ReportManager.WHEN_LAST365DAYS) || dateFilter(request).equals(ReportManager.WHEN_ALL)) {
+		String date = dateFilter(request);
+		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
 			totalsBy.add(StatsManager.T_DATEMONTH);
 		} else {
 			totalsBy.add(StatsManager.T_DATE);

@@ -15,7 +15,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-class SiteStatsReportAccess {
+public class SiteStatsReportAccess {
 
 	private StatsAuthz statsAuthz;
 	private ReportManager reportManager;
@@ -23,23 +23,23 @@ class SiteStatsReportAccess {
 	private SessionManager sessionManager;
 	private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
 
-	void setStatsAuthz(StatsAuthz statsAuthz) {
+	public void setStatsAuthz(StatsAuthz statsAuthz) {
 		this.statsAuthz = statsAuthz;
 	}
 
-	void setReportManager(ReportManager reportManager) {
+	public void setReportManager(ReportManager reportManager) {
 		this.reportManager = reportManager;
 	}
 
-	void setSiteStatsReportPreviewService(SiteStatsReportPreviewService siteStatsReportPreviewService) {
+	public void setSiteStatsReportPreviewService(SiteStatsReportPreviewService siteStatsReportPreviewService) {
 		this.siteStatsReportPreviewService = siteStatsReportPreviewService;
 	}
 
-	void setSessionManager(SessionManager sessionManager) {
+	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
 
-	void setSiteStatsWidgetCatalog(SiteStatsWidgetCatalog siteStatsWidgetCatalog) {
+	public void setSiteStatsWidgetCatalog(SiteStatsWidgetCatalog siteStatsWidgetCatalog) {
 		this.siteStatsWidgetCatalog = siteStatsWidgetCatalog;
 	}
 

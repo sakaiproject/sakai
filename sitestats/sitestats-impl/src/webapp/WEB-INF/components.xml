@@ -266,27 +266,33 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 	</bean>
 
-	<!-- SiteStatsViewService ______________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsViewService"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl">
+	<!-- SiteStatsReportAccess _____________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess">
 		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz"/>
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
+	</bean>
+
+	<!-- SiteStatsViewService ______________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsViewService"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl">
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
 		<property name="siteStatsReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper"/>
 	</bean>
 
 	<!-- SiteStatsReportExportService ______________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportExportService"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportExportServiceImpl">
-		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz"/>
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
-		<property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"/>
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
 	</bean>
 
 
