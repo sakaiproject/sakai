@@ -20,55 +20,65 @@
 
 package org.sakaiproject.entitybroker.util.http;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.HttpCookie;
-import java.net.URI;
-import java.net.http.HttpClient;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
+
+import org.apache.http.client.CookieStore;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.springframework.web.client.RestTemplate;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Allows us to cleanly wrap an httpclient object without exposing the actual object class
  *
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class HttpClientWrapper {
 
-    private HttpClient httpClient;
-    private final int requestTimeout;
-    private final CookieManager cookieManager;
-    private final List<HttpCookie> initialCookies;
-    private boolean initialCookiesLoaded = false;
+    private final RestTemplate restTemplate;
+    private final CloseableHttpClient httpClient;
+    private final CookieStore cookieStore;
+    private final List<BasicClientCookie> initialCookies;
+    private boolean initialCookiesSeeded = false;
 
     /**
      * This is meant for system use so you should not be constructing this,
      * use the {@link HttpRESTUtils#makeReusableHttpClient(boolean, int, Cookie[])} instead
      */
-    public HttpClientWrapper(HttpClient httpClient, int requestTimeout, CookieManager cookieManager, Cookie[] cookies) {
+    public HttpClientWrapper(RestTemplate restTemplate, CloseableHttpClient httpClient, CookieStore cookieStore,
+            Cookie[] cookies) {
         super();
+        this.restTemplate = restTemplate;
         this.httpClient = httpClient;
-        this.requestTimeout = requestTimeout;
-        this.cookieManager = cookieManager;
-        this.initialCookies = makeHttpCookies(cookies);
+        this.cookieStore = cookieStore;
+        this.initialCookies = makeClientCookies(cookies);
     }
 
-    public HttpClient getHttpClient() {
-        return httpClient;
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
     }
 
-    int getRequestTimeout() {
-        return requestTimeout;
-    }
-
-    void seedInitialCookies(URI requestUri) {
-        if (!initialCookiesLoaded && requestUri != null) {
-            for (HttpCookie cookie : initialCookies) {
-                cookieManager.getCookieStore().add(requestUri, cookie);
+    /**
+     * Seeds the initial cookies into the cookie store once, before the first request is fired.
+     * Cookies forwarded from a servlet request usually carry no domain, so we adopt the host of
+     * the first request (matching the previous behaviour) so the cookie store will actually send them.
+     */
+    void seedInitialCookies(String host) {
+        if (!initialCookiesSeeded) {
+            for (BasicClientCookie cookie : initialCookies) {
+                if (cookie.getDomain() == null && host != null) {
+                    cookie.setDomain(host);
+                }
+                cookieStore.addCookie(cookie);
             }
-            initialCookiesLoaded = true;
+            initialCookiesSeeded = true;
         }
     }
 
@@ -77,44 +87,46 @@ public class HttpClientWrapper {
      * this is not necessarily required but might be a good idea
      */
     public void resetState() {
-        cookieManager.getCookieStore().removeAll();
-        initialCookiesLoaded = false;
+        cookieStore.clear();
+        initialCookiesSeeded = false;
     }
 
     /**
      * cleanup and shutdown the http client
      */
     public void shutdown() {
-        this.httpClient = null;
-        this.cookieManager.getCookieStore().removeAll();
-        this.initialCookiesLoaded = false;
+        cookieStore.clear();
+        if (httpClient != null) {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                log.warn("Failure while closing the reusable http client :: {}", e.getMessage());
+            }
+        }
     }
 
-    static CookieManager makeCookieManager() {
-        return new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    static CookieStore makeCookieStore() {
+        return new BasicCookieStore();
     }
 
-    private static List<HttpCookie> makeHttpCookies(Cookie[] source) {
-        List<HttpCookie> cookies = new ArrayList<HttpCookie>();
+    private static List<BasicClientCookie> makeClientCookies(Cookie[] source) {
+        List<BasicClientCookie> cookies = new ArrayList<BasicClientCookie>();
         if (source == null) {
             return cookies;
         }
         for (Cookie cookie : source) {
             if (cookie != null) {
-                HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
+                BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
                 if (cookie.getDomain() != null) {
-                    httpCookie.setDomain(cookie.getDomain());
+                    clientCookie.setDomain(cookie.getDomain());
                 }
                 if (cookie.getPath() != null) {
-                    httpCookie.setPath(cookie.getPath());
+                    clientCookie.setPath(cookie.getPath());
                 } else {
-                    httpCookie.setPath("/");
+                    clientCookie.setPath("/");
                 }
-                httpCookie.setHttpOnly(cookie.isHttpOnly());
-                httpCookie.setMaxAge(cookie.getMaxAge());
-                httpCookie.setSecure(cookie.getSecure());
-                httpCookie.setVersion(cookie.getVersion());
-                cookies.add(httpCookie);
+                clientCookie.setSecure(cookie.getSecure());
+                cookies.add(clientCookie);
             }
         }
         return cookies;

@@ -23,17 +23,14 @@ package org.sakaiproject.entitybroker.util.http;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.CookieManager;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +38,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.Cookie;
+
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.ResponseExtractor;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -169,87 +183,77 @@ public class HttpRESTUtils {
             log.debug("Ignoring guaranteeSSL=true for request to {}; HTTPS uses JVM trust configuration", URL);
         }
 
-        if (httpClientWrapper == null || httpClientWrapper.getHttpClient() == null) {
+        if (httpClientWrapper == null || httpClientWrapper.getRestTemplate() == null) {
             httpClientWrapper = makeReusableHttpClient(false, 0, null);
         }
 
-        try {
-            HttpRequest request = buildRequest(httpClientWrapper, URL, method, params, headers, data);
-            httpClientWrapper.seedInitialCookies(request.uri());
-            java.net.http.HttpResponse<byte[]> httpResponse = httpClientWrapper.getHttpClient()
-                    .send(request, BodyHandlers.ofByteArray());
-            HttpResponse response = new HttpResponse(httpResponse.statusCode());
-
-            response.setResponseBody(readResponseBody(URL, httpResponse.body()));
-            response.setResponseMessage(getReasonPhrase(httpResponse.statusCode()));
-            response.setResponseHeaders(buildResponseHeaders(httpResponse.headers().map()));
-            return response;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new HttpIOException("Interrupted while firing request to url (" + URL + ") using method (" + method + ")  :: " + e.getMessage(), e);
-        } catch (IOException e) {
-            throw new HttpIOException("IOException (transport/connection) Error: "
-                    + "Could not sucessfully fire request to url (" + URL + ") using method (" + method + ")  :: " + e.getMessage(), e);
-        } catch (IllegalArgumentException e) {
-            throw new HttpRequestException("Fatal HTTP Request Error: "
-                    + "Could not sucessfully fire request to url (" + URL + ") using method (" + method + ")  :: " + e.getMessage(), e);
-        }
-    }
-
-    private static HttpRequest buildRequest(HttpClientWrapper httpClientWrapper, String url, Method method,
-            Map<String, String> params, Map<String, String> headers, Object data) throws IOException {
-        URI uri;
-        BodyPublisher bodyPublisher = null;
-        String contentType = null;
-
+        // figure out the request URI plus any body and content type for this method
+        final URI uri;
+        final Object body;
+        final String contentType;
         if (method.equals(Method.GET)) {
-            uri = buildUriWithParams(url, params);
+            uri = buildUriWithParams(URL, params);
             if (data != null) {
                 log.warn("Data cannot be passed in GET requests, data will be ignored (org.sakaiproject.entitybroker.util.http.HttpUtils#fireRequest)");
             }
+            body = null;
+            contentType = null;
         } else if (method.equals(Method.POST)) {
             if (data == null) {
-                uri = buildUriWithParams(url, null);
-                String formData = mergeQueryStringWithParams("", params);
-                bodyPublisher = BodyPublishers.ofString(formData, StandardCharsets.UTF_8);
+                // post the params as a url encoded form body
+                uri = buildUriWithParams(URL, null);
+                body = mergeQueryStringWithParams("", params);
                 contentType = FORM_CONTENT_TYPE_UTF8;
             } else {
-                uri = buildUriWithParams(url, params);
-                bodyPublisher = makeBodyPublisher(data);
+                uri = buildUriWithParams(URL, params);
+                body = data;
                 contentType = CONTENT_TYPE_UTF8;
             }
         } else if (method.equals(Method.PUT)) {
-            uri = buildUriWithParams(url, params);
-            bodyPublisher = makeBodyPublisher(data);
-            contentType = CONTENT_TYPE_UTF8;
+            uri = buildUriWithParams(URL, params);
+            body = data;
+            contentType = (data != null) ? CONTENT_TYPE_UTF8 : null;
         } else if (method.equals(Method.DELETE)) {
-            uri = buildUriWithParams(url, params);
+            uri = buildUriWithParams(URL, params);
             if (data != null) {
                 log.warn("Data cannot be passed in DELETE requests, data will be ignored (org.sakaiproject.entitybroker.util.http.HttpUtils#fireRequest)");
             }
+            body = null;
+            contentType = null;
         } else {
-            throw new IllegalArgumentException("Cannot handle method: " + method);
+            throw new HttpRequestException("Cannot handle method: " + method);
         }
 
-        HttpRequest.Builder builder = HttpRequest.newBuilder(uri)
-                .timeout(Duration.ofMillis(httpClientWrapper.getRequestTimeout()))
-                .setHeader("User-Agent", DEFAULT_USER_AGENT);
-
-        if (contentType != null) {
-            builder.setHeader("Content-Type", contentType);
-        }
-        if (headers != null) {
-            for (Entry<String, String> entry : headers.entrySet()) {
-                builder.setHeader(entry.getKey(), entry.getValue());
+        final Map<String, String> requestHeaders = headers;
+        RequestCallback requestCallback = request -> {
+            HttpHeaders reqHeaders = request.getHeaders();
+            reqHeaders.set(HttpHeaders.USER_AGENT, DEFAULT_USER_AGENT);
+            if (contentType != null) {
+                reqHeaders.set(HttpHeaders.CONTENT_TYPE, contentType);
             }
-        }
+            // caller supplied headers take precedence over the defaults above
+            if (requestHeaders != null) {
+                for (Entry<String, String> entry : requestHeaders.entrySet()) {
+                    reqHeaders.set(entry.getKey(), entry.getValue());
+                }
+            }
+            if (body != null) {
+                writeRequestBody(request.getBody(), body);
+            }
+        };
+        ResponseExtractor<HttpResponse> responseExtractor = response -> extractResponse(URL, response);
 
-        if (bodyPublisher == null) {
-            builder.method(method.name(), BodyPublishers.noBody());
-        } else {
-            builder.method(method.name(), bodyPublisher);
+        httpClientWrapper.seedInitialCookies(uri.getHost());
+        try {
+            return httpClientWrapper.getRestTemplate().execute(uri, HttpMethod.valueOf(method.name()),
+                    requestCallback, responseExtractor);
+        } catch (ResourceAccessException e) {
+            throw new HttpIOException("IOException (transport/connection) Error: "
+                    + "Could not sucessfully fire request to url (" + URL + ") using method (" + method + ")  :: " + e.getMessage(), e);
+        } catch (RestClientException | IllegalArgumentException e) {
+            throw new HttpRequestException("Fatal HTTP Request Error: "
+                    + "Could not sucessfully fire request to url (" + URL + ") using method (" + method + ")  :: " + e.getMessage(), e);
         }
-        return builder.build();
     }
 
     private static URI buildUriWithParams(String url, Map<String, String> params) {
@@ -267,35 +271,47 @@ public class HttpRESTUtils {
         return uri;
     }
 
-    private static BodyPublisher makeBodyPublisher(Object data) throws IOException {
-        if (data == null) {
-            return BodyPublishers.noBody();
-        }
+    private static void writeRequestBody(OutputStream output, Object data) throws IOException {
         if (data instanceof InputStream) {
-            byte[] bytes;
             try (InputStream input = (InputStream) data) {
-                bytes = input.readAllBytes();
+                StreamUtils.copy(input, output);
             }
-            return BodyPublishers.ofByteArray(bytes);
+        } else if (data instanceof byte[]) {
+            output.write((byte[]) data);
+        } else if (data instanceof File) {
+            try (InputStream input = Files.newInputStream(((File) data).toPath())) {
+                StreamUtils.copy(input, output);
+            }
+        } else {
+            output.write(data.toString().getBytes(StandardCharsets.UTF_8));
         }
-        if (data instanceof byte[]) {
-            return BodyPublishers.ofByteArray((byte[]) data);
-        }
-        if (data instanceof File) {
-            return BodyPublishers.ofFile(((File) data).toPath());
-        }
-        return BodyPublishers.ofString(data.toString(), StandardCharsets.UTF_8);
     }
 
-    private static String readResponseBody(String url, byte[] body) {
-        String responseBody = new String(body, StandardCharsets.UTF_8);
-        if (responseBody.length() > MAX_RESPONSE_SIZE_CHARS) {
-            throw new HttpRequestException("Response size (" + responseBody.length() + " chars) from url (" + url + ") exceeded the maximum allowed batch response size (" + MAX_RESPONSE_SIZE_CHARS + " chars) while processing the response");
+    /**
+     * Reads the response body as UTF-8, aborting early if it grows past the maximum allowed size.
+     * Streaming the read (instead of buffering the whole response first) preserves the protection
+     * added for SAK-20405 against responses large enough to exhaust memory.
+     */
+    private static HttpResponse extractResponse(String url, ClientHttpResponse response) throws IOException {
+        HttpResponse httpResponse = new HttpResponse(response.getRawStatusCode());
+        httpResponse.setResponseMessage(response.getStatusText() != null ? response.getStatusText() : "");
+        httpResponse.setResponseHeaders(buildResponseHeaders(response.getHeaders()));
+
+        StringBuilder out = new StringBuilder();
+        char[] buffer = new char[4096];
+        try (Reader reader = new InputStreamReader(response.getBody(), StandardCharsets.UTF_8)) {
+            for (int n; (n = reader.read(buffer)) != -1;) {
+                out.append(buffer, 0, n);
+                if (out.length() > MAX_RESPONSE_SIZE_CHARS) {
+                    throw new HttpRequestException("Response size (" + out.length() + " chars) from url (" + url + ") exceeded the maximum allowed batch response size (" + MAX_RESPONSE_SIZE_CHARS + " chars) while processing the response");
+                }
+            }
         }
-        return responseBody;
+        httpResponse.setResponseBody(out.toString());
+        return httpResponse;
     }
 
-    private static HashMap<String, String[]> buildResponseHeaders(Map<String, List<String>> headers) {
+    private static HashMap<String, String[]> buildResponseHeaders(HttpHeaders headers) {
         HashMap<String, String[]> responseHeaders = new HashMap<String, String[]>();
         for (Entry<String, List<String>> header : headers.entrySet()) {
             List<String> values = header.getValue();
@@ -304,31 +320,6 @@ public class HttpRESTUtils {
             }
         }
         return responseHeaders;
-    }
-
-    /**
-     * Java's HTTP client exposes the status code, not the HTTP/1.1 reason phrase.
-     */
-    private static String getReasonPhrase(int statusCode) {
-        switch (statusCode) {
-            case 200: return "OK";
-            case 201: return "Created";
-            case 202: return "Accepted";
-            case 204: return "No Content";
-            case 301: return "Moved Permanently";
-            case 302: return "Found";
-            case 304: return "Not Modified";
-            case 400: return "Bad Request";
-            case 401: return "Unauthorized";
-            case 403: return "Forbidden";
-            case 404: return "Not Found";
-            case 405: return "Method Not Allowed";
-            case 409: return "Conflict";
-            case 500: return "Internal Server Error";
-            case 502: return "Bad Gateway";
-            case 503: return "Service Unavailable";
-            default: return "";
-        }
     }
 
     /**
@@ -452,13 +443,34 @@ public class HttpRESTUtils {
      */
     public static HttpClientWrapper makeReusableHttpClient(boolean multiThreaded, int idleConnectionTimeout, Cookie[] cookies) {
         int requestTimeout = idleConnectionTimeout <= 0 ? DEFAULT_TIMEOUT : idleConnectionTimeout;
-        CookieManager cookieManager = HttpClientWrapper.makeCookieManager();
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(requestTimeout))
-                .cookieHandler(cookieManager)
-                .followRedirects(HttpClient.Redirect.NORMAL)
+        CookieStore cookieStore = HttpClientWrapper.makeCookieStore();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(requestTimeout)
+                .setConnectionRequestTimeout(requestTimeout)
+                .setSocketTimeout(requestTimeout)
                 .build();
-        return new HttpClientWrapper(client, requestTimeout, cookieManager, cookies);
+        CloseableHttpClient client = HttpClients.custom()
+                .setConnectionManager(new PoolingHttpClientConnectionManager())
+                .setDefaultCookieStore(cookieStore)
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));
+        // status codes (including 4xx/5xx) are reported back in the response, never thrown
+        restTemplate.setErrorHandler(new PassThroughResponseErrorHandler());
+        return new HttpClientWrapper(restTemplate, client, cookieStore, cookies);
+    }
+
+    /**
+     * Treats every response as a success so the status code is returned to the caller
+     * (in {@link HttpResponse#getResponseCode()}) instead of being raised as an exception.
+     */
+    private static class PassThroughResponseErrorHandler implements ResponseErrorHandler {
+        public boolean hasError(ClientHttpResponse response) {
+            return false;
+        }
+        public void handleError(ClientHttpResponse response) {
+            // no-op: callers inspect the status code themselves
+        }
     }
 
     /**
