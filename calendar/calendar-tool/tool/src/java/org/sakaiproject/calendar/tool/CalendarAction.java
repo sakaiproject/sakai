@@ -4669,7 +4669,7 @@ extends VelocityPortletStateAction
 			}
 			catch (DateTimeParseException e)
 			{
-				log.warn("doNew(): invalid date '{}' from calendar grid", newEventDate, e);
+				log.warn("invalid date '{}' from calendar grid", newEventDate, e);
 			}
 		}
 	}	 // doNew

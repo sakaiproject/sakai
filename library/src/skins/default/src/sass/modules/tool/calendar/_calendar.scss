@@ -7,8 +7,17 @@
 		@include display-flex;
 		@include justify-content(space-between);
 		@include align-items(flex-end);
-		margin: 0 0 $standard-space-2x 0;		// remove the extra top gap now that #toolbar($menu) is no longer adjacent to it, keep a small bottom gap
-		padding-bottom: 0;
+
+		// The main calendar view moved its action toolbar into the collapsible
+		// block below the title (#calendarToolbarCollapse), so unlike every
+		// other calendar page, there's no #toolbar($menu) button row directly
+		// above this page-header, and the collapse block already adds its own
+		// margin/border spacing below. Skip the default .portletBody
+		// .page-header top/bottom spacing only in that case.
+		&:has(#calendarToolbarToggle) {
+			margin: 0 0 $standard-space-2x 0;
+			padding-bottom: 0;
+		}
 	}
 
 	// Used both by the toggle button in .page-header and by the view selector
