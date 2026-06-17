@@ -13,7 +13,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
  */
 public interface SiteStatsReportPreviewService {
 
-	public String register(String siteId, ReportDef reportDef);
+	public String register(String siteId, String userId, ReportDef reportDef);
 
-	public ReportDef get(String siteId, String previewId);
+	public ReportDef get(String siteId, String userId, String previewId);
 }

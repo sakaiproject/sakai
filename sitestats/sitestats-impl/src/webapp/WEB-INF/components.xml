@@ -248,6 +248,7 @@
 		<property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"/>
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 	</bean>
 
 

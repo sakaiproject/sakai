@@ -38,10 +38,12 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
@@ -52,11 +54,15 @@ import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 public class SiteStatsViewServiceTest {
 
 	private static final String SITE_ID = "site-a";
+	private static final String USER_ID = "user-a";
+	private static final String OTHER_USER_ID = "user-b";
 
 	private StatsAuthz statsAuthz;
 	private StatsManager statsManager;
@@ -75,6 +81,10 @@ public class SiteStatsViewServiceTest {
 		siteService = mock(SiteService.class);
 		UserDirectoryService userDirectoryService = mock(UserDirectoryService.class);
 		UserTimeService userTimeService = mock(UserTimeService.class);
+		Session session = mock(Session.class);
+		when(session.getUserId()).thenReturn(USER_ID);
+		SessionManager sessionManager = mock(SessionManager.class);
+		when(sessionManager.getCurrentSession()).thenReturn(session);
 
 		when(statsAuthz.isUserAbleToViewSiteStats(SITE_ID)).thenReturn(true);
 		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(true);
@@ -87,6 +97,8 @@ public class SiteStatsViewServiceTest {
 			return params.getHowTotalsBy().contains(column);
 		});
 		when(reportManager.getReport(any(ReportDef.class), anyBoolean(), any(), anyBoolean())).thenAnswer(invocation -> report(invocation.getArgument(0)));
+		ReportFormattedParams formattedParams = reportFormattedParams();
+		when(reportManager.getReportFormattedParams()).thenReturn(formattedParams);
 
 		SiteStatsTableMapperImpl tableMapper = new SiteStatsTableMapperImpl();
 		tableMapper.setStatsManager(statsManager);
@@ -111,6 +123,7 @@ public class SiteStatsViewServiceTest {
 		service.setSiteStatsReportPreviewService(previewService);
 		service.setEventRegistryService(eventRegistryService);
 		service.setSiteService(siteService);
+		service.setSessionManager(sessionManager);
 	}
 
 	@Test
@@ -224,7 +237,7 @@ public class SiteStatsViewServiceTest {
 		params.setWhat(ReportManager.WHAT_VISITS_TOTALS);
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_DATE, StatsManager.T_VISITS));
 		preview.setReportParams(params);
-		String previewId = previewService.register(SITE_ID, preview);
+		String previewId = previewService.register(SITE_ID, USER_ID, preview);
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setIncludeChart(false);
@@ -241,9 +254,32 @@ public class SiteStatsViewServiceTest {
 	public void getPreviewReportDoesNotLeakAcrossSites() {
 		ReportDef preview = new ReportDef();
 		preview.setReportParams(new ReportParams("other-site"));
-		String previewId = previewService.register("other-site", preview);
+		String previewId = previewService.register("other-site", USER_ID, preview);
 
 		assertThrows(IllegalArgumentException.class, () -> service.getPreviewReport(SITE_ID, previewId, new SiteStatsReportRequest()));
+	}
+
+	@Test
+	public void getPreviewReportDoesNotLeakAcrossUsers() {
+		ReportDef preview = new ReportDef();
+		preview.setReportParams(new ReportParams(SITE_ID));
+		String previewId = previewService.register(SITE_ID, OTHER_USER_ID, preview);
+
+		assertThrows(IllegalArgumentException.class, () -> service.getPreviewReport(SITE_ID, previewId, new SiteStatsReportRequest()));
+	}
+
+	@Test
+	public void getPreviewReportIncludesFormattedSummaryRows() {
+		ReportDef preview = new ReportDef();
+		preview.setReportParams(new ReportParams(SITE_ID));
+		String previewId = previewService.register(SITE_ID, USER_ID, preview);
+
+		SiteStatsReportView view = service.getPreviewReport(SITE_ID, previewId, new SiteStatsReportRequest());
+
+		SiteStatsReportInfoItem site = summaryItem(view, "site");
+		assertNotNull(site.getLabel());
+		assertEquals("Site A", site.getValue());
+		assertEquals("Generated", summaryItem(view, "generated-on").getValue());
 	}
 
 	@Test
@@ -263,6 +299,21 @@ public class SiteStatsViewServiceTest {
 		verify(reportManager).getReport(captor.capture(), anyBoolean(), any(), eq(true));
 		assertEquals(SITE_ID, captor.getValue().getSiteId());
 		assertEquals(SITE_ID, captor.getValue().getReportParams().getSiteId());
+	}
+
+	@Test
+	public void getReportIncludesFormattedSummaryRows() {
+		ReportDef stored = new ReportDef();
+		stored.setId(42);
+		stored.setSiteId(SITE_ID);
+		stored.setReportParams(new ReportParams(SITE_ID));
+		when(reportManager.getReportDefinition(42)).thenReturn(stored);
+
+		SiteStatsReportView view = service.getReport(SITE_ID, 42, new SiteStatsReportRequest());
+
+		assertEquals("Description", summaryItem(view, "description").getValue());
+		assertEquals("Activity type", summaryItem(view, "activity-based-on").getValue());
+		assertEquals("User type", summaryItem(view, "user-selection-type").getValue());
 	}
 
 	private SiteStatsFilter filter(SiteStatsOverview overview, String widgetId, String tabId, String filterId) {
@@ -295,5 +346,31 @@ public class SiteStatsViewServiceTest {
 		report.setReportData(Arrays.asList(stat));
 		report.setReportGenerationDate(new java.util.Date());
 		return report;
+	}
+
+	private SiteStatsReportInfoItem summaryItem(SiteStatsReportView view, String id) {
+		for (SiteStatsReportInfoItem item : view.getSummary()) {
+			if (id.equals(item.getId())) {
+				return item;
+			}
+		}
+		throw new AssertionError("Missing summary item: " + id);
+	}
+
+	private ReportFormattedParams reportFormattedParams() {
+		ReportFormattedParams formatter = mock(ReportFormattedParams.class);
+		when(formatter.getReportDescription(any(Report.class))).thenReturn("Description");
+		when(formatter.getReportSite(any(Report.class))).thenReturn("Site A");
+		when(formatter.getReportActivityBasedOn(any(Report.class))).thenReturn("Activity type");
+		when(formatter.getReportResourceActionTitle(any(Report.class))).thenReturn(null);
+		when(formatter.getReportResourceAction(any(Report.class))).thenReturn(null);
+		when(formatter.getReportActivitySelectionTitle(any(Report.class))).thenReturn(null);
+		when(formatter.getReportActivitySelection(any(Report.class))).thenReturn(null);
+		when(formatter.getReportTimePeriod(any(Report.class))).thenReturn("Time period");
+		when(formatter.getReportUserSelectionType(any(Report.class))).thenReturn("User type");
+		when(formatter.getReportUserSelectionTitle(any(Report.class))).thenReturn(null);
+		when(formatter.getReportUserSelection(any(Report.class))).thenReturn(null);
+		when(formatter.getReportGenerationDate(any(Report.class))).thenReturn("Generated");
+		return formatter;
 	}
 }
