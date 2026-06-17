@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -268,6 +269,16 @@ class PollTest extends SakaiUiTestBase {
         Locator resultsTable = page.locator(".table-responsive table").first();
         assertThat(resultsTable).containsText("Yes");
         assertThat(resultsTable).containsText(Pattern.compile("100\\s*%"));
+
+        Locator csvExport = page.locator("a[href*='/polls/export/csv/']").first();
+        assertThat(csvExport).isVisible();
+        Download csvDownload = page.waitForDownload(() -> csvExport.click(new Locator.ClickOptions().setForce(true)));
+        assertTrue(csvDownload.suggestedFilename().endsWith(".csv"));
+
+        Locator xlsxExport = page.locator("a[href*='/polls/export/xlsx/']").first();
+        assertThat(xlsxExport).isVisible();
+        Download xlsxDownload = page.waitForDownload(() -> xlsxExport.click(new Locator.ClickOptions().setForce(true)));
+        assertTrue(xlsxDownload.suggestedFilename().endsWith(".xlsx"));
     }
 
     private Locator addOptionControl() {

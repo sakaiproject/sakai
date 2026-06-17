@@ -17,8 +17,8 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import lombok.RequiredArgsConstructor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -27,18 +27,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
-
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
 public class PermissionsController {
 
-    private final SecurityService securityService;
     private final SiteService siteService;
     private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final ServerConfigurationService serverConfigurationService;
+    private final PollPermissionsService pollPermissionsService;
 
     @GetMapping("/votePermissions")
     public String permissions(Model model) {
@@ -46,18 +44,8 @@ public class PermissionsController {
         String placementId = sessionManager.getCurrentToolSession().getPlacementId();
         String toolUrl = serverConfigurationService.getPortalUrl() + siteRef + "/tool/" + placementId;
         model.addAttribute("toolUrl", toolUrl);
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
         return "polls/permissions";
-    }
-
-    private boolean isAllowedPollAdd() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
-    }
-
-    private boolean isSiteOwner() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
     }
 }

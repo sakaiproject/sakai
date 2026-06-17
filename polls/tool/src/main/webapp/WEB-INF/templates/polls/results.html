@@ -63,8 +63,15 @@
     </div>
 
     <div class="act">
-      <input type="button" th:onclick="|location.href='@{/votePolls}'|"
-             th:value="#{results_cancel}" value="Back" />
+      <input type="button" th:onclick="|location.href='@{/votePolls}'|" th:value="#{results_cancel}" value="Back" />
+      <a class="btn btn-primary" th:if="${canEdit}" th:href="@{/polls/export/xlsx/{id}(id=${poll.id})}" role="button">
+        <span class="bi bi-file-excel" aria-hidden="true"></span>
+        <span th:text="#{poll_export_link}">Export to Excel (.xlsx)</span>
+      </a>
+      <a class="btn btn-primary ms-1" th:if="${canEdit}" th:href="@{/polls/export/csv/{id}(id=${poll.id})}" role="button">
+        <span class="bi bi-filetype-csv" aria-hidden="true"></span>
+        <span th:text="#{poll_export_link_csv}">Export to CSV (.csv)</span>
+      </a>
     </div>
   </div>
   <script th:src="@{/webjars/chart.js/4.5.0/dist/chart.umd.min.js}"></script>

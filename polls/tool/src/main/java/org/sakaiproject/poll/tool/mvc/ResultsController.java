@@ -19,26 +19,16 @@ package org.sakaiproject.poll.tool.mvc;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.api.model.Vote;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
+import org.sakaiproject.poll.tool.service.PollResultsService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.api.FormattedText;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -57,11 +48,10 @@ public class ResultsController {
 
     private final PollsService pollsService;
     private final SessionManager sessionManager;
-    private final SecurityService securityService;
-    private final SiteService siteService;
     private final ToolManager toolManager;
-    private final FormattedText formattedText;
     private final MessageSource messageSource;
+    private final PollResultsService pollResultsService;
+    private final PollPermissionsService pollPermissionsService;
 
     @GetMapping("/voteResults")
     public String showResults(@RequestParam("pollId") String pollId,
@@ -81,130 +71,40 @@ public class ResultsController {
             return "redirect:/votePolls";
         }
 
-        int minOptions = currentPoll.getMinOptions();
-        List<Option> displayOptions = new ArrayList<>(currentPoll.getOptions());
-        if (minOptions == 0) {
-            Option noVote = new Option();
-            noVote.setText(messageSource.getMessage("result_novote", null, locale));
-            displayOptions.add(noVote);
-        }
-
-        List<Vote> votes = pollsService.getAllVotesForPoll(currentPoll.getId());
-        int totalVotes = votes.size();
-        int distinctVoters = pollsService.getDistinctVotersForPoll(currentPoll);
         String siteId = toolManager.getCurrentPlacement().getContext();
-        int potentialVoters = pollsService.getNumberUsersCanVote(siteId);
+        PollResultsService.PollResults results = pollResultsService.buildResults(currentPoll, siteId, locale);
 
-        List<ResultRow> rows = new ArrayList<>();
         NumberFormat percentFormat = NumberFormat.getPercentInstance(locale);
         percentFormat.setMaximumFractionDigits(2);
-
-        for (int i = 0; i < displayOptions.size(); i++) {
-            Option option = displayOptions.get(i);
-            long voteCount;
-            if (minOptions == 0 && option.getId() == null) {
-                voteCount = (long) potentialVoters - distinctVoters;
-            } else {
-                voteCount = votes.stream()
-                        .filter(v -> v.getOption() != null && Objects.equals(option.getId(), v.getOption().getId()))
-                        .count();
-            }
-
-            double percentage = calculatePercentage(currentPoll, voteCount, totalVotes, distinctVoters);
-            rows.add(new ResultRow(
-                    i + 1,
-                    decorateOptionText(option, locale),
-                    Boolean.TRUE.equals(option.getDeleted()),
-                    decorateOptionLabel(option, locale),
-                    voteCount,
-                    percentFormat.format(percentage),
-                    percentage
-            ));
-        }
-
-        double totalPercentage = rows.stream().mapToDouble(ResultRow::getPercentageValue).sum();
+        double totalPercentage = results.getRows().stream().mapToDouble(PollResultsService.ResultRow::getPercentageValue).sum();
         String totalPercentageLabel = percentFormat.format(totalPercentage);
 
-        BigDecimal voterPercent = (potentialVoters <= 0 || distinctVoters == 0)
+        BigDecimal voterPercent = (results.getPotentialVoters() <= 0 || results.getDistinctVoters() == 0)
                 ? BigDecimal.ZERO
-                : new BigDecimal(distinctVoters)
-                .divide(new BigDecimal(potentialVoters), 4, RoundingMode.HALF_UP)
+                : new BigDecimal(results.getDistinctVoters())
+                .divide(new BigDecimal(results.getPotentialVoters()), 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
 
-        String pollSizeDetails = String.format(locale, "%d / %d (%.02f %%)", distinctVoters, potentialVoters, voterPercent.setScale(2, RoundingMode.HALF_UP));
+        String pollSizeDetails = String.format(locale, "%d / %d (%.02f %%)", results.getDistinctVoters(), results.getPotentialVoters(), voterPercent.setScale(2, RoundingMode.HALF_UP));
         String pollSizeMessage = messageSource.getMessage("results_poll_size",
                 new Object[]{pollSizeDetails}, locale);
 
-        String siteRef = siteService.siteReference(siteId);
-        boolean isAdmin = securityService.isSuperUser();
-        boolean canAdd = isAdmin || securityService.unlock(PERMISSION_ADD, siteRef);
-        boolean isSiteOwner = isAdmin || securityService.unlock("site.upd", siteRef);
+        boolean canEdit = pollPermissionsService.canEditPoll(currentPoll);
 
         model.addAttribute("poll", currentPoll);
-        model.addAttribute("rows", rows);
-        model.addAttribute("chartLabels", rows.stream().map(ResultRow::getChartLabel).collect(Collectors.toList()));
-        model.addAttribute("chartVotes", rows.stream().map(ResultRow::getVotes).collect(Collectors.toList()));
-        model.addAttribute("chartPercentages", rows.stream().map(ResultRow::getPercentageLabel).collect(Collectors.toList()));
-        model.addAttribute("totalVotes", totalVotes);
-        model.addAttribute("distinctVoters", distinctVoters);
+        model.addAttribute("canEdit", canEdit);
+        model.addAttribute("rows", results.getRows());
+        model.addAttribute("chartLabels", results.getRows().stream().map(PollResultsService.ResultRow::getChartLabel).collect(Collectors.toList()));
+        model.addAttribute("chartVotes", results.getRows().stream().map(PollResultsService.ResultRow::getVotes).collect(Collectors.toList()));
+        model.addAttribute("chartPercentages", results.getRows().stream().map(PollResultsService.ResultRow::getPercentageLabel).collect(Collectors.toList()));
+        model.addAttribute("totalVotes", results.getTotalVotes());
+        model.addAttribute("distinctVoters", results.getDistinctVoters());
         model.addAttribute("voterPercent", voterPercent);
         model.addAttribute("pollSizeMessage", pollSizeMessage);
         model.addAttribute("totalPercentageLabel", totalPercentageLabel);
-        model.addAttribute("canAdd", canAdd);
-        model.addAttribute("isSiteOwner", isSiteOwner);
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
 
         return "polls/results";
-    }
-
-    private double calculatePercentage(Poll poll, long voteCount, int totalVotes, int distinctVoters) {
-        if (totalVotes == 0) {
-            return 0d;
-        }
-        if (poll.getMaxOptions() == 1) {
-            return (double) voteCount / (double) totalVotes;
-        }
-        if (distinctVoters > 0) {
-            return (double) voteCount / (double) distinctVoters;
-        }
-        return 0d;
-    }
-
-    private String decorateOptionText(Option option, Locale locale) {
-        return getOptionLabel(option, locale);
-    }
-
-    private String decorateOptionLabel(Option option, Locale locale) {
-        return StringUtils.normalizeSpace(formattedText.convertFormattedTextToPlaintext(
-                getEscapedDecoratedOptionText(option, locale)));
-    }
-
-    private String getOptionLabel(Option option, Locale locale) {
-        String text = option.getText();
-        if (StringUtils.isBlank(text)) {
-            text = messageSource.getMessage("result_novote", null, locale);
-        }
-        return text;
-    }
-
-    private String getEscapedDecoratedOptionText(Option option, Locale locale) {
-        return appendDeletedTag(formattedText.escapeHtml(getOptionLabel(option, locale)), option, locale);
-    }
-
-    private String appendDeletedTag(String text, Option option, Locale locale) {
-        if (Boolean.TRUE.equals(option.getDeleted())) {
-            text += messageSource.getMessage("deleted_option_tag_html", null, locale);
-        }
-        return text;
-    }
-
-    @Value
-    public static class ResultRow {
-        int order;
-        String text;
-        boolean deleted;
-        String chartLabel;
-        long votes;
-        String percentageLabel;
-        double percentageValue;
     }
 }

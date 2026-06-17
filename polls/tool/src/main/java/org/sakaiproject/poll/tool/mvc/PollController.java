@@ -22,15 +22,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.poll.tool.service.PollPermissionsService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -44,35 +41,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.*;
-
 @Controller
 @RequestMapping
 @Slf4j
 public class PollController {
 
     private final PollsService pollsService;
-    private final SecurityService securityService;
-    private final SiteService siteService;
     private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final MessageSource messageSource;
     private final UserTimeService userTimeService;
+    private final PollPermissionsService pollPermissionsService;
 
     public PollController(PollsService pollsService,
-                          SecurityService securityService,
-                          SiteService siteService,
                           SessionManager sessionManager,
                           ToolManager toolManager,
                           MessageSource messageSource,
-                          @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
+                          @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
+                          PollPermissionsService pollPermissionsService) {
         this.pollsService = pollsService;
-        this.securityService = securityService;
-        this.siteService = siteService;
         this.sessionManager = sessionManager;
         this.toolManager = toolManager;
         this.messageSource = messageSource;
         this.userTimeService = userTimeService;
+        this.pollPermissionsService = pollPermissionsService;
     }
 
     @GetMapping({"/", "/votePolls"})
@@ -98,7 +90,7 @@ public class PollController {
         boolean renderDelete = false;
         for (Poll poll : polls) {
             boolean canVote = pollsService.pollIsVotable(poll);
-            boolean canEdit = pollCanEdit(poll);
+            boolean canEdit = pollPermissionsService.canEditPoll(poll);
             boolean canDelete = pollsService.userCanDeletePoll(poll);
             renderDelete = renderDelete || canDelete;
 
@@ -140,8 +132,8 @@ public class PollController {
         rows.sort(Comparator.comparing(PollRow::getVoteCloseSortKey, Comparator.nullsLast(Comparator.reverseOrder())));
 
         model.addAttribute("polls", rows);
-        model.addAttribute("canAdd", isAllowedPollAdd());
-        model.addAttribute("isSiteOwner", isSiteOwner());
+        model.addAttribute("canAdd", pollPermissionsService.canAddPoll());
+        model.addAttribute("isSiteOwner", pollPermissionsService.isSiteOwner());
         model.addAttribute("renderDelete", renderDelete);
         model.addAttribute("siteId", siteId);
         return "polls/list";
@@ -173,28 +165,6 @@ public class PollController {
                     messageSource.getMessage("poll_list_delete_tooltip", null, locale));
         }
         return "redirect:/votePolls";
-    }
-
-    private boolean isAllowedPollAdd() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
-    }
-
-    private boolean isSiteOwner() {
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
-    }
-
-    private boolean pollCanEdit(Poll poll) {
-        if (securityService.isSuperUser()) {
-            return true;
-        }
-        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
-        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
-            return true;
-        }
-        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef)
-                && Objects.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
     }
 
     private Locale normaliseLocale(Locale locale) {
