@@ -7,9 +7,81 @@
 		@include display-flex;
 		@include justify-content(space-between);
 		@include align-items(flex-end);
-		
+
+		// The main calendar view moved its action toolbar into the collapsible
+		// block below the title (#calendarToolbarCollapse), so unlike every
+		// other calendar page, there's no #toolbar($menu) button row directly
+		// above this page-header, and the collapse block already adds its own
+		// margin/border spacing below. Skip the default .portletBody
+		// .page-header top/bottom spacing only in that case.
+		&:has(#calendarToolbarToggle) {
+			margin: 0 0 $standard-space-2x 0;
+			padding-bottom: 0;
+		}
+	}
+
+	// Used both by the toggle button in .page-header and by the view selector
+	// and print link inside #calendarToolbarCollapse.
+	.sakai-sideHeading {
+		@include display-flex;
+		@include align-items(center);
+		@include flex-wrap(wrap);
+		gap: $standard-spacing;
+
+		.sakai-table-viewFilter {
+			@include display-flex;
+			@include align-items(center);
+			gap: $standard-space;
+			margin: 0;
+
+			form {
+				@include display-flex;
+				@include align-items(center);
+				margin: 0;
+			}
+
+			.form-group {
+				@include display-flex;
+				@include align-items(center);
+				margin: 0;
+
+				label {
+					margin: 0 $standard-space 0 0;
+					white-space: nowrap;
+				}
+
+				select {
+					width: auto;
+				}
+			}
+
+			input[type="submit"] {
+				margin: 0;
+				white-space: nowrap;
+			}
+		}
+	}
+
+	// Collapsible toolbar actions, view selector and print link (see
+	// sakaiCalendar.initToolbarToggle).
+	#calendarToolbarCollapse {
+		margin-top: $standard-spacing;
+		padding-bottom: $standard-spacing;
+		border-bottom: 1px solid $page-header-border-color;
+
 		.sakai-sideHeading {
-			text-align: right;
+			margin-top: $standard-spacing;
+		}
+	}
+
+	.sakai-calendarToolbarToggle {
+		.fa-chevron-down {
+			margin-left: $standard-space;
+			transition: transform 0.2s ease;
+		}
+
+		&[aria-expanded="true"] .fa-chevron-down {
+			transform: rotate(180deg);
 		}
 	}
 

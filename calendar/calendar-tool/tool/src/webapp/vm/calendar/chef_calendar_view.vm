@@ -3,24 +3,57 @@
 <script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
 
 <div class="portletBody">
-  #if($menu)#toolbar($menu)#end
   <div class="page-header">
     <h1>$tlang.getString("tool_title")</h1>
     <div class="sakai-sideHeading">
-      <a onclick="sakaiCalendar.printCalendar('$printableVersionUrl')" title="$!tlang.getString('java.print')" href="#">$!tlang.getString('java.print')</a>
+      <button type="button" id="calendarToolbarToggle" class="sakai-calendarToolbarToggle btn-link" aria-expanded="true" aria-controls="calendarToolbarCollapse">
+        $tlang.getString("view.toggleToolbar")
+        <span class="fa fa-chevron-down" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  ## Toolbar actions, view selector and printable version link, shown by default
+  ## (see sakaiCalendar.initToolbarToggle) but collapsible to keep the calendar grid closer to the top.
+  <div id="calendarToolbarCollapse">
+    #if($menu)#toolbar($menu)#end
+    <div class="sakai-sideHeading">
+      #calendarView()
+      <button type="button" class="btn-link" onclick="sakaiCalendar.printCalendar('$printableVersionUrl')" title="$!tlang.getString('java.print')">$!tlang.getString('java.print')</button>
     </div>
   </div>
   #if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
-  <div class="sakai-table-toolBar">
-    <div class="sakai-table-filterContainer">
-      #calendarView()
-    </div>
-  </div>
   ## Calendar DIV where the full calendar will be rendered
   <div id="calendarDiv"></div>
   ## include the Legend:
   #calendarLegend()
+  ## Hidden form submitted on double-click of a time slot, to open the new event form
+  ## with the clicked date/time prefilled (see sakaiCalendar.openNewEventForm).
+  <form id="newEventForm" name="newEventForm" method="post" action="#toolForm("CalendarAction")" style="display:none;">
+    <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    <input type="hidden" id="newEventDate" name="newEventDate" value="" />
+    <input type="hidden" id="newEventHour" name="newEventHour" value="" />
+    <input type="hidden" id="newEventMinute" name="newEventMinute" value="" />
+    <input type="hidden" name="eventSubmit_doNew" value="New" />
+  </form>
 </div>
+
+## Shade the second half-hour of each hour slot in Day/Week view, so that the
+## two halves of an hourly slot (used by sakaiCalendar.openNewEventForm) are
+## visually distinguishable.
+<style>
+.fc .fc-timegrid-slot-minor {
+  background-color: rgba(127, 127, 127, 0.12);
+}
+
+## Shade day cells (Month view) and time slots (Week/Day view) on hover, to
+## show the user that clicking them navigates to Day view or opens the new
+## event form, respectively.
+.fc .fc-daygrid-day:hover,
+.fc .fc-timegrid-slot-lane:hover {
+  background-color: rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+</style>
 
 <script>
 
@@ -32,5 +65,7 @@
   sakaiCalendar.setAspectRatio(aspectRatio);
   const scrollTime = '$scrollTime';
   sakaiCalendar.setScrollTime(scrollTime);
+
+  sakaiCalendar.initToolbarToggle(document.getElementById('calendarToolbarToggle'), document.getElementById('calendarToolbarCollapse'));
 
 </script>
