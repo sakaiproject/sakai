@@ -15,7 +15,38 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
+import static org.mockito.Mockito.mock;
+
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class WebApiTestConfiguration { }
+public class WebApiTestConfiguration {
+
+    @Bean
+    public PortalService portalService() {
+        return mock(PortalService.class);
+    }
+
+    @Bean
+    @Qualifier("org.sakaiproject.tool.api.SessionManager")
+    public SessionManager sessionManager() {
+        return mock(SessionManager.class);
+    }
+
+    @Bean
+    public SiteService siteService() {
+        return mock(SiteService.class);
+    }
+
+    @Bean
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
+    }
+}

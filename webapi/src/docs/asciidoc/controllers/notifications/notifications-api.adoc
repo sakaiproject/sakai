@@ -1,0 +1,108 @@
+== Notifications
+
+__See the login api about session cookies__
+
+=== GET /api/users/me/notifications
+Returns notifications for the currently authenticated user
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-user-notifications/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns an array of notifications.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-user-notifications/response-body.adoc[]
+
+=== POST /api/users/me/notifications/{id}/clear
+Clears the notification with id {id}, for the currently authenticated user
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+|===
+
+==== Example Request
+include::{snippets}/clear-user-notification/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Notification was cleared.
+| 401 Unauthorized | Error | User is not authenticated.
+| 500 Internal Server Error | Error | Notification could not be cleared.
+|===
+
+=== POST /api/users/me/notifications/clear
+Clears all the notifications for the currently authenticated user
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+|===
+
+==== Example Request
+include::{snippets}/clear-user-notifications/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Notifications were cleared.
+| 401 Unauthorized | Error | User is not authenticated.
+| 500 Internal Server Error | Error | Notifications could not be cleared.
+|===
+
+=== POST /api/users/me/notifications/markViewed
+Marks notifications as viewed. You can supply a siteId and toolId to just mark those notifications
+as viewed
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes | application/x-www-form-urlencoded
+|===
+
+==== Example Request
+include::{snippets}/mark-user-notifications-viewed/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Notifications were marked as viewed.
+| 401 Unauthorized | Error | User is not authenticated.
+| 500 Internal Server Error | Error | Notifications could not be marked as viewed.
+|===
+
+=== POST /api/users/me/notifications/test
+Requests a test notification. This will use Sakai's push service to push a notification to your
+browser. Not really much use via Curl but is just here for completeness.
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+|===
+
+==== Example Request
+include::{snippets}/send-test-notification/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Test notification was requested.
+| 401 Unauthorized | Error | User is not authenticated.
+|===
