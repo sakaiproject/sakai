@@ -7,6 +7,7 @@ package org.sakaiproject.sitestats.impl.view;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +19,7 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 
 	private static final long PREVIEW_TTL_MILLIS = 30L * 60L * 1000L;
 
-	private final Map<String, PreviewReport> previews = new ConcurrentHashMap<String, PreviewReport>();
+	private final Map<PreviewKey, PreviewReport> previews = new ConcurrentHashMap<PreviewKey, PreviewReport>();
 
 	@Override
 	public String register(String siteId, String userId, ReportDef reportDef) {
@@ -27,7 +28,8 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 		}
 		cleanupExpired();
 		String previewId = UUID.randomUUID().toString();
-		previews.put(previewId, new PreviewReport(siteId, userId, reportDef, System.currentTimeMillis() + PREVIEW_TTL_MILLIS));
+		PreviewKey key = new PreviewKey(siteId, userId, previewId);
+		previews.put(key, new PreviewReport(new ReportDef(reportDef, siteId), System.currentTimeMillis() + PREVIEW_TTL_MILLIS));
 		return previewId;
 	}
 
@@ -37,52 +39,66 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 			return null;
 		}
 		cleanupExpired();
-		PreviewReport preview = previews.get(previewId);
+		PreviewKey key = new PreviewKey(siteId, userId, previewId);
+		PreviewReport preview = previews.get(key);
 		if (preview == null) {
 			return null;
 		}
 		if (preview.isExpired()) {
-			previews.remove(previewId);
+			previews.remove(key);
 			return null;
 		}
-		if (!StringUtils.equals(siteId, preview.getSiteId())) {
-			return null;
-		}
-		if (!StringUtils.equals(userId, preview.getOwnerId())) {
-			return null;
-		}
-		return preview.getReportDef();
+		return new ReportDef(preview.getReportDef(), siteId);
 	}
 
 	private void cleanupExpired() {
-		Iterator<Map.Entry<String, PreviewReport>> iterator = previews.entrySet().iterator();
+		Iterator<Map.Entry<PreviewKey, PreviewReport>> iterator = previews.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, PreviewReport> entry = iterator.next();
+			Map.Entry<PreviewKey, PreviewReport> entry = iterator.next();
 			if (entry.getValue().isExpired()) {
 				iterator.remove();
 			}
 		}
 	}
 
-	private static class PreviewReport {
+	private static class PreviewKey {
 		private final String siteId;
 		private final String ownerId;
+		private final String previewId;
+
+		private PreviewKey(String siteId, String ownerId, String previewId) {
+			this.siteId = siteId;
+			this.ownerId = ownerId;
+			this.previewId = previewId;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof PreviewKey)) {
+				return false;
+			}
+			PreviewKey other = (PreviewKey) obj;
+			return StringUtils.equals(siteId, other.siteId)
+					&& StringUtils.equals(ownerId, other.ownerId)
+					&& StringUtils.equals(previewId, other.previewId);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(siteId, ownerId, previewId);
+		}
+	}
+
+	private static class PreviewReport {
 		private final ReportDef reportDef;
 		private final long expiresAt;
 
-		private PreviewReport(String siteId, String ownerId, ReportDef reportDef, long expiresAt) {
-			this.siteId = siteId;
-			this.ownerId = ownerId;
+		private PreviewReport(ReportDef reportDef, long expiresAt) {
 			this.reportDef = reportDef;
 			this.expiresAt = expiresAt;
-		}
-
-		private String getSiteId() {
-			return siteId;
-		}
-
-		private String getOwnerId() {
-			return ownerId;
 		}
 
 		private ReportDef getReportDef() {

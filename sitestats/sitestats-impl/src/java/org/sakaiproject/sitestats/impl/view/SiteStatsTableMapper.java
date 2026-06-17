@@ -3,15 +3,20 @@
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
-package org.sakaiproject.sitestats.api.view;
+package org.sakaiproject.sitestats.impl.view;
 
 import java.util.List;
 
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsTableCell;
+import org.sakaiproject.sitestats.api.view.SiteStatsTableColumn;
 
 /**
- * Maps SiteStats report rows into stable presentation columns and cells.
+ * Internal mapper for converting SiteStats report rows into stable JSON view cells.
+ *
+ * Raw SiteStats domain types stay inside sitestats-impl; public view APIs expose
+ * only the DTOs produced by this mapper.
  */
 public interface SiteStatsTableMapper {
 

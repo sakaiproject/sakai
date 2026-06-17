@@ -8,7 +8,9 @@ package org.sakaiproject.sitestats.impl.view;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +37,6 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableCell;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableColumn;
-import org.sakaiproject.sitestats.api.view.SiteStatsTableMapper;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -54,11 +55,12 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 	@Setter private UserTimeService userTimeService;
 
 	private ResourceLoader messages = new ResourceLoader("Messages");
+	private Map<String, ColumnDefinition> definitionsByKey;
 
 	@Override
 	public List<SiteStatsTableColumn> getColumns(ReportParams reportParams, boolean sortable) {
 		List<SiteStatsTableColumn> columns = new ArrayList<SiteStatsTableColumn>();
-		for (ColumnDefinition definition : definitions()) {
+		for (ColumnDefinition definition : definitionsByKey().values()) {
 			if (reportManager.isReportColumnAvailable(reportParams, definition.reportParamKey)) {
 				columns.add(toColumn(definition, sortable));
 			}
@@ -95,80 +97,87 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 			}
 			return (Number) raw;
 		}
-		return Long.valueOf(stat.getCount());
+		throw new IllegalArgumentException("Column is not numeric: " + key);
 	}
 
-	private List<ColumnDefinition> definitions() {
-		List<ColumnDefinition> definitions = new ArrayList<ColumnDefinition>();
-		definitions.add(column(StatsManager.T_SITE, StatsManager.T_SITE, "th_site", "text", null, StatsManager.T_SITE,
+	private Map<String, ColumnDefinition> definitionsByKey() {
+		if (definitionsByKey == null) {
+			Map<String, ColumnDefinition> definitions = new LinkedHashMap<String, ColumnDefinition>();
+			addDefinition(definitions, column(StatsManager.T_SITE, StatsManager.T_SITE, "th_site", "text", null, StatsManager.T_SITE,
 				stat -> stat.getSiteId(),
 				(stat, raw) -> siteTitle(asString(raw)),
 				this::decorateSite));
-		definitions.add(column(USER_ID, StatsManager.T_USER, "th_id", "text", null, StatsManager.T_USER,
+			addDefinition(definitions, column(USER_ID, StatsManager.T_USER, "th_id", "text", null, StatsManager.T_USER,
 				stat -> stat.getUserId(),
 				(stat, raw) -> userDisplayId(asString(raw)),
 				null));
-		definitions.add(column(StatsManager.T_USER, StatsManager.T_USER, "th_user", "text", null, SORT_USER_NAME,
+			addDefinition(definitions, column(StatsManager.T_USER, StatsManager.T_USER, "th_user", "text", null, SORT_USER_NAME,
 				stat -> stat.getUserId(),
 				(stat, raw) -> userDisplayName(asString(raw)),
 				null));
-		definitions.add(column(StatsManager.T_TOOL, StatsManager.T_TOOL, "th_tool", "text", null, StatsManager.T_TOOL,
+			addDefinition(definitions, column(StatsManager.T_TOOL, StatsManager.T_TOOL, "th_tool", "text", null, StatsManager.T_TOOL,
 				stat -> stat instanceof EventStat ? ((EventStat) stat).getToolId() : null,
 				(stat, raw) -> toolName(asString(raw)),
 				this::decorateTool));
-		definitions.add(column(StatsManager.T_EVENT, StatsManager.T_EVENT, "th_event", "text", null, StatsManager.T_EVENT,
+			addDefinition(definitions, column(StatsManager.T_EVENT, StatsManager.T_EVENT, "th_event", "text", null, StatsManager.T_EVENT,
 				stat -> stat instanceof EventStat ? ((EventStat) stat).getEventId() : null,
 				(stat, raw) -> eventName(asString(raw)),
 				this::decorateEvent));
-		definitions.add(column(StatsManager.T_RESOURCE, StatsManager.T_RESOURCE, "th_resource", "link", null, StatsManager.T_RESOURCE,
+			addDefinition(definitions, column(StatsManager.T_RESOURCE, StatsManager.T_RESOURCE, "th_resource", "link", null, StatsManager.T_RESOURCE,
 				stat -> stat instanceof ResourceStat ? ((ResourceStat) stat).getResourceRef() : null,
 				(stat, raw) -> resourceName(asString(raw)),
 				this::decorateResource));
-		definitions.add(column(StatsManager.T_RESOURCE_ACTION, StatsManager.T_RESOURCE_ACTION, "th_action", "text", null, StatsManager.T_RESOURCE_ACTION,
+			addDefinition(definitions, column(StatsManager.T_RESOURCE_ACTION, StatsManager.T_RESOURCE_ACTION, "th_action", "text", null, StatsManager.T_RESOURCE_ACTION,
 				stat -> stat instanceof ResourceStat ? ((ResourceStat) stat).getResourceAction() : null,
 				(stat, raw) -> actionName(asString(raw)),
 				null));
-		definitions.add(column(StatsManager.T_PAGE, StatsManager.T_PAGE, "th_page", "text", null, StatsManager.T_PAGE,
+			addDefinition(definitions, column(StatsManager.T_PAGE, StatsManager.T_PAGE, "th_page", "text", null, StatsManager.T_PAGE,
 				stat -> stat instanceof LessonBuilderStat ? ((LessonBuilderStat) stat).getPageRef() : null,
 				this::pageTitle,
 				null));
-		definitions.add(column(StatsManager.T_PAGE_ACTION, StatsManager.T_PAGE_ACTION, "th_action", "text", null, StatsManager.T_PAGE_ACTION,
+			addDefinition(definitions, column(StatsManager.T_PAGE_ACTION, StatsManager.T_PAGE_ACTION, "th_action", "text", null, StatsManager.T_PAGE_ACTION,
 				stat -> stat instanceof LessonBuilderStat ? ((LessonBuilderStat) stat).getPageAction() : null,
 				(stat, raw) -> actionName(asString(raw)),
 				null));
-		definitions.add(column(StatsManager.T_DATE, StatsManager.T_DATE, "th_date", "date", null, StatsManager.T_DATE,
+			addDefinition(definitions, column(StatsManager.T_DATE, StatsManager.T_DATE, "th_date", "date", null, StatsManager.T_DATE,
 				Stat::getDate,
 				(stat, raw) -> dateDisplay((Date) raw),
 				null));
-		definitions.add(column(StatsManager.T_DATEMONTH, StatsManager.T_DATEMONTH, "th_date", "date", null, StatsManager.T_DATE,
+			addDefinition(definitions, column(StatsManager.T_DATEMONTH, StatsManager.T_DATEMONTH, "th_date", "date", null, StatsManager.T_DATE,
 				Stat::getDate,
 				(stat, raw) -> new SimpleDateFormat("yyyy-MM", currentLocale()).format((Date) raw),
 				null));
-		definitions.add(column(StatsManager.T_DATEYEAR, StatsManager.T_DATEYEAR, "th_date", "date", null, StatsManager.T_DATE,
+			addDefinition(definitions, column(StatsManager.T_DATEYEAR, StatsManager.T_DATEYEAR, "th_date", "date", null, StatsManager.T_DATE,
 				Stat::getDate,
 				(stat, raw) -> new SimpleDateFormat("yyyy", currentLocale()).format((Date) raw),
 				null));
-		definitions.add(column(StatsManager.T_LASTDATE, StatsManager.T_LASTDATE, "th_lastdate", "date", null, StatsManager.T_DATE,
+			addDefinition(definitions, column(StatsManager.T_LASTDATE, StatsManager.T_LASTDATE, "th_lastdate", "date", null, StatsManager.T_DATE,
 				Stat::getDate,
 				(stat, raw) -> dateDisplay((Date) raw),
 				null));
-		definitions.add(column(StatsManager.T_TOTAL, StatsManager.T_TOTAL, "th_total", "number", "end", StatsManager.T_TOTAL,
+			addDefinition(definitions, column(StatsManager.T_TOTAL, StatsManager.T_TOTAL, "th_total", "number", "end", StatsManager.T_TOTAL,
 				stat -> Long.valueOf(stat.getCount()),
 				(stat, raw) -> String.valueOf(raw),
 				null));
-		definitions.add(column(StatsManager.T_VISITS, StatsManager.T_VISITS, "th_visits", "number", "end", StatsManager.T_VISITS,
+			addDefinition(definitions, column(StatsManager.T_VISITS, StatsManager.T_VISITS, "th_visits", "number", "end", StatsManager.T_VISITS,
 				stat -> stat instanceof SiteVisits ? Long.valueOf(((SiteVisits) stat).getTotalVisits()) : Long.valueOf(stat.getCount()),
 				(stat, raw) -> String.valueOf(raw),
 				null));
-		definitions.add(column(StatsManager.T_UNIQUEVISITS, StatsManager.T_UNIQUEVISITS, "th_uniquevisitors", "number", "end", StatsManager.T_UNIQUEVISITS,
+			addDefinition(definitions, column(StatsManager.T_UNIQUEVISITS, StatsManager.T_UNIQUEVISITS, "th_uniquevisitors", "number", "end", StatsManager.T_UNIQUEVISITS,
 				stat -> stat instanceof SiteVisits ? Long.valueOf(((SiteVisits) stat).getTotalUnique()) : Long.valueOf(stat.getCount()),
 				(stat, raw) -> String.valueOf(raw),
 				null));
-		definitions.add(column(StatsManager.T_DURATION, StatsManager.T_DURATION, "th_duration", "number", "end", StatsManager.T_DURATION,
+			addDefinition(definitions, column(StatsManager.T_DURATION, StatsManager.T_DURATION, "th_duration", "number", "end", StatsManager.T_DURATION,
 				stat -> stat instanceof SitePresence ? Long.valueOf(((SitePresence) stat).getDuration()) : Long.valueOf(stat.getCount()),
 				(stat, raw) -> durationDisplay((Number) raw),
 				null));
-		return definitions;
+			definitionsByKey = Collections.unmodifiableMap(definitions);
+		}
+		return definitionsByKey;
+	}
+
+	private void addDefinition(Map<String, ColumnDefinition> definitions, ColumnDefinition definition) {
+		definitions.put(definition.key, definition);
 	}
 
 	private ColumnDefinition column(String key, String reportParamKey, String labelKey, String type, String align, String sortKey,
@@ -177,15 +186,11 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 	}
 
 	private ColumnDefinition definitionFor(String key) {
-		for (ColumnDefinition definition : definitions()) {
-			if (definition.key.equals(key)) {
-				return definition;
-			}
+		ColumnDefinition definition = definitionsByKey().get(key);
+		if (definition == null) {
+			throw new IllegalArgumentException("Unsupported SiteStats table column: " + key);
 		}
-		return column(key, key, "th_total", "number", "end", StatsManager.T_TOTAL,
-				stat -> Long.valueOf(stat.getCount()),
-				(stat, raw) -> String.valueOf(raw),
-				null);
+		return definition;
 	}
 
 	private SiteStatsTableColumn toColumn(ColumnDefinition definition, boolean sortable) {

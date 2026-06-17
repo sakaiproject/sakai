@@ -13,7 +13,6 @@
         <property name="chartService" ref="org.sakaiproject.sitestats.api.chart.ChartService" />
         <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
         <property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService" />
-        <property name="siteStatsTableMapper" ref="org.sakaiproject.sitestats.api.view.SiteStatsTableMapper" />
         <property name="siteStatsViewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsViewService" />
         <property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService" />
         <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager" />
