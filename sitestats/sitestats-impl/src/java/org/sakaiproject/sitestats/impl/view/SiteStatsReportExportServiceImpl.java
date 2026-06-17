@@ -52,7 +52,7 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 			siteStatsReportAccess.assertCanViewAll(siteId);
 			siteStatsReportAccess.persistedReportDefinition(reportId);
 			return true;
-		} catch (RuntimeException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			return false;
 		}
 	}
@@ -63,7 +63,7 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 			siteStatsReportAccess.assertCanViewAll(siteId);
 			siteStatsReportAccess.previewReportDefinition(siteId, previewId);
 			return true;
-		} catch (RuntimeException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			return false;
 		}
 	}
@@ -75,7 +75,7 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 			siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId,
 					siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null);
 			return true;
-		} catch (RuntimeException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			return false;
 		}
 	}

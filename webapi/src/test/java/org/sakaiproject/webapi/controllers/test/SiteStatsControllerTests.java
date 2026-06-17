@@ -188,6 +188,29 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/reports/42?include=chart&page=2&pageSize=25"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.siteId", is(SITE_ID)));
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getReport(eq(SITE_ID), eq(42L), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals(2, request.getPage());
+		org.junit.Assert.assertEquals(25, request.getPageSize());
+		org.junit.Assert.assertEquals(false, request.isIncludeTable());
+		org.junit.Assert.assertEquals(true, request.isIncludeChart());
+	}
+
+	@Test
+	public void getReportCapsPageSizeAtApiBoundary() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		when(siteStatsViewService.getReport(eq(SITE_ID), eq(42L), any(SiteStatsReportRequest.class))).thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/reports/42?pageSize=1000"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.siteId", is(SITE_ID)));
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getReport(eq(SITE_ID), eq(42L), captor.capture());
+		org.junit.Assert.assertEquals(SiteStatsReportRequest.MAX_PAGE_SIZE, captor.getValue().getPageSize());
 	}
 
 	@Test

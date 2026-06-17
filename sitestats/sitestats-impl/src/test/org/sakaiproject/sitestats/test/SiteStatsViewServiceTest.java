@@ -20,9 +20,11 @@ import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_EVENTS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 
@@ -292,15 +294,36 @@ public class SiteStatsViewServiceTest {
 	}
 
 	@Test
-	public void requestNormalizationDoesNotMutateCallerObject() {
+	public void getWidgetMetricReturnsFocusedMetricMetadata() {
+		SiteStatsWidgetMetric metric = service.getWidgetMetric(SITE_ID, WIDGET_VISITS, METRIC_VISITS_TOTAL);
+
+		assertEquals(METRIC_VISITS_TOTAL, metric.getId());
+		assertEquals(AUDIENCE_ALL, metric.getAudience());
+		assertNotNull(metric.getWidgetTitle());
+		assertFalse(metric.getWidgetTitle().isEmpty());
+		assertTrue(metric.isReportable());
+	}
+
+	@Test
+	public void lessonMetricsAreExplicitlyNonReportable() {
+		when(statsManager.isEnableLessonsStats()).thenReturn(true);
+
+		List<SiteStatsWidgetMetric> metrics = service.getWidgetMetrics(SITE_ID, WIDGET_LESSONS);
+
+		assertEquals(METRIC_LESSONS_PAGES, metrics.get(0).getId());
+		assertFalse(metrics.get(0).isReportable());
+	}
+
+	@Test
+	public void reportRequestCapsPageSizeAtApiBoundary() {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setIncludeChart(false);
 		request.setPageSize(1000);
 
 		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, request);
 
-		assertEquals(500, view.getTable().getPageSize());
-		assertEquals(1000, request.getPageSize());
+		assertEquals(SiteStatsReportRequest.MAX_PAGE_SIZE, request.getPageSize());
+		assertEquals(SiteStatsReportRequest.MAX_PAGE_SIZE, view.getTable().getPageSize());
 	}
 
 	@Test

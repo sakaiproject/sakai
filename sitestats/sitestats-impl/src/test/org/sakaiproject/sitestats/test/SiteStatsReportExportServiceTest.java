@@ -16,7 +16,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_EVENTS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +46,7 @@ public class SiteStatsReportExportServiceTest {
 	private static final String OTHER_USER_ID = "user-b";
 
 	private StatsAuthz statsAuthz;
+	private StatsManager statsManager;
 	private ReportManager reportManager;
 	private SiteStatsReportPreviewServiceImpl previewService;
 	private SiteStatsReportExportServiceImpl service;
@@ -51,7 +54,7 @@ public class SiteStatsReportExportServiceTest {
 	@Before
 	public void setUp() {
 		statsAuthz = mock(StatsAuthz.class);
-		StatsManager statsManager = mock(StatsManager.class);
+		statsManager = mock(StatsManager.class);
 		reportManager = mock(ReportManager.class);
 		SiteStatsToolEventsService siteStatsToolEventsService = mock(SiteStatsToolEventsService.class);
 		EventRegistryService eventRegistryService = mock(EventRegistryService.class);
@@ -128,6 +131,13 @@ public class SiteStatsReportExportServiceTest {
 
 		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
 		assertFalse(service.canExportWidgetMetricReport(SITE_ID, WIDGET_ACTIVITY, METRIC_ACTIVITY_EVENTS));
+	}
+
+	@Test
+	public void canExportWidgetMetricReportRejectsNonReportableLessonMetrics() {
+		when(statsManager.isEnableLessonsStats()).thenReturn(true);
+
+		assertFalse(service.canExportWidgetMetricReport(SITE_ID, WIDGET_LESSONS, METRIC_LESSONS_PAGES));
 	}
 
 	private ReportDef storedReport(String siteId) {

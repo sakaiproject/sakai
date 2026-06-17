@@ -39,17 +39,22 @@ public class SiteStatsReportViewMapper {
 
 	public SiteStatsReportView mapReportView(String siteId, Report report, SiteStatsReportRequest request, PrefsData prefsData) {
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
-		SiteStatsReportView view = new SiteStatsReportView();
-		view.setSiteId(siteId);
-		view.setPresentationMode(report.getReportDefinition().getReportParams().getHowPresentationMode());
-		if (report.getReportGenerationDate() != null) {
-			view.setGeneratedOn(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, currentLocale()).format(report.getReportGenerationDate()));
-		}
+		SiteStatsReportView view = mapReportShell(siteId, report);
 		if (safeRequest.isIncludeTable()) {
 			view.setTable(mapTable(report, safeRequest));
 		}
 		if (safeRequest.isIncludeChart()) {
 			view.setChart(mapChart(report, prefsData));
+		}
+		return view;
+	}
+
+	public SiteStatsReportView mapReportShell(String siteId, Report report) {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(siteId);
+		view.setPresentationMode(report.getReportDefinition().getReportParams().getHowPresentationMode());
+		if (report.getReportGenerationDate() != null) {
+			view.setGeneratedOn(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, currentLocale()).format(report.getReportGenerationDate()));
 		}
 		return view;
 	}
