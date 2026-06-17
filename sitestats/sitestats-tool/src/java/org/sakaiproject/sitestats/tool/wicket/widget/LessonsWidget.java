@@ -18,6 +18,11 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_PAGE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,12 +31,7 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
-import org.sakaiproject.sitestats.api.report.ReportDef;
-import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -44,8 +44,6 @@ public class LessonsWidget extends Panel {
 
     /** The site id. */
     private String                  siteId              = null;
-    private PrefsData               prefsdata           = null;
-
     private int                     totalPages          = -1;
 
     /**
@@ -92,7 +90,7 @@ public class LessonsWidget extends Panel {
 
         // Final Widget object
         String title = (String) new ResourceModel("overview_title_lessonpages").getObject();
-        Widget widget = new Widget("widget", "sakai-gradebook-tool", title, widgetMiniStats, tabs, siteId);
+        Widget widget = new Widget("widget", WIDGET_LESSONS, "sakai-gradebook-tool", title, widgetMiniStats, tabs, siteId);
         add(widget);
     }
 
@@ -122,10 +120,6 @@ public class LessonsWidget extends Panel {
             @Override
             public String getLabel() {
                 return (String) new ResourceModel("overview_title_pages_sum").getObject();
-            }
-            @Override
-            public ReportDef getReportDefinition() {
-                return null;
             }
         };
     }
@@ -182,10 +176,6 @@ public class LessonsWidget extends Panel {
                 return totalDistinctPageReads;
             }
 
-            @Override
-            public ReportDef getReportDefinition() {
-                return null;
-            }
         };
     }
 
@@ -233,9 +223,6 @@ public class LessonsWidget extends Panel {
                 return (String) new ResourceModel("overview_title_mostreadpage_sum").getObject();
             }
 
-            public ReportDef getReportDefinition() {
-                return null;
-            }
         };
     }
 
@@ -305,17 +292,13 @@ public class LessonsWidget extends Panel {
                 return (String) new ResourceModel("overview_title_userreadmorepage_sum").getObject();
             }
 
-            @Override
-            public ReportDef getReportDefinition() {
-                return null;
-            }
         };
     }
 
     /** WidgetTab: By date */
     protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
 
-        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, "lessons", "bydate") {
+        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, WIDGET_LESSONS, TAB_BY_DATE) {
             private static final long   serialVersionUID    = 1L;
 
             @Override
@@ -327,7 +310,7 @@ public class LessonsWidget extends Panel {
 
     /** WidgetTab: By user */
     protected WidgetTabTemplate getWidgetTabByUser(String panelId) {
-        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, "lessons", "byuser") {
+        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, WIDGET_LESSONS, TAB_BY_USER) {
             private static final long   serialVersionUID    = 1L;
 
             @Override
@@ -340,7 +323,7 @@ public class LessonsWidget extends Panel {
     /** WidgetTab: By page */
     protected WidgetTabTemplate getWidgetTabByPage(String panelId) {
 
-        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, "lessons", "bypage") {
+        return new WidgetTabTemplate(panelId, LessonsWidget.this.siteId, WIDGET_LESSONS, TAB_BY_PAGE) {
 
             private static final long   serialVersionUID    = 1L;
 
@@ -349,14 +332,6 @@ public class LessonsWidget extends Panel {
                 return Arrays.asList(FILTER_DATE, FILTER_ROLE, FILTER_LESSON_ACTION);
             }
         };
-    }
-
-    private PrefsData getPrefsdata() {
-
-        if (prefsdata == null) {
-            prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, true);
-        }
-        return prefsdata;
     }
 
     /** Return total (existent) files (excluding collections). */

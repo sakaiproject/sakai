@@ -19,7 +19,6 @@
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
 import org.apache.wicket.Page;
-import org.sakaiproject.sitestats.api.report.ReportDef;
 
 /** Mini stat class for displaying a single link in the widget top bar. */
 public abstract class WidgetMiniStatLink extends WidgetMiniStat {
@@ -49,9 +48,4 @@ public abstract class WidgetMiniStatLink extends WidgetMiniStat {
 		return null;
 	}
 	
-	@Override
-	public ReportDef getReportDefinition() {
-		return null;
-	}
-
 }

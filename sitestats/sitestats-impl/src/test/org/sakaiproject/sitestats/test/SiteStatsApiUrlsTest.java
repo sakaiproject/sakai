@@ -60,4 +60,24 @@ public class SiteStatsApiUrlsTest {
 		assertEquals("/api/sites/site1/sitestats/widgets/visits/tabs/bydate?include=table&page=1&pageSize=50"
 				+ "&date=when-last7days&role=who-all&tool=all", url);
 	}
+
+	@Test
+	public void widgetMetricsBuildsStableApiUrl() {
+		String url = SiteStatsApiUrls.widgetMetrics("site/1", "student-visits");
+
+		assertEquals("/api/sites/site%2F1/sitestats/widgets/student-visits/metrics", url);
+	}
+
+	@Test
+	public void widgetMetricReportBuildsStableApiUrl() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setIncludeTable(false);
+		request.setPage(3);
+		request.setPageSize(10);
+
+		String url = SiteStatsApiUrls.widgetMetricReport("site 1", "activity", "activity-most-active-tool", request);
+
+		assertEquals("/api/sites/site+1/sitestats/widgets/activity/metrics/activity-most-active-tool"
+				+ "?include=chart&page=3&pageSize=10", url);
+	}
 }

@@ -46,9 +46,7 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilterOption;
-import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
-import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
@@ -276,16 +274,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			return Optional.empty();
 		}
 		try {
-			SiteStatsOverview overview = Locator.getFacade().getSiteStatsViewService().getOverview(siteId);
-			for (SiteStatsWidget widget : overview.getWidgets()) {
-				if (widgetId.equals(widget.getId())) {
-					for (SiteStatsWidgetTab tab : widget.getTabs()) {
-						if (tabId.equals(tab.getId())) {
-							return Optional.of(tab);
-						}
-					}
-				}
-			}
+			return Optional.of(Locator.getFacade().getSiteStatsViewService().getWidgetTab(siteId, widgetId, tabId));
 		} catch (Exception e) {
 			log.debug("Unable to load SiteStats widget metadata for {}/{} in {}", widgetId, tabId, siteId, e);
 		}

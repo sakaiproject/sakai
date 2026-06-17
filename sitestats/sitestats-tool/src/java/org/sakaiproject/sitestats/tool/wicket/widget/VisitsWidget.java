@@ -18,6 +18,15 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_AVERAGE_PRESENCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_UNIQUE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_USERS_WITHOUT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_USERS_WITH_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -112,7 +121,7 @@ public class VisitsWidget extends Panel {
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
 		if (siteStatsAll) {
-			add(new Widget("widget", "sakai-singleuser", title, widgetMiniStats, tabs, siteId));
+			add(new Widget("widget", WIDGET_VISITS, "sakai-singleuser", title, widgetMiniStats, tabs, siteId));
 		} else {
 			add(new StudentVisitsWidget("widget", widgetMiniStats));
 		}
@@ -148,32 +157,8 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_visits_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				rp.setWhat(ReportManager.WHAT_VISITS_TOTALS);
-				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_DATE);
-				totalsBy.add(StatsManager.T_VISITS);
-				totalsBy.add(StatsManager.T_UNIQUEVISITS);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				rp.setHowSortBy(StatsManager.T_DATE);
-				rp.setHowSortAscending(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
-				rp.setHowChartSource(StatsManager.T_DATE);
-				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_VISITS_TOTAL;
 			}
 		};
 	}
@@ -207,32 +192,8 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_unique_visits_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				rp.setWhat(ReportManager.WHAT_VISITS_TOTALS);
-				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_DATE);
-				totalsBy.add(StatsManager.T_VISITS);
-				totalsBy.add(StatsManager.T_UNIQUEVISITS);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				rp.setHowSortBy(StatsManager.T_DATE);
-				rp.setHowSortAscending(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
-				rp.setHowChartSource(StatsManager.T_DATE);
-				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_VISITS_UNIQUE;
 			}
 		};
 	}
@@ -266,7 +227,7 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_enrolled_users_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
+			public String getReportMetricId() {
 				return null;
 			}
 		};
@@ -313,24 +274,8 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_enrolled_users_with_visits_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				rp.setWhat(ReportManager.WHAT_VISITS);
-				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_USER);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_VISITS_USERS_WITH_VISITS;
 			}
 		};
 	}
@@ -377,24 +322,8 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_enrolled_users_without_visits_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				rp.setWhat(ReportManager.WHAT_VISITS);
-				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_NONE);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_USER);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_VISITS_USERS_WITHOUT_VISITS;
 			}
 		};
 	}
@@ -445,31 +374,8 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_presence_time_avg").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				rp.setWhat(ReportManager.WHAT_PRESENCES);
-				rp.setWhen(ReportManager.WHEN_ALL);
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_DATE);
-				totalsBy.add(StatsManager.T_USER);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				rp.setHowSortBy(StatsManager.T_DATE);
-				rp.setHowSortAscending(false);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
-				rp.setHowChartSource(StatsManager.T_DATE);
-				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_VISITS_AVERAGE_PRESENCE;
 			}
 			
 			private double getTotalTimeInSiteInMs() {
@@ -547,7 +453,7 @@ public class VisitsWidget extends Panel {
 				return (String) new ResourceModel("overview_title_visits_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
+			public String getReportMetricId() {
 				return null;
 			}
 		};
@@ -591,7 +497,7 @@ public class VisitsWidget extends Panel {
 				else return (String) new ResourceModel("overview_title_presence_time").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
+			public String getReportMetricId() {
 				return null;
 			}
 			private long getTotalTimeInSiteInMs() {
@@ -639,7 +545,7 @@ public class VisitsWidget extends Panel {
 
 	/** WidgetTab: By date */
 	protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
-		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, "visits", "bydate") {
+		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, WIDGET_VISITS, TAB_BY_DATE) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
@@ -651,7 +557,7 @@ public class VisitsWidget extends Panel {
 
 	/** WidgetTab: By user */
 	protected WidgetTabTemplate getWidgetTabByUser(String panelId) {
-		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, "visits", "byuser") {
+		return new WidgetTabTemplate(panelId, VisitsWidget.this.siteId, WIDGET_VISITS, TAB_BY_USER) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override

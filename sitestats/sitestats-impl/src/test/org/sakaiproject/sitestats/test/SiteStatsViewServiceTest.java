@@ -17,11 +17,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_EVENTS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Before;
@@ -47,9 +56,12 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
@@ -91,6 +103,7 @@ public class SiteStatsViewServiceTest {
 
 		when(statsAuthz.isUserAbleToViewSiteStats(SITE_ID)).thenReturn(true);
 		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(true);
+		when(statsAuthz.isUserAbleToViewSiteStatsOwn(SITE_ID)).thenReturn(true);
 		when(statsManager.getPreferences(eq(SITE_ID), anyBoolean())).thenReturn(new PrefsData());
 		when(statsManager.isEventContextSupported()).thenReturn(true);
 		when(userTimeService.shortLocalizedDate(any(), any(Locale.class))).thenReturn("6/17/26");
@@ -117,9 +130,14 @@ public class SiteStatsViewServiceTest {
 
 		previewService = new SiteStatsReportPreviewServiceImpl();
 
+		SiteStatsChartMapper chartMapper = new SiteStatsChartMapper();
+		chartMapper.setSiteStatsTableMapper(tableMapper);
+		SiteStatsReportSummaryMapper summaryMapper = new SiteStatsReportSummaryMapper();
+		summaryMapper.setReportManager(reportManager);
 		SiteStatsReportViewMapper viewMapper = new SiteStatsReportViewMapper();
-		viewMapper.setReportManager(reportManager);
 		viewMapper.setSiteStatsTableMapper(tableMapper);
+		viewMapper.setSiteStatsChartMapper(chartMapper);
+		viewMapper.setSiteStatsReportSummaryMapper(summaryMapper);
 
 		SiteStatsWidgetCatalog widgetCatalog = new SiteStatsWidgetCatalog();
 		widgetCatalog.setStatsManager(statsManager);
@@ -175,6 +193,20 @@ public class SiteStatsViewServiceTest {
 	}
 
 	@Test
+	public void getWidgetTabReturnsFocusedMetadataWithoutFullOverviewLookup() {
+		SiteStatsWidgetTab tab = service.getWidgetTab(SITE_ID, WIDGET_STUDENT_VISITS, TAB_BY_DATE);
+
+		assertEquals(TAB_BY_DATE, tab.getId());
+		assertNotNull(tab.getTitle());
+		assertFalse(tab.getTitle().isEmpty());
+		assertNotNull(tab.getWidgetTitle());
+		assertFalse(tab.getWidgetTitle().isEmpty());
+		assertEquals(1, tab.getFilters().size());
+		assertEquals("date", tab.getFilters().get(0).getId());
+		assertEquals(ReportManager.WHEN_ALL, tab.getFilters().get(0).getOptions().get(0).getValue());
+	}
+
+	@Test
 	public void getWidgetReportMapsTableAndChartData() {
 		PrefsData prefsData = new PrefsData();
 		prefsData.setChartIn3D(true);
@@ -185,7 +217,7 @@ public class SiteStatsViewServiceTest {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_LAST7DAYS);
 
-		SiteStatsReportView view = service.getWidgetReport(SITE_ID, "visits", "bydate", request);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, request);
 
 		assertNotNull(view.getTable());
 		assertEquals(1, view.getTable().getTotalRows());
@@ -197,6 +229,78 @@ public class SiteStatsViewServiceTest {
 		assertFalse(view.getChart().isItemLabelsVisible());
 		assertEquals(2, view.getChart().getDatasets().size());
 		assertEquals(3L, view.getChart().getDatasets().get(0).getPoints().get(0).getY().longValue());
+	}
+
+	@Test
+	public void getStudentVisitsByDateUsesCurrentUserOnly() {
+		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setIncludeChart(false);
+		request.setDate(ReportManager.WHEN_LAST30DAYS);
+
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_STUDENT_VISITS, TAB_BY_DATE, request);
+
+		assertEquals(WIDGET_STUDENT_VISITS, view.getWidgetId());
+		assertEquals(TAB_BY_DATE, view.getTabId());
+		ArgumentCaptor<ReportDef> captor = ArgumentCaptor.forClass(ReportDef.class);
+		verify(reportManager).getReport(captor.capture(), anyBoolean(), any(), eq(false));
+		ReportParams params = captor.getValue().getReportParams();
+		assertEquals(SITE_ID, params.getSiteId());
+		assertEquals(ReportManager.WHAT_EVENTS, params.getWhat());
+		assertEquals(Arrays.asList(StatsManager.SITEVISIT_EVENTID), params.getWhatEventIds());
+		assertEquals(ReportManager.WHO_CUSTOM, params.getWho());
+		assertEquals(Arrays.asList(USER_ID), params.getWhoUserIds());
+		assertEquals(ReportManager.WHEN_LAST30DAYS, params.getWhen());
+	}
+
+	@Test
+	public void getWidgetMetricReportUsesBackendMetricDefinition() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setIncludeChart(false);
+
+		SiteStatsReportView view = service.getWidgetMetricReport(SITE_ID, WIDGET_ACTIVITY, METRIC_ACTIVITY_MOST_ACTIVE_TOOL, request);
+
+		assertEquals(WIDGET_ACTIVITY, view.getWidgetId());
+		assertEquals(METRIC_ACTIVITY_MOST_ACTIVE_TOOL, view.getMetricId());
+		ArgumentCaptor<ReportDef> captor = ArgumentCaptor.forClass(ReportDef.class);
+		verify(reportManager).getReport(captor.capture(), anyBoolean(), any(), eq(false));
+		ReportParams params = captor.getValue().getReportParams();
+		assertEquals(ReportManager.WHAT_EVENTS, params.getWhat());
+		assertEquals(ReportManager.WHO_ALL, params.getWho());
+		assertEquals(Arrays.asList(StatsManager.T_TOOL), params.getHowTotalsBy());
+		assertEquals(StatsManager.T_TOOL, params.getHowSortBy());
+		assertEquals(ReportManager.HOW_PRESENTATION_BOTH, params.getHowPresentationMode());
+	}
+
+	@Test
+	public void getWidgetMetricReportRequiresAllPermissionForAllUserMetrics() {
+		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
+
+		assertThrows(SecurityException.class,
+				() -> service.getWidgetMetricReport(SITE_ID, WIDGET_ACTIVITY, METRIC_ACTIVITY_EVENTS, new SiteStatsReportRequest()));
+	}
+
+	@Test
+	public void getWidgetMetricsReturnsStableMetricMetadata() {
+		List<SiteStatsWidgetMetric> metrics = service.getWidgetMetrics(SITE_ID, WIDGET_VISITS);
+
+		assertEquals(METRIC_VISITS_TOTAL, metrics.get(0).getId());
+		assertEquals(AUDIENCE_ALL, metrics.get(0).getAudience());
+		assertNotNull(metrics.get(0).getWidgetTitle());
+		assertFalse(metrics.get(0).getWidgetTitle().isEmpty());
+		assertTrue(metrics.get(0).isReportable());
+	}
+
+	@Test
+	public void requestNormalizationDoesNotMutateCallerObject() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setIncludeChart(false);
+		request.setPageSize(1000);
+
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, request);
+
+		assertEquals(500, view.getTable().getPageSize());
+		assertEquals(1000, request.getPageSize());
 	}
 
 	@Test
@@ -215,7 +319,7 @@ public class SiteStatsViewServiceTest {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_LAST7DAYS);
 
-		SiteStatsReportView view = service.getWidgetReport(SITE_ID, "visits", "bydate", request);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, request);
 
 		assertEquals(1, view.getChart().getDatasets().get(0).getPoints().size());
 		assertEquals(7L, view.getChart().getDatasets().get(0).getPoints().get(0).getY().longValue());
@@ -283,7 +387,16 @@ public class SiteStatsViewServiceTest {
 	public void getWidgetReportRequiresAllPermissionForAllUserWidgets() {
 		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
 
-		assertThrows(SecurityException.class, () -> service.getWidgetReport(SITE_ID, "visits", "bydate", new SiteStatsReportRequest()));
+		assertThrows(SecurityException.class, () -> service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, new SiteStatsReportRequest()));
+	}
+
+	@Test
+	public void getReportRequiresBaseViewPermissionBeforeAllStats() {
+		when(statsAuthz.isUserAbleToViewSiteStats(SITE_ID)).thenReturn(false);
+		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(true);
+
+		assertThrows(SecurityException.class, () -> service.getReport(SITE_ID, 42, new SiteStatsReportRequest()));
+		verify(reportManager, never()).getReportDefinition(42);
 	}
 
 	@Test

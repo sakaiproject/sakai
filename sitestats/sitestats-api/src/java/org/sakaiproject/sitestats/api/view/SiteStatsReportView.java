@@ -17,6 +17,7 @@ public class SiteStatsReportView implements Serializable {
 	private Long reportId;
 	private String widgetId;
 	private String tabId;
+	private String metricId;
 	private String title;
 	private String presentationMode;
 	private String generatedOn;
@@ -54,6 +55,14 @@ public class SiteStatsReportView implements Serializable {
 
 	public void setTabId(String tabId) {
 		this.tabId = tabId;
+	}
+
+	public String getMetricId() {
+		return metricId;
+	}
+
+	public void setMetricId(String metricId) {
+		this.metricId = metricId;
 	}
 
 	public String getTitle() {

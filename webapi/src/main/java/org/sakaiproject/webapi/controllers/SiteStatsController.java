@@ -15,6 +15,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -105,6 +106,35 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		request.setLessonAction(lessonAction);
 		try {
 			return siteStatsViewService.getWidgetReport(siteId, widgetId, tabId, request);
+		} catch (SecurityException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+		}
+	}
+
+	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable String siteId, @PathVariable String widgetId) {
+		checkSakaiSession();
+		checkSite(siteId);
+		try {
+			return siteStatsViewService.getWidgetMetrics(siteId, widgetId);
+		} catch (SecurityException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+		}
+	}
+
+	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRIC_REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	public SiteStatsReportView getWidgetMetricReport(@PathVariable String siteId, @PathVariable String widgetId, @PathVariable String metricId,
+			@RequestParam(required = false) String include,
+			@RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "50") int pageSize) {
+		checkSakaiSession();
+		checkSite(siteId);
+		try {
+			return siteStatsViewService.getWidgetMetricReport(siteId, widgetId, metricId, request(include, page, pageSize));
 		} catch (SecurityException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 		} catch (IllegalArgumentException e) {

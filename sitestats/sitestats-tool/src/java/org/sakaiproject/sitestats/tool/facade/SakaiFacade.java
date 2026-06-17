@@ -30,6 +30,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -48,6 +49,7 @@ public interface SakaiFacade {
 	public ReportManager getReportManager();
 	public SiteStatsToolEventsService getSiteStatsToolEventsService();
 	public SiteStatsViewService getSiteStatsViewService();
+	public SiteStatsReportExportService getSiteStatsReportExportService();
 	public SiteStatsReportPreviewService getSiteStatsReportPreviewService();
 	public ChartService getChartService();
 	public StatsUpdateManager getStatsUpdateManager();

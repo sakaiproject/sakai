@@ -23,6 +23,23 @@ public class SiteStatsReportRequest implements Serializable {
 	private String resourceAction;
 	private String lessonAction;
 
+	public SiteStatsReportRequest() {
+	}
+
+	public SiteStatsReportRequest(SiteStatsReportRequest source) {
+		if (source != null) {
+			this.includeTable = source.includeTable;
+			this.includeChart = source.includeChart;
+			this.page = source.page;
+			this.pageSize = source.pageSize;
+			this.date = source.date;
+			this.role = source.role;
+			this.tool = source.tool;
+			this.resourceAction = source.resourceAction;
+			this.lessonAction = source.lessonAction;
+		}
+	}
+
 	public boolean isIncludeTable() {
 		return includeTable;
 	}

@@ -5,6 +5,23 @@ import fetchMock from "fetch-mock";
 
 describe("sakai-sitestats-chart tests", () => {
 
+  const chart = {
+    title: "Visits",
+    type: "bar",
+    xKey: "date",
+    yKey: "visits",
+    threeDimensional: true,
+    transparency: 0.4,
+    itemLabelsVisible: true,
+    datasets: [
+      {
+        key: "visits",
+        label: "Visits",
+        points: [{ x: "2026-06-17", label: "6/17/26", y: 3 }],
+      },
+    ],
+  };
+
   beforeEach(() => {
     window.sessionStorage.clear();
     window.sakai = undefined;
@@ -18,23 +35,6 @@ describe("sakai-sitestats-chart tests", () => {
 
   it("applies SiteStats chart preferences from the view contract", async () => {
 
-    const chart = {
-      title: "Visits",
-      type: "bar",
-      xKey: "date",
-      yKey: "visits",
-      threeDimensional: true,
-      transparency: 0.4,
-      itemLabelsVisible: true,
-      datasets: [
-        {
-          key: "visits",
-          label: "Visits",
-          points: [{ x: "2026-06-17", label: "6/17/26", y: 3 }],
-        },
-      ],
-    };
-
     const el = await fixture(html`<sakai-sitestats-chart .chart=${chart}></sakai-sitestats-chart>`);
     await waitUntil(() => el._chartInstance);
 
@@ -47,5 +47,18 @@ describe("sakai-sitestats-chart tests", () => {
     expect(el._chartInstance.config.options.layout.padding.top).to.equal(18);
     expect(plugins.some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.true;
     expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.exist;
+  });
+
+  it("can suppress the hidden table fallback when a semantic table is already rendered", async () => {
+
+    const el = await fixture(html`
+      <sakai-sitestats-chart
+          .chart=${chart}
+          .renderTableFallback=${false}>
+      </sakai-sitestats-chart>
+    `);
+    await waitUntil(() => el._chartInstance);
+
+    expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
   });
 });

@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,13 +42,14 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.handler.EmptyRequestHandler;
 
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
@@ -64,6 +66,7 @@ public class ReportDataPage extends BasePage {
 	private String						siteId;
 	private String						widgetId;
 	private String						tabId;
+	private String						metricId;
 	private String						date;
 	private String						role;
 	private String						tool;
@@ -84,6 +87,7 @@ public class ReportDataPage extends BasePage {
 			siteId = pageParameters.get("siteId").toString();
 			widgetId = pageParameters.get("widgetId").toOptionalString();
 			tabId = pageParameters.get("tabId").toOptionalString();
+			metricId = pageParameters.get("metricId").toOptionalString();
 			date = pageParameters.get("date").toOptionalString();
 			role = pageParameters.get("role").toOptionalString();
 			tool = pageParameters.get("tool").toOptionalString();
@@ -100,7 +104,7 @@ public class ReportDataPage extends BasePage {
 		}
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			if(isWidgetReport() || (reportDef != null && getReportDef() != null && getReportDef().getReportParams() != null)) {
+			if(isWidgetReport() || isWidgetMetricReport() || hasReportDefinition()) {
 				renderBody();
 			}else{
 				setResponsePage(ReportsPage.class);
@@ -135,10 +139,13 @@ public class ReportDataPage extends BasePage {
 	private void renderBody() {
 		setVersioned(false);
 		boolean widgetReport = isWidgetReport();
+		boolean widgetMetricReport = isWidgetMetricReport();
 		
 		// reportAction
 		if(widgetReport) {
 			add(new Label("reportAction", getWidgetReportTitle()));
+		}else if(widgetMetricReport) {
+			add(new Label("reportAction", getWidgetMetricReportTitle()));
 		}else if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
 			String titleStr = null;
 			if(getReportDef().isTitleLocalized()) {
@@ -190,7 +197,7 @@ public class ReportDataPage extends BasePage {
 				super.onSubmit();
 			}
 		});
-		boolean exportAllowed = !widgetReport && Locator.getFacade().getStatsManager().isEnableReportExport();
+		boolean exportAllowed = isExportAllowed();
 		exportButton = new Button("export") {
 			@Override
 			public void onSubmit() {
@@ -343,38 +350,75 @@ public class ReportDataPage extends BasePage {
 		return StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(tabId);
 	}
 
+	private boolean isWidgetMetricReport() {
+		return StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(metricId);
+	}
+
+	private boolean hasReportDefinition() {
+		return getReportDef() != null && getReportDef().getReportParams() != null;
+	}
+
+	private boolean isExportAllowed() {
+		if (!Locator.getFacade().getStatsManager().isEnableReportExport() || isWidgetReport()) {
+			return false;
+		}
+		try {
+			if (isWidgetMetricReport()) {
+				return Locator.getFacade().getSiteStatsReportExportService().canExportWidgetMetricReport(siteId, widgetId, metricId);
+			}
+			if (!hasReportDefinition()) {
+				return false;
+			}
+			if (getReportDef().getId() > 0) {
+				return Locator.getFacade().getSiteStatsReportExportService().canExportPersistedReport(siteId, getReportDef().getId());
+			}
+			return Locator.getFacade().getSiteStatsReportExportService().canExportPreviewReport(siteId, getPreviewId());
+		} catch (RuntimeException e) {
+			log.warn("Unable to determine SiteStats export availability for site {}: {}", siteId, e.getMessage());
+			return false;
+		}
+	}
+
 	private Report getExportReport() {
-		ReportDef reportDef = new ReportDef(getReportDef(), siteId);
-		PrefsData prefsData = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
-		return Locator.getFacade().getReportManager().getReport(reportDef, prefsData.isListToolEventsOnlyAvailableInSite(), null, true);
+		if (isWidgetMetricReport()) {
+			return Locator.getFacade().getSiteStatsReportExportService().getWidgetMetricReport(siteId, widgetId, metricId);
+		}
+		if (getReportDef().getId() > 0) {
+			return Locator.getFacade().getSiteStatsReportExportService().getPersistedReport(siteId, getReportDef().getId());
+		}
+		return Locator.getFacade().getSiteStatsReportExportService().getPreviewReport(siteId, getPreviewId());
 	}
 
 	private String getWidgetReportTitle() {
-		String widgetTitleKey = "reportres_title";
-		if ("visits".equals(widgetId) || "student-visits".equals(widgetId)) {
-			widgetTitleKey = "overview_title_visits";
-		} else if ("activity".equals(widgetId)) {
-			widgetTitleKey = "overview_title_activity";
-		} else if ("resources".equals(widgetId)) {
-			widgetTitleKey = "overview_title_resources";
-		} else if ("lessons".equals(widgetId)) {
-			widgetTitleKey = "overview_title_lessonpages";
+		try {
+			SiteStatsWidgetTab tab = Locator.getFacade().getSiteStatsViewService().getWidgetTab(siteId, widgetId, tabId);
+			return widgetTitle(tab.getWidgetTitle()) + " - " + StringUtils.defaultIfBlank(tab.getTitle(), tabId);
+		} catch (RuntimeException e) {
+			log.warn("Unable to load SiteStats tab metadata for {}/{} in site {}: {}", widgetId, tabId, siteId, e.getMessage());
+			return widgetTitle(null) + " - " + tabId;
 		}
+	}
 
-		String tabTitleKey = "reportres_title";
-		if ("bydate".equals(tabId)) {
-			tabTitleKey = "overview_tab_bydate";
-		} else if ("byuser".equals(tabId)) {
-			tabTitleKey = "overview_tab_byuser";
-		} else if ("bytool".equals(tabId)) {
-			tabTitleKey = "overview_tab_bytool";
-		} else if ("byresource".equals(tabId)) {
-			tabTitleKey = "overview_tab_byresource";
-		} else if ("bypage".equals(tabId)) {
-			tabTitleKey = "overview_tab_bypage";
+	private String getWidgetMetricReportTitle() {
+		String metricTitle = metricId;
+		String widgetTitle = null;
+		try {
+			List<SiteStatsWidgetMetric> metrics = Locator.getFacade().getSiteStatsViewService().getWidgetMetrics(siteId, widgetId);
+			for (SiteStatsWidgetMetric metric : metrics) {
+				if (metricId.equals(metric.getId())) {
+					metricTitle = metric.getLabel();
+					widgetTitle = metric.getWidgetTitle();
+					break;
+				}
+			}
+		} catch (RuntimeException e) {
+			log.warn("Unable to load SiteStats metric metadata for {}/{} in site {}: {}", widgetId, metricId, siteId, e.getMessage());
 		}
+		return widgetTitle(widgetTitle) + " - " + metricTitle;
+	}
 
-		return new ResourceModel(widgetTitleKey).getObject() + " - " + new ResourceModel(tabTitleKey).getObject();
+	private String widgetTitle(String title) {
+		return StringUtils.defaultIfBlank(title, (String) new ResourceModel("reportres_title").getObject());
 	}
 
 	private String getReportEndpoint() {
@@ -387,6 +431,9 @@ public class ReportDataPage extends BasePage {
 			request.setResourceAction(resourceAction);
 			request.setLessonAction(lessonAction);
 			return SiteStatsApiUrls.widgetReport(siteId, widgetId, tabId, request);
+		}
+		if (isWidgetMetricReport()) {
+			return SiteStatsApiUrls.widgetMetricReport(siteId, widgetId, metricId, request);
 		}
 		if (getReportDef().getId() > 0) {
 			return SiteStatsApiUrls.persistedReport(siteId, getReportDef().getId(), request);
@@ -407,7 +454,7 @@ public class ReportDataPage extends BasePage {
 	}
 
 	public ReportDef getReportDef() {
-		return (ReportDef) this.reportDefModel.getObject();
+		return this.reportDefModel != null ? (ReportDef) this.reportDefModel.getObject() : null;
 	}
 
 	public void setReportParams(ReportParams reportParams) {

@@ -19,6 +19,7 @@ public class SiteStatsWidget implements Serializable {
 	private boolean visible = true;
 	private String audience;
 	private List<SiteStatsWidgetTab> tabs = new ArrayList<SiteStatsWidgetTab>();
+	private List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
 
 	public String getId() {
 		return id;
@@ -66,5 +67,13 @@ public class SiteStatsWidget implements Serializable {
 
 	public void setTabs(List<SiteStatsWidgetTab> tabs) {
 		this.tabs = tabs;
+	}
+
+	public List<SiteStatsWidgetMetric> getMetrics() {
+		return metrics;
+	}
+
+	public void setMetrics(List<SiteStatsWidgetMetric> metrics) {
+		this.metrics = metrics;
 	}
 }

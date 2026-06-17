@@ -107,7 +107,12 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
     return html`
       <div class="panel">
         ${this._renderSummary(this._report.summary)}
-        ${showChart ? html`<sakai-sitestats-chart .chart=${this._report.chart}></sakai-sitestats-chart>` : nothing}
+        ${showChart ? html`
+          <sakai-sitestats-chart
+              .chart=${this._report.chart}
+              .renderTableFallback=${!showTable}>
+          </sakai-sitestats-chart>
+        ` : nothing}
         ${showTable ? html`<sakai-sitestats-table .table=${this._report.table}></sakai-sitestats-table>` : nothing}
       </div>
     `;

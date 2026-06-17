@@ -18,6 +18,15 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_FILES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_MOST_OPENED_FILE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_OPENED_FILES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_RESOURCES_USER_OPENED_MORE_FILES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_RESOURCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_RESOURCES;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,7 +106,7 @@ public class ResourcesWidget extends Panel {
 
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_resources").getObject();
-		Widget widget = new Widget("widget", "sakai-resources", title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", WIDGET_RESOURCES, "sakai-resources", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 
@@ -131,33 +140,8 @@ public class ResourcesWidget extends Panel {
 				return (String) new ResourceModel("overview_title_resources_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				// what
-				rp.setWhat(ReportManager.WHAT_RESOURCES);
-				rp.setWhatLimitedAction(true);
-				rp.setWhatResourceAction(ReportManager.WHAT_RESOURCES_ACTION_NEW);
-				rp.setWhatLimitedResourceIds(true);
-				rp.setWhatResourceIds(Arrays.asList(StatsManager.RESOURCES_DIR + siteId + "/"));
-				// when
-				rp.setWhen(ReportManager.WHEN_ALL);
-				// who
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_RESOURCE);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				rp.setHowSortBy(StatsManager.T_RESOURCE);
-				rp.setHowSortAscending(true);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_RESOURCES_FILES;
 			}
 		};
 	}
@@ -263,8 +247,8 @@ public class ResourcesWidget extends Panel {
 			}
 			
 			@Override
-			public ReportDef getReportDefinition() {
-				return getCommonReportDefition();
+			public String getReportMetricId() {
+				return METRIC_RESOURCES_OPENED_FILES;
 			}
 		};
 	}
@@ -370,8 +354,8 @@ public class ResourcesWidget extends Panel {
 			}
 			
 			@Override
-			public ReportDef getReportDefinition() {
-				return getCommonReportDefition();
+			public String getReportMetricId() {
+				return METRIC_RESOURCES_MOST_OPENED_FILE;
 			}
 		};
 	}
@@ -488,8 +472,8 @@ public class ResourcesWidget extends Panel {
 			}
 			
 			@Override
-			public ReportDef getReportDefinition() {
-				return getCommonReportDefition();
+			public String getReportMetricId() {
+				return METRIC_RESOURCES_USER_OPENED_MORE_FILES;
 			}
 		};
 	}
@@ -498,7 +482,7 @@ public class ResourcesWidget extends Panel {
 	
 	/** WidgetTab: By date */
 	protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
-		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, "resources", "bydate") {
+		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, WIDGET_RESOURCES, TAB_BY_DATE) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
@@ -510,7 +494,7 @@ public class ResourcesWidget extends Panel {
 
 	/** WidgetTab: By user */
 	protected WidgetTabTemplate getWidgetTabByUser(String panelId) {
-		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, "resources", "byuser") {
+		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, WIDGET_RESOURCES, TAB_BY_USER) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
@@ -522,7 +506,7 @@ public class ResourcesWidget extends Panel {
 
 	/** WidgetTab: By resource */
 	protected WidgetTabTemplate getWidgetTabByResource(String panelId) {
-		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, "resources", "byresource") {
+		return new WidgetTabTemplate(panelId, ResourcesWidget.this.siteId, WIDGET_RESOURCES, TAB_BY_RESOURCE) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override

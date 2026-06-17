@@ -25,6 +25,8 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -46,6 +48,20 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		boolean ownAllowed = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
 		boolean adminAllowed = statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId);
 		return siteStatsWidgetCatalog.getOverview(siteId, allAllowed, ownAllowed, adminAllowed);
+	}
+
+	@Override
+	public SiteStatsWidgetTab getWidgetTab(String siteId, String widgetId, String tabId) {
+		assertCanView(siteId);
+		assertCanViewWidget(siteId, widgetId);
+		return siteStatsWidgetCatalog.getWidgetTab(siteId, widgetId, tabId);
+	}
+
+	@Override
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId) {
+		assertCanView(siteId);
+		assertCanViewWidget(siteId, widgetId);
+		return siteStatsWidgetCatalog.getWidgetMetrics(siteId, widgetId);
 	}
 
 	@Override
@@ -104,16 +120,29 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	@Override
 	public SiteStatsReportView getWidgetReport(String siteId, String widgetId, String tabId, SiteStatsReportRequest request) {
 		assertCanView(siteId);
-		if (siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId)) {
-			if (!statsAuthz.isUserAbleToViewSiteStatsOwn(siteId)) {
-				throw new SecurityException("Current user cannot view own SiteStats data for site " + siteId);
-			}
-		} else {
-			assertCanViewAll(siteId);
-		}
+		assertCanViewWidget(siteId, widgetId);
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
-		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest);
+		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? currentUserId() : null;
+		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest, userId);
+		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, tabId, null,
+				"Unknown SiteStats widget report: " + widgetId + "/" + tabId);
+	}
+
+	@Override
+	public SiteStatsReportView getWidgetMetricReport(String siteId, String widgetId, String metricId, SiteStatsReportRequest request) {
+		assertCanView(siteId);
+		assertCanViewMetric(siteId, widgetId, metricId);
+
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
+		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? currentUserId() : null;
+		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
+		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, null, metricId,
+				"Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
+	}
+
+	private SiteStatsReportView buildWidgetReportView(String siteId, WidgetReportDefinition definition, SiteStatsReportRequest safeRequest,
+			String widgetId, String tabId, String metricId, String unknownReportMessage) {
 		PrefsData prefsData = statsManager.getPreferences(siteId, false);
 		boolean restrictToToolsInSite = prefsData.isListToolEventsOnlyAvailableInSite();
 
@@ -128,12 +157,17 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		Report baseReport = tableReport != null ? tableReport : chartReport;
 		if (baseReport == null) {
-			throw new IllegalArgumentException("Unknown SiteStats widget report: " + widgetId + "/" + tabId);
+			throw new IllegalArgumentException(unknownReportMessage);
 		}
 
 		SiteStatsReportView view = siteStatsReportViewMapper.mapReportView(siteId, baseReport, safeRequest, prefsData);
 		view.setWidgetId(widgetId);
-		view.setTabId(tabId);
+		if (StringUtils.isNotBlank(tabId)) {
+			view.setTabId(tabId);
+		}
+		if (StringUtils.isNotBlank(metricId)) {
+			view.setMetricId(metricId);
+		}
 		view.setTitle(definition.getTitle());
 		if (chartReport != null) {
 			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData));
@@ -178,8 +212,31 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	}
 
 	private void assertCanViewAll(String siteId) {
+		assertCanView(siteId);
 		if (!statsAuthz.isUserAbleToViewSiteStatsAll(siteId)) {
 			throw new SecurityException("Current user cannot view all SiteStats data for site " + siteId);
+		}
+	}
+
+	private void assertCanViewWidget(String siteId, String widgetId) {
+		if (siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId)) {
+			assertCanViewOwn(siteId);
+		} else {
+			assertCanViewAll(siteId);
+		}
+	}
+
+	private void assertCanViewMetric(String siteId, String widgetId, String metricId) {
+		if (siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId)) {
+			assertCanViewOwn(siteId);
+		} else {
+			assertCanViewAll(siteId);
+		}
+	}
+
+	private void assertCanViewOwn(String siteId) {
+		if (!statsAuthz.isUserAbleToViewSiteStatsOwn(siteId)) {
+			throw new SecurityException("Current user cannot view own SiteStats data for site " + siteId);
 		}
 	}
 }
