@@ -50,9 +50,11 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -115,16 +117,24 @@ public class SiteStatsViewServiceTest {
 
 		previewService = new SiteStatsReportPreviewServiceImpl();
 
+		SiteStatsReportViewMapper viewMapper = new SiteStatsReportViewMapper();
+		viewMapper.setReportManager(reportManager);
+		viewMapper.setSiteStatsTableMapper(tableMapper);
+
+		SiteStatsWidgetCatalog widgetCatalog = new SiteStatsWidgetCatalog();
+		widgetCatalog.setStatsManager(statsManager);
+		widgetCatalog.setSiteStatsToolEventsService(toolEventsService);
+		widgetCatalog.setEventRegistryService(eventRegistryService);
+		widgetCatalog.setSiteService(siteService);
+
 		service = new SiteStatsViewServiceImpl();
 		service.setStatsAuthz(statsAuthz);
 		service.setStatsManager(statsManager);
 		service.setReportManager(reportManager);
-		service.setSiteStatsToolEventsService(toolEventsService);
-		service.setSiteStatsTableMapper(tableMapper);
 		service.setSiteStatsReportPreviewService(previewService);
-		service.setEventRegistryService(eventRegistryService);
-		service.setSiteService(siteService);
 		service.setSessionManager(sessionManager);
+		service.setSiteStatsWidgetCatalog(widgetCatalog);
+		service.setSiteStatsReportViewMapper(viewMapper);
 	}
 
 	@Test
