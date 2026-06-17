@@ -33,6 +33,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsChart;
@@ -41,6 +42,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsChartPoint;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilterOption;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
@@ -53,6 +55,8 @@ import org.sakaiproject.sitestats.api.view.SiteStatsTableRow;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -90,6 +94,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	@Setter private SiteStatsReportPreviewService siteStatsReportPreviewService;
 	@Setter private EventRegistryService eventRegistryService;
 	@Setter private SiteService siteService;
+	@Setter private SessionManager sessionManager;
 
 	private ResourceLoader messages = new ResourceLoader("Messages");
 
@@ -176,6 +181,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		SiteStatsReportView view = mapReportView(siteId, report, request, prefsData);
 		view.setReportId(Long.valueOf(reportId));
 		view.setTitle(localizedReportTitle(reportDef));
+		view.setSummary(mapSummary(report));
 		return view;
 	}
 
@@ -183,7 +189,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	public SiteStatsReportView getPreviewReport(String siteId, String previewId, SiteStatsReportRequest request) {
 		assertCanViewAll(siteId);
 
-		ReportDef reportDef = siteStatsReportPreviewService == null ? null : siteStatsReportPreviewService.get(siteId, previewId);
+		ReportDef reportDef = siteStatsReportPreviewService == null ? null : siteStatsReportPreviewService.get(siteId, currentUserId(), previewId);
 		if (reportDef == null) {
 			throw new IllegalArgumentException("Unknown report preview id: " + previewId);
 		}
@@ -194,6 +200,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportView view = mapReportView(siteId, report, request, prefsData);
 		view.setTitle(localizedReportTitle(safeReportDef));
+		view.setSummary(mapSummary(report));
 		return view;
 	}
 
@@ -237,6 +244,32 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 			view.setTable(mapTable(tableReport, requestOrDefault(request)));
 		}
 		return view;
+	}
+
+	private List<SiteStatsReportInfoItem> mapSummary(Report report) {
+		ReportFormattedParams formatter = reportManager.getReportFormattedParams();
+		if (formatter == null) {
+			return Collections.emptyList();
+		}
+
+		List<SiteStatsReportInfoItem> summary = new ArrayList<SiteStatsReportInfoItem>();
+		addSummaryItem(summary, "description", message("reportres_summ_description"), formatter.getReportDescription(report));
+		addSummaryItem(summary, "site", message("reportres_summ_site"), formatter.getReportSite(report));
+		addSummaryItem(summary, "activity-based-on", message("reportres_summ_act_basedon"), formatter.getReportActivityBasedOn(report));
+		addSummaryItem(summary, "resource-action", formatter.getReportResourceActionTitle(report), formatter.getReportResourceAction(report));
+		addSummaryItem(summary, "activity-selection", formatter.getReportActivitySelectionTitle(report), formatter.getReportActivitySelection(report));
+		addSummaryItem(summary, "time-period", message("reportres_summ_timeperiod"), formatter.getReportTimePeriod(report));
+		addSummaryItem(summary, "user-selection-type", message("reportres_summ_usr_selectiontype"), formatter.getReportUserSelectionType(report));
+		addSummaryItem(summary, "user-selection", formatter.getReportUserSelectionTitle(report), formatter.getReportUserSelection(report));
+		addSummaryItem(summary, "generated-on", message("reportres_summ_generatedon"), formatter.getReportGenerationDate(report));
+		return summary;
+	}
+
+	private void addSummaryItem(List<SiteStatsReportInfoItem> summary, String id, String label, String value) {
+		if (StringUtils.isBlank(label) || StringUtils.isBlank(value)) {
+			return;
+		}
+		summary.add(new SiteStatsReportInfoItem(id, label, value));
 	}
 
 	private SiteStatsReportView mapReportView(String siteId, Report report, SiteStatsReportRequest request, PrefsData prefsData) {
@@ -765,6 +798,17 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		} catch (Exception e) {
 			return key;
 		}
+	}
+
+	private String currentUserId() {
+		if (sessionManager == null) {
+			throw new SecurityException("Current Sakai session is required to access SiteStats report previews");
+		}
+		Session session = sessionManager.getCurrentSession();
+		if (session == null || StringUtils.isBlank(session.getUserId())) {
+			throw new SecurityException("Current Sakai user is required to access SiteStats report previews");
+		}
+		return session.getUserId();
 	}
 
 	private void assertCanView(String siteId) {

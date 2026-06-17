@@ -23,6 +23,10 @@ describe("sakai-sitestats-report-panel tests", () => {
     fetchMock.get(endpoint, {
       siteId: "site1",
       presentationMode: "how-presentation-both",
+      summary: [
+        { id: "site", label: "Site:", value: "Project Site" },
+        { id: "generated-on", label: "Report generated:", value: "6/17/26, 2:15 PM" },
+      ],
       table: {
         caption: "Visits",
         columns: [
@@ -63,6 +67,8 @@ describe("sakai-sitestats-report-panel tests", () => {
     await waitUntil(() => el.shadowRoot.querySelector("sakai-sitestats-table"));
     await elementUpdated(el);
 
+    expect(el.shadowRoot.querySelector(".summary").textContent).to.include("Project Site");
+    expect(el.shadowRoot.querySelector(".summary").textContent).to.include("Report generated:");
     expect(el.shadowRoot.querySelector("sakai-sitestats-chart")).to.exist;
     expect(el.shadowRoot.querySelector("sakai-sitestats-table")).to.exist;
   });

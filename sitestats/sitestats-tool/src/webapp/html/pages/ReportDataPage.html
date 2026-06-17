@@ -23,16 +23,7 @@
       xmlns:wicket="http://wicket.sourceforge.net/"  
       xml:lang="en"  
       lang="en">
-    <head>        
-        <wicket:head>
-            <script type="text/javascript">
-                function showExportButtons(){
-                    jQuery('.export').hide();
-                    jQuery('.exportButtons').fadeIn();
-                }
-            </script>
-        </wicket:head>
-    </head>
+    <head></head>
     <body>
         <wicket:extend>
         
@@ -44,19 +35,12 @@
 	            <!-- Last Job run -->
 	            <span wicket:id="lastJobRun"></span>
 	        
-	            <!-- Print link -->
-	            <span wicket:id="toPrintVersion" style="float: right; padding-top: 12px; padding-right: 2px; clear:both">
-	                <span class="fa fa-print" aria-hidden="true" wicket:message="title:reportres_printversion"></span>
-	                <a wicket:id="printLink" wicket:message="title:reportres_printversion" >
-	                    <wicket:message key="reportres_printversion">[reportres_printversion]</wicket:message>
-	                </a>
-	            </span>
-	            <!-- Print info -->
-		        <span wicket:id="inPrintVersion" class="act noprint">
+	            <!-- Print -->
+		        <span wicket:id="printContainer" class="act noprint float-end pt-3 pe-1">
 		            <span class="fa fa-print" aria-hidden="true" wicket:message="title:reportres_print"></span>
-		            <a href="#" onclick="window.print(); return false;" wicket:message="title:reportres_print" >
+		            <button type="button" wicket:id="printLink" class="btn btn-link p-0 align-baseline" wicket:message="title:reportres_print">
 	                    <wicket:message key="reportres_print">[reportres_print]</wicket:message>
-	                </a>
+	                </button>
 		        </span>
 	        
 	            <!-- Page title -->
@@ -66,126 +50,21 @@
                     </h1>
                 </div>
 
-	            <!-- Header: data information -->
-	            <table wicket:id="summaryTable" class="summaryTable">
-                    <tbody>
-                        <tr wicket:id="trDescription">
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_description">[reportres_summ_description]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportDescription"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_site">[reportres_summ_site]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportSite"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_act_basedon">[reportres_summ_act_basedon]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportActivityBasedOn"></span>
-                            </td>
-                        </tr>
-                        <tr wicket:id="trResourceAction">
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <span wicket:id="reportResourceActionTitle">[reportResourceActionTitle]</span>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportResourceAction"></span>
-                            </td>
-                        </tr>
-                        <tr wicket:id="trActivitySelection">
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <span wicket:id="reportActivitySelectionTitle">[reportActivitySelectionTitle]</span>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportActivitySelection"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_timeperiod">[reportres_summ_timeperiod]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportTimePeriod"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_usr_selectiontype">[reportres_summ_usr_selectiontype]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportUserSelectionType"></span>
-                            </td>
-                        </tr>
-                        <tr wicket:id="trReportUserSelection">
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <span wicket:id="reportUserSelectionTitle">[reportUserSelectionTitle]</span>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportUserSelection"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="autoSize labelColumn">
-                                <label class="indnt0">
-                                    <wicket:message key="reportres_summ_generatedon">[reportres_summ_generatedon]</wicket:message>
-                                </label>
-                            </td>
-                            <td class="autoSize">
-                                <span wicket:id="reportGenerationDate"></span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-	            
-                    
                 <!-- Report data -->
                 <sakai-sitestats-report-panel wicket:id="reportPanel"></sakai-sitestats-report-panel>
-
-                <!-- Legacy report chart for printable reports -->
-                <div wicket:id="reportChart" style="height: 300px; margin-top: 20px;" class="chartContainer"></div>
 	            
 	            
 	            <!-- FORM -->
 	            <form wicket:id="form">
-
-                    <!-- Legacy report table for printable reports -->
-                    <div class="table">
-                      <table class="table table-hover table-bordered table-striped" style="width: 99.9% !important" cellspacing="0" wicket:id="table">[table]</table>
-                    </div>
 		                
 		            <!-- BUTTONS -->
 		            <p class="act noprint">
 		                <input type="submit" wicket:id="back" wicket:message="value:report_back" class="active"/>
-		                <input type="submit" wicket:id="export" wicket:message="value:bt_export" onclick="showExportButtons();return false;" class="export"/>
+		                <input type="submit" wicket:id="export" wicket:message="value:bt_export" class="export"/>
 		                
-		                <input type="submit" wicket:id="exportXls" wicket:message="value:bt_export_excel" class="exportButtons" style="display:none;"/>
-		                <input type="submit" wicket:id="exportCsv" wicket:message="value:bt_export_csv" class="exportButtons" style="display:none;"/>
-		                <input type="submit" wicket:id="exportPdf" wicket:message="value:bt_export_pdf" class="exportButtons" style="display:none;"/>
+		                <input type="submit" wicket:id="exportXls" wicket:message="value:bt_export_excel" class="sitestats-export-option d-none"/>
+		                <input type="submit" wicket:id="exportCsv" wicket:message="value:bt_export_csv" class="sitestats-export-option d-none"/>
+		                <input type="submit" wicket:id="exportPdf" wicket:message="value:bt_export_pdf" class="sitestats-export-option d-none"/>
 		            </p>
 	            </form>            
             </div>

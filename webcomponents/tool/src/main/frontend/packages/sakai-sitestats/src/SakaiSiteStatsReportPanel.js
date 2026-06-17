@@ -25,6 +25,27 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
         gap: 1rem;
       }
 
+      .summary {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        gap: 0.5rem 1rem;
+        margin: 0;
+        padding: 0;
+      }
+
+      .summary-row {
+        display: contents;
+      }
+
+      .summary dt {
+        font-weight: 600;
+      }
+
+      .summary dd {
+        margin: 0;
+        min-width: 0;
+      }
+
       .status {
         border: 1px solid var(--sakai-border-color, #d8dde6);
         padding: 1rem;
@@ -85,9 +106,28 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
 
     return html`
       <div class="panel">
+        ${this._renderSummary(this._report.summary)}
         ${showChart ? html`<sakai-sitestats-chart .chart=${this._report.chart}></sakai-sitestats-chart>` : nothing}
         ${showTable ? html`<sakai-sitestats-table .table=${this._report.table}></sakai-sitestats-table>` : nothing}
       </div>
+    `;
+  }
+
+  _renderSummary(summary) {
+
+    if (!Array.isArray(summary) || !summary.length) {
+      return nothing;
+    }
+
+    return html`
+      <dl class="summary">
+        ${summary.map(item => html`
+          <div class="summary-row">
+            <dt>${item.label}</dt>
+            <dd>${item.value}</dd>
+          </div>
+        `)}
+      </dl>
     `;
   }
 

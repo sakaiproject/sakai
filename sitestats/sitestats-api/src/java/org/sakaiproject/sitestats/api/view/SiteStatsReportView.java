@@ -6,6 +6,8 @@
 package org.sakaiproject.sitestats.api.view;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SiteStatsReportView implements Serializable {
 
@@ -18,6 +20,7 @@ public class SiteStatsReportView implements Serializable {
 	private String title;
 	private String presentationMode;
 	private String generatedOn;
+	private List<SiteStatsReportInfoItem> summary = new ArrayList<SiteStatsReportInfoItem>();
 	private SiteStatsTable table;
 	private SiteStatsChart chart;
 
@@ -75,6 +78,14 @@ public class SiteStatsReportView implements Serializable {
 
 	public void setGeneratedOn(String generatedOn) {
 		this.generatedOn = generatedOn;
+	}
+
+	public List<SiteStatsReportInfoItem> getSummary() {
+		return summary;
+	}
+
+	public void setSummary(List<SiteStatsReportInfoItem> summary) {
+		this.summary = summary == null ? new ArrayList<SiteStatsReportInfoItem>() : summary;
 	}
 
 	public SiteStatsTable getTable() {
