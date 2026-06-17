@@ -29,6 +29,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.SiteStatsController;
@@ -95,6 +96,69 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 			.andExpect(jsonPath("$[0].title", is("Weekly activity")))
 			.andExpect(jsonPath("$[0].description", is("Activity for the last week")))
 			.andExpect(jsonPath("$[0].hidden", is(true)));
+	}
+
+	@Test
+	public void getWidgetMetricsReturnsMetricJson() throws Exception {
+		SiteStatsWidgetMetric metric = new SiteStatsWidgetMetric("activity-events", "Events", "all", true);
+		when(siteStatsViewService.getWidgetMetrics(SITE_ID, "activity")).thenReturn(Collections.singletonList(metric));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/activity/metrics"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$[0].id", is("activity-events")))
+			.andExpect(jsonPath("$[0].label", is("Events")))
+			.andExpect(jsonPath("$[0].audience", is("all")))
+			.andExpect(jsonPath("$[0].reportable", is(true)));
+	}
+
+	@Test
+	public void getWidgetMetricsMapsUnknownWidgetToNotFound() throws Exception {
+		when(siteStatsViewService.getWidgetMetrics(SITE_ID, "missing")).thenThrow(new IllegalArgumentException("missing"));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/missing/metrics"))
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void getWidgetMetricReportReturnsMetricReportJsonAndPassesRequest() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setWidgetId("activity");
+		view.setMetricId("activity-events");
+		when(siteStatsViewService.getWidgetMetricReport(eq(SITE_ID), eq("activity"), eq("activity-events"), any(SiteStatsReportRequest.class)))
+			.thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/activity/metrics/activity-events?include=chart&page=3&pageSize=10"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.siteId", is(SITE_ID)))
+			.andExpect(jsonPath("$.widgetId", is("activity")))
+			.andExpect(jsonPath("$.metricId", is("activity-events")));
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetMetricReport(eq(SITE_ID), eq("activity"), eq("activity-events"), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals(3, request.getPage());
+		org.junit.Assert.assertEquals(10, request.getPageSize());
+		org.junit.Assert.assertEquals(false, request.isIncludeTable());
+		org.junit.Assert.assertEquals(true, request.isIncludeChart());
+	}
+
+	@Test
+	public void getWidgetMetricReportMapsSecurityExceptionToForbidden() throws Exception {
+		when(siteStatsViewService.getWidgetMetricReport(eq(SITE_ID), eq("activity"), eq("activity-events"), any(SiteStatsReportRequest.class)))
+			.thenThrow(new SecurityException("forbidden"));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/activity/metrics/activity-events"))
+			.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWidgetMetricReportMapsUnknownMetricToNotFound() throws Exception {
+		when(siteStatsViewService.getWidgetMetricReport(eq(SITE_ID), eq("activity"), eq("missing"), any(SiteStatsReportRequest.class)))
+			.thenThrow(new IllegalArgumentException("missing"));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/activity/metrics/missing"))
+			.andExpect(status().isNotFound());
 	}
 
 	@Test

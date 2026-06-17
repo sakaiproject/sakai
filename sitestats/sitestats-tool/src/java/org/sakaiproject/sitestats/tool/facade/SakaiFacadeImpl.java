@@ -33,6 +33,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -49,6 +50,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@Getter @Setter private transient ReportManager				reportManager;
 	@Getter @Setter private transient SiteStatsToolEventsService	siteStatsToolEventsService;
 	@Getter @Setter private transient SiteStatsViewService		siteStatsViewService;
+	@Getter @Setter private transient SiteStatsReportExportService	siteStatsReportExportService;
 	@Getter @Setter private transient SiteStatsReportPreviewService	siteStatsReportPreviewService;
 	@Getter @Setter private transient ChartService				chartService;
 	@Getter @Setter private transient StatsUpdateManager		statsUpdateManager;

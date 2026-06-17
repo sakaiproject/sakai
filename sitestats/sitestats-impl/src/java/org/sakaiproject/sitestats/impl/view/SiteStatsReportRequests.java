@@ -15,7 +15,7 @@ final class SiteStatsReportRequests {
 	}
 
 	static SiteStatsReportRequest orDefault(SiteStatsReportRequest request) {
-		SiteStatsReportRequest safeRequest = request == null ? new SiteStatsReportRequest() : request;
+		SiteStatsReportRequest safeRequest = request == null ? new SiteStatsReportRequest() : new SiteStatsReportRequest(request);
 		if (safeRequest.getPageSize() > MAX_PAGE_SIZE) {
 			safeRequest.setPageSize(MAX_PAGE_SIZE);
 		}

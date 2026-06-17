@@ -39,11 +39,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
-import org.sakaiproject.sitestats.tool.wicket.components.ExternalImage;
-import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
 
 /**
@@ -56,6 +53,8 @@ public class Widget extends Panel {
 	private static final long		serialVersionUID	= 1L;
 	private static final int		MAX_TEXT_LENGTH		= 16;
 	private String					iconUrl				= "";
+	private String					widgetId			= "";
+	private String					siteId				= "";
 	private String					title				= "";
 	private List<WidgetMiniStat>	widgetMiniStats		= null;
 	private List<AbstractTab>		tabs				= null;
@@ -63,7 +62,13 @@ public class Widget extends Panel {
 
 
 	public Widget(String id, String iconClass, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs, String siteId) {
+		this(id, null, iconClass, title, widgetMiniStats, widgetTabs, siteId);
+	}
+
+	public Widget(String id, String widgetId, String iconClass, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs, String siteId) {
 		super(id);
+		this.widgetId = widgetId;
+		this.siteId = siteId;
 		this.iconUrl = iconClass;
 		this.title = title;
 		this.widgetMiniStats = widgetMiniStats;
@@ -181,19 +186,21 @@ public class Widget extends Panel {
 				value.add(secvalue);
 				
 				// Link
-				final ReportDef reportDefinition = ms.getReportDefinition();
-				Link link = new StatelessLink("report") {
-					private static final long	serialVersionUID	= 1L;
-					@Override
-					public void onClick() {
-						String siteId = reportDefinition.getSiteId();
-						ReportDefModel reportDefModel = new ReportDefModel(reportDefinition);
-						setResponsePage(new ReportDataPage(reportDefModel, new PageParameters().set("siteId", siteId), getWebPage()));
-					}					
-				};
-				if(reportDefinition != null) {
-					link.add(new AttributeModifier("title", new ResourceModel("overview_show_report")));
-				}else if(ms instanceof WidgetMiniStatLink){
+					final String metricId = ms.getReportMetricId();
+					Link link = new StatelessLink("report") {
+						private static final long	serialVersionUID	= 1L;
+						@Override
+						public void onClick() {
+							PageParameters params = new PageParameters()
+									.set("siteId", siteId)
+									.set("widgetId", widgetId)
+									.set("metricId", metricId);
+							setResponsePage(new ReportDataPage(null, params, getWebPage()));
+						}
+					};
+					if(metricId != null && widgetId != null) {
+						link.add(new AttributeModifier("title", new ResourceModel("overview_show_report")));
+					}else if(ms instanceof WidgetMiniStatLink){
 					WidgetMiniStatLink msl = (WidgetMiniStatLink) ms;
 					final Page page = msl.getPageLink();
 					link = new StatelessLink("report") {

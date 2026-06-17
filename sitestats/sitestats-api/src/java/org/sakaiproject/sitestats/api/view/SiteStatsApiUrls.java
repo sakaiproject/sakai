@@ -21,6 +21,8 @@ public final class SiteStatsApiUrls {
 	public static final String REPORT_PATH = REPORTS_PATH + "/{reportId}";
 	public static final String REPORT_PREVIEW_PATH = BASE_PATH + "/report-previews/{previewId}";
 	public static final String WIDGET_REPORT_PATH = BASE_PATH + "/widgets/{widgetId}/tabs/{tabId}";
+	public static final String WIDGET_METRICS_PATH = BASE_PATH + "/widgets/{widgetId}/metrics";
+	public static final String WIDGET_METRIC_REPORT_PATH = WIDGET_METRICS_PATH + "/{metricId}";
 
 	private SiteStatsApiUrls() {
 	}
@@ -63,6 +65,28 @@ public final class SiteStatsApiUrls {
 		endpoint.append("/tabs/");
 		endpoint.append(encode(tabId));
 		appendReportParams(endpoint, safeRequest, true);
+		return endpoint.toString();
+	}
+
+	public static String widgetMetrics(String siteId, String widgetId) {
+		StringBuilder endpoint = new StringBuilder();
+		endpoint.append(API_PREFIX);
+		endpoint.append(siteBase(siteId));
+		endpoint.append("/widgets/");
+		endpoint.append(encode(widgetId));
+		endpoint.append("/metrics");
+		return endpoint.toString();
+	}
+
+	public static String widgetMetricReport(String siteId, String widgetId, String metricId, SiteStatsReportRequest request) {
+		StringBuilder endpoint = new StringBuilder();
+		endpoint.append(API_PREFIX);
+		endpoint.append(siteBase(siteId));
+		endpoint.append("/widgets/");
+		endpoint.append(encode(widgetId));
+		endpoint.append("/metrics/");
+		endpoint.append(encode(metricId));
+		appendReportParams(endpoint, safeRequest(request), false);
 		return endpoint.toString();
 	}
 

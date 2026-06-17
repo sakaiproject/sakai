@@ -7,6 +7,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   static properties = {
     chart: { type: Object },
+    renderTableFallback: { type: Boolean, attribute: "render-table-fallback" },
     _fallbackTable: { state: true },
   };
 
@@ -69,6 +70,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
     super();
 
+    this.renderTableFallback = true;
     this.loadTranslations("sitestats");
   }
 
@@ -103,7 +105,9 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         </div>
         ${this.chart.title ? html`<figcaption>${this.chart.title}</figcaption>` : nothing}
       </figure>
-      <sakai-sitestats-table class="visually-hidden" .table=${this._fallbackTable}></sakai-sitestats-table>
+      ${this.renderTableFallback && this._fallbackTable
+        ? html`<sakai-sitestats-table class="visually-hidden" .table=${this._fallbackTable}></sakai-sitestats-table>`
+        : nothing}
     `;
   }
 

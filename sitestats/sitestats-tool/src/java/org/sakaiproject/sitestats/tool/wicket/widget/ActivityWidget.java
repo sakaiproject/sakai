@@ -18,6 +18,14 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_EVENTS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_TOOL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -101,7 +109,7 @@ public class ActivityWidget extends Panel {
 
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_activity").getObject();
-		Widget widget = new Widget("widget", "sakai-poll", title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", WIDGET_ACTIVITY, "sakai-poll", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 
@@ -135,31 +143,8 @@ public class ActivityWidget extends Panel {
 				return (String) new ResourceModel("overview_title_events_sum").getObject();
 			}
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef r = new ReportDef();
-				r.setId(0);
-				r.setSiteId(siteId);
-				ReportParams rp = new ReportParams(siteId);
-				// what
-				rp.setWhat(ReportManager.WHAT_EVENTS);
-				rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-				rp.setWhatEventIds(getPrefsdata().getToolEventsStringList());
-				// when
-				rp.setWhen(ReportManager.WHEN_ALL);
-				// who
-				rp.setWho(ReportManager.WHO_ALL);
-				// grouping
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_EVENT);
-				rp.setHowTotalsBy(totalsBy);
-				// sorting
-				rp.setHowSort(true);
-				rp.setHowSortBy(StatsManager.T_EVENT);
-				rp.setHowSortAscending(true);
-				// chart
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-				r.setReportParams(rp);
-				return r;
+			public String getReportMetricId() {
+				return METRIC_ACTIVITY_EVENTS;
 			}
 		};
 	}
@@ -268,17 +253,8 @@ public class ActivityWidget extends Panel {
 			}
 			
 			@Override
-			public ReportDef getReportDefinition() {
-				ReportDef rd = getCommonReportDefition();
-				ReportParams rp = rd.getReportParams();
-				List<String> totalsBy = new ArrayList<String>();
-				totalsBy.add(StatsManager.T_TOOL);
-				rp.setHowTotalsBy(totalsBy);
-				rp.setHowSortBy(StatsManager.T_TOOL);
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_PIE);
-				rp.setHowChartSource(StatsManager.T_TOOL);
-				return rd;
+			public String getReportMetricId() {
+				return METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
 			}
 		};
 	}
@@ -397,8 +373,8 @@ public class ActivityWidget extends Panel {
 			}
 			
 			@Override
-			public ReportDef getReportDefinition() {
-				return getCommonReportDefition();
+			public String getReportMetricId() {
+				return METRIC_ACTIVITY_MOST_ACTIVE_USER;
 			}
 		};
 	}
@@ -429,7 +405,7 @@ public class ActivityWidget extends Panel {
 	
 	/** WidgetTab: By date */
 	protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
-		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, "activity", "bydate") {
+		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, WIDGET_ACTIVITY, TAB_BY_DATE) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
@@ -441,7 +417,7 @@ public class ActivityWidget extends Panel {
 
 	/** WidgetTab: By user */
 	protected WidgetTabTemplate getWidgetTabByUser(String panelId) {
-		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, "activity", "byuser") {
+		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, WIDGET_ACTIVITY, TAB_BY_USER) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
@@ -453,7 +429,7 @@ public class ActivityWidget extends Panel {
 
 	/** WidgetTab: By tool */
 	protected WidgetTabTemplate getWidgetTabByTool(String panelId) {
-		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, "activity", "bytool") {
+		return new WidgetTabTemplate(panelId, ActivityWidget.this.siteId, WIDGET_ACTIVITY, TAB_BY_TOOL) {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override

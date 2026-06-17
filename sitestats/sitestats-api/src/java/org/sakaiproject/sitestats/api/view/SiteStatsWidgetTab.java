@@ -15,6 +15,7 @@ public class SiteStatsWidgetTab implements Serializable {
 
 	private String id;
 	private String title;
+	private String widgetTitle;
 	private List<SiteStatsFilter> filters = new ArrayList<SiteStatsFilter>();
 
 	public String getId() {
@@ -31,6 +32,14 @@ public class SiteStatsWidgetTab implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getWidgetTitle() {
+		return widgetTitle;
+	}
+
+	public void setWidgetTitle(String widgetTitle) {
+		this.widgetTitle = widgetTitle;
 	}
 
 	public List<SiteStatsFilter> getFilters() {
