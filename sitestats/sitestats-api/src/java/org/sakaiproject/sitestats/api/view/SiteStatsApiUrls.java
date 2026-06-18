@@ -42,7 +42,7 @@ public final class SiteStatsApiUrls {
 		endpoint.append(siteBase(siteId));
 		endpoint.append("/reports/");
 		endpoint.append(reportId);
-		appendReportParams(endpoint, safeRequest(request), false);
+		appendReportParams(endpoint, SiteStatsReportRequest.normalized(request), false);
 		return endpoint.toString();
 	}
 
@@ -52,12 +52,12 @@ public final class SiteStatsApiUrls {
 		endpoint.append(siteBase(siteId));
 		endpoint.append("/report-previews/");
 		endpoint.append(encode(previewId));
-		appendReportParams(endpoint, safeRequest(request), false);
+		appendReportParams(endpoint, SiteStatsReportRequest.normalized(request), false);
 		return endpoint.toString();
 	}
 
 	public static String widgetReport(String siteId, String widgetId, String tabId, SiteStatsReportRequest request) {
-		SiteStatsReportRequest safeRequest = safeRequest(request);
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		StringBuilder endpoint = new StringBuilder();
 		endpoint.append(API_PREFIX);
 		endpoint.append(siteBase(siteId));
@@ -87,16 +87,12 @@ public final class SiteStatsApiUrls {
 		endpoint.append(encode(widgetId));
 		endpoint.append("/metrics/");
 		endpoint.append(encode(metricId));
-		appendReportParams(endpoint, safeRequest(request), false);
+		appendReportParams(endpoint, SiteStatsReportRequest.normalized(request), false);
 		return endpoint.toString();
 	}
 
 	private static String siteBase(String siteId) {
 		return "/sites/" + encode(siteId) + "/sitestats";
-	}
-
-	private static SiteStatsReportRequest safeRequest(SiteStatsReportRequest request) {
-		return request == null ? new SiteStatsReportRequest() : new SiteStatsReportRequest(request);
 	}
 
 	private static void appendReportParams(StringBuilder endpoint, SiteStatsReportRequest request, boolean includeWidgetFilters) {

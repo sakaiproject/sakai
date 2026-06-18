@@ -33,6 +33,10 @@ public abstract class WidgetMiniStat implements Serializable {
 
 	public abstract String getLabel();
 
+	public String getMetricId() {
+		return null;
+	}
+
 	public abstract String getTooltip();
 
 	public abstract boolean isWiderText();

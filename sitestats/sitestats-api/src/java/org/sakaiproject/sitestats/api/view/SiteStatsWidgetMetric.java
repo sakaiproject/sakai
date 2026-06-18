@@ -22,6 +22,7 @@ public class SiteStatsWidgetMetric implements Serializable {
 	private String label;
 	private String widgetTitle;
 	private String audience;
+	private SiteStatsWidgetMetricSnapshot snapshot;
 	private boolean reportable = true;
 
 	public SiteStatsWidgetMetric(String id, String label, String audience, boolean reportable) {

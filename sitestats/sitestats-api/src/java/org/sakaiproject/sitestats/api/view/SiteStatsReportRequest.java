@@ -47,6 +47,10 @@ public class SiteStatsReportRequest implements Serializable {
 		}
 	}
 
+	public static SiteStatsReportRequest normalized(SiteStatsReportRequest request) {
+		return request == null ? new SiteStatsReportRequest() : new SiteStatsReportRequest(request);
+	}
+
 	public void setPage(int page) {
 		this.page = page < 1 ? 1 : page;
 	}

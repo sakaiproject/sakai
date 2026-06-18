@@ -38,7 +38,7 @@ public class SiteStatsReportViewMapper {
 	private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public SiteStatsReportView mapReportView(String siteId, Report report, SiteStatsReportRequest request, PrefsData prefsData) {
-		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		SiteStatsReportView view = mapReportShell(siteId, report);
 		if (safeRequest.isIncludeTable()) {
 			view.setTable(mapTable(report, safeRequest));
@@ -64,7 +64,7 @@ public class SiteStatsReportViewMapper {
 	}
 
 	public SiteStatsTable mapTable(Report report, SiteStatsReportRequest request) {
-		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		ReportParams params = report.getReportDefinition().getReportParams();
 		List<SiteStatsTableColumn> columns = siteStatsTableMapper.getColumns(params, false);
 		List<Stat> reportData = report.getReportData() == null ? Collections.<Stat>emptyList() : report.getReportData();

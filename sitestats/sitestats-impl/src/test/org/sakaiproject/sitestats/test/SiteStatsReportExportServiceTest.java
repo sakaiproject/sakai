@@ -20,9 +20,12 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESS
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsAuthz;
@@ -33,12 +36,20 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportExportServiceImpl;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport;
 import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog;
+import org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 public class SiteStatsReportExportServiceTest {
 
@@ -60,6 +71,8 @@ public class SiteStatsReportExportServiceTest {
 		SiteStatsToolEventsService siteStatsToolEventsService = mock(SiteStatsToolEventsService.class);
 		EventRegistryService eventRegistryService = mock(EventRegistryService.class);
 		SiteService siteService = mock(SiteService.class);
+		ContentHostingService contentHostingService = mock(ContentHostingService.class);
+		UserDirectoryService userDirectoryService = mock(UserDirectoryService.class);
 
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn(USER_ID);
@@ -76,11 +89,29 @@ public class SiteStatsReportExportServiceTest {
 			return report;
 		});
 
+		SiteStatsWidgetDefinitionSupport widgetSupport = new SiteStatsWidgetDefinitionSupport();
+		widgetSupport.setStatsManager(statsManager);
+		widgetSupport.setReportManager(reportManager);
+		widgetSupport.setSiteStatsToolEventsService(siteStatsToolEventsService);
+		widgetSupport.setEventRegistryService(eventRegistryService);
+		widgetSupport.setSiteService(siteService);
+		widgetSupport.setContentHostingService(contentHostingService);
+		widgetSupport.setUserDirectoryService(userDirectoryService);
+		VisitsWidgetDefinition visitsDefinition = new VisitsWidgetDefinition();
+		visitsDefinition.setSupport(widgetSupport);
+		StudentVisitsWidgetDefinition studentVisitsDefinition = new StudentVisitsWidgetDefinition();
+		studentVisitsDefinition.setSupport(widgetSupport);
+		ActivityWidgetDefinition activityDefinition = new ActivityWidgetDefinition();
+		activityDefinition.setSupport(widgetSupport);
+		ResourcesWidgetDefinition resourcesDefinition = new ResourcesWidgetDefinition();
+		resourcesDefinition.setSupport(widgetSupport);
+		LessonsWidgetDefinition lessonsDefinition = new LessonsWidgetDefinition();
+		lessonsDefinition.setSupport(widgetSupport);
 		SiteStatsWidgetCatalog widgetCatalog = new SiteStatsWidgetCatalog();
-		widgetCatalog.setStatsManager(statsManager);
-		widgetCatalog.setSiteStatsToolEventsService(siteStatsToolEventsService);
-		widgetCatalog.setEventRegistryService(eventRegistryService);
-		widgetCatalog.setSiteService(siteService);
+		widgetCatalog.setSupport(widgetSupport);
+		widgetCatalog.setWidgetDefinitions(Arrays.<SiteStatsWidgetDefinition>asList(
+				visitsDefinition, studentVisitsDefinition, activityDefinition, resourcesDefinition, lessonsDefinition));
+		widgetCatalog.init();
 
 		previewService = new SiteStatsReportPreviewServiceImpl();
 		SiteStatsReportAccess reportAccess = new SiteStatsReportAccess();

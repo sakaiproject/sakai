@@ -61,8 +61,11 @@ public class SiteStatsChartMapper {
 			mapChartDatasets(chart, report, reportData, chartSource);
 		} catch (IllegalArgumentException e) {
 			chart.getDatasets().clear();
-			chart.setEmptyMessage(message("sitestats_chart_unsupported",
-					"This chart configuration is not yet supported by the SiteStats JSON renderer."));
+			String unsupportedReason = message("sitestats_chart_unsupported",
+					"This chart configuration is not yet supported by the SiteStats JSON renderer.");
+			chart.setSupported(false);
+			chart.setUnsupportedReason(unsupportedReason);
+			chart.setEmptyMessage(unsupportedReason);
 			log.warn("Unsupported SiteStats JSON chart configuration for report {}: {}", report.getReportDefinition().getId(), e.getMessage());
 		}
 		return chart;

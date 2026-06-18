@@ -26,11 +26,21 @@ public final class SiteStatsWidgetIds {
 	public static final String TAB_BY_RESOURCE = "byresource";
 	public static final String TAB_BY_PAGE = "bypage";
 
+	public static final String FILTER_DATE = "date";
+	public static final String FILTER_ROLE = "role";
+	public static final String FILTER_TOOL = "tool";
+	public static final String FILTER_RESOURCE_ACTION = "resourceAction";
+	public static final String FILTER_LESSON_ACTION = "lessonAction";
+
 	public static final String METRIC_VISITS_TOTAL = "visits-total";
 	public static final String METRIC_VISITS_UNIQUE = "visits-unique";
+	public static final String METRIC_VISITS_ENROLLED_USERS = "visits-enrolled-users";
 	public static final String METRIC_VISITS_USERS_WITH_VISITS = "visits-users-with-visits";
 	public static final String METRIC_VISITS_USERS_WITHOUT_VISITS = "visits-users-without-visits";
 	public static final String METRIC_VISITS_AVERAGE_PRESENCE = "visits-average-presence";
+	public static final String METRIC_STUDENT_VISITS_TOTAL = "student-visits-total";
+	public static final String METRIC_STUDENT_VISITS_AVERAGE_PRESENCE = "student-visits-average-presence";
+	public static final String METRIC_STUDENT_VISITS_PRESENCE = "student-visits-presence";
 	public static final String METRIC_ACTIVITY_EVENTS = "activity-events";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_TOOL = "activity-most-active-tool";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_USER = "activity-most-active-user";
