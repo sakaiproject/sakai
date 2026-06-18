@@ -34,7 +34,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
@@ -203,12 +202,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	private PrefsData parseSitePrefs(InputStream input) throws Exception{
-		Digester digester = new Digester();
-		digester.setValidating(false);
-
-		digester = DigesterUtil.configurePrefsDigester(digester);
-
-		return (PrefsData) digester.parse( input );
+		return DigesterUtil.parsePrefs(input);
 	}
 
 	@Override
