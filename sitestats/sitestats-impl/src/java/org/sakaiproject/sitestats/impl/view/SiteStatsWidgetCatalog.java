@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -843,6 +845,7 @@ public class SiteStatsWidgetCatalog {
 		WidgetReportDefinition build(String siteId, SiteStatsReportRequest request, String userId);
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	private static class WidgetSpec {
 		private final String id;
 		private final String titleKey;
@@ -851,17 +854,6 @@ public class SiteStatsWidgetCatalog {
 		private final BooleanSupplier available;
 		private final List<WidgetTabSpec> tabs;
 		private final List<WidgetMetricSpec> metrics;
-
-		private WidgetSpec(String id, String titleKey, String icon, String audience, BooleanSupplier available,
-				List<WidgetTabSpec> tabs, List<WidgetMetricSpec> metrics) {
-			this.id = id;
-			this.titleKey = titleKey;
-			this.icon = icon;
-			this.audience = audience;
-			this.available = available;
-			this.tabs = tabs;
-			this.metrics = metrics;
-		}
 
 		private boolean isAvailable() {
 			return available.getAsBoolean();
@@ -884,19 +876,12 @@ public class SiteStatsWidgetCatalog {
 		}
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	private static class WidgetMetricSpec {
 		private final String widgetId;
 		private final String id;
 		private final String labelKey;
 		private final String audience;
 		private final WidgetReportFactory reportFactory;
-
-		private WidgetMetricSpec(String widgetId, String id, String labelKey, String audience, WidgetReportFactory reportFactory) {
-			this.widgetId = widgetId;
-			this.id = id;
-			this.labelKey = labelKey;
-			this.audience = audience;
-			this.reportFactory = reportFactory;
-		}
 	}
 }

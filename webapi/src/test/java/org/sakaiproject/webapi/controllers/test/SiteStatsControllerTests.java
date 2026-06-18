@@ -33,7 +33,6 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.SiteStatsController;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -61,7 +60,7 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 		controller.setPortalService(mock(PortalService.class));
 
 		siteStatsViewService = mock(SiteStatsViewService.class);
-		ReflectionTestUtils.setField(controller, "siteStatsViewService", siteStatsViewService);
+		controller.setSiteStatsViewService(siteStatsViewService);
 
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}

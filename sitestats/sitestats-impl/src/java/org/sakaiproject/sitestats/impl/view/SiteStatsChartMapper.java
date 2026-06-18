@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -11,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -301,27 +304,18 @@ public class SiteStatsChartMapper {
 		return value;
 	}
 
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	private static class ChartDatasetAccumulator {
 		private final String key;
 		private final String label;
 		private final Map<String, ChartPointAccumulator> points = new LinkedHashMap<String, ChartPointAccumulator>();
-
-		private ChartDatasetAccumulator(String key, String label) {
-			this.key = key;
-			this.label = label;
-		}
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	private static class ChartPointAccumulator {
 		private final Object x;
 		private final String label;
 		private Number y;
-
-		private ChartPointAccumulator(Object x, String label, Number y) {
-			this.x = x;
-			this.label = label;
-			this.y = y;
-		}
 
 		private SiteStatsChartPoint toPoint() {
 			SiteStatsChartPoint point = new SiteStatsChartPoint();

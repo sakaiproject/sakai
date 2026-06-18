@@ -1,11 +1,13 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
 package org.sakaiproject.sitestats.impl.view;
 
 import javax.persistence.EntityNotFoundException;
+
+import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.StatsAuthz;
@@ -15,6 +17,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
+@Setter
 public class SiteStatsReportAccess {
 
 	private StatsAuthz statsAuthz;
@@ -22,26 +25,6 @@ public class SiteStatsReportAccess {
 	private SiteStatsReportPreviewService siteStatsReportPreviewService;
 	private SessionManager sessionManager;
 	private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
-
-	public void setStatsAuthz(StatsAuthz statsAuthz) {
-		this.statsAuthz = statsAuthz;
-	}
-
-	public void setReportManager(ReportManager reportManager) {
-		this.reportManager = reportManager;
-	}
-
-	public void setSiteStatsReportPreviewService(SiteStatsReportPreviewService siteStatsReportPreviewService) {
-		this.siteStatsReportPreviewService = siteStatsReportPreviewService;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	public void setSiteStatsWidgetCatalog(SiteStatsWidgetCatalog siteStatsWidgetCatalog) {
-		this.siteStatsWidgetCatalog = siteStatsWidgetCatalog;
-	}
 
 	ReportDef persistedReportDefinition(long reportId) {
 		if (reportId <= 0) {
