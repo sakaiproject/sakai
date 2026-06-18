@@ -9,19 +9,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Setter;
+
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
-class WidgetReportDefFactory {
+public class WidgetReportDefFactory {
 
-	private final SiteStatsWidgetDefinitionSupport support;
-
-	WidgetReportDefFactory(SiteStatsWidgetDefinitionSupport support) {
-		this.support = support;
-	}
+	@Setter private SiteStatsWidgetContext context;
+	@Setter private WidgetFilterCatalog filterCatalog;
 
 	ReportDef baseReportDef(String siteId) {
 		ReportDef reportDef = new ReportDef();
@@ -48,8 +47,8 @@ class WidgetReportDefFactory {
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_EVENTS);
 		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-		params.setWhatEventIds(support.getSiteStatsToolEventsService().getEventsForToolFilter(
-				support.getFilterCatalog().toolFilter(request), siteId, support.getStatsManager().getPreferences(siteId, true), false));
+		params.setWhatEventIds(context.getSiteStatsToolEventsService().getEventsForToolFilter(
+				filterCatalog.toolFilter(request), siteId, context.getStatsManager().getPreferences(siteId, true), false));
 		applyRoleFilter(params, request);
 		return reportDef;
 	}
@@ -59,7 +58,7 @@ class WidgetReportDefFactory {
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_EVENTS);
 		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-		params.setWhatEventIds(support.getStatsManager().getPreferences(siteId, true).getToolEventsStringList());
+		params.setWhatEventIds(context.getStatsManager().getPreferences(siteId, true).getToolEventsStringList());
 		params.setWhen(ReportManager.WHEN_ALL);
 		params.setWho(ReportManager.WHO_ALL);
 		params.setHowSort(true);
@@ -123,8 +122,8 @@ class WidgetReportDefFactory {
 	}
 
 	void applyRoleFilter(ReportParams params, SiteStatsReportRequest request) {
-		params.setWhen(support.getFilterCatalog().dateFilter(request));
-		String role = support.getFilterCatalog().roleFilter(request);
+		params.setWhen(filterCatalog.dateFilter(request));
+		String role = filterCatalog.roleFilter(request);
 		if (!ReportManager.WHO_ALL.equals(role)) {
 			params.setWho(ReportManager.WHO_ROLE);
 			params.setWhoRoleId(role);
@@ -132,7 +131,7 @@ class WidgetReportDefFactory {
 	}
 
 	void applyDateGrouping(ReportParams params, SiteStatsReportRequest request, boolean sortByDate) {
-		String date = support.getFilterCatalog().dateFilter(request);
+		String date = filterCatalog.dateFilter(request);
 		params.setWhen(date);
 		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
 			params.setHowSortBy(sortByDate ? StatsManager.T_DATEMONTH : params.getHowSortBy());
@@ -148,7 +147,7 @@ class WidgetReportDefFactory {
 
 	List<String> dateTotals(SiteStatsReportRequest request, String... extraColumns) {
 		List<String> totalsBy = new ArrayList<String>();
-		String date = support.getFilterCatalog().dateFilter(request);
+		String date = filterCatalog.dateFilter(request);
 		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
 			totalsBy.add(StatsManager.T_DATEMONTH);
 		} else {

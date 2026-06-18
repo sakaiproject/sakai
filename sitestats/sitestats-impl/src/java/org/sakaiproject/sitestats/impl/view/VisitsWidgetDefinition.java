@@ -53,28 +53,28 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_USERS_WITHOUT_VISITS, "overview_title_enrolled_users_without_visits_sum", AUDIENCE_ALL,
 								this::visitsUsersWithoutVisitsMetricDefinition, this::visitsUsersWithoutVisitsValue),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_AVERAGE_PRESENCE, "overview_title_presence_time_avg", AUDIENCE_ALL,
-								() -> Boolean.TRUE.equals(support.getStatsManager().getEnableSitePresences()), this::visitsAveragePresenceMetricDefinition,
+								() -> Boolean.TRUE.equals(statsManager().getEnableSitePresences()), this::visitsAveragePresenceMetricDefinition,
 								this::visitsAveragePresenceValue)));
 	}
 
 	private WidgetReportDefinition visitsByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.baseReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
-		if (ReportManager.WHO_ALL.equals(support.roleFilter(request))) {
+		if (ReportManager.WHO_ALL.equals(filterCatalog().roleFilter(request))) {
 			params.setWhat(ReportManager.WHAT_VISITS_TOTALS);
 		} else {
 			params.setWhat(ReportManager.WHAT_EVENTS);
 			params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
 			params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
 			params.setWho(ReportManager.WHO_ROLE);
-			params.setWhoRoleId(support.roleFilter(request));
+			params.setWhoRoleId(filterCatalog().roleFilter(request));
 		}
-		support.applyDateGrouping(params, request, true);
-		params.setHowTotalsBy(support.dateTotals(request, StatsManager.T_VISITS, StatsManager.T_UNIQUEVISITS));
+		reportFactory().applyDateGrouping(params, request, true);
+		params.setHowTotalsBy(reportFactory().dateTotals(request, StatsManager.T_VISITS, StatsManager.T_UNIQUEVISITS));
 		params.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
 		params.setHowChartSource(StatsManager.T_DATE);
 		params.setHowChartSeriesSource(StatsManager.T_NONE);
-		return new WidgetReportDefinition(support.message("overview_title_visits"), reportDef, reportDef);
+		return new WidgetReportDefinition(message("overview_title_visits"), reportDef, reportDef);
 	}
 
 	private WidgetReportDefinition visitsByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -82,18 +82,18 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		ReportDef table = new ReportDef(chart, siteId);
 		table.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		table.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
-		return new WidgetReportDefinition(support.message("overview_title_visits"), chart, table);
+		return new WidgetReportDefinition(message("overview_title_visits"), chart, table);
 	}
 
 	private ReportDef visitsByUserChart(String siteId, SiteStatsReportRequest request) {
-		ReportDef reportDef = support.baseReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_EVENTS);
 		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
 		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
-		support.applyRoleFilter(params, request);
-		params.setHowTotalsBy(support.dateTotals(request, StatsManager.T_USER));
-		support.applyDateGrouping(params, request, false);
+		reportFactory().applyRoleFilter(params, request);
+		params.setHowTotalsBy(reportFactory().dateTotals(request, StatsManager.T_USER));
+		reportFactory().applyDateGrouping(params, request, false);
 		params.setHowSortBy(StatsManager.T_TOTAL);
 		params.setHowChartType(StatsManager.CHARTTYPE_PIE);
 		params.setHowChartSource(StatsManager.T_USER);
@@ -101,7 +101,7 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 	}
 
 	private WidgetReportDefinition visitsTotalMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_VISITS_TOTALS);
 		params.setWhen(ReportManager.WHEN_ALL);
@@ -114,11 +114,11 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setHowChartSource(StatsManager.T_DATE);
 		params.setHowChartSeriesSource(StatsManager.T_NONE);
 		params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
-		return new WidgetReportDefinition(support.message("overview_title_visits"), reportDef, reportDef);
+		return new WidgetReportDefinition(message("overview_title_visits"), reportDef, reportDef);
 	}
 
 	private WidgetReportDefinition visitsUsersWithVisitsMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_VISITS);
 		params.setWhen(ReportManager.WHEN_ALL);
@@ -126,11 +126,11 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		params.setHowSort(false);
 		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(support.message("overview_title_enrolled_users_with_visits_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_enrolled_users_with_visits_sum"), null, reportDef);
 	}
 
 	private WidgetReportDefinition visitsUsersWithoutVisitsMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_VISITS);
 		params.setWhen(ReportManager.WHEN_ALL);
@@ -138,11 +138,11 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		params.setHowSort(false);
 		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(support.message("overview_title_enrolled_users_without_visits_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_enrolled_users_without_visits_sum"), null, reportDef);
 	}
 
 	private WidgetReportDefinition visitsAveragePresenceMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_PRESENCES);
 		params.setWhen(ReportManager.WHEN_ALL);
@@ -155,19 +155,19 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setHowChartSource(StatsManager.T_DATE);
 		params.setHowChartSeriesSource(StatsManager.T_NONE);
 		params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-		return new WidgetReportDefinition(support.message("overview_title_presence_time_avg"), reportDef, reportDef);
+		return new WidgetReportDefinition(message("overview_title_presence_time_avg"), reportDef, reportDef);
 	}
 
 	private WidgetMetricValue visitsTotalValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(support.getStatsManager().getTotalSiteVisits(siteId)));
+		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteVisits(siteId)));
 	}
 
 	private WidgetMetricValue visitsUniqueValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(support.getStatsManager().getTotalSiteUniqueVisits(siteId)));
+		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteUniqueVisits(siteId)));
 	}
 
 	private WidgetMetricValue visitsEnrolledUsersValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(support.getStatsManager().getTotalSiteUsers(siteId)));
+		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteUsers(siteId)));
 	}
 
 	private WidgetMetricValue visitsUsersWithVisitsValue(String siteId, String userId) {
@@ -187,24 +187,24 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 				count++;
 			}
 		}
-		return WidgetMetricValue.withPercentage(String.valueOf(count), (int) support.percent(count, siteUsers.size()));
+		return WidgetMetricValue.withPercentage(String.valueOf(count), (int) metricSupport().percent(count, siteUsers.size()));
 	}
 
 	private WidgetMetricValue visitsAveragePresenceValue(String siteId, String userId) {
-		long durationInMs = support.sitePresenceDuration(siteId, null);
-		Date firstPresenceDate = support.firstPresenceDate(siteId);
-		long totalVisits = support.getStatsManager().getTotalSiteVisits(siteId, firstPresenceDate, null);
+		long durationInMs = metricSupport().sitePresenceDuration(siteId, null);
+		Date firstPresenceDate = metricSupport().firstPresenceDate(siteId);
+		long totalVisits = statsManager().getTotalSiteVisits(siteId, firstPresenceDate, null);
 		double durationInMin = durationInMs == 0 || totalVisits == 0 ? 0 : Util.round((durationInMs / (double) totalVisits) / 1000 / 60, 1);
-		return WidgetMetricValue.of(durationInMin + " " + support.message("minutes_abbr"));
+		return WidgetMetricValue.of(durationInMin + " " + message("minutes_abbr"));
 	}
 
 	private Set<String> siteUsers(String siteId) {
-		Set<String> users = support.getStatsManager().getSiteUsers(siteId);
+		Set<String> users = statsManager().getSiteUsers(siteId);
 		return users == null ? Collections.<String>emptySet() : users;
 	}
 
 	private Set<String> usersWithVisits(String siteId) {
-		Set<String> users = support.getStatsManager().getUsersWithVisits(siteId);
+		Set<String> users = statsManager().getUsersWithVisits(siteId);
 		return users == null ? new HashSet<String>() : users;
 	}
 }

@@ -15,6 +15,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.io.IClusterable;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
@@ -26,7 +27,9 @@ import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
-abstract class ReportDataPageSource {
+abstract class ReportDataPageSource implements IClusterable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Getter protected final String siteId;
 	protected final ReportDefModel reportDefModel;
@@ -86,6 +89,8 @@ abstract class ReportDataPageSource {
 
 	private static class WidgetTabSource extends ReportDataPageSource {
 
+		private static final long serialVersionUID = 1L;
+
 		private final String widgetId;
 		private final String tabId;
 		private final String date;
@@ -135,6 +140,8 @@ abstract class ReportDataPageSource {
 
 	private static class WidgetMetricSource extends ReportDataPageSource {
 
+		private static final long serialVersionUID = 1L;
+
 		private final String widgetId;
 		private final String metricId;
 
@@ -176,6 +183,8 @@ abstract class ReportDataPageSource {
 
 	private static class PersistedSource extends ReportDataPageSource {
 
+		private static final long serialVersionUID = 1L;
+
 		private final long reportId;
 
 		private PersistedSource(String siteId, ReportDefModel reportDefModel, Component component, long reportId) {
@@ -213,6 +222,8 @@ abstract class ReportDataPageSource {
 	}
 
 	private static class PreviewSource extends ReportDataPageSource {
+
+		private static final long serialVersionUID = 1L;
 
 		private String previewId;
 

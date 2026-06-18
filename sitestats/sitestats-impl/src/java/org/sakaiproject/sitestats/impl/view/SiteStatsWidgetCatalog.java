@@ -163,7 +163,7 @@ public class SiteStatsWidgetCatalog {
 		if (widget != null) {
 			tab.setWidgetTitle(support.message(widget.getTitleKey()));
 		}
-		tab.setFilters(support.filters(siteId, spec.getFilterIds()));
+		tab.setFilters(support.getFilterCatalog().filters(siteId, spec.getFilterIds()));
 		return tab;
 	}
 

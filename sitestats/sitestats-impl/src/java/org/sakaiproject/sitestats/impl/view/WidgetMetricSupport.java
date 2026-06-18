@@ -5,48 +5,36 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
 
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.authz.api.Role;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
-import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-class WidgetMetricSupport {
+public class WidgetMetricSupport {
 
-	private final SiteStatsWidgetDefinitionSupport support;
-
-	WidgetMetricSupport(SiteStatsWidgetDefinitionSupport support) {
-		this.support = support;
-	}
+	@Setter private SiteStatsWidgetContext context;
+	@Setter private WidgetReportDefFactory reportFactory;
 
 	double percent(long partial, long total) {
 		return total == 0 ? 0 : Util.round(100 * partial / (double) total, 0);
@@ -54,9 +42,9 @@ class WidgetMetricSupport {
 
 	String msToString(long ms) {
 		StringJoiner time = new StringJoiner(" ");
-		String hoursAbbr = support.message("hours_abbr");
-		String minsAbbr = support.message("minutes_abbr");
-		String secsAbbr = support.message("seconds_abbr");
+		String hoursAbbr = context.message("hours_abbr");
+		String minsAbbr = context.message("minutes_abbr");
+		String secsAbbr = context.message("seconds_abbr");
 		long totalSecs = ms / 1000;
 		long hours = totalSecs / 3600;
 		long mins = (totalSecs / 60) % 60;
@@ -78,7 +66,7 @@ class WidgetMetricSupport {
 			return "-";
 		}
 		try {
-			return support.getUserDirectoryService().getUser(userId).getDisplayId();
+			return context.getUserDirectoryService().getUser(userId).getDisplayId();
 		} catch (UserNotDefinedException e) {
 			return userId;
 		}
@@ -89,16 +77,16 @@ class WidgetMetricSupport {
 			return null;
 		}
 		if ("-".equals(userId)) {
-			return support.message("user_anonymous");
+			return context.message("user_anonymous");
 		}
 		if (EventTrackingService.UNKNOWN_USER.equals(userId)) {
-			return support.message("user_anonymous_access");
+			return context.message("user_anonymous_access");
 		}
-		return support.getStatsManager().getUserNameForDisplay(userId);
+		return context.getStatsManager().getUserNameForDisplay(userId);
 	}
 
 	long sitePresenceDuration(String siteId, List<String> userIds) {
-		ReportDef reportDef = support.getReportFactory().baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_PRESENCES);
 		params.setWho(userIds == null ? ReportManager.WHO_ALL : ReportManager.WHO_CUSTOM);
@@ -106,7 +94,7 @@ class WidgetMetricSupport {
 			params.setWhoUserIds(userIds);
 		}
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_SITE));
-		Report report = support.getReportManager().getReport(reportDef, true);
+		Report report = context.getReportManager().getReport(reportDef, true);
 		if (report.getReportData().isEmpty()) {
 			return 0;
 		}
@@ -114,7 +102,7 @@ class WidgetMetricSupport {
 	}
 
 	Date firstPresenceDate(String siteId) {
-		ReportDef reportDef = support.getReportFactory().baseMetricReportDef(siteId);
+		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_PRESENCES);
 		params.setWho(ReportManager.WHO_ALL);
@@ -123,7 +111,7 @@ class WidgetMetricSupport {
 		params.setHowSortAscending(true);
 		params.setHowSortBy(StatsManager.T_DATE);
 		PagingPosition paging = new PagingPosition();
-		Report report = support.getReportManager().getReport(reportDef, true, paging, false);
+		Report report = context.getReportManager().getReport(reportDef, true, paging, false);
 		if (report.getReportData().isEmpty()) {
 			return new Date();
 		}
@@ -132,7 +120,7 @@ class WidgetMetricSupport {
 
 	int countExistingResources(Report report) {
 		int total = 0;
-		ContentHostingService contentHostingService = support.getContentHostingService();
+		ContentHostingService contentHostingService = context.getContentHostingService();
 		for (Stat stat : report.getReportData()) {
 			try {
 				String resourceId = ((ResourceStat) stat).getResourceRef();

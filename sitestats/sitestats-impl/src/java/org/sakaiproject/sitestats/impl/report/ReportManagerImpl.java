@@ -509,7 +509,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(cached != null){
 			reportDef = (ReportDef) cached;
 		}else{
-			HibernateCallback<ReportDef> hcb = session -> (ReportDef) session.load(ReportDef.class, Long.valueOf(id));
+				HibernateCallback<ReportDef> hcb = session -> session.get(ReportDef.class, Long.valueOf(id));
 			Object o;
 			try{
 				o = getHibernateTemplate().execute(hcb);

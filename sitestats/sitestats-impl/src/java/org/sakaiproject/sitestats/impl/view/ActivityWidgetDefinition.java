@@ -52,77 +52,77 @@ public class ActivityWidgetDefinition extends AbstractSiteStatsWidgetDefinition 
 	}
 
 	private WidgetReportDefinition activityByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.activityBase(siteId, request);
-		reportDef.getReportParams().setHowTotalsBy(support.dateTotals(request));
-		support.applyDateGrouping(reportDef.getReportParams(), request, true);
+		ReportDef reportDef = reportFactory().activityBase(siteId, request);
+		reportDef.getReportParams().setHowTotalsBy(reportFactory().dateTotals(request));
+		reportFactory().applyDateGrouping(reportDef.getReportParams(), request, true);
 		reportDef.getReportParams().setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
 		reportDef.getReportParams().setHowChartSource(StatsManager.T_DATE);
 		reportDef.getReportParams().setHowChartSeriesSource(StatsManager.T_NONE);
-		return new WidgetReportDefinition(support.message("overview_title_activity"), reportDef, reportDef);
+		return new WidgetReportDefinition(message("overview_title_activity"), reportDef, reportDef);
 	}
 
 	private WidgetReportDefinition activityByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef chart = support.activityBase(siteId, request);
-		chart.getReportParams().setHowTotalsBy(support.dateTotals(request, StatsManager.T_USER));
-		support.applyDateGrouping(chart.getReportParams(), request, false);
+		ReportDef chart = reportFactory().activityBase(siteId, request);
+		chart.getReportParams().setHowTotalsBy(reportFactory().dateTotals(request, StatsManager.T_USER));
+		reportFactory().applyDateGrouping(chart.getReportParams(), request, false);
 		chart.getReportParams().setHowChartType(StatsManager.CHARTTYPE_PIE);
 		chart.getReportParams().setHowChartSource(StatsManager.T_USER);
 		ReportDef table = new ReportDef(chart, siteId);
 		table.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		table.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
-		return new WidgetReportDefinition(support.message("overview_title_activity"), chart, table);
+		return new WidgetReportDefinition(message("overview_title_activity"), chart, table);
 	}
 
 	private WidgetReportDefinition activityByToolDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef chart = support.activityBase(siteId, request);
+		ReportDef chart = reportFactory().activityBase(siteId, request);
 		chart.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_TOOL));
 		chart.getReportParams().setHowSortBy(StatsManager.T_DATE);
 		chart.getReportParams().setHowChartType(StatsManager.CHARTTYPE_PIE);
 		chart.getReportParams().setHowChartSource(StatsManager.T_TOOL);
 		ReportDef table = new ReportDef(chart, siteId);
 		table.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
-		return new WidgetReportDefinition(support.message("overview_title_activity"), chart, table);
+		return new WidgetReportDefinition(message("overview_title_activity"), chart, table);
 	}
 
 	private WidgetReportDefinition activityEventsMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.activityMetricBase(siteId);
+		ReportDef reportDef = reportFactory().activityMetricBase(siteId);
 		reportDef.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_EVENT));
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_EVENT);
 		reportDef.getReportParams().setHowSortAscending(true);
 		reportDef.getReportParams().setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(support.message("overview_title_events_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_events_sum"), null, reportDef);
 	}
 
 	private WidgetReportDefinition activityMostActiveToolMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.activityMetricBase(siteId);
+		ReportDef reportDef = reportFactory().activityMetricBase(siteId);
 		reportDef.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_TOOL));
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOOL);
 		reportDef.getReportParams().setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
 		reportDef.getReportParams().setHowChartType(StatsManager.CHARTTYPE_PIE);
 		reportDef.getReportParams().setHowChartSource(StatsManager.T_TOOL);
-		return new WidgetReportDefinition(support.message("overview_title_mostactivetool_sum"), reportDef, reportDef);
+		return new WidgetReportDefinition(message("overview_title_mostactivetool_sum"), reportDef, reportDef);
 	}
 
 	private WidgetReportDefinition activityMostActiveUserMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.activityMetricBase(siteId);
+		ReportDef reportDef = reportFactory().activityMetricBase(siteId);
 		reportDef.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
 		reportDef.getReportParams().setHowSortAscending(false);
 		reportDef.getReportParams().setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(support.message("overview_title_mostactiveuser_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_mostactiveuser_sum"), null, reportDef);
 	}
 
 	private WidgetMetricValue activityEventsValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(support.getStatsManager().getTotalSiteActivity(siteId,
-				support.getStatsManager().getPreferences(siteId, true).getToolEventsStringList())));
+		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteActivity(siteId,
+				statsManager().getPreferences(siteId, true).getToolEventsStringList())));
 	}
 
 	private WidgetMetricValue activityMostActiveToolValue(String siteId, String userId) {
-		ReportDef reportDef = support.activityMetricBase(siteId);
+		ReportDef reportDef = reportFactory().activityMetricBase(siteId);
 		reportDef.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_TOOL));
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
 		reportDef.getReportParams().setHowSortAscending(false);
-		Report report = support.getReportManager().getReport(reportDef, true, null, false);
+		Report report = reportManager().getReport(reportDef, true, null, false);
 		String toolId = null;
 		long toolActivity = 0;
 		long totalActivity = 0;
@@ -134,16 +134,16 @@ public class ActivityWidgetDefinition extends AbstractSiteStatsWidgetDefinition 
 			}
 			totalActivity += eventStat.getCount();
 		}
-		String toolName = toolId == null ? "-" : support.getEventRegistryService().getToolName(toolId);
-		return WidgetMetricValue.withPercentageAndDetail(toolName, (int) support.percent(toolActivity, totalActivity), toolName);
+		String toolName = toolId == null ? "-" : eventRegistryService().getToolName(toolId);
+		return WidgetMetricValue.withPercentageAndDetail(toolName, (int) metricSupport().percent(toolActivity, totalActivity), toolName);
 	}
 
 	private WidgetMetricValue activityMostActiveUserValue(String siteId, String userId) {
-		ReportDef reportDef = support.activityMetricBase(siteId);
+		ReportDef reportDef = reportFactory().activityMetricBase(siteId);
 		reportDef.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
 		reportDef.getReportParams().setHowSortAscending(false);
-		Report report = support.getReportManager().getReport(reportDef, true, null, false);
+		Report report = reportManager().getReport(reportDef, true, null, false);
 		String activeUserId = null;
 		long userActivity = 0;
 		long totalActivity = 0;
@@ -155,7 +155,7 @@ public class ActivityWidgetDefinition extends AbstractSiteStatsWidgetDefinition 
 			}
 			totalActivity += eventStat.getCount();
 		}
-		String displayId = activeUserId == null ? "-" : support.userDisplayId(activeUserId);
-		return WidgetMetricValue.withPercentageAndDetail(displayId, (int) support.percent(userActivity, totalActivity), support.userTooltip(activeUserId));
+		String displayId = activeUserId == null ? "-" : metricSupport().userDisplayId(activeUserId);
+		return WidgetMetricValue.withPercentageAndDetail(displayId, (int) metricSupport().percent(userActivity, totalActivity), metricSupport().userTooltip(activeUserId));
 	}
 }

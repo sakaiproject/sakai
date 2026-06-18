@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -27,10 +30,8 @@ import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilterOption;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-class WidgetFilterCatalog {
+public class WidgetFilterCatalog {
 
 	private static final List<String> DATE_FILTERS = Arrays.asList(
 			ReportManager.WHEN_ALL,
@@ -38,11 +39,7 @@ class WidgetFilterCatalog {
 			ReportManager.WHEN_LAST30DAYS,
 			ReportManager.WHEN_LAST7DAYS);
 
-	private final SiteStatsWidgetDefinitionSupport support;
-
-	WidgetFilterCatalog(SiteStatsWidgetDefinitionSupport support) {
-		this.support = support;
-	}
+	@Setter private SiteStatsWidgetContext context;
 
 	List<SiteStatsFilter> filters(String siteId, List<String> ids) {
 		List<SiteStatsFilter> filters = new ArrayList<SiteStatsFilter>();
@@ -80,19 +77,19 @@ class WidgetFilterCatalog {
 
 	private String filterLabel(String id) {
 		if (FILTER_DATE.equals(id)) {
-			return support.message("report_when_period");
+			return context.message("report_when_period");
 		}
 		if (FILTER_ROLE.equals(id)) {
-			return support.message("report_who_role");
+			return context.message("report_who_role");
 		}
 		if (FILTER_TOOL.equals(id)) {
-			return support.message("report_option_tool");
+			return context.message("report_option_tool");
 		}
 		if (FILTER_RESOURCE_ACTION.equals(id)) {
-			return support.message("report_option_resourceaction");
+			return context.message("report_option_resourceaction");
 		}
 		if (FILTER_LESSON_ACTION.equals(id)) {
-			return support.message("th_action");
+			return context.message("th_action");
 		}
 		return id;
 	}
@@ -118,18 +115,18 @@ class WidgetFilterCatalog {
 
 	private List<SiteStatsFilterOption> dateFilterOptions() {
 		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
-		options.add(option(ReportManager.WHEN_ALL, support.message("overview_filter_date_all")));
-		options.add(option(ReportManager.WHEN_LAST365DAYS, support.message("report_when_last365days")));
-		options.add(option(ReportManager.WHEN_LAST30DAYS, support.message("report_when_last30days")));
-		options.add(option(ReportManager.WHEN_LAST7DAYS, support.message("report_when_last7days")));
+		options.add(option(ReportManager.WHEN_ALL, context.message("overview_filter_date_all")));
+		options.add(option(ReportManager.WHEN_LAST365DAYS, context.message("report_when_last365days")));
+		options.add(option(ReportManager.WHEN_LAST30DAYS, context.message("report_when_last30days")));
+		options.add(option(ReportManager.WHEN_LAST7DAYS, context.message("report_when_last7days")));
 		return options;
 	}
 
 	private List<SiteStatsFilterOption> roleFilterOptions(String siteId) {
 		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
-		options.add(option(ReportManager.WHO_ALL, support.message("overview_filter_role_all")));
+		options.add(option(ReportManager.WHO_ALL, context.message("overview_filter_role_all")));
 		try {
-			Site site = support.getSiteService().getSite(siteId);
+			Site site = context.getSiteService().getSite(siteId);
 			Set<Role> roles = site.getRoles();
 			for (Role role : roles) {
 				options.add(option(role.getId(), role.getId()));
@@ -142,39 +139,39 @@ class WidgetFilterCatalog {
 
 	private List<SiteStatsFilterOption> toolFilterOptions(String siteId) {
 		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
-		options.add(option(ReportManager.WHAT_EVENTS_ALLTOOLS, support.message("overview_filter_tool_all")));
-		PrefsData prefsData = support.getStatsManager().getPreferences(siteId, false);
-		for (String toolId : support.getSiteStatsToolEventsService().getToolIds(siteId, prefsData)) {
+		options.add(option(ReportManager.WHAT_EVENTS_ALLTOOLS, context.message("overview_filter_tool_all")));
+		PrefsData prefsData = context.getStatsManager().getPreferences(siteId, false);
+		for (String toolId : context.getSiteStatsToolEventsService().getToolIds(siteId, prefsData)) {
 			options.add(option(toolId, toolName(toolId)));
 		}
 		return options;
 	}
 
 	private String toolName(String toolId) {
-		if (support.getEventRegistryService() == null) {
+		if (context.getEventRegistryService() == null) {
 			return toolId;
 		}
-		return StringUtils.defaultIfBlank(support.getEventRegistryService().getToolName(toolId), toolId);
+		return StringUtils.defaultIfBlank(context.getEventRegistryService().getToolName(toolId), toolId);
 	}
 
 	private List<SiteStatsFilterOption> resourceActionFilterOptions() {
 		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
-		options.add(option("", support.message("overview_filter_resaction_all")));
-		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_NEW, support.message("action_new")));
-		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_READ, support.message("action_read")));
-		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_REVS, support.message("action_revise")));
-		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_DEL, support.message("action_delete")));
-		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_DOW, support.message("action_zipdownload")));
+		options.add(option("", context.message("overview_filter_resaction_all")));
+		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_NEW, context.message("action_new")));
+		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_READ, context.message("action_read")));
+		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_REVS, context.message("action_revise")));
+		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_DEL, context.message("action_delete")));
+		options.add(option(ReportManager.WHAT_RESOURCES_ACTION_DOW, context.message("action_zipdownload")));
 		return options;
 	}
 
 	private List<SiteStatsFilterOption> lessonActionFilterOptions() {
 		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
-		options.add(option("", support.message("overview_filter_resaction_all")));
-		options.add(option(ReportManager.WHAT_LESSONS_ACTION_CREATE, support.message("action_create")));
-		options.add(option(ReportManager.WHAT_LESSONS_ACTION_READ, support.message("action_read")));
-		options.add(option(ReportManager.WHAT_LESSONS_ACTION_DELETE, support.message("action_delete")));
-		options.add(option(ReportManager.WHAT_LESSONS_ACTION_UPDATE, support.message("action_update")));
+		options.add(option("", context.message("overview_filter_resaction_all")));
+		options.add(option(ReportManager.WHAT_LESSONS_ACTION_CREATE, context.message("action_create")));
+		options.add(option(ReportManager.WHAT_LESSONS_ACTION_READ, context.message("action_read")));
+		options.add(option(ReportManager.WHAT_LESSONS_ACTION_DELETE, context.message("action_delete")));
+		options.add(option(ReportManager.WHAT_LESSONS_ACTION_UPDATE, context.message("action_update")));
 		return options;
 	}
 

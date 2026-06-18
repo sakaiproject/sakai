@@ -27,7 +27,7 @@ public class LessonsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 	@Override
 	public WidgetSpec getSpec() {
 		return widgetSpec(WIDGET_LESSONS, "overview_title_lessonpages", "sakai-lessonbuildertool", AUDIENCE_ALL,
-				() -> support.getStatsManager().isEnableLessonsStats(),
+				() -> statsManager().isEnableLessonsStats(),
 				tabs(
 						tabSpec(WIDGET_LESSONS, TAB_BY_DATE, "overview_tab_bydate", this::lessonsByDateDefinition,
 								FILTER_DATE, FILTER_ROLE,
@@ -50,38 +50,38 @@ public class LessonsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 	}
 
 	private WidgetReportDefinition lessonsByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByDateDefinition(siteId, request, support.message("overview_title_lessonpages"),
-				ReportManager.WHAT_LESSONPAGES, "/page/", support.lessonActionFilter(request));
+		return reportFactory().resourceLikeByDateDefinition(siteId, request, message("overview_title_lessonpages"),
+				ReportManager.WHAT_LESSONPAGES, "/page/", filterCatalog().lessonActionFilter(request));
 	}
 
 	private WidgetReportDefinition lessonsByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByUserDefinition(siteId, request, support.message("overview_title_lessonpages"),
-				ReportManager.WHAT_LESSONPAGES, "/page/", support.lessonActionFilter(request), StatsManager.T_PAGE);
+		return reportFactory().resourceLikeByUserDefinition(siteId, request, message("overview_title_lessonpages"),
+				ReportManager.WHAT_LESSONPAGES, "/page/", filterCatalog().lessonActionFilter(request), StatsManager.T_PAGE);
 	}
 
 	private WidgetReportDefinition lessonsByPageDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByItemDefinition(siteId, request, support.message("overview_title_lessonpages"),
-				ReportManager.WHAT_LESSONPAGES, "/page/", support.lessonActionFilter(request), StatsManager.T_PAGE);
+		return reportFactory().resourceLikeByItemDefinition(siteId, request, message("overview_title_lessonpages"),
+				ReportManager.WHAT_LESSONPAGES, "/page/", filterCatalog().lessonActionFilter(request), StatsManager.T_PAGE);
 	}
 
 	private WidgetMetricValue lessonsPagesValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Integer.toString(support.getStatsManager().getTotalLessonPages(siteId)));
+		return WidgetMetricValue.of(Integer.toString(statsManager().getTotalLessonPages(siteId)));
 	}
 
 	private WidgetMetricValue lessonsReadPagesValue(String siteId, String userId) {
-		int readPages = support.getStatsManager().getTotalReadLessonPages(siteId);
-		int totalPages = support.getStatsManager().getTotalLessonPages(siteId);
-		return WidgetMetricValue.withPercentage(Integer.toString(readPages), (int) support.percent(readPages, totalPages));
+		int readPages = statsManager().getTotalReadLessonPages(siteId);
+		int totalPages = statsManager().getTotalLessonPages(siteId);
+		return WidgetMetricValue.withPercentage(Integer.toString(readPages), (int) metricSupport().percent(readPages, totalPages));
 	}
 
 	private WidgetMetricValue lessonsMostReadPageValue(String siteId, String userId) {
-		String mostReadPage = support.getStatsManager().getMostReadLessonPage(siteId);
+		String mostReadPage = statsManager().getMostReadLessonPage(siteId);
 		return WidgetMetricValue.withDetail(mostReadPage == null ? "-" : mostReadPage, mostReadPage);
 	}
 
 	private WidgetMetricValue lessonsUserReadMorePagesValue(String siteId, String userId) {
-		String activeUserId = support.getStatsManager().getMostActiveLessonPageReader(siteId);
-		String displayId = activeUserId == null ? "-" : support.userDisplayId(activeUserId);
-		return WidgetMetricValue.withDetail(displayId, support.userTooltip(activeUserId));
+		String activeUserId = statsManager().getMostActiveLessonPageReader(siteId);
+		String displayId = activeUserId == null ? "-" : metricSupport().userDisplayId(activeUserId);
+		return WidgetMetricValue.withDetail(displayId, metricSupport().userTooltip(activeUserId));
 	}
 }
