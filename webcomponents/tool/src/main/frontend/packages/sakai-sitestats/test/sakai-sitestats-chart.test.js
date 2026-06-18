@@ -2,6 +2,7 @@ import "../sakai-sitestats-chart.js";
 import * as i18n from "./i18n.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
+import { siteStatsChartData } from "../src/site-stats-chart-adapter.js";
 
 describe("sakai-sitestats-chart tests", () => {
 
@@ -38,7 +39,7 @@ describe("sakai-sitestats-chart tests", () => {
     const el = await fixture(html`<sakai-sitestats-chart .chart=${chart}></sakai-sitestats-chart>`);
     await waitUntil(() => el._chartInstance);
 
-    const dataset = el._chartData().datasets[0];
+    const dataset = siteStatsChartData(chart).datasets[0];
     const plugins = el._chartInstance.config.plugins || [];
 
     expect(el.shadowRoot.querySelector(".chart-frame.depth")).to.exist;

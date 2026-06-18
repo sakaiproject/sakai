@@ -51,13 +51,15 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	@Override
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId) {
 		siteStatsReportAccess.assertCanViewWidget(siteId, widgetId);
-		return siteStatsWidgetCatalog.getWidgetMetrics(siteId, widgetId);
+		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
+		return siteStatsWidgetCatalog.getWidgetMetrics(siteId, widgetId, userId);
 	}
 
 	@Override
 	public SiteStatsWidgetMetric getWidgetMetric(String siteId, String widgetId, String metricId) {
 		siteStatsReportAccess.assertCanViewMetric(siteId, widgetId, metricId);
-		return siteStatsWidgetCatalog.getWidgetMetric(siteId, widgetId, metricId);
+		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null;
+		return siteStatsWidgetCatalog.getWidgetMetric(siteId, widgetId, metricId, userId);
 	}
 
 	@Override
@@ -113,7 +115,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	public SiteStatsReportView getWidgetReport(String siteId, String widgetId, String tabId, SiteStatsReportRequest request) {
 		siteStatsReportAccess.assertCanViewWidget(siteId, widgetId);
 
-		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, tabId, null,
@@ -124,7 +126,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	public SiteStatsReportView getWidgetMetricReport(String siteId, String widgetId, String metricId, SiteStatsReportRequest request) {
 		siteStatsReportAccess.assertCanViewMetric(siteId, widgetId, metricId);
 
-		SiteStatsReportRequest safeRequest = SiteStatsReportRequests.orDefault(request);
+		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null;
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, null, metricId,

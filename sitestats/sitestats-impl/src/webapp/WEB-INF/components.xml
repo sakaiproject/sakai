@@ -257,13 +257,53 @@
 		<property name="siteStatsReportSummaryMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper"/>
 	</bean>
 
-	<!-- SiteStatsWidgetCatalog ____________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog">
+	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport">
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"/>
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	</bean>
+
+	<!-- SiteStatsWidgetCatalog ____________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
+		  init-method="init">
+		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+		<property name="widgetDefinitions">
+			<list>
+				<ref bean="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
+			</list>
+		</property>
 	</bean>
 
 	<!-- SiteStatsReportAccess _____________________________________________________________________ -->

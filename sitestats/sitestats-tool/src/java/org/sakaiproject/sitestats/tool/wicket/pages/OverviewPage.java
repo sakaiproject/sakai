@@ -18,6 +18,10 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_RESOURCES;
+
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -27,9 +31,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
-import org.sakaiproject.sitestats.tool.wicket.widget.ActivityWidget;
-import org.sakaiproject.sitestats.tool.wicket.widget.LessonsWidget;
-import org.sakaiproject.sitestats.tool.wicket.widget.ResourcesWidget;
+import org.sakaiproject.sitestats.tool.wicket.widget.CatalogWidgetPanel;
 import org.sakaiproject.sitestats.tool.wicket.widget.VisitsWidget;
 
 /**
@@ -99,7 +101,7 @@ public class OverviewPage extends BasePage {
 		// Activity
 		boolean activityVisible = statsManager.isEnableSiteActivity();
 		if(activityVisible && siteStatsViewAll) {
-			add(new ActivityWidget("activityWidget", siteId));
+			add(new CatalogWidgetPanel("activityWidget", siteId, WIDGET_ACTIVITY));
 		}else{
 			add(new WebMarkupContainer("activityWidget").setRenderBodyOnly(true));
 		}
@@ -113,7 +115,7 @@ public class OverviewPage extends BasePage {
 			resourcesVisible = false;
 		}
 		if(resourcesVisible && siteStatsViewAll) {
-			add(new ResourcesWidget("resourcesWidget", siteId));
+			add(new CatalogWidgetPanel("resourcesWidget", siteId, WIDGET_RESOURCES));
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
 		}
@@ -128,7 +130,7 @@ public class OverviewPage extends BasePage {
 		}
 
 		if (lessonsVisible && siteStatsViewAll) {
-			add(new LessonsWidget("lessonsWidget", siteId));
+			add(new CatalogWidgetPanel("lessonsWidget", siteId, WIDGET_LESSONS));
 		}else{
 			add(new WebMarkupContainer("lessonsWidget").setRenderBodyOnly(true));
 		}

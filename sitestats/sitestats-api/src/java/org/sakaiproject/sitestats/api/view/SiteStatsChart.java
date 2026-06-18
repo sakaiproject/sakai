@@ -23,6 +23,8 @@ public class SiteStatsChart implements Serializable {
 	private String xKey;
 	private String yKey;
 	private String emptyMessage;
+	private boolean supported = true;
+	private String unsupportedReason;
 	private boolean threeDimensional;
 	private float transparency = 1.0f;
 	private boolean itemLabelsVisible = true;

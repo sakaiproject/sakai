@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -36,7 +35,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.handler.EmptyRequestHandler;
 
@@ -45,10 +43,7 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
-import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
-import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
@@ -63,17 +58,9 @@ public class ReportDataPage extends BasePage {
 
 	private String						realSiteId;
 	private String						siteId;
-	private String						widgetId;
-	private String						tabId;
-	private String						metricId;
-	private String						date;
-	private String						role;
-	private String						tool;
-	private String						resourceAction;
-	private String						lessonAction;
-	private String						previewId;
 
 	private ReportDefModel				reportDefModel;
+	private ReportDataPageSource		reportSource;
 	private WebPage						returnPage;
 
 	private WebMarkupContainer			printLink;
@@ -84,14 +71,6 @@ public class ReportDataPage extends BasePage {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.get("siteId").toString();
-			widgetId = pageParameters.get("widgetId").toOptionalString();
-			tabId = pageParameters.get("tabId").toOptionalString();
-			metricId = pageParameters.get("metricId").toOptionalString();
-			date = pageParameters.get("date").toOptionalString();
-			role = pageParameters.get("role").toOptionalString();
-			tool = pageParameters.get("tool").toOptionalString();
-			resourceAction = pageParameters.get("resourceAction").toOptionalString();
-			lessonAction = pageParameters.get("lessonAction").toOptionalString();
 		}
 		if(siteId == null){
 			siteId = realSiteId;
@@ -101,9 +80,10 @@ public class ReportDataPage extends BasePage {
 		}else{
 			this.returnPage = returnPage;
 		}
+		reportSource = ReportDataPageSource.resolve(siteId, reportDefModel, pageParameters, this);
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			if(isWidgetReport() || isWidgetMetricReport() || hasReportDefinition()) {
+			if(reportSource != null) {
 				renderBody();
 			}else{
 				setResponsePage(ReportsPage.class);
@@ -137,26 +117,9 @@ public class ReportDataPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void renderBody() {
 		setVersioned(false);
-		boolean widgetReport = isWidgetReport();
-		boolean widgetMetricReport = isWidgetMetricReport();
 		
 		// reportAction
-		if(widgetReport) {
-			add(new Label("reportAction", getWidgetReportTitle()));
-		}else if(widgetMetricReport) {
-			add(new Label("reportAction", getWidgetMetricReportTitle()));
-		}else if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
-			String titleStr = null;
-			if(getReportDef().isTitleLocalized()) {
-				titleStr = (String) new ResourceModel("reportres_title_detailed").getObject();
-				titleStr = titleStr.replaceAll("\\$\\{title\\}", (String) new ResourceModel(getReportDef().getTitleBundleKey()).getObject());
-			}else{
-				titleStr = new StringResourceModel("reportres_title_detailed", this, reportDefModel).getString();
-			}
-			add(new Label("reportAction", titleStr));
-		}else{
-			add(new Label("reportAction", new ResourceModel("reportres_title")));
-		}
+		add(new Label("reportAction", reportSource.title()));
 		
 		// model
 		setDefaultModel(new CompoundPropertyModel(this));
@@ -172,7 +135,7 @@ public class ReportDataPage extends BasePage {
 		add(new LastJobRun("lastJobRun", siteId));
 		
 		WebMarkupContainer printContainer = new WebMarkupContainer("printContainer");
-		printContainer.setVisible(!widgetReport);
+		printContainer.setVisible(reportSource.showPrint());
 		printContainer.setVersioned(false);
 		printLink = new WebMarkupContainer("printLink");
 		printLink.setOutputMarkupId(true);
@@ -268,71 +231,34 @@ public class ReportDataPage extends BasePage {
 		Report exportReport = getExportReport();
 		String fileName = getExportFileName(exportReport);
 		byte[] hssfWorkbookBytes = Locator.getFacade().getReportManager().getReportAsExcel(exportReport, fileName);
-		
-		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
-		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("application/vnd.ms-excel");
-		response.setAttachmentHeader(fileName + ".xls");
-		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(hssfWorkbookBytes.length);
-		OutputStream out = null;
-		try{
-			out = response.getOutputStream();
-			out.write(hssfWorkbookBytes);
-			out.flush();
-		}catch(IOException e){
-			log.error(e.getMessage());
-		}finally{
-			try{
-				if(out != null) out.close();
-			}catch(IOException e){
-				log.error(e.getMessage());
-			}
-		}
+		writeAttachment(hssfWorkbookBytes, "application/vnd.ms-excel", fileName + ".xls");
 	}
 
 	protected void exportCsv() {
 		Report exportReport = getExportReport();
 		String fileName = getExportFileName(exportReport);
 		byte[] csvBytes = Locator.getFacade().getReportManager().getReportAsCsv(exportReport).getBytes(StandardCharsets.UTF_8);
-		
-		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
-		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("text/comma-separated-values");
-		response.setAttachmentHeader(fileName + ".csv");
-		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(csvBytes.length);
-		OutputStream out = null;
-		try{
-			out = response.getOutputStream();
-			out.write(csvBytes);
-			out.flush();
-		}catch(IOException e){
-			log.error(e.getMessage());
-		}finally{
-			try{
-				if(out != null) out.close();
-			}catch(IOException e){
-				log.error(e.getMessage());
-			}
-		}
+		writeAttachment(csvBytes, "text/comma-separated-values", fileName + ".csv");
 	}
 
 	protected void exportPdf() {
 		Report exportReport = getExportReport();
 		String fileName = getExportFileName(exportReport);
 		byte[] pdf = Locator.getFacade().getReportManager().getReportAsPDF(exportReport);
+		writeAttachment(pdf, "application/pdf", fileName + ".pdf");
+	}
 
+	private void writeAttachment(byte[] bytes, String contentType, String fileName) {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("application/pdf");
-		response.setAttachmentHeader(fileName + ".pdf");
+		response.setContentType(contentType);
+		response.setAttachmentHeader(fileName);
 		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(pdf.length);
+		response.setContentLength(bytes.length);
 		OutputStream out = null;
 		try{
 			out = response.getOutputStream();
-			out.write(pdf);
+			out.write(bytes);
 			out.flush();
 		}catch(IOException e){
 			log.error(e.getMessage());
@@ -345,33 +271,12 @@ public class ReportDataPage extends BasePage {
 		}
 	}
 
-	private boolean isWidgetReport() {
-		return StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(tabId);
-	}
-
-	private boolean isWidgetMetricReport() {
-		return StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(metricId);
-	}
-
-	private boolean hasReportDefinition() {
-		return getReportDef() != null && getReportDef().getReportParams() != null;
-	}
-
 	private boolean isExportAllowed() {
-		if (!Locator.getFacade().getStatsManager().isEnableReportExport() || isWidgetReport()) {
+		if (!Locator.getFacade().getStatsManager().isEnableReportExport()) {
 			return false;
 		}
 		try {
-			if (isWidgetMetricReport()) {
-				return Locator.getFacade().getSiteStatsReportExportService().canExportWidgetMetricReport(siteId, widgetId, metricId);
-			}
-			if (!hasReportDefinition()) {
-				return false;
-			}
-			if (getReportDef().getId() > 0) {
-				return Locator.getFacade().getSiteStatsReportExportService().canExportPersistedReport(siteId, getReportDef().getId());
-			}
-			return Locator.getFacade().getSiteStatsReportExportService().canExportPreviewReport(siteId, getPreviewId());
+			return reportSource.canExport();
 		} catch (RuntimeException e) {
 			log.warn("Unable to determine SiteStats export availability for site {}: {}", siteId, e.getMessage());
 			return false;
@@ -379,68 +284,13 @@ public class ReportDataPage extends BasePage {
 	}
 
 	private Report getExportReport() {
-		if (isWidgetMetricReport()) {
-			return Locator.getFacade().getSiteStatsReportExportService().getWidgetMetricReport(siteId, widgetId, metricId);
-		}
-		if (getReportDef().getId() > 0) {
-			return Locator.getFacade().getSiteStatsReportExportService().getPersistedReport(siteId, getReportDef().getId());
-		}
-		return Locator.getFacade().getSiteStatsReportExportService().getPreviewReport(siteId, getPreviewId());
-	}
-
-	private String getWidgetReportTitle() {
-		try {
-			SiteStatsWidgetTab tab = Locator.getFacade().getSiteStatsViewService().getWidgetTab(siteId, widgetId, tabId);
-			return widgetTitle(tab.getWidgetTitle()) + " - " + StringUtils.defaultIfBlank(tab.getTitle(), tabId);
-		} catch (RuntimeException e) {
-			log.warn("Unable to load SiteStats tab metadata for {}/{} in site {}: {}", widgetId, tabId, siteId, e.getMessage());
-			return widgetTitle(null) + " - " + tabId;
-		}
-	}
-
-	private String getWidgetMetricReportTitle() {
-		String metricTitle = metricId;
-		String widgetTitle = null;
-		try {
-			SiteStatsWidgetMetric metric = Locator.getFacade().getSiteStatsViewService().getWidgetMetric(siteId, widgetId, metricId);
-			metricTitle = metric.getLabel();
-			widgetTitle = metric.getWidgetTitle();
-		} catch (RuntimeException e) {
-			log.warn("Unable to load SiteStats metric metadata for {}/{} in site {}: {}", widgetId, metricId, siteId, e.getMessage());
-		}
-		return widgetTitle(widgetTitle) + " - " + metricTitle;
-	}
-
-	private String widgetTitle(String title) {
-		return StringUtils.defaultIfBlank(title, (String) new ResourceModel("reportres_title").getObject());
+		return reportSource.exportReport();
 	}
 
 	private String getReportEndpoint() {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setPageSize(50);
-		if (StringUtils.isNotBlank(widgetId) && StringUtils.isNotBlank(tabId)) {
-			request.setDate(date);
-			request.setRole(role);
-			request.setTool(tool);
-			request.setResourceAction(resourceAction);
-			request.setLessonAction(lessonAction);
-			return SiteStatsApiUrls.widgetReport(siteId, widgetId, tabId, request);
-		}
-		if (isWidgetMetricReport()) {
-			return SiteStatsApiUrls.widgetMetricReport(siteId, widgetId, metricId, request);
-		}
-		if (getReportDef().getId() > 0) {
-			return SiteStatsApiUrls.persistedReport(siteId, getReportDef().getId(), request);
-		}
-		return SiteStatsApiUrls.previewReport(siteId, getPreviewId(), request);
-	}
-
-	private String getPreviewId() {
-		if (StringUtils.isBlank(previewId)) {
-			String userId = Locator.getFacade().getSessionManager().getCurrentSession().getUserId();
-			previewId = Locator.getFacade().getSiteStatsReportPreviewService().register(siteId, userId, getReportDef());
-		}
-		return previewId;
+		return reportSource.endpoint(request);
 	}
 
 	public void setReportDef(ReportDef reportDef) {
