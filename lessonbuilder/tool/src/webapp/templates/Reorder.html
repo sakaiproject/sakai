@@ -7,7 +7,6 @@
         </script>
         <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
-        <script>includeLatestJQuery('Reorder.html');</script>
         <script src="/library/js/spinner.js"></script>
         <script src="$context/js/reorder.js"></script>
         <title rsf:id="msg=simplepage.reorder_header"></title>
@@ -24,10 +23,10 @@
             <div class="container-fluid layoutReorderer-container" id="layoutReorderer">
                 <div class="columnSetup2 row">
                     <!-- invalid drag n drop message template --><!-- Column #1 -->
-                    <div class="flc-reorderer-column col1 col-md-7 list-group" id="reorderCol1">
+                    <div class="reorder-column col1 col-md-7 list-group" id="reorderCol1">
                         <div rsf:id="sectionContainer:" class="section-container reorderItemsContainer">
                             <div rsf:id="columnContainer:" class="reorderItemsContainer">
-                                <div rsf:id="item:" class="flc-reorderer-module layoutReorderer-module list-group-item">
+                                <div rsf:id="item:" class="reorder-item list-group-item">
                                     <div><h3 rsf:id="section-label" class="section-label"></h3></div>
                                     <div class="reordSeqContainer" style="display:none;">
                                         <div rsf:id="seq" class="reorderSeq"></div>
@@ -54,7 +53,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flc-reorderer-column col2 panel panel-danger col-md-4 col-md-offset-1" id="reorderCol2">
+                    <div class="reorder-column col2 panel panel-danger col-md-4 col-md-offset-1" id="reorderCol2">
                         <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead">
                             <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
                         </div>

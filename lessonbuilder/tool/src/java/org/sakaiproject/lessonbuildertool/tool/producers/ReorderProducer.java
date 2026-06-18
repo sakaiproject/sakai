@@ -31,7 +31,6 @@ import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -62,7 +61,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 
 /**
- * Uses the Fluid reorderer to reorder elements on the page.
+ * Uses native browser drag and drop to reorder elements on the page.
  * 
  * @author Eric Jeney <jeney@rutgers.edu>
  * 
@@ -95,7 +94,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
 			} catch (Exception e) {
-				log.info("Reorder permission exception " + e);
+				log.info("Reorder permission exception", e);
 				return;
 			}
 		}

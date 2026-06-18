@@ -5364,7 +5364,7 @@ public class SimplePageBean {
 		String[] split = split(order, " ");
 
 		// make sure nothing is duplicated. I know it shouldn't be, but
-		// I saw the Fluid reorderer get confused once.
+		// Guard against duplicate reorder values from the client.
 		Set<String> used = new HashSet<>();
 		for (int i = 0; i < split.length; i++) {
 			if (!used.add(split[i].trim())) {
