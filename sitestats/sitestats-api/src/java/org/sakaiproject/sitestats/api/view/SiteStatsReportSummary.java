@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -7,6 +7,11 @@ package org.sakaiproject.sitestats.api.view;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class SiteStatsReportSummary implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -16,44 +21,4 @@ public class SiteStatsReportSummary implements Serializable {
 	private String title;
 	private String description;
 	private boolean hidden;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getSiteId() {
-		return siteId;
-	}
-
-	public void setSiteId(String siteId) {
-		this.siteId = siteId;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public boolean isHidden() {
-		return hidden;
-	}
-
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
 }

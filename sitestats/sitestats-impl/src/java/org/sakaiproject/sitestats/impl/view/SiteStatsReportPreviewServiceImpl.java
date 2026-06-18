@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -7,9 +7,13 @@ package org.sakaiproject.sitestats.impl.view;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.report.ReportDef;
@@ -61,49 +65,19 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 		}
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+	@EqualsAndHashCode
 	private static class PreviewKey {
 		private final String siteId;
 		private final String ownerId;
 		private final String previewId;
-
-		private PreviewKey(String siteId, String ownerId, String previewId) {
-			this.siteId = siteId;
-			this.ownerId = ownerId;
-			this.previewId = previewId;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (!(obj instanceof PreviewKey)) {
-				return false;
-			}
-			PreviewKey other = (PreviewKey) obj;
-			return StringUtils.equals(siteId, other.siteId)
-					&& StringUtils.equals(ownerId, other.ownerId)
-					&& StringUtils.equals(previewId, other.previewId);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(siteId, ownerId, previewId);
-		}
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+	@Getter
 	private static class PreviewReport {
 		private final ReportDef reportDef;
 		private final long expiresAt;
-
-		private PreviewReport(ReportDef reportDef, long expiresAt) {
-			this.reportDef = reportDef;
-			this.expiresAt = expiresAt;
-		}
-
-		private ReportDef getReportDef() {
-			return reportDef;
-		}
 
 		private boolean isExpired() {
 			return System.currentTimeMillis() > expiresAt;

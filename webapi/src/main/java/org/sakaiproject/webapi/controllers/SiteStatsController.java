@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2026 sakaiproject.org
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  ******************************************************************************/
@@ -7,6 +7,8 @@ package org.sakaiproject.webapi.controllers;
 
 import java.util.Arrays;
 import java.util.List;
+
+import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
@@ -30,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class SiteStatsController extends AbstractSakaiApiController {
 
 	@Autowired
+	@Setter
 	private SiteStatsViewService siteStatsViewService;
 
 	@GetMapping(value = SiteStatsApiUrls.OVERVIEW_PATH, produces = MediaType.APPLICATION_JSON_VALUE)

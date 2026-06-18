@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
 package org.sakaiproject.sitestats.api.view;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SiteStatsWidgetIds {
 
 	public static final String AUDIENCE_ALL = "all";
@@ -38,7 +42,4 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_LESSONS_READ_PAGES = "lessons-read-pages";
 	public static final String METRIC_LESSONS_MOST_READ_PAGE = "lessons-most-read-page";
 	public static final String METRIC_LESSONS_USER_READ_MORE_PAGES = "lessons-user-read-more-pages";
-
-	private SiteStatsWidgetIds() {
-	}
 }

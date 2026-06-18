@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -10,8 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.apache.commons.lang3.StringUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SiteStatsApiUrls {
 
 	public static final String API_PREFIX = "/api";
@@ -23,9 +27,6 @@ public final class SiteStatsApiUrls {
 	public static final String WIDGET_REPORT_PATH = BASE_PATH + "/widgets/{widgetId}/tabs/{tabId}";
 	public static final String WIDGET_METRICS_PATH = BASE_PATH + "/widgets/{widgetId}/metrics";
 	public static final String WIDGET_METRIC_REPORT_PATH = WIDGET_METRICS_PATH + "/{metricId}";
-
-	private SiteStatsApiUrls() {
-	}
 
 	public static String overview(String siteId) {
 		return API_PREFIX + siteBase(siteId) + "/overview";

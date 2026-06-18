@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class SiteStatsTable implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -19,52 +24,4 @@ public class SiteStatsTable implements Serializable {
 	private int totalRows;
 	private List<SiteStatsTableColumn> columns = new ArrayList<SiteStatsTableColumn>();
 	private List<SiteStatsTableRow> rows = new ArrayList<SiteStatsTableRow>();
-
-	public String getCaption() {
-		return caption;
-	}
-
-	public void setCaption(String caption) {
-		this.caption = caption;
-	}
-
-	public int getPage() {
-		return page;
-	}
-
-	public void setPage(int page) {
-		this.page = page;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	public int getTotalRows() {
-		return totalRows;
-	}
-
-	public void setTotalRows(int totalRows) {
-		this.totalRows = totalRows;
-	}
-
-	public List<SiteStatsTableColumn> getColumns() {
-		return columns;
-	}
-
-	public void setColumns(List<SiteStatsTableColumn> columns) {
-		this.columns = columns;
-	}
-
-	public List<SiteStatsTableRow> getRows() {
-		return rows;
-	}
-
-	public void setRows(List<SiteStatsTableRow> rows) {
-		this.rows = rows;
-	}
 }

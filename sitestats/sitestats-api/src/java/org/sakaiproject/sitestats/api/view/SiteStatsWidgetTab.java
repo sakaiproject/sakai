@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class SiteStatsWidgetTab implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -17,36 +22,4 @@ public class SiteStatsWidgetTab implements Serializable {
 	private String title;
 	private String widgetTitle;
 	private List<SiteStatsFilter> filters = new ArrayList<SiteStatsFilter>();
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getWidgetTitle() {
-		return widgetTitle;
-	}
-
-	public void setWidgetTitle(String widgetTitle) {
-		this.widgetTitle = widgetTitle;
-	}
-
-	public List<SiteStatsFilter> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<SiteStatsFilter> filters) {
-		this.filters = filters;
-	}
 }

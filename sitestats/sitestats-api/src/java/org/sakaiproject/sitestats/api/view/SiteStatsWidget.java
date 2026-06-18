@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class SiteStatsWidget implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -20,60 +25,4 @@ public class SiteStatsWidget implements Serializable {
 	private String audience;
 	private List<SiteStatsWidgetTab> tabs = new ArrayList<SiteStatsWidgetTab>();
 	private List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
-	public String getAudience() {
-		return audience;
-	}
-
-	public void setAudience(String audience) {
-		this.audience = audience;
-	}
-
-	public List<SiteStatsWidgetTab> getTabs() {
-		return tabs;
-	}
-
-	public void setTabs(List<SiteStatsWidgetTab> tabs) {
-		this.tabs = tabs;
-	}
-
-	public List<SiteStatsWidgetMetric> getMetrics() {
-		return metrics;
-	}
-
-	public void setMetrics(List<SiteStatsWidgetMetric> metrics) {
-		this.metrics = metrics;
-	}
 }

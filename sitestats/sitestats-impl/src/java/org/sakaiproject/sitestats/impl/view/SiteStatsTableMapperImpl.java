@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 The Sakai Foundation
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0.
  */
@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -341,6 +343,7 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 		void decorate(SiteStatsTableCell cell, Stat stat, Object raw);
 	}
 
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	private static class ColumnDefinition {
 		private final String key;
 		private final String reportParamKey;
@@ -351,18 +354,5 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 		private final RawValueProvider rawValueProvider;
 		private final DisplayValueProvider displayValueProvider;
 		private final CellDecorator cellDecorator;
-
-		private ColumnDefinition(String key, String reportParamKey, String labelKey, String type, String align, String sortKey,
-				RawValueProvider rawValueProvider, DisplayValueProvider displayValueProvider, CellDecorator cellDecorator) {
-			this.key = key;
-			this.reportParamKey = reportParamKey;
-			this.labelKey = labelKey;
-			this.type = type;
-			this.align = align;
-			this.sortKey = sortKey;
-			this.rawValueProvider = rawValueProvider;
-			this.displayValueProvider = displayValueProvider;
-			this.cellDecorator = cellDecorator;
-		}
 	}
 }
