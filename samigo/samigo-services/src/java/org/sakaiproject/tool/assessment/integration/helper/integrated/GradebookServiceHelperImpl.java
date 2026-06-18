@@ -221,8 +221,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
       Site site = SiteService.getSite(gradebookUId);
       ResourceProperties siteProperties = site.getProperties();
       currentLocaleStr = (String) siteProperties.get("locale_string");
-    } catch (IdUnusedException ex) {
-      log.error("Not possible to get siteProperties");
+    } catch (IdUnusedException iue) {
+      log.warn("Not possible to get siteProperties, {}", iue.toString());
     }
 
     if (currentLocaleStr == null && userId != null) {
@@ -234,9 +234,9 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
     String[] localeParts = new String[]{"", ""};
-    List localePartsList = Arrays.asList(currentLocaleStr.split("_"));
+    List<String> localePartsList = Arrays.asList(currentLocaleStr.split("_"));
     for (int i = 0; i < localePartsList.size(); i++) {
-      localeParts[i] = localePartsList.get(i).toString();
+      localeParts[i] = localePartsList.get(i);
     }
 
     NumberFormat nf = NumberFormat.getInstance(new Locale(localeParts[0], localeParts[1]));
