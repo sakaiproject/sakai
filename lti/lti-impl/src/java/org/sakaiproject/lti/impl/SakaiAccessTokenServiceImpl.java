@@ -54,6 +54,8 @@ import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.oauth2.objects.AccessToken;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Central SAT signing key lifecycle (sakai.properties, then Ignite) and token issue/validate.
  */
@@ -117,7 +119,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             throw new SakaiAccessTokenException("invalid_authorization", "Missing or invalid Authorization header");
         }
         String[] parts = authorizationHeader.split("\\s+");
-        if (parts.length != 2 || parts[1].length() < 1) {
+        if (parts.length != 2 || parts[1].isEmpty()) {
             throw new SakaiAccessTokenException("invalid_authorization", "Malformed Bearer token");
         }
         return parts[1];
@@ -171,10 +173,10 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
         if (tokenKeyPair == null) {
             throw new SakaiAccessTokenException("no_token_key", "No token key available to sign tokens");
         }
-        if (clientAssertion == null || clientAssertion.length() < 1) {
+        if (StringUtils.isBlank(clientAssertion)) {
             throw new SakaiAccessTokenException("invalid_request", "Missing client_assertion");
         }
-        if (requestedScope == null || requestedScope.length() < 1) {
+        if (StringUtils.isBlank(requestedScope)) {
             throw new SakaiAccessTokenException("invalid_request", "Missing scope");
         }
 
@@ -275,10 +277,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
         Set<String> grantedFunctions = new HashSet<>(ltiService.getGrantedToolFunctionNames(toolId));
         for (String ltiApiScope : requestedScopes) {
             String functionName = SakaiAccessToken.ltiApiScopeToFunction(ltiApiScope);
-            if (functionName == null) {
-                continue;
-            }
-            if (!grantedFunctions.contains(functionName)) {
+            if (functionName == null || !grantedFunctions.contains(functionName)) {
                 continue;
             }
             returnScopeSet.add(ltiApiScope);
