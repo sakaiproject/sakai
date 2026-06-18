@@ -202,19 +202,6 @@
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
 	</bean>
 
-
-	<!-- ChartService ______________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.chart.ChartService"
-		  class="org.sakaiproject.sitestats.impl.chart.ChartServiceImpl">
-
-		<!-- Sakai services -->
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
-		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
-	</bean>
-
 	<!-- SiteStatsToolEventsService ________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"
 		  class="org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl">
@@ -276,6 +263,11 @@
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"
 		  class="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
 
+	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"
+		  class="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"
+		  class="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"/>
+
 	<!-- SiteStatsWidgetDefinitionSupportFactory ___________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupportFactory"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupportFactory">
@@ -336,6 +328,9 @@
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl">
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+		<property name="serverWideReportManager" ref="org.sakaiproject.sitestats.api.ServerWideReportManager"/>
+		<property name="serverWideReportCatalog" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
+		<property name="serverWideReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
 		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
 		<property name="siteStatsReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper"/>
@@ -391,7 +386,6 @@
 		  destroy-method="destroy">
 
 		<!-- Sakai services -->
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>

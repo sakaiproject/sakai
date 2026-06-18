@@ -43,8 +43,5 @@ public class ServerWideStatsRecordImpl implements ServerWideStatsRecord, Seriali
 	{
 	    return list.get (index);
 	}
-	
-	
-
 
 }

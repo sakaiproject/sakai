@@ -20,18 +20,11 @@ package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 
 
 public class ServerWideModel extends Model {
 	private static final long serialVersionUID = 1L;
-	public static final String	MONTHLY_LOGIN_REPORT	= StatsManager.MONTHLY_LOGIN_REPORT;
-	public static final String	WEEKLY_LOGIN_REPORT		= StatsManager.WEEKLY_LOGIN_REPORT;
-	public static final String	DAILY_LOGIN_REPORT		= StatsManager.DAILY_LOGIN_REPORT;
-	public static final String	REGULAR_USERS_REPORT	= StatsManager.REGULAR_USERS_REPORT;
-	public static final String	HOURLY_USAGE_REPORT		= StatsManager.HOURLY_USAGE_REPORT;
-	public static final String	TOP_ACTIVITIES_REPORT	= StatsManager.TOP_ACTIVITIES_REPORT;
-	public static final String	TOOL_REPORT				= StatsManager.TOOL_REPORT;
 	public static final String	NONE					= "none";
 
 	private String				reportTitle;
@@ -73,46 +66,17 @@ public class ServerWideModel extends Model {
 
 	public final void setSelectedView(String selectedView) {
 		this.selectedView = selectedView;
-		if(MONTHLY_LOGIN_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_monthly_login_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_monthly_login_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_monthly_login_report").getObject();
-			
-		}else if(WEEKLY_LOGIN_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_weekly_login_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_weekly_login_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_weekly_login_report").getObject();
-			
-		}else if(DAILY_LOGIN_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_daily_login_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_daily_login_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_daily_login_report").getObject();
-			
-		}else if(REGULAR_USERS_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_regular_users_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_regular_users_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_regular_users_report").getObject();
-			
-		}else if(HOURLY_USAGE_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_hourly_usage_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_hourly_usage_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_hourly_usage_report").getObject();
-			
-		}else if(TOP_ACTIVITIES_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_top_activities_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_top_activities_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_top_activities_report").getObject();
-			
-		}else if(TOOL_REPORT.equals(selectedView)) {
-			reportTitle = (String) new ResourceModel("title_tool_report").getObject();
-			reportDescription = (String) new ResourceModel("desc_tool_report").getObject();
-			reportNotes = (String) new ResourceModel("notes_tool_report").getObject();
-			
-		}else{
+		if (!SiteStatsServerWideReportIds.isSupported(selectedView)) {
 			reportTitle = "";
 			reportDescription = "";
 			reportNotes = "";
+			return;
 		}
+
+		String suffix = SiteStatsServerWideReportIds.keySuffix(selectedView);
+		reportTitle = (String) new ResourceModel("title_" + suffix).getObject();
+		reportDescription = (String) new ResourceModel("desc_" + suffix).getObject();
+		reportNotes = (String) new ResourceModel("notes_" + suffix).getObject();
 	}
 
 }

@@ -45,6 +45,8 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ServerWideReportManager;
+import org.sakaiproject.sitestats.api.ServerWideStatsRecord;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -66,6 +68,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
+import org.sakaiproject.sitestats.impl.ServerWideStatsRecordImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
@@ -87,6 +90,7 @@ public class SiteStatsViewServiceTest {
 	@Autowired private SecurityService securityService;
 	@Autowired private StatsManager statsManager;
 	@Autowired private ReportManager reportManager;
+	@Autowired private ServerWideReportManager serverWideReportManager;
 	@Autowired private EventRegistryService eventRegistryService;
 	@Autowired private SiteService siteService;
 	@Autowired private SiteStatsReportPreviewService previewService;
@@ -99,7 +103,7 @@ public class SiteStatsViewServiceTest {
 	public void setUp() {
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn(USER_ID);
-		reset(securityService, statsManager, reportManager, eventRegistryService, siteService, sessionManager, userTimeService);
+		reset(securityService, statsManager, reportManager, serverWideReportManager, eventRegistryService, siteService, sessionManager, userTimeService);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
 
 		when(siteService.siteReference(SITE_ID)).thenReturn(SITE_REF);
@@ -504,6 +508,83 @@ public class SiteStatsViewServiceTest {
 		assertEquals("This chart configuration is not yet supported by the SiteStats JSON renderer.", view.getChart().getEmptyMessage());
 	}
 
+	@Test
+	public void getServerWideReportRequiresAdminPermissionAndSetsSiteId() {
+		Date laterPeriod = Date.valueOf("2026-06-01");
+		Date earlierPeriod = Date.valueOf("2026-05-01");
+		when(serverWideReportManager.getMonthlyTotalLogins()).thenReturn(Arrays.asList(
+				serverWideRecord(laterPeriod, 10L),
+				serverWideRecord(earlierPeriod, 5L)));
+		when(serverWideReportManager.getMonthlyUniqueLogins()).thenReturn(Arrays.asList(
+				serverWideRecord(laterPeriod, 4L),
+				serverWideRecord(earlierPeriod, 2L)));
+		when(serverWideReportManager.getSiteCreatedDeletedStats("monthly")).thenReturn(Arrays.asList(
+				serverWideRecord(laterPeriod, 2L, 1L),
+				serverWideRecord(earlierPeriod, 1L, 0L)));
+		when(serverWideReportManager.getNewUserStats("monthly")).thenReturn(Arrays.asList(serverWideRecord(laterPeriod, 3L)));
+
+		SiteStatsReportView view = service.getServerWideReport(SITE_ID, StatsManager.MONTHLY_LOGIN_REPORT);
+
+		assertEquals(SITE_ID, view.getSiteId());
+		assertNotNull(view.getChart());
+		assertNotNull(view.getTable());
+		assertEquals("line", view.getChart().getType());
+		assertEquals(5, view.getChart().getDatasets().size());
+		assertEquals(2, view.getTable().getTotalRows());
+		assertEquals(earlierPeriod, view.getTable().getRows().get(0).getCells().get("label").getRaw());
+		assertEquals(5L, view.getTable().getRows().get(0).getCells().get("logins").getRaw());
+		assertEquals(2L, view.getTable().getRows().get(0).getCells().get("uniqueLogins").getRaw());
+		assertEquals(0L, view.getTable().getRows().get(0).getCells().get("newUsers").getRaw());
+		assertEquals(2, view.getChart().getDatasets().get(4).getPoints().size());
+		assertEquals(0L, view.getChart().getDatasets().get(4).getPoints().get(0).getY().longValue());
+		assertEquals(3L, view.getChart().getDatasets().get(4).getPoints().get(1).getY().longValue());
+		verify(serverWideReportManager).getMonthlyTotalLogins();
+		verify(serverWideReportManager).getMonthlyUniqueLogins();
+		verify(serverWideReportManager).getSiteCreatedDeletedStats("monthly");
+		verify(serverWideReportManager).getNewUserStats("monthly");
+
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW, SITE_REF)).thenReturn(false);
+		assertThrows(SecurityException.class, () -> service.getServerWideReport(SITE_ID, StatsManager.MONTHLY_LOGIN_REPORT));
+	}
+
+	@Test
+	public void getServerWideHourlyReportMapsAverageUsageExplicitly() {
+		Date dayOne = Date.valueOf("2026-06-01");
+		Date dayTwo = Date.valueOf("2026-06-02");
+		when(serverWideReportManager.getHourlyUsagePattern()).thenReturn(Arrays.asList(
+				serverWideRecord(dayOne, 9, 4L),
+				serverWideRecord(dayTwo, 10, 8L)));
+
+		SiteStatsReportView view = service.getServerWideReport(SITE_ID, StatsManager.HOURLY_USAGE_REPORT);
+
+		assertEquals("bar", view.getChart().getType());
+		assertEquals(24, view.getTable().getTotalRows());
+		assertEquals(2L, view.getTable().getRows().get(9).getCells().get("averageUsers").getRaw());
+		assertEquals(4L, view.getTable().getRows().get(10).getCells().get("averageUsers").getRaw());
+		assertEquals(2L, view.getChart().getDatasets().get(0).getPoints().get(9).getY().longValue());
+		assertEquals(4L, view.getChart().getDatasets().get(0).getPoints().get(10).getY().longValue());
+		verify(serverWideReportManager).getHourlyUsagePattern();
+	}
+
+	@Test
+	public void getServerWideRegularUsersReportSortsWeeksChronologically() {
+		Date laterWeek = Date.valueOf("2026-06-08");
+		Date earlierWeek = Date.valueOf("2026-06-01");
+		when(serverWideReportManager.getWeeklyRegularUsers()).thenReturn(Arrays.asList(
+				serverWideRecord(laterWeek, 5L, 4L, 3L, 2L, 1L),
+				serverWideRecord(earlierWeek, 10L, 9L, 8L, 7L, 6L)));
+
+		SiteStatsReportView view = service.getServerWideReport(SITE_ID, StatsManager.REGULAR_USERS_REPORT);
+
+		assertEquals("line", view.getChart().getType());
+		assertEquals(2, view.getTable().getTotalRows());
+		assertEquals(earlierWeek, view.getTable().getRows().get(0).getCells().get("label").getRaw());
+		assertEquals(laterWeek, view.getTable().getRows().get(1).getCells().get("label").getRaw());
+		assertEquals(10L, view.getChart().getDatasets().get(0).getPoints().get(0).getY().longValue());
+		assertEquals(5L, view.getChart().getDatasets().get(0).getPoints().get(1).getY().longValue());
+		verify(serverWideReportManager).getWeeklyRegularUsers();
+	}
+
 	private SiteStatsFilter filter(SiteStatsOverview overview, String widgetId, String tabId, String filterId) {
 		for (SiteStatsWidget widget : overview.getWidgets()) {
 			if (widgetId.equals(widget.getId())) {
@@ -519,6 +600,14 @@ public class SiteStatsViewServiceTest {
 			}
 		}
 		throw new AssertionError("Missing filter " + widgetId + "/" + tabId + "/" + filterId);
+	}
+
+	private ServerWideStatsRecord serverWideRecord(Object... values) {
+		ServerWideStatsRecordImpl record = new ServerWideStatsRecordImpl();
+		for (Object value : values) {
+			record.add(value);
+		}
+		return record;
 	}
 
 	private Report report(ReportDef reportDef) {

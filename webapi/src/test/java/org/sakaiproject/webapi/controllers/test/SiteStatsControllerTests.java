@@ -161,6 +161,27 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	}
 
 	@Test
+	public void getServerWideReportReturnsReportJson() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setTitle("Month-by-month Report");
+		when(siteStatsViewService.getServerWideReport(SITE_ID, "monthlyLogin")).thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/server-wide/monthlyLogin"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.siteId", is(SITE_ID)))
+			.andExpect(jsonPath("$.title", is("Month-by-month Report")));
+	}
+
+	@Test
+	public void getServerWideReportMapsSecurityExceptionToForbidden() throws Exception {
+		when(siteStatsViewService.getServerWideReport(SITE_ID, "monthlyLogin")).thenThrow(new SecurityException("forbidden"));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/server-wide/monthlyLogin"))
+			.andExpect(status().isForbidden());
+	}
+
+	@Test
 	public void getWidgetReportMapsSecurityExceptionToForbidden() throws Exception {
 		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), any(SiteStatsReportRequest.class)))
 			.thenThrow(new SecurityException("forbidden"));

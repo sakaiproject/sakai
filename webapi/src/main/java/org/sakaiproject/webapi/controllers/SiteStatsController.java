@@ -145,6 +145,19 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@GetMapping(value = SiteStatsApiUrls.SERVER_WIDE_REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	public SiteStatsReportView getServerWideReport(@PathVariable String siteId, @PathVariable String reportType) {
+		checkSakaiSession();
+		checkSite(siteId);
+		try {
+			return siteStatsViewService.getServerWideReport(siteId, reportType);
+		} catch (SecurityException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+		}
+	}
+
 	private SiteStatsReportRequest request(String include, int page, int pageSize) {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setPage(page);

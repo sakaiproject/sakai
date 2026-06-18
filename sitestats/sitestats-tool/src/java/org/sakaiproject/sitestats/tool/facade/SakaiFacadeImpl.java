@@ -28,7 +28,6 @@ import org.sakaiproject.sitestats.api.ServerWideReportManager;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
@@ -52,7 +51,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@Getter @Setter private transient SiteStatsViewService		siteStatsViewService;
 	@Getter @Setter private transient SiteStatsReportExportService	siteStatsReportExportService;
 	@Getter @Setter private transient SiteStatsReportPreviewService	siteStatsReportPreviewService;
-	@Getter @Setter private transient ChartService				chartService;
 	@Getter @Setter private transient StatsUpdateManager		statsUpdateManager;
 	@Getter @Setter private transient ServerWideReportManager	serverWideReportManager;
 	@Getter @Setter private transient DetailedEventsManager		detailedEventsManager;

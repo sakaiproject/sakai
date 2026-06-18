@@ -35,7 +35,6 @@ import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
-import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
@@ -64,7 +63,6 @@ public class ReportXMLReader extends AbstractObjectReader {
 	private StatsManager			M_sm		= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 	private EventRegistryService	M_ers		= (EventRegistryService) ComponentManager.get(EventRegistryService.class.getName());
 	private ReportManager			M_rm		= (ReportManager) ComponentManager.get(ReportManager.class.getName());
-	private ChartService			M_cs		= (ChartService) ComponentManager.get(ChartService.class.getName());
 
 
 	@Override
@@ -160,13 +158,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("showChart", String.valueOf(showChart));
         handler.element("showTable", String.valueOf(showTable));
         
-        // report chart
-        if(showChart) {
-        	// TODO Embbed image in fop
-        	generateReportChart(report);
-        }
-        
-        // report table
+	        // report table
         if(showTable) {
             generateReportDataHeader(report.getReportDefinition().getReportParams());
         	generateReportTable(report.getReportData(), report.getReportDefinition().getReportParams());
@@ -239,26 +231,6 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("showDuration", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_DURATION)));
 	}
 
-	private void generateReportChart(Report report) throws SAXException {
-        if (report == null) {
-            throw new NullPointerException("Parameter 'report'must not be null");
-        }
-        if (handler == null) {
-            throw new IllegalStateException("ContentHandler not set");
-        }
-        
-        // generate chart
-        /*PrefsData prefsData = M_sm.getPreferences(report.getReportDefinition().getReportParams().getSiteId(), false);
-		int width = 1024;
-		int height = 768;
-		BufferedImage img = M_cs.generateChart(
-				report, width, height,
-				prefsData.isChartIn3D(), prefsData.getChartTransparency(),
-				prefsData.isItemLabelsVisible()
-		);*/
-        //handler.element("chart", "sitestats://" + M_ers.getToolIcon(toolId));
-	}
-	
 	private void generateReportTable(List<? extends Stat> data, ReportParams params) throws SAXException {
         if (data == null || params == null) {
             throw new NullPointerException("Parameter 'data', 'params' must not be null");

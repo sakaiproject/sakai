@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ServerWideReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
@@ -31,6 +32,9 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	@Setter private ReportManager reportManager;
 	@Setter private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
 	@Setter private SiteStatsReportAccess siteStatsReportAccess;
+	@Setter private ServerWideReportManager serverWideReportManager;
+	@Setter private ServerWideReportCatalog serverWideReportCatalog;
+	@Setter private ServerWideReportViewMapper serverWideReportViewMapper;
 
 	@Override
 	public SiteStatsOverview getOverview(String siteId) {
@@ -131,6 +135,15 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, null, metricId,
 				"Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
+	}
+
+	@Override
+	public SiteStatsReportView getServerWideReport(String siteId, String reportType) {
+		siteStatsReportAccess.assertCanViewAdmin(siteId);
+		ServerWideReportSpec spec = serverWideReportCatalog.get(reportType);
+		SiteStatsReportView view = serverWideReportViewMapper.map(spec, spec.rows(serverWideReportManager));
+		view.setSiteId(siteId);
+		return view;
 	}
 
 	private SiteStatsReportView buildWidgetReportView(String siteId, WidgetReportDefinition definition, SiteStatsReportRequest safeRequest,

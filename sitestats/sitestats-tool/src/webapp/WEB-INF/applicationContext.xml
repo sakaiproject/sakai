@@ -7,10 +7,9 @@
 	<bean id="org.sakaiproject.sitestats.tool.facade.SakaiFacade"
 		class="org.sakaiproject.sitestats.tool.facade.SakaiFacadeImpl">
 		<!-- SiteStats services -->
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+        <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
         <property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
         <property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService" />
-        <property name="chartService" ref="org.sakaiproject.sitestats.api.chart.ChartService" />
         <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
 	        <property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService" />
 	        <property name="siteStatsViewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsViewService" />
