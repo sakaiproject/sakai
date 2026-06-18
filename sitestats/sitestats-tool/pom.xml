@@ -63,6 +63,12 @@
     <dependency>
         <groupId>org.sakaiproject.wicket</groupId>
         <artifactId>wicket-tool-9</artifactId>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
 
     <!-- Apache Wicket -->
@@ -70,10 +76,22 @@
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket</artifactId>
       <type>pom</type>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-fileupload</groupId>
+          <artifactId>commons-fileupload</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-extensions</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-fileupload</groupId>
+          <artifactId>commons-fileupload</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.wicket</groupId>
@@ -83,21 +101,27 @@
           <groupId>cglib</groupId>
           <artifactId>cglib-nodep</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>commons-fileupload</groupId>
+          <artifactId>commons-fileupload</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-fileupload</groupId>
+          <artifactId>commons-fileupload</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Apache Commons -->
     <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
     </dependency>
     
     <!-- Servlet -->  
