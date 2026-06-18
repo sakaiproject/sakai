@@ -15,14 +15,12 @@
  */
 package org.sakaiproject.sitestats.impl;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.sakaiproject.sitestats.api.presence.Presence;
 
 import lombok.AllArgsConstructor;
@@ -131,16 +129,10 @@ public class PresenceRecord implements Presence, Comparable<PresenceRecord> {
             return (PresenceRecord) presence;
         }
 
-        PresenceRecord record = new PresenceRecord();
-
-        try {
-            BeanUtils.copyProperties(record, presence);
-        } catch (IllegalAccessException | InvocationTargetException exception) {
-            throw new IllegalArgumentException(String.format("Provided %s of type %s is not complatible with %s",
-                    Presence.class.getName(), presence.getClass().getName(), PresenceRecord.class.getName()), exception);
-        }
-
-        return record;
+        return PresenceRecord.builder()
+                .begin(presence.getBegin())
+                .end(presence.getEnd())
+                .build();
     }
 
     private static Instant toDay(@NonNull Instant instant) {
