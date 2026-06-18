@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
@@ -37,9 +38,10 @@ import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -56,67 +58,58 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
+import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
-import org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl;
-import org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition;
-import org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition;
-import org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition;
-import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
-import org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess;
-import org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl;
-import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
-import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
-import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinition;
-import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
-import org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition;
-import org.sakaiproject.sitestats.impl.view.SiteStatsViewServiceImpl;
-import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog;
-import org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {SiteStatsViewBehaviorTestConfiguration.class})
 public class SiteStatsViewServiceTest {
 
 	private static final String SITE_ID = "site-a";
+	private static final String SITE_REF = "/site/" + SITE_ID;
 	private static final String USER_ID = "user-a";
 	private static final String OTHER_USER_ID = "user-b";
 
-	private StatsAuthz statsAuthz;
-	private StatsManager statsManager;
-	private ReportManager reportManager;
-	private EventRegistryService eventRegistryService;
-	private SiteService siteService;
-	private SiteStatsReportPreviewServiceImpl previewService;
-	private SiteStatsTableMapperImpl tableMapper;
-	private SiteStatsViewServiceImpl service;
+	@Autowired private SecurityService securityService;
+	@Autowired private StatsManager statsManager;
+	@Autowired private ReportManager reportManager;
+	@Autowired private EventRegistryService eventRegistryService;
+	@Autowired private SiteService siteService;
+	@Autowired private SiteStatsReportPreviewService previewService;
+	@Autowired private SiteStatsTableMapperImpl tableMapper;
+	@Autowired private SiteStatsViewService service;
+	@Autowired private SessionManager sessionManager;
+	@Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") private UserTimeService userTimeService;
 
 	@Before
 	public void setUp() {
-		statsAuthz = mock(StatsAuthz.class);
-		statsManager = mock(StatsManager.class);
-		reportManager = mock(ReportManager.class);
-		eventRegistryService = mock(EventRegistryService.class);
-		siteService = mock(SiteService.class);
-		ContentHostingService contentHostingService = mock(ContentHostingService.class);
-		UserDirectoryService userDirectoryService = mock(UserDirectoryService.class);
-		UserTimeService userTimeService = mock(UserTimeService.class);
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn(USER_ID);
-		SessionManager sessionManager = mock(SessionManager.class);
+		reset(securityService, statsManager, reportManager, eventRegistryService, siteService, sessionManager, userTimeService);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
 
-		when(statsAuthz.isUserAbleToViewSiteStats(SITE_ID)).thenReturn(true);
-		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(true);
-		when(statsAuthz.isUserAbleToViewSiteStatsOwn(SITE_ID)).thenReturn(true);
-		when(statsManager.getPreferences(eq(SITE_ID), anyBoolean())).thenReturn(new PrefsData());
+		when(siteService.siteReference(SITE_ID)).thenReturn(SITE_REF);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_VIEW, SITE_REF)).thenReturn(true);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(true);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_OWN, SITE_REF)).thenReturn(true);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW, SITE_REF)).thenReturn(true);
+		PrefsData prefsData = new PrefsData();
+		prefsData.setShowOwnStatisticsToStudents(true);
+		when(statsManager.getPreferences(eq(SITE_ID), anyBoolean())).thenReturn(prefsData);
 		when(statsManager.isEventContextSupported()).thenReturn(true);
 		when(userTimeService.shortLocalizedDate(any(), any(Locale.class))).thenReturn("6/17/26");
 		when(reportManager.isReportColumnAvailable(any(ReportParams.class), any(String.class))).thenAnswer(invocation -> {
@@ -128,65 +121,6 @@ public class SiteStatsViewServiceTest {
 		ReportFormattedParams formattedParams = reportFormattedParams();
 		when(reportManager.getReportFormattedParams()).thenReturn(formattedParams);
 
-		tableMapper = new SiteStatsTableMapperImpl();
-		tableMapper.setStatsManager(statsManager);
-		tableMapper.setReportManager(reportManager);
-		tableMapper.setEventRegistryService(eventRegistryService);
-		tableMapper.setSiteService(siteService);
-		tableMapper.setUserDirectoryService(userDirectoryService);
-		tableMapper.setUserTimeService(userTimeService);
-
-		SiteStatsToolEventsServiceImpl toolEventsService = new SiteStatsToolEventsServiceImpl();
-		toolEventsService.setStatsManager(statsManager);
-		toolEventsService.setEventRegistryService(eventRegistryService);
-
-		previewService = new SiteStatsReportPreviewServiceImpl();
-		SiteStatsReportAccess reportAccess = new SiteStatsReportAccess();
-		reportAccess.setStatsAuthz(statsAuthz);
-		reportAccess.setReportManager(reportManager);
-		reportAccess.setSiteStatsReportPreviewService(previewService);
-		reportAccess.setSessionManager(sessionManager);
-
-		SiteStatsChartMapper chartMapper = new SiteStatsChartMapper();
-		chartMapper.setSiteStatsTableMapper(tableMapper);
-		SiteStatsReportSummaryMapper summaryMapper = new SiteStatsReportSummaryMapper();
-		summaryMapper.setReportManager(reportManager);
-		SiteStatsReportViewMapper viewMapper = new SiteStatsReportViewMapper();
-		viewMapper.setSiteStatsTableMapper(tableMapper);
-		viewMapper.setSiteStatsChartMapper(chartMapper);
-		viewMapper.setSiteStatsReportSummaryMapper(summaryMapper);
-
-		SiteStatsWidgetDefinitionSupport widgetSupport = new SiteStatsWidgetDefinitionSupport();
-		widgetSupport.setStatsManager(statsManager);
-		widgetSupport.setReportManager(reportManager);
-		widgetSupport.setSiteStatsToolEventsService(toolEventsService);
-		widgetSupport.setEventRegistryService(eventRegistryService);
-		widgetSupport.setSiteService(siteService);
-		widgetSupport.setContentHostingService(contentHostingService);
-		widgetSupport.setUserDirectoryService(userDirectoryService);
-		VisitsWidgetDefinition visitsDefinition = new VisitsWidgetDefinition();
-		visitsDefinition.setSupport(widgetSupport);
-		StudentVisitsWidgetDefinition studentVisitsDefinition = new StudentVisitsWidgetDefinition();
-		studentVisitsDefinition.setSupport(widgetSupport);
-		ActivityWidgetDefinition activityDefinition = new ActivityWidgetDefinition();
-		activityDefinition.setSupport(widgetSupport);
-		ResourcesWidgetDefinition resourcesDefinition = new ResourcesWidgetDefinition();
-		resourcesDefinition.setSupport(widgetSupport);
-		LessonsWidgetDefinition lessonsDefinition = new LessonsWidgetDefinition();
-		lessonsDefinition.setSupport(widgetSupport);
-		SiteStatsWidgetCatalog widgetCatalog = new SiteStatsWidgetCatalog();
-		widgetCatalog.setSupport(widgetSupport);
-		widgetCatalog.setWidgetDefinitions(Arrays.<SiteStatsWidgetDefinition>asList(
-				visitsDefinition, studentVisitsDefinition, activityDefinition, resourcesDefinition, lessonsDefinition));
-		widgetCatalog.init();
-		reportAccess.setSiteStatsWidgetCatalog(widgetCatalog);
-
-		service = new SiteStatsViewServiceImpl();
-		service.setStatsManager(statsManager);
-		service.setReportManager(reportManager);
-		service.setSiteStatsWidgetCatalog(widgetCatalog);
-		service.setSiteStatsReportAccess(reportAccess);
-		service.setSiteStatsReportViewMapper(viewMapper);
 	}
 
 	@Test
@@ -267,7 +201,7 @@ public class SiteStatsViewServiceTest {
 
 	@Test
 	public void getStudentVisitsByDateUsesCurrentUserOnly() {
-		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setIncludeChart(false);
 		request.setDate(ReportManager.WHEN_LAST30DAYS);
@@ -308,7 +242,7 @@ public class SiteStatsViewServiceTest {
 
 	@Test
 	public void getWidgetMetricReportRequiresAllPermissionForAllUserMetrics() {
-		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 
 		assertThrows(SecurityException.class,
 				() -> service.getWidgetMetricReport(SITE_ID, WIDGET_ACTIVITY, METRIC_ACTIVITY_EVENTS, new SiteStatsReportRequest()));
@@ -440,15 +374,15 @@ public class SiteStatsViewServiceTest {
 
 	@Test
 	public void getWidgetReportRequiresAllPermissionForAllUserWidgets() {
-		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 
 		assertThrows(SecurityException.class, () -> service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_DATE, new SiteStatsReportRequest()));
 	}
 
 	@Test
 	public void getReportRequiresBaseViewPermissionBeforeAllStats() {
-		when(statsAuthz.isUserAbleToViewSiteStats(SITE_ID)).thenReturn(false);
-		when(statsAuthz.isUserAbleToViewSiteStatsAll(SITE_ID)).thenReturn(true);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_VIEW, SITE_REF)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(true);
 
 		assertThrows(SecurityException.class, () -> service.getReport(SITE_ID, 42, new SiteStatsReportRequest()));
 		verify(reportManager, never()).getReportDefinition(42);

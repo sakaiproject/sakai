@@ -32,7 +32,7 @@ public class ResourcesWidgetDefinition extends AbstractSiteStatsWidgetDefinition
 	@Override
 	public WidgetSpec getSpec() {
 		return widgetSpec(WIDGET_RESOURCES, "overview_title_resources", "sakai-resources", AUDIENCE_ALL,
-				() -> support.getStatsManager().isEnableResourceStats(),
+				() -> statsManager().isEnableResourceStats(),
 				tabs(
 						tabSpec(WIDGET_RESOURCES, TAB_BY_DATE, "overview_tab_bydate", this::resourcesByDateDefinition,
 								FILTER_DATE, FILTER_ROLE,
@@ -55,54 +55,54 @@ public class ResourcesWidgetDefinition extends AbstractSiteStatsWidgetDefinition
 	}
 
 	private WidgetReportDefinition resourcesByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByDateDefinition(siteId, request, support.message("overview_title_resources"),
-				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", support.resourceActionFilter(request));
+		return reportFactory().resourceLikeByDateDefinition(siteId, request, message("overview_title_resources"),
+				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", filterCatalog().resourceActionFilter(request));
 	}
 
 	private WidgetReportDefinition resourcesByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByUserDefinition(siteId, request, support.message("overview_title_resources"),
-				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", support.resourceActionFilter(request));
+		return reportFactory().resourceLikeByUserDefinition(siteId, request, message("overview_title_resources"),
+				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", filterCatalog().resourceActionFilter(request));
 	}
 
 	private WidgetReportDefinition resourcesByResourceDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		return support.resourceLikeByItemDefinition(siteId, request, support.message("overview_title_resources"),
-				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", support.resourceActionFilter(request), StatsManager.T_RESOURCE);
+		return reportFactory().resourceLikeByItemDefinition(siteId, request, message("overview_title_resources"),
+				ReportManager.WHAT_RESOURCES, StatsManager.RESOURCES_DIR + siteId + "/", filterCatalog().resourceActionFilter(request), StatsManager.T_RESOURCE);
 	}
 
 	private WidgetReportDefinition resourcesFilesMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_NEW, StatsManager.T_RESOURCE);
+		ReportDef reportDef = reportFactory().resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_NEW, StatsManager.T_RESOURCE);
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_RESOURCE);
 		reportDef.getReportParams().setHowSortAscending(true);
-		return new WidgetReportDefinition(support.message("overview_title_resources_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_resources_sum"), null, reportDef);
 	}
 
 	private WidgetReportDefinition resourcesOpenedFilesMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_READ, StatsManager.T_RESOURCE);
+		ReportDef reportDef = reportFactory().resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_READ, StatsManager.T_RESOURCE);
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
 		reportDef.getReportParams().setHowSortAscending(false);
-		return new WidgetReportDefinition(support.message("overview_title_openedfiles_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_openedfiles_sum"), null, reportDef);
 	}
 
 	private WidgetReportDefinition resourcesUserOpenedMoreFilesMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = support.resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_READ, StatsManager.T_USER);
+		ReportDef reportDef = reportFactory().resourceMetricBase(siteId, ReportManager.WHAT_RESOURCES_ACTION_READ, StatsManager.T_USER);
 		reportDef.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
 		reportDef.getReportParams().setHowSortAscending(false);
-		return new WidgetReportDefinition(support.message("overview_title_useropenedmorefile_sum"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_useropenedmorefile_sum"), null, reportDef);
 	}
 
 	private WidgetMetricValue resourcesFilesValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Integer.toString(support.getStatsManager().getTotalResources(siteId, true)));
+		return WidgetMetricValue.of(Integer.toString(statsManager().getTotalResources(siteId, true)));
 	}
 
 	private WidgetMetricValue resourcesOpenedFilesValue(String siteId, String userId) {
-		Report report = support.getReportManager().getReport(resourcesOpenedFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
-		int total = support.countExistingResources(report);
-		int totalFiles = support.getStatsManager().getTotalResources(siteId, true);
-		return WidgetMetricValue.withPercentage(Integer.toString(total), (int) support.percent(total, totalFiles));
+		Report report = reportManager().getReport(resourcesOpenedFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
+		int total = metricSupport().countExistingResources(report);
+		int totalFiles = statsManager().getTotalResources(siteId, true);
+		return WidgetMetricValue.withPercentage(Integer.toString(total), (int) metricSupport().percent(total, totalFiles));
 	}
 
 	private WidgetMetricValue resourcesMostOpenedFileValue(String siteId, String userId) {
-		Report report = support.getReportManager().getReport(resourcesOpenedFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
+		Report report = reportManager().getReport(resourcesOpenedFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
 		String resourceRef = null;
 		for (Stat stat : report.getReportData()) {
 			resourceRef = ((ResourceStat) stat).getResourceRef();
@@ -111,21 +111,21 @@ public class ResourcesWidgetDefinition extends AbstractSiteStatsWidgetDefinition
 		if (StringUtils.isBlank(resourceRef)) {
 			return WidgetMetricValue.withDetail("-", null);
 		}
-		String value = support.getStatsManager().getResourceName(resourceRef, false);
+		String value = statsManager().getResourceName(resourceRef, false);
 		if ("null".equals(value)) {
-			value = support.message("overview_file_unavailable");
+			value = message("overview_file_unavailable");
 		}
-		return WidgetMetricValue.withDetail(value, support.getStatsManager().getResourceName(resourceRef, true));
+		return WidgetMetricValue.withDetail(value, statsManager().getResourceName(resourceRef, true));
 	}
 
 	private WidgetMetricValue resourcesUserOpenedMoreFilesValue(String siteId, String userId) {
-		Report report = support.getReportManager().getReport(resourcesUserOpenedMoreFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
+		Report report = reportManager().getReport(resourcesUserOpenedMoreFilesMetricDefinition(siteId, new SiteStatsReportRequest(), userId).getTableReportDef(), true, null, false);
 		String activeUserId = null;
 		for (Stat stat : report.getReportData()) {
 			activeUserId = ((ResourceStat) stat).getUserId();
 			break;
 		}
-		String displayId = activeUserId == null ? "-" : support.userDisplayId(activeUserId);
-		return WidgetMetricValue.withDetail(displayId, support.userTooltip(activeUserId));
+		String displayId = activeUserId == null ? "-" : metricSupport().userDisplayId(activeUserId);
+		return WidgetMetricValue.withDetail(displayId, metricSupport().userTooltip(activeUserId));
 	}
 }

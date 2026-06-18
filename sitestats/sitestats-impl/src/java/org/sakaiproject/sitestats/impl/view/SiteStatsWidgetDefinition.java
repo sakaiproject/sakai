@@ -7,5 +7,7 @@ package org.sakaiproject.sitestats.impl.view;
 
 public interface SiteStatsWidgetDefinition {
 
+	void setSupport(SiteStatsWidgetDefinitionSupport support);
+
 	WidgetSpec getSpec();
 }

@@ -5,10 +5,12 @@ import "../sakai-sitestats-table.js";
 import {
   hasSiteStatsChartData,
   siteStatsChartData,
+  siteStatsChartOptions,
   siteStatsChartType,
   siteStatsFallbackTable,
   useDepthEffect,
 } from "./site-stats-chart-adapter.js";
+import { siteStatsChartTheme, siteStatsChartThemeSignature } from "./site-stats-chart-theme.js";
 
 export class SakaiSiteStatsChart extends SakaiShadowElement {
 
@@ -23,6 +25,18 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     css`
       :host {
         display: block;
+        --sakai-sitestats-chart-text-color: var(--sakai-text-color-1, #1f2937);
+        --sakai-sitestats-chart-muted-text-color: var(--sakai-text-color-dimmed, var(--sakai-text-color-2, #5f6773));
+        --sakai-sitestats-chart-border-color: var(--sakai-border-color, #d8dde6);
+        --sakai-sitestats-chart-background-color: var(--sakai-background-color-1, #fff);
+        --sakai-sitestats-chart-color-1: var(--sakai-primary-color-1, var(--sakai-color-blue, #1976d2));
+        --sakai-sitestats-chart-color-2: var(--sakai-color-green, #2e7d32);
+        --sakai-sitestats-chart-color-3: var(--sakai-color-gold, #ef6c00);
+        --sakai-sitestats-chart-color-4: var(--sakai-color-purple, #7b1fa2);
+        --sakai-sitestats-chart-color-5: var(--sakai-color-teal, #00796b);
+        --sakai-sitestats-chart-color-6: var(--sakai-color-red, #c62828);
+        --sakai-sitestats-chart-color-7: var(--sakai-text-color-2, #455a64);
+        --sakai-sitestats-chart-color-8: var(--sakai-color-orange, #f57c00);
       }
 
       figure {
@@ -81,8 +95,15 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     this.loadTranslations("sitestats");
   }
 
+  connectedCallback() {
+
+    super.connectedCallback();
+    this._watchThemeChanges();
+  }
+
   disconnectedCallback() {
 
+    this._unwatchThemeChanges();
     this._destroyChart();
     super.disconnectedCallback();
   }
@@ -126,44 +147,15 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     const canvas = this.shadowRoot.querySelector("canvas");
     if (!canvas) return;
 
+    const theme = siteStatsChartTheme(this);
+    this._themeSignature = siteStatsChartThemeSignature(theme);
+    const showItemLabels = this._showItemLabels();
+
     this._chartInstance = new Chart(canvas, {
       type: siteStatsChartType(this.chart),
-      data: siteStatsChartData(this.chart),
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: this._showItemLabels() && siteStatsChartType(this.chart) !== "pie" ? 18 : 0,
-          },
-        },
-        plugins: {
-          legend: {
-            display: this.chart.datasets.length > 1 || siteStatsChartType(this.chart) === "pie",
-          },
-          title: {
-            display: false,
-          },
-        },
-        elements: {
-          bar: {
-            borderSkipped: false,
-            borderRadius: useDepthEffect(this.chart) ? 2 : 0,
-          },
-        },
-        scales: siteStatsChartType(this.chart) === "pie" ? {} : {
-          x: {
-            ticks: {
-              autoSkip: true,
-              maxRotation: 0,
-            },
-          },
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-      plugins: this._showItemLabels() ? [ this._valueLabelsPlugin() ] : [],
+      data: siteStatsChartData(this.chart, theme),
+      options: siteStatsChartOptions(this.chart, theme, showItemLabels),
+      plugins: showItemLabels ? [ this._valueLabelsPlugin(theme) ] : [],
     });
   }
 
@@ -180,7 +172,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     return this.chart?.itemLabelsVisible !== false;
   }
 
-  _valueLabelsPlugin() {
+  _valueLabelsPlugin(theme) {
 
     return {
       id: "sakai-sitestats-value-labels",
@@ -189,7 +181,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         const context = chart.ctx;
         context.save();
         context.font = "12px sans-serif";
-        context.fillStyle = getComputedStyle(this).getPropertyValue("--sakai-text-color-1").trim() || "#1f2937";
+        context.fillStyle = theme.textColor;
         context.textAlign = "center";
 
         chart.data.datasets.forEach((dataset, datasetIndex) => {
@@ -217,6 +209,53 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     if (!Number.isFinite(number) || number === 0) return "";
 
     return Number.isInteger(number) ? String(number) : String(Math.round(number * 10) / 10);
+  }
+
+  _watchThemeChanges() {
+
+    if (this._themeObserver) return;
+
+    this._themeMediaQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
+    this._themeChangeHandler = () => this._scheduleThemeRender();
+    this._themeMediaQuery?.addEventListener("change", this._themeChangeHandler);
+
+    this._themeObserver = new MutationObserver(this._themeChangeHandler);
+    this._themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: [ "class", "style", "data-theme" ] });
+    if (document.body) {
+      this._themeObserver.observe(document.body, { attributes: true, attributeFilter: [ "class", "style", "data-theme" ] });
+    }
+  }
+
+  _unwatchThemeChanges() {
+
+    this._themeMediaQuery?.removeEventListener("change", this._themeChangeHandler);
+    this._themeObserver?.disconnect();
+    if (this._themeRenderHandle) {
+      cancelAnimationFrame(this._themeRenderHandle);
+    }
+    this._themeMediaQuery = undefined;
+    this._themeObserver = undefined;
+    this._themeChangeHandler = undefined;
+    this._themeRenderHandle = undefined;
+    this._themeSignature = undefined;
+  }
+
+  _scheduleThemeRender() {
+
+    if (this._themeRenderHandle) return;
+
+    this._themeRenderHandle = requestAnimationFrame(() => {
+      this._themeRenderHandle = undefined;
+      this.updateComplete.then(() => {
+        if (!hasSiteStatsChartData(this.chart)) return;
+
+        const theme = siteStatsChartTheme(this);
+        const signature = siteStatsChartThemeSignature(theme);
+        if (signature !== this._themeSignature) {
+          this._renderChart();
+        }
+      });
+    });
   }
 
 }

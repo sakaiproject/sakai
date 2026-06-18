@@ -2,7 +2,11 @@ import "../sakai-sitestats-chart.js";
 import * as i18n from "./i18n.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
-import { siteStatsChartData } from "../src/site-stats-chart-adapter.js";
+import {
+  siteStatsChartData,
+  siteStatsChartOptions,
+} from "../src/site-stats-chart-adapter.js";
+import { siteStatsChartTheme } from "../src/site-stats-chart-theme.js";
 
 describe("sakai-sitestats-chart tests", () => {
 
@@ -48,6 +52,51 @@ describe("sakai-sitestats-chart tests", () => {
     expect(el._chartInstance.config.options.layout.padding.top).to.equal(18);
     expect(plugins.some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.true;
     expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.exist;
+  });
+
+  it("uses Sakai theme variables for chart colors", async () => {
+
+    const el = await fixture(html`
+      <sakai-sitestats-chart
+          style="
+            --sakai-primary-color-1: rgb(10, 20, 30);
+            --sakai-text-color-1: rgb(220, 230, 240);
+            --sakai-text-color-dimmed: rgb(150, 160, 170);
+            --sakai-border-color: rgb(70, 80, 90);
+            --sakai-background-color-1: rgb(5, 6, 7);
+          "
+          .chart=${chart}>
+      </sakai-sitestats-chart>
+    `);
+    await waitUntil(() => el._chartInstance);
+
+    const theme = siteStatsChartTheme(el);
+    const dataset = siteStatsChartData(chart, theme).datasets[0];
+    const options = siteStatsChartOptions(chart, theme);
+
+    expect(dataset.backgroundColor).to.contain("rgba(10, 20, 30, 0.26)");
+    expect(el._chartInstance.data.datasets[0].backgroundColor).to.contain("rgba(10, 20, 30, 0.26)");
+    expect(options.plugins.legend.labels.color).to.equal("rgb(220, 230, 240)");
+    expect(options.scales.x.ticks.color).to.equal("rgb(150, 160, 170)");
+    expect(options.scales.x.grid.color).to.equal("rgba(70, 80, 90, 0.55)");
+  });
+
+  it("resolves chart theme aliases through browser CSS", async () => {
+
+    const el = await fixture(html`
+      <sakai-sitestats-chart
+          style="
+            --local-chart-color: hsl(210, 50%, 20%);
+            --sakai-sitestats-chart-color-1: var(--local-chart-color);
+          "
+          .chart=${chart}>
+      </sakai-sitestats-chart>
+    `);
+    await waitUntil(() => el._chartInstance);
+
+    const dataset = el._chartInstance.data.datasets[0];
+
+    expect(dataset.backgroundColor).to.contain("rgba(26, 51, 77, 0.26)");
   });
 
   it("can suppress the hidden table fallback when a semantic table is already rendered", async () => {

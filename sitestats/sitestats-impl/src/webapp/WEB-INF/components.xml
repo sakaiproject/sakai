@@ -257,9 +257,9 @@
 		<property name="siteStatsReportSummaryMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper"/>
 	</bean>
 
-	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport">
+	<!-- SiteStatsWidgetContext ___________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext">
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService"/>
@@ -269,31 +269,41 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
-	<bean id="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"
-		  class="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition">
-		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
-	</bean>
-	<bean id="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"
-		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition">
-		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
-	</bean>
-	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
-		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition">
-		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
-	</bean>
-	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
-		  class="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition">
-		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
-	</bean>
-	<bean id="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"
-		  class="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition">
-		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"
+		  class="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"
+		  class="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"
+		  class="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
+
+	<!-- SiteStatsWidgetDefinitionSupportFactory ___________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupportFactory"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupportFactory">
+		<property name="context" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext"/>
+		<property name="filterCatalog" ref="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"/>
+		<property name="reportFactory" ref="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"/>
+		<property name="metricSupport" ref="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
 	</bean>
 
-	<!-- SiteStatsWidgetCatalog ____________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
-		  init-method="init">
+	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"
+		  factory-bean="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupportFactory"
+		  factory-method="create"/>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
+
+	<!-- SiteStatsWidgetCatalogFactory _____________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory">
 		<property name="support" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinitionSupport"/>
 		<property name="widgetDefinitions">
 			<list>
@@ -305,6 +315,11 @@
 			</list>
 		</property>
 	</bean>
+
+	<!-- SiteStatsWidgetCatalog ____________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"
+		  factory-bean="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory"
+		  factory-method="create"/>
 
 	<!-- SiteStatsReportAccess _____________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"

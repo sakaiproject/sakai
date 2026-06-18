@@ -12,9 +12,41 @@ import java.util.function.BooleanSupplier;
 
 import lombok.Setter;
 
+import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.report.ReportManager;
+
 abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefinition {
 
 	@Setter protected SiteStatsWidgetDefinitionSupport support;
+
+	protected String message(String key) {
+		return support.message(key);
+	}
+
+	protected StatsManager statsManager() {
+		return support.getStatsManager();
+	}
+
+	protected ReportManager reportManager() {
+		return support.getReportManager();
+	}
+
+	protected EventRegistryService eventRegistryService() {
+		return support.getEventRegistryService();
+	}
+
+	protected WidgetFilterCatalog filterCatalog() {
+		return support.getFilterCatalog();
+	}
+
+	protected WidgetReportDefFactory reportFactory() {
+		return support.getReportFactory();
+	}
+
+	protected WidgetMetricSupport metricSupport() {
+		return support.getMetricSupport();
+	}
 
 	protected WidgetSpec widgetSpec(String id, String titleKey, String icon, String audience, BooleanSupplier available,
 			List<WidgetTabSpec> tabs, List<WidgetMetricSpec> metrics) {

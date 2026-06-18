@@ -1,3 +1,5 @@
+import { SITE_STATS_CHART_FALLBACK_THEME, siteStatsChartColors } from "./site-stats-chart-theme.js";
+
 export function hasSiteStatsChartData(chart) {
 
   return chart?.supported !== false
@@ -18,7 +20,7 @@ export function siteStatsChartType(chart) {
   }
 }
 
-export function siteStatsChartData(chart) {
+export function siteStatsChartData(chart, theme = SITE_STATS_CHART_FALLBACK_THEME) {
 
   const labels = chart.datasets[0].points.map(point => point.label ?? point.x);
   const chartType = siteStatsChartType(chart);
@@ -31,8 +33,8 @@ export function siteStatsChartData(chart) {
       datasets: [ {
         label: dataset.label,
         data: dataset.points.map(point => point.y),
-        backgroundColor: siteStatsChartColors(dataset.points.length, alpha),
-        borderColor: siteStatsChartColors(dataset.points.length, borderAlpha),
+        backgroundColor: siteStatsChartColors(dataset.points.length, alpha, theme),
+        borderColor: siteStatsChartColors(dataset.points.length, borderAlpha, theme),
         borderWidth: useDepthEffect(chart) ? 2 : 1,
         hoverOffset: useDepthEffect(chart) ? 8 : 4,
       } ],
@@ -45,13 +47,73 @@ export function siteStatsChartData(chart) {
     datasets: chart.datasets.map((dataset, index) => ({
       label: dataset.label,
       data: dataset.points.map(point => point.y),
-      borderColor: siteStatsChartColors(datasetCount, borderAlpha)[index],
-      backgroundColor: siteStatsChartColors(datasetCount, chartType === "line" ? siteStatsChartAlpha(chart, 0.18) : siteStatsChartAlpha(chart, 0.65))[index],
+      borderColor: siteStatsChartColors(datasetCount, borderAlpha, theme)[index],
+      backgroundColor: siteStatsChartColors(datasetCount, chartType === "line" ? siteStatsChartAlpha(chart, 0.18) : siteStatsChartAlpha(chart, 0.65), theme)[index],
       borderWidth: useDepthEffect(chart) ? 3 : 2,
       fill: chartType !== "line",
       pointRadius: chartType === "line" ? 3 : undefined,
       tension: 0.2,
     })),
+  };
+}
+
+export function siteStatsChartOptions(chart, theme = SITE_STATS_CHART_FALLBACK_THEME, showItemLabels = true) {
+
+  const chartType = siteStatsChartType(chart);
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        top: showItemLabels && chartType !== "pie" ? 18 : 0,
+      },
+    },
+    plugins: {
+      legend: {
+        display: chart.datasets.length > 1 || chartType === "pie",
+        labels: {
+          color: theme.textColor,
+        },
+      },
+      title: {
+        display: false,
+        color: theme.textColor,
+      },
+    },
+    elements: {
+      bar: {
+        borderSkipped: false,
+        borderRadius: useDepthEffect(chart) ? 2 : 0,
+      },
+      line: {
+        borderColor: theme.borderColor,
+      },
+      point: {
+        borderColor: theme.backgroundColor,
+      },
+    },
+    scales: chartType === "pie" ? {} : {
+      x: {
+        grid: {
+          color: theme.gridColor,
+        },
+        ticks: {
+          autoSkip: true,
+          color: theme.mutedTextColor,
+          maxRotation: 0,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: theme.gridColor,
+        },
+        ticks: {
+          color: theme.mutedTextColor,
+        },
+      },
+    },
   };
 }
 
@@ -97,24 +159,4 @@ export function siteStatsChartAlpha(chart, multiplier = 1) {
   const transparency = Number(chart?.transparency);
   const alpha = Number.isFinite(transparency) ? transparency : 1;
   return Math.min(1, Math.max(0, alpha * multiplier));
-}
-
-export function siteStatsChartColors(count, alpha = 0.82) {
-
-  const base = [
-    [ 25, 118, 210 ],
-    [ 46, 125, 50 ],
-    [ 239, 108, 0 ],
-    [ 123, 31, 162 ],
-    [ 0, 121, 107 ],
-    [ 198, 40, 40 ],
-    [ 69, 90, 100 ],
-    [ 245, 124, 0 ],
-  ];
-  const colors = [];
-  for (let i = 0; i < count; i++) {
-    const c = base[i % base.length];
-    colors.push(`rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`);
-  }
-  return colors;
 }
