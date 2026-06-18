@@ -17,7 +17,6 @@
 
   <!-- Project versions -->
   <properties>
-    <commons-betwixt.version>0.8</commons-betwixt.version>
     <fop.version>2.11</fop.version>
     <sst.wicket.version>9.22.0</sst.wicket.version>
   </properties>
@@ -52,18 +51,6 @@
         <version>${project.version}</version>
         <type>jar</type>
         <scope>provided</scope>
-      </dependency>
-      <!-- Apache Commons -->
-      <dependency>
-        <groupId>commons-betwixt</groupId>
-        <artifactId>commons-betwixt</artifactId>
-        <version>${commons-betwixt.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- Apache others -->
       <dependency>

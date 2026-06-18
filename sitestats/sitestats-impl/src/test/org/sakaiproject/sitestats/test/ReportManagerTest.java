@@ -818,7 +818,7 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 		assertNull(reportManager.getReportDefinition(100));
 		// normal
 		assertTrue(reportManager.saveReportDefinition(rd));
-		assertNotNull(reportManager.getReportDefinition(1));
+		assertNotNull(reportManager.getReportDefinition(rd.getId()));
 		// hidden
 		ReportDef rd2 = new ReportDef();
 		rd2.setId(0);
@@ -865,6 +865,55 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 		list = reportManager.getReportDefinitions(FakeData.SITE_A_ID, true, true);
 		assertNotNull(list);
 		assertEquals(2, list.size());
+	}
+
+	@Test
+	public void getReportDefinitionReadsLegacyBetwixtReportParamsFromPersistedXml() {
+		ReportDef legacyReportDef = new ReportDef();
+		legacyReportDef.setId(0);
+		legacyReportDef.setSiteId(FakeData.SITE_A_ID);
+		legacyReportDef.setCreatedBy(FakeData.USER_A_ID);
+		legacyReportDef.setCreatedOn(new Date());
+		legacyReportDef.setModifiedBy(FakeData.USER_A_ID);
+		legacyReportDef.setModifiedOn(new Date());
+		legacyReportDef.setTitle("Legacy report");
+		legacyReportDef.setDescription("Legacy report description");
+		legacyReportDef.setHidden(false);
+		legacyReportDef.setReportDefinitionXml("<?xml version='1.0' ?><ReportParams>"
+				+ "<siteId>" + FakeData.SITE_A_ID + "</siteId>"
+				+ "<what>what-events</what>"
+				+ "<whatEventSelType>what-events-bytool</whatEventSelType>"
+				+ "<whatEventIds/>"
+				+ "<whatToolIds><whatToolIds>" + FakeData.TOOL_CHAT + "</whatToolIds><whatToolIds>sakai.resources</whatToolIds></whatToolIds>"
+				+ "<whatResourceIds/>"
+				+ "<when>when-custom</when>"
+				+ "<whenFrom>Wed Jun 17 00:00:00 GMT-04:00 2026</whenFrom>"
+				+ "<whenTo>Thu Jun 18 00:00:00 GMT-04:00 2026</whenTo>"
+				+ "<who>who-custom</who>"
+				+ "<whoRoleId/>"
+				+ "<whoUserIds><whoUserIds>" + FakeData.USER_A_ID + "</whoUserIds><whoUserIds>" + FakeData.USER_B_ID + "</whoUserIds></whoUserIds>"
+				+ "<howTotalsBy><howTotalsBy>event</howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy>"
+				+ "</ReportParams>");
+
+		db.insertObject(legacyReportDef);
+
+		ReportDef loadedReportDef = reportManager.getReportDefinition(legacyReportDef.getId());
+
+		assertNotNull(loadedReportDef);
+		assertEquals("Legacy report", loadedReportDef.getTitle());
+		assertEquals(FakeData.SITE_A_ID, loadedReportDef.getSiteId());
+		assertNotNull(loadedReportDef.getReportParams());
+		assertEquals(FakeData.SITE_A_ID, loadedReportDef.getReportParams().getSiteId());
+		assertEquals(ReportManager.WHAT_EVENTS, loadedReportDef.getReportParams().getWhat());
+		assertEquals(ReportManager.WHAT_EVENTS_BYTOOL, loadedReportDef.getReportParams().getWhatEventSelType());
+		assertEquals(Arrays.asList(FakeData.TOOL_CHAT, StatsManager.RESOURCES_TOOLID), loadedReportDef.getReportParams().getWhatToolIds());
+		assertEquals(Arrays.asList(FakeData.USER_A_ID, FakeData.USER_B_ID), loadedReportDef.getReportParams().getWhoUserIds());
+		assertEquals(Arrays.asList(StatsManager.T_EVENT, StatsManager.T_USER), loadedReportDef.getReportParams().getHowTotalsBy());
+		assertEquals(0, loadedReportDef.getReportParams().getWhatEventIds().size());
+		assertEquals(0, loadedReportDef.getReportParams().getWhatResourceIds().size());
+		assertNull(loadedReportDef.getReportParams().getWhoRoleId());
+		assertNotNull(loadedReportDef.getReportParams().getWhenFrom());
+		assertNotNull(loadedReportDef.getReportParams().getWhenTo());
 	}
 	
 	@Test
