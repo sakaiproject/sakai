@@ -27,6 +27,7 @@ public final class SiteStatsApiUrls {
 	public static final String WIDGET_REPORT_PATH = BASE_PATH + "/widgets/{widgetId}/tabs/{tabId}";
 	public static final String WIDGET_METRICS_PATH = BASE_PATH + "/widgets/{widgetId}/metrics";
 	public static final String WIDGET_METRIC_REPORT_PATH = WIDGET_METRICS_PATH + "/{metricId}";
+	public static final String SERVER_WIDE_REPORT_PATH = BASE_PATH + "/server-wide/{reportType}";
 
 	public static String overview(String siteId) {
 		return API_PREFIX + siteBase(siteId) + "/overview";
@@ -88,6 +89,15 @@ public final class SiteStatsApiUrls {
 		endpoint.append("/metrics/");
 		endpoint.append(encode(metricId));
 		appendReportParams(endpoint, SiteStatsReportRequest.normalized(request), false);
+		return endpoint.toString();
+	}
+
+	public static String serverWideReport(String siteId, String reportType) {
+		StringBuilder endpoint = new StringBuilder();
+		endpoint.append(API_PREFIX);
+		endpoint.append(siteBase(siteId));
+		endpoint.append("/server-wide/");
+		endpoint.append(encode(reportType));
 		return endpoint.toString();
 	}
 

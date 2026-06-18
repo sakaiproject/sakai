@@ -25,7 +25,6 @@ import org.sakaiproject.sitestats.api.ServerWideReportManager;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
@@ -51,7 +50,6 @@ public interface SakaiFacade {
 	public SiteStatsViewService getSiteStatsViewService();
 	public SiteStatsReportExportService getSiteStatsReportExportService();
 	public SiteStatsReportPreviewService getSiteStatsReportPreviewService();
-	public ChartService getChartService();
 	public StatsUpdateManager getStatsUpdateManager();
 	public ServerWideReportManager getServerWideReportManager();
 	public DetailedEventsManager getDetailedEventsManager();

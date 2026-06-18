@@ -79,6 +79,13 @@ public class SiteStatsReportAccess {
 		return statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId);
 	}
 
+	void assertCanViewAdmin(String siteId) {
+		assertCanView(siteId);
+		if (!statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId)) {
+			throw new SecurityException("Current user cannot view admin SiteStats data for site " + siteId);
+		}
+	}
+
 	void assertCanViewAll(String siteId) {
 		assertCanView(siteId);
 		assertCanViewAllStats(siteId);

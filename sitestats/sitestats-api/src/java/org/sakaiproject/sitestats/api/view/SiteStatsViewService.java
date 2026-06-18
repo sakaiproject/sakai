@@ -26,4 +26,6 @@ public interface SiteStatsViewService {
 	public SiteStatsReportView getWidgetReport(String siteId, String widgetId, String tabId, SiteStatsReportRequest request);
 
 	public SiteStatsReportView getWidgetMetricReport(String siteId, String widgetId, String metricId, SiteStatsReportRequest request);
+
+	public SiteStatsReportView getServerWideReport(String siteId, String reportType);
 }

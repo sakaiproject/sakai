@@ -19,6 +19,7 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,17 +29,15 @@ import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AdminMenu;
-import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.models.ServerWideModel;
 
 /**
@@ -46,19 +45,30 @@ import org.sakaiproject.sitestats.tool.wicket.models.ServerWideModel;
  */
 public class ServerWidePage extends BasePage {
 	private static final long			serialVersionUID		= 1L;
+	private static final Map<String, String> SELECTOR_IDS;
+
+	static {
+		Map<String, String> selectorIds = new HashMap<String, String>();
+		selectorIds.put(SiteStatsServerWideReportIds.MONTHLY_LOGIN, "reportMonthlyLogin");
+		selectorIds.put(SiteStatsServerWideReportIds.WEEKLY_LOGIN, "reportWeeklyLogin");
+		selectorIds.put(SiteStatsServerWideReportIds.DAILY_LOGIN, "reportDailyLogin");
+		selectorIds.put(SiteStatsServerWideReportIds.REGULAR_USERS, "reportRegularUsers");
+		selectorIds.put(SiteStatsServerWideReportIds.HOURLY_USAGE, "reportHourlyUsage");
+		selectorIds.put(SiteStatsServerWideReportIds.TOP_ACTIVITIES, "reportTopActivities");
+		selectorIds.put(SiteStatsServerWideReportIds.TOOL, "reportTool");
+		SELECTOR_IDS = Collections.unmodifiableMap(selectorIds);
+	}
 
 	// UI Components
 	private Label						reportTitle				= null;
 	private Label						reportDescription		= null;
-	private AjaxLazyLoadImage			reportChart				= null;
+	private WebMarkupContainer			reportChart				= null;
 	private Label						reportNotes				= null;
 	private WebMarkupContainer			selectors				= null;
 
 	private ServerWideModel				report					= null;
 
 	private String						siteId					= null;
-	private int							selectedWidth			= 0;
-	private int							selectedHeight			= 0;
 	private List<Component>				links					= new ArrayList<Component>();
 	private Map<Component,Component>	labels					= new HashMap<Component,Component>();
 	
@@ -77,12 +87,6 @@ public class ServerWidePage extends BasePage {
 		}
 	}
 
-	@Override
-	public void renderHead(IHeaderResponse response) {
-		super.renderHead(response);
-		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
-	}
-	
 	private void renderBody() {
 		add(new AdminMenu("menu"));
 		
@@ -104,33 +108,18 @@ public class ServerWidePage extends BasePage {
 		reportNotes.setOutputMarkupId(true);
 		form.add(reportNotes);
 
-		// chart
-		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
-			@Override
-			public byte[] getImageData() {
-				return getChartImage(selectedWidth, selectedHeight);
-			}
-
-			@Override
-			public byte[] getImageData(int width, int height) {
-				return getChartImage(width, height);
-			}
-		};
+		reportChart = new WebMarkupContainer("reportChart");
 		reportChart.setOutputMarkupId(true);
-		reportChart.setAutoDetermineChartSizeByAjax(".chartContainer");
+		reportChart.add(AttributeModifier.replace("endpoint", Model.of("")));
 		form.add(reportChart);
 		
 		// selectors
 		selectors = new WebMarkupContainer("selectors");
 		selectors.setOutputMarkupId(true);
 		form.add(selectors);
-		makeSelectorLink("reportMonthlyLogin", StatsManager.MONTHLY_LOGIN_REPORT);
-		makeSelectorLink("reportWeeklyLogin", StatsManager.WEEKLY_LOGIN_REPORT);
-		makeSelectorLink("reportDailyLogin", StatsManager.DAILY_LOGIN_REPORT);
-		makeSelectorLink("reportRegularUsers", StatsManager.REGULAR_USERS_REPORT);
-		makeSelectorLink("reportHourlyUsage", StatsManager.HOURLY_USAGE_REPORT);
-		makeSelectorLink("reportTopActivities", StatsManager.TOP_ACTIVITIES_REPORT);
-		makeSelectorLink("reportTool", StatsManager.TOOL_REPORT);
+		for (String reportType : SiteStatsServerWideReportIds.ORDERED_IDS) {
+			makeSelectorLink(selectorId(reportType), reportType);
+		}
 	}
 
 	public void setReport(ServerWideModel report) {
@@ -139,14 +128,6 @@ public class ServerWidePage extends BasePage {
 
 	public ServerWideModel getReport() {
 		return report;
-	}
-	
-	private byte[] getChartImage(int width, int height) {
-		int _width = (width <= 0) ? 350 : width;
-		int _height = (height <= 0) ? 200: height;
-		return Locator.getFacade().getServerWideReportManager().generateReportChart(
-			report.getSelectedView(), _width, _height
-			);
 	}
 	
 	@SuppressWarnings("serial")
@@ -160,7 +141,7 @@ public class ServerWidePage extends BasePage {
 				reportTitle.add(new AttributeModifier("style", new Model("display: block")));
 				reportDescription.add(new AttributeModifier("style", new Model("display: block")));
 				reportNotes.add(new AttributeModifier("style", new Model("display: block")));
-				reportChart.renderImage(target, true);
+				reportChart.add(AttributeModifier.replace("endpoint", Model.of(SiteStatsApiUrls.serverWideReport(siteId, view))));
 				// toggle selectors link state
 				for(Component lbl : labels.values()) {
 					lbl.setVisible(false);
@@ -175,6 +156,7 @@ public class ServerWidePage extends BasePage {
 				target.add(reportTitle);
 				target.add(reportDescription);
 				target.add(reportNotes);
+				target.add(reportChart);
 				target.appendJavaScript("setMainFrameHeightNoScroll( window.name, 650 )");
 			}
 		};
@@ -190,5 +172,12 @@ public class ServerWidePage extends BasePage {
 		labels.put(link, label);
 		selectors.add(label);
 	}
-}
 
+	private String selectorId(String reportType) {
+		String selectorId = SELECTOR_IDS.get(reportType);
+		if (selectorId == null) {
+			throw new IllegalArgumentException("Unknown server-wide SiteStats report: " + reportType);
+		}
+		return selectorId;
+	}
+}

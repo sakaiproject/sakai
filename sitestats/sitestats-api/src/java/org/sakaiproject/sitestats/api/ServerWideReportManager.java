@@ -119,8 +119,6 @@ public interface ServerWideReportManager
      * 
      * @return format: tool id, tool count
      */
-    public List<ServerWideStatsRecord> getToolCount ();    
-    
-    public byte[] generateReportChart(String reportType, int width, int height);
-	
+    public List<ServerWideStatsRecord> getToolCount ();
+
 }

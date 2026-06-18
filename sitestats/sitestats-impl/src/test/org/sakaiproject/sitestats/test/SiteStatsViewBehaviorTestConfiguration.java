@@ -7,6 +7,7 @@ package org.sakaiproject.sitestats.test;
 
 import static org.mockito.Mockito.mock;
 
+import org.sakaiproject.sitestats.api.ServerWideReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -25,6 +26,7 @@ public class SiteStatsViewBehaviorTestConfiguration {
 	private static final String STATS_MANAGER = "org.sakaiproject.sitestats.api.StatsManager";
 	private static final String EVENT_REGISTRY_SERVICE = "org.sakaiproject.sitestats.api.event.EventRegistryService";
 	private static final String REPORT_MANAGER = "org.sakaiproject.sitestats.api.report.ReportManager";
+	private static final String SERVER_WIDE_REPORT_MANAGER = "org.sakaiproject.sitestats.api.ServerWideReportManager";
 
 	@Bean
 	public static BeanDefinitionRegistryPostProcessor siteStatsViewBehaviorMocks() {
@@ -35,6 +37,7 @@ public class SiteStatsViewBehaviorTestConfiguration {
 				replaceWithMock(registry, STATS_MANAGER, StatsManager.class);
 				replaceWithMock(registry, EVENT_REGISTRY_SERVICE, EventRegistryService.class);
 				replaceWithMock(registry, REPORT_MANAGER, ReportManager.class);
+				replaceWithMock(registry, SERVER_WIDE_REPORT_MANAGER, ServerWideReportManager.class);
 			}
 
 			@Override

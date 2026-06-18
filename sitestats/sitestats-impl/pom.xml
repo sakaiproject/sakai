@@ -205,12 +205,6 @@
             <artifactId>quartz</artifactId>
         </dependency>
 
-        <!-- JFreeChart -->
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
