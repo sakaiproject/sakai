@@ -19,6 +19,8 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -48,7 +50,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Statistics");
 
-        page.locator(".widget .bottom a[id*=\"showMore\"]").first()
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("Show more", Pattern.CASE_INSENSITIVE))).first()
             .click(new Locator.ClickOptions().setForce(true));
 
         Locator reportPanel = page.locator("sakai-sitestats-report-panel:visible").first();
