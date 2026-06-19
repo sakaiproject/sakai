@@ -9863,8 +9863,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			List publicChangeableSiteTypes = (List) state.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
 			if (publicChangeableSiteTypes != null && sEdit.getType() != null && !publicChangeableSiteTypes.contains(sEdit.getType()))
 			{
-				// set pubview to true for those site types which pubview change is not allowed
-				sEdit.setPubView(true);
+				sEdit.setPubView(sEdit.isPubView());
 			}
 			else
 			{
