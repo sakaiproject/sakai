@@ -22,6 +22,7 @@
 package org.sakaiproject.user.api;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.sakaiproject.entity.api.EntityProducer;
@@ -83,6 +84,17 @@ public interface PreferencesService extends EntityProducer
 	 * @return The Preferences object.
 	 */
 	Preferences getPreferences(String id);
+
+	/**
+	 * Get an optional value for the supplied preferences id, key and property name
+	 *
+	 * @param id The preferences id.
+	 * @param key The key of the property set that we want to query.
+	 * @param name The property name that we want to lookup.
+	 *
+	 * @return An Optional optionally containing the value as a string.
+	 */
+	Optional<String> getValue(String id, String key, String name);
 
 	/**
 	 * Check to see if the current user can add or modify permissions with this id.

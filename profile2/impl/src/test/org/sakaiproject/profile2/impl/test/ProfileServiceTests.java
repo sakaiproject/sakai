@@ -33,6 +33,7 @@ import org.sakaiproject.profile2.api.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.api.repository.ProfileImageUploadedRepository;
 import org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -59,6 +60,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private ProfileImageUploadedRepository profileImageUploadedRepository;
     @Autowired private SocialNetworkingInfoRepository socialNetworkingInfoRepository;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private PreferencesService preferencesService;
 
     private String user1Id = UUID.randomUUID().toString();
     private String user2Id = UUID.randomUUID().toString();
@@ -72,6 +74,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
       reset(securityService);
       reset(sessionManager);
       reset(contentHostingService);
+      reset(preferencesService);
 
       user1 = mock(User.class);
       when(user1.getCreatedBy()).thenReturn(user1);
@@ -345,6 +348,9 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
         userProfile.instagramUrl = instagramUrl;
         userProfile.linkedinUrl = linkedinUrl;
         userProfile.nickname = nickname;
+        userProfile.imageUserPreference = "upload";
+
+        when(preferencesService.applyEditWithAutoCommit(any(), any())).thenReturn(true);
 
         profileService.saveUserProfile(userProfile);
 

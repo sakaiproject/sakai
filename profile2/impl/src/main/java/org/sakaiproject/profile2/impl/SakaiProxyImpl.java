@@ -428,10 +428,6 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (StringUtils.equals(pictureType, ProfileConstants.PICTURE_SETTING_UPLOAD_PROP)) {
             return ProfileConstants.PICTURE_SETTING_UPLOAD;
         }
-        // if 'url'
-        else if (StringUtils.equals(pictureType, ProfileConstants.PICTURE_SETTING_URL_PROP)) {
-            return ProfileConstants.PICTURE_SETTING_URL;
-        }
         // if 'official'
         else if (StringUtils.equals(pictureType, ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)) {
             return ProfileConstants.PICTURE_SETTING_OFFICIAL;

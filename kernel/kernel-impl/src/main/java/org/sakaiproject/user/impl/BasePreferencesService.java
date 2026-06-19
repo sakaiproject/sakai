@@ -220,6 +220,11 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
     @Override
+    public Optional<String> getValue(String id, String key, String name) {
+        return Optional.ofNullable(getPreferences(id).getProperties(key).getProperty(name));
+    }
+
+    @Override
     public boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction) {
         PreferencesEdit edit = null;
         try {

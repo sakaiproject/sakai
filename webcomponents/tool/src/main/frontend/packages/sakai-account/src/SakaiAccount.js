@@ -4,6 +4,7 @@ import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import isEmail from "validator/es/lib/isEmail.js";
+import { refreshProfileImageTags } from "@sakai-ui/sakai-user-photo";
 const SOCIAL_HOSTS = {
   facebook: [ "facebook.com" ],
   instagram: [ "instagram.com" ],
@@ -48,11 +49,6 @@ export class SakaiAccount extends SakaiElement {
     };
 
     this.loadTranslations("account");
-  }
-
-  connectedCallback() {
-
-    super.connectedCallback();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -115,6 +111,32 @@ export class SakaiAccount extends SakaiElement {
         throw new Error(`Network error while patching to ${url}`);
       })
       .then(profile => this._profile = profile);
+  }
+
+  _uploadClicked() {
+
+    const patch = [ { op: "replace", path: "/imageUserPreference", value: SakaiAccount.UPLOAD } ];
+
+    this._patchProfile(patch)
+      .then(() => refreshProfileImageTags(this.userId, SakaiAccount.UPLOAD))
+      .catch (error => {
+
+        console.error(error);
+        this._loadUser();
+      });
+  }
+
+  _officialClicked() {
+
+    const patch = [ { op: "replace", path: "/imageUserPreference", value: SakaiAccount.OFFICIAL } ];
+
+    this._patchProfile(patch)
+      .then(() => refreshProfileImageTags(this.userId, SakaiAccount.OFFICIAL))
+      .catch (error => {
+
+        console.error(error);
+        this._loadUser();
+      });
   }
 
   _saveBasicInfo() {
@@ -791,7 +813,7 @@ export class SakaiAccount extends SakaiElement {
         <div class="d-flex mb-3">
           <div class="d-flex flex-column align-items-center">
             <div>
-              <sakai-user-photo user-id="${this.userId}" classes="medium"></sakai-user-photo>
+              <sakai-user-photo user-id="${this.userId}" classes="medium" ?official=${this._profile.imageUserPreference === SakaiAccount.OFFICIAL}></sakai-user-photo>
             </div>
             <div>
 
@@ -802,6 +824,28 @@ export class SakaiAccount extends SakaiElement {
               <i class="si si-edit"></i>
               <span>${this._i18n.change_profile_picture}</span>
             </button>
+            ` : nothing}
+
+            ${this._profile.canSelectPictureSource ? html`
+              <div class="ms-1 mt-3">
+                <label>
+                  <input type="radio"
+                      name="picture-source"
+                      value="${SakaiAccount.UPLOAD}"
+                      @click=${this._uploadClicked}
+                      .checked=${this._profile.imageUserPreference === SakaiAccount.UPLOAD} />
+                  <span class="ms-1">${this._i18n.upload}</span>
+                </label>
+                <label>
+                  <input type="radio"
+                      class="ms-1"
+                      name="picture-source"
+                      value="${SakaiAccount.OFFICIAL}"
+                      @click=${this._officialClicked}
+                      .checked=${this._profile.imageUserPreference === SakaiAccount.OFFICIAL} />
+                  <span class="ms-1">${this._i18n.official}</span>
+                </label>
+              </div>
             ` : nothing}
 
             </div>
@@ -815,3 +859,6 @@ export class SakaiAccount extends SakaiElement {
     `;
   }
 }
+
+SakaiAccount.OFFICIAL = "official";
+SakaiAccount.UPLOAD = "upload";
