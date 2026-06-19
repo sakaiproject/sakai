@@ -17,12 +17,16 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
+import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.site.api.Site;
@@ -33,11 +37,13 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.cover.PreferencesService;
 
 /**
  *
@@ -196,8 +202,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
         //SAM-1562 We need to round the double score and covert to a double -DH
         double fScore = Precision.round(ag.getFinalScore(), 2);
         Double score = Double.valueOf(fScore).doubleValue();
-        points = score.toString();
-        log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
+        points = getFormattedScore(score, gradebookUId);
+        log.debug("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     }
     g.updateExternalAssessmentScore(gradebookUId,
       ag.getPublishedAssessmentId().toString(),
@@ -206,7 +212,37 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
     }
   }
-  
+
+  private String getFormattedScore(Double score, String gradebookUId) {
+    String currentLocaleStr = null;
+    String userId = AgentFacade.getEid();
+
+    try {
+      Site site = SiteService.getSite(gradebookUId);
+      ResourceProperties siteProperties = site.getProperties();
+      currentLocaleStr = (String) siteProperties.get("locale_string");
+    } catch (IdUnusedException iue) {
+      log.warn("Not possible to get siteProperties, {}", iue.toString());
+    }
+
+    if (currentLocaleStr == null && userId != null) {
+      currentLocaleStr = PreferencesService.getLocale(userId).toString();
+    }
+
+    if (currentLocaleStr == null) {
+      currentLocaleStr = Locale.ENGLISH.toString();
+    }
+
+    String[] localeParts = new String[]{"", ""};
+    List<String> localePartsList = Arrays.asList(currentLocaleStr.split("_"));
+    for (int i = 0; i < localePartsList.size(); i++) {
+      localeParts[i] = localePartsList.get(i);
+    }
+
+    NumberFormat nf = NumberFormat.getInstance(new Locale(localeParts[0], localeParts[1]));
+    return nf.format(score);
+  }
+
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
 		  org.sakaiproject.grading.api.GradingService g) throws Exception {
 	  boolean testErrorHandling=false;
