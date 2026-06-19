@@ -23,6 +23,7 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.watch.IModifiable;
 
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
 import java.time.Instant;
@@ -35,12 +36,19 @@ public class ContentPackageWebResource extends ResourceReference implements IMod
 
 	private ContentPackageResource resource;
 	private ContentPackageResourceStream resourceStream;
+	private final transient Cache<String, byte[]> compressedCache;
 
 	public ContentPackageWebResource(ContentPackageResource resource)
+	{
+		this(resource, null);
+	}
+
+	public ContentPackageWebResource(ContentPackageResource resource, Cache<String, byte[]> compressedCache)
 	{
 		super(resource.getClass(), resource.getPath());
 		this.resource = resource;
 		this.resourceStream = new ContentPackageResourceStream(resource);
+		this.compressedCache = compressedCache;
 	}
 
 	@Override
@@ -53,7 +61,7 @@ public class ContentPackageWebResource extends ResourceReference implements IMod
 	{
 		if (canCompress())
 		{
-			return new CompressingContentPackageResourceStream(resource);
+			return new CompressingContentPackageResourceStream(resource, compressedCache);
 		}
 
 		return resourceStream;

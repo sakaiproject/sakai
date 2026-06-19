@@ -18,9 +18,9 @@
  * This code borrows substantially from the Apache Wicket nested class
  *  	org.apache.wicket.markup.html.CompressedPackageResource$CompressingResourceStream
  * authored by Janne Hietam&auml;ki
- * 
+ *
  * The original license for that class is pasted below:
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -42,30 +42,43 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.SoftReference;
-import java.time.Instant;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.apache.wicket.util.time.Time;
 
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
 public class CompressingContentPackageResourceStream extends ContentPackageResourceStream
 {
 	private static final long serialVersionUID = 1L;
 
-	/** Cache for compressed data */
-	private SoftReference cache = new SoftReference(null);
+	/**
+	 * Optional shared cache of gzipped bytes, owned by the Wicket application (see
+	 * ScormWebApplication) and managed by the kernel MemoryService. Keys embed the resource's
+	 * last-modified time, so a republished file simply gets a new key and stale entries age
+	 * out under the cache's normal eviction policy. Transient: this stream lives for a single
+	 * request and the cache must never be serialized with it.
+	 */
+	private final transient Cache<String, byte[]> compressedCache;
 
-	/** Timestamp of the cache */
-	private Instant timeStamp = null;
+	private final String cacheKey;
+
+	/** Holds the compressed bytes for this request so length() and getInputStream() compress only once. */
+	private transient byte[] compressedContent;
 
 	public CompressingContentPackageResourceStream(ContentPackageResource resource)
 	{
+		this(resource, null);
+	}
+
+	public CompressingContentPackageResourceStream(ContentPackageResource resource, Cache<String, byte[]> compressedCache)
+	{
 		super(resource);
+		this.compressedCache = compressedCache;
+		this.cacheKey = resource.getPath() + '|' + resource.getLastModified();
 	}
 
 	@Override
@@ -76,27 +89,32 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	private byte[] getCompressedContent() throws ResourceStreamNotFoundException
 	{
-		InputStream stream = super.getInputStream();
-		try
+		if (compressedContent != null)
 		{
-			byte ret[] = (byte[]) cache.get();
-			if (ret != null && timeStamp != null)
-			{
-				if (timeStamp.equals(lastModifiedTime()))
-				{
-					return ret;
-				}
-			}
+			return compressedContent;
+		}
 
+		byte[] cached = compressedCache != null ? compressedCache.get(cacheKey) : null;
+		if (cached != null)
+		{
+			compressedContent = cached;
+			return cached;
+		}
+
+		try (InputStream stream = super.getInputStream())
+		{
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try (GZIPOutputStream zout = new GZIPOutputStream(out))
 			{
 				Streams.copy(stream, zout);
 			}
-			stream.close();
-			ret = out.toByteArray();
-			timeStamp = lastModifiedTime();
-			cache = new SoftReference(ret);
+
+			byte[] ret = out.toByteArray();
+			if (compressedCache != null)
+			{
+				compressedCache.put(cacheKey, ret);
+			}
+			compressedContent = ret;
 			return ret;
 		}
 		catch (IOException e)
