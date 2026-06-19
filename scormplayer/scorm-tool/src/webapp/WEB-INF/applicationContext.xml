@@ -9,6 +9,7 @@
 		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+		<property name="localeService"><ref bean="org.sakaiproject.util.api.LocaleService"/></property>
 	</bean>
 
 	<!-- SCORM single-package player tool -->
@@ -16,5 +17,6 @@
 		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+		<property name="localeService"><ref bean="org.sakaiproject.util.api.LocaleService"/></property>
 	</bean>
 </beans>

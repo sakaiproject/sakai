@@ -20,12 +20,17 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+import org.apache.wicket.Session;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
 import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
 import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 /**
@@ -42,6 +47,9 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     @Getter @Setter
     private ContentHostingService contentHostingService;
 
+    @Getter @Setter
+    private LocaleService localeService;
+
     @Override
     public void init()
     {
@@ -50,8 +58,23 @@ public abstract class ScormWebApplication extends SakaiWebApplication
         mountPage( "scormCompletionPage", ScormCompletionPage.class );
         Objects.requireNonNull(serverConfigurationService, "serverConfigurationService must be set before init()");
         Objects.requireNonNull(contentHostingService, "contentHostingService must be set before init()");
+        Objects.requireNonNull(localeService, "localeService must be set before init()");
 
         mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}",
             new ContentPackageResourceReference(serverConfigurationService, contentHostingService) );
+    }
+
+    /**
+     * Align the Wicket session locale with the user's Sakai language preference so that the tool's
+     * i18n bundles resolve to the same language as the surrounding Sakai portal. Without this, Wicket
+     * defaults to the browser's Accept-Language header and the tool can render in a different language
+     * than the rest of Sakai.
+     */
+    @Override
+    public Session newSession( Request request, Response response )
+    {
+        Session session = super.newSession( request, response );
+        session.setLocale( localeService.getLocaleForCurrentSiteAndUser() );
+        return session;
     }
 }

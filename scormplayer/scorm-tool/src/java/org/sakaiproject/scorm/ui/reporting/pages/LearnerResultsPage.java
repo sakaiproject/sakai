@@ -163,8 +163,8 @@ public class LearnerResultsPage extends BaseResultsPage
 		columns.add(actionColumn);
 
 		columns.add(new PercentageColumn(scoreHeader, "scaled", "scaled"));
-		columns.add(new PropertyColumn(completedHeader, "completionStatus", "completionStatus"));
-		columns.add(new PropertyColumn(successHeader, "successStatus", "successStatus"));
+		columns.add(new StatusPropertyColumn(completedHeader, "completionStatus", "completionStatus", "completion.status."));
+		columns.add(new StatusPropertyColumn(successHeader, "successStatus", "successStatus", "success.status."));
 
 		return columns;
 	}

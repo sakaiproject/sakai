@@ -156,8 +156,8 @@ public class InteractionResultsPage extends BaseResultsPage
 
 		columns.add(new PropertyColumn(idHeader, "id", "id"));
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));
-		columns.add(new PropertyColumn(completionStatusHeader, "completionStatus", "completionStatus"));
-		columns.add(new PropertyColumn(successStatusHeader, "successStatus", "successStatus"));
+		columns.add(new StatusPropertyColumn(completionStatusHeader, "completionStatus", "completionStatus", "completion.status."));
+		columns.add(new StatusPropertyColumn(successStatusHeader, "successStatus", "successStatus", "success.status."));
 
 		return columns;
 	}

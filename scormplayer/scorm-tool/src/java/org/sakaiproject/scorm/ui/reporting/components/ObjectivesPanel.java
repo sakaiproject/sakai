@@ -17,6 +17,7 @@ package org.sakaiproject.scorm.ui.reporting.components;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -52,12 +53,15 @@ public class ObjectivesPanel extends Panel
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId(), new CompoundPropertyModel(objective));
 		item.setRenderBodyOnly(true);
 
-		Label descLabel = new Label("description");
-		Label successLabel = new Label("successStatus");
-		Label completionLabel = new Label("completionStatus");
+		String successStatus = objective.getSuccessStatus();
+		String completionStatus = objective.getCompletionStatus();
 
-		successLabel.setVisible(objective.getSuccessStatus() != null && objective.getSuccessStatus().trim().length() != 0);
-		completionLabel.setVisible(objective.getCompletionStatus() != null && objective.getCompletionStatus().trim().length() != 0);
+		Label descLabel = new Label("description");
+		Label successLabel = new Label("successStatus", StatusLocalization.localizeStatus("success.status.", successStatus));
+		Label completionLabel = new Label("completionStatus", StatusLocalization.localizeStatus("completion.status.", completionStatus));
+
+		successLabel.setVisible(StringUtils.isNotBlank(successStatus));
+		completionLabel.setVisible(StringUtils.isNotBlank(completionStatus));
 
 		item.add(descLabel);
 		item.add(new ScorePanel("score", objective.getScore()));
