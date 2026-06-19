@@ -30,22 +30,23 @@
         
         <span class="accordion-header d-flex align-items-center px-3 py-2 m-0" style="border-radius: inherit;">
           
-          <a href="<h:outputText value="#{attach.location}"/>" 
-             download="<h:outputText value="#{attach.filename}"/>" 
-             aria-label="<h:outputText value="#{commonMessages.action_download}"/>" 
-             class="btn btn-secondary me-3 bi bi-download"></a>
+          <h:panelGroup rendered="#{!delivery.fromPrint}">
+            <a href="<h:outputText value="#{attach.location}"/>" 
+              download="<h:outputText value="#{attach.filename}"/>" 
+              aria-label="<h:outputText value="#{commonMessages.action_download}"/>" 
+              class="btn btn-secondary me-3 bi bi-download"></a>
+          </h:panelGroup>
 
           <div class="flex-grow-1">
             <h:panelGroup rendered="#{!delivery.fromPrint}">
               <%@ include file="/jsf/shared/mimeicon.jsp" %>
             </h:panelGroup>
-            <f:verbatim>&nbsp;</f:verbatim>
             
-            <h:outputLink value="#{attach.location}" target="_blank" styleClass="text-decoration-none">
+            <h:outputLink value="#{attach.location}" target="_blank" rel="noopener noreferrer" styleClass="text-decoration-none">
               <h:outputText value="#{attach.filename}" />
             </h:outputLink>
             
-            <h:panelGroup rendered="#{!attach.isLink}">
+            <h:panelGroup rendered="#{!attach.isLink && !delivery.fromPrint}">
               <span class='text-muted small'>(<h:outputText value="#{attach.fileSize}"/> <h:outputText value="#{generalMessages.kb}"/>)</span>
             </h:panelGroup>
           </div>
@@ -85,7 +86,10 @@
 
         </h:panelGroup>
 
-        <h:outputText value="#{attach.filename}" rendered="#{delivery.fromPrint}"/>
+        <h:panelGroup rendered="#{attach.isInlineImage && delivery.fromPrint}">
+          <img src="<h:outputText value="#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&amp;mimeType=#{attach.mimeType}&amp;filename=#{attach.filename}"/>" 
+                style="width: 100%; max-width: 400px; height: auto; max-height: 350px;" />
+        </h:panelGroup>
 
       </div>
 
