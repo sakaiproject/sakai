@@ -19,7 +19,11 @@
         <script src="/messageforums-tool/js/forum.js"></script>
         <script>includeWebjarLibrary('ckeditor4')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
-        <script>includeWebjarLibrary('bootstrap')</script>
+        <script>
+           if (window.location !== window.parent.location) {
+             includeWebjarLibrary('bootstrap');
+           }
+        </script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
