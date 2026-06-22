@@ -75,12 +75,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <!-- GradingService signatures reference CourseSection (from sections-api); grading-api is
              provided so this transitive must be declared here for compilation and tests. -->

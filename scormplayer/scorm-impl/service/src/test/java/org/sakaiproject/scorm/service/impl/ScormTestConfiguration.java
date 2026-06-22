@@ -29,12 +29,15 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 
 /**
- * Spring test context for {@link ScormEntityProducer}. Collaborators are supplied as mock beans and the
- * producer is wired exactly as it is in production (spring-scorm-services.xml), without a database.
+ * Spring test context for {@link ScormEntityProducer}. Collaborators are supplied as mock beans, and the
+ * producer itself is loaded from the production bean definition (spring-scorm-entityproducer.xml) so the
+ * test exercises the real wiring without duplicating it and without a database.
  */
 @Configuration
+@ImportResource("classpath:org/sakaiproject/scorm/service/impl/spring-scorm-entityproducer.xml")
 public class ScormTestConfiguration {
 
     @Bean(name = "org.sakaiproject.scorm.service.api.ScormContentService")
@@ -80,24 +83,5 @@ public class ScormTestConfiguration {
     @Bean(name = "org.sakaiproject.entity.api.EntityManager")
     public EntityManager entityManager() {
         return mock(EntityManager.class);
-    }
-
-    @Bean
-    public ScormEntityProducer scormEntityProducer(ScormContentService scormContentService,
-            ScormResourceService scormResourceService, ContentHostingService contentHostingService,
-            ContentPackageDao contentPackageDao, ContentPackageManifestDao contentPackageManifestDao,
-            SecurityService securityService, ServerConfigurationService serverConfigurationService,
-            GradingService gradingService, EntityManager entityManager) {
-        ScormEntityProducer producer = new ScormEntityProducer();
-        producer.setScormContentService(scormContentService);
-        producer.setScormResourceService(scormResourceService);
-        producer.setContentHostingService(contentHostingService);
-        producer.setContentPackageDao(contentPackageDao);
-        producer.setContentPackageManifestDao(contentPackageManifestDao);
-        producer.setSecurityService(securityService);
-        producer.setServerConfigurationService(serverConfigurationService);
-        producer.setGradingService(gradingService);
-        producer.setEntityManager(entityManager);
-        return producer;
     }
 }

@@ -167,7 +167,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                     .map(cp -> Map.of("id", String.valueOf(cp.getContentPackageId()), "title", cp.getTitle()))
                     .toList();
         } catch (ResourceStorageException e) {
-            log.warn("Unable to build SCORM entity map for {}: {}", fromContext, e.getMessage());
+            log.warn("Unable to build SCORM entity map for {}: {}", fromContext, e.toString());
             return Collections.emptyList();
         }
     }
@@ -187,14 +187,14 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         try {
             scormContentService.getContentPackages(toContext).forEach(cp -> reservedTitles.add(cp.getTitle()));
         } catch (ResourceStorageException e) {
-            log.debug("Unable to preload destination SCORM titles for {}: {}", toContext, e.getMessage());
+            log.debug("Unable to preload destination SCORM titles for {}: {}", toContext, e.toString());
         }
 
         List<ContentPackage> sourcePackages;
         try {
             sourcePackages = scormContentService.getContentPackages(fromContext);
         } catch (ResourceStorageException e) {
-            log.warn("Unable to fetch SCORM packages from {} for site copy: {}", fromContext, e.getMessage());
+            log.warn("Unable to fetch SCORM packages from {} for site copy: {}", fromContext, e.toString());
             return transversalMap;
         }
 
@@ -239,7 +239,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                     purgeContentPackage(pkg);
                 }
             } catch (ResourceStorageException e) {
-                log.warn("Unable to cleanup SCORM content in {} prior to import: {}", toContext, e.getMessage());
+                log.warn("Unable to cleanup SCORM content in {} prior to import: {}", toContext, e.toString());
             }
         }
 
@@ -344,7 +344,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
 
             return contentPackageManifestDao.save(clone);
         } catch (Exception e) {
-            log.warn("Unable to clone manifest {}: {}", manifestId, e.getMessage());
+            log.warn("Unable to clone manifest {}: {}", manifestId, e.toString());
             return null;
         }
     }
@@ -376,7 +376,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 return;
             }
         } catch (Exception e) {
-            log.debug("Unable to read collection properties for {}: {}", resourceId, e.getMessage());
+            log.debug("Unable to read collection properties for {}: {}", resourceId, e.toString());
             return;
         }
 
@@ -389,7 +389,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             if (edit != null && edit.isActiveEdit()) {
                 contentHostingService.cancelCollection(edit);
             }
-            log.debug("Unable to update collection display name for {}: {}", resourceId, e.getMessage());
+            log.debug("Unable to update collection display name for {}: {}", resourceId, e.toString());
         }
     }
 
@@ -434,8 +434,16 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Create (remap) a SCO's Gradebook external assessment in the given site. Shared by site-copy and archive merge.
-     * Failures (e.g. duplicate or invalid category in the destination) are logged and skipped so one SCO can't abort the rest.
+     * Creates (remaps) a SCO's Gradebook external assessment in the given site, shared by site-copy and
+     * archive merge. Failures (for example a duplicate or invalid category in the destination) are logged
+     * and skipped so one SCO cannot abort the rest.
+     *
+     * @param context    the destination site id, used as both the gradebook uid and the context
+     * @param externalId the SCO external assessment id, as produced by {@link #scoExternalId}
+     * @param name       the gradebook item name
+     * @param points     the maximum points for the item, or {@code null} if not set
+     * @param dueOn      the due date for the item, or {@code null} if not set
+     * @param categoryId the destination gradebook category id, or {@code null} for no category
      */
     private void recreateScoAssessment(String context, String externalId, String name, Double points, Date dueOn, Long categoryId) {
         try {
@@ -447,8 +455,14 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Persist each SCO's Gradebook binding (external assessment name/points/category) for the package into the archive XML,
-     * so {@link #mergeGradebookBindings} can re-create them against the new contentPackageId on import.
+     * Persists each SCO's Gradebook binding (external assessment name, points and category) for the package
+     * into the archive XML, so {@link #mergeGradebookBindings} can re-create them against the new
+     * contentPackageId on import.
+     *
+     * @param doc     the archive document used to create elements
+     * @param element the package element the gradebook bindings are appended to
+     * @param siteId  the source site id whose gradebook is read
+     * @param pkg     the content package whose SCO bindings are archived
      */
     private void archiveGradebookBindings(Document doc, Element element, String siteId, ContentPackage pkg) {
         if (pkg.getManifestId() == null) {
@@ -484,14 +498,18 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 }
                 element.appendChild(gb);
             } catch (Exception e) {
-                log.warn("Unable to archive gradebook binding for SCO {} in {}: {}", itemIdentifier, siteId, e.getMessage());
+                log.warn("Unable to archive gradebook binding for SCO {} in {}: {}", itemIdentifier, siteId, e.toString());
             }
         }
     }
 
     /**
-     * Re-create the SCO Gradebook bindings captured by {@link #archiveGradebookBindings} against the merged package's
-     * new contentPackageId.
+     * Re-creates the SCO Gradebook bindings captured by {@link #archiveGradebookBindings} against the
+     * merged package's new contentPackageId.
+     *
+     * @param siteId  the destination site id whose gradebook is written
+     * @param pkg     the newly merged content package providing the new contentPackageId
+     * @param element the archived package element holding the gradebook bindings
      */
     private void mergeGradebookBindings(String siteId, ContentPackage pkg, Element element) {
         NodeList items = element.getElementsByTagName(GRADEBOOK_ELEMENT);
@@ -598,7 +616,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             try {
                 contentPackageDao.remove(pkg);
             } catch (Exception e) {
-                log.warn("Unable to mark SCORM package {} as deleted: {}", pkg.getContentPackageId(), e.getMessage());
+                log.warn("Unable to mark SCORM package {} as deleted: {}", pkg.getContentPackageId(), e.toString());
             }
 
             try {
@@ -606,7 +624,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                     scormResourceService.removeResources(pkg.getResourceId());
                 }
             } catch (ResourceNotDeletedException e) {
-                log.warn("Unable to remove SCORM resources for {}: {}", pkg.getContentPackageId(), e.getMessage());
+                log.warn("Unable to remove SCORM resources for {}: {}", pkg.getContentPackageId(), e.toString());
             }
         } finally {
             securityService.popAdvisor(advisor);
@@ -623,7 +641,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             List<ContentPackage> packages = scormContentService.getContentPackages(siteId);
             packages.forEach(this::purgeContentPackage);
         } catch (ResourceStorageException e) {
-            log.warn("Unable to hard delete SCORM content for {}: {}", siteId, e.getMessage());
+            log.warn("Unable to hard delete SCORM content for {}: {}", siteId, e.toString());
         }
     }
 
@@ -633,8 +651,16 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Archive the SCORM content packages for a site as part of a CC+ (Common Cartridge plus archive) export.
-     * Each package is written as a self-contained zip alongside the archive XML so it can be re-imported via {@link #merge}.
+     * Archives the SCORM content packages for a site as part of a CC+ (Common Cartridge plus archive)
+     * export. Each package is written as a self-contained zip alongside the archive XML so it can be
+     * re-imported via {@link #merge}.
+     *
+     * @param siteId      the id of the site being archived
+     * @param doc         the archive document used to create elements
+     * @param stack       the element stack; this producer's element is pushed and popped around its content
+     * @param archivePath the directory the package zips are written into
+     * @param attachments collected attachment references (unused by this producer)
+     * @return a human-readable summary of how many packages were archived
      */
     @Override
     public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
@@ -669,11 +695,11 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                         archived++;
                     }
                 } catch (Exception e) {
-                    log.warn("Unable to archive SCORM package {} for site {}: {}", pkg.getContentPackageId(), siteId, e.getMessage());
+                    log.warn("Unable to archive SCORM package {} for site {}: {}", pkg.getContentPackageId(), siteId, e.toString());
                 }
             }
         } catch (ResourceStorageException e) {
-            log.warn("Unable to list SCORM packages while archiving site {}: {}", siteId, e.getMessage());
+            log.warn("Unable to list SCORM packages while archiving site {}: {}", siteId, e.toString());
         }
 
         stack.pop();
@@ -682,7 +708,14 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Re-import the SCORM content packages produced by {@link #archive} into the destination site.
+     * Re-imports the SCORM content packages produced by {@link #archive} into the destination site.
+     *
+     * @param siteId      the id of the destination site
+     * @param root        this producer's archived root element
+     * @param archivePath the path to this producer's archive file; the package zips live alongside it
+     * @param fromSiteId  the id of the originating site (unused by this producer)
+     * @param mcx         the merge configuration (unused by this producer)
+     * @return a human-readable summary of how many packages were merged
      */
     @Override
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
@@ -696,7 +729,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         try {
             scormContentService.getContentPackages(siteId).forEach(cp -> reservedTitles.add(cp.getTitle()));
         } catch (ResourceStorageException e) {
-            log.debug("Unable to preload SCORM titles for {}: {}", siteId, e.getMessage());
+            log.debug("Unable to preload SCORM titles for {}: {}", siteId, e.toString());
         }
 
         // On merge, archivePath is the path to this producer's archive file (e.g. ".../sakai_archive/scorm.xml"),
@@ -734,7 +767,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                     merged++;
                 }
             } catch (Exception e) {
-                log.warn("Unable to merge SCORM package '{}' into {}: {}", title, siteId, e.getMessage(), e);
+                log.warn("Unable to merge SCORM package '{}' into {}: {}", title, siteId, e.toString(), e);
             }
         }
 
@@ -743,8 +776,13 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Stream the unpacked SCORM content collection at {@code /private/scorm/{uuid}/} into a zip archive,
+     * Streams the unpacked SCORM content collection at {@code /private/scorm/{uuid}/} into a zip archive,
      * preserving paths relative to the package root (so {@code imsmanifest.xml} lands at the zip root).
+     *
+     * @param resourceId the package resource uuid identifying the content collection
+     * @param zipPath    the filesystem path the zip is written to
+     * @return {@code true} if a zip was written, {@code false} if {@code resourceId} was blank
+     * @throws Exception if the collection cannot be read or the zip cannot be written
      */
     private boolean writePackageArchive(String resourceId, String zipPath) throws Exception {
         if (StringUtils.isBlank(resourceId)) {
@@ -788,8 +826,14 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     /**
-     * Recreate a SCORM content package from an archived zip, mirroring the interactive upload flow
-     * ({@code putArchive} followed by {@code storeAndValidate}). Returns the newly created package.
+     * Recreates a SCORM content package from an archived zip, mirroring the interactive upload flow
+     * ({@code putArchive} followed by {@code storeAndValidate}).
+     *
+     * @param siteId the destination site id
+     * @param zip    the archived package zip
+     * @param title  the archived package title, used as the upload name; falls back to the zip file name when blank
+     * @return the newly created content package, or {@code null} if it could not be found after import
+     * @throws Exception if storing or validating the archive fails
      */
     private ContentPackage importPackageArchive(String siteId, File zip, String title) throws Exception {
         Set<Long> existingIds = collectPackageIds(siteId);
