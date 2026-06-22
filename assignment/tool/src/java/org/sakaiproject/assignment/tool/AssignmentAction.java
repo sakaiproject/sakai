@@ -666,7 +666,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
     private static final String NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH = "new_assignment_check_allow_unrestricted_external_tool_launch";
-    private static final String NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE = "new_assignment_announce_on_open_date";
+    private static final String NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE = AssignmentConstants.NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE;
     private static final String NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS = "new_assignment_check_add_group_tags";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS = "new_assignment_check_add_instructor_tags";
     private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
@@ -9426,8 +9426,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 String resolvedAddtoGradebook = getResolvedGradebookIntegration(addtoGradebook, post,
                         gradebookCategoriesMap, gradebookItemMap);
 
-                editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, announceOnOpenDate,
-                    resolvedAddtoGradebook, gradebookItemKeys, allowResubmitNumber,
+                editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, resolvedAddtoGradebook, announceOnOpenDate,
+                    gradebookItemKeys, allowResubmitNumber,
                     aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
                 // Store category information in assignment properties for drafts

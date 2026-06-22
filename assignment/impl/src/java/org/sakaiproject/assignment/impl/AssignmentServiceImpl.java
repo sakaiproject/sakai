@@ -1875,6 +1875,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     if (announceOnOpenDate) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").withZone(ZoneId.of("UTC"));
                         message.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, formatter.format(openTime));
+                    } else {
+                        try {
+                            message.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
+                        } catch (Exception e) {
+                            log.debug("Could not remove release date property: {}", e.getMessage());
+                        }
                     }
 
                     int notiLevel;
