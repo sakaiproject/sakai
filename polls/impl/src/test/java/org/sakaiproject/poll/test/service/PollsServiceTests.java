@@ -22,8 +22,9 @@
 package org.sakaiproject.poll.test.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -35,6 +36,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.exception.IdUnusedException;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_DELETE_OWN;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -43,6 +49,8 @@ import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.impl.service.PollsServiceImpl;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -52,8 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
-
-import static org.sakaiproject.poll.api.PollConstants.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,6 +102,15 @@ public class PollsServiceTests {
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
                .thenAnswer(inv -> inv.getArgument(0));
         Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+
+        Site mockSite = Mockito.mock(Site.class);
+        Group g1 = Mockito.mock(Group.class);
+        Mockito.when(g1.getId()).thenReturn("g1");
+        Mockito.when(g1.getTitle()).thenReturn("Group 1");
+        Mockito.when(mockSite.getGroups()).thenReturn(List.of(g1));
+        try {
+            Mockito.doReturn(mockSite).when(siteService).getSite(LOCATION1_ID);
+        } catch (IdUnusedException e) {}
     }
 
     private String createPoll(String ownerId, String siteId) {
@@ -714,7 +729,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvCreatesPolls() {
-        String csv = "What is your favorite color?,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,Blue,Green,Red\n";
+        String csv = "What is your favorite color?,,site,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,Blue,Green,Red\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -728,7 +743,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvRejectsInvalidCsv() {
-        String csv = "Question?,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,OnlyOneOption\n";
+        String csv = "Question?,,site,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,OnlyOneOption\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
@@ -750,7 +765,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvHandlesQuotedDescriptionWithCommas() {
-        String csv = "Question with quoted description?,\"This, description, has, commas\",2026-06-01T09:00,2026-06-02T17:00,1,1,1,Opt1,Opt2\n";
+        String csv = "Question with quoted description?,\"This, description, has, commas\",site,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,Opt1,Opt2\n";
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -763,7 +778,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvRejectsInvalidDates() {
-        String csv = "Q?,,06/01/2026 09:00,2026-06-02T17:00,1,1,1,One,Two\n";
+        String csv = "Q?,,site,,06/01/2026 09:00,2026-06-02T17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
@@ -773,7 +788,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvRejectsInvalidLimits() {
-        String csv = "Q?,,2026-06-01T09:00,2026-06-02T17:00,5,1,1,One,Two,Three\n";
+        String csv = "Q?,,site,,2026-06-01T09:00,2026-06-02T17:00,5,1,1,One,Two,Three\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
@@ -783,14 +798,75 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvCreatesMultiplePolls() {
-        String csv1 = "Bulk import Q1,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,A,B\n";
-        String csv2 = "Bulk import Q2,,2026-07-01T09:00,2026-07-02T17:00,1,1,1,X,Y\n";
+        String csv1 = "Bulk import Q1,,site,,2026-06-01T09:00,2026-06-02T17:00,1,1,1,A,B\n";
+        String csv2 = "Bulk import Q2,,site,,2026-07-01T09:00,2026-07-02T17:00,1,1,1,X,Y\n";
 
         pollsService.importPollsFromCsv(List.of(csv1, csv2), LOCATION1_ID, USER);
 
         List<String> pollTitles = pollsService.findAllPolls(LOCATION1_ID).stream().map(Poll::getText).toList();
         Assert.assertTrue(pollTitles.contains("Bulk import Q1"));
         Assert.assertTrue(pollTitles.contains("Bulk import Q2"));
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesAccessAndGroupIds() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+
+        String title = "Import Access Poll " + System.currentTimeMillis();
+        String csv = String.join(",",
+            title,
+            "Bulk import details",
+            "group",
+            "g1",
+            openDateTime,
+            closeDateTime,
+            "1",
+            "1",
+            "1",
+            "Yes",
+            "No"
+        ) + "\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        List<Poll> polls = pollsService.findAllPolls(LOCATION1_ID);
+        Poll found = polls.stream().filter(p -> title.equals(p.getText())).findFirst().orElse(null);
+        Assert.assertNotNull(found);
+        Assert.assertEquals(Poll.Access.GROUP, found.getTypeOfAccess());
+        Assert.assertTrue(found.getGroupIds().contains("g1"));
+    }
+
+    @Test
+    public void testImportPollsFromCsvFailsWhenGroupMissing() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+
+        String title = "Import Access Poll Missing " + System.currentTimeMillis();
+        String csv = String.join(",",
+            title,
+            "Bulk import details",
+            "group",
+            "non-existent-group",
+            openDateTime,
+            closeDateTime,
+            "1",
+            "1",
+            "1",
+            "Yes",
+            "No"
+        ) + "\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_GROUPS, exception.getError());
     }
 
     // ========== Helper Methods ==========

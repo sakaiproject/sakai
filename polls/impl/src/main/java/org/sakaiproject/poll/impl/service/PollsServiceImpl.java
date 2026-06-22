@@ -137,6 +137,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private UserTimeService userTimeService;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private ResourceLoader optionDeletedBundle;
+    @Setter private ResourceLoader pollsBundle;
 
     public void init() {
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -185,10 +186,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     public Poll savePoll(final Poll poll) throws SecurityException, IllegalArgumentException {
         if (poll == null
                 || StringUtils.isAnyBlank(poll.getText(), poll.getSiteId(), poll.getVoteOpen().toString(), poll.getVoteClose().toString())) {
-            throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
+            throw new IllegalArgumentException(pollsBundle.getString("poll_error_missing_fields"));
         }
         if (poll.getTypeOfAccess() == Poll.Access.GROUP && (poll.getGroupIds() == null || poll.getGroupIds().isEmpty())) {
-            throw new IllegalArgumentException("you must select at least one group when poll access is set to GROUP");
+            throw new IllegalArgumentException(pollsBundle.getString("poll_error_groups_required"));
         }
         String userId = sessionManager.getCurrentSessionUserId();
         String siteRef = siteService.siteReference(poll.getSiteId());
@@ -254,13 +255,17 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
                 String question = normalizeImportedPollCell(row[0]);
                 String details = importedPollCellValue(row, 1);
-                String openDate = importedPollCellValue(row, 2);
-                String closeDate = importedPollCellValue(row, 3);
-                String minOptions = importedPollCellValue(row, 4);
-                String maxOptions = importedPollCellValue(row, 5);
-                String displayResult = importedPollCellValue(row, 6);
+                String accessValue = importedPollCellValue(row, 2);
+                String groupIdsRaw = importedPollCellValue(row, 3);
+                String openDate = importedPollCellValue(row, 4);
+                String closeDate = importedPollCellValue(row, 5);
+                String minOptions = importedPollCellValue(row, 6);
+                String maxOptions = importedPollCellValue(row, 7);
+                String displayResult = importedPollCellValue(row, 8);
+
                 List<String> options = new ArrayList<>();
-                for (int i = 7; i < row.length; i++) {
+                int optionsStart = 9;
+                for (int i = optionsStart; i < row.length; i++) {
                     String optionText = normalizeImportedPollCell(row[i]);
                     if (StringUtils.isNotBlank(optionText)) {
                         options.add(optionText);
@@ -271,6 +276,30 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     throw new PollImportException(PollImportError.WRONG_FORMAT);
                 }
 
+                // Determine access type
+                Poll.Access access = Poll.Access.SITE;
+                if (StringUtils.isNotBlank(accessValue)) {
+                    try {
+                        access = Poll.Access.valueOf(accessValue.trim().toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new PollImportException(PollImportError.WRONG_FORMAT);
+                    }
+                }
+
+                // Parse group ids (comma separated, possibly quoted)
+                Set<String> groupIds = new HashSet<>();
+                if (StringUtils.isNotBlank(groupIdsRaw)) {
+                    String cleaned = groupIdsRaw.trim();
+                    if ((cleaned.startsWith("\"") && cleaned.endsWith("\"")) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+                        cleaned = cleaned.substring(1, cleaned.length() - 1);
+                    }
+                    String[] parts = cleaned.split(",");
+                    for (String p : parts) {
+                        String v = StringUtils.trimToEmpty(p);
+                        if (!v.isEmpty()) groupIds.add(v);
+                    }
+                }
+
                 importedPolls.add(new ImportedPoll(
                     question,
                     details,
@@ -279,7 +308,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     parseImportedPollInteger(minOptions, 1),
                     parseImportedPollInteger(maxOptions, 1),
                     parseImportedPollDisplayResult(displayResult),
-                    options
+                    options,
+                    access,
+                    groupIds
                 ));
             }
         } catch (PollImportException e) {
@@ -307,7 +338,19 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         poll.setMaxOptions(maxOptions);
         poll.setLimitVoting(true);
         poll.setPublic(false);
-        // poll.setAccessType("SITE"); // SAK-10208
+        poll.setTypeOfAccess(importedPoll.access());
+        if (importedPoll.groupIds() != null && !importedPoll.groupIds().isEmpty()) {
+            // validate groups exist in the site
+            Set<String> valid = filterValidGroupIds(siteId, importedPoll.groupIds());
+            if (importedPoll.access() == Poll.Access.GROUP) {
+                if (valid.isEmpty()) {
+                    throw new PollImportException(PollImportError.INVALID_GROUPS);
+                }
+                poll.setGroupIds(new HashSet<>(valid));
+            } else {
+                poll.setGroupIds(new HashSet<>(importedPoll.groupIds()));
+            }
+        }
 
         if (importedPoll.openDate() != null) {
             poll.setVoteOpen(importedPoll.openDate().atZone(userZoneId).toInstant());
@@ -426,7 +469,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate,
-                                int minOptions, int maxOptions, String displayResult, List<String> options) { }
+                                int minOptions, int maxOptions, String displayResult, List<String> options,
+                                Poll.Access access, Set<String> groupIds) { }
 
     @Override
     public void deletePoll(final String id) throws SecurityException, IllegalArgumentException {

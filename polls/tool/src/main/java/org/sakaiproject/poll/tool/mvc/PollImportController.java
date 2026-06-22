@@ -117,6 +117,7 @@ public class PollImportController {
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         model.addAttribute("canAdd", pollsService.isAllowedPollAdd(currentSiteId));
         model.addAttribute("isSiteOwner", pollsService.isSiteOwner(currentSiteId));
+        model.addAttribute("groupTitles", pollsService.getGroupTitlesForSite(currentSiteId));
     }
 
     private String showImportError(Model model, String errorMessage, String pollUploadedText) {

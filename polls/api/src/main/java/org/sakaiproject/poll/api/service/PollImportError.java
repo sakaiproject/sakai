@@ -22,8 +22,8 @@ public enum PollImportError {
     INVALID_DATES("poll_import_error_dates"),
     INVALID_NUMBER("poll_import_error_number"),
     INVALID_DISPLAY_RESULT("poll_import_error_display"),
-    INVALID_LIMITS("poll_import_error_limits");
-
+    INVALID_LIMITS("poll_import_error_limits"),
+    INVALID_GROUPS("poll_import_error_groups");
     private final String messageKey;
 
     PollImportError(String messageKey) {

@@ -53,6 +53,11 @@
                 <constructor-arg value="bundle/notifyDeletedOption"/>
             </bean>
         </property>
+        <property name="pollsBundle">
+            <bean class="org.sakaiproject.util.ResourceLoader">
+                <constructor-arg value="bundle/polls"/>
+            </bean>
+        </property>
         <property name="emailTemplates">
             <list>
                 <value>notifyDeletedOption.xml</value>

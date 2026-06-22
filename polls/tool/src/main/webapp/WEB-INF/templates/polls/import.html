@@ -16,12 +16,35 @@
           <ul>
             <li th:utext="#{poll_import_requirements_step1}">Each CSV row should contain the poll details in the same order as the manual form.</li>
             <li th:utext="#{poll_import_requirements_step2}">Columns must be in the order above, but do not include a row of column headers.</li>
+            <li th:utext="#{poll_import_requirements_step6}">Columns must be in the order above, but do not include a row of column headers.</li>
             <li th:text="#{poll_import_requirements_step3}">Leave a field blank to use the same defaults as the manual form. Dates must use ISO 8601 local date-time format yyyy-MM-dd'T'HH:mm. The server will interpret the value using the user's time zone.</li>
             <li th:text="#{poll_import_requirements_step4}">Results visibility codes: 1=open, 2=after participants who have voted or after the closing date, 3=after closing date, 4=never.</li>
             <li th:text="#{poll_import_requirements_step5}">Each poll must have at least two options. Minimum and maximum options must fit within the number of options provided.</li>
           </ul>
           <div id="example">
             <pre><code th:utext="#{poll_import_example}">What is your favorite color?,,2026-05-29T09:00,2026-05-30T17:00,1,1,1,Blue,Green,Red</code></pre>
+          </div>
+          <div class="mt-3">
+            <details>
+              <summary th:text="#{poll_import_access_title}"><strong>Available groups</strong></summary>
+              <div th:if="${groupTitles != null and !groupTitles.isEmpty()}" class="mt-2">
+                <table class="table table-sm table-striped">
+                  <thead>
+                    <tr>
+                      <th th:text="#{poll_group_id}">Group id</th>
+                      <th th:text="#{poll_group_title}">Title</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="entry : ${groupTitles.entrySet()}">
+                      <td th:text="${entry.key}">group-id</td>
+                      <td th:text="${entry.value}">Group Title</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div th:if="${groupTitles == null || groupTitles.isEmpty()}" class="mt-2" th:text="#{poll_import_group_list_none}">No groups defined for this site.</div>
+            </details>
           </div>
         </div>
       </div>
