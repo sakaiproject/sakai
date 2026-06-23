@@ -256,7 +256,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 String question = normalizeImportedPollCell(row[0]);
                 String details = importedPollCellValue(row, 1);
                 String accessValue = importedPollCellValue(row, 2);
-                String groupIdsRaw = importedPollCellValue(row, 3);
+                String groupNamesRaw = importedPollCellValue(row, 3);
                 String openDate = importedPollCellValue(row, 4);
                 String closeDate = importedPollCellValue(row, 5);
                 String minOptions = importedPollCellValue(row, 6);
@@ -286,17 +286,17 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     }
                 }
 
-                // Parse group ids (comma separated, possibly quoted)
-                Set<String> groupIds = new HashSet<>();
-                if (StringUtils.isNotBlank(groupIdsRaw)) {
-                    String cleaned = groupIdsRaw.trim();
+                // Parse group names (comma separated, possibly quoted)
+                Set<String> groupNames = new HashSet<>();
+                if (StringUtils.isNotBlank(groupNamesRaw)) {
+                    String cleaned = groupNamesRaw.trim();
                     if ((cleaned.startsWith("\"") && cleaned.endsWith("\"")) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
                         cleaned = cleaned.substring(1, cleaned.length() - 1);
                     }
                     String[] parts = cleaned.split(",");
                     for (String p : parts) {
                         String v = StringUtils.trimToEmpty(p);
-                        if (!v.isEmpty()) groupIds.add(v);
+                        if (!v.isEmpty()) groupNames.add(v);
                     }
                 }
 
@@ -310,7 +310,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                     parseImportedPollDisplayResult(displayResult),
                     options,
                     access,
-                    groupIds
+                    groupNames
                 ));
             }
         } catch (PollImportException e) {
@@ -339,16 +339,27 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         poll.setLimitVoting(true);
         poll.setPublic(false);
         poll.setTypeOfAccess(importedPoll.access());
-        if (importedPoll.groupIds() != null && !importedPoll.groupIds().isEmpty()) {
-            // validate groups exist in the site
-            Set<String> valid = filterValidGroupIds(siteId, importedPoll.groupIds());
+        if (importedPoll.groupNames() != null && !importedPoll.groupNames().isEmpty()) {
+            Set<String> resolvedIds = new HashSet<>();
+            try {
+                Site site = siteService.getSite(siteId);
+                Map<String, String> titleToId = site.getGroups().stream()
+                        .collect(Collectors.toMap(Group::getTitle, Group::getId));
+                for (String name : importedPoll.groupNames()) {
+                    String id = titleToId.get(name);
+                    if (id != null) resolvedIds.add(id);
+                }
+            } catch (IdUnusedException e) {
+                log.warn("Site {} not found when resolving group names", siteId);
+            }
+
             if (importedPoll.access() == Poll.Access.GROUP) {
-                if (valid.isEmpty()) {
+                if (resolvedIds.isEmpty()) {
                     throw new PollImportException(PollImportError.INVALID_GROUPS);
                 }
-                poll.setGroupIds(new HashSet<>(valid));
+                poll.setGroupIds(new HashSet<>(resolvedIds));
             } else {
-                poll.setGroupIds(new HashSet<>(importedPoll.groupIds()));
+                poll.setGroupIds(new HashSet<>(resolvedIds));
             }
         }
 
@@ -470,7 +481,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     private record ImportedPoll(String question, String details, LocalDateTime openDate, LocalDateTime closeDate,
                                 int minOptions, int maxOptions, String displayResult, List<String> options,
-                                Poll.Access access, Set<String> groupIds) { }
+                                Poll.Access access, Set<String> groupNames) { }
 
     @Override
     public void deletePoll(final String id) throws SecurityException, IllegalArgumentException {

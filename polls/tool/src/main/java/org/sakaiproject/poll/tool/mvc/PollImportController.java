@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,6 +30,9 @@ import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,15 +56,18 @@ public class PollImportController {
     private final ToolManager toolManager;
     private final SessionManager sessionManager;
     private final PollsService pollsService;
+    private final UserDirectoryService userDirectoryService;
 
     public PollImportController(MessageSource messageSource,
                                 ToolManager toolManager,
                                 SessionManager sessionManager,
-                                PollsService pollsService) {
+                                PollsService pollsService,
+                                UserDirectoryService userDirectoryService) {
         this.messageSource = messageSource;
         this.toolManager = toolManager;
         this.sessionManager = sessionManager;
         this.pollsService = pollsService;
+        this.userDirectoryService = userDirectoryService;
     }
 
     @GetMapping("/pollImport")
@@ -117,7 +124,27 @@ public class PollImportController {
         String currentSiteId = toolManager.getCurrentPlacement().getContext();
         model.addAttribute("canAdd", pollsService.isAllowedPollAdd(currentSiteId));
         model.addAttribute("isSiteOwner", pollsService.isSiteOwner(currentSiteId));
-        model.addAttribute("groupTitles", pollsService.getGroupTitlesForSite(currentSiteId));
+        Collection<org.sakaiproject.site.api.Group> groups = pollsService.getSiteGroups(currentSiteId);
+        List<java.util.Map<String, String>> groupDtos = new ArrayList<>();
+        for (org.sakaiproject.site.api.Group g : groups) {
+            String title = g.getTitle();
+            String members = g.getMembers().stream()
+                .map(m -> {
+                    try {
+                        User u = userDirectoryService.getUser(m.getUserId());
+                        return u.getDisplayName();
+                    } catch (UserNotDefinedException e) {
+                        return m.getUserId();
+                    }
+                })
+                .collect(java.util.stream.Collectors.joining(", "));
+
+            java.util.Map<String, String> dto = new java.util.HashMap<>();
+            dto.put("title", title == null ? "" : title);
+            dto.put("members", members);
+            groupDtos.add(dto);
+        }
+        model.addAttribute("groups", groupDtos);
     }
 
     private String showImportError(Model model, String errorMessage, String pollUploadedText) {
