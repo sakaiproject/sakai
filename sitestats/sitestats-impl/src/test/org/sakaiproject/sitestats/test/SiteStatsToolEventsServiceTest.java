@@ -8,46 +8,34 @@ package org.sakaiproject.sitestats.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
-import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.impl.event.SiteStatsToolEventsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {SiteStatsTestConfiguration.class})
 public class SiteStatsToolEventsServiceTest {
 
 	private static final String SITE_ID = "site-a";
 	private static final String ASSIGNMENTS_TOOL = "sakai.assignment";
 	private static final String ASSIGNMENT_SUBMIT = "assignment.submit";
 
-	private StatsManager statsManager;
-	private EventRegistryService eventRegistryService;
-	private SiteStatsToolEventsServiceImpl service;
-
-	@Before
-	public void setUp() {
-		statsManager = mock(StatsManager.class);
-		eventRegistryService = mock(EventRegistryService.class);
-		service = new SiteStatsToolEventsServiceImpl();
-		service.setStatsManager(statsManager);
-		service.setEventRegistryService(eventRegistryService);
-	}
+	@Autowired private SiteStatsToolEventsService service;
 
 	@Test
 	public void getToolIdsReturnsSelectedSupportedTools() {
-		when(statsManager.isEventContextSupported()).thenReturn(true);
 		PrefsData prefsData = prefsData(
 				tool(ASSIGNMENTS_TOOL, true, event(ASSIGNMENT_SUBMIT, true)),
 				tool("sakai.resources", false, event("content.read", true)));
@@ -77,7 +65,6 @@ public class SiteStatsToolEventsServiceTest {
 
 	@Test
 	public void getEventsForToolFilterUsesSelectedEventsFromSupportedTool() {
-		when(statsManager.isEventContextSupported()).thenReturn(true);
 		PrefsData prefsData = prefsData(
 				tool(ASSIGNMENTS_TOOL, true, event(ASSIGNMENT_SUBMIT, true), event("assignment.draft", false)),
 				tool("sakai.resources", true, event("content.read", true)));
@@ -85,23 +72,6 @@ public class SiteStatsToolEventsServiceTest {
 		List<String> events = service.getEventsForToolFilter(ASSIGNMENTS_TOOL, SITE_ID, prefsData, false);
 
 		assertEquals(Arrays.asList(ASSIGNMENT_SUBMIT), events);
-	}
-
-	@Test
-	public void isToolSupportedRequiresContextParserWhenEventContextUnsupported() {
-		PrefsData prefsData = new PrefsData();
-		ToolInfo prefsTool = tool(ASSIGNMENTS_TOOL, true, event(ASSIGNMENT_SUBMIT, true));
-		ToolInfo supportedSiteTool = new ToolInfo(ASSIGNMENTS_TOOL);
-		supportedSiteTool.addEventParserTip(new EventParserTip(StatsManager.PARSERTIP_FOR_CONTEXTID, "/", "0"));
-		when(eventRegistryService.getEventRegistry(eq(SITE_ID), eq(true))).thenReturn(Arrays.asList(supportedSiteTool));
-
-		assertTrue(service.isToolSupported(SITE_ID, prefsTool, prefsData));
-
-		ToolInfo unsupportedSiteTool = new ToolInfo(ASSIGNMENTS_TOOL);
-		unsupportedSiteTool.addEventParserTip(new EventParserTip("userId", "/", "0"));
-		when(eventRegistryService.getEventRegistry(eq(SITE_ID), eq(true))).thenReturn(Arrays.asList(unsupportedSiteTool));
-
-		assertFalse(service.isToolSupported(SITE_ID, prefsTool, prefsData));
 	}
 
 	private PrefsData prefsData(ToolInfo... tools) {

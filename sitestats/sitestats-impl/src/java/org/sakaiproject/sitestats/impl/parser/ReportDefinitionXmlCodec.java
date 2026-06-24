@@ -19,6 +19,7 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -57,12 +58,8 @@ final class ReportDefinitionXmlCodec {
 	}
 
 	private static XmlMapper createXmlMapper() {
-		XmlMapper mapper = MapperFactory.xmlBuilder()
-				.ignoreUnknownProperties()
-				.excludeNulls()
-				.enableArraysForSingleElements()
-				.disableDateTimestamps()
-				.build();
+		XmlMapper mapper = MapperFactory.createDefaultXmlMapper();
+		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		mapper.setDateFormat(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US));
 		mapper.addMixIn(ReportParams.class, ReportParamsXmlMixin.class);
 		mapper.addMixIn(ReportDef.class, ReportDefXmlMixin.class);
