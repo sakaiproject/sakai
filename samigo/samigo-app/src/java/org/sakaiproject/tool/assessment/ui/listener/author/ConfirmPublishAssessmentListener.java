@@ -336,27 +336,8 @@ public class ConfirmPublishAssessmentListener
     	}
 
     	//check feedback - if at specific time then time should be defined.
-		if(assessmentSettings.getFeedbackDelivery().equals("2")) {
-			if(StringUtils.isBlank(assessmentSettings.getFeedbackDateString())){
-				error=true;
-				String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
-				context.addMessage(null,new FacesMessage(date_err));
-			}
-			else {
-				// TODO this logic should be refactored
-				if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
-					String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
-					context.addMessage(null,new FacesMessage(feedbackDateErr));
-					error=true;
-				}
-			}
-
-			if(!assessmentSettings.getIsValidFeedbackDate()){
-				String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
-				context.addMessage(null,new FacesMessage(feedbackDateErr));
-				error=true;
-			}
-
+		error |= AssessmentFeedbackDateValidationHelper.addFeedbackDateErrors(context, assessmentSettings);
+		if (AssessmentFeedbackDateValidationHelper.isFeedbackByDate(assessmentSettings)) {
 			boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
 			//Check if the value is empty
 			boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());

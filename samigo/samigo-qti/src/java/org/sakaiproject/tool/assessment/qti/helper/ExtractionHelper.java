@@ -811,16 +811,17 @@ public class ExtractionHelper
     {
       log.debug("Cannot set retractDate.");
     }
-    try
+    if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "LATE_HANDLING")))
     {
-      control.setFeedbackDate(iso.parse(feedbackDate).getTime());
-      control.setFeedbackEndDate(iso.parse(feedbackEndDate).getTime());
-      assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY","DATED");
+      control.setLateHandling(control.NOT_ACCEPT_LATE_SUBMISSION);
     }
-    catch (Iso8601FormatException ex)
+    else if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "LATE_HANDLING")))
     {
-      log.debug("Cannot set feedbackDate.");
+      control.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
     }
+    AssessmentFeedbackDatesImportHelper.applyImportedFeedbackDates(assessment, control, iso, feedbackDate, feedbackEndDate, log);
 
     // don't know what site you will have in a new environment
     // but registered as a BUG in SAM-271 so turning it on.
@@ -1007,20 +1008,6 @@ public class ExtractionHelper
     }
     log.debug("Set: control.getSubmissionsAllowed()="+control.getSubmissionsAllowed());
     log.debug("Set: control.getUnlimitedSubmissions()="+control.getUnlimitedSubmissions());
-
-    // late submissions
-    // I am puzzled as to why there is no ACCEPT_LATE_SUBMISSION, assuming it =T
-    if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
-        "LATE_HANDLING")))
-    {
-      control.setLateHandling(control.NOT_ACCEPT_LATE_SUBMISSION);
-    }
-    else if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
-        "LATE_HANDLING")))
-    {
-      control.setLateHandling(Integer.valueOf(1));
-
-    }
 
     // auto save
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
