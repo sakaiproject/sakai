@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
@@ -33,34 +35,38 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.SiteStatsController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {SiteStatsControllerTests.TestConfiguration.class})
 public class SiteStatsControllerTests extends BaseControllerTests {
 
 	private static final String SITE_ID = "site1";
 
 	private MockMvc mockMvc;
-	private SiteStatsViewService siteStatsViewService;
+
+	@Autowired private SiteStatsController controller;
+	@Autowired private PortalService portalService;
+	@Autowired private SessionManager sessionManager;
+	@Autowired private SiteService siteService;
+	@Autowired private SiteStatsViewService siteStatsViewService;
 
 	@Before
 	public void setup() {
-		SiteStatsController controller = new SiteStatsController();
+		reset(portalService, sessionManager, siteService, siteStatsViewService);
 
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn("user1");
-		SessionManager sessionManager = mock(SessionManager.class);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
-		controller.setSessionManager(sessionManager);
 
 		Site site = mock(Site.class);
-		SiteService siteService = mock(SiteService.class);
 		when(siteService.getOptionalSite(SITE_ID)).thenReturn(Optional.of(site));
-		controller.setSiteService(siteService);
-		controller.setPortalService(mock(PortalService.class));
-
-		siteStatsViewService = mock(SiteStatsViewService.class);
-		controller.setSiteStatsViewService(siteStatsViewService);
 
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}
@@ -259,5 +265,34 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/report-previews/missing"))
 			.andExpect(status().isNotFound());
+	}
+
+	@Configuration
+	public static class TestConfiguration {
+
+		@Bean
+		public SiteStatsController siteStatsController() {
+			return new SiteStatsController();
+		}
+
+		@Bean
+		public PortalService portalService() {
+			return mock(PortalService.class);
+		}
+
+		@Bean(name = "org.sakaiproject.tool.api.SessionManager")
+		public SessionManager sessionManager() {
+			return mock(SessionManager.class);
+		}
+
+		@Bean
+		public SiteService siteService() {
+			return mock(SiteService.class);
+		}
+
+		@Bean
+		public SiteStatsViewService siteStatsViewService() {
+			return mock(SiteStatsViewService.class);
+		}
 	}
 }

@@ -56,6 +56,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.impl.report.ReportManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEntityManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -71,6 +72,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -231,12 +234,31 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.util.ResourceLoader.sitestats")
     public ResourceLoader resourceLoader() {
         ResourceLoader resourceLoader = mock(ResourceLoader.class);
+        when(resourceLoader.getLocale()).thenReturn(java.util.Locale.US);
         when(resourceLoader.getString("report_content_attachments")).thenReturn("Attachments");
+        when(resourceLoader.getString("report_what_visits")).thenReturn("Visits");
+        when(resourceLoader.getString("report_when_all")).thenReturn("All");
+        when(resourceLoader.getString("report_who_all")).thenReturn("All");
         when(resourceLoader.getString("th_site")).thenReturn("Site");
         when(resourceLoader.getString("th_id")).thenReturn("User ID");
         when(resourceLoader.getString("th_user")).thenReturn("name");
         when(resourceLoader.getString("th_total")).thenReturn("Total");
+        when(resourceLoader.getString("th_visits")).thenReturn("Visits");
+        when(resourceLoader.getString("th_uniquevisitors")).thenReturn("Unique visitors");
         return resourceLoader;
+    }
+
+    @Bean
+    public BeanPostProcessor reportManagerResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                if (bean instanceof ReportManagerImpl) {
+                    ((ReportManagerImpl) bean).setResourceLoader(resourceLoader);
+                }
+                return bean;
+            }
+        };
     }
 
     @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
@@ -260,6 +282,8 @@ public class SiteStatsTestConfiguration {
         when(scs.getString("sitestats.db", "internal")).thenReturn("internal");
         when(scs.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect")).thenReturn("org.hibernate.dialect.HSQLDialect");
         when(scs.getBoolean("auto.ddl", true)).thenReturn(true);
+        when(scs.getBoolean("display.users.present", true)).thenReturn(true);
+        when(scs.getBoolean("presence.events.log", true)).thenReturn(true);
         when(scs.getServerUrl()).thenReturn("http://localhost:8080");
         return scs;
     }
