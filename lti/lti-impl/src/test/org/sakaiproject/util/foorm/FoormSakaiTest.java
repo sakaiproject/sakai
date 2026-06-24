@@ -113,6 +113,13 @@ public class FoormSakaiTest {
 				if ( "oracle".equals(vendorName) ) System.out.println(sqls[1]);
 			}
 
+			sqls = foorm.formSqlTable("lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL, vendorName, false);
+			assertEquals(sqls.length, "oracle".equals(vendorName) ? 2 : 1);
+			if ( doDump ) {
+				System.out.println(sqls[0]);
+				if ( "oracle".equals(vendorName) ) System.out.println(sqls[1]);
+			}
+
 			sqls = foorm.formSqlTable("lti_membership_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, vendorName, false);
 			// No primary key
 			assertEquals(sqls.length, "oracle".equals(vendorName) ? 1 : 1);
@@ -129,6 +136,7 @@ public class FoormSakaiTest {
 		createAndTestVendorSchema(getHSqlDatabase(),"hsqldb", "lti_content", LTIService.CONTENT_MODEL);
 		createAndTestVendorSchema(getHSqlDatabase(),"hsqldb", "lti_tool", LTIService.TOOL_MODEL);
 		createAndTestVendorSchema(getHSqlDatabase(),"hsqldb", "lti_tool_site", LTIService.TOOL_SITE_MODEL);
+		createAndTestVendorSchema(getHSqlDatabase(),"hsqldb", "lti_tool_functions", LTIService.TOOL_FUNCTION_MODEL);
 		createAndTestVendorSchema(getHSqlDatabase(),"hsqldb", "lti_membership_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL);
 	}
 

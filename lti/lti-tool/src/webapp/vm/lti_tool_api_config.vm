@@ -1,0 +1,46 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("tool.api.access") - $formattedText.escapeHtml($tool.title)
+	</h3>
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+
+	<p>$tlang.getString("tool.api.access.description")</p>
+
+	<form action="#toolForm("")" method="post" name="apiConfigForm">
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="id" value="$tool.id" />
+
+		<fieldset>
+			<legend>$tlang.getString("tool.api.access.functions")</legend>
+			<p class="act">
+				<button type="button" class="btn btn-secondary" id="lti-api-clear-all">
+					$tlang.getString("tool.api.access.clear_all")
+				</button>
+			</p>
+			<div class="lti-api-functions">
+				#foreach($function in $functions)
+					#set($functionId = $function.replace('.', '-'))
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input lti-api-function-checkbox" name="function_name" id="function-$functionId" value="$function"
+							#if($granted.contains($function))checked="checked"#end />
+						<label class="form-check-label" for="function-$functionId">$function</label>
+					</div>
+				#end
+			</div>
+		</fieldset>
+
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="$doToolAction"
+				value="$tlang.getString('gen.save')" />
+			<input type="submit" name="$doClearAll" value="$tlang.getString('tool.api.access.clear_all_save')" />
+			<input type="submit" accesskey="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+		</p>
+	</form>
+	<script>
+		document.getElementById('lti-api-clear-all')?.addEventListener('click', () => {
+			document.querySelectorAll('.lti-api-function-checkbox').forEach((cb) => { cb.checked = false; });
+		});
+	</script>
+</div>

@@ -10,5 +10,11 @@
 	        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 	</bean>
 	<!-- ENTITY PROVIDERS END -->
-       
+
+	<bean id="org.sakaiproject.lti13.LTI13Servlet"
+		class="org.sakaiproject.lti13.LTI13Servlet">
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="sakaiAccessTokenService" ref="org.sakaiproject.lti.api.SakaiAccessTokenService" />
+	</bean>
+
 </beans>

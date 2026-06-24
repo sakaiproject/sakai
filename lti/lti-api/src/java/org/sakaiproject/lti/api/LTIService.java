@@ -180,6 +180,14 @@ public interface LTIService extends LTISubstitutionsFilter {
             "updated_at:autodate",
     };
 
+    String[] TOOL_FUNCTION_MODEL = {
+            "id:key",
+            "tool_id:integer:hidden=true",
+            "function_name:text:label=bl_tool_function_name:required=true:maxlength=255:role=admin",
+            "created_at:autodate",
+            "updated_at:autodate",
+    };
+
     String[] MEMBERSHIPS_JOBS_MODEL = {
             "SITE_ID:text:maxlength=99:required=true",
             "memberships_id:text:maxlength=256:required=true",
@@ -193,6 +201,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ID = "id";
     String LTI_SITE_ID = "SITE_ID";
     String LTI_TOOL_ID = "tool_id";
+    String LTI_FUNCTION_NAME = "function_name";
     String LTI_TITLE = "title";
     String LTI_FA_ICON = "fa_icon";
     String LTI_PLACEMENT = "placement";
@@ -604,6 +613,23 @@ public interface LTIService extends LTISubstitutionsFilter {
     boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     int deleteToolSitesForToolIdDao(String toolId);
+
+    String[] getToolFunctionModel(String siteId);
+
+    List<String> getToolFunctionNames(String toolId, String siteId);
+
+    /**
+     * API function names granted to a tool (from {@code lti_tool_functions}), for token issuance.
+     */
+    List<String> getGrantedToolFunctionNames(long toolId);
+
+    Object setToolFunctionNames(Long toolId, java.util.Set<String> functionNames, String siteId);
+
+    List<Map<String, Object>> getToolFunctionsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+    Object insertToolFunctionDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    int deleteToolFunctionsForToolIdDao(String toolId);
 
     boolean toolDeployed(Long toolKey, String siteId);
 
