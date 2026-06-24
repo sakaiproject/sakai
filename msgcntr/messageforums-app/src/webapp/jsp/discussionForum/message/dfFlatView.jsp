@@ -17,7 +17,11 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/threadScrollEvent.js"></script>
-		<script>includeWebjarLibrary('bootstrap')</script>
+		<script>
+		  if (window.location !== window.parent.location) {
+		    includeWebjarLibrary('bootstrap');
+		  }
+		</script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
         <script>
             $(document).ready(function(){

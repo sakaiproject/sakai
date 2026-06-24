@@ -121,7 +121,11 @@
 			}
 		</script>
 			<script>includeLatestJQuery("msgcntr");</script>
-			<script>includeWebjarLibrary('bootstrap')</script>
+			<script>
+			  if (window.location !== window.parent.location) {
+                            includeWebjarLibrary('bootstrap');
+                          }
+                        </script>
 			<script src="/messageforums-tool/js/dialog.js"></script>
 			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
