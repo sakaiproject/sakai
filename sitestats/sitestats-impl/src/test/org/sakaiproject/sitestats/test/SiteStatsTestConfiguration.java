@@ -19,6 +19,7 @@ import static org.hibernate.cfg.Environment.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,6 +58,11 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.impl.report.ReportManagerImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
+import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
+import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
+import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEntityManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -235,6 +241,7 @@ public class SiteStatsTestConfiguration {
     public ResourceLoader resourceLoader() {
         ResourceLoader resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(java.util.Locale.US);
+        when(resourceLoader.getString(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
         when(resourceLoader.getString("report_content_attachments")).thenReturn("Attachments");
         when(resourceLoader.getString("report_what_visits")).thenReturn("Visits");
         when(resourceLoader.getString("report_when_all")).thenReturn("All");
@@ -249,12 +256,22 @@ public class SiteStatsTestConfiguration {
     }
 
     @Bean
-    public BeanPostProcessor reportManagerResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
+    public BeanPostProcessor siteStatsResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
         return new BeanPostProcessor() {
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
                 if (bean instanceof ReportManagerImpl) {
                     ((ReportManagerImpl) bean).setResourceLoader(resourceLoader);
+                } else if (bean instanceof SiteStatsReportViewMapper) {
+                    ((SiteStatsReportViewMapper) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsTableMapperImpl) {
+                    ((SiteStatsTableMapperImpl) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsChartMapper) {
+                    ((SiteStatsChartMapper) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsReportSummaryMapper) {
+                    ((SiteStatsReportSummaryMapper) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsWidgetContext) {
+                    ((SiteStatsWidgetContext) bean).setMessages(resourceLoader);
                 }
                 return bean;
             }

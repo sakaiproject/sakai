@@ -36,7 +36,7 @@ public class SiteStatsChartMapper {
 
 	@Setter private SiteStatsTableMapper siteStatsTableMapper;
 
-	private ResourceLoader messages = new ResourceLoader("Messages");
+	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public SiteStatsChart mapChart(Report report, PrefsData prefsData, String title) {
 		ReportParams params = report.getReportDefinition().getReportParams();

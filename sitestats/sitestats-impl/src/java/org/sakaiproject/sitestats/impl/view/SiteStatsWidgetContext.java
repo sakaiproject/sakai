@@ -29,7 +29,7 @@ public class SiteStatsWidgetContext {
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private UserDirectoryService userDirectoryService;
 
-	private ResourceLoader messages = new ResourceLoader("Messages");
+	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public String message(String key) {
 		try {
