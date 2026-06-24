@@ -35,7 +35,7 @@ public class SiteStatsReportViewMapper {
 	@Setter private SiteStatsChartMapper siteStatsChartMapper;
 	@Setter private SiteStatsReportSummaryMapper siteStatsReportSummaryMapper;
 
-	private ResourceLoader messages = new ResourceLoader("Messages");
+	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public SiteStatsReportView mapReportView(String siteId, Report report, SiteStatsReportRequest request, PrefsData prefsData) {
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);

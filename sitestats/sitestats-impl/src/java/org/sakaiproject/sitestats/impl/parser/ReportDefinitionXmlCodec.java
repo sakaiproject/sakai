@@ -20,6 +20,7 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -39,7 +40,7 @@ final class ReportDefinitionXmlCodec {
 	}
 
 	static String convertReportParamsToXml(ReportParams reportParams) throws Exception {
-		return XML_MAPPER.writeValueAsString(reportParams);
+		return stripXmlDeclaration(XML_MAPPER.writeValueAsString(reportParams));
 	}
 
 	static List<ReportDef> convertXmlToReportDefs(String inputString) throws Exception {
@@ -54,12 +55,23 @@ final class ReportDefinitionXmlCodec {
 	}
 
 	static String convertReportDefsToXml(List<ReportDef> reportDef) throws Exception {
-		return XML_MAPPER.writeValueAsString(new ReportDefListXml(reportDef));
+		return stripXmlDeclaration(XML_MAPPER.writeValueAsString(new ReportDefListXml(reportDef)));
+	}
+
+	private static String stripXmlDeclaration(String xml) {
+		if(xml != null && xml.startsWith("<?xml")) {
+			int end = xml.indexOf("?>");
+			if(end >= 0) {
+				return xml.substring(end + 2).stripLeading();
+			}
+		}
+		return xml;
 	}
 
 	private static XmlMapper createXmlMapper() {
 		XmlMapper mapper = MapperFactory.createDefaultXmlMapper();
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+		mapper.disable(SerializationFeature.INDENT_OUTPUT);
 		mapper.setDateFormat(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US));
 		mapper.addMixIn(ReportParams.class, ReportParamsXmlMixin.class);
 		mapper.addMixIn(ReportDef.class, ReportDefXmlMixin.class);

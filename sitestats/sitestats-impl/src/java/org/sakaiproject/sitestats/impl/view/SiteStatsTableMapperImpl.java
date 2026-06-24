@@ -56,7 +56,7 @@ public class SiteStatsTableMapperImpl implements SiteStatsTableMapper {
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private UserTimeService userTimeService;
 
-	private ResourceLoader messages = new ResourceLoader("Messages");
+	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 	private Map<String, ColumnDefinition> definitionsByKey;
 
 	@Override

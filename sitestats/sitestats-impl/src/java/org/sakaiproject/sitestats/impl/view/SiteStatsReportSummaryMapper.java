@@ -22,7 +22,7 @@ public class SiteStatsReportSummaryMapper {
 
 	@Setter private ReportManager reportManager;
 
-	private ResourceLoader messages = new ResourceLoader("Messages");
+	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public List<SiteStatsReportInfoItem> mapSummary(Report report) {
 		ReportFormattedParams formatter = reportManager.getReportFormattedParams();
