@@ -1319,6 +1319,12 @@
       </dependency>
       <dependency>
         <groupId>org.opensearch.plugin</groupId>
+        <artifactId>reindex-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>parent-join-client</artifactId>
         <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
