@@ -59,14 +59,14 @@ public class AssessmentFeedbackDatesImportHelperTest {
   }
 
   @Test
-  public void movesImportedFeedbackDatesAfterDueDateToDueDate() {
+  public void preservesImportedFeedbackDatesAfterDueDate() {
     AssessmentFacade assessment = assessment();
     AssessmentAccessControl control = control(date("2026-06-25T00:00:00Z"), null, null);
 
     apply(assessment, control, "2026-06-26T00:00:00Z", "2026-06-28T00:00:00Z");
 
-    assertDateEquals("2026-06-25T00:00:00Z", control.getFeedbackDate());
-    assertDateEquals("2026-06-27T00:00:00Z", control.getFeedbackEndDate());
+    assertDateEquals("2026-06-26T00:00:00Z", control.getFeedbackDate());
+    assertDateEquals("2026-06-28T00:00:00Z", control.getFeedbackEndDate());
   }
 
   @Test

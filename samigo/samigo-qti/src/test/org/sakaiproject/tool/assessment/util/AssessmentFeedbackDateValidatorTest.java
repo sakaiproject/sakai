@@ -126,14 +126,14 @@ public class AssessmentFeedbackDateValidatorTest {
     }
 
     @Test
-    public void importPolicyMovesFeedbackStartAfterDueDateToCutoff() {
+    public void importPolicyPreservesFeedbackDatesAfterDueDate() {
         ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
                 date("2026-06-25T00:00:00Z"), null, null,
                 date("2026-06-26T00:00:00Z"), date("2026-06-28T00:00:00Z"));
 
         assertEquals(ImportOutcome.APPLY, normalization.getOutcome());
-        assertEquals(date("2026-06-25T00:00:00Z"), normalization.getFeedbackStartDate());
-        assertEquals(date("2026-06-27T00:00:00Z"), normalization.getFeedbackEndDate());
+        assertEquals(date("2026-06-26T00:00:00Z"), normalization.getFeedbackStartDate());
+        assertEquals(date("2026-06-28T00:00:00Z"), normalization.getFeedbackEndDate());
     }
 
     @Test

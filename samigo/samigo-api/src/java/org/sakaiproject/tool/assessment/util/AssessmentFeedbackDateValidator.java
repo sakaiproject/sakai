@@ -36,10 +36,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
  *
  * <p><strong>Import policy ({@link #normalizeForImport}):</strong> used when
  * feedback dates arrive from a QTI package. Dates are adjusted to satisfy the
- * cutoff rather than rejected: feedback start moves to the cutoff (due date or
- * late-submission deadline), the end date keeps the original window when
- * possible, and feedback is removed entirely when no cutoff exists because the
- * assessment has no due date.</p>
+ * cutoff rather than rejected: valid dates are preserved, feedback dates before
+ * the cutoff move to the cutoff (due date or late-submission deadline), the end
+ * date keeps the original window when possible, and feedback is removed entirely
+ * when no cutoff exists because the assessment has no due date.</p>
  */
 public final class AssessmentFeedbackDateValidator {
 
@@ -133,6 +133,10 @@ public final class AssessmentFeedbackDateValidator {
       return ImportNormalization.removeFeedback();
     }
 
+    if (feedbackStartDate == null || !feedbackStartDate.before(cutoffDate)) {
+      return ImportNormalization.apply(feedbackStartDate, feedbackEndDate);
+    }
+
     Date normalizedEndDate = normalizeImportedFeedbackEndDate(cutoffDate, feedbackStartDate, feedbackEndDate);
     return ImportNormalization.apply(cutoffDate, normalizedEndDate);
   }
@@ -140,10 +144,6 @@ public final class AssessmentFeedbackDateValidator {
   private static Date normalizeImportedFeedbackEndDate(Date cutoffDate, Date feedbackStartDate, Date feedbackEndDate) {
     if (feedbackEndDate == null) {
       return null;
-    }
-
-    if (feedbackStartDate == null) {
-      return cutoffDate;
     }
 
     if (feedbackEndDate.after(feedbackStartDate)) {
