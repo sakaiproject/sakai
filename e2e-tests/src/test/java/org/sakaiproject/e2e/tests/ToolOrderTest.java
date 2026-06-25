@@ -85,10 +85,23 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         Locator visibilityButton = editableRow.locator("[data-action=\"visibility\"]").first();
         if (visibilityButton.isVisible() && visibilityButton.isEnabled()) {
+            assertTooltipText(visibilityButton, "Make Tool Invisible to Students");
             visibilityButton.click();
             assertThat(editableRow.locator(".tool-order-hidden-badge")).isVisible();
+            assertTooltipText(visibilityButton, "Make Tool Visible to Students");
             visibilityButton.click();
             assertThat(editableRow.locator(".tool-order-hidden-badge")).isHidden();
+        }
+
+        Locator accessRow = page.locator(".tool-order-row:has([data-action=\"access\"])").first();
+        if (accessRow.isVisible()) {
+            Locator accessButton = accessRow.locator("[data-action=\"access\"]").first();
+            assertTooltipText(accessButton, "Lock Access to this Tool");
+            accessButton.click();
+            assertThat(accessRow.locator(".tool-order-locked-badge")).isVisible();
+            assertTooltipText(accessButton, "Enable Access to this Tool");
+            accessButton.click();
+            assertThat(accessRow.locator(".tool-order-locked-badge")).isHidden();
         }
 
         Locator deletableRow = page.locator(".tool-order-row:has([data-action=\"delete\"])").first();
@@ -110,5 +123,11 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(page.locator(".navIntraTool .current")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Site Information", Pattern.CASE_INSENSITIVE)))
                 .first()).isVisible();
+    }
+
+    private void assertTooltipText(Locator target, String expectedText) {
+        page.mouse().move(0, 0);
+        target.hover();
+        assertThat(page.locator(".tooltip .tooltip-inner").last()).containsText(expectedText);
     }
 }

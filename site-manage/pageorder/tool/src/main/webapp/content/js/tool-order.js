@@ -75,6 +75,16 @@
     });
   };
 
+  const setTooltipTitle = (element, title) => {
+    element.title = title;
+    element.dataset.bsOriginalTitle = title;
+
+    const tooltip = window.bootstrap?.Tooltip?.getInstance(element);
+    if (tooltip?.setContent) {
+      tooltip.setContent({ ".tooltip-inner": title });
+    }
+  };
+
   const persistOrder = async (previousOrder) => {
     if (!reorderAllowed || savingOrder) {
       return;
@@ -148,7 +158,7 @@
     if (visibilityButton) {
       visibilityButton.disabled = !data.enabled;
       visibilityButton.dataset.nextVisible = String(!data.visible || !data.enabled);
-      visibilityButton.title = data.visible ? app.dataset.menuHide : app.dataset.menuShow;
+      setTooltipTitle(visibilityButton, data.visible ? app.dataset.menuHide : app.dataset.menuShow);
       visibilityButton.setAttribute("aria-label", `${visibilityButton.title}: ${data.title}`);
       const icon = visibilityButton.querySelector(".bi");
       if (icon) {
@@ -159,7 +169,7 @@
     const accessButton = row.querySelector('[data-action="access"]');
     if (accessButton) {
       accessButton.dataset.nextEnabled = String(!data.enabled);
-      accessButton.title = data.enabled ? app.dataset.menuLock : app.dataset.menuUnlock;
+      setTooltipTitle(accessButton, data.enabled ? app.dataset.menuLock : app.dataset.menuUnlock);
       accessButton.setAttribute("aria-label", `${accessButton.title}: ${data.title}`);
       const icon = accessButton.querySelector(".bi");
       if (icon) {
