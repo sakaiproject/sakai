@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Locale;
 import java.util.Set;
 
 import org.junit.Test;
@@ -64,6 +65,14 @@ public class LTI13ServletTest {
 	public void validateRequestedScopesRejectsUnsupportedScopeTokens() {
 		String unsupportedScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY + "x";
 		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM + " " + unsupportedScope);
+
+		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, unsupportedScope));
+	}
+
+	@Test
+	public void validateRequestedScopesRejectsNonCanonicalScopeCase() {
+		String unsupportedScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY.toUpperCase(Locale.ROOT);
+		Set<String> scopes = LTI13Servlet.parseRequestedScopes(unsupportedScope);
 
 		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, unsupportedScope));
 	}

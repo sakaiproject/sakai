@@ -57,7 +57,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -992,7 +991,7 @@ public class LTI13Servlet extends HttpServlet {
 		if (scope == null) {
 			return new HashSet<String>();
 		}
-		return SakaiAccessToken.parseScopes(scope.toLowerCase(Locale.ROOT));
+		return SakaiAccessToken.parseScopes(scope);
 	}
 
 	static String validateRequestedScopes(Set<String> requestedScopes, String originalScope) {
