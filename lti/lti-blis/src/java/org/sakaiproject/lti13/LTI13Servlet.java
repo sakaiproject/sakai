@@ -884,6 +884,12 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Set<String> requestedScopes = parseRequestedScopes(scope);
+		String invalidScope = validateRequestedScopes(requestedScopes, scope);
+		if (invalidScope != null) {
+			LTI13Util.return400(response, "invalid_scope", invalidScope);
+			log.error("Unsupported scope {} requested for tool {}", invalidScope, tool_id);
+			return;
+		}
 
 
 		SakaiAccessToken sat = new SakaiAccessToken();
@@ -987,6 +993,30 @@ public class LTI13Servlet extends HttpServlet {
 			return new HashSet<String>();
 		}
 		return SakaiAccessToken.parseScopes(scope.toLowerCase(Locale.ROOT));
+	}
+
+	static String validateRequestedScopes(Set<String> requestedScopes, String originalScope) {
+		if (requestedScopes == null || requestedScopes.isEmpty()) {
+			return originalScope;
+		}
+
+		HashSet<String> unsupportedScopes = new HashSet<String>(requestedScopes);
+		unsupportedScopes.removeAll(supportedTokenRequestScopes());
+		if (unsupportedScopes.isEmpty()) {
+			return null;
+		}
+		return unsupportedScopes.iterator().next();
+	}
+
+	private static Set<String> supportedTokenRequestScopes() {
+		HashSet<String> scopes = new HashSet<String>();
+		scopes.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
+		scopes.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
+		scopes.add(LTI13ConstantsUtil.SCOPE_SCORE);
+		scopes.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
+		scopes.add(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
+		scopes.add(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
+		return scopes;
 	}
 
 	// SAK-47261 - lineItemId can only be null for old-style signed placements

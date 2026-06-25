@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.lti13;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
@@ -40,5 +42,29 @@ public class LTI13ServletTest {
 
 		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
 		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY));
+	}
+
+	@Test
+	public void validateRequestedScopesAcceptsSupportedScopes() {
+		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM + " "
+				+ LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
+
+		assertNull(LTI13Servlet.validateRequestedScopes(scopes, LTI13ConstantsUtil.SCOPE_LINEITEM));
+	}
+
+	@Test
+	public void validateRequestedScopesRejectsWhitespaceOnlyScopeRequest() {
+		String originalScope = "   ";
+		Set<String> scopes = LTI13Servlet.parseRequestedScopes(originalScope);
+
+		assertEquals(originalScope, LTI13Servlet.validateRequestedScopes(scopes, originalScope));
+	}
+
+	@Test
+	public void validateRequestedScopesRejectsUnsupportedScopeTokens() {
+		String unsupportedScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY + "x";
+		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM + " " + unsupportedScope);
+
+		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, unsupportedScope));
 	}
 }
