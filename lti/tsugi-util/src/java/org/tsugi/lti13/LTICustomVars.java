@@ -52,6 +52,34 @@ public class LTICustomVars {
 	public static final String USER_USERNAME = "User.username";
 
 	/**
+	 * USER_NICKNAME
+	 *
+	 *  The nickname that identifies the user within the Platform system.
+	 */
+	public static final String USER_NICKNAME = "User.nickname";
+
+	/**
+	 * USER_PRONOUNS
+	 *
+	 *  A user's pronouns
+	 */
+	public static final String USER_PRONOUNS = "User.pronouns";
+
+	/**
+	 * USER_PHONETIC_NAME
+	 *
+	 *  A users's phonetic pronunciation of their name
+	 */
+	public static final String USER_PHONETIC_NAME = "User.phoneticname";
+
+	/**
+	 * USER_MOBILE
+	 *
+	 *  A user's mobile
+	 */
+	public static final String USER_MOBILE = "User.mobile";
+
+	/**
 	 * USER_ORG
 	 *
 	 *  A URI describing the user's organisational properties; for example, an

@@ -45,7 +45,6 @@
         <dependency>
             <groupId>org.sakaiproject.profile2</groupId>
             <artifactId>profile2-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
              <groupId>org.springframework</groupId>
