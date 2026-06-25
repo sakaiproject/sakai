@@ -43,6 +43,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import java.security.Key;
 import java.security.KeyPairGenerator;
 import java.util.logging.Level;
@@ -54,6 +55,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -138,6 +140,8 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
 	private static final String CACHE_PUBLIC = "key::public";
 	private static final String CACHE_PRIVATE = "key::private";
+	private static final String CACHE_CLIENT_ASSERTION_JTI = "client_assertion_jti::";
+	private static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
 
 	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
@@ -817,11 +821,15 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String grant_type = request.getParameter(ClientAssertion.GRANT_TYPE);
+		String client_assertion_type = request.getParameter(ClientAssertion.CLIENT_ASSERTION_TYPE);
 		String client_assertion = request.getParameter(ClientAssertion.CLIENT_ASSERTION);
 		String scope = request.getParameter(ClientAssertion.SCOPE);
 		String missing = "";
 		if (grant_type == null) {
 			missing += " " + "grant_type";
+		}
+		if (client_assertion_type == null) {
+			missing += " " + "client_assertion_type";
 		}
 		if (client_assertion == null) {
 			missing += " " + "client_assertion";
@@ -832,6 +840,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (missing.length() > 0) {
 			LTI13Util.return400(response, "Token request missing fields:" + missing);
 			log.error("Token Request missing fields: {}", missing);
+			return;
+		}
+
+		String tokenRequestError = validateTokenRequest(grant_type, client_assertion_type);
+		if (tokenRequestError != null) {
+			LTI13Util.return400(response, "invalid_request", tokenRequestError);
+			log.error("Invalid token request for tool {}: {}", tool_id, tokenRequestError);
 			return;
 		}
 
@@ -874,11 +889,33 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Jws<Claims> claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
+		Jws<Claims> claims = null;
+		try {
+			claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
+		} catch (JwtException | IllegalArgumentException e) {
+			log.error("Could not verify client_assertion for tool {}", tool_id, e);
+			LTI13Util.return400(response, "invalid_client", "Could not verify client_assertion");
+			return;
+		}
 
 		if (claims == null) {
 			LTI13Util.return400(response, "Could not verify signature");
 			log.error("Could not verify signature {}", tool_id);
+			return;
+		}
+
+		String tokenAudience = getOurServerUrl() + LTI13_PATH + "token/" + toolKey;
+		String claimError = validateClientAssertionClaims(claims.getBody(), tool.lti13ClientId, tokenAudience);
+		if (claimError != null) {
+			LTI13Util.return400(response, "invalid_client", claimError);
+			log.error("Invalid client_assertion for tool {}: {}", tool_id, claimError);
+			return;
+		}
+
+		String replayError = validateClientAssertionReplay(cache, claims.getBody(), tool.lti13ClientId);
+		if (replayError != null) {
+			LTI13Util.return400(response, "invalid_client", replayError);
+			log.error("Invalid client_assertion replay state for tool {}: {}", tool_id, replayError);
 			return;
 		}
 
@@ -979,6 +1016,96 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Token post request failed");
 			return;
 		}
+	}
+
+	static String validateTokenRequest(String grantType, String clientAssertionType) {
+		if (!ClientAssertion.GRANT_TYPE_CLIENT_CREDENTIALS.equals(grantType)) {
+			return "Invalid grant_type";
+		}
+		if (!ClientAssertion.CLIENT_ASSERTION_TYPE_JWT.equals(clientAssertionType)) {
+			return "Invalid client_assertion_type";
+		}
+		return null;
+	}
+
+	static String validateClientAssertionClaims(Claims claims, String clientId, String tokenAudience) {
+		if (claims == null) {
+			return "Missing client_assertion claims";
+		}
+		if (StringUtils.isBlank(clientId)) {
+			return "Tool is missing client_id";
+		}
+		if (!clientId.equals(claims.getIssuer())) {
+			return "Invalid issuer";
+		}
+		if (!clientId.equals(claims.getSubject())) {
+			return "Invalid subject";
+		}
+		if (!hasAudience(claims, tokenAudience)) {
+			return "Invalid audience";
+		}
+		if (claims.getIssuedAt() == null) {
+			return "Missing iat";
+		}
+		if (claims.getExpiration() == null) {
+			return "Missing exp";
+		}
+		if (StringUtils.isBlank(claims.getId())) {
+			return "Missing jti";
+		}
+
+		long now = System.currentTimeMillis();
+		if (claims.getIssuedAt().getTime() > now + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS) {
+			return "Invalid iat";
+		}
+		if (claims.getExpiration().getTime() <= now - CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS) {
+			return "Invalid exp";
+		}
+		if (claims.getIssuedAt().after(claims.getExpiration())) {
+			return "Invalid iat";
+		}
+		return null;
+	}
+
+	static boolean hasAudience(Claims claims, String tokenAudience) {
+		if (claims == null || StringUtils.isBlank(tokenAudience)) {
+			return false;
+		}
+
+		Object audience = claims.get(Claims.AUDIENCE);
+		if (audience instanceof String) {
+			return tokenAudience.equals(audience);
+		}
+		if (audience instanceof Collection<?>) {
+			for (Object entry : (Collection<?>) audience) {
+				if (tokenAudience.equals(entry)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	static String validateClientAssertionReplay(Cache cache, Claims claims, String clientId) {
+		if (cache == null) {
+			return "Replay cache unavailable";
+		}
+		if (claims == null || StringUtils.isBlank(claims.getId()) || StringUtils.isBlank(clientId) || claims.getExpiration() == null) {
+			return "Missing jti";
+		}
+
+		String cacheKey = CACHE_CLIENT_ASSERTION_JTI + clientId + "::" + claims.getId();
+		Long expires = Long.valueOf(claims.getExpiration().getTime());
+		long now = System.currentTimeMillis();
+		Cache.ValueWrapper existing = cache.putIfAbsent(cacheKey, expires);
+		if (existing != null) {
+			Object existingExpires = existing.get();
+			if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > now) {
+				return "Replayed client_assertion";
+			}
+			cache.put(cacheKey, expires);
+		}
+		return null;
 	}
 
 	// SAK-47261 - lineItemId can only be null for old-style signed placements
