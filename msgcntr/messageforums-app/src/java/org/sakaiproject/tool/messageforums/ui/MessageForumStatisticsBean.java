@@ -2816,16 +2816,17 @@ public class MessageForumStatisticsBean {
 			//Code to get the gradebook service from ComponentManager
 
 			GradingService gradingService = getGradingService();
-			if (gradingService.isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext())) {
-				List<Gradebook> gradeAssignments = gradingService.getGradebookGroupInstances(toolManager.getCurrentPlacement().getContext());
+			String siteId = toolManager.getCurrentPlacement().getContext();
+			if (gradingService.isGradebookGroupEnabled(siteId)) {
+				List<Gradebook> gradeAssignments = gradingService.getGradebookGroupInstances(siteId);
 				for(int i=0; i<gradeAssignments.size(); i++) {
-					List<Assignment> groupAssignments = gradingService.getAssignments(gradeAssignments.get(i).getUid(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
+					List<Assignment> groupAssignments = gradingService.getAssignmentsIfViewable(gradeAssignments.get(i).getUid(), siteId, SortType.SORT_BY_NONE);
 					for (Assignment assignment: groupAssignments) {
 						assignments.add(new SelectItem(Long.toString(assignment.getId()), assignment.getName(), assignment.getPoints().toString() + "," + gradeAssignments.get(i).getUid()));
 					}
 				}
 			} else {
-				List gradeAssignmentsBeforeFilter = gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
+				List gradeAssignmentsBeforeFilter = gradingService.getAssignmentsIfViewable(siteId, siteId, SortType.SORT_BY_NONE);
 				for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
 					Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 					if(!thisAssign.getExternallyMaintained()) {

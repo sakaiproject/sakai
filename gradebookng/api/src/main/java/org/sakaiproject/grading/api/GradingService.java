@@ -87,6 +87,12 @@ public interface GradingService extends EntityProducer {
     public List<Assignment> getAssignments(String gradebookUid, String siteId, SortType sortBy);
 
     /**
+     * Like {@link #getAssignments(String, String, SortType)} but returns an empty list when the current user
+     * may not view assignments, instead of throwing {@link GradingSecurityException}.
+     */
+    public List<Assignment> getAssignmentsIfViewable(String gradebookUid, String siteId, SortType sortBy);
+
+    /**
      * Get an assignment based on its id
      *
      * @param gradebookUid

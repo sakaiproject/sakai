@@ -255,6 +255,17 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void getAssignmentsIfViewableReturnsEmptyWhenUnauthorized() {
+
+        Gradebook gradebook = createGradebook();
+        createAssignment1(gradebook);
+        switchToUser1();
+        assertTrue(gradingService.getAssignmentsIfViewable(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING).isEmpty());
+        assertThrows(GradingSecurityException.class,
+            () -> gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING));
+    }
+
+    @Test
     public void addAndUpdateExternalAssessment() {
 
         Gradebook gradebook = createGradebook();

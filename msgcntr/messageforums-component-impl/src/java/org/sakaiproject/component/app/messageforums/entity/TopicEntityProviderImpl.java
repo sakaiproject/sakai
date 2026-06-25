@@ -66,7 +66,6 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
-import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -351,12 +350,8 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				if (siteId != null) {
 					try {
 					    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-					    final Gradebook gradebook = (Gradebook) gradingService.getGradebook(siteId, siteId);
-					    List<Assignment> gbItems = gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_NONE);
-					    if (gbItems != null) {
-					        for (Assignment gbItem : gbItems) {
-					            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
-					        }
+					    for (Assignment gbItem : gradingService.getAssignmentsIfViewable(siteId, siteId, SortType.SORT_BY_NONE)) {
+					        gbItemNameToId.put(gbItem.getName(), gbItem.getId());
 					    }
 					} catch (Exception e) {
 					    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);

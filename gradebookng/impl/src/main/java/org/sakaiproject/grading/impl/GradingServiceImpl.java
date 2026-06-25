@@ -233,6 +233,16 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Assignment> getAssignmentsIfViewable(String gradebookUid, String siteId, SortType sortBy) {
+
+        if (!isUserAbleToViewAssignments(siteId)) {
+            return Collections.emptyList();
+        }
+        return getAssignments(gradebookUid, siteId, sortBy);
+    }
+
+    @Override
     public Assignment getAssignment(String gradebookUid, String siteId, Long assignmentId) throws AssessmentNotFoundException {
 
         if (assignmentId == null || gradebookUid == null) {
