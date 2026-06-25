@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportNormalization;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportOutcome;
 
 public class AssessmentFeedbackDateValidatorTest {
 
@@ -99,6 +101,66 @@ public class AssessmentFeedbackDateValidatorTest {
 
         assertEquals(dueDate, AssessmentFeedbackDateValidator.getFeedbackCutoffDate(dueDate, date("2026-06-24T00:00:00Z"),
                 AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION));
+    }
+
+    @Test
+    public void importPolicyMovesFeedbackStartBeforeDueDateToCutoff() {
+        ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+                date("2026-06-25T00:00:00Z"), null, null,
+                date("2026-06-20T00:00:00Z"), date("2026-06-22T00:00:00Z"));
+
+        assertEquals(ImportOutcome.APPLY, normalization.getOutcome());
+        assertEquals(date("2026-06-25T00:00:00Z"), normalization.getFeedbackStartDate());
+        assertEquals(date("2026-06-27T00:00:00Z"), normalization.getFeedbackEndDate());
+    }
+
+    @Test
+    public void importPolicyUsesLateSubmissionDateAsCutoff() {
+        ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+                date("2026-06-25T00:00:00Z"), date("2026-06-28T00:00:00Z"), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION,
+                date("2026-06-20T00:00:00Z"), date("2026-06-22T00:00:00Z"));
+
+        assertEquals(ImportOutcome.APPLY, normalization.getOutcome());
+        assertEquals(date("2026-06-28T00:00:00Z"), normalization.getFeedbackStartDate());
+        assertEquals(date("2026-06-30T00:00:00Z"), normalization.getFeedbackEndDate());
+    }
+
+    @Test
+    public void importPolicyMovesFeedbackStartAfterDueDateToCutoff() {
+        ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+                date("2026-06-25T00:00:00Z"), null, null,
+                date("2026-06-26T00:00:00Z"), date("2026-06-28T00:00:00Z"));
+
+        assertEquals(ImportOutcome.APPLY, normalization.getOutcome());
+        assertEquals(date("2026-06-25T00:00:00Z"), normalization.getFeedbackStartDate());
+        assertEquals(date("2026-06-27T00:00:00Z"), normalization.getFeedbackEndDate());
+    }
+
+    @Test
+    public void importPolicyRemovesFeedbackWhenDueDateIsMissing() {
+        ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+                null, null, null,
+                date("2026-06-20T00:00:00Z"), date("2026-06-22T00:00:00Z"));
+
+        assertEquals(ImportOutcome.REMOVE_FEEDBACK, normalization.getOutcome());
+    }
+
+    @Test
+    public void importPolicyProducesDatesThatPassStrictValidation() {
+        Date dueDate = date("2026-06-25T00:00:00Z");
+        Date retractDate = date("2026-06-28T00:00:00Z");
+        Integer lateHandling = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
+        Date feedbackStart = date("2026-06-20T00:00:00Z");
+        Date feedbackEnd = date("2026-06-21T00:00:00Z");
+
+        ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+                dueDate, retractDate, lateHandling, feedbackStart, feedbackEnd);
+
+        List<AssessmentFeedbackDateValidator.Violation> violations = AssessmentFeedbackDateValidator.validate(
+                dueDate, retractDate, lateHandling,
+                normalization.getFeedbackStartDate(), normalization.getFeedbackEndDate());
+
+        assertTrue(violations.isEmpty());
     }
 
     private Date date(String value) {

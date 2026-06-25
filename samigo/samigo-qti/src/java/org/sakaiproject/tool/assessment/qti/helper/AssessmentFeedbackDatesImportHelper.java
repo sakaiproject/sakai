@@ -18,15 +18,17 @@
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportNormalization;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportOutcome;
 
 public final class AssessmentFeedbackDatesImportHelper {
 
@@ -49,15 +51,21 @@ public final class AssessmentFeedbackDatesImportHelper {
       return;
     }
 
-    List<AssessmentFeedbackDateValidator.Violation> feedbackDateErrors = AssessmentFeedbackDateValidator.validate(
-        control.getDueDate(), control.getRetractDate(), control.getLateHandling(), parsedFeedbackDate, parsedFeedbackEndDate);
-    if (!feedbackDateErrors.isEmpty()) {
-      log.warn("Skipping imported feedback dates that fail validation: {}", feedbackDateErrors);
+    ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+        control.getDueDate(), control.getRetractDate(), control.getLateHandling(),
+        parsedFeedbackDate, parsedFeedbackEndDate);
+    if (ImportOutcome.REMOVE_FEEDBACK.equals(normalization.getOutcome())) {
+      control.setFeedbackDate(null);
+      control.setFeedbackEndDate(null);
+      assessment.getData().getAssessmentFeedback().setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
+      assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", "NONE");
+      log.warn("Removing imported feedback dates because the assessment has no Due Date or Late Submission Date.");
       return;
     }
 
-    control.setFeedbackDate(parsedFeedbackDate);
-    control.setFeedbackEndDate(parsedFeedbackEndDate);
+    control.setFeedbackDate(normalization.getFeedbackStartDate());
+    control.setFeedbackEndDate(normalization.getFeedbackEndDate());
+    assessment.getData().getAssessmentFeedback().setFeedbackDelivery(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
     assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", "DATED");
   }
 
@@ -65,6 +73,7 @@ public final class AssessmentFeedbackDatesImportHelper {
     if (StringUtils.isBlank(feedbackDate)) {
       return null;
     }
-    return iso.parse(feedbackDate).getTime();
+    Date parsedDate = iso.parse(feedbackDate).getTime();
+    return new Date((parsedDate.getTime() / 1000) * 1000);
   }
 }

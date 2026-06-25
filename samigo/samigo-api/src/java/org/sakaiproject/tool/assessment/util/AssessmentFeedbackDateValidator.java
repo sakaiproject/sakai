@@ -27,6 +27,20 @@ import lombok.RequiredArgsConstructor;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
+/**
+ * Shared feedback-date rules for Samigo authoring, Date Manager, and QTI import.
+ *
+ * <p><strong>Strict policy ({@link #validate}):</strong> used when a user or API
+ * submits feedback dates. Invalid combinations are reported as {@link Violation}s
+ * and the caller must reject the change.</p>
+ *
+ * <p><strong>Import policy ({@link #normalizeForImport}):</strong> used when
+ * feedback dates arrive from a QTI package. Dates are adjusted to satisfy the
+ * cutoff rather than rejected: feedback start moves to the cutoff (due date or
+ * late-submission deadline), the end date keeps the original window when
+ * possible, and feedback is removed entirely when no cutoff exists because the
+ * assessment has no due date.</p>
+ */
 public final class AssessmentFeedbackDateValidator {
 
   public enum Error {
@@ -42,11 +56,32 @@ public final class AssessmentFeedbackDateValidator {
     FEEDBACK_END
   }
 
+  public enum ImportOutcome {
+    REMOVE_FEEDBACK,
+    APPLY
+  }
+
   @Getter
   @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Violation {
     private final Error error;
     private final Field field;
+  }
+
+  @Getter
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class ImportNormalization {
+    private final ImportOutcome outcome;
+    private final Date feedbackStartDate;
+    private final Date feedbackEndDate;
+
+    private static ImportNormalization removeFeedback() {
+      return new ImportNormalization(ImportOutcome.REMOVE_FEEDBACK, null, null);
+    }
+
+    private static ImportNormalization apply(Date feedbackStartDate, Date feedbackEndDate) {
+      return new ImportNormalization(ImportOutcome.APPLY, feedbackStartDate, feedbackEndDate);
+    }
   }
 
   private AssessmentFeedbackDateValidator() {
@@ -89,6 +124,34 @@ public final class AssessmentFeedbackDateValidator {
     }
 
     return dueDate;
+  }
+
+  public static ImportNormalization normalizeForImport(Date dueDate, Date retractDate, Integer lateHandling,
+      Date feedbackStartDate, Date feedbackEndDate) {
+    Date cutoffDate = getFeedbackCutoffDate(dueDate, retractDate, lateHandling);
+    if (cutoffDate == null) {
+      return ImportNormalization.removeFeedback();
+    }
+
+    Date normalizedEndDate = normalizeImportedFeedbackEndDate(cutoffDate, feedbackStartDate, feedbackEndDate);
+    return ImportNormalization.apply(cutoffDate, normalizedEndDate);
+  }
+
+  private static Date normalizeImportedFeedbackEndDate(Date cutoffDate, Date feedbackStartDate, Date feedbackEndDate) {
+    if (feedbackEndDate == null) {
+      return null;
+    }
+
+    if (feedbackStartDate == null) {
+      return cutoffDate;
+    }
+
+    if (feedbackEndDate.after(feedbackStartDate)) {
+      long feedbackWindow = feedbackEndDate.getTime() - feedbackStartDate.getTime();
+      return new Date(cutoffDate.getTime() + feedbackWindow);
+    }
+
+    return cutoffDate;
   }
 
   private static Violation violation(Error error) {
