@@ -67,6 +67,8 @@ public class AssessmentFeedbackDatesImportHelperTest {
 
     assertDateEquals("2026-06-26T00:00:00Z", control.getFeedbackDate());
     assertDateEquals("2026-06-28T00:00:00Z", control.getFeedbackEndDate());
+    assertEquals(AssessmentFeedbackIfc.FEEDBACK_BY_DATE, assessment.getData().getAssessmentFeedback().getFeedbackDelivery());
+    assertEquals("DATED", assessment.getData().getAssessmentMetaDataByLabel("FEEDBACK_DELIVERY"));
   }
 
   @Test
