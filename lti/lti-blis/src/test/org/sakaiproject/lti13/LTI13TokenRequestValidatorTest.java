@@ -30,24 +30,24 @@ import org.tsugi.oauth2.objects.ClientAssertion;
 
 import io.jsonwebtoken.Claims;
 
-public class LTI13ServletTest {
+public class LTI13TokenRequestValidatorTest {
 
 	private static final String CLIENT_ID = "client-123";
 	private static final String TOKEN_AUDIENCE = "https://sakai.example/imsblis/lti13/token/42";
 
 	@Test
 	public void validateTokenRequestRequiresClientCredentialsGrant() {
-		assertNull(LTI13Servlet.validateTokenRequest(ClientAssertion.GRANT_TYPE_CLIENT_CREDENTIALS,
+		assertNull(LTI13TokenRequestValidator.validateTokenRequest(ClientAssertion.GRANT_TYPE_CLIENT_CREDENTIALS,
 				ClientAssertion.CLIENT_ASSERTION_TYPE_JWT));
-		assertEquals("Invalid grant_type", LTI13Servlet.validateTokenRequest("authorization_code",
+		assertEquals("Invalid grant_type", LTI13TokenRequestValidator.validateTokenRequest("authorization_code",
 				ClientAssertion.CLIENT_ASSERTION_TYPE_JWT));
-		assertEquals("Invalid client_assertion_type", LTI13Servlet.validateTokenRequest(
+		assertEquals("Invalid client_assertion_type", LTI13TokenRequestValidator.validateTokenRequest(
 				ClientAssertion.GRANT_TYPE_CLIENT_CREDENTIALS, "jwt"));
 	}
 
 	@Test
 	public void validateClientAssertionClaimsAcceptsRequiredClaims() {
-		assertNull(LTI13Servlet.validateClientAssertionClaims(validClaims("jti-1"), CLIENT_ID, TOKEN_AUDIENCE));
+		assertNull(LTI13TokenRequestValidator.validateClientAssertionClaims(validClaims("jti-1"), CLIENT_ID, TOKEN_AUDIENCE));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class LTI13ServletTest {
 		Claims claims = validClaims("jti-1");
 		claims.setSubject("other-client");
 
-		assertEquals("Invalid subject", LTI13Servlet.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+		assertEquals("Invalid subject", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class LTI13ServletTest {
 		Claims claims = validClaims("jti-1");
 		claims.setAudience("https://sakai.example/imsblis/lti13/token/99");
 
-		assertEquals("Invalid audience", LTI13Servlet.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+		assertEquals("Invalid audience", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class LTI13ServletTest {
 		Claims claims = validClaims("jti-1");
 		claims.put(Claims.AUDIENCE, Arrays.asList("https://sakai.example/other", TOKEN_AUDIENCE));
 
-		assertNull(LTI13Servlet.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+		assertNull(LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
 	}
 
 	@Test
@@ -79,8 +79,18 @@ public class LTI13ServletTest {
 		MapCache cache = new MapCache();
 		Claims claims = validClaims("jti-1");
 
-		assertNull(LTI13Servlet.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-		assertEquals("Replayed client_assertion", LTI13Servlet.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertNull(LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertEquals("Replayed client_assertion", LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayRejectsRepeatedJtiDuringClockSkewWindow() {
+		MapCache cache = new MapCache();
+		Claims claims = validClaims("jti-1");
+		claims.setExpiration(new Date(System.currentTimeMillis() - 1_000L));
+
+		assertNull(LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertEquals("Replayed client_assertion", LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 	}
 
 	private Claims validClaims(String jti) {
