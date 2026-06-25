@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
 public final class AssessmentFeedbackDateValidator {
@@ -38,22 +42,11 @@ public final class AssessmentFeedbackDateValidator {
     FEEDBACK_END
   }
 
+  @Getter
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Violation {
     private final Error error;
     private final Field field;
-
-    private Violation(Error error, Field field) {
-      this.error = error;
-      this.field = field;
-    }
-
-    public Error getError() {
-      return error;
-    }
-
-    public Field getField() {
-      return field;
-    }
   }
 
   private AssessmentFeedbackDateValidator() {
