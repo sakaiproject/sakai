@@ -20,6 +20,9 @@
 package org.sakaiproject.lti13.util;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -63,17 +66,35 @@ public class SakaiAccessToken extends  org.tsugi.lti13.objects.BaseJWT {
 	@JsonProperty("tool_id")
 	public Long tool_id;
 
-	public void addScope(String newScope) {
-		if ( this.scope == null ) {
-			this.scope = newScope;
+	public static Set<String> parseScopes(String scopes) {
+		HashSet<String> scopeSet = new HashSet<String>();
+		if (scopes == null) {
+			return scopeSet;
 		}
-		if ( this.scope.contains(newScope)) return;
+
+		String trimmedScopes = scopes.trim();
+		if (trimmedScopes.length() < 1) {
+			return scopeSet;
+		}
+
+		for (String scope : trimmedScopes.split("\\s+")) {
+			scopeSet.add(scope);
+		}
+		return scopeSet;
+	}
+
+	public void addScope(String newScope) {
+		if ( this.scope == null || this.scope.trim().length() < 1 ) {
+			this.scope = newScope;
+			return;
+		}
+		if ( parseScopes(this.scope).contains(newScope)) return;
 		this.scope += " " + newScope;
 	}
 
 	public boolean hasScope(String scope) {
-		if ( this.scope == null ) return false;
-		return this.scope.contains(scope);
+		if ( this.scope == null || scope == null ) return false;
+		return parseScopes(this.scope).contains(scope);
 	}
 
 }

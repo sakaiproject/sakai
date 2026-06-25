@@ -57,6 +57,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -882,7 +883,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		scope = scope.toLowerCase();
+		Set<String> requestedScopes = parseRequestedScopes(scope);
 
 
 		SakaiAccessToken sat = new SakaiAccessToken();
@@ -894,7 +895,7 @@ public class LTI13Servlet extends HttpServlet {
 		HashSet<String> returnScopeSet = new HashSet<String> ();
 
 		// Work through requested scopes
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
 			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 				log.error("Scope lineitem readonly not allowed {}", tool_id);
@@ -904,7 +905,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
 			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
 				log.error("Scope lineitem not allowed {}", tool_id);
@@ -916,7 +917,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
 			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
 				log.error("Scope score not allowed {}", tool_id);
@@ -927,7 +928,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat.addScope(SakaiAccessToken.SCOPE_SCORE);
 		}
 
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
 			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 				log.error("Scope result readonly not allowed {}", tool_id);
@@ -938,7 +939,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat.addScope(SakaiAccessToken.SCOPE_RESULT_READONLY);
 		}
 
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
 			if (!Boolean.TRUE.equals(tool.allowroster)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 				log.error("Scope names and roles not allowed {}", tool_id);
@@ -949,7 +950,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
 		}
 
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
+		if (requestedScopes.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
 			if (!Boolean.TRUE.equals(tool.allowroster)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
 				log.error("Scope context group not allowed {}", tool_id);
@@ -979,6 +980,13 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Token post request failed");
 			return;
 		}
+	}
+
+	static Set<String> parseRequestedScopes(String scope) {
+		if (scope == null) {
+			return new HashSet<String>();
+		}
+		return SakaiAccessToken.parseScopes(scope.toLowerCase(Locale.ROOT));
 	}
 
 	// SAK-47261 - lineItemId can only be null for old-style signed placements
