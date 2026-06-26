@@ -20,7 +20,7 @@
 package org.sakaiproject.lti13.util;
 
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +67,7 @@ public class SakaiAccessToken extends  org.tsugi.lti13.objects.BaseJWT {
 	public Long tool_id;
 
 	public static Set<String> parseScopes(String scopes) {
-		HashSet<String> scopeSet = new HashSet<String>();
+		LinkedHashSet<String> scopeSet = new LinkedHashSet<String>();
 		if (scopes == null) {
 			return scopeSet;
 		}

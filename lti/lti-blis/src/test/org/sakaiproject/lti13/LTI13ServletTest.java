@@ -16,47 +16,30 @@
 package org.sakaiproject.lti13;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
 import java.util.Set;
 
 import org.junit.Test;
+import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 public class LTI13ServletTest {
 
 	@Test
-	public void parseRequestedScopesRequiresExactScopeTokenMatch() {
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-
-		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY));
-		assertFalse(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
-	}
-
-	@Test
-	public void parseRequestedScopesHandlesWhitespaceDelimitedScopeTokens() {
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes("  " + LTI13ConstantsUtil.SCOPE_LINEITEM + "\n"
-				+ LTI13ConstantsUtil.SCOPE_RESULT_READONLY + "  ");
-
-		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
-		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY));
-	}
-
-	@Test
 	public void validateRequestedScopesAcceptsSupportedScopes() {
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM + " "
-				+ LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
+		String originalScope = LTI13ConstantsUtil.SCOPE_LINEITEM + " "
+				+ LTI13ConstantsUtil.SCOPE_RESULT_READONLY;
+		Set<String> scopes = SakaiAccessToken.parseScopes(originalScope);
 
-		assertNull(LTI13Servlet.validateRequestedScopes(scopes, LTI13ConstantsUtil.SCOPE_LINEITEM));
+		assertNull(LTI13Servlet.validateRequestedScopes(scopes, originalScope));
 	}
 
 	@Test
 	public void validateRequestedScopesRejectsWhitespaceOnlyScopeRequest() {
 		String originalScope = "   ";
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes(originalScope);
+		Set<String> scopes = SakaiAccessToken.parseScopes(originalScope);
 
 		assertEquals(originalScope, LTI13Servlet.validateRequestedScopes(scopes, originalScope));
 	}
@@ -64,16 +47,17 @@ public class LTI13ServletTest {
 	@Test
 	public void validateRequestedScopesRejectsUnsupportedScopeTokens() {
 		String unsupportedScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY + "x";
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes(LTI13ConstantsUtil.SCOPE_LINEITEM + " " + unsupportedScope);
+		String originalScope = LTI13ConstantsUtil.SCOPE_LINEITEM + " " + unsupportedScope;
+		Set<String> scopes = SakaiAccessToken.parseScopes(originalScope);
 
-		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, unsupportedScope));
+		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, originalScope));
 	}
 
 	@Test
 	public void validateRequestedScopesRejectsNonCanonicalScopeCase() {
-		String unsupportedScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY.toUpperCase(Locale.ROOT);
-		Set<String> scopes = LTI13Servlet.parseRequestedScopes(unsupportedScope);
+		String originalScope = LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY.toUpperCase(Locale.ROOT);
+		Set<String> scopes = SakaiAccessToken.parseScopes(originalScope);
 
-		assertEquals(unsupportedScope, LTI13Servlet.validateRequestedScopes(scopes, unsupportedScope));
+		assertEquals(originalScope, LTI13Servlet.validateRequestedScopes(scopes, originalScope));
 	}
 }

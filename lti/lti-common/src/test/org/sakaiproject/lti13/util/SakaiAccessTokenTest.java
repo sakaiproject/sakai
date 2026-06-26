@@ -19,9 +19,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
 import org.junit.Test;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 public class SakaiAccessTokenTest {
+
+	@Test
+	public void parseScopesRequiresExactScopeTokenMatch() {
+		Set<String> scopes = SakaiAccessToken.parseScopes(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
+
+		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY));
+		assertFalse(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
+	}
+
+	@Test
+	public void parseScopesHandlesWhitespaceDelimitedScopeTokens() {
+		Set<String> scopes = SakaiAccessToken.parseScopes("  " + LTI13ConstantsUtil.SCOPE_LINEITEM + "\n"
+				+ LTI13ConstantsUtil.SCOPE_RESULT_READONLY + "  ");
+
+		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM));
+		assertTrue(scopes.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY));
+	}
 
 	@Test
 	public void hasScopeRequiresExactScopeTokenMatch() {
