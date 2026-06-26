@@ -18,16 +18,14 @@ package org.sakaiproject.lti13;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.tsugi.oauth2.objects.ClientAssertion;
 
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 final class LTI13TokenRequestValidator {
-
-	private static final Logger log = LoggerFactory.getLogger(LTI13TokenRequestValidator.class);
 
 	static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
 	static final long CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS = 600_000L;
