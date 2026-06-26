@@ -479,10 +479,11 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		for (String propertyName : sourceConfig.stringPropertyNames())
 		{
 			String propertyValue = sourceConfig.getProperty(propertyName);
-			if (propertyValue != null)
+			if (WEB_CONTENT_URL_PROP.equals(propertyName))
 			{
-				targetConfig.setProperty(propertyName, propertyValue.replace(fromContext, toContext));
+				propertyValue = propertyValue.replace(fromContext, toContext);
 			}
+			targetConfig.setProperty(propertyName, propertyValue);
 		}
 	}
 
