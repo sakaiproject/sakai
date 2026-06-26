@@ -989,16 +989,20 @@ public class LTI13Servlet extends HttpServlet {
 
 	static String validateRequestedScopes(Set<String> requestedScopes, String originalScope) {
 		if (requestedScopes == null || requestedScopes.isEmpty()) {
-			return originalScope;
+			return sanitizeErrorDetail(originalScope);
 		}
 
 		Set<String> supportedScopes = new HashSet<String>(LTI13ConstantsUtil.SCOPES_SUPPORTED);
 		for (String scope : requestedScopes) {
 			if (!supportedScopes.contains(scope)) {
-				return scope;
+				return sanitizeErrorDetail(scope);
 			}
 		}
 		return null;
+	}
+
+	static String sanitizeErrorDetail(String detail) {
+		return detail != null ? detail.replaceAll("\\p{Cntrl}", "") : null;
 	}
 
 	// SAK-47261 - lineItemId can only be null for old-style signed placements
