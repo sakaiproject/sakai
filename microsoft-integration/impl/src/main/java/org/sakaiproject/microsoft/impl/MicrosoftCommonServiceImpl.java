@@ -901,7 +901,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				} catch (ODataError e) {
 					attempts++;
 					log.info("Group not yet provisioned for groupId={}, attempt {}/{} - Exception: {}",
-							groupId, attempts, MAX_RETRY, e.toString())
+							groupId, attempts, MAX_RETRY, e.toString());
 					if (attempts < MAX_RETRY) {
 						try {
 							Thread.sleep(5000L * attempts);
