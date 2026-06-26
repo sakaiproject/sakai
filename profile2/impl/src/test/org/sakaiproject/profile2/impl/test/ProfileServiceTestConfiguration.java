@@ -34,6 +34,7 @@ import org.sakaiproject.profile2.impl.repository.SocialNetworkingInfoRepositoryI
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
+import org.sakaiproject.user.api.PreferencesService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,16 +70,6 @@ public class ProfileServiceTestConfiguration extends SakaiTestConfiguration {
         return profileImageUploadedRepository;
     }
 
-    /*
-    @Bean(name="org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository")
-    public SocialNetworkingInfoRepository socialNetworkingInfoRepository(SessionFactory sessionFactory) {
-
-        SocialNetworkingInfoRepositoryImpl socialNetworkingInfoRepository = new SocialNetworkingInfoRepositoryImpl();
-        socialNetworkingInfoRepository.setSessionFactory(sessionFactory);
-        return socialNetworkingInfoRepository;
-    }
-    */
-
     @Bean(name = "org.sakaiproject.api.common.edu.person.SakaiPersonManager")
     public SakaiPersonManager sakaiPersonManager() {
         return mock(SakaiPersonManager.class);
@@ -97,6 +88,11 @@ public class ProfileServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.event.api.ActivityService")
     public ActivityService activityService() {
         return mock(ActivityService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.user.api.PreferencesService")
+    public PreferencesService preferencesService() {
+        return mock(PreferencesService.class);
     }
 
     @Bean(name = "org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder")

@@ -22,6 +22,7 @@ public class ProfileTransferBean {
     public String displayName;
     public String imageUrl;
     public String imageThumbUrl;
+    public String imageUserPreference;
     public boolean locked;
     public String mobile;
     public String type;
@@ -45,6 +46,7 @@ public class ProfileTransferBean {
 
     public boolean disabled;
     public boolean canUpdatePicture;
+    public boolean canSelectPictureSource;
     public boolean canEdit;
     public boolean canEditNameAndEmail;
 }
