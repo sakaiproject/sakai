@@ -17,6 +17,7 @@ package org.sakaiproject.lti13;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -75,12 +76,53 @@ public class LTI13TokenRequestValidatorTest {
 	}
 
 	@Test
+	public void validateClientAssertionClaimsRejectsMissingRequiredClaims() {
+		Claims claims = validClaims("jti-1");
+
+		claims.setIssuedAt(null);
+		assertEquals("Missing iat", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+
+		claims = validClaims("jti-1");
+		claims.setExpiration(null);
+		assertEquals("Missing exp", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+
+		claims = validClaims("jti-1");
+		claims.setId(null);
+		assertEquals("Missing jti", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+	}
+
+	@Test
+	public void validateClientAssertionClaimsRejectsExcessiveLifetime() {
+		Claims claims = validClaims("jti-1");
+		claims.setIssuedAt(new Date(System.currentTimeMillis()));
+		claims.setExpiration(new Date(System.currentTimeMillis()
+				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS
+				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
+				+ 1_000L));
+
+		assertEquals("Invalid exp", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+	}
+
+	@Test
 	public void validateClientAssertionReplayRejectsRepeatedJti() {
 		MapCache cache = new MapCache();
 		Claims claims = validClaims("jti-1");
 
-		assertNull(LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-		assertEquals("Replayed client_assertion", LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayScopesJtiByClientId() {
+		MapCache cache = new MapCache();
+		Claims claims = validClaims("jti-1");
+
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, "client-456"));
 	}
 
 	@Test
@@ -89,8 +131,38 @@ public class LTI13TokenRequestValidatorTest {
 		Claims claims = validClaims("jti-1");
 		claims.setExpiration(new Date(System.currentTimeMillis() - 1_000L));
 
-		assertNull(LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-		assertEquals("Replayed client_assertion", LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayRejectsNullCache() {
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(null, validClaims("jti-1"), CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayHandlesPutIfAbsentFailures() {
+		Claims claims = validClaims("jti-1");
+
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(new ThrowingPutIfAbsentCache(), claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayHandlesPutFailures() {
+		MapCache cache = new ThrowingPutCache();
+		Claims claims = validClaims("jti-1");
+		claims.setExpiration(new Date(System.currentTimeMillis()
+				- LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
+				- 5_000L));
+
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 	}
 
 	private Claims validClaims(String jti) {
@@ -243,6 +315,22 @@ public class LTI13TokenRequestValidatorTest {
 		@Override
 		public void clear() {
 			values.clear();
+		}
+	}
+
+	private static class ThrowingPutIfAbsentCache extends MapCache {
+
+		@Override
+		public ValueWrapper putIfAbsent(Object key, Object value) {
+			throw new IllegalStateException("cache unavailable");
+		}
+	}
+
+	private static class ThrowingPutCache extends MapCache {
+
+		@Override
+		public void put(Object key, Object value) {
+			throw new IllegalStateException("cache put failed");
 		}
 	}
 }

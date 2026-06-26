@@ -18,6 +18,8 @@ package org.sakaiproject.lti13;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.tsugi.oauth2.objects.ClientAssertion;
 
@@ -25,9 +27,32 @@ import io.jsonwebtoken.Claims;
 
 final class LTI13TokenRequestValidator {
 
+	private static final Logger log = LoggerFactory.getLogger(LTI13TokenRequestValidator.class);
+
 	static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
+	static final long CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS = 600_000L;
 
 	private static final String CACHE_CLIENT_ASSERTION_JTI = "client_assertion_jti::";
+
+	enum ClientAssertionReplayResult {
+		OK,
+		REPLAYED("Replayed client_assertion"),
+		CACHE_UNAVAILABLE;
+
+		private final String clientMessage;
+
+		ClientAssertionReplayResult() {
+			this.clientMessage = null;
+		}
+
+		ClientAssertionReplayResult(String clientMessage) {
+			this.clientMessage = clientMessage;
+		}
+
+		String getClientMessage() {
+			return clientMessage;
+		}
+	}
 
 	private LTI13TokenRequestValidator() {
 	}
@@ -78,6 +103,10 @@ final class LTI13TokenRequestValidator {
 		if (claims.getIssuedAt().after(claims.getExpiration())) {
 			return "Invalid iat";
 		}
+		if (claims.getExpiration().getTime() - claims.getIssuedAt().getTime()
+				> CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS) {
+			return "Invalid exp";
+		}
 		return null;
 	}
 
@@ -100,25 +129,28 @@ final class LTI13TokenRequestValidator {
 		return false;
 	}
 
-	static String validateClientAssertionReplay(Cache cache, Claims claims, String clientId) {
+	static ClientAssertionReplayResult validateClientAssertionReplay(Cache cache, Claims claims, String clientId) {
 		if (cache == null) {
-			return "Replay cache unavailable";
-		}
-		if (claims == null || StringUtils.isBlank(claims.getId()) || StringUtils.isBlank(clientId) || claims.getExpiration() == null) {
-			return "Missing jti";
+			log.warn("Client assertion replay cache unavailable for client {}", clientId);
+			return ClientAssertionReplayResult.CACHE_UNAVAILABLE;
 		}
 
-		String cacheKey = CACHE_CLIENT_ASSERTION_JTI + clientId + "::" + claims.getId();
-		Long expires = Long.valueOf(claims.getExpiration().getTime() + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS);
-		long now = System.currentTimeMillis();
-		Cache.ValueWrapper existing = cache.putIfAbsent(cacheKey, expires);
-		if (existing != null) {
-			Object existingExpires = existing.get();
-			if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > now) {
-				return "Replayed client_assertion";
+		try {
+			String cacheKey = CACHE_CLIENT_ASSERTION_JTI + clientId + "::" + claims.getId();
+			Long expires = Long.valueOf(claims.getExpiration().getTime() + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS);
+			long now = System.currentTimeMillis();
+			Cache.ValueWrapper existing = cache.putIfAbsent(cacheKey, expires);
+			if (existing != null) {
+				Object existingExpires = existing.get();
+				if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > now) {
+					return ClientAssertionReplayResult.REPLAYED;
+				}
+				cache.put(cacheKey, expires);
 			}
-			cache.put(cacheKey, expires);
+		} catch (RuntimeException e) {
+			log.warn("Client assertion replay cache operation failed for client {} jti {}", clientId, claims.getId(), e);
+			return ClientAssertionReplayResult.CACHE_UNAVAILABLE;
 		}
-		return null;
+		return ClientAssertionReplayResult.OK;
 	}
 }
