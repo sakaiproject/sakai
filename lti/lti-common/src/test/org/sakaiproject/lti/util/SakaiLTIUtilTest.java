@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -80,6 +81,14 @@ public class SakaiLTIUtilTest {
 
 	@Before
 	public void setUp() throws Exception {
+	}
+
+	@Test
+	public void testFormatLocaleForLtiUsesLanguageTag() {
+		assertEquals("en-US", SakaiLTIUtil.formatLocaleForLti(Locale.US));
+		assertEquals("zh-Hant-TW", SakaiLTIUtil.formatLocaleForLti(Locale.forLanguageTag("zh-Hant-TW")));
+		assertNotEquals("en_US", SakaiLTIUtil.formatLocaleForLti(Locale.US));
+		assertNull(SakaiLTIUtil.formatLocaleForLti(null));
 	}
 
 	@Test
@@ -1346,5 +1355,4 @@ public class SakaiLTIUtilTest {
 		assertNull("findBestToolMatchBean should return null when all tools are null", result);
 	}
 }
-
 
