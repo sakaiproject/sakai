@@ -1882,6 +1882,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// make the page so we have the id
 		Site site = (Site) state.getAttribute("site");
 		Group group = site.addGroup();
+		// flag as worksite setup created so it shows in Site Info > Manage Groups
+		group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 		state.setAttribute("group", group);
 
 		// mark the site as new, so on cancel it can be deleted
