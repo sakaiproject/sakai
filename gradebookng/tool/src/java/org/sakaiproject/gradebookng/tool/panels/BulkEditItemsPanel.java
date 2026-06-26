@@ -98,7 +98,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 			final Assignment assignment = item.getModelObject();
 
-			item.add(new Label("itemTitle", assignment.getName()).setEscapeModelStrings(false));
+			item.add(new Label("itemTitle", assignment.getName()));
 
 			final ReleaseCheckbox release = new ReleaseCheckbox("release", new PropertyModel<Boolean>(assignment, "released"));
 			final IncludeCheckbox include = new IncludeCheckbox("include", new PropertyModel<Boolean>(assignment, "counted"));

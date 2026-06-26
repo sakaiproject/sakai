@@ -67,7 +67,7 @@ public class QuickEntryPage extends BasePage {
             private static final long serialVersionUID = 1L;
             @Override
             public Object getDisplayValue(final Assignment a) {
-                return FormatHelper.htmlUnescape(a.getName());
+                return a.getName();
             }
             @Override
             public String getIdValue(final Assignment a,final int index) {
@@ -209,7 +209,7 @@ public class QuickEntryPage extends BasePage {
                     break;
                 }
             }
-            form.add(new Label("itemtitle", assignmentNow.getName()).setEscapeModelStrings(false));
+            form.add(new Label("itemtitle", assignmentNow.getName()));
             String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
             String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){

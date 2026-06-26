@@ -115,7 +115,7 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 
 						final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-						assignmentItem.add(new Label("assignmentTitle", FormatHelper.abbreviateMiddle(assignment.getName())).setEscapeModelStrings(false));
+						assignmentItem.add(new Label("assignmentTitle", FormatHelper.abbreviateMiddle(assignment.getName())));
 
 						final WebMarkupContainer assignmentSignal = new WebMarkupContainer("assignmentSignal");
 						if (settings.isCategoriesEnabled()) {
