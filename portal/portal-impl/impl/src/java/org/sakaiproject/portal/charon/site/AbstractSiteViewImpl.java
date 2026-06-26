@@ -57,6 +57,7 @@ public abstract class AbstractSiteViewImpl implements SiteView
 	protected boolean loggedIn;
 	protected ArrayList<Site> moreSites;
 	protected List<Site> mySites;
+	protected boolean showMyWorkspace;
 	protected String myWorkspaceSiteId;
 	@Setter protected String prefix;
 	protected Map<String, Object> renderContextMap;
@@ -79,8 +80,7 @@ public abstract class AbstractSiteViewImpl implements SiteView
 		this.request = request;
 		this.currentSiteId = currentSiteId;
 		this.session = session;
-		boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show", true);
-		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
+		showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show", true);
 
 		loggedIn = session.getUserId() != null;
 		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
@@ -91,9 +91,23 @@ public abstract class AbstractSiteViewImpl implements SiteView
 	}
 
 
+	/**
+	 * Lazily loads the full list of every site the user can access. The first caller pays the cost
+	 * of {@link SiteNeighbourhoodService#getSitesAtNode}; subsequent calls reuse the loaded list.
+	 */
+	protected List<Site> getMySites() {
+		if (mySites == null) {
+			mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
+		}
+		return mySites;
+	}
+
 	@Override
 	public boolean isEmpty() {
-		return mySites.isEmpty();
+		// Only need to know whether the user has any accessible sites
+		// without hydrating every Site (and its realm/properties/pages/tools) like getMySites does.
+		return siteService.getSiteIds(SiteService.SelectionType.ACCESS, null, null, null,
+				SiteService.SortType.NONE, null).isEmpty();
 	}
 
 }

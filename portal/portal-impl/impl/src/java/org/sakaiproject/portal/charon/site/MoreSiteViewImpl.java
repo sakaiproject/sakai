@@ -71,8 +71,19 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	public Object getRenderContextObject()
 	{
 		// Get the list of sites in the right order,
-		// My WorkSpace will be the first in the list
-		ensureCurrentSiteIncluded();
+		// My WorkSpace will be the first in the list.
+		// The favorites bar / organize-favorites list only needs pinned + recent (+ workspace +
+		// current) sites - loading every site the user can access on every page render is what made
+		// this slow. The full list is only built when the More Sites drawer is opened.
+		List<Site> favoritesSites;
+		if (loggedIn) {
+			favoritesSites = getPinnedAndRecentFavorites();
+		} else {
+			// Gateway: the public site list is small; keep the prior behavior of ensuring the
+			// current site is represented and rendering the full tab list (includeGatewayNav.vm).
+			ensureCurrentSiteIncluded();
+			favoritesSites = getMySites();
+		}
 
 		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<>();
@@ -86,7 +97,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
  		String mrphs_worksiteToolUrl = null;
  		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
-            for (Site s : mySites) {
+            for (Site s : favoritesSites) {
                 if (myWorkspaceSiteId.equals(s.getId()) ) {
                     mrphs_worksiteUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
                     List<SitePage> pages = siteHelper.getPermittedPagesInOrder(s);
@@ -129,8 +140,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		Set<String> pinnedSiteIds = new HashSet<>(siteHelper.getPinnedSites());
 		List<Site> sitesForFavorites = new ArrayList<>();
-		for (int position = 0; position < mySites.size(); position++) {
-			Site site = mySites.get(position);
+		for (int position = 0; position < favoritesSites.size(); position++) {
+			Site site = favoritesSites.get(position);
 			if (position < favoritesBarSize || pinnedSiteIds.contains(site.getId()) || site.getId().equals(currentSiteId)) {
 				sitesForFavorites.add(site);
 			}
@@ -212,18 +223,51 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	}
 
 	/**
-	 * Ensure the current site is part of mySites so it is represented in the rendered lists.
+	 * Ensure the current site is part of the (full) mySites list so it is represented in the
+	 * rendered lists. Used by the gateway favorites path and the More Sites drawer.
 	 */
 	private void ensureCurrentSiteIncluded() {
-		if (mySites.stream().noneMatch(s -> s.getId().equals(currentSiteId))) {
-			siteService.getOptionalSite(currentSiteId).ifPresent(mySites::add);
+		List<Site> all = getMySites();
+		if (all.stream().noneMatch(s -> s.getId().equals(currentSiteId))) {
+			siteService.getOptionalSite(currentSiteId).ifPresent(all::add);
 		}
+	}
+
+	/**
+	 * Build the limited set of sites the favorites bar / organize-favorites list needs for a
+	 * logged-in user: the workspace, the user's pinned sites (in pinned order), the recent sites,
+	 * and the current site. Each is loaded individually (cached) instead of loading every site the
+	 * user can access, mirroring {@link PortalSiteHelperImpl#getContextSitesWithPages}.
+	 */
+	private List<Site> getPinnedAndRecentFavorites() {
+		List<Site> favorites = new ArrayList<>();
+		Set<String> seen = new HashSet<>();
+		// Match getSitesAtNode(showMyWorkspace): only include the workspace when it is configured
+		// to be shown - it provides the leading slot and the worksite/calendar tool URLs.
+		if (showMyWorkspace) {
+			addSiteById(myWorkspaceSiteId, favorites, seen);
+		}
+		siteHelper.getPinnedSites().forEach(id -> addSiteById(id, favorites, seen));
+		siteHelper.getRecentSites(session.getUserId()).forEach(id -> addSiteById(id, favorites, seen));
+		addSiteById(currentSiteId, favorites, seen);
+		return favorites;
+	}
+
+	/**
+	 * Add the site with the given id to {@code sites}, skipping ids already seen (or null) so each
+	 * site is loaded at most once.
+	 */
+	private void addSiteById(String siteId, List<Site> sites, Set<String> seen) {
+		if (siteId == null || !seen.add(siteId)) {
+			return;
+		}
+		siteService.getOptionalSite(siteId).ifPresent(sites::add);
 	}
 
 	protected void processMySites()
 	{
 		List<Site> allSites = new ArrayList<>();
-		allSites.addAll(mySites);
+		allSites.addAll(getMySites());
 		allSites.addAll(moreSites);
 		// get Sections
 		Map<String, List<Site>> termsToSites = new HashMap<>();

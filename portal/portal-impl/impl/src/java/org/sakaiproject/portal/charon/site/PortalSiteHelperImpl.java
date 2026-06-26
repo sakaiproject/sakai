@@ -603,6 +603,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * The recent site ids for the given user.
+	 */
+	public List<String> getRecentSites(String userId) {
+		return portalService.getRecentSites(userId);
+	}
+
+	/**
 	* Get all provider IDs for the given site.
 	*
 	* @param site the site to retrieve all provider IDs

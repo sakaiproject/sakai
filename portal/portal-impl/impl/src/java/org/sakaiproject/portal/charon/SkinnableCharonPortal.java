@@ -541,16 +541,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             }
         }
 
-        SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
-        siteView.setPrefix(prefix);
-        siteView.setResetTools(resetTools);
-        siteView.setToolContextPath(toolContextPath);
-        siteView.setIncludeSummary(includeSummary);
-        siteView.setDoPages(doPages);
-        siteView.setExpandSite(expandSite);
-
-        rcontext.put("allSites", siteView.getRenderContextObject());
-
         includeLogin(rcontext, req, session);
         includeBottom(rcontext, site);
 

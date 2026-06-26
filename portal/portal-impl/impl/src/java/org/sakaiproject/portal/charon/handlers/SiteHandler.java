@@ -53,6 +53,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.portal.api.PortalHandlerException;
@@ -60,7 +61,6 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
@@ -329,11 +329,13 @@ public class SiteHandler extends WorksiteHandler
 			}
 			else
 			{
-				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				AllSitesViewImpl allSites = (AllSitesViewImpl) portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
-				List<Map> sites = (List<Map>) allSites.getRenderContextObject();
-				if (sites.size() > 0) {
-					siteId = (String) sites.get(0).get("siteId");
+				// We only need the first accessible site id to use as the default landing site, so
+				// fetch ids with getSiteIds rather than hydrating (and converting to maps) every
+				// site the user can access.
+				List<String> siteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
+						SiteService.SortType.NONE, new PagingPosition(1, 1));
+				if (!siteIds.isEmpty()) {
+					siteId = siteIds.get(0);
 				} else {
 					siteId = siteService.getUserSiteId(userId);
 				}
