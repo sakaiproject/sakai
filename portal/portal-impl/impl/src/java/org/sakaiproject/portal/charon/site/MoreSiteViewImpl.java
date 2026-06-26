@@ -139,13 +139,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		int favoritesBarSize = tabsToDisplay + 1;
 
 		Set<String> pinnedSiteIds = new HashSet<>(siteHelper.getPinnedSites());
-		List<Site> sitesForFavorites = new ArrayList<>();
-		for (int position = 0; position < favoritesSites.size(); position++) {
-			Site site = favoritesSites.get(position);
-			if (position < favoritesBarSize || pinnedSiteIds.contains(site.getId()) || site.getId().equals(currentSiteId)) {
-				sitesForFavorites.add(site);
-			}
-		}
+		List<Site> sitesForFavorites = favoritesSites.stream()
+				.filter(site -> favoritesSites.indexOf(site) < favoritesBarSize || pinnedSiteIds.contains(site.getId()) || site.getId().equals(currentSiteId))
+				.toList();
 
 		List<Map<String, Object>> l = siteHelper.convertSitesToMaps(request, sitesForFavorites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
 				serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
@@ -304,6 +300,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				term = siteProperties.getProperty("term");
 				if(null==term) {
 					term = rb.getString("moresite_unknown_term");
+				} else {
+					term = StringEscapeUtils.escapeHtml4(term);
 				}
 
 			}
