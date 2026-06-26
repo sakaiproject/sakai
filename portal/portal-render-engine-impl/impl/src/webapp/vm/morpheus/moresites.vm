@@ -1,31 +1,3 @@
-#macro( displaySite $site )
-  <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
-
-    <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
-      <a href="${site.siteUrl}" title="${site.siteTitle}">
-        #if (${site.isMyWorkspace})
-          <span class="bi-house-fill" aria-hidden="true"></span><span class="fullTitle">${site.siteTitle}</span>
-        #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
-          <span class="fullTitle">${site.shortDescription}</span>
-        #else
-          <span class="fullTitle">${site.siteTitleTrunc}</span>
-        #end
-      </a>
-    </div>
-
-    #if (!${site.isMyWorkspace})
-      <button class="site-favorite-btn icon-button float-end"
-          data-site-id="${site.siteId}"
-          title="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)"
-          aria-pressed="#if ($site.isPinned)true#else false#end"
-          data-pinned-state="#if ($site.isPinned)pinned#else unpinned#end"
-          aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)">
-        <i class="si si-pin" style="display: #if ($site.isPinned) none #else inline #end"></i>
-        <i class="si si-pin-fill" style="display:#if ($site.isPinned) inline #else none #end"></i>
-      </button>
-    #end
-  </li>
-#end
 #if (${userIsLoggedIn})
   <div id="maxToolsText" style="display: none">${rloader.sit_alltools}</div>
   <div id="maxToolsInt" style="display: none">${maxToolsInt}</div>
@@ -35,6 +7,7 @@
   <div id="select-site-sidebar"
       class="offcanvas offcanvas-end"
       tabindex="-1"
+      data-current-site-id="${currentSiteId}"
       aria-labelledby="select-site-label">
     <div class="offcanvas-header">
       <h2 class="offcanvas-title" id="select-site-label">${rloader.sit_allsites}</h2>
@@ -103,80 +76,13 @@
             </div>
             <div id="all-sites-no-search-results" class="is-hidden">${rloader.sit_search_none}</div>
 
-            <div class="moresites-left-col">
-              #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
-                  <div class="fav-sites-term fav-sites-card card mb-2">
-                    <div class="card-header">
-                    #if ( !$termKey || $termKey == "" )
-                      <h3 class="card-title">
-                        <span>${rloader.sit_notermkey}</span>
-                        <button class="favorites-select-all-none icon-button ms-1"
-                            title="${rloader.moresite_toggle_all_as_favorites_no_term}"
-                            aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
-                          <i class="si si-pin-fill" style="display: none"></i>
-                          <i class="si si-pin" style="display: none"></i>
-                        </button>
-                      </h3>
-                    #else
-                      <h3 class="card-title">
-                        <span>$termKey</span>
-                        <button class="favorites-select-all-none icon-button ms-1"
-                            title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                            aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                          <i class="si si-pin-fill" style="display: none"></i>
-                          <i class="si si-pin" style="display: none"></i>
-                        </button>
-                      </h3>
-                    #end
-                    </div>
-
-                    <div class="card-body">
-                        <ul class="other-sites-category-list favorite-site-list" role="presentation">
-                          #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
-                            #displaySite($site)
-                          #end
-                        </ul>
-                    </div>
-                  </div>
-                #end
-              #end
-            </div>
-
-            <div class="moresites-right-col">
-              #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
-                  <div class="fav-sites-card card mb-2">
-                    <div class="card-header">
-                      <h3 class="card-title">
-                        <span>$termKey</span>
-                        <button class="favorites-select-all-none icon-button ms-1"
-                            title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                            aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                          <i class="si si-pin-fill" style="display: none"></i>
-                          <i class="si si-pin" style="display: none"></i>
-                        </button>
-                      </h3>
-                    </div>
-                    <div class="card-body">
-                      <ul class="other-sites-category-list favorite-site-list" role="presentation">
-                        <!-- anchor "my workspace" to the top of the list -->
-                        #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
-                          #if (${site.isMyWorkspace})
-                            #displaySite($site)
-                          #end
-                        #end
-
-                        #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
-                          #if (${site.siteType} != #"course" && !${site.isMyWorkspace})
-                            #displaySite($site)
-                          #end
-                        #end
-                      </ul>
-                    </div>
-                  </div>
-                #end
-              #end
+            ## "More Sites" drawer content is now rendered on demand by MoreSitesHandler
+            <div id="moresites-content">
+              <div id="moresites-loading" class="text-center my-3">
+                <span class="spinner-border" role="status" aria-hidden="true"></span>
+                <span class="ms-2">${rloader.moresite_loading}</span>
+              </div>
+              <div id="moresites-error" class="sak-banner-error" style="display: none">${rloader.moresite_loading_error}</div>
             </div>
 
           </div><!--  end of #other-sites-category-wrap -->

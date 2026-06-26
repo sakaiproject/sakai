@@ -75,6 +75,7 @@ import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.FavoritesHandler;
 import org.sakaiproject.portal.charon.handlers.GenerateBugReportHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
+import org.sakaiproject.portal.charon.handlers.MoreSitesHandler;
 import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
@@ -358,6 +359,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         addHandler(new TimeoutDialogHandler());
         addHandler(new JoinHandler());
         addHandler(new FavoritesHandler());
+        addHandler(new MoreSitesHandler());
         addHandler(new GenerateBugReportHandler());
     }
 
@@ -538,16 +540,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                 rcontext.put("currentSite", siteView.getRenderContextObject());
             }
         }
-
-        SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
-        siteView.setPrefix(prefix);
-        siteView.setResetTools(resetTools);
-        siteView.setToolContextPath(toolContextPath);
-        siteView.setIncludeSummary(includeSummary);
-        siteView.setDoPages(doPages);
-        siteView.setExpandSite(expandSite);
-
-        rcontext.put("allSites", siteView.getRenderContextObject());
 
         includeLogin(rcontext, req, session);
         includeBottom(rcontext, site);

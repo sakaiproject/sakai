@@ -65,26 +65,17 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		// My WorkSpace will be the first in the list
 
 		// if public workgroup/gateway site is not included, add to list
+		List<Site> mySites = getMySites();
 		boolean siteFound = false;
-		for (int i = 0; i < mySites.size(); i++)
-		{
-			if (((Site) mySites.get(i)).getId().equals(currentSiteId))
-			{
-				siteFound = true;
-			}
-		}
+        for (Site mySite : mySites) {
+            if (mySite.getId().equals(currentSiteId)) {
+                siteFound = true;
+            }
+        }
 
-		try
-		{
-			if (!siteFound)
-			{
-				mySites.add(siteService.getSite(currentSiteId));
-			}
+		if (!siteFound) {
+			siteService.getOptionalSite(currentSiteId).ifPresent(mySites::add);
 		}
-		catch (IdUnusedException e)
-		{
-
-		} // ignore
 
 		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<Site>();
@@ -180,7 +171,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 	 */
 	public boolean isEmpty()
 	{
-		return mySites.isEmpty();
+		return getMySites().isEmpty();
 	}
 
 	/*
