@@ -60,6 +60,14 @@ public class LTI13TokenRequestValidatorTest {
 	}
 
 	@Test
+	public void validateClientAssertionClaimsRejectsWrongIssuer() {
+		Claims claims = validClaims("jti-1");
+		claims.setIssuer("other-client");
+
+		assertEquals("Invalid issuer", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+	}
+
+	@Test
 	public void validateClientAssertionClaimsRejectsWrongAudience() {
 		Claims claims = validClaims("jti-1");
 		claims.setAudience("https://sakai.example/imsblis/lti13/token/99");
@@ -99,6 +107,26 @@ public class LTI13TokenRequestValidatorTest {
 				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS
 				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
 				+ 1_000L));
+
+		assertEquals("Invalid exp", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+	}
+
+	@Test
+	public void validateClientAssertionClaimsRejectsFutureIssuedAt() {
+		Claims claims = validClaims("jti-1");
+		claims.setIssuedAt(new Date(System.currentTimeMillis()
+				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
+				+ 1_000L));
+
+		assertEquals("Invalid iat", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+	}
+
+	@Test
+	public void validateClientAssertionClaimsRejectsExpiredExpiration() {
+		Claims claims = validClaims("jti-1");
+		claims.setExpiration(new Date(System.currentTimeMillis()
+				- LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
+				- 1_000L));
 
 		assertEquals("Invalid exp", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
 	}
