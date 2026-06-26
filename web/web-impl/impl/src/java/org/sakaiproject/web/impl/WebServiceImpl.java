@@ -416,6 +416,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 						if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 							String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
+							String targetContentUrl = contentUrl == null ? null : contentUrl.replace(fromContext, toContext);
 							String toolTitle = toolConfig.getTitle();
 							final String pageTitle = currPage.getTitle();
 							final int pagePosition = currPage.getPosition();
@@ -431,7 +432,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									if (config.getToolId().equals(TOOL_ID)) {
 									    SitePage p = config.getContainingPage();
 									    if (pageTitle != null && pageTitle.equals(p.getTitle()) &&
-											contentUrl != null && contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
+											targetContentUrl != null && targetContentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
 											skip = true;
 											break;
 									    }
