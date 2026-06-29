@@ -36,6 +36,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_PREFIX;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -75,6 +77,7 @@ public class MoreSitesHandler extends BasePortalHandler {
 
         try {
             SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+            siteView.setPrefix(SITE_URL_PREFIX);
             siteView.setToolContextPath(null);
             Map<String, Object> drawerContext = ((MoreSiteViewImpl) siteView).getMoreSitesDrawerContext();
 

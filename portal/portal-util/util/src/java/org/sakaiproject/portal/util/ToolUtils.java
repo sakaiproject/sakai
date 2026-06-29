@@ -50,6 +50,11 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.util.RequestFilter;
 
+import static org.sakaiproject.portal.api.PortalConstants.PAGE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.TOOLRESET_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 /**
  * A set of utilities provided by the portal for use by tools.
  *
@@ -123,7 +128,7 @@ public class ToolUtils
 	{
 		// .../portal/site/1234
 		if ( req == null ) req = getRequestFromThreadLocal();
-		String portalPrefix = "site";
+		String portalPrefix = SITE_URL_PREFIX;
 		Session s = SessionManager.getCurrentSession();
 		if ( s != null ) {
 			String control = (String) s.getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL);
@@ -190,7 +195,7 @@ public class ToolUtils
 
 		// The normal URL
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(effectiveSiteId) + "/page/");
+				+ Web.escapeUrl(effectiveSiteId) + PAGE_URL_SEGMENT);
 		pageUrl = pageUrl + Web.escapeUrl(pageAlias);
 
 		List<ToolConfiguration> pTools = page.getTools();
@@ -209,9 +214,9 @@ public class ToolUtils
 
 		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId));
 		if (reset || resetSiteProperty) {
-			pageUrl = pageUrl + "/tool-reset/";
+			pageUrl = pageUrl + TOOLRESET_URL_SEGMENT;
 		} else {
-			pageUrl = pageUrl + "/tool/";
+			pageUrl = pageUrl + TOOL_URL_SEGMENT;
 		}
 		return pageUrl + pageTool.getId();
 	}
