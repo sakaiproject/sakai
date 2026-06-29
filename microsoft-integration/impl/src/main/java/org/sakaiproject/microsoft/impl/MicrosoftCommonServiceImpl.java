@@ -173,7 +173,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	public static int COLUMN_SIZE = 7;
 	private static final int TEAM_CHARACTER_LIMIT = 256;// 256 is the maximum length for a Team name in the UI, no limits specified on the API docs
 	private static final int CHANNEL_CHARACTER_LIMIT = 50;// this is an official restriction
-	private final int MAX_RETRY = 2;
+	private final int MAX_RETRY = 6;
 	private final int MAX_PER_REQUEST = 20;
 	private final int MAX_LENGTH = 20;
 
@@ -900,8 +900,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					teamCreated = true;
 				} catch (ODataError e) {
 					attempts++;
-					log.debug("Group not yet provisioned for groupId={}, attempt {}/{} - code: {}",
-							groupId, attempts, MAX_RETRY, e.getError().getCode());
+					log.info("Group not yet provisioned for groupId={}, attempt {}/{} - Exception: {}",
+							groupId, attempts, MAX_RETRY, e.toString());
 					if (attempts < MAX_RETRY) {
 						try {
 							Thread.sleep(5000L * attempts);
@@ -910,6 +910,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 							break;
 						}
 					}
+				} catch (Exception e) {
+					attempts++;
+					log.error("Unexpected error converting group to Team, groupId={}, attempt {}/{}",
+							groupId, attempts, MAX_RETRY, e.toString());
+					break;
 				}
 			}
 			
@@ -923,8 +928,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				Map<String, MicrosoftTeam> teamsMap = (Map<String, MicrosoftTeam>) cachedValue.get();
 				teamsMap.put(groupId, MicrosoftTeam.builder()
 						.id(groupId)
-						.name(name)
-						.description(name)
+						.name(truncatedName)
+						.description(truncatedName)
 						.build());
 				getCache().put(CACHE_TEAMS, teamsMap);
 			}
