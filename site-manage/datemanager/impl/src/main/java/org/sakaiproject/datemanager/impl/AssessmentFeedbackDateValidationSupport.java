@@ -18,14 +18,14 @@
 package org.sakaiproject.datemanager.impl;
 
 import org.sakaiproject.datemanager.api.DateManagerConstants;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules;
 
 final class AssessmentFeedbackDateValidationSupport {
 
   private AssessmentFeedbackDateValidationSupport() {
   }
 
-  static String dateManagerMessageKey(AssessmentFeedbackDateValidator.Error error) {
+  static String dateManagerMessageKey(AssessmentFeedbackDateRules.Error error) {
     switch (error) {
       case FEEDBACK_END_BEFORE_START:
         return "error.feedback.start.before.feedback.end";
@@ -40,7 +40,7 @@ final class AssessmentFeedbackDateValidationSupport {
     }
   }
 
-  static String dateManagerField(AssessmentFeedbackDateValidator.Field field) {
+  static String dateManagerField(AssessmentFeedbackDateRules.Field field) {
     switch (field) {
       case DUE_DATE:
         return DateManagerConstants.JSON_DUEDATE_PARAM_NAME;

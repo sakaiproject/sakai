@@ -111,7 +111,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -680,7 +680,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		Date acceptUntilForValidation = acceptUntil != null ? Date.from(acceptUntil) : null;
 		Date feedbackStartForValidation = feedbackStart != null ? Date.from(feedbackStart) : null;
 		Date feedbackEndForValidation = feedbackEnd != null ? Date.from(feedbackEnd) : null;
-		for (AssessmentFeedbackDateValidator.Violation violation : AssessmentFeedbackDateValidator.validate(dueDateForValidation, acceptUntilForValidation,
+		for (AssessmentFeedbackDateRules.Violation violation : AssessmentFeedbackDateRules.validate(dueDateForValidation, acceptUntilForValidation,
 				lateHandling, feedbackStartForValidation, feedbackEndForValidation)) {
 			errors.add(new DateManagerError(AssessmentFeedbackDateValidationSupport.dateManagerField(violation.getField()),
 					resourceLoader.getString(AssessmentFeedbackDateValidationSupport.dateManagerMessageKey(violation.getError())),

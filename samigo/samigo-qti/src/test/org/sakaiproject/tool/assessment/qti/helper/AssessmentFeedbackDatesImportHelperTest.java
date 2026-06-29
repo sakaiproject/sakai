@@ -22,8 +22,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -31,6 +32,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 
+@Slf4j
 public class AssessmentFeedbackDatesImportHelperTest {
 
   @Test
@@ -86,7 +88,7 @@ public class AssessmentFeedbackDatesImportHelperTest {
 
   private void apply(AssessmentFacade assessment, AssessmentAccessControl control, String feedbackDate, String feedbackEndDate) {
     AssessmentFeedbackDatesImportHelper.applyImportedFeedbackDates(assessment, control, new Iso8601DateFormat(), feedbackDate, feedbackEndDate,
-        LoggerFactory.getLogger(AssessmentFeedbackDatesImportHelperTest.class));
+        log);
   }
 
   private AssessmentFacade assessment() {

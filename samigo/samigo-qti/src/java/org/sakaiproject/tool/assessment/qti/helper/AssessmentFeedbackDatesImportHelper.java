@@ -26,9 +26,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportNormalization;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator.ImportOutcome;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.ImportNormalization;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules.ImportOutcome;
 
 public final class AssessmentFeedbackDatesImportHelper {
 
@@ -51,7 +51,7 @@ public final class AssessmentFeedbackDatesImportHelper {
       return;
     }
 
-    ImportNormalization normalization = AssessmentFeedbackDateValidator.normalizeForImport(
+    ImportNormalization normalization = AssessmentFeedbackDateRules.normalizeForImport(
         control.getDueDate(), control.getRetractDate(), control.getLateHandling(),
         parsedFeedbackDate, parsedFeedbackEndDate);
     if (ImportOutcome.REMOVE_FEEDBACK.equals(normalization.getOutcome())) {

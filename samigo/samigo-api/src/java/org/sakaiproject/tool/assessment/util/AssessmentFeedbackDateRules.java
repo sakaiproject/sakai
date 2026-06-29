@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
  * date keeps the original window when possible, and feedback is removed entirely
  * when no cutoff exists because the assessment has no due date.</p>
  */
-public final class AssessmentFeedbackDateValidator {
+public final class AssessmentFeedbackDateRules {
 
   public enum Error {
     FEEDBACK_END_BEFORE_START,
@@ -84,7 +84,7 @@ public final class AssessmentFeedbackDateValidator {
     }
   }
 
-  private AssessmentFeedbackDateValidator() {
+  private AssessmentFeedbackDateRules() {
   }
 
   public static List<Violation> validate(Date dueDate, Date retractDate, Integer lateHandling, Date feedbackStartDate, Date feedbackEndDate) {

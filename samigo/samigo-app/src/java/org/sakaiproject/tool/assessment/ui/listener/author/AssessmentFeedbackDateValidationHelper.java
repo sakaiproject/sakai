@@ -29,7 +29,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateValidator;
+import org.sakaiproject.tool.assessment.util.AssessmentFeedbackDateRules;
 
 final class AssessmentFeedbackDateValidationHelper {
 
@@ -79,7 +79,7 @@ final class AssessmentFeedbackDateValidationHelper {
       Date feedbackStartForValidation = validFeedbackDate ? feedbackDate : null;
       Date feedbackEndForValidation = validFeedbackEndDate ? feedbackEndDate : null;
       Set<String> messageKeys = new LinkedHashSet<>();
-      for (AssessmentFeedbackDateValidator.Violation violation : AssessmentFeedbackDateValidator.validate(dueDate,
+      for (AssessmentFeedbackDateRules.Violation violation : AssessmentFeedbackDateRules.validate(dueDate,
           retractDate, parseLateHandling(lateHandling), feedbackStartForValidation, feedbackEndForValidation)) {
         messageKeys.add(samigoMessageKey(violation.getError()));
       }
@@ -113,7 +113,7 @@ final class AssessmentFeedbackDateValidationHelper {
     }
   }
 
-  private static String samigoMessageKey(AssessmentFeedbackDateValidator.Error error) {
+  private static String samigoMessageKey(AssessmentFeedbackDateRules.Error error) {
     switch (error) {
       case FEEDBACK_END_BEFORE_START:
         return "invalid_feedback_ranges";
