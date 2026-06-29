@@ -1414,36 +1414,41 @@ public class ScormApplicationServiceImpl implements ScormApplicationService {
 
 	protected void updateGradebook(OptionalDouble score, String context, String learnerID, String externalAssessmentID)
 	{
-		// Gradebook item exists, carry on...
-		if (gradingService.isExternalAssignmentDefined(context, externalAssessmentID))
+		// Push the score to every gradebook instance the learner belongs to. When group based gradebooks are
+		// enabled the site has one gradebook instance per group; otherwise this resolves to the single site
+		for (String gradebookUid : gradingService.getGradebookInstancesForUser(context, learnerID))
 		{
-			long internalAssessmentID = gradingService.getExternalAssignment(context, externalAssessmentID).getId();
-			CommentDefinition cd = gradingService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
-			String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
-			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
-
-			if (score.isPresent()) // Module recorded a score...
+			// Gradebook item exists, carry on...
+			if (gradingService.isExternalAssignmentDefined(gradebookUid, externalAssessmentID))
 			{
-				// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to 1.0, inclusive.
-				double rawScore = score.getAsDouble() * 100d;
+				long internalAssessmentID = gradingService.getExternalAssignment(gradebookUid, externalAssessmentID).getId();
+				CommentDefinition cd = gradingService.getAssignmentScoreComment(gradebookUid, internalAssessmentID, learnerID);
+				String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
+				String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
 
-				// We don't care about the presence of an existing grade; push the new/updated one
-				gradingService.updateExternalAssessmentScore(context, context, externalAssessmentID, learnerID, "" + rawScore);
-
-				// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
-				if (existingComment.contains(moduleNoScoreRecorded))
+				if (score.isPresent()) // Module recorded a score...
 				{
-					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
-					gradingService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
+					// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to 1.0, inclusive.
+					double rawScore = score.getAsDouble() * 100d;
+
+					// We don't care about the presence of an existing grade; push the new/updated one
+					gradingService.updateExternalAssessmentScore(gradebookUid, context, externalAssessmentID, learnerID, "" + rawScore);
+
+					// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
+					if (existingComment.contains(moduleNoScoreRecorded))
+					{
+						String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
+						gradingService.updateExternalAssessmentComment(gradebookUid, context, externalAssessmentID, learnerID, comment);
+					}
 				}
-			}
-			else // Module did not record a score...
-			{
-				// If there isn't already a comment indicating that this module didn't record grading data, add it
-				if (!existingComment.contains(moduleNoScoreRecorded))
+				else // Module did not record a score...
 				{
-					String comment = moduleNoScoreRecorded + " " + existingComment;
-					gradingService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
+					// If there isn't already a comment indicating that this module didn't record grading data, add it
+					if (!existingComment.contains(moduleNoScoreRecorded))
+					{
+						String comment = moduleNoScoreRecorded + " " + existingComment;
+						gradingService.updateExternalAssessmentComment(gradebookUid, context, externalAssessmentID, learnerID, comment);
+					}
 				}
 			}
 		}

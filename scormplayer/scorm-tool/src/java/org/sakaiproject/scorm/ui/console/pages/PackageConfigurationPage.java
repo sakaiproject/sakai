@@ -265,7 +265,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 					{
 						AssessmentSetup as = (AssessmentSetup) item.getModelObject();
 						String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
-						boolean hasGradebookSync = gradingService.isExternalAssignmentDefined( getContext(), assessmentExternalId );
+						boolean hasGradebookSync = isExternalAssignmentDefined( getContext(), assessmentExternalId );
 						boolean isChecked = this.getModelObject();
 						verifySyncWithGradebook.setVisible( hasGradebookSync && !isChecked );
 						target.add( verifySyncWithGradebook );
@@ -300,63 +300,81 @@ public class PackageConfigurationPage extends ConsoleBasePage
 				if (!feedback.anyErrorMessage() && gradebookSetup.isGradebookDefined())
 				{
 					String context = getContext();
+
+					// When group based gradebooks are enabled, the site has a separate gradebook instance per group
+					// (gradebookUid == groupId) instead of a single site level gradebook. The item must be created in
+					// every group instance; otherwise it resolves to the single site gradebook (uid == siteId).
+					List<String> gradebookUids = gradingService.isGradebookGroupEnabled(context)
+							? gradingService.getGradebookGroupInstancesIds(context)
+							: Arrays.asList(context);
+
 					List<AssessmentSetup> assessments = gradebookSetup.getAssessments();
 					for (AssessmentSetup assessmentSetup : assessments)
 					{
 						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
-						boolean has = gradingService.isExternalAssignmentDefined(context, assessmentExternalId);
-						String fixedTitle = getItemTitle(gradebookSetup, assessmentSetup, context);
+						boolean created = false;
 
-						try
+						for (String gradebookUid : gradebookUids)
 						{
-							if (has && on)
-							{
-								gradingService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, null, assessmentSetup.numberOffPoints,
-																							gradebookSetup.getContentPackage().getDueOn(), false);
-							}
-							else if (!has && on)
-							{
-								gradingService.addExternalAssessment(context, context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
-																							gradebookSetup.getContentPackage().getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME, null, false, null, null);
+							boolean has = gradingService.isExternalAssignmentDefined(gradebookUid, assessmentExternalId);
+							String fixedTitle = getItemTitle(gradebookSetup, assessmentSetup, gradebookUid, context);
 
-								// Push grades on creation of gradebook item
-								ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
-								List<LearnerExperience> learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
-								for (LearnerExperience experience : learnerExperiences)
+							try
+							{
+								if (has && on)
 								{
-									Attempt latestAttempt = resultService.getNewstAttempt(contentPackageId, experience.getLearnerId());
-									if (latestAttempt != null)
-									{
-										applicationService.synchResultWithGradebook(experience, contentPackage, assessmentSetup.getLaunchData().getItemIdentifier(), latestAttempt);
-									}
+									gradingService.updateExternalAssessment(gradebookUid, assessmentExternalId, null, null, fixedTitle, null, assessmentSetup.numberOffPoints,
+																								gradebookSetup.getContentPackage().getDueOn(), false);
+								}
+								else if (!has && on)
+								{
+									gradingService.addExternalAssessment(gradebookUid, context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
+																								gradebookSetup.getContentPackage().getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME, null, false, null, null);
+									created = true;
+								}
+								else if (has && !on)
+								{
+									gradingService.removeExternalAssignment(gradebookUid, assessmentExternalId, ScormConstants.SCORM_DFLT_TOOL_NAME);
 								}
 							}
-							else if (has && !on)
+							catch (AssessmentNotFoundException ex)
 							{
-								gradingService.removeExternalAssignment(context, assessmentExternalId, ScormConstants.SCORM_DFLT_TOOL_NAME);
+								error(getLocalizer().getString("form.error.gradebook.assessmentNotFound", this));
+								onError(target);
+							}
+							catch (ConflictingAssignmentNameException ex)
+							{
+								// This should never occur with the re-introduction and use of getItemTitle(), but we'll keep it here for posterity
+								error(getLocalizer().getString("form.error.gradebook.conflictingName", this));
+								onError(target);
+							}
+							catch (AssignmentHasIllegalPointsException ex)
+							{
+								error(getLocalizer().getString("form.error.gradebook.noGradebook", this));
+								onError(target);
+							}
+							catch (Exception ex)
+							{
+								error(MessageFormat.format(getLocalizer().getString("form.error.unknown", this), ex.getMessage()));
+								onError(target);
 							}
 						}
-						catch (AssessmentNotFoundException ex)
+
+						// Push grades on creation of the gradebook item(s). synchResultWithGradebook resolves the
+						// correct gradebook instance(s) per learner, so it only needs to run once per assessment.
+						if (created)
 						{
-							error(getLocalizer().getString("form.error.gradebook.assessmentNotFound", this));
-							onError(target);
-						}
-						catch (ConflictingAssignmentNameException ex)
-						{
-							// This should never occur with the re-introduction and use of getItemTitle(), but we'll keep it here for posterity
-							error(getLocalizer().getString("form.error.gradebook.conflictingName", this));
-							onError(target);
-						}
-						catch (AssignmentHasIllegalPointsException ex)
-						{
-							error(getLocalizer().getString("form.error.gradebook.noGradebook", this));
-							onError(target);
-						}
-						catch (Exception ex)
-						{
-							error(MessageFormat.format("form.error.unknown", ex.getMessage()));
-							onError(target);
+							ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+							List<LearnerExperience> learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
+							for (LearnerExperience experience : learnerExperiences)
+							{
+								Attempt latestAttempt = resultService.getNewstAttempt(contentPackageId, experience.getLearnerId());
+								if (latestAttempt != null)
+								{
+									applicationService.synchResultWithGradebook(experience, contentPackage, assessmentSetup.getLaunchData().getItemIdentifier(), latestAttempt);
+								}
+							}
 						}
 					}
 				}
@@ -402,7 +420,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 			for (AssessmentSetup as : assessments)
 			{
 				String assessmentExternalId = getAssessmentExternalId(gradebookSetup, as);
-				boolean has = gradingService.isExternalAssignmentDefined(getContext(), assessmentExternalId);
+				boolean has = isExternalAssignmentDefined(getContext(), assessmentExternalId);
 				as.setSynchronizeSCOWithGradebook(has);
 			}
 		}
@@ -423,7 +441,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		return assessmentExternalId;
 	}
 
-	private String getItemTitle(GradebookSetup gradebookSetup, AssessmentSetup assessmentSetup, String context)
+	private String getItemTitle(GradebookSetup gradebookSetup, AssessmentSetup assessmentSetup, String gradebookUid, String context)
 	{
 		String baseTitle = assessmentSetup.getItemTitle();
 		if (gradebookSetup.getAssessments().size() == 1)
@@ -433,11 +451,24 @@ public class PackageConfigurationPage extends ConsoleBasePage
 
 		String fixedTitle = baseTitle;
 		int count = 1;
-		while (gradingService.isAssignmentDefined(context, context, fixedTitle))
+		while (gradingService.isAssignmentDefined(gradebookUid, context, fixedTitle))
 		{
 			fixedTitle = baseTitle + " (" + count++ + ")";
 		}
 
 		return fixedTitle;
+	}
+
+	/**
+	 * Determines whether the external assessment exists in any of the site's gradebook instances. When group based
+	 * gradebooks are enabled there is one gradebook instance per group rather than a single site level gradebook.
+	 */
+	private boolean isExternalAssignmentDefined(String context, String externalId)
+	{
+		List<String> gradebookUids = gradingService.isGradebookGroupEnabled(context)
+				? gradingService.getGradebookGroupInstancesIds(context)
+				: Arrays.asList(context);
+
+		return gradebookUids.stream().anyMatch(gradebookUid -> gradingService.isExternalAssignmentDefined(gradebookUid, externalId));
 	}
 }
