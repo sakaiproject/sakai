@@ -77,6 +77,8 @@ public class AssessmentFeedbackDatesImportHelperTest {
   public void removesImportedFeedbackDatesWhenDueDateIsMissing() {
     AssessmentFacade assessment = assessment();
     AssessmentAccessControl control = control(null, null, null);
+    assessment.getData().getAssessmentFeedback().setFeedbackDelivery(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+    assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", "DATED");
 
     apply(assessment, control, "2026-06-20T00:00:00Z", "2026-06-22T00:00:00Z");
 

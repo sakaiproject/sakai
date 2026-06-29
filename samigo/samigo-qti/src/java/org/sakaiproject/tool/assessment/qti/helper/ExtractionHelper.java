@@ -478,7 +478,8 @@ public class ExtractionHelper
 
     // assessment feedback control
     makeAssessmentFeedback(assessment);
-    
+    applyImportedFeedbackDates(assessment);
+
     // Respondus Locked Browser
     // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api.
     /* 
@@ -741,7 +742,19 @@ public class ExtractionHelper
     assessment.setEvaluationModel(evaluationModel);
   }
 
-  
+  private void applyImportedFeedbackDates(AssessmentFacade assessment)
+  {
+    AssessmentAccessControl control =
+        (AssessmentAccessControl) assessment.getAssessmentAccessControl();
+    if (control == null) {
+      return;
+    }
+
+    AssessmentFeedbackDatesImportHelper.applyImportedFeedbackDates(assessment, control, new Iso8601DateFormat(),
+        assessment.getAssessmentMetaDataByLabel("FEEDBACK_DELIVERY_DATE"),
+        assessment.getAssessmentMetaDataByLabel("FEEDBACK_DELIVERY_END_DATE"), log);
+  }
+
   private void updateSubmissionMessage(AssessmentFacade assessment, String submissionMsg) 
   {
     AssessmentAccessControl control =
@@ -777,11 +790,6 @@ public class ExtractionHelper
     String startDate = assessment.getAssessmentMetaDataByLabel("START_DATE");
     String dueDate = assessment.getAssessmentMetaDataByLabel("END_DATE");
     String retractDate = assessment.getAssessmentMetaDataByLabel("RETRACT_DATE");
-    String feedbackDate = assessment.getAssessmentMetaDataByLabel(
-        "FEEDBACK_DELIVERY_DATE");
-    String feedbackEndDate = assessment.getAssessmentMetaDataByLabel(
-        "FEEDBACK_DELIVERY_END_DATE");
-
     try
     {
       control.setStartDate(iso.parse(startDate).getTime());
@@ -821,8 +829,6 @@ public class ExtractionHelper
     {
       control.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
     }
-    AssessmentFeedbackDatesImportHelper.applyImportedFeedbackDates(assessment, control, iso, feedbackDate, feedbackEndDate, log);
-
     // don't know what site you will have in a new environment
     // but registered as a BUG in SAM-271 so turning it on.
 

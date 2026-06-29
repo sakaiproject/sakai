@@ -671,7 +671,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 
 		boolean errored = false;
-		if (feedbackStart == null && feedbackEnd != null) {
+		if (feedbackStart == null) {
 			errors.add(new DateManagerError(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, resourceLoader.getString("error.feedback.start.not.found"), "assessments", toolTitle, idx));
 			errored = true;
 		}

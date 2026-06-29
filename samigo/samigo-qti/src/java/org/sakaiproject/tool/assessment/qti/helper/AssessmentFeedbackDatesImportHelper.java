@@ -18,10 +18,13 @@
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
@@ -58,7 +61,7 @@ public final class AssessmentFeedbackDatesImportHelper {
       control.setFeedbackDate(null);
       control.setFeedbackEndDate(null);
       assessment.getData().getAssessmentFeedback().setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
-      assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", "NONE");
+      setFeedbackDeliveryMetaData(assessment, "NONE");
       log.warn("Removing imported feedback dates because the assessment has no Due Date or Late Submission Date.");
       return;
     }
@@ -66,7 +69,7 @@ public final class AssessmentFeedbackDatesImportHelper {
     control.setFeedbackDate(normalization.getFeedbackStartDate());
     control.setFeedbackEndDate(normalization.getFeedbackEndDate());
     assessment.getData().getAssessmentFeedback().setFeedbackDelivery(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
-    assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", "DATED");
+    setFeedbackDeliveryMetaData(assessment, "DATED");
   }
 
   private static Date parseOptionalFeedbackDate(Iso8601DateFormat iso, String feedbackDate) throws Iso8601FormatException {
@@ -75,5 +78,29 @@ public final class AssessmentFeedbackDatesImportHelper {
     }
     Date parsedDate = iso.parse(feedbackDate).getTime();
     return new Date((parsedDate.getTime() / 1000) * 1000);
+  }
+
+  private static void setFeedbackDeliveryMetaData(AssessmentFacade assessment, String feedbackDelivery) {
+    Set<AssessmentMetaData> assessmentMetaDataSet = getOrCreateAssessmentMetaDataSet(assessment);
+    assessment.getData().setAssessmentMetaDataSet(assessmentMetaDataSet);
+    assessment.getData().addAssessmentMetaData("FEEDBACK_DELIVERY", feedbackDelivery);
+    // Rebuild metadata maps because addAssessmentMetaData does not refresh them when updating an existing label.
+    assessment.getData().setAssessmentMetaDataSet(assessment.getData().getAssessmentMetaDataSet());
+    assessment.setAssessmentMetaDataSet(assessment.getData().getAssessmentMetaDataSet());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Set<AssessmentMetaData> getOrCreateAssessmentMetaDataSet(AssessmentFacade assessment) {
+    Set<AssessmentMetaData> assessmentMetaDataSet = assessment.getData().getAssessmentMetaDataSet();
+    if (assessmentMetaDataSet != null) {
+      return assessmentMetaDataSet;
+    }
+
+    assessmentMetaDataSet = assessment.getAssessmentMetaDataSet();
+    if (assessmentMetaDataSet != null) {
+      return assessmentMetaDataSet;
+    }
+
+    return new HashSet<>();
   }
 }
