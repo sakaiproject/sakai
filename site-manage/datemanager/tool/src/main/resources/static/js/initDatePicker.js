@@ -78,6 +78,98 @@ DTMN.initShifter = function(updates, notModified) {
   }, false);
 };
 
+// ----- Date difference helper: whole days between two dates, loaded into the shift field -----
+
+// Pure: signed whole days from `from` to `to` (to - from), counting calendar days, ignoring time of day.
+DTMN.computeDayDiff = function(from, to) {
+  return to.clone().startOf("day").diff(from.clone().startOf("day"), "days");
+};
+
+DTMN.initDateDiff = function() {
+
+  DTMN.diffFromInput = document.getElementById("date-diff-from");
+  DTMN.diffFromHidden = document.getElementById("date-diff-from-hidden");
+  DTMN.diffToInput = document.getElementById("date-diff-to");
+  DTMN.diffToHidden = document.getElementById("date-diff-to-hidden");
+  DTMN.diffApplyBtn = document.getElementById("date-diff-apply");
+  DTMN.diffResult = document.getElementById("date-diff-result");
+
+  if (!DTMN.diffApplyBtn || !DTMN.diffFromHidden || !DTMN.diffToHidden) {
+    return;
+  }
+
+  [[DTMN.diffFromInput, DTMN.diffFromHidden], [DTMN.diffToInput, DTMN.diffToHidden]].forEach(function(pair) {
+    const input = pair[0];
+    const hidden = pair[1];
+    if (!input || !hidden) {
+      return;
+    }
+    localDatePicker({
+      input,
+      useTime: 0,
+      parseFormat: 'YYYY-MM-DD',
+      allowEmptyDate: true,
+      ashidden: {
+        iso8601: hidden.id,
+      }
+    });
+    hidden.addEventListener("change", () => DTMN.validateDateDiff(), false);
+  });
+
+  DTMN.diffApplyBtn.addEventListener("click", () => DTMN.applyDateDiff(), false);
+
+  DTMN.validateDateDiff();
+};
+
+// Returns the whole-day difference when both dates are present and valid, else null.
+DTMN.getDateDiffDays = function() {
+  if (!DTMN.diffFromHidden || !DTMN.diffToHidden) {
+    return null;
+  }
+  if (DTMN.diffFromHidden.value === "" || DTMN.diffToHidden.value === "") {
+    return null;
+  }
+  const from = DTMN.parseInputDateValue(DTMN.diffFromHidden.value, false);
+  const to = DTMN.parseInputDateValue(DTMN.diffToHidden.value, false);
+  if (!from.isValid() || !to.isValid()) {
+    return null;
+  }
+  return DTMN.computeDayDiff(from, to);
+};
+
+// Show the count live as soon as both dates are valid, and enable the "use as shift" button.
+DTMN.validateDateDiff = function() {
+  if (!DTMN.diffApplyBtn) {
+    return;
+  }
+
+  const days = DTMN.getDateDiffDays();
+  DTMN.diffApplyBtn.disabled = days === null;
+
+  if (DTMN.diffResult) {
+    if (days === null) {
+      DTMN.diffResult.textContent = "";
+    } else {
+      const template = DTMN.diffResult.dataset.template || "{0}";
+      DTMN.diffResult.textContent = template.replace("{0}", days);
+    }
+  }
+};
+
+DTMN.applyDateDiff = function() {
+  const days = DTMN.getDateDiffDays();
+  if (days === null) {
+    return;
+  }
+
+  // Load the day count into the shift field and let the shifter's own validation enable its buttons.
+  const shiftInput = document.getElementById("dateShifterDays");
+  if (shiftInput) {
+    shiftInput.value = days;
+    DTMN.validateShiftInput();
+  }
+};
+
 // ----- Re-anchor / fit dates between a new first and last date -----
 //
 // Unlike the offset shifter (which adds a constant number of days and lets the end float), the fitter

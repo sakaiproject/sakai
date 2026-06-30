@@ -59,6 +59,28 @@
           </p>
           <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
           <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
+
+          <div class="date-manager-datediff mt-3">
+            <label class="form-label mb-1 d-block fw-bold" th:text="#{datediff.label}">Days between two dates</label>
+            <div class="row g-2 align-items-end">
+              <div class="col-auto">
+                <label class="form-label mb-1 d-block" for="date-diff-from" th:text="#{datediff.from.label}">From</label>
+                <input type="text" class="form-control form-control-sm" id="date-diff-from" th:attr="aria-label=#{datediff.from.label}" />
+                <input type="hidden" id="date-diff-from-hidden" />
+              </div>
+              <div class="col-auto">
+                <label class="form-label mb-1 d-block" for="date-diff-to" th:text="#{datediff.to.label}">To</label>
+                <input type="text" class="form-control form-control-sm" id="date-diff-to" th:attr="aria-label=#{datediff.to.label}" />
+                <input type="hidden" id="date-diff-to-hidden" />
+              </div>
+              <div class="col-auto">
+                <span id="date-diff-result" class="fw-bold" aria-live="polite" th:attr="data-template=#{datediff.result}"></span>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="date-diff-apply" th:text="#{datediff.button}" disabled>Use as shift</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -455,6 +477,7 @@
 
           DTMN.initDatePicker(updates, notModified);
           DTMN.initShifter(updates, notModified);
+          DTMN.initDateDiff();
           DTMN.initFitter(updates, notModified);
           DTMN.initColumnBulkSetters(updates, notModified);
           DTMN.initTermDates(updates, notModified);

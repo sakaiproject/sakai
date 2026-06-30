@@ -193,3 +193,21 @@ test("computeFittedDate: the LATEST date wins the end anchor regardless of colum
   const openIsLatest = DTMN.computeFittedDate(1000, 100, 900, a, false, null);
   assert.equal(openIsLatest.valueOf(), a.last.valueOf());
 });
+
+// ---------------------------------------------------------------------------
+// computeDayDiff - the date-difference helper feeding the shift field.
+// ---------------------------------------------------------------------------
+
+test("computeDayDiff returns signed whole days between two dates", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06"), mom("2026-01-20")), 14);
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-20"), mom("2026-01-06")), -14);
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06"), mom("2026-01-06")), 0);
+});
+
+test("computeDayDiff counts calendar days, ignoring time of day", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-06T23:00:00"), mom("2026-01-07T01:00:00")), 1);
+});
+
+test("computeDayDiff counts whole days across a month boundary", () => {
+  assert.equal(DTMN.computeDayDiff(mom("2026-01-25"), mom("2026-02-05")), 11);
+});
