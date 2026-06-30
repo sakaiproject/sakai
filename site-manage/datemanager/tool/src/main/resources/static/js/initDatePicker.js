@@ -138,8 +138,8 @@ DTMN.getFitAnchors = function() {
   if (DTMN.fitFirstHidden.value === "" || DTMN.fitLastHidden.value === "") {
     return null;
   }
-  const first = DTMN.parseDatePickerInputValue(DTMN.fitFirstHidden.value, true);
-  const last = DTMN.parseDatePickerInputValue(DTMN.fitLastHidden.value, true);
+  const first = DTMN.parseInputDateValue(DTMN.fitFirstHidden.value, true);
+  const last = DTMN.parseInputDateValue(DTMN.fitLastHidden.value, true);
   if (!first.isValid() || !last.isValid()) {
     return null;
   }
@@ -387,7 +387,7 @@ DTMN.applyColumnBulkDates = function(button, updates, notModified) {
   }
 
   const useTime = button.dataset.tool !== 'gradebookItems';
-  const date = DTMN.parseDatePickerInputValue(hidden.value, useTime);
+  const date = DTMN.parseInputDateValue(hidden.value, useTime);
   if (!date.isValid()) {
     return;
   }
@@ -505,7 +505,7 @@ DTMN.applyTermDates = function(restrictToExpanded, updates, notModified) {
       return;
     }
 
-    const date = DTMN.parseDatePickerInputValue(hidden.value, true);
+    const date = DTMN.parseInputDateValue(hidden.value, true);
     if (!date.isValid()) {
       return;
     }
@@ -582,6 +582,23 @@ DTMN.parseDatePickerInputValue = function(value, useTime)
 
   DTMN.warnDatePickerTimeZoneFallback("parseDatePickerInputValue", value, useTime);
   return moment(value, formats, true);
+};
+
+// Parse a value read from a localDatePicker "ashidden" iso8601 field. Those fields hold a full
+// ISO8601 string with a timezone offset (e.g. 2026-09-01T09:00:00+02:00), but our strict parser's
+// formats don't include the offset token, so a direct parse is always invalid. Strip the trailing
+// offset (keeping the wall-clock time the user picked), and drop the time entirely for date-only
+// fields, then parse in the user's zone like the rest of the tool.
+DTMN.parseInputDateValue = function(value, useTime)
+{
+  if (!value) {
+    return moment.invalid();
+  }
+  let stripped = value.replace(/([+-]\d{2}:?\d{2}|Z)$/, "");
+  if (!useTime) {
+    stripped = stripped.split("T")[0];
+  }
+  return DTMN.parseDatePickerInputValue(stripped, useTime);
 };
 
 DTMN.hasTime = function(date)
