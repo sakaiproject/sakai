@@ -558,14 +558,30 @@ DTMN.termHasActionableInput = function() {
   });
 };
 
+// Like termHasActionableInput, but only counts a checked target whose section is currently expanded.
+// The "apply to expanded sections only" path skips collapsed sections, so without this the button could
+// be enabled while every checked column lives in a collapsed section, making the click a no-op.
+DTMN.termHasActionableInputInExpandedSections = function() {
+  return DTMN.termFields.some(function(term) {
+    const hidden = document.getElementById(DTMN.getTermHiddenId(term));
+    if (!hidden || hidden.value === "") {
+      return false;
+    }
+    const checks = document.querySelectorAll('.term-target[data-term="' + term + '"]:checked');
+    return Array.prototype.some.call(checks, function(check) {
+      const section = document.getElementById(check.dataset.root);
+      return section !== null && section.classList.contains("show");
+    });
+  });
+};
+
 DTMN.validateTermInputs = function() {
   if (!DTMN.termAllBtn || !DTMN.termVisibleBtn) {
     return;
   }
 
-  const actionable = DTMN.termHasActionableInput();
-  DTMN.termAllBtn.disabled = !actionable;
-  DTMN.termVisibleBtn.disabled = !actionable || DTMN.findExpandedSections().length === 0;
+  DTMN.termAllBtn.disabled = !DTMN.termHasActionableInput();
+  DTMN.termVisibleBtn.disabled = !DTMN.termHasActionableInputInExpandedSections();
 };
 
 DTMN.handleTermButtonClick = function(button, restrictToExpanded, updates, notModified) {

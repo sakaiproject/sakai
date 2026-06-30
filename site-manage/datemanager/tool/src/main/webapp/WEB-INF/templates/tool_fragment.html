@@ -1,7 +1,8 @@
 <div th:fragment="tool_fragment" th:id="${collapseId}" class="collapse">
 	<div class="card-body">
 		<p th:if="${items == null or items.isEmpty()}" th:text="#{items.empty}">There are no items to modify in this tool.</p>
-		<table th:unless="${items == null or items.isEmpty()}" class="table table-condensed table-striped table-bordered table-datemanager">
+		<div th:unless="${items == null or items.isEmpty()}" class="table-responsive">
+		<table class="table table-condensed table-striped table-bordered table-datemanager">
 			<thead>
 				<tr>
 					<th th:text="#{column.title}">Title</th>
@@ -164,6 +165,7 @@
 				</th:block>
 			</tbody>
 		</table>
+		</div>
 	</div>
 </div>
 
@@ -181,45 +183,45 @@
 <!-- Checkbox cells for one term-date row of the term dates panel. Renders one checkbox per editable
      date column of every section present on the page, in the same order as the panel column headers.
      Each checkbox carries the target section root id and column field so JS can fill that column. -->
-<th:block th:fragment="termCells(term)">
+<th:block th:fragment="termCells(term)" th:with="termLabel=${term == 'classes_start' ? #messages.msg('termdates.classes.start') : term == 'classes_end' ? #messages.msg('termdates.classes.end') : term == 'exam_begins' ? #messages.msg('termdates.exam.begins') : #messages.msg('termdates.exam.ends')}">
 	<th:block th:if="${assignments != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='due_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='accept_until'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='open_date',aria-label=${termLabel + ' - ' + assignmentsToolTitle + ' - ' + #messages.msg('column.open.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='due_date',aria-label=${termLabel + ' - ' + assignmentsToolTitle + ' - ' + #messages.msg('column.due.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='accept_until',aria-label=${termLabel + ' - ' + assignmentsToolTitle + ' - ' + #messages.msg('column.accept.until')}" /></td>
 	</th:block>
 	<th:block th:if="${assessments != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='due_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='accept_until'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_start'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_end'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='open_date',aria-label=${termLabel + ' - ' + assessmentsToolTitle + ' - ' + #messages.msg('column.available.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='due_date',aria-label=${termLabel + ' - ' + assessmentsToolTitle + ' - ' + #messages.msg('column.due.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='accept_until',aria-label=${termLabel + ' - ' + assessmentsToolTitle + ' - ' + #messages.msg('column.assessments.accept.until')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_start',aria-label=${termLabel + ' - ' + assessmentsToolTitle + ' - ' + #messages.msg('column.feedback.start.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_end',aria-label=${termLabel + ' - ' + assessmentsToolTitle + ' - ' + #messages.msg('column.feedback.end.date')}" /></td>
 	</th:block>
 	<th:block th:if="${signupMeetings != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='due_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_begins'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_deadline'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='open_date',aria-label=${termLabel + ' - ' + signupMeetingsToolTitle + ' - ' + #messages.msg('column.start.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='due_date',aria-label=${termLabel + ' - ' + signupMeetingsToolTitle + ' - ' + #messages.msg('column.end.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_begins',aria-label=${termLabel + ' - ' + signupMeetingsToolTitle + ' - ' + #messages.msg('column.signup.begins.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_deadline',aria-label=${termLabel + ' - ' + signupMeetingsToolTitle + ' - ' + #messages.msg('column.signup.deadline.date')}" /></td>
 	</th:block>
 	<th:block th:if="${gradebookItems != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-gradebook',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-gradebook',data-field='due_date',aria-label=${termLabel + ' - ' + gradebookItemsToolTitle + ' - ' + #messages.msg('column.due.date')}" /></td>
 	</th:block>
 	<th:block th:if="${resources != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='open_date',aria-label=${termLabel + ' - ' + resourcesToolTitle + ' - ' + #messages.msg('column.show.from.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='due_date',aria-label=${termLabel + ' - ' + resourcesToolTitle + ' - ' + #messages.msg('column.show.until')}" /></td>
 	</th:block>
 	<th:block th:if="${calendarEvents != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='open_date',aria-label=${termLabel + ' - ' + calendarEventsToolTitle + ' - ' + #messages.msg('column.start.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='due_date',aria-label=${termLabel + ' - ' + calendarEventsToolTitle + ' - ' + #messages.msg('column.end.date')}" /></td>
 	</th:block>
 	<th:block th:if="${forums != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='open_date',aria-label=${termLabel + ' - ' + forumsToolTitle + ' - ' + #messages.msg('column.open.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='due_date',aria-label=${termLabel + ' - ' + forumsToolTitle + ' - ' + #messages.msg('column.close.date')}" /></td>
 	</th:block>
 	<th:block th:if="${announcements != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='open_date'" /></td>
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='open_date',aria-label=${termLabel + ' - ' + announcementsToolTitle + ' - ' + #messages.msg('column.start.date')}" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='due_date',aria-label=${termLabel + ' - ' + announcementsToolTitle + ' - ' + #messages.msg('column.end.date')}" /></td>
 	</th:block>
 	<th:block th:if="${lessons != null}">
-		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-lessons',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-lessons',data-field='open_date',aria-label=${termLabel + ' - ' + lessonsToolTitle + ' - ' + #messages.msg('column.hide.until')}" /></td>
 	</th:block>
 </th:block>
