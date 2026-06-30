@@ -37,11 +37,17 @@ DTMN.initDatePicker = function(updates, notModified) {
       if (DTMN.validateTermInputs) {
         DTMN.validateTermInputs();
       }
+      if (DTMN.validateFitInputs) {
+        DTMN.validateFitInputs();
+      }
     });
     collapseElement.addEventListener("hidden.bs.collapse", () => {
       DTMN.validateShiftInput();
       if (DTMN.validateTermInputs) {
         DTMN.validateTermInputs();
+      }
+      if (DTMN.validateFitInputs) {
+        DTMN.validateFitInputs();
       }
     });
   });
@@ -70,6 +76,228 @@ DTMN.initShifter = function(updates, notModified) {
   DTMN.shiftVisibleBtn.addEventListener("click", function() {
     DTMN.handleShiftButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
   }, false);
+};
+
+// ----- Re-anchor / fit dates between a new first and last date -----
+//
+// Unlike the offset shifter (which adds a constant number of days and lets the end float), the fitter
+// pins the earliest dated item to the entered "new first" date and the latest to the entered "new last"
+// date, then spreads everything in between proportionally. With "Snap to weeks" on, each in-between item
+// keeps its own weekday and clock time and only moves by whole weeks, so the weekly cadence of a copied
+// course survives the move into a shorter or longer term. The fitter only ever rewrites cells that
+// already hold a date - it never fills blanks.
+
+DTMN.initFitter = function(updates, notModified) {
+
+  DTMN.fitErrorBanner = document.getElementById("dateFitError");
+  DTMN.fitFirstInput = document.getElementById("dateFitFirst");
+  DTMN.fitFirstHidden = document.getElementById("dateFitFirstHidden");
+  DTMN.fitLastInput = document.getElementById("dateFitLast");
+  DTMN.fitLastHidden = document.getElementById("dateFitLastHidden");
+  DTMN.fitSnapCheckbox = document.getElementById("dateFitSnap");
+  DTMN.fitAllBtn = document.getElementById("fitAllDates");
+  DTMN.fitVisibleBtn = document.getElementById("fitVisibleDates");
+
+  if (!DTMN.fitAllBtn || !DTMN.fitVisibleBtn || !DTMN.fitFirstHidden || !DTMN.fitLastHidden) {
+    return;
+  }
+
+  [[DTMN.fitFirstInput, DTMN.fitFirstHidden], [DTMN.fitLastInput, DTMN.fitLastHidden]].forEach(function(pair) {
+    const input = pair[0];
+    const hidden = pair[1];
+    if (!input || !hidden) {
+      return;
+    }
+    localDatePicker({
+      input,
+      useTime: 1,
+      parseFormat: 'YYYY-MM-DDTHH:mm:ss',
+      allowEmptyDate: true,
+      ashidden: {
+        iso8601: hidden.id,
+      }
+    });
+    hidden.addEventListener("change", () => DTMN.validateFitInputs(), false);
+  });
+
+  DTMN.fitAllBtn.addEventListener("click", function() {
+    DTMN.handleFitButtonClick(this, false, updates, notModified);
+  }, false);
+
+  DTMN.fitVisibleBtn.addEventListener("click", function() {
+    DTMN.handleFitButtonClick(this, true, updates, notModified);
+  }, false);
+
+  DTMN.validateFitInputs();
+};
+
+DTMN.getFitAnchors = function() {
+  if (!DTMN.fitFirstHidden || !DTMN.fitLastHidden) {
+    return null;
+  }
+  if (DTMN.fitFirstHidden.value === "" || DTMN.fitLastHidden.value === "") {
+    return null;
+  }
+  const first = DTMN.parseDatePickerInputValue(DTMN.fitFirstHidden.value, true);
+  const last = DTMN.parseDatePickerInputValue(DTMN.fitLastHidden.value, true);
+  if (!first.isValid() || !last.isValid()) {
+    return null;
+  }
+  return { first, last };
+};
+
+DTMN.validateFitInputs = function() {
+  if (!DTMN.fitAllBtn || !DTMN.fitVisibleBtn) {
+    return;
+  }
+
+  const anchors = DTMN.getFitAnchors();
+  const rangeOk = anchors !== null && anchors.last.valueOf() > anchors.first.valueOf();
+
+  // Surface the ordering error only once both dates are present but out of order.
+  if (anchors !== null && !rangeOk) {
+    DTMN.showFitError();
+  } else {
+    DTMN.hideFitError();
+  }
+
+  DTMN.fitAllBtn.disabled = !rangeOk;
+  DTMN.fitVisibleBtn.disabled = !rangeOk || DTMN.findExpandedSections().length === 0;
+};
+
+DTMN.showFitError = function() {
+  if (!DTMN.fitErrorBanner) {
+    return;
+  }
+  DTMN.fitErrorBanner.classList.remove("d-none");
+  DTMN.fitErrorBanner.setAttribute("role", "alert");
+};
+
+DTMN.hideFitError = function() {
+  if (!DTMN.fitErrorBanner) {
+    return;
+  }
+  DTMN.fitErrorBanner.classList.add("d-none");
+  DTMN.fitErrorBanner.removeAttribute("role");
+};
+
+DTMN.handleFitButtonClick = function(button, restrictToExpanded, updates, notModified) {
+
+  const anchors = DTMN.getFitAnchors();
+  if (!anchors || anchors.last.valueOf() <= anchors.first.valueOf()) {
+    return;
+  }
+
+  button.classList.add("spinButton");
+  DTMN.fitAllBtn.disabled = true;
+  DTMN.fitVisibleBtn.disabled = true;
+
+  window.setTimeout(function() {
+    DTMN.fitDates(anchors, restrictToExpanded, updates, notModified);
+    button.classList.remove("spinButton");
+    DTMN.validateFitInputs();
+  }, 25);
+};
+
+DTMN.momentInUserZone = function(ms) {
+  const userTimeZone = DTMN.getUserTimeZone();
+  if (moment.tz && userTimeZone) {
+    return moment.tz(ms, userTimeZone);
+  }
+  return moment(ms);
+};
+
+// Move `target` to the nearest day (within +/- 3 days) that shares `source`'s weekday, carrying
+// `source`'s clock time. Two items that share a weekday therefore stay a whole number of weeks apart.
+DTMN.snapToSourceWeekday = function(target, source) {
+  const result = target.clone();
+  result.hours(source.hours());
+  result.minutes(source.minutes());
+  result.seconds(source.seconds());
+  result.milliseconds(0);
+
+  let deltaDays = source.day() - result.day();
+  if (deltaDays > 3) {
+    deltaDays -= 7;
+  } else if (deltaDays < -3) {
+    deltaDays += 7;
+  }
+  if (deltaDays !== 0) {
+    result.add(deltaDays, "days");
+  }
+  return result;
+};
+
+DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
+
+  const sections = restrictToExpanded ? DTMN.findExpandedSections() : DTMN.collapseElements;
+  if (sections.length === 0) {
+    return;
+  }
+
+  // Pass 1: initialise every in-scope datepicker, then collect the editable, populated cells together
+  // with their current moment value. All sections share one timeline so the span is computed globally.
+  const cells = [];
+  sections.forEach(function(section) {
+    const rootElement = "#" + section.id;
+    DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
+
+    document.querySelectorAll(rootElement + " .datepicker.hasDatepicker").forEach(function(datepicker) {
+      if (datepicker.disabled || !datepicker.value) {
+        return;
+      }
+      const td = datepicker.closest("td");
+      const hiddenField = td ? td.querySelector("input[type=hidden]") : null;
+      if (!hiddenField) {
+        return;
+      }
+      const useTime = hiddenField.dataset.tool !== "gradebookItems";
+      const current = DTMN.parseDatePickerInputValue(datepicker.value, useTime);
+      if (!current.isValid()) {
+        return;
+      }
+      cells.push({ datepicker, useTime, current, currentMs: current.valueOf() });
+    });
+  });
+
+  if (cells.length === 0) {
+    return;
+  }
+
+  let oldStartMs = cells[0].currentMs;
+  let oldEndMs = cells[0].currentMs;
+  cells.forEach(function(cell) {
+    if (cell.currentMs < oldStartMs) { oldStartMs = cell.currentMs; }
+    if (cell.currentMs > oldEndMs) { oldEndMs = cell.currentMs; }
+  });
+
+  const newStartMs = anchors.first.valueOf();
+  const newSpan = anchors.last.valueOf() - newStartMs;
+  const oldSpan = oldEndMs - oldStartMs;
+  const snap = DTMN.fitSnapCheckbox ? DTMN.fitSnapCheckbox.checked : false;
+
+  // Pass 2: map each cell onto the new range. The earliest cell lands exactly on the new first date and
+  // the latest exactly on the new last date; everything between is placed proportionally, then snapped.
+  cells.forEach(function(cell) {
+    let newDate;
+
+    if (oldSpan <= 0) {
+      // Degenerate: every date is identical, so there is no span to preserve - collapse onto the start.
+      newDate = anchors.first.clone();
+    } else {
+      const frac = (cell.currentMs - oldStartMs) / oldSpan;
+      if (frac <= 0) {
+        newDate = anchors.first.clone();
+      } else if (frac >= 1) {
+        newDate = anchors.last.clone();
+      } else {
+        const target = DTMN.momentInUserZone(newStartMs + frac * newSpan);
+        newDate = snap ? DTMN.snapToSourceWeekday(target, cell.current) : target;
+      }
+    }
+
+    DTMN.setDatePickerValue(cell.datepicker, newDate, cell.useTime);
+  });
 };
 
 // Returns true when blank cells should also be filled. When false, only cells that already have a
