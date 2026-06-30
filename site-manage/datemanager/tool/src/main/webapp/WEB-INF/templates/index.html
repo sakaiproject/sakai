@@ -45,23 +45,116 @@
       <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
     </div>
 
-    <div th:if="${bulkDateFields != null and !bulkDateFields.isEmpty()}" class="date-manager-setter mb-3">
-      <div class="sak-banner-error d-none" id="dateBulkSetterError">
-        <span data-error="empty" th:text="#{datesetter.error.empty}"></span>
-        <span data-error="dateonly" class="d-none" th:text="#{datesetter.error.dateonly}"></span>
+    <div class="date-manager-bulk-options mb-2" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
+      <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
+      <label class="me-3">
+        <input type="radio" name="bulk-fill-mode" value="all" checked />
+        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every cell (empty and existing)</span>
+      </label>
+      <label>
+        <input type="radio" name="bulk-fill-mode" value="existing" />
+        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only cells that already have a date</span>
+      </label>
+    </div>
+
+    <div class="date-manager-term mb-3">
+      <p th:text="#{termdates.instructions}">Enter your term dates, tick which columns each one should fill, then apply. Overlapping ticks apply top to bottom, so a lower row wins. Remember to click Save Changes at the bottom of the page.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle table-datemanager-term">
+          <thead>
+            <tr>
+              <th rowspan="2" class="align-bottom" th:text="#{termdates.column.header}">Term date</th>
+              <th th:if="${assignments != null}" colspan="3" class="text-center" th:text="${assignmentsToolTitle}">Assignments</th>
+              <th th:if="${assessments != null}" colspan="5" class="text-center" th:text="${assessmentsToolTitle}">Tests &amp; Quizzes</th>
+              <th th:if="${signupMeetings != null}" colspan="4" class="text-center" th:text="${signupMeetingsToolTitle}">Sign up</th>
+              <th th:if="${gradebookItems != null}" colspan="1" class="text-center" th:text="${gradebookItemsToolTitle}">Gradebook</th>
+              <th th:if="${resources != null}" colspan="2" class="text-center" th:text="${resourcesToolTitle}">Resources</th>
+              <th th:if="${calendarEvents != null}" colspan="2" class="text-center" th:text="${calendarEventsToolTitle}">Calendar</th>
+              <th th:if="${forums != null}" colspan="2" class="text-center" th:text="${forumsToolTitle}">Forums</th>
+              <th th:if="${announcements != null}" colspan="2" class="text-center" th:text="${announcementsToolTitle}">Announcements</th>
+              <th th:if="${lessons != null}" colspan="1" class="text-center" th:text="${lessonsToolTitle}">Lessons</th>
+            </tr>
+            <tr>
+              <th:block th:if="${assignments != null}">
+                <th class="text-center" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center" th:text="#{column.accept.until}">Accept Until Date</th>
+              </th:block>
+              <th:block th:if="${assessments != null}">
+                <th class="text-center" th:text="#{column.available.date}">Available Date</th>
+                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
+                <th class="text-center" th:text="#{column.feedback.start.date}">Show Feedback Date</th>
+                <th class="text-center" th:text="#{column.feedback.end.date}">Hide Feedback Date</th>
+              </th:block>
+              <th:block th:if="${signupMeetings != null}">
+                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center" th:text="#{column.end.date}">End Date</th>
+                <th class="text-center" th:text="#{column.signup.begins.date}">Sign-up Begin Date</th>
+                <th class="text-center" th:text="#{column.signup.deadline.date}">Sign-up End Date</th>
+              </th:block>
+              <th:block th:if="${gradebookItems != null}">
+                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
+              </th:block>
+              <th:block th:if="${resources != null}">
+                <th class="text-center" th:text="#{column.show.from.date}">Show From Date</th>
+                <th class="text-center" th:text="#{column.show.until}">Show Until Date</th>
+              </th:block>
+              <th:block th:if="${calendarEvents != null}">
+                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center" th:text="#{column.end.date}">End Date</th>
+              </th:block>
+              <th:block th:if="${forums != null}">
+                <th class="text-center" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center" th:text="#{column.close.date}">Close Date</th>
+              </th:block>
+              <th:block th:if="${announcements != null}">
+                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center" th:text="#{column.end.date}">End Date</th>
+              </th:block>
+              <th:block th:if="${lessons != null}">
+                <th class="text-center" th:text="#{column.hide.until}">Hide Until Date</th>
+              </th:block>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-classes-start" th:text="#{termdates.classes.start}">Classes Start</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-classes-start" th:attr="aria-label=#{termdates.classes.start}" />
+                <input type="hidden" id="term-hidden-classes-start" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('classes_start')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-classes-end" th:text="#{termdates.classes.end}">Classes End</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-classes-end" th:attr="aria-label=#{termdates.classes.end}" />
+                <input type="hidden" id="term-hidden-classes-end" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('classes_end')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-exam-begins" th:text="#{termdates.exam.begins}">Exam Begins</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-exam-begins" th:attr="aria-label=#{termdates.exam.begins}" />
+                <input type="hidden" id="term-hidden-exam-begins" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('exam_begins')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-exam-ends" th:text="#{termdates.exam.ends}">Exam Ends</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-exam-ends" th:attr="aria-label=#{termdates.exam.ends}" />
+                <input type="hidden" id="term-hidden-exam-ends" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('exam_ends')}"></th:block>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <p th:text="#{datesetter.instructions}">Enter one or more dates below, then apply them to all items or expanded sections only. Remember to click Save Changes at the bottom of the page to save your adjustments.</p>
-      <div class="row g-3">
-        <div th:each="field : ${bulkDateFields}" class="col-sm-6 col-lg-3"
-             th:with="inputId=${'bulk-' + #strings.replace(field, '_', '-')}">
-          <label class="form-label" th:for="${inputId}"
-                 th:text="#{${T(org.sakaiproject.datemanager.api.DateManagerConstants).BULK_DATE_FIELD_LABEL_KEYS.get(field)}}">Date</label>
-          <input th:id="${inputId}" type="text" class="form-control bulk-date-input" />
-          <input th:id="${'bulk-hidden-' + #strings.replace(field, '_', '-')}" type="hidden" th:attr="data-field=${field}" />
-        </div>
-      </div>
-      <button class="btn btn-link m-2" id="applyAllDates" th:text="#{datesetter.all.button}" disabled></button>
-      <button class="btn btn-link m-2" id="applyVisibleDates" th:text="#{datesetter.visible.button}" disabled></button>
+      <button type="button" class="btn btn-link m-2" id="applyTermDatesAll" th:text="#{termdates.all.button}" disabled></button>
+      <button type="button" class="btn btn-link m-2" id="applyTermDatesVisible" th:text="#{termdates.visible.button}" disabled></button>
     </div>
 
     <form id="date-manager-form" method="POST">
@@ -290,11 +383,10 @@
 
           var notModified = [];
 
-          DTMN.bulkFields = /*[[${bulkDateFields}]]*/ [];
-
           DTMN.initDatePicker(updates, notModified);
           DTMN.initShifter(updates, notModified);
-          DTMN.initBulkSetter(updates, notModified);
+          DTMN.initColumnBulkSetters(updates, notModified);
+          DTMN.initTermDates(updates, notModified);
 
           function printErrors() {
             $('.errors').empty();

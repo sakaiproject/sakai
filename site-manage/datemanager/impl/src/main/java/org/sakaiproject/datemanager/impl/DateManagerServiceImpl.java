@@ -36,13 +36,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.opencsv.CSVReader;
@@ -266,39 +264,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			toolTitle = tool.getTitle();
 		}
 		return toolTitle;
-	}
-
-	@Override
-	public List<String> getBulkDateFieldsForCurrentSite() {
-		Set<String> fields = new LinkedHashSet<>();
-
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsNames[0]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsNames[1]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsNames[2]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_SIGNUP, columnsNames[3]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_RESOURCES, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_CALENDAR, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_FORUMS, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_LESSONS, columnsNames[6]);
-
-		return new ArrayList<>(fields);
-	}
-
-	private void addBulkDateFieldsForTool(Set<String> fields, String commonId, String[] toolColumnsNames) {
-		if (!currentSiteContainsTool(commonId)) {
-			return;
-		}
-
-		Arrays.stream(toolColumnsNames)
-			.filter(this::isBulkDateField)
-			.forEach(fields::add);
-	}
-
-	private boolean isBulkDateField(String fieldName) {
-		return !DateManagerConstants.JSON_ID_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_TITLE_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME.equals(fieldName);
 	}
 
 	private String getUrlForTool(String tool) {

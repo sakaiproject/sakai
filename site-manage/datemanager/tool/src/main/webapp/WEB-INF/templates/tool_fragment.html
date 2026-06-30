@@ -7,39 +7,39 @@
 					<th th:text="#{column.title}">Title</th>
 					<th:block th:switch="${toolId}">
 						<th:block th:case="'gradebookItems'"></th:block>
-						<th th:case="'assignments'" th:text="#{column.open.date}" class="field-required" title="Required">Open Date</th>
-						<th th:case="'assessments'" th:text="#{column.available.date}" class="field-required" title="Required">Available Date</th>
-						<th th:case="'signupMeetings'" th:text="#{column.start.date}" class="field-required" title="Required">Start Date</th>
-						<th th:case="'resources'" th:text="#{column.show.from.date}">Show From Date</th>
-						<th th:case="'calendarEvents'" th:text="#{column.start.date}" class="field-required" title="Required">Start Date</th>
-						<th th:case="'forums'" th:text="#{column.open.date}">Open Date</th>
-						<th th:case="'announcements'" th:text="#{column.start.date}">Start Date</th>
-						<th th:case="'lessons'" th:text="#{column.hide.until}">Hide Until Date</th>
+						<th th:case="'assignments'" class="field-required" title="Required"><div th:text="#{column.open.date}">Open Date</div><th:block th:replace="~{:: bulkColSetter('assignments','open_date')}"></th:block></th>
+						<th th:case="'assessments'" class="field-required" title="Required"><div th:text="#{column.available.date}">Available Date</div><th:block th:replace="~{:: bulkColSetter('assessments','open_date')}"></th:block></th>
+						<th th:case="'signupMeetings'" class="field-required" title="Required"><div th:text="#{column.start.date}">Start Date</div><th:block th:replace="~{:: bulkColSetter('signupMeetings','open_date')}"></th:block></th>
+						<th th:case="'resources'"><div th:text="#{column.show.from.date}">Show From Date</div><th:block th:replace="~{:: bulkColSetter('resources','open_date')}"></th:block></th>
+						<th th:case="'calendarEvents'" class="field-required" title="Required"><div th:text="#{column.start.date}">Start Date</div><th:block th:replace="~{:: bulkColSetter('calendarEvents','open_date')}"></th:block></th>
+						<th th:case="'forums'"><div th:text="#{column.open.date}">Open Date</div><th:block th:replace="~{:: bulkColSetter('forums','open_date')}"></th:block></th>
+						<th th:case="'announcements'"><div th:text="#{column.start.date}">Start Date</div><th:block th:replace="~{:: bulkColSetter('announcements','open_date')}"></th:block></th>
+						<th th:case="'lessons'"><div th:text="#{column.hide.until}">Hide Until Date</div><th:block th:replace="~{:: bulkColSetter('lessons','open_date')}"></th:block></th>
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th:block th:case="'lessons'"></th:block>
-						<th th:case="'assignments'" th:text="#{column.due.date}" class="field-required" title="Required">Due Date</th>
-						<th th:case="'assessments'" th:text="#{column.due.date}">Due Date</th>
-						<th th:case="'signupMeetings'" th:text="#{column.end.date}" class="field-required" title="Required">End Date</th>
-						<th th:case="'gradebookItems'" th:text="#{column.due.date}">Due Date</th>
-						<th th:case="'resources'" th:text="#{column.show.until}">Show Until Date</th>
-						<th th:case="'calendarEvents'" th:text="#{column.end.date}" class="field-required" title="Required">End Date</th>
-						<th th:case="'forums'" th:text="#{column.close.date}">Close Date</th>
-						<th th:case="'announcements'" th:text="#{column.end.date}">End Date</th>
+						<th th:case="'assignments'" class="field-required" title="Required"><div th:text="#{column.due.date}">Due Date</div><th:block th:replace="~{:: bulkColSetter('assignments','due_date')}"></th:block></th>
+						<th th:case="'assessments'"><div th:text="#{column.due.date}">Due Date</div><th:block th:replace="~{:: bulkColSetter('assessments','due_date')}"></th:block></th>
+						<th th:case="'signupMeetings'" class="field-required" title="Required"><div th:text="#{column.end.date}">End Date</div><th:block th:replace="~{:: bulkColSetter('signupMeetings','due_date')}"></th:block></th>
+						<th th:case="'gradebookItems'"><div th:text="#{column.due.date}">Due Date</div><th:block th:replace="~{:: bulkColSetter('gradebookItems','due_date')}"></th:block></th>
+						<th th:case="'resources'"><div th:text="#{column.show.until}">Show Until Date</div><th:block th:replace="~{:: bulkColSetter('resources','due_date')}"></th:block></th>
+						<th th:case="'calendarEvents'" class="field-required" title="Required"><div th:text="#{column.end.date}">End Date</div><th:block th:replace="~{:: bulkColSetter('calendarEvents','due_date')}"></th:block></th>
+						<th th:case="'forums'"><div th:text="#{column.close.date}">Close Date</div><th:block th:replace="~{:: bulkColSetter('forums','due_date')}"></th:block></th>
+						<th th:case="'announcements'"><div th:text="#{column.end.date}">End Date</div><th:block th:replace="~{:: bulkColSetter('announcements','due_date')}"></th:block></th>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th th:case="'assignments'" th:text="#{column.accept.until}" class="field-required" title="Required">Accept Until Date</th>
-						<th th:case="'assessments'" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
+						<th th:case="'assignments'" class="field-required" title="Required"><div th:text="#{column.accept.until}">Accept Until Date</div><th:block th:replace="~{:: bulkColSetter('assignments','accept_until')}"></th:block></th>
+						<th th:case="'assessments'"><div th:text="#{column.assessments.accept.until}">Late Submission Deadline</div><th:block th:replace="~{:: bulkColSetter('assessments','accept_until')}"></th:block></th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th th:case="'assessments'" th:text="#{column.feedback.start.date}">Show Feedback On</th>
-						<th th:case="'signupMeetings'" th:text="#{column.signup.begins.date}" class="field-required" title="Required">Sign-up Begins Date</th>
+						<th th:case="'assessments'"><div th:text="#{column.feedback.start.date}">Show Feedback On</div><th:block th:replace="~{:: bulkColSetter('assessments','feedback_start')}"></th:block></th>
+						<th th:case="'signupMeetings'" class="field-required" title="Required"><div th:text="#{column.signup.begins.date}">Sign-up Begins Date</div><th:block th:replace="~{:: bulkColSetter('signupMeetings','signup_begins')}"></th:block></th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th th:case="'assessments'" th:text="#{column.feedback.end.date}">Show Feedback Until</th>
-						<th th:case="'signupMeetings'" th:text="#{column.signup.deadline.date}" class="field-required" title="Required">Sign-up Ends Date</th>
+						<th th:case="'assessments'"><div th:text="#{column.feedback.end.date}">Show Feedback Until</div><th:block th:replace="~{:: bulkColSetter('assessments','feedback_end')}"></th:block></th>
+						<th th:case="'signupMeetings'" class="field-required" title="Required"><div th:text="#{column.signup.deadline.date}">Sign-up Ends Date</div><th:block th:replace="~{:: bulkColSetter('signupMeetings','signup_deadline')}"></th:block></th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 				</tr>
@@ -151,7 +151,7 @@
 									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
 										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
 									</a>
-									<input type="hidden" th:value="${item.signup_deadline}" th:data-null-date="${item.signup_deadline} ? false : true" 
+									<input type="hidden" th:value="${item.signup_deadline}" th:data-null-date="${item.signup_deadline} ? false : true"
 									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_deadline" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
@@ -166,3 +166,60 @@
 		</table>
 	</div>
 </div>
+
+<!-- Per-column bulk setter rendered inside each editable date column header. Fills every row of that one
+     column in that one section with the entered date (overwrites existing values). -->
+<div th:fragment="bulkColSetter(toolId, field)" class="bulk-col-setter input-group input-group-sm mt-1 fw-normal" th:with="cid=${toolId + '-' + field}">
+	<input type="text" class="form-control bulk-col-input" th:id="${'bulkcol-' + cid}"
+		th:attr="data-tool=${toolId},data-field=${field},aria-label=#{datesetter.column.aria},placeholder=#{datesetter.column.placeholder}" />
+	<input type="hidden" class="bulk-col-hidden" th:id="${'bulkcol-hidden-' + cid}" th:attr="data-tool=${toolId},data-field=${field}" />
+	<button type="button" class="btn btn-outline-secondary bulk-col-apply" th:attr="data-tool=${toolId},data-field=${field},title=#{datesetter.column.button.title},aria-label=#{datesetter.column.button.title}">
+		<i class="fa fa-arrow-down" aria-hidden="true"></i>
+	</button>
+</div>
+
+<!-- Checkbox cells for one term-date row of the term dates panel. Renders one checkbox per editable
+     date column of every section present on the page, in the same order as the panel column headers.
+     Each checkbox carries the target section root id and column field so JS can fill that column. -->
+<th:block th:fragment="termCells(term)">
+	<th:block th:if="${assignments != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assignments',data-field='accept_until'" /></td>
+	</th:block>
+	<th:block th:if="${assessments != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='accept_until'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_start'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-assessments',data-field='feedback_end'" /></td>
+	</th:block>
+	<th:block th:if="${signupMeetings != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='due_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_begins'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-signup',data-field='signup_deadline'" /></td>
+	</th:block>
+	<th:block th:if="${gradebookItems != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-gradebook',data-field='due_date'" /></td>
+	</th:block>
+	<th:block th:if="${resources != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-resources',data-field='due_date'" /></td>
+	</th:block>
+	<th:block th:if="${calendarEvents != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-calendar',data-field='due_date'" /></td>
+	</th:block>
+	<th:block th:if="${forums != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-forums',data-field='due_date'" /></td>
+	</th:block>
+	<th:block th:if="${announcements != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='open_date'" /></td>
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-announcements',data-field='due_date'" /></td>
+	</th:block>
+	<th:block th:if="${lessons != null}">
+		<td class="text-center"><input type="checkbox" class="term-target" th:attr="data-term=${term},data-root='collapse-lessons',data-field='open_date'" /></td>
+	</th:block>
+</th:block>
