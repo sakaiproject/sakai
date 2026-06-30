@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-// Test-only helper: load the browser script initDatePicker.js into Node so its pure date
-// functions can be unit tested. The script is a plain browser global (it does `var DTMN = ...`
-// and attaches functions, with no module.exports) and only touches document/$/moment INSIDE
-// function bodies, so it loads cleanly in a vm context as long as we provide the globals its
-// functions read at call time: `moment` (moment-timezone) and `sakai.locale.userTimeZone`.
+// Test-only helper: load the browser script initDatePicker.js into Node so its pure date functions
+// can be unit tested. The script is a plain browser global (it does `var DTMN = ...` and attaches
+// functions, with no module.exports) and only touches document/$/moment INSIDE function bodies, so it
+// loads cleanly in a vm context as long as we provide `moment`. The date logic is deliberately
+// timezone-agnostic (wall-clock only - Sakai resolves the zone server-side), so plain `moment` is all
+// that's needed; run the suite under TZ=UTC (see package.json) for deterministic wall-clock math.
 
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
-const moment = require("moment-timezone");
+const moment = require("moment");
 
 const SCRIPT_PATH = path.resolve(
   __dirname,
@@ -31,23 +32,19 @@ const SCRIPT_PATH = path.resolve(
 );
 
 /**
- * Load a fresh DTMN object with the given user timezone in scope.
+ * Load a fresh DTMN object.
  *
- * @param {string} userTimeZone IANA zone fed to sakai.locale.userTimeZone (default America/New_York).
- * @returns {{DTMN: object, moment: import("moment-timezone")}} the populated DTMN plus the same
- *          moment-timezone instance the script uses, so tests build inputs from the identical library.
+ * @returns {{DTMN: object, moment: import("moment")}} the populated DTMN plus the same moment instance
+ *          the script uses, so tests build inputs from the identical library.
  */
-function loadDtmn(userTimeZone = "America/New_York") {
+function loadDtmn() {
   const source = fs.readFileSync(SCRIPT_PATH, "utf8");
 
-  const sandbox = {
-    moment,
-    sakai: { locale: { userTimeZone } },
-    console,
-  };
-  // The script reads globalThis.sakai?.locale?.userTimeZone; in a vm context globalThis is the
-  // sandbox itself, so `sakai` above is reachable that way too.
+  const sandbox = { moment, console };
+  // In a vm context globalThis is the sandbox itself; provide a minimal sakai stub so any incidental
+  // sakai.locale lookups elsewhere in the script can't throw.
   sandbox.globalThis = sandbox;
+  sandbox.sakai = { locale: {} };
 
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: SCRIPT_PATH });

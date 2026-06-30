@@ -12,14 +12,17 @@ apply silently no-op).
 
 ## Run
 
-Requires **Node 18+** (uses the built-in `node:test` runner). The only dependency is
-`moment-timezone`, pinned to the same version the tool loads at runtime.
+Requires **Node 18+** (uses the built-in `node:test` runner). The only dependency is `moment`.
+The date logic is timezone-agnostic (wall-clock only — Sakai resolves the zone server-side), and the
+`test` script pins `TZ=UTC` for deterministic wall-clock math.
 
 ```sh
 cd site-manage/datemanager/tool/src/test/js
 npm install
-npm test          # or: node --test
+npm test          # runs: TZ=UTC node --test
 ```
+
+On Windows (cmd), run `set TZ=UTC && node --test`, or use Git Bash / WSL.
 
 ## What is and isn't covered
 
@@ -29,6 +32,5 @@ npm test          # or: node --test
 - **Not covered:** DOM/jQuery glue (fill, apply, collapse, attach, init/validate). Those
   need a jsdom or Playwright harness and are out of scope for this suite.
 
-`loadDtmn.js` loads the browser script into a Node `vm` context with `moment-timezone`
-and a stub `sakai.locale.userTimeZone` injected, then returns the populated `DTMN`
-object — so the tests exercise the real shipped code with the real date library.
+`loadDtmn.js` loads the browser script into a Node `vm` context with `moment` injected, then returns
+the populated `DTMN` object — so the tests exercise the real shipped code with the real date library.

@@ -199,14 +199,6 @@ DTMN.handleFitButtonClick = function(button, restrictToExpanded, updates, notMod
   }, 25);
 };
 
-DTMN.momentInUserZone = function(ms) {
-  const userTimeZone = DTMN.getUserTimeZone();
-  if (moment.tz && userTimeZone) {
-    return moment.tz(ms, userTimeZone);
-  }
-  return moment(ms);
-};
-
 // Move `target` to the nearest day (within +/- 3 days) that shares `source`'s weekday, carrying
 // `source`'s clock time. Two items that share a weekday therefore stay a whole number of weeks apart.
 DTMN.snapToSourceWeekday = function(target, source) {
@@ -248,7 +240,7 @@ DTMN.computeFittedDate = function(currentMs, oldStartMs, oldSpan, anchors, snap,
 
   const newStartMs = anchors.first.valueOf();
   const newSpan = anchors.last.valueOf() - newStartMs;
-  const target = DTMN.momentInUserZone(newStartMs + frac * newSpan);
+  const target = moment(newStartMs + frac * newSpan);
   return snap ? DTMN.snapToSourceWeekday(target, sourceMoment) : target;
 };
 
@@ -534,67 +526,31 @@ DTMN.applyTermDates = function(restrictToExpanded, updates, notModified) {
   });
 };
 
-DTMN.getUserTimeZone = function()
-{
-  const userTimeZone = globalThis.sakai?.locale?.userTimeZone;
-  if (!userTimeZone && DTMN.warnDatePickerTimeZoneFallback) {
-    DTMN.warnDatePickerTimeZoneFallback("getUserTimeZone");
-  }
-  return userTimeZone || null;
-};
-
-DTMN.warnDatePickerTimeZoneFallback = function(functionName, value, useTime)
-{
-  const warningFlag = "_" + functionName + "TimeZoneFallbackWarned";
-  if (DTMN[warningFlag]) {
-    return;
-  }
-
-  DTMN[warningFlag] = true;
-  console.warn(functionName + " falling back to browser timezone because moment-timezone or sakai.locale.userTimeZone is unavailable.", {value, useTime});
-};
-
+// These helpers deliberately do NO timezone conversion. Sakai treats picker values as wall-clock and
+// resolves the timezone server-side: UserTimeService.parseISODateInUserTimezone() truncates the value
+// to its first 19 chars (StringUtils.left(value, 19)), discards any browser offset, and interprets the
+// wall-clock in the user's Sakai timezone. So the client just parses, formats, and does calendar math
+// on the wall-clock fields and hands a bare wall-clock string back for the backend to interpret.
 DTMN.getDatePickerInputValue = function(date, useTime)
 {
-  const userTimeZone = DTMN.getUserTimeZone();
-  let userDate = date;
-  if (moment.tz && userTimeZone) {
-    userDate = date.clone().tz(userTimeZone);
-  } else {
-    DTMN.warnDatePickerTimeZoneFallback("getDatePickerInputValue", date && date.format ? date.format() : date, useTime);
-  }
-  return useTime ? userDate.format("YYYY-MM-DDTHH:mm") : userDate.format("YYYY-MM-DD");
+  return useTime ? date.format("YYYY-MM-DDTHH:mm") : date.format("YYYY-MM-DD");
 };
 
 DTMN.getHiddenDateValue = function(date, useTime)
 {
-  const userTimeZone = DTMN.getUserTimeZone();
-  let userDate = date;
-  if (moment.tz && userTimeZone) {
-    userDate = date.clone().tz(userTimeZone);
-  } else {
-    DTMN.warnDatePickerTimeZoneFallback("getHiddenDateValue", date && date.format ? date.format() : date, useTime);
-  }
-  return useTime ? userDate.format("YYYY-MM-DDTHH:mm:ss") : userDate.format("YYYY-MM-DD");
+  return useTime ? date.format("YYYY-MM-DDTHH:mm:ss") : date.format("YYYY-MM-DD");
 };
 
 DTMN.parseDatePickerInputValue = function(value, useTime)
 {
   const formats = useTime ? ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm", "YYYY-MM-DD"] : "YYYY-MM-DD";
-  const userTimeZone = DTMN.getUserTimeZone();
-  if (moment.tz && userTimeZone) {
-    return moment.tz(value, formats, true, userTimeZone);
-  }
-
-  DTMN.warnDatePickerTimeZoneFallback("parseDatePickerInputValue", value, useTime);
   return moment(value, formats, true);
 };
 
-// Parse a value read from a localDatePicker "ashidden" iso8601 field. Those fields hold a full
-// ISO8601 string with a timezone offset (e.g. 2026-09-01T09:00:00+02:00), but our strict parser's
-// formats don't include the offset token, so a direct parse is always invalid. Strip the trailing
-// offset (keeping the wall-clock time the user picked), and drop the time entirely for date-only
-// fields, then parse in the user's zone like the rest of the tool.
+// Parse a value read from a localDatePicker "ashidden" iso8601 field. Those fields hold a full ISO8601
+// string with the browser's offset (e.g. 2026-09-01T09:00:00+02:00). We strip the trailing offset to
+// recover the wall-clock the user picked - the same thing the backend does with StringUtils.left(.,19) -
+// and drop the time entirely for date-only fields, then parse the wall-clock with no timezone applied.
 DTMN.parseInputDateValue = function(value, useTime)
 {
   if (!value) {

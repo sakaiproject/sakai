@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-// Unit tests for the PURE date logic in initDatePicker.js. DOM/jQuery glue (fill, apply, collapse,
-// attach) is intentionally not covered here - see README.md. Run with: node --test
+// Unit tests for the PURE date logic in initDatePicker.js. The logic is intentionally timezone-agnostic
+// (wall-clock only; Sakai resolves the zone server-side via UserTimeService), so these tests do plain
+// wall-clock assertions. Run under TZ=UTC (see package.json) for determinism. DOM/jQuery glue (fill,
+// apply, collapse, attach) is intentionally not covered here - see README.md. Run: npm test
 
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { loadDtmn } = require("./loadDtmn");
 
-const ZONE = "America/New_York";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const { DTMN, moment } = loadDtmn(ZONE);
-// Build a moment in the same zone the script is configured with, from the same library instance.
-const mtz = (s) => moment.tz(s, ZONE);
+const { DTMN, moment } = loadDtmn();
+// Build a moment from a wall-clock string the same way the tool does (strict, no timezone).
+const mom = (s) => moment(s, ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DD"], true);
 
 // ---------------------------------------------------------------------------
 // parseInputDateValue - the regression guard for the timezone-offset bug.
@@ -79,12 +80,28 @@ test("documents the bug: parseDatePickerInputValue (strict, no offset token) rej
 });
 
 // ---------------------------------------------------------------------------
+// Wall-clock fidelity: parse then format must not shift the value (no timezone math).
+// ---------------------------------------------------------------------------
+
+test("datetime round-trips through parse and the hidden/visible formatters", () => {
+  const parsed = DTMN.parseDatePickerInputValue("2026-09-01T09:30:00", true);
+  assert.equal(DTMN.getHiddenDateValue(parsed, true), "2026-09-01T09:30:00");
+  assert.equal(DTMN.getDatePickerInputValue(parsed, true), "2026-09-01T09:30");
+});
+
+test("date-only round-trips through parse and the formatters", () => {
+  const parsed = DTMN.parseDatePickerInputValue("2026-09-01", false);
+  assert.equal(DTMN.getHiddenDateValue(parsed, false), "2026-09-01");
+  assert.equal(DTMN.getDatePickerInputValue(parsed, false), "2026-09-01");
+});
+
+// ---------------------------------------------------------------------------
 // snapToSourceWeekday - keep each item's own weekday + clock time, move by whole days (<= 3).
 // ---------------------------------------------------------------------------
 
 test("snapToSourceWeekday lands on the source weekday nearest the target, carrying source's time", () => {
-  const source = mtz("2026-09-14T09:30:15"); // a Monday
-  const target = mtz("2026-09-16T00:00:00"); // a Wednesday, 2 days later
+  const source = mom("2026-09-14T09:30:15"); // a Monday
+  const target = mom("2026-09-16T00:00:00"); // a Wednesday, 2 days later
   const result = DTMN.snapToSourceWeekday(target, source);
 
   assert.equal(result.day(), source.day());
@@ -95,8 +112,7 @@ test("snapToSourceWeekday lands on the source weekday nearest the target, carryi
 });
 
 test("snapToSourceWeekday never moves more than 3 days and preserves the weekday for all combos", () => {
-  // Cover every weekday-pair: target shifts through a full week, source through a full week.
-  const monday = mtz("2026-09-14T00:00:00");
+  const monday = mom("2026-09-14T00:00:00");
   for (let t = 0; t < 7; t++) {
     const target = monday.clone().add(t, "days");
     for (let s = 0; s < 7; s++) {
@@ -116,8 +132,8 @@ test("snapToSourceWeekday never moves more than 3 days and preserves the weekday
 });
 
 test("snapToSourceWeekday keeps same-weekday items a whole number of weeks apart", () => {
-  const source = mtz("2026-09-16T10:00:00"); // Wednesday
-  const target1 = mtz("2026-09-14T00:00:00"); // Monday
+  const source = mom("2026-09-16T10:00:00"); // Wednesday
+  const target1 = mom("2026-09-14T00:00:00"); // Monday
   const target2 = target1.clone().add(14, "days"); // Monday, two weeks on
 
   const r1 = DTMN.snapToSourceWeekday(target1, source);
@@ -131,7 +147,7 @@ test("snapToSourceWeekday keeps same-weekday items a whole number of weeks apart
 // computeFittedDate - the extracted Smart Shift per-cell mapping.
 // ---------------------------------------------------------------------------
 
-const anchors = () => ({ first: mtz("2026-07-01T00:00:00"), last: mtz("2026-09-19T00:00:00") });
+const anchors = () => ({ first: mom("2026-07-01T00:00:00"), last: mom("2026-09-19T00:00:00") });
 
 test("computeFittedDate maps the earliest cell exactly onto the new first date", () => {
   const a = anchors();
@@ -141,7 +157,6 @@ test("computeFittedDate maps the earliest cell exactly onto the new first date",
 
 test("computeFittedDate maps the latest cell exactly onto the new last date", () => {
   const a = anchors();
-  // currentMs == oldStart + oldSpan == oldEnd  ->  frac == 1
   const result = DTMN.computeFittedDate(2000, 1000, 1000, a, false, null);
   assert.equal(result.valueOf(), a.last.valueOf());
 });
@@ -155,7 +170,6 @@ test("computeFittedDate collapses everything onto the new first date when the ol
 test("computeFittedDate places a middle cell proportionally when snap is off", () => {
   const a = anchors();
   const newSpan = a.last.valueOf() - a.first.valueOf();
-  // frac = 0.5
   const result = DTMN.computeFittedDate(1500, 1000, 1000, a, false, null);
   assert.equal(result.valueOf(), a.first.valueOf() + newSpan / 2);
 });
@@ -163,7 +177,7 @@ test("computeFittedDate places a middle cell proportionally when snap is off", (
 test("computeFittedDate snaps a middle cell to the source weekday, staying near the proportional target", () => {
   const a = anchors();
   const newSpan = a.last.valueOf() - a.first.valueOf();
-  const source = mtz("2026-08-12T13:00:00"); // arbitrary mid-term Wednesday
+  const source = mom("2026-08-12T13:00:00"); // arbitrary mid-term Wednesday
   const result = DTMN.computeFittedDate(1500, 1000, 1000, a, true, source);
 
   assert.equal(result.day(), source.day());
@@ -176,43 +190,6 @@ test("computeFittedDate: the LATEST date wins the end anchor regardless of colum
   // This is the behaviour that confused us during manual testing: an assignment's open date that
   // happened to be later than its due/accept dates correctly received the new LAST date.
   const a = anchors();
-  const oldStart = 100;
-  const oldSpan = 900; // oldEnd = 1000
-  const openIsLatest = DTMN.computeFittedDate(1000, oldStart, oldSpan, a, false, null);
+  const openIsLatest = DTMN.computeFittedDate(1000, 100, 900, a, false, null);
   assert.equal(openIsLatest.valueOf(), a.last.valueOf());
-});
-
-// ---------------------------------------------------------------------------
-// Format <-> parse round-trips.
-// ---------------------------------------------------------------------------
-
-test("datetime round-trips through parse and the hidden/visible formatters", () => {
-  const parsed = DTMN.parseDatePickerInputValue("2026-09-01T09:30:00", true);
-  assert.equal(DTMN.getHiddenDateValue(parsed, true), "2026-09-01T09:30:00");
-  assert.equal(DTMN.getDatePickerInputValue(parsed, true), "2026-09-01T09:30");
-});
-
-test("date-only round-trips through parse and the formatters", () => {
-  const parsed = DTMN.parseDatePickerInputValue("2026-09-01", false);
-  assert.equal(DTMN.getHiddenDateValue(parsed, false), "2026-09-01");
-  assert.equal(DTMN.getDatePickerInputValue(parsed, false), "2026-09-01");
-});
-
-// ---------------------------------------------------------------------------
-// momentInUserZone / getUserTimeZone.
-// ---------------------------------------------------------------------------
-
-test("momentInUserZone preserves the instant and applies the configured zone offset", () => {
-  const instant = mtz("2026-09-01T12:00:00").valueOf(); // EDT, -04:00
-  const m = DTMN.momentInUserZone(instant);
-  assert.equal(m.valueOf(), instant);
-  assert.equal(m.utcOffset(), -240);
-});
-
-test("getUserTimeZone reflects sakai.locale.userTimeZone, and a different zone changes the offset", () => {
-  assert.equal(DTMN.getUserTimeZone(), ZONE);
-
-  const utc = loadDtmn("UTC");
-  const instant = utc.moment.tz("2026-09-01T12:00:00", "UTC").valueOf();
-  assert.equal(utc.DTMN.momentInUserZone(instant).utcOffset(), 0);
 });

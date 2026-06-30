@@ -4,9 +4,9 @@
   "private": true,
   "description": "Standalone unit tests for the DateManager client-side date logic (initDatePicker.js). Not part of the Maven build.",
   "scripts": {
-    "test": "node --test"
+    "test": "TZ=UTC node --test"
   },
   "devDependencies": {
-    "moment-timezone": "0.5.33"
+    "moment": "2.30.1"
   }
 }
