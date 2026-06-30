@@ -248,7 +248,15 @@ public class SiteManageServiceImpl implements SiteManageService {
                                 // handle Home tool specially, need to update the site infomration display url if needed
                                 String newSiteInfoUrl = resolveImportedSiteInfoUrl(oSiteId, nSiteId, sourceSiteInfoUrl);
                                 site.setInfoUrl(newSiteInfoUrl);
+
+                                String description = site.getDescription();
+                                if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
+                                    description = description.replaceAll("\\b" + java.util.regex.Pattern.quote(oSiteId) + "\\b", nSiteId);
+                                    site.setDescription(description);
+                                }
+
                                 saveSite(site);
+                                toolsCopied.add(toolId);
                             } else if (StringUtils.isNotBlank(toolId)) {
                                 // all other tools
                                 if (!toolsCopied.contains(toolId)) {
@@ -487,7 +495,13 @@ public class SiteManageServiceImpl implements SiteManageService {
         try {
             Site fromSite = siteService.getSite(fromSiteId);
             toSite = siteService.getSite(toSiteId);
-            toSite.setDescription(fromSite.getDescription());
+
+            String description = fromSite.getDescription();
+            if (StringUtils.isNotBlank(description) && description.contains(fromSiteId)) {
+                description = description.replaceAll("\\b" + java.util.regex.Pattern.quote(fromSiteId) + "\\b", toSiteId);
+            }
+            toSite.setDescription(description);
+
             String newSiteInfoUrl = resolveImportedSiteInfoUrl(fromSiteId, toSiteId, fromSite.getInfoUrl());
             toSite.setInfoUrl(newSiteInfoUrl);
             saveSite(toSite);
