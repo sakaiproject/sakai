@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,17 +35,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -58,6 +58,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
@@ -83,9 +84,10 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.sakaiproject.event.api.NotificationService;
 import org.tsugi.lti13.LTICustomVars;
-import org.sakaiproject.authz.api.Role;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
@@ -251,7 +253,9 @@ public class SiteManageServiceImpl implements SiteManageService {
 
                                 String description = site.getDescription();
                                 if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
-                                    description = description.replaceAll("\\b" + java.util.regex.Pattern.quote(oSiteId) + "\\b", nSiteId);
+                                    String regex = "(?<![a-zA-Z0-9])" + Pattern.quote(oSiteId) + "(?![a-zA-Z0-9])";
+                                    String replacement = Matcher.quoteReplacement(nSiteId);
+                                    description = description.replaceAll(regex, replacement);
                                     site.setDescription(description);
                                 }
 
@@ -498,7 +502,9 @@ public class SiteManageServiceImpl implements SiteManageService {
 
             String description = fromSite.getDescription();
             if (StringUtils.isNotBlank(description) && description.contains(fromSiteId)) {
-                description = description.replaceAll("\\b" + java.util.regex.Pattern.quote(fromSiteId) + "\\b", toSiteId);
+                String regex = "(?<![a-zA-Z0-9])" + java.util.regex.Pattern.quote(fromSiteId) + "(?![a-zA-Z0-9])";
+                String replacement = java.util.regex.Matcher.quoteReplacement(toSiteId);
+                description = description.replaceAll(regex, replacement);
             }
             toSite.setDescription(description);
 
