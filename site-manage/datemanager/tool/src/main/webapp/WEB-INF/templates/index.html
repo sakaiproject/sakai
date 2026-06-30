@@ -28,12 +28,16 @@
       <h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
     </div>
 
-    <!-- Export/Import stay visible. The batch-edit tools below are each collapsed by default so the
-         per-tool editing sections (the normal grid) are what shows when the page loads. -->
-    <div class="date-manager-actions mb-3">
-      <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
-      <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
-    </div>
+    <h2 class="h5 mt-3" th:text="#{section.batch.heading}">Bulk editing tools</h2>
+    <p class="text-muted small mb-2" th:text="#{section.batch.help}">Set or shift many dates at once. Your changes appear in the item sections below.</p>
+
+    <!-- Bulk tools, grouped behind a coloured accent bar to set them apart from the item sections
+         further down. Export/Import plus the collapsed Shift / Fit / Set-dates cards live here. -->
+    <div class="dm-batch-tools border-start border-4 border-primary ps-3 mb-4">
+      <div class="date-manager-actions mb-3">
+        <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
+        <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
+      </div>
 
     <div class="card">
       <div class="card-header">
@@ -217,6 +221,11 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <hr class="my-4" />
+    <h2 class="h5" th:text="#{section.items.heading}">Edit individual items</h2>
+    <p class="text-muted small" th:text="#{section.items.help}">Expand a tool to review or adjust each item's dates.</p>
 
     <form id="date-manager-form" method="POST">
       <div class="sak-banner-error d-none" id="form-errors">
