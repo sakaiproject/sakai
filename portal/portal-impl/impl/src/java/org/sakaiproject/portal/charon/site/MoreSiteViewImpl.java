@@ -47,6 +47,10 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
+import static org.sakaiproject.portal.api.PortalConstants.PAGE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -99,16 +103,16 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
         if ( myWorkspaceSiteId != null ) {
             for (Site s : favoritesSites) {
                 if (myWorkspaceSiteId.equals(s.getId()) ) {
-                    mrphs_worksiteUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
+                    mrphs_worksiteUrl = Web.returnUrl(request, SITE_URL_SEGMENT + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
                     List<SitePage> pages = siteHelper.getPermittedPagesInOrder(s);
                     for (SitePage p : pages) {
                         List<ToolConfiguration> pTools = p.getTools();
                         for (ToolConfiguration placement : pTools) {
                             if ( calendarToolId.equals(placement.getToolId()) ) {
-                                calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                                calendarToolUrl = Web.returnUrl(request, SITE_URL_SEGMENT + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + PAGE_URL_SEGMENT + Web.escapeUrl(p.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
-                                worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-                                mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool/" + Web.escapeUrl(placement.getId()));
+                                worksiteToolUrl = Web.returnUrl(request, SITE_URL_SEGMENT + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + PAGE_URL_SEGMENT + Web.escapeUrl(p.getId()));
+                                mrphs_worksiteToolUrl = Web.returnUrl(request, SITE_URL_SEGMENT + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + TOOL_URL_SEGMENT + Web.escapeUrl(placement.getId()));
                             }
                         }
                     }

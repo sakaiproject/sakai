@@ -29,6 +29,9 @@ import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
+import static org.sakaiproject.portal.api.PortalConstants.PAGERESET_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.PAGE_URL_PREFIX;
+
 /**
  * 
  * @author ieb
@@ -38,22 +41,22 @@ import org.sakaiproject.util.Web;
  */
 public class PageResetHandler extends BasePortalHandler
 {
-	private static final String URL_FRAGMENT = "page-reset";
-
 	public PageResetHandler()
 	{
-		setUrlFragment(PageResetHandler.URL_FRAGMENT);
+		setUrlFragment(PAGERESET_URL_PREFIX);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 2) && (parts[1].equals(PageResetHandler.URL_FRAGMENT)))
+		if ((parts.length > 2) && (parts[1].equals(PAGERESET_URL_PREFIX)))
 		{
 			try
 			{
-				String pagelUrl = req.getContextPath() + "/page"
+				String pagelUrl = req.getContextPath()
+						+ "/"
+						+ PAGE_URL_PREFIX
 						+ Web.makePath(parts, 2, parts.length);
 				portalService.setResetState("true");
 				res.addHeader("Cache-Control", "no-cache");

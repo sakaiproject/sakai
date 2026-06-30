@@ -88,6 +88,13 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.RequestFilter;
 
+import static org.sakaiproject.portal.api.PortalConstants.PAGERESET_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.PAGE_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -107,7 +114,7 @@ public class SiteHandler extends WorksiteHandler
 	private static final String INCLUDE_TABS = "include-tabs";
 
 	// Cannot be static to allow for this class to be extended at a different fragment
-	protected String URL_FRAGMENT = "site";
+	protected String URL_FRAGMENT = SITE_URL_PREFIX;
 
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
@@ -240,7 +247,10 @@ public class SiteHandler extends WorksiteHandler
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
 		{
 			toolId = parts[4];
-			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
+			String toolUrl = req.getContextPath()
+					+ SITE_URL_SEGMENT
+					+ siteId + "/"
+					+ TOOL_URL_PREFIX
 					+ Web.makePath(parts, 4, parts.length);
 			portalService.setResetState("true");
 			res.addHeader("Cache-Control", "no-cache");
@@ -252,7 +262,7 @@ public class SiteHandler extends WorksiteHandler
 		// URL
 		// /portal/site/site-id/page-reset/pageId
 		// 0 1 2 3 4
-		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
+		if ((siteId != null) && (parts.length == 5) && (parts[3].equals(PAGERESET_URL_PREFIX)))
 		{
 			pageId = parts[4];
 			Site site = null;
@@ -282,7 +292,11 @@ public class SiteHandler extends WorksiteHandler
 				}
 			}
 
-			String pageUrl = URLUtils.sanitisePath(req.getContextPath() + "/site/" + siteId + "/page"
+			String pageUrl = URLUtils.sanitisePath(req.getContextPath()
+					+ SITE_URL_SEGMENT
+					+ siteId
+					+ "/"
+					+ PAGE_URL_PREFIX
 					+ Web.makePath(parts, 4, parts.length));
 
 			if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
@@ -704,14 +718,13 @@ public class SiteHandler extends WorksiteHandler
 		// If still can't find page id see if can determine it from a well known
 		// tool id (assumes that such a tool is in the site and the first instance of 
 		// the tool found would be the right one).
-		String toolSegment = "/tool/";
 		String toolId = null;
 
 			try
 			{
 			// does the URL contain a tool id?
-			if (toolContextPath.contains(toolSegment)) {
-				toolId = toolContextPath.substring(toolContextPath.lastIndexOf(toolSegment)+toolSegment.length());
+			if (toolContextPath.contains(TOOL_URL_SEGMENT)) {
+				toolId = toolContextPath.substring(toolContextPath.lastIndexOf(TOOL_URL_SEGMENT) + TOOL_URL_SEGMENT.length());
 				ToolConfiguration toolConfig = site.getToolForCommonId(toolId);
 				log.debug("trying to resolve page id from toolId: [{}]", toolId);
 				if (toolConfig != null) {
@@ -737,7 +750,7 @@ public class SiteHandler extends WorksiteHandler
 	 * @throws IOException
 	 */
 	protected void doSendResponse(PortalRenderContext rcontext, HttpServletResponse res, String contentType) throws IOException {
-		portal.sendResponse(rcontext, res, "site", null);
+		portal.sendResponse(rcontext, res, SITE_URL_PREFIX, null);
 	}
 
 	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId, String toolId)
@@ -845,7 +858,7 @@ public class SiteHandler extends WorksiteHandler
 				String switchRoleUrl = serverConfigurationService.getPortalUrl()
 						+ "/role-switch-out/"
 						+ siteId
-						+ "/tool/"
+						+ TOOL_URL_SEGMENT
 						+ toolId;
 				rcontext.put("roleUrlValue", roleswitchvalue);
 				rcontext.put("switchRoleUrl", switchRoleUrl);
@@ -902,7 +915,7 @@ public class SiteHandler extends WorksiteHandler
 						switchRoleUrl = serverConfigurationService.getPortalUrl()
 								+ "/role-switch/"
 								+ siteId
-								+ "/tool/"
+								+ TOOL_URL_SEGMENT
 								+ toolId
 								+ "/";
 
@@ -912,7 +925,7 @@ public class SiteHandler extends WorksiteHandler
 						switchRoleUrl = serverConfigurationService.getPortalUrl()
 								+ "/role-switch/"
 								+ siteId
-								+ "/tool/"
+								+ TOOL_URL_SEGMENT
 								+ toolId
 								+ "/"
 								+ svRolesFinal.get(0)

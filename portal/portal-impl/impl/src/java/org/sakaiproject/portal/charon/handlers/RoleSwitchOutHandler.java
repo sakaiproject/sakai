@@ -30,6 +30,10 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
+
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -78,7 +82,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 
 			try
 			{
-				String roleExitUrl = ServerConfigurationService.getPortalUrl() + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
+				String roleExitUrl = ServerConfigurationService.getPortalUrl() + SITE_URL_SEGMENT + parts[2] + TOOL_URL_SEGMENT + parts[4] + "/";
 
 				activeSite.getPages().stream() // get all pages in site
 						.map(page -> page.getTools()) // tools for each page

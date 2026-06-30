@@ -249,7 +249,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         googleAnonIp = serverConfigurationService.getBoolean(PROP_GOOGLE_ANON_IP, false);
         googleGA4Id = serverConfigurationService.getString(PROP_GOOGLE_GA4_ID, null);
         googleTagManagerContainerId = serverConfigurationService.getString(PROP_GOOGLE_CONTAINER_ID, null);
-        handlerPrefix = serverConfigurationService.getString(PROP_PORTAL_DEFAULT_HANDLER, "site");
+        handlerPrefix = serverConfigurationService.getString(PROP_PORTAL_DEFAULT_HANDLER, SITE_URL_PREFIX);
         displayHelpIcon = serverConfigurationService.getBoolean(PROP_DISPLAY_HELP_ICON, true);
         includeExtraHead = serverConfigurationService.getString(PROP_INCLUDE_EXTRAHEAD, "");
         mathJaxEnabled = serverConfigurationService.getBoolean(PROP_MATHJAX_ENABLED, true);
@@ -616,7 +616,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
                 Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
-        String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
+        String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, TOOL_URL_SEGMENT, TOOLRESET_URL_SEGMENT);
         log.debug("includeTool resetActionUrl={}", resetActionUrl);
 
         // SAK-20462 - Pass through the sakai_action parameter
@@ -1294,9 +1294,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     }
 
     private String fixPath(String s, StringBuilder ctx) {
-        s = fixPath1(s, "/site/", ctx);
-        s = fixPath1(s, "/tool/", ctx);
-        s = fixPath1(s, "/page/", ctx);
+        s = fixPath1(s, SITE_URL_SEGMENT, ctx);
+        s = fixPath1(s, TOOL_URL_SEGMENT, ctx);
+        s = fixPath1(s, PAGE_URL_SEGMENT, ctx);
         return s;
     }
 
@@ -1406,10 +1406,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             page = p.getPageId();
         }
 
-        return "/site/" +
-                p.getSiteId() +
-                "/page/" +
-                page;
+        return SITE_URL_SEGMENT
+                + p.getSiteId()
+                + PAGE_URL_SEGMENT
+                + page;
     }
 
     @Override
@@ -1853,7 +1853,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         if (renderInline) {
 
             //build tool context path directly to the tool
-            String toolContextPath = req.getContextPath() + req.getServletPath() + "/site/" + placement.getSiteId() + "/tool/" + placement.getId();
+            String toolContextPath = req.getContextPath() + req.getServletPath() + SITE_URL_SEGMENT + placement.getSiteId() + TOOL_URL_SEGMENT + placement.getId();
 
             // setup the rest of the params
             String[] parts = getParts(req);

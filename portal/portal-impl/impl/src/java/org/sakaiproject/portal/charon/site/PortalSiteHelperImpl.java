@@ -104,6 +104,12 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.sakaiproject.portal.api.PortalConstants.PAGERESET_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.PAGE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOLRESET_URL_PREFIX;
+import static org.sakaiproject.portal.api.PortalConstants.TOOLRESET_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -388,7 +394,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                 for (String segment : pathSegments) {
 					// only replace first occurrence of page in path
                     if (!firstSegmentMatch && "page".equals(segment)) {
-						pageUriBuilder.pathSegment("page-reset");
+						pageUriBuilder.pathSegment(PAGERESET_URL_PREFIX);
 						firstSegmentMatch = true;
 					} else {
 						pageUriBuilder.pathSegment(segment);
@@ -930,7 +936,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean legacyAddMoreToolsPropertyValue = serverConfigurationService.getBoolean("portal.experimental.addmoretools", false);
 				if ( ! serverConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
 
-				String pagePopupUrl = Web.returnUrl(req, "/page/");
+				String pagePopupUrl = Web.returnUrl(req, PAGE_URL_SEGMENT);
 
 				UriComponentsBuilder pageResetUrlBuilder = UriComponentsBuilder.fromUriString(pageRefUrl);
 				List<String> pathSegments = pageResetUrlBuilder.build().getPathSegments();
@@ -939,10 +945,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean firstSegmentMatch = false;
                 for (String segment : pathSegments) {
                     if (!firstSegmentMatch && "tool".equals(segment)) {
-                        pageResetUrlBuilder.pathSegment("tool-reset");
+                        pageResetUrlBuilder.pathSegment(TOOLRESET_URL_PREFIX);
                         firstSegmentMatch = true;
                     } else if (!firstSegmentMatch && "page".equals(segment)) {
-                        pageResetUrlBuilder.pathSegment("page-reset");
+                        pageResetUrlBuilder.pathSegment(PAGERESET_URL_PREFIX);
                         firstSegmentMatch = true;
                     } else {
 						pageResetUrlBuilder.pathSegment(segment);
@@ -998,9 +1004,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
 			+ formattedText.escapeUrl(getSiteEffectiveId(site)));
 			if (resetTools) {
-				toolUrl = toolUrl + "/tool-reset/";
+				toolUrl = toolUrl + TOOLRESET_URL_SEGMENT;
 			} else {
-				toolUrl = toolUrl + "/tool/";
+				toolUrl = toolUrl + TOOL_URL_SEGMENT;
 			}
 
 			// Loop through the tools again and Unroll the tools

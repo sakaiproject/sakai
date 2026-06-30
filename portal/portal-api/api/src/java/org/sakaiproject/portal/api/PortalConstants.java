@@ -23,6 +23,16 @@ package org.sakaiproject.portal.api;
 
 public class PortalConstants {
 
+    public static final String SITE_URL_PREFIX = "site";
+    public static final String TOOL_URL_PREFIX = "tool";
+    public static final String TOOLRESET_URL_PREFIX = "tool-reset";
+    public static final String PAGE_URL_PREFIX = "page";
+    public static final String PAGERESET_URL_PREFIX = "page-reset";
+    public static final String SITE_URL_SEGMENT = "/" + SITE_URL_PREFIX + "/";
+    public static final String TOOL_URL_SEGMENT = "/" + TOOL_URL_PREFIX + "/";
+    public static final String TOOLRESET_URL_SEGMENT = "/" + TOOLRESET_URL_PREFIX + "/";
+    public static final String PAGE_URL_SEGMENT = "/" + PAGE_URL_PREFIX + "/";
+
     public static final String PROP_CURRENT_EXPANDED = "currentExpanded";
     public static final String PROP_EXPANDED_SITE = "expandedSite";
     public static final String PROP_SIDEBAR_COLLAPSED = "sidebarCollapsed";
