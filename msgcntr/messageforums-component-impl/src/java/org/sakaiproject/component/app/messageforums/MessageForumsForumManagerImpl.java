@@ -1158,10 +1158,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForum(DiscussionForum forum) {
         long id = forum.getId().longValue();
+        forum = (DiscussionForum) getForumById(true, id);
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE,
                 getEventMessage(forum, getForumContext(forum)), false));
 
-        forum = (DiscussionForum) getForumById(true, id);
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
             List<Message> messages = topic.getMessages();
@@ -1458,7 +1458,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             eventMessagePrefix = "/messages&forums/";
         }
         catch (RuntimeException e) {
-            log.debug("Could not determine forum event prefix for context {}", context, e);
+            log.warn("Could not determine forum event prefix for context {}", context, e);
             eventMessagePrefix = "/forums/site/";
         }
 
