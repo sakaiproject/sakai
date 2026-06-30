@@ -89,14 +89,14 @@ DTMN.initShifter = function(updates, notModified) {
 
 DTMN.initFitter = function(updates, notModified) {
 
-  DTMN.fitErrorBanner = document.getElementById("dateFitError");
-  DTMN.fitFirstInput = document.getElementById("dateFitFirst");
-  DTMN.fitFirstHidden = document.getElementById("dateFitFirstHidden");
-  DTMN.fitLastInput = document.getElementById("dateFitLast");
-  DTMN.fitLastHidden = document.getElementById("dateFitLastHidden");
-  DTMN.fitSnapCheckbox = document.getElementById("dateFitSnap");
-  DTMN.fitAllBtn = document.getElementById("fitAllDates");
-  DTMN.fitVisibleBtn = document.getElementById("fitVisibleDates");
+  DTMN.fitErrorBanner = document.getElementById("date-fit-error");
+  DTMN.fitFirstInput = document.getElementById("date-fit-first");
+  DTMN.fitFirstHidden = document.getElementById("date-fit-first-hidden");
+  DTMN.fitLastInput = document.getElementById("date-fit-last");
+  DTMN.fitLastHidden = document.getElementById("date-fit-last-hidden");
+  DTMN.fitSnapCheckbox = document.getElementById("date-fit-snap");
+  DTMN.fitAllBtn = document.getElementById("fit-all-dates");
+  DTMN.fitVisibleBtn = document.getElementById("fit-visible-dates");
 
   if (!DTMN.fitAllBtn || !DTMN.fitVisibleBtn || !DTMN.fitFirstHidden || !DTMN.fitLastHidden) {
     return;
@@ -420,8 +420,8 @@ DTMN.getTermHiddenId = function(term) {
 
 DTMN.initTermDates = function(updates, notModified) {
 
-  DTMN.termAllBtn = document.getElementById("applyTermDatesAll");
-  DTMN.termVisibleBtn = document.getElementById("applyTermDatesVisible");
+  DTMN.termAllBtn = document.getElementById("apply-term-dates-all");
+  DTMN.termVisibleBtn = document.getElementById("apply-term-dates-visible");
 
   if (!DTMN.termAllBtn || !DTMN.termVisibleBtn) {
     return;

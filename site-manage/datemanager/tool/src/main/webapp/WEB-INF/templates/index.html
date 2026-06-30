@@ -71,30 +71,30 @@
       </div>
       <div id="dm-batch-fit" class="collapse">
         <div class="card-body date-manager-fit">
-          <div class="sak-banner-error d-none" id="dateFitError">
+          <div class="sak-banner-error d-none" id="date-fit-error">
             <span th:text="#{datefit.error.range}"></span>
           </div>
           <p th:text="#{datefit.instructions}">Re-anchor every dated item to a new term.</p>
           <div class="row g-2 align-items-end">
             <div class="col-auto">
-              <label class="form-label mb-1 d-block" for="dateFitFirst" th:text="#{datefit.first.label}">New first date</label>
-              <input type="text" class="form-control form-control-sm" id="dateFitFirst" th:attr="aria-label=#{datefit.first.label}" />
-              <input type="hidden" id="dateFitFirstHidden" />
+              <label class="form-label mb-1 d-block" for="date-fit-first" th:text="#{datefit.first.label}">New first date</label>
+              <input type="text" class="form-control form-control-sm" id="date-fit-first" th:attr="aria-label=#{datefit.first.label}" />
+              <input type="hidden" id="date-fit-first-hidden" />
             </div>
             <div class="col-auto">
-              <label class="form-label mb-1 d-block" for="dateFitLast" th:text="#{datefit.last.label}">New last date</label>
-              <input type="text" class="form-control form-control-sm" id="dateFitLast" th:attr="aria-label=#{datefit.last.label}" />
-              <input type="hidden" id="dateFitLastHidden" />
+              <label class="form-label mb-1 d-block" for="date-fit-last" th:text="#{datefit.last.label}">New last date</label>
+              <input type="text" class="form-control form-control-sm" id="date-fit-last" th:attr="aria-label=#{datefit.last.label}" />
+              <input type="hidden" id="date-fit-last-hidden" />
             </div>
             <div class="col-auto">
               <label class="mb-1">
-                <input type="checkbox" id="dateFitSnap" checked />
+                <input type="checkbox" id="date-fit-snap" checked />
                 <span th:text="#{datefit.snap.label}" th:remove="tag">Snap to weeks (keep each item's weekday &amp; time)</span>
               </label>
             </div>
           </div>
-          <button type="button" class="btn btn-link m-2" id="fitAllDates" th:text="#{datefit.all.button}" disabled></button>
-          <button type="button" class="btn btn-link m-2" id="fitVisibleDates" th:text="#{datefit.visible.button}" disabled></button>
+          <button type="button" class="btn btn-link m-2" id="fit-all-dates" th:text="#{datefit.all.button}" disabled></button>
+          <button type="button" class="btn btn-link m-2" id="fit-visible-dates" th:text="#{datefit.visible.button}" disabled></button>
         </div>
       </div>
     </div>
@@ -215,8 +215,8 @@
           </tbody>
         </table>
       </div>
-      <button type="button" class="btn btn-link m-2" id="applyTermDatesAll" th:text="#{termdates.all.button}" disabled></button>
-      <button type="button" class="btn btn-link m-2" id="applyTermDatesVisible" th:text="#{termdates.visible.button}" disabled></button>
+      <button type="button" class="btn btn-link m-2" id="apply-term-dates-all" th:text="#{termdates.all.button}" disabled></button>
+      <button type="button" class="btn btn-link m-2" id="apply-term-dates-visible" th:text="#{termdates.visible.button}" disabled></button>
     </div>
         </div>
       </div>
