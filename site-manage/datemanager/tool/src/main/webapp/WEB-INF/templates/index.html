@@ -42,10 +42,10 @@
     <div class="card">
       <div class="card-header">
         <h4 class="card-title">
-          <a data-bs-toggle="collapse" href="#dm-batch-shift" class="collapsed" aria-expanded="false"><span th:text="#{section.shift.heading}">Shift every date by a fixed amount</span></a>
+          <a data-bs-toggle="collapse" href="#dm-batch-shift" aria-expanded="true"><span th:text="#{section.shift.heading}">Shift every date by a fixed amount</span></a>
         </h4>
       </div>
-      <div id="dm-batch-shift" class="collapse">
+      <div id="dm-batch-shift" class="collapse show">
         <div class="card-body date-manager-shifter">
           <div class="sak-banner-error d-none" id="dateShifterError">
             <span th:text="#{dateshifter.error.nonnumeric}"></span>
@@ -66,7 +66,7 @@
     <div class="card">
       <div class="card-header">
         <h4 class="card-title">
-          <a data-bs-toggle="collapse" href="#dm-batch-fit" class="collapsed" aria-expanded="false"><span th:text="#{section.fit.heading}">Fit dates to a new term</span></a>
+          <a data-bs-toggle="collapse" href="#dm-batch-fit" class="collapsed" aria-expanded="false"><span th:text="#{section.fit.heading}">Smart Shift</span></a>
         </h4>
       </div>
       <div id="dm-batch-fit" class="collapse">
@@ -102,7 +102,7 @@
     <div class="card">
       <div class="card-header">
         <h4 class="card-title">
-          <a data-bs-toggle="collapse" href="#dm-batch-set" class="collapsed" aria-expanded="false"><span th:text="#{section.set.heading}">Set dates directly</span></a>
+          <a data-bs-toggle="collapse" href="#dm-batch-set" class="collapsed" aria-expanded="false"><span th:text="#{section.set.heading}">Bulk Anchor</span></a>
         </h4>
       </div>
       <div id="dm-batch-set" class="collapse">
