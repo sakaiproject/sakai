@@ -28,6 +28,7 @@
       <h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
     </div>
 
+    <h2 class="h5 mt-3" th:text="#{section.shift.heading}">Shift every date by a fixed amount</h2>
     <div class="date-manager-shifter mb-3">
       <p>
         <div class="sak-banner-error d-none" id="dateShifterError">
@@ -45,6 +46,7 @@
       <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
     </div>
 
+    <h2 class="h5 mt-4" th:text="#{section.fit.heading}">Fit dates to a new term</h2>
     <div class="date-manager-fit mb-3">
       <div class="sak-banner-error d-none" id="dateFitError">
         <span th:text="#{datefit.error.range}"></span>
@@ -72,7 +74,9 @@
       <button type="button" class="btn btn-link m-2" id="fitVisibleDates" th:text="#{datefit.visible.button}" disabled></button>
     </div>
 
-    <div class="date-manager-bulk-options mb-2" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
+    <h2 class="h5 mt-4" th:text="#{section.set.heading}">Set dates directly</h2>
+    <div class="date-manager-set border rounded p-3 mb-3">
+    <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
       <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
       <label class="me-3">
         <input type="radio" name="bulk-fill-mode" value="all" checked />
@@ -182,6 +186,7 @@
       </div>
       <button type="button" class="btn btn-link m-2" id="applyTermDatesAll" th:text="#{termdates.all.button}" disabled></button>
       <button type="button" class="btn btn-link m-2" id="applyTermDatesVisible" th:text="#{termdates.visible.button}" disabled></button>
+    </div>
     </div>
 
     <form id="date-manager-form" method="POST">
