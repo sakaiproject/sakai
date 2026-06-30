@@ -12,6 +12,7 @@
 
     <artifactId>scoring-service-api</artifactId>
     <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+    <name>Scoring Service API</name>
 
     <packaging>jar</packaging>
     <properties>

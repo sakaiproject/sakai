@@ -52,12 +52,6 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-site-manage-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-hbm</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -65,11 +59,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-site-manage-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

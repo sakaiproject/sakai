@@ -50,12 +50,6 @@
 			<!-- project dependencies -->
 			<dependency>
 				<groupId>${project.groupId}</groupId>
-				<artifactId>signup-api</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
 				<artifactId>signup-impl</artifactId>
 				<version>${project.version}</version>
 				<scope>runtime</scope>
