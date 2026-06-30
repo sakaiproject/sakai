@@ -228,6 +228,30 @@ DTMN.snapToSourceWeekday = function(target, source) {
   return result;
 };
 
+// Map one source instant onto the new [first, last] range. Pure (no DOM): the earliest source
+// (frac <= 0) lands exactly on anchors.first, the latest (frac >= 1) exactly on anchors.last, and a
+// middle source is placed proportionally then, when snap is on, snapped to its own weekday/time.
+// `sourceMoment` is only used by the snap branch. A zero old span (all dates identical) collapses
+// every date onto anchors.first.
+DTMN.computeFittedDate = function(currentMs, oldStartMs, oldSpan, anchors, snap, sourceMoment) {
+  if (oldSpan <= 0) {
+    return anchors.first.clone();
+  }
+
+  const frac = (currentMs - oldStartMs) / oldSpan;
+  if (frac <= 0) {
+    return anchors.first.clone();
+  }
+  if (frac >= 1) {
+    return anchors.last.clone();
+  }
+
+  const newStartMs = anchors.first.valueOf();
+  const newSpan = anchors.last.valueOf() - newStartMs;
+  const target = DTMN.momentInUserZone(newStartMs + frac * newSpan);
+  return snap ? DTMN.snapToSourceWeekday(target, sourceMoment) : target;
+};
+
 DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
 
   const sections = restrictToExpanded ? DTMN.findExpandedSections() : DTMN.collapseElements;
@@ -271,31 +295,13 @@ DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
     if (cell.currentMs > oldEndMs) { oldEndMs = cell.currentMs; }
   });
 
-  const newStartMs = anchors.first.valueOf();
-  const newSpan = anchors.last.valueOf() - newStartMs;
   const oldSpan = oldEndMs - oldStartMs;
   const snap = DTMN.fitSnapCheckbox ? DTMN.fitSnapCheckbox.checked : false;
 
   // Pass 2: map each cell onto the new range. The earliest cell lands exactly on the new first date and
   // the latest exactly on the new last date; everything between is placed proportionally, then snapped.
   cells.forEach(function(cell) {
-    let newDate;
-
-    if (oldSpan <= 0) {
-      // Degenerate: every date is identical, so there is no span to preserve - collapse onto the start.
-      newDate = anchors.first.clone();
-    } else {
-      const frac = (cell.currentMs - oldStartMs) / oldSpan;
-      if (frac <= 0) {
-        newDate = anchors.first.clone();
-      } else if (frac >= 1) {
-        newDate = anchors.last.clone();
-      } else {
-        const target = DTMN.momentInUserZone(newStartMs + frac * newSpan);
-        newDate = snap ? DTMN.snapToSourceWeekday(target, cell.current) : target;
-      }
-    }
-
+    const newDate = DTMN.computeFittedDate(cell.currentMs, oldStartMs, oldSpan, anchors, snap, cell.current);
     DTMN.setDatePickerValue(cell.datepicker, newDate, cell.useTime);
   });
 };

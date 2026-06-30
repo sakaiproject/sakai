@@ -1,0 +1,12 @@
+{
+  "name": "datemanager-js-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone unit tests for the DateManager client-side date logic (initDatePicker.js). Not part of the Maven build.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "moment-timezone": "0.5.33"
+  }
+}
