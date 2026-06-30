@@ -24,20 +24,21 @@
     <script th:src="@{/js/initDatePicker.js}"></script>
     <meta http-equiv="Content-Style-Type" content="text/css" />
 
-    <div class="page-header border-bottom">
-      <h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
+    <div class="page-header border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h1 class="mb-0" th:text="#{page.title}">Date Manager</h1>
+      <div class="date-manager-actions">
+        <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
+        <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
+      </div>
     </div>
 
     <h2 class="h5 mt-3" th:text="#{section.batch.heading}">Bulk editing tools</h2>
     <p class="text-muted small mb-2" th:text="#{section.batch.help}">Set or shift many dates at once. Your changes appear in the item sections below.</p>
 
     <!-- Bulk tools, grouped behind a coloured accent bar to set them apart from the item sections
-         further down. Export/Import plus the collapsed Shift / Fit / Set-dates cards live here. -->
+         further down. The collapsed Shift / Fit / Set-dates cards live here. Export/Import sit in the
+         page header, top-right, since they act on the whole site rather than the in-page edits. -->
     <div class="dm-batch-tools border-start border-4 border-primary ps-3 mb-4">
-      <div class="date-manager-actions mb-3">
-        <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
-        <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
-      </div>
 
     <div class="card">
       <div class="card-header">
