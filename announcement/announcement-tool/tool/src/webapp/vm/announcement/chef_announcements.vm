@@ -439,6 +439,12 @@
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 
+					<div class="sakai-table-toolBar mb-3">
+						<div class="mb-auto">
+							#searchFilterPanel("searchAnnouncement", $searchString, "doSearch", "doSearch_clear")
+						</div>
+					</div> ##end search sakai-table-toolBar
+
 					<div class="sakai-table-toolBar">
 						<div class="sakai-table-filterContainer">
 							#define($viewSelectOptions)
@@ -453,7 +459,6 @@
 							#end
 							#end
 							#viewFilterPanel("viewFilterForm", "view", $viewSelectOptions, "doView")
-							#searchFilterPanel("searchAnnouncement", $searchString, "doSearch", "doSearch_clear")
 						</div>
 						#if ($messageListVector.iterator().hasNext())
 						<div class="sakai-table-pagerContainer">
