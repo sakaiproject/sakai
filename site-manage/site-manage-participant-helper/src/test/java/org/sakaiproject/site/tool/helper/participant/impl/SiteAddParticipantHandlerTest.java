@@ -180,6 +180,23 @@ public class SiteAddParticipantHandlerTest {
         assertFalse(handler.isValidMail("spaces in@email.com"));
     }
 
+    // ---- effectiveOfficialMode: Account type vs input format interaction --------------------
+
+    @Test
+    public void usernameWithSmartFallsBackToDelimited() {
+        // smart extraction is email-regex based and cannot match bare usernames
+        assertEquals("delimited", handler.effectiveOfficialMode("username", "smart"));
+    }
+
+    @Test
+    public void otherAccountTypesKeepChosenInputFormat() {
+        assertEquals("smart", handler.effectiveOfficialMode("auto", "smart"));
+        assertEquals("smart", handler.effectiveOfficialMode("email", "smart"));
+        assertEquals("line", handler.effectiveOfficialMode("username", "line"));
+        assertEquals("delimited", handler.effectiveOfficialMode("username", "delimited"));
+        assertEquals("delimited", handler.effectiveOfficialMode("auto", "delimited"));
+    }
+
     // ---- end-to-end of the parsing seam: smart extraction feeds email-only accounts ---------
 
     @Test

@@ -87,6 +87,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 			// csrf token
 			UIInput.make(participantForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
 			// official participant
+			makeAccountTypeSelect(participantForm, handler.officialAccountType);
 			makeDelimiterSelect(participantForm, "official", "#{siteAddParticipantHandler.officialDelimiter}", handler.officialDelimiter);
 			UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
 			UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
@@ -186,6 +187,38 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 				}
 			}
         }
+    }
+
+    /**
+     * Render a radio group (official box only) letting the user declare how to interpret the
+     * pasted entries: "auto" (detect email vs username by the @ char), "email", or "username".
+     * Mirrors the input-format radio group.
+     *
+     * @param form         the participant form container
+     * @param currentValue the handler's current officialAccountType value
+     */
+    private void makeAccountTypeSelect(UIForm form, String currentValue) {
+        String[] values = new String[]{"auto", "email", "username"};
+        String[] labels = new String[]{
+                messageLocator.getMessage("accounttype.auto"),
+                messageLocator.getMessage("accounttype.email"),
+                messageLocator.getMessage("accounttype.username")
+        };
+
+        UIMessage.make(form, "officialAccountTypeLegend", "accounttype.label");
+
+        StringList items = new StringList();
+        UISelect select = UISelect.make(form, "select-official-accounttype", null, "#{siteAddParticipantHandler.officialAccountType}", currentValue);
+        select.optionnames = UIOutputMany.make(labels);
+        String selectID = select.getFullID();
+        for (int i = 0; i < values.length; ++i) {
+            UIBranchContainer row = UIBranchContainer.make(form, "officialAccountType-row:", Integer.toString(i));
+            UISelectLabel lb = UISelectLabel.make(row, "officialAccountType-label", selectID, i);
+            UISelectChoice choice = UISelectChoice.make(row, "officialAccountType-select", selectID, i);
+            UILabelTargetDecorator.targetLabel(lb, choice);
+            items.add(values[i]);
+        }
+        select.optionlist.setValue(items.toStringArray());
     }
 
     /**

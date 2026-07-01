@@ -99,6 +99,8 @@ public class SiteAddParticipantHandler {
     @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
     @Getter @Setter public String officialDelimiter = "line";
+    // how to interpret official-account entries: "auto" (detect by @), "email", or "username"
+    @Getter @Setter public String officialAccountType = "auto";
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
     // realm for the site
     public AuthzGroup realm = null;
@@ -654,7 +656,7 @@ public class SiteAddParticipantHandler {
 		// check that there is something with which to work
 		// normalize any delimited (comma/semicolon) blob to one-entry-per-line first, so the
 		// per-line parsing below is reused unchanged (see normalizeDelimited)
-		officialAccounts = StringUtils.trimToNull(normalizeDelimited(officialAccountParticipant, officialDelimiter));
+		officialAccounts = StringUtils.trimToNull(normalizeDelimited(officialAccountParticipant, effectiveOfficialMode(officialAccountType, officialDelimiter)));
 		nonOfficialAccounts = StringUtils.trimToNull(normalizeDelimited(nonOfficialAccountParticipant, nonOfficialDelimiter));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
@@ -682,8 +684,19 @@ public class SiteAddParticipantHandler {
 					StringBuilder eidsForAllMatches = new StringBuilder();
 					StringBuilder eidsForAllMatchesAlertBuffer = new StringBuilder();
 					
-					if (!officialAccount.contains(EMAIL_CHAR)) {
-						// is not of email format, then look up by eid only
+					// decide whether to look the entry up as a username (eid) only, or also by email.
+					// "username"/"email" honor the explicit Account type choice; "auto" detects by the @ char.
+					boolean lookupByEidOnly;
+					if ("username".equals(officialAccountType)) {
+						lookupByEidOnly = true;
+					} else if ("email".equals(officialAccountType)) {
+						lookupByEidOnly = false;
+					} else {
+						lookupByEidOnly = !officialAccount.contains(EMAIL_CHAR);
+					}
+
+					if (lookupByEidOnly) {
+						// look up by eid (username) only
 						try {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
@@ -691,7 +704,7 @@ public class SiteAddParticipantHandler {
 							log.debug(messageLocator.getMessage("java.username", officialAccount), e);
 						}
 					} else {
-						// is email. Need to lookup by both eid and email address
+						// treat as email: look up by both eid and email address
 						try {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
@@ -965,6 +978,23 @@ public class SiteAddParticipantHandler {
 	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
 
 	/**
+	 * Resolve the input format to actually use for the official box given the chosen Account type.
+	 * "Smart" extraction relies on an email-format regex, which cannot match bare usernames, so when
+	 * the user has explicitly declared usernames we fall back to plain delimited splitting.
+	 *
+	 * @param accountType "auto", "email", or "username"
+	 * @param delimiter   the chosen input format ("line", "delimited", or "smart")
+	 * @return the effective input format to pass to {@link #normalizeDelimited(String, String)}
+	 */
+	// package-private for unit testing
+	String effectiveOfficialMode(String accountType, String delimiter) {
+		if ("username".equals(accountType) && "smart".equals(delimiter)) {
+			return "delimited";
+		}
+		return delimiter;
+	}
+
+	/**
 	 * Normalize a pasted account textarea to one entry per CRLF-separated line, according to the
 	 * chosen input format, so the existing per-line parsing handles it unchanged:
 	 * <ul>
@@ -1085,6 +1115,7 @@ public class SiteAddParticipantHandler {
 		nonOfficialAccountParticipant = null;
 		officialDelimiter = "line";
 		nonOfficialDelimiter = "line";
+		officialAccountType = "auto";
 		roleChoice = "sameRole";
 		statusChoice = "active";
 		sameRoleChoice = null;
