@@ -253,9 +253,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
                                 String description = site.getDescription();
                                 if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
-                                    String regex = "(?<![a-zA-Z0-9])" + Pattern.quote(oSiteId) + "(?![a-zA-Z0-9])";
-                                    String replacement = Matcher.quoteReplacement(nSiteId);
-                                    description = description.replaceAll(regex, replacement);
+                                    description = rewriteSiteIdInDescription(description, oSiteId, nSiteId);
                                     site.setDescription(description);
                                 }
 
@@ -502,9 +500,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
             String description = fromSite.getDescription();
             if (StringUtils.isNotBlank(description) && description.contains(fromSiteId)) {
-                String regex = "(?<![a-zA-Z0-9])" + java.util.regex.Pattern.quote(fromSiteId) + "(?![a-zA-Z0-9])";
-                String replacement = java.util.regex.Matcher.quoteReplacement(toSiteId);
-                description = description.replaceAll(regex, replacement);
+                description = rewriteSiteIdInDescription(description, fromSiteId, toSiteId);
             }
             toSite.setDescription(description);
 
@@ -1163,5 +1159,17 @@ public class SiteManageServiceImpl implements SiteManageService {
         } catch (Exception e) {
             log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e);
         }
+    }
+
+    /**
+     * Rewrite the site ID in the description links to point to the new site ID.
+     * @param description The description text to rewrite
+     * @param fromSiteId The site ID to replace
+     * @param toSiteId The site ID to replace with
+     **/
+    private String rewriteSiteIdInDescription(String description, String fromSiteId, String toSiteId) {
+        String regex = "(?<![a-zA-Z0-9])" + Pattern.quote(fromSiteId) + "(?![a-zA-Z0-9])";
+        String replacement = Matcher.quoteReplacement(toSiteId);
+        return description.replaceAll(regex, replacement);
     }
 }
