@@ -502,6 +502,23 @@ DTMN.getTermHiddenId = function(term) {
   return "term-hidden-" + term.replaceAll("_", "-");
 };
 
+// Default term-date -> column mapping applied on load so a fresh Bulk Anchor arrives pre-checked with
+// sane targets: the term's earliest date (Classes Start) fills every open/start column, and the latest
+// (Exam Ends) fills every due/close column. The instructor can tick or untick freely from there.
+DTMN.defaultTermTargets = {
+  classes_start: "open_date",
+  exam_ends: "due_date"
+};
+
+DTMN.applyDefaultTermTargets = function() {
+  Object.keys(DTMN.defaultTermTargets).forEach(function(term) {
+    const field = DTMN.defaultTermTargets[term];
+    document.querySelectorAll('.term-target[data-term="' + term + '"][data-field="' + field + '"]').forEach(function(check) {
+      check.checked = true;
+    });
+  });
+};
+
 DTMN.initTermDates = function(updates, notModified) {
 
   DTMN.termAllBtn = document.getElementById("apply-term-dates-all");
@@ -544,6 +561,7 @@ DTMN.initTermDates = function(updates, notModified) {
     DTMN.handleTermButtonClick(this, true, updates, notModified);
   }, false);
 
+  DTMN.applyDefaultTermTargets();
   DTMN.validateTermInputs();
 };
 
