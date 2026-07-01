@@ -1020,7 +1020,7 @@ DTMN.collectPreviewEvents = function() {
     const titleEl = row ? row.querySelector('td a span') : null;
     const itemTitle = titleEl ? titleEl.textContent.trim() : '';
     const fieldLabel = (DTMN.fieldLabels && DTMN.fieldLabels[field]) || field;
-    const timeSuffix = (useTime && DTMN.hasTime(parsed)) ? ' ' + parsed.format('LT') : '';
+    const timeSuffix = (useTime && DTMN.hasTime(parsed)) ? ' ' + parsed.locale(sakai.locale.userLocale).format('LT') : '';
 
     events.push({
       title: (itemTitle ? itemTitle + ' — ' : '') + fieldLabel + timeSuffix,
