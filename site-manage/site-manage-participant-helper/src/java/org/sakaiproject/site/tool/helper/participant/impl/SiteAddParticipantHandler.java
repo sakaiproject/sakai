@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -92,8 +94,11 @@ public class SiteAddParticipantHandler {
     @Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
     private List<String> invalidDomains;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
+    // input format for each account textarea: "line" (one entry per line) or "delimited" (comma/semicolon/line-break separated)
+    @Getter @Setter public String nonOfficialDelimiter = "line";
     @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
+    @Getter @Setter public String officialDelimiter = "line";
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
     // realm for the site
     public AuthzGroup realm = null;
@@ -647,8 +652,10 @@ public class SiteAddParticipantHandler {
 		String nonOfficialAccounts;
 
 		// check that there is something with which to work
-		officialAccounts = StringUtils.trimToNull(officialAccountParticipant);
-		nonOfficialAccounts = StringUtils.trimToNull(nonOfficialAccountParticipant);
+		// normalize any delimited (comma/semicolon) blob to one-entry-per-line first, so the
+		// per-line parsing below is reused unchanged (see normalizeDelimited)
+		officialAccounts = StringUtils.trimToNull(normalizeDelimited(officialAccountParticipant, officialDelimiter));
+		nonOfficialAccounts = StringUtils.trimToNull(normalizeDelimited(nonOfficialAccountParticipant, nonOfficialDelimiter));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
 
@@ -954,7 +961,51 @@ public class SiteAddParticipantHandler {
 		}
 	}
 
-	private String[] parseAccountIntoParts(String account) {
+	// matches an email-format token anywhere within a blob of pasted text (used by "smart" mode)
+	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
+
+	/**
+	 * Normalize a pasted account textarea to one entry per CRLF-separated line, according to the
+	 * chosen input format, so the existing per-line parsing handles it unchanged:
+	 * <ul>
+	 *   <li>{@code "line"} (default) &mdash; returned unchanged, preserving the non-official
+	 *       {@code email,lastName,firstName} per-line format.</li>
+	 *   <li>{@code "delimited"} &mdash; any run of comma / semicolon / whitespace (space, tab, or
+	 *       line break) becomes a single CRLF, so a list separated by any one of those delimiters is
+	 *       split into entries.</li>
+	 *   <li>{@code "smart"} &mdash; every email-format token is extracted from the blob (ignoring any
+	 *       surrounding text, punctuation, or delimiters); non-email tokens such as bare usernames
+	 *       are dropped. Extracted addresses are still validated downstream.</li>
+	 * </ul>
+	 *
+	 * @param raw  the raw textarea value (may be null)
+	 * @param mode the selected format: "line", "delimited", or "smart"
+	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
+	 */
+	// package-private for unit testing
+	String normalizeDelimited(String raw, String mode) {
+		if (raw == null) {
+			return null;
+		}
+		if ("smart".equals(mode)) {
+			Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
+			StringBuilder sb = new StringBuilder();
+			while (m.find()) {
+				if (sb.length() > 0) {
+					sb.append("\r\n");
+				}
+				sb.append(m.group());
+			}
+			return sb.toString();
+		}
+		if ("delimited".equals(mode)) {
+			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
+		}
+		return raw;
+	}
+
+	// package-private for unit testing
+	String[] parseAccountIntoParts(String account) {
 		if (StringUtils.isBlank(account)) {
 			return null;
 		}
@@ -986,7 +1037,8 @@ public class SiteAddParticipantHandler {
 		return !StringUtils.endsWithAny( domain, invalidDomains.toArray(new String[0]) );
 	}
 
-	private boolean isValidMail(String email) {
+	// package-private for unit testing
+	boolean isValidMail(String email) {
 		if (email == null || email.isEmpty()) return false;
 		
 		email = email.trim();
@@ -1031,6 +1083,8 @@ public class SiteAddParticipantHandler {
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new ArrayList<>();
 		nonOfficialAccountParticipant = null;
+		officialDelimiter = "line";
+		nonOfficialDelimiter = "line";
 		roleChoice = "sameRole";
 		statusChoice = "active";
 		sameRoleChoice = null;

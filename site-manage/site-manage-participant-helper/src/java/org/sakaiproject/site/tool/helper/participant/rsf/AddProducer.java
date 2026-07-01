@@ -87,6 +87,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 			// csrf token
 			UIInput.make(participantForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
 			// official participant
+			makeDelimiterSelect(participantForm, "official", "#{siteAddParticipantHandler.officialDelimiter}", handler.officialDelimiter);
 			UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
 			UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
 			UIOutput.make(participantForm, "officialAccountName", messageLocator.getMessage("officialAccountName"));
@@ -101,6 +102,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 			// non official participant
 			String allowAddNonOfficialParticipant = handler.getAllowNonOfficialAccount();
 			if (allowAddNonOfficialParticipant.equalsIgnoreCase("true")) {
+				makeDelimiterSelect(participantForm, "nonofficial", "#{siteAddParticipantHandler.nonOfficialDelimiter}", handler.nonOfficialDelimiter);
 				UIInput.make(participantForm, "nonOfficialAccountParticipant", "#{siteAddParticipantHandler.nonOfficialAccountParticipant}", handler.nonOfficialAccountParticipant);
 				UIOutput.make(participantForm, "nonOfficialAccountSectionTitle", messageLocator.getMessage("nonOfficialAccountSectionTitle"));
 				UIOutput.make(participantForm, "nonOfficialAccountName", messageLocator.getMessage("nonOfficialAccountName"));
@@ -184,6 +186,40 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 				}
 			}
         }
+    }
+
+    /**
+     * Render a radio group letting the user choose the input format for an account textarea:
+     * "line" (one entry per line, the default) or "delimited" (comma / semicolon / line-break
+     * separated). Mirrors the role-choice radio group above.
+     *
+     * @param form         the participant form container
+     * @param prefix       rsf id prefix, "official" or "nonofficial"
+     * @param binding      EL binding for the selected value on the handler
+     * @param currentValue the handler's current value for this field
+     */
+    private void makeDelimiterSelect(UIForm form, String prefix, String binding, String currentValue) {
+        String[] values = new String[]{"line", "delimited", "smart"};
+        String[] labels = new String[]{
+                messageLocator.getMessage("delimiter.line"),
+                messageLocator.getMessage("delimiter.delimited"),
+                messageLocator.getMessage("delimiter.smart")
+        };
+
+        UIMessage.make(form, prefix + "DelimiterLegend", "delimiter.label");
+
+        StringList items = new StringList();
+        UISelect select = UISelect.make(form, "select-" + prefix + "-delimiter", null, binding, currentValue);
+        select.optionnames = UIOutputMany.make(labels);
+        String selectID = select.getFullID();
+        for (int i = 0; i < values.length; ++i) {
+            UIBranchContainer row = UIBranchContainer.make(form, prefix + "Delimiter-row:", Integer.toString(i));
+            UISelectLabel lb = UISelectLabel.make(row, prefix + "Delimiter-label", selectID, i);
+            UISelectChoice choice = UISelectChoice.make(row, prefix + "Delimiter-select", selectID, i);
+            UILabelTargetDecorator.targetLabel(lb, choice);
+            items.add(values[i]);
+        }
+        select.optionlist.setValue(items.toStringArray());
     }
 
     public ViewParameters getViewParameters() {
