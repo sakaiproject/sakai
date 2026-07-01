@@ -1116,7 +1116,6 @@ public class PDFAssessmentBean implements Serializable {
 	 * @param resourceId The resource id of the attachment file
 	 */
 	private void appendAttachmentHtml(StringBuffer buffer, String filename, String mimeType, String resourceId) {
-		buffer.append("  ");
 		buffer.append(formattedText.escapeHtml(filename, false));
 
 		String mime = mimeType != null ? mimeType.toLowerCase() : "";
@@ -1124,7 +1123,9 @@ public class PDFAssessmentBean implements Serializable {
 			buffer.append("<br />  <img src=\"/samigo");
 			buffer.append(resourceId);
 			buffer.append("\" />");
-			buffer.append("<br />");
 		}
+
+		buffer.append("<br />");
+		buffer.append("<br />");
 	}
 }

@@ -205,15 +205,20 @@ import lombok.extern.slf4j.Slf4j;
 			h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
 
 			Map<String, Object> props = this.getInterfaceProps();
-			Map<String, Object> tempProps = new java.util.HashMap<>();
+			Map<String, Object> tempProps = props == null
+					? new java.util.HashMap<>()
+					: new java.util.HashMap<>(props);
 
 			Map<String, Image> imgDict = new java.util.HashMap<>();
 			imgDict.put(imgPath, imgPdf);
 			tempProps.put("image_dictionary", imgDict);
 
 			this.setInterfaceProps(tempProps);
-			super.startElement(tag, h);
-			this.setInterfaceProps(props);
+			try {
+				super.startElement(tag, h);
+			} finally {
+				this.setInterfaceProps(props);
+			}
 		} catch (Exception e) {
 			log.error("Error processing image for PDF", e);
 		}
