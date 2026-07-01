@@ -67,9 +67,9 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
-    public void smartEmailBlobExtractsEmailsAndDropsStrayUsernames() {
-        // the blob contains an '@', so it is detected as an email blob: only email-format tokens
-        // are kept (a bare username mixed into an email blob is dropped)
+    public void smartEmailLineExtractsEmailsAndDropsNameFragments() {
+        // a single line that contains an '@' is an email line: only email-format tokens are kept,
+        // so bare tokens sharing the line (name fragments) are dropped
         String out = handler.normalizeSmart("jsmith, teacher01, real@x.com");
         assertArrayEquals(new String[] {"real@x.com"}, entries(out));
     }
@@ -79,6 +79,38 @@ public class SiteAddParticipantHandlerTest {
         // no '@' anywhere: detected as a username list and split on any delimiter
         String out = handler.normalizeSmart("jsmith, teacher01; prof.x  admin1");
         assertArrayEquals(new String[] {"jsmith", "teacher01", "prof.x", "admin1"}, entries(out));
+    }
+
+    // ---- normalizeSmart: legacy one-entry-per-line formats must keep working -----------------
+
+    @Test
+    public void smartKeepsLegacyMixedEmailAndUsernameLines() {
+        // regression guard: the pre-smart tool split on line breaks and routed each line by the '@'
+        // char, so a mixed list of usernames and emails, one per line, must still add ALL of them
+        String out = handler.normalizeSmart("jsmith\r\njdoe@x.com\r\nteacher01\r\nasmith@y.edu");
+        assertArrayEquals(
+                new String[] {"jsmith", "jdoe@x.com", "teacher01", "asmith@y.edu"},
+                entries(out));
+    }
+
+    @Test
+    public void smartKeepsLegacyOneUsernamePerLine() {
+        String out = handler.normalizeSmart("jsmith\r\nteacher01\r\nadmin1");
+        assertArrayEquals(new String[] {"jsmith", "teacher01", "admin1"}, entries(out));
+    }
+
+    @Test
+    public void smartKeepsLegacyOneEmailPerLine() {
+        String out = handler.normalizeSmart("a@x.com\r\nb@y.com\r\nc@z.com");
+        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
+    }
+
+    @Test
+    public void smartExtractsMultipleEmailsFromASingleLine() {
+        // improvement over legacy: a line with several addresses (any delimiter) is split, not
+        // rejected as one invalid entry
+        String out = handler.normalizeSmart("a@x.com b@y.com\r\nc@z.com");
+        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
     }
 
     // ---- normalizeNonOfficial: guest box keeps email,lastName,firstName ----------------------

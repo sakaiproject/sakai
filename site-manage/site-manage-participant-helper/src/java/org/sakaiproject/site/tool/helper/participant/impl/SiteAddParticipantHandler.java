@@ -967,11 +967,20 @@ public class SiteAddParticipantHandler {
 
 	/**
 	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
-	 * existing per-line parsing handles it unchanged. The content is auto-detected at the blob level:
-	 * if the paste contains an {@code @}, it is treated as an email blob and every email-format token
-	 * is extracted, ignoring surrounding names / punctuation / delimiters; otherwise it is treated as
-	 * a username list and split on any run of comma / semicolon / whitespace. Either way the extracted
-	 * entries are validated downstream and the per-entry lookup routes emails vs usernames.
+	 * existing per-line parsing handles it unchanged. The paste is examined <em>one line at a time</em>
+	 * so the legacy one-entry-per-line format keeps working, including a mixed list of emails and
+	 * usernames on separate lines:
+	 * <ul>
+	 *   <li>a line containing an {@code @} is treated as an email line and every email-format token on
+	 *       it is extracted, ignoring surrounding names / brackets / punctuation (so a messy paste like
+	 *       {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)} yields both addresses);</li>
+	 *   <li>a line with no {@code @} is treated as a username list and split on any run of comma /
+	 *       semicolon / whitespace.</li>
+	 * </ul>
+	 * Deciding per line (rather than per blob) preserves everything the pre-smart tool accepted — it
+	 * split only on line breaks and routed each entry by the {@code @} char — while additionally
+	 * accepting other delimiters and messy email pastes. Either way the extracted entries are validated
+	 * downstream and the per-entry lookup routes emails vs usernames.
 	 *
 	 * <p>This drives the <em>official</em> box, whose entries are single tokens (an email or a
 	 * username). The non-official (guest) box carries structured {@code email,lastName,firstName}
@@ -986,20 +995,35 @@ public class SiteAddParticipantHandler {
 		if (raw == null) {
 			return null;
 		}
-		if (raw.contains(EMAIL_CHAR)) {
-			// looks like an email blob: pull out every address, ignoring names / brackets / junk
-			Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
-			StringBuilder sb = new StringBuilder();
-			while (m.find()) {
-				if (sb.length() > 0) {
-					sb.append("\r\n");
+		StringBuilder sb = new StringBuilder();
+		for (String line : raw.split("\r\n|\r|\n")) {
+			if (line.contains(EMAIL_CHAR)) {
+				// email line: pull out every address, ignoring names / brackets / junk
+				Matcher m = EMAIL_EXTRACT_PATTERN.matcher(line);
+				while (m.find()) {
+					appendEntry(sb, m.group());
 				}
-				sb.append(m.group());
+			} else {
+				// no @ on this line: treat as a username list separated by any delimiter
+				String trimmed = line.trim();
+				if (!trimmed.isEmpty()) {
+					for (String token : trimmed.split("[,;\\s]+")) {
+						if (!token.isEmpty()) {
+							appendEntry(sb, token);
+						}
+					}
+				}
 			}
-			return sb.toString();
 		}
-		// no @ anywhere: treat as a username list separated by any delimiter
-		return raw.trim().replaceAll("[,;\\s]+", "\r\n");
+		return sb.toString();
+	}
+
+	/** Append one parsed entry to the running CRLF-separated buffer. */
+	private static void appendEntry(StringBuilder sb, String entry) {
+		if (sb.length() > 0) {
+			sb.append("\r\n");
+		}
+		sb.append(entry);
 	}
 
 	/**

@@ -52,16 +52,24 @@
 
 	/**
 	 * Mirror of SiteAddParticipantHandler.normalizeSmart for the official box: return the list of
-	 * entries the server would parse out of the raw textarea value. If it contains an "@" the emails
-	 * are extracted; otherwise it is split into usernames on any delimiter.
+	 * entries the server would parse out of the raw textarea value. Each line is handled on its own so
+	 * a mixed email/username list keeps working: a line with an "@" has its emails extracted; a line
+	 * without an "@" is split into usernames on any delimiter.
 	 * @param {string} raw the raw textarea value
 	 * @returns {string[]} the parsed entries (empty when the input is blank)
 	 */
 	function normalize(raw) {
 		raw = raw || "";
 		if (!raw.trim()) return [];
-		if (raw.indexOf("@") >= 0) return raw.match(EMAIL_RE) || [];
-		return raw.trim().split(/[,;\s]+/).filter(Boolean);
+		var out = [];
+		raw.split(/\r\n|\r|\n/).forEach(function (line) {
+			if (line.indexOf("@") >= 0) {
+				(line.match(EMAIL_RE) || []).forEach(function (e) { out.push(e); });
+			} else {
+				line.trim().split(/[,;\s]+/).filter(Boolean).forEach(function (u) { out.push(u); });
+			}
+		});
+		return out;
 	}
 
 	/**
