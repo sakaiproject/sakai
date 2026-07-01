@@ -94,6 +94,11 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 			UIOutput.make(participantForm, "officialAccountName", messageLocator.getMessage("officialAccountName"));
 			UIOutput.make(participantForm, "officialAccountLabel", messageLocator.getMessage("officialAccountLabel"));
 
+			// localized templates for the live "parsed count" indicator (rendered client-side in Add.html)
+			UIOutput.make(participantForm, "countEmailsTmpl", messageLocator.getMessage("add.count.emails"));
+			UIOutput.make(participantForm, "countUsernamesTmpl", messageLocator.getMessage("add.count.usernames"));
+			UIOutput.make(participantForm, "countMixedTmpl", messageLocator.getMessage("add.count.mixed"));
+
 			String pickerAction = handler.getServerConfigurationString("officialAccountPickerAction");
 			if (pickerAction != null && !pickerAction.isEmpty()) {
 				UIOutput.make(participantForm, "officialAccountPickerLabel", handler.getServerConfigurationString("officialAccountPickerLabel"));
