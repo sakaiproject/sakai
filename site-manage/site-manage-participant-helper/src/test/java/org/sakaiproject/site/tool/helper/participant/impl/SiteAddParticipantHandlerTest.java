@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Focused unit tests for the pasted-input handling in {@link SiteAddParticipantHandler}:
- * the input-format normalization ("line" / "delimited" / "smart"), the non-official
+ * Focused unit tests for the pasted-input handling in {@link SiteAddParticipantHandler}: the
+ * smart-parse normalization of the official box, the non-official
  * {@code email,lastName,firstName} parsing, and email validation. These methods are pure
  * (no injected services), so the handler is exercised directly.
  */
@@ -49,62 +49,18 @@ public class SiteAddParticipantHandlerTest {
                 .toArray(String[]::new);
     }
 
-    // ---- normalizeDelimited: line mode (default, backward compatible) ----------------------
+    // ---- normalizeSmart: extract emails from any blob, or split a username list --------------
 
     @Test
-    public void lineModeReturnsRawUnchanged() {
-        String raw = "jdoe@yahoo.com,Doe,John\r\nasmith@x.edu";
-        // line mode must not touch the text, preserving the email,last,first per-line format
-        assertEquals(raw, handler.normalizeDelimited(raw, "line"));
+    public void nullInputReturnsNull() {
+        assertNull(handler.normalizeSmart(null));
     }
-
-    @Test
-    public void nullInputReturnsNullInEveryMode() {
-        assertNull(handler.normalizeDelimited(null, "line"));
-        assertNull(handler.normalizeDelimited(null, "delimited"));
-        assertNull(handler.normalizeDelimited(null, "smart"));
-    }
-
-    @Test
-    public void unknownModeFallsBackToRaw() {
-        String raw = "a@x.com,b@y.com";
-        assertEquals(raw, handler.normalizeDelimited(raw, "bogus"));
-    }
-
-    // ---- normalizeDelimited: delimited mode ------------------------------------------------
-
-    @Test
-    public void delimitedSplitsOnCommas() {
-        String out = handler.normalizeDelimited("a@x.com,b@y.com,c@z.com", "delimited");
-        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
-    }
-
-    @Test
-    public void delimitedSplitsOnSemicolons() {
-        String out = handler.normalizeDelimited("a@x.com;b@y.com;c@z.com", "delimited");
-        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
-    }
-
-    @Test
-    public void delimitedHandlesMixedDelimitersWhitespaceAndEmptyRuns() {
-        // commas, semicolons, spaces, newlines and repeated/trailing delimiters all collapse
-        String out = handler.normalizeDelimited("a@x.com, b@y.com;;\n  c@z.com , ", "delimited");
-        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
-    }
-
-    @Test
-    public void delimitedSplitsOnPlainWhitespace() {
-        String out = handler.normalizeDelimited("a@x.com b@y.com\tc@z.com", "delimited");
-        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
-    }
-
-    // ---- normalizeDelimited: smart mode (extract emails from any blob) ----------------------
 
     @Test
     public void smartExtractsEmailsFromMessyBlob() {
         String blob = "Please add John Doe <jdoe@yahoo.com>, and asmith@x.edu (Alice); "
                 + "also \"bob@sub.domain.co.uk\" -- thanks!";
-        String out = handler.normalizeDelimited(blob, "smart");
+        String out = handler.normalizeSmart(blob);
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com", "asmith@x.edu", "bob@sub.domain.co.uk"},
                 entries(out));
@@ -114,32 +70,23 @@ public class SiteAddParticipantHandlerTest {
     public void smartEmailBlobExtractsEmailsAndDropsStrayUsernames() {
         // the blob contains an '@', so it is detected as an email blob: only email-format tokens
         // are kept (a bare username mixed into an email blob is dropped)
-        String out = handler.normalizeDelimited("jsmith, teacher01, real@x.com", "smart");
+        String out = handler.normalizeSmart("jsmith, teacher01, real@x.com");
         assertArrayEquals(new String[] {"real@x.com"}, entries(out));
     }
 
     @Test
     public void smartUsernameListSplitsOnAnyDelimiter() {
         // no '@' anywhere: detected as a username list and split on any delimiter
-        String out = handler.normalizeDelimited("jsmith, teacher01; prof.x  admin1", "smart");
+        String out = handler.normalizeSmart("jsmith, teacher01; prof.x  admin1");
         assertArrayEquals(new String[] {"jsmith", "teacher01", "prof.x", "admin1"}, entries(out));
     }
 
-    @Test
-    public void smartDefaultsAreSelected() {
-        // Smart parse is the default input format for both boxes
-        SiteAddParticipantHandler fresh = new SiteAddParticipantHandler();
-        assertEquals("smart", fresh.officialDelimiter);
-        assertEquals("smart", fresh.nonOfficialDelimiter);
-        assertEquals("auto", fresh.officialAccountType);
-    }
-
-    // ---- normalizeNonOfficial: guest box keeps email,lastName,firstName under smart -----------
+    // ---- normalizeNonOfficial: guest box keeps email,lastName,firstName ----------------------
 
     @Test
-    public void nonOfficialSmartKeepsStructuredRowIntact() {
-        // regression: with smart the default, a legacy guest row must NOT be flattened to the email
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John", "smart");
+    public void nonOfficialKeepsStructuredRowIntact() {
+        // regression: a legacy guest row must NOT be flattened to the email
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John");
         assertArrayEquals(new String[] {"jdoe@yahoo.com,Doe,John"}, entries(out));
         // and the name fields still survive the downstream per-line parse
         assertArrayEquals(new String[] {"jdoe@yahoo.com", "Doe", "John"},
@@ -147,50 +94,40 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
-    public void nonOfficialSmartKeepsMultipleStructuredLines() {
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\nasmith@x.edu,Smith,Alice", "smart");
+    public void nonOfficialKeepsMultipleStructuredLines() {
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\nasmith@x.edu,Smith,Alice");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
                 entries(out));
     }
 
     @Test
-    public void nonOfficialSmartSeparatesPeopleOnSemicolonsKeepingNames() {
+    public void nonOfficialSeparatesPeopleOnSemicolonsKeepingNames() {
         // semicolons separate people; the comma inside each person stays as the field separator
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John; asmith@x.edu,Smith,Alice", "smart");
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John; asmith@x.edu,Smith,Alice");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
                 entries(out));
     }
 
     @Test
-    public void nonOfficialSmartSplitsBareEmailBlob() {
+    public void nonOfficialSplitsBareEmailBlob() {
         // no names: a comma/whitespace list of addresses on one line becomes one email per line
-        String out = handler.normalizeNonOfficial("a@x.com, b@y.com c@z.com", "smart");
+        String out = handler.normalizeNonOfficial("a@x.com, b@y.com c@z.com");
         assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
     }
 
     @Test
-    public void nonOfficialSmartHandlesMixOfStructuredRowsAndBlobLine() {
-        String out = handler.normalizeNonOfficial(
-                "jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com", "smart");
+    public void nonOfficialHandlesMixOfStructuredRowsAndBlobLine() {
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "a@x.com", "b@y.com"},
                 entries(out));
     }
 
     @Test
-    public void nonOfficialNonSmartModesDeferToNormalizeDelimited() {
-        String raw = "jdoe@yahoo.com,Doe,John\r\nasmith@x.edu";
-        assertEquals(handler.normalizeDelimited(raw, "line"),
-                handler.normalizeNonOfficial(raw, "line"));
-        assertEquals(handler.normalizeDelimited(raw, "delimited"),
-                handler.normalizeNonOfficial(raw, "delimited"));
-    }
-
-    @Test
     public void nonOfficialNullReturnsNull() {
-        assertNull(handler.normalizeNonOfficial(null, "smart"));
+        assertNull(handler.normalizeNonOfficial(null));
     }
 
     // ---- parseAccountIntoParts: non-official email,lastName,firstName ------------------------
@@ -251,29 +188,12 @@ public class SiteAddParticipantHandlerTest {
         assertFalse(handler.isValidMail("spaces in@email.com"));
     }
 
-    // ---- effectiveOfficialMode: Account type vs input format interaction --------------------
-
-    @Test
-    public void usernameWithSmartFallsBackToDelimited() {
-        // smart extraction is email-regex based and cannot match bare usernames
-        assertEquals("delimited", handler.effectiveOfficialMode("username", "smart"));
-    }
-
-    @Test
-    public void otherAccountTypesKeepChosenInputFormat() {
-        assertEquals("smart", handler.effectiveOfficialMode("auto", "smart"));
-        assertEquals("smart", handler.effectiveOfficialMode("email", "smart"));
-        assertEquals("line", handler.effectiveOfficialMode("username", "line"));
-        assertEquals("delimited", handler.effectiveOfficialMode("username", "delimited"));
-        assertEquals("delimited", handler.effectiveOfficialMode("auto", "delimited"));
-    }
-
     // ---- end-to-end of the parsing seam: smart extraction feeds email-only accounts ---------
 
     @Test
     public void smartExtractionProducesValidatableEmails() {
         String blob = "team: alice@x.edu; bob@y.org,  carol@z.net";
-        for (String eid : entries(handler.normalizeDelimited(blob, "smart"))) {
+        for (String eid : entries(handler.normalizeSmart(blob))) {
             assertTrue("expected extracted token to validate: " + eid, handler.isValidMail(eid));
         }
     }

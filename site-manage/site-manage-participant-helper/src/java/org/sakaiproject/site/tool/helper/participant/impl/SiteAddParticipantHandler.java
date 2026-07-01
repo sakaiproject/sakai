@@ -94,13 +94,8 @@ public class SiteAddParticipantHandler {
     @Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
     private List<String> invalidDomains;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
-    // input format for each account textarea: "smart" (auto-detect, default), "delimited" (comma/semicolon/whitespace separated), or "line" (one entry per line)
-    @Getter @Setter public String nonOfficialDelimiter = "smart";
     @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
-    @Getter @Setter public String officialDelimiter = "smart";
-    // how to interpret official-account entries: "auto" (detect by @), "email", or "username"
-    @Getter @Setter public String officialAccountType = "auto";
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
     // realm for the site
     public AuthzGroup realm = null;
@@ -654,10 +649,10 @@ public class SiteAddParticipantHandler {
 		String nonOfficialAccounts;
 
 		// check that there is something with which to work
-		// normalize any delimited (comma/semicolon) blob to one-entry-per-line first, so the
-		// per-line parsing below is reused unchanged (see normalizeDelimited)
-		officialAccounts = StringUtils.trimToNull(normalizeDelimited(officialAccountParticipant, effectiveOfficialMode(officialAccountType, officialDelimiter)));
-		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant, nonOfficialDelimiter));
+		// smart-parse each blob into one-entry-per-line first, so the per-line parsing below is
+		// reused unchanged (see normalizeSmart / normalizeNonOfficial)
+		officialAccounts = StringUtils.trimToNull(normalizeSmart(officialAccountParticipant));
+		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
 
@@ -684,16 +679,9 @@ public class SiteAddParticipantHandler {
 					StringBuilder eidsForAllMatches = new StringBuilder();
 					StringBuilder eidsForAllMatchesAlertBuffer = new StringBuilder();
 					
-					// decide whether to look the entry up as a username (eid) only, or also by email.
-					// "username"/"email" honor the explicit Account type choice; "auto" detects by the @ char.
-					boolean lookupByEidOnly;
-					if ("username".equals(officialAccountType)) {
-						lookupByEidOnly = true;
-					} else if ("email".equals(officialAccountType)) {
-						lookupByEidOnly = false;
-					} else {
-						lookupByEidOnly = !officialAccount.contains(EMAIL_CHAR);
-					}
+					// decide whether to look the entry up as a username (eid) only, or also by email:
+					// an entry containing @ is treated as an email, otherwise as a username.
+					boolean lookupByEidOnly = !officialAccount.contains(EMAIL_CHAR);
 
 					if (lookupByEidOnly) {
 						// look up by eid (username) only
@@ -974,83 +962,49 @@ public class SiteAddParticipantHandler {
 		}
 	}
 
-	// matches an email-format token anywhere within a blob of pasted text (used by "smart" mode)
+	// matches an email-format token anywhere within a blob of pasted text (used by smart parsing)
 	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
 
 	/**
-	 * Resolve the input format to actually use for the official box given the chosen Account type.
-	 * "Smart" extraction relies on an email-format regex, which cannot match bare usernames, so when
-	 * the user has explicitly declared usernames we fall back to plain delimited splitting.
-	 *
-	 * @param accountType "auto", "email", or "username"
-	 * @param delimiter   the chosen input format ("line", "delimited", or "smart")
-	 * @return the effective input format to pass to {@link #normalizeDelimited(String, String)}
-	 */
-	// package-private for unit testing
-	String effectiveOfficialMode(String accountType, String delimiter) {
-		if ("username".equals(accountType) && "smart".equals(delimiter)) {
-			return "delimited";
-		}
-		return delimiter;
-	}
-
-	/**
-	 * Normalize a pasted account textarea to one entry per CRLF-separated line, according to the
-	 * chosen input format, so the existing per-line parsing handles it unchanged:
-	 * <ul>
-	 *   <li>{@code "line"} (default) &mdash; returned unchanged, preserving the non-official
-	 *       {@code email,lastName,firstName} per-line format.</li>
-	 *   <li>{@code "delimited"} &mdash; any run of comma / semicolon / whitespace (space, tab, or
-	 *       line break) becomes a single CRLF, so a list separated by any one of those delimiters is
-	 *       split into entries.</li>
-	 *   <li>{@code "smart"} (default) &mdash; auto-detect the content at the blob level: if the paste
-	 *       contains an {@code @}, treat it as an email blob and extract every email-format token,
-	 *       ignoring surrounding names / punctuation / delimiters; otherwise treat it as a username
-	 *       list and split on any delimiter. Either way the extracted entries are validated
-	 *       downstream and the per-entry lookup routes emails vs usernames.</li>
-	 * </ul>
+	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
+	 * existing per-line parsing handles it unchanged. The content is auto-detected at the blob level:
+	 * if the paste contains an {@code @}, it is treated as an email blob and every email-format token
+	 * is extracted, ignoring surrounding names / punctuation / delimiters; otherwise it is treated as
+	 * a username list and split on any run of comma / semicolon / whitespace. Either way the extracted
+	 * entries are validated downstream and the per-entry lookup routes emails vs usernames.
 	 *
 	 * <p>This drives the <em>official</em> box, whose entries are single tokens (an email or a
 	 * username). The non-official (guest) box carries structured {@code email,lastName,firstName}
-	 * rows, so it is normalized by {@link #normalizeNonOfficial(String, String)} instead, which
-	 * preserves those name fields under smart mode.
+	 * rows, so it is normalized by {@link #normalizeNonOfficial(String)} instead, which preserves
+	 * those name fields.
 	 *
-	 * @param raw  the raw textarea value (may be null)
-	 * @param mode the selected format: "smart", "delimited", or "line"
-	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
+	 * @param raw the raw textarea value (may be null)
+	 * @return the text normalized to CRLF-separated entries, or null when {@code raw} is null
 	 */
 	// package-private for unit testing
-	String normalizeDelimited(String raw, String mode) {
+	String normalizeSmart(String raw) {
 		if (raw == null) {
 			return null;
 		}
-		if ("smart".equals(mode)) {
-			if (raw.contains(EMAIL_CHAR)) {
-				// looks like an email blob: pull out every address, ignoring names / brackets / junk
-				Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
-				StringBuilder sb = new StringBuilder();
-				while (m.find()) {
-					if (sb.length() > 0) {
-						sb.append("\r\n");
-					}
-					sb.append(m.group());
+		if (raw.contains(EMAIL_CHAR)) {
+			// looks like an email blob: pull out every address, ignoring names / brackets / junk
+			Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
+			StringBuilder sb = new StringBuilder();
+			while (m.find()) {
+				if (sb.length() > 0) {
+					sb.append("\r\n");
 				}
-				return sb.toString();
+				sb.append(m.group());
 			}
-			// no @ anywhere: treat as a username list separated by any delimiter
-			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
+			return sb.toString();
 		}
-		if ("delimited".equals(mode)) {
-			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
-		}
-		return raw;
+		// no @ anywhere: treat as a username list separated by any delimiter
+		return raw.trim().replaceAll("[,;\\s]+", "\r\n");
 	}
 
 	/**
-	 * Normalize the non-official (guest) box, whose per-person format is
-	 * {@code email,lastName,firstName}, into one person per CRLF-separated line.
-	 * <p>Only {@code "smart"} gets special handling here; {@code "line"} and {@code "delimited"}
-	 * defer to {@link #normalizeDelimited(String, String)} unchanged. Under smart mode:
+	 * Smart-parse the non-official (guest) box, whose per-person format is
+	 * {@code email,lastName,firstName}, into one person per CRLF-separated line:
 	 * <ul>
 	 *   <li>people are separated by line breaks or semicolons (a comma stays <em>inside</em> a
 	 *       person as the field separator between email and names);</li>
@@ -1062,17 +1016,13 @@ public class SiteAddParticipantHandler {
 	 * This lets a guest paste keep structured name rows while still accepting a plain comma /
 	 * semicolon / whitespace separated list of addresses.
 	 *
-	 * @param raw  the raw textarea value (may be null)
-	 * @param mode the selected format: "smart", "delimited", or "line"
-	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
+	 * @param raw the raw textarea value (may be null)
+	 * @return the text normalized to CRLF-separated entries, or null when {@code raw} is null
 	 */
 	// package-private for unit testing
-	String normalizeNonOfficial(String raw, String mode) {
+	String normalizeNonOfficial(String raw) {
 		if (raw == null) {
 			return null;
-		}
-		if (!"smart".equals(mode)) {
-			return normalizeDelimited(raw, mode);
 		}
 		StringBuilder sb = new StringBuilder();
 		// split people on line breaks / semicolons; commas remain inside a person (field separator)
@@ -1185,9 +1135,6 @@ public class SiteAddParticipantHandler {
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new ArrayList<>();
 		nonOfficialAccountParticipant = null;
-		officialDelimiter = "smart";
-		nonOfficialDelimiter = "smart";
-		officialAccountType = "auto";
 		roleChoice = "sameRole";
 		statusChoice = "active";
 		sameRoleChoice = null;
