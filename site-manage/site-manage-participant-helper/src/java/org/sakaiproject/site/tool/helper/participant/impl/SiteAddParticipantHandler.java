@@ -94,11 +94,11 @@ public class SiteAddParticipantHandler {
     @Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
     private List<String> invalidDomains;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
-    // input format for each account textarea: "line" (one entry per line) or "delimited" (comma/semicolon/line-break separated)
-    @Getter @Setter public String nonOfficialDelimiter = "line";
+    // input format for each account textarea: "smart" (auto-detect, default), "delimited" (comma/semicolon/whitespace separated), or "line" (one entry per line)
+    @Getter @Setter public String nonOfficialDelimiter = "smart";
     @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
-    @Getter @Setter public String officialDelimiter = "line";
+    @Getter @Setter public String officialDelimiter = "smart";
     // how to interpret official-account entries: "auto" (detect by @), "email", or "username"
     @Getter @Setter public String officialAccountType = "auto";
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
@@ -1003,13 +1003,15 @@ public class SiteAddParticipantHandler {
 	 *   <li>{@code "delimited"} &mdash; any run of comma / semicolon / whitespace (space, tab, or
 	 *       line break) becomes a single CRLF, so a list separated by any one of those delimiters is
 	 *       split into entries.</li>
-	 *   <li>{@code "smart"} &mdash; every email-format token is extracted from the blob (ignoring any
-	 *       surrounding text, punctuation, or delimiters); non-email tokens such as bare usernames
-	 *       are dropped. Extracted addresses are still validated downstream.</li>
+	 *   <li>{@code "smart"} (default) &mdash; auto-detect the content at the blob level: if the paste
+	 *       contains an {@code @}, treat it as an email blob and extract every email-format token,
+	 *       ignoring surrounding names / punctuation / delimiters; otherwise treat it as a username
+	 *       list and split on any delimiter. Either way the extracted entries are validated
+	 *       downstream and the per-entry lookup routes emails vs usernames.</li>
 	 * </ul>
 	 *
 	 * @param raw  the raw textarea value (may be null)
-	 * @param mode the selected format: "line", "delimited", or "smart"
+	 * @param mode the selected format: "smart", "delimited", or "line"
 	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
 	 */
 	// package-private for unit testing
@@ -1018,15 +1020,20 @@ public class SiteAddParticipantHandler {
 			return null;
 		}
 		if ("smart".equals(mode)) {
-			Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
-			StringBuilder sb = new StringBuilder();
-			while (m.find()) {
-				if (sb.length() > 0) {
-					sb.append("\r\n");
+			if (raw.contains(EMAIL_CHAR)) {
+				// looks like an email blob: pull out every address, ignoring names / brackets / junk
+				Matcher m = EMAIL_EXTRACT_PATTERN.matcher(raw);
+				StringBuilder sb = new StringBuilder();
+				while (m.find()) {
+					if (sb.length() > 0) {
+						sb.append("\r\n");
+					}
+					sb.append(m.group());
 				}
-				sb.append(m.group());
+				return sb.toString();
 			}
-			return sb.toString();
+			// no @ anywhere: treat as a username list separated by any delimiter
+			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
 		}
 		if ("delimited".equals(mode)) {
 			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
@@ -1113,8 +1120,8 @@ public class SiteAddParticipantHandler {
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new ArrayList<>();
 		nonOfficialAccountParticipant = null;
-		officialDelimiter = "line";
-		nonOfficialDelimiter = "line";
+		officialDelimiter = "smart";
+		nonOfficialDelimiter = "smart";
 		officialAccountType = "auto";
 		roleChoice = "sameRole";
 		statusChoice = "active";

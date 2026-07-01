@@ -111,15 +111,27 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
-    public void smartIgnoresNonEmailTokensLikeBareUsernames() {
-        // bare usernames have no '@' and are not extracted in smart mode
+    public void smartEmailBlobExtractsEmailsAndDropsStrayUsernames() {
+        // the blob contains an '@', so it is detected as an email blob: only email-format tokens
+        // are kept (a bare username mixed into an email blob is dropped)
         String out = handler.normalizeDelimited("jsmith, teacher01, real@x.com", "smart");
         assertArrayEquals(new String[] {"real@x.com"}, entries(out));
     }
 
     @Test
-    public void smartWithNoEmailsYieldsEmpty() {
-        assertEquals(0, entries(handler.normalizeDelimited("no addresses here", "smart")).length);
+    public void smartUsernameListSplitsOnAnyDelimiter() {
+        // no '@' anywhere: detected as a username list and split on any delimiter
+        String out = handler.normalizeDelimited("jsmith, teacher01; prof.x  admin1", "smart");
+        assertArrayEquals(new String[] {"jsmith", "teacher01", "prof.x", "admin1"}, entries(out));
+    }
+
+    @Test
+    public void smartDefaultsAreSelected() {
+        // Smart parse is the default input format for both boxes
+        SiteAddParticipantHandler fresh = new SiteAddParticipantHandler();
+        assertEquals("smart", fresh.officialDelimiter);
+        assertEquals("smart", fresh.nonOfficialDelimiter);
+        assertEquals("auto", fresh.officialAccountType);
     }
 
     // ---- parseAccountIntoParts: non-official email,lastName,firstName ------------------------
