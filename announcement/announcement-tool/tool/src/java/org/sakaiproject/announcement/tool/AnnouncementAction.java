@@ -225,6 +225,9 @@ public class AnnouncementAction extends PagedResourceActionII
     private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
     private static final String VIEW_MODE_BYROLE  = "view.byrole";
     private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
+    private static final String VIEW_MODE_DRAFTS   = "view.drafts";
+    private static final String VIEW_MODE_POSTED   = "view.posted";
+    private static final String VIEW_MODE_SCHEDULED = "view.scheduled";
 
     /** The number of days, by default, before retraction. */
     private static final long FUTURE_DAYS = 7;
@@ -744,6 +747,18 @@ public class AnnouncementAction extends PagedResourceActionII
 							else if (VIEW_MODE_BYROLE.equals(view))
 							{
 								messages = getMessagesByRoles(site, channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_DRAFTS))
+							{
+								messages = getMessagesDrafts(channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_POSTED))
+							{
+								messages = getMessagesPosted(channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_SCHEDULED))
+							{
+								messages = getMessagesScheduled(channel, null, true, state, portlet);
 							}
 						}
 						else
@@ -1348,6 +1363,97 @@ public class AnnouncementAction extends PagedResourceActionII
 		return rv;
 
 	} // getMessagesPublic
+
+	/**
+	 * Get the whole list of viewable announcements and keep only the drafts (hidden messages).
+	 * The underlying getMessages() already restricts drafts to those the current user is
+	 * permitted to see (author or annc.read.drafts), so this simply narrows to draft==true.
+	 *
+	 * @throws PermissionException
+	 */
+	private List<AnnouncementWrapper> getMessagesDrafts(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	{
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+
+		for (AnnouncementWrapper aMessage : messageList)
+		{
+			if (isHidden(aMessage))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // getMessagesDrafts
+
+	/**
+	 * Get the whole list of viewable announcements and keep only the ones that are currently
+	 * published: not a draft, past their release date, and not yet retracted.
+	 *
+	 * @throws PermissionException
+	 */
+	private List<AnnouncementWrapper> getMessagesPosted(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	{
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+
+		for (AnnouncementWrapper aMessage : messageList)
+		{
+			if (!isHidden(aMessage) && announcementService.isMessageViewable(aMessage))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // getMessagesPosted
+
+	/**
+	 * Get the whole list of viewable announcements and keep only the ones scheduled for the
+	 * future: not a draft, but with a release date that has not yet arrived.
+	 *
+	 * @throws PermissionException
+	 */
+	private List<AnnouncementWrapper> getMessagesScheduled(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	{
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+
+		for (AnnouncementWrapper aMessage : messageList)
+		{
+			if (!isHidden(aMessage) && isScheduled(aMessage))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // getMessagesScheduled
+
+	/**
+	 * Determine if a message has a release date set in the future (i.e. it is scheduled but
+	 * not yet released). Returns false when no release date is set.
+	 */
+	private boolean isScheduled(AnnouncementMessage message)
+	{
+		try
+		{
+			Instant releaseDate = message.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE);
+			return releaseDate != null && Instant.now().isBefore(releaseDate);
+		}
+		catch (Exception e)
+		{
+			// No release date set, so it is not scheduled for the future
+			return false;
+		}
+	}
 
 	/**
 	 * This will limit the maximum number of announcements that is shown.
