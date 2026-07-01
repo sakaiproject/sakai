@@ -20,12 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.web.impl;
 
-import static org.sakaiproject.tool.api.ToolManager.PORTAL_VISIBLE;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -72,7 +71,6 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	private static final String VERSION_ATTR = "version";
 	private static final String WEB_CONTENT_URL_PROP = "source";
 	private static final String HEIGHT_PROP = "height";
-	private static final String CUSTOM_ICON_PROP = "imsti.fa_icon";
 	private static final String SPECIAL_PROP = "special";
 	
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
@@ -417,13 +415,11 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 						if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 							String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
+							String targetContentUrl = contentUrl == null ? null : contentUrl.replace(fromContext, toContext);
 							String toolTitle = toolConfig.getTitle();
 							final String pageTitle = currPage.getTitle();
 							final int pagePosition = currPage.getPosition();
 							final boolean pagePopup = currPage.isPopUp();
-							final String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
-							final String customIcon = toolConfig.getPlacementConfig().getProperty(CUSTOM_ICON_PROP);
-							final String visibility = toolConfig.getPlacementConfig().getProperty(PORTAL_VISIBLE);
 
 							// in some cases the new site already has all of this. so make
 							// sure we don't make a duplicate
@@ -435,7 +431,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									if (config.getToolId().equals(TOOL_ID)) {
 									    SitePage p = config.getContainingPage();
 									    if (pageTitle != null && pageTitle.equals(p.getTitle()) &&
-											contentUrl != null && contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
+											targetContentUrl != null && targetContentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
 											skip = true;
 											break;
 									    }
@@ -452,20 +448,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								ToolConfiguration tool = page.addTool();
 								tool.setTool(TOOL_ID, tr);
 								tool.setTitle(toolTitle);
-								if (contentUrl != null) {
-									// Replace references to the site we're copying from.
-									contentUrl = contentUrl.replace(fromContext, toContext);
-									tool.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, contentUrl);
-								}
-								if (height != null) {
-									tool.getPlacementConfig().setProperty(HEIGHT_PROP, height);
-								}
-								if (customIcon != null) {
-									tool.getPlacementConfig().setProperty(CUSTOM_ICON_PROP, customIcon);
-								}
-								if (visibility != null) {
-									tool.getPlacementConfig().setProperty(PORTAL_VISIBLE, visibility);
-								}
+								copyPlacementConfig(toolConfig, tool, fromContext, toContext);
 							}
 						}
 					}
@@ -486,6 +469,22 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		}
 
 		return null;
+	}
+
+	private void copyPlacementConfig(ToolConfiguration sourceTool, ToolConfiguration targetTool, String fromContext, String toContext)
+	{
+		Properties sourceConfig = sourceTool.getPlacementConfig();
+		Properties targetConfig = targetTool.getPlacementConfig();
+
+		for (String propertyName : sourceConfig.stringPropertyNames())
+		{
+			String propertyValue = sourceConfig.getProperty(propertyName);
+			if (WEB_CONTENT_URL_PROP.equals(propertyName))
+			{
+				propertyValue = propertyValue.replace(fromContext, toContext);
+			}
+			targetConfig.setProperty(propertyName, propertyValue);
+		}
 	}
 
 	public String trimToNull(String value)
