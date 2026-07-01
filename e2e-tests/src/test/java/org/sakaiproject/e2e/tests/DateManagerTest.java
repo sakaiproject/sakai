@@ -30,7 +30,7 @@ class DateManagerTest extends SakaiUiTestBase {
     void dateColumnsMatchSiteTools() {
         sakai.login("instructor1");
 
-        // The "Bulk Anchor" term-date matrix renders one checkbox per (tool, date column) present in the
+        // The "Bulk Term Date Matrix" term-date matrix renders one checkbox per (tool, date column) present in the
         // site - driven by tool presence (not by whether the tool has items), so it is the surface that
         // reflects "which date fields exist for this site's tools". Each checkbox carries
         // data-root='collapse-<tool>' and data-field='<column>'; we scope to one term row for a count of 1.

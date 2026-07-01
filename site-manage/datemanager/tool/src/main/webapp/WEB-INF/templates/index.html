@@ -76,7 +76,7 @@
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="date-diff-apply" th:text="#{datediff.button}" disabled>Use as shift</button>
               </div>
             </div>
-            <p class="dm-note small mt-2 mb-0" th:text="#{datediff.note}">Note: this only loads the whole-day count into the shift field below. That raw integer day shift is what actually takes effect when applied — the From/To dates themselves are not applied.</p>
+            <p class="dm-note small mt-2 mb-0" th:text="#{datediff.note}">Note: this is just a convenient datediff utility — it only loads the whole-day count into the shift field below. That raw integer day shift is what actually takes effect when applied — the From/To dates themselves are not applied.</p>
           </div>
 
           <div class="sak-banner-error d-none" id="dateShifterError">
@@ -135,7 +135,7 @@
     <div class="card">
       <div class="card-header">
         <h4 class="card-title">
-          <a data-bs-toggle="collapse" href="#dm-batch-set" class="collapsed" aria-expanded="false"><span th:text="#{section.set.heading}">Bulk Anchor</span></a>
+          <a data-bs-toggle="collapse" href="#dm-batch-set" class="collapsed" aria-expanded="false"><span th:text="#{section.set.heading}">Bulk Term Date Matrix</span></a>
         </h4>
       </div>
       <div id="dm-batch-set" class="collapse" data-bs-parent=".dm-batch-tools">

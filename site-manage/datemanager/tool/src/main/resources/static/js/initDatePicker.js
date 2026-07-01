@@ -502,7 +502,7 @@ DTMN.getTermHiddenId = function(term) {
   return "term-hidden-" + term.replaceAll("_", "-");
 };
 
-// Default term-date -> column mapping applied on load so a fresh Bulk Anchor arrives pre-checked with
+// Default term-date -> column mapping applied on load so a fresh Bulk Term Date Matrix arrives pre-checked with
 // sane targets: the term's earliest date (Classes Start) fills every open/start column, and the latest
 // (Exam Ends) fills every due/close column. The instructor can tick or untick freely from there.
 DTMN.defaultTermTargets = {
