@@ -30,76 +30,77 @@ class DateManagerTest extends SakaiUiTestBase {
     void bulkSetterOnlyShowsFieldsForSiteTools() {
         sakai.login("instructor1");
 
+        // The per-column date setters live in each tool section's column headers, so a setter is rendered
+        // only when the site has that tool (and that tool has that date column). Each setter's id is
+        // bulkcol-<toolId>-<field>. Sections are collapsed by default (progressive disclosure), so we
+        // assert presence in the DOM rather than visibility.
         String gradebookResourcesSite = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.resources"));
         page.navigate(gradebookResourcesSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertColumnSetterPresent("gradebookItems", "due_date");
+        assertColumnSetterPresent("resources", "open_date");
+        assertColumnSetterPresent("resources", "due_date");
+        assertColumnSetterAbsent("assignments", "open_date");
+        assertColumnSetterAbsent("assignments", "accept_until");
+        assertColumnSetterAbsent("assessments", "feedback_start");
+        assertColumnSetterAbsent("signupMeetings", "signup_begins");
 
         String assignmentsSite = sakai.createCourse("instructor1",
             List.of("sakai\\.gradebookng", "sakai\\.resources", "sakai\\.assignment\\.grades"));
         page.navigate(assignmentsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertColumnSetterPresent("assignments", "open_date");
+        assertColumnSetterPresent("assignments", "due_date");
+        assertColumnSetterPresent("assignments", "accept_until");
+        assertColumnSetterAbsent("assessments", "feedback_start");
+        assertColumnSetterAbsent("signupMeetings", "signup_begins");
 
         String gradebookOnlySite = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng"));
         page.navigate(gradebookOnlySite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-open-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
+        assertColumnSetterPresent("gradebookItems", "due_date");
+        assertColumnSetterAbsent("gradebookItems", "open_date");
+        assertColumnSetterAbsent("assignments", "open_date");
 
         String assessmentsSite = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
         page.navigate(assessmentsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-accept-until");
-        assertBulkDateFieldVisible("bulk-feedback-start");
-        assertBulkDateFieldVisible("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertColumnSetterPresent("assessments", "open_date");
+        assertColumnSetterPresent("assessments", "due_date");
+        assertColumnSetterPresent("assessments", "accept_until");
+        assertColumnSetterPresent("assessments", "feedback_start");
+        assertColumnSetterPresent("assessments", "feedback_end");
+        assertColumnSetterAbsent("signupMeetings", "signup_begins");
 
         String signupSite = sakai.createCourse("instructor1", List.of("sakai\\.signup"));
         page.navigate(signupSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-signup-begins");
-        assertBulkDateFieldVisible("bulk-signup-deadline");
-        assertBulkDateFieldHidden("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
+        assertColumnSetterPresent("signupMeetings", "open_date");
+        assertColumnSetterPresent("signupMeetings", "due_date");
+        assertColumnSetterPresent("signupMeetings", "signup_begins");
+        assertColumnSetterPresent("signupMeetings", "signup_deadline");
+        assertColumnSetterAbsent("assignments", "accept_until");
+        assertColumnSetterAbsent("assessments", "feedback_start");
 
         String lessonsSite = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
         page.navigate(lessonsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldHidden("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
+        assertColumnSetterPresent("lessons", "open_date");
+        assertColumnSetterAbsent("lessons", "due_date");
+        assertColumnSetterAbsent("assignments", "open_date");
 
         String dashboardOnlySite = sakai.createCourse("instructor1", List.of("sakai\\.dashboard"));
         page.navigate(dashboardOnlySite);
         openDateManager();
 
-        assertThat(page.locator(".date-manager-setter")).hasCount(0);
+        // No dated tools -> no per-column setters at all.
+        assertThat(page.locator(".bulk-col-setter")).hasCount(0);
     }
 
     private void openDateManager() {
@@ -113,12 +114,12 @@ class DateManagerTest extends SakaiUiTestBase {
         assertNoTemplateRenderingError();
     }
 
-    private void assertBulkDateFieldVisible(String id) {
-        assertThat(page.locator("#" + id)).isVisible();
+    private void assertColumnSetterPresent(String toolId, String field) {
+        assertThat(page.locator("#bulkcol-" + toolId + "-" + field)).hasCount(1);
     }
 
-    private void assertBulkDateFieldHidden(String id) {
-        assertThat(page.locator("#" + id)).hasCount(0);
+    private void assertColumnSetterAbsent(String toolId, String field) {
+        assertThat(page.locator("#bulkcol-" + toolId + "-" + field)).hasCount(0);
     }
 
     private void assertNoTemplateRenderingError() {
