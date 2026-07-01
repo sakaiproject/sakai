@@ -28,8 +28,8 @@
     <div class="page-header border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
       <h1 class="mb-0" th:text="#{page.title}">Date Manager</h1>
       <div class="date-manager-actions">
-        <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
-        <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
+        <a id="exportDates" class="btn btn-secondary btn-sm" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
+        <a id="importDates" class="btn btn-secondary btn-sm" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
       </div>
     </div>
 
@@ -67,7 +67,7 @@
                 <span id="date-diff-result" class="fw-bold" aria-live="polite" th:attr="data-template=#{datediff.result}"></span>
               </div>
               <div class="col-auto">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="date-diff-apply" th:text="#{datediff.button}" disabled>Use as shift</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="date-diff-apply" th:text="#{datediff.button}" disabled>Use as shift</button>
               </div>
             </div>
             <p class="small mt-2 mb-0" th:text="#{datediff.note}">Note: this is just a convenient datediff utility — it only loads the whole-day count into the shift field below. That raw integer day shift is what actually takes effect when applied — the From/To dates themselves are not applied.</p>
@@ -83,8 +83,8 @@
               <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
             </label>
           </p>
-          <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
-          <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
+          <button class="btn btn-secondary m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
+          <button class="btn btn-secondary m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
         </div>
       </div>
     </div>
@@ -120,8 +120,8 @@
               </label>
             </div>
           </div>
-          <button type="button" class="btn btn-link m-2" id="fit-all-dates" th:text="#{datefit.all.button}" disabled></button>
-          <button type="button" class="btn btn-link m-2" id="fit-visible-dates" th:text="#{datefit.visible.button}" disabled></button>
+          <button type="button" class="btn btn-secondary m-2" id="fit-all-dates" th:text="#{datefit.all.button}" disabled></button>
+          <button type="button" class="btn btn-secondary m-2" id="fit-visible-dates" th:text="#{datefit.visible.button}" disabled></button>
         </div>
       </div>
     </div>
@@ -243,8 +243,8 @@
           </tbody>
         </table>
       </div>
-      <button type="button" class="btn btn-link m-2" id="apply-term-dates-all" th:text="#{termdates.all.button}" disabled></button>
-      <button type="button" class="btn btn-link m-2" id="apply-term-dates-visible" th:text="#{termdates.visible.button}" disabled></button>
+      <button type="button" class="btn btn-secondary m-2" id="apply-term-dates-all" th:text="#{termdates.all.button}" disabled></button>
+      <button type="button" class="btn btn-secondary m-2" id="apply-term-dates-visible" th:text="#{termdates.visible.button}" disabled></button>
     </div>
         </div>
       </div>
@@ -360,7 +360,7 @@
             id="datemanager-preview"
             aria-controls="modal-calendar-preview"
             th:text="#{button.calendar.preview}">Visual Preview</button>
-        <button type="button" class="btn btn-link" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
+        <button type="button" class="btn btn-secondary" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
       <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>

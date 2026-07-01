@@ -175,7 +175,7 @@
 	<input type="text" class="form-control bulk-col-input" th:id="${'bulkcol-' + cid}"
 		th:attr="data-tool=${toolId},data-field=${field},aria-label=#{datesetter.column.aria},placeholder=#{datesetter.column.placeholder}" />
 	<input type="hidden" class="bulk-col-hidden" th:id="${'bulkcol-hidden-' + cid}" th:attr="data-tool=${toolId},data-field=${field}" />
-	<button type="button" class="btn btn-outline-secondary bulk-col-apply" th:attr="data-tool=${toolId},data-field=${field},title=#{datesetter.column.button.title},aria-label=#{datesetter.column.button.title}">
+	<button type="button" class="btn btn-secondary bulk-col-apply" th:attr="data-tool=${toolId},data-field=${field},title=#{datesetter.column.button.title},aria-label=#{datesetter.column.button.title}">
 		<i class="fa fa-arrow-down" aria-hidden="true"></i>
 	</button>
 </div>
