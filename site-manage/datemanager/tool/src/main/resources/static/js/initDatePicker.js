@@ -978,3 +978,125 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
     DTMN.enableShiftControls(button);
   }
 };
+
+// ---------------------------------------------------------------------------
+// Calendar preview: a read-only month grid that plots every date currently
+// entered in the tables (one marker per date field) so the user can visually
+// check the outcome of a shift/fit/anchor before choosing Save Changes.
+// ---------------------------------------------------------------------------
+
+// Accent colour per tool, so markers are visually grouped by tool type.
+DTMN.previewToolColors = {
+  assignments:    "#0d6efd",
+  assessments:    "#6f42c1",
+  gradebookItems: "#198754",
+  signupMeetings: "#fd7e14",
+  resources:      "#20c997",
+  calendarEvents: "#0dcaf0",
+  forums:         "#d63384",
+  announcements:  "#dc3545",
+  lessons:        "#6c757d"
+};
+
+// Read the live hidden-input values and build one FullCalendar event per non-empty
+// date. Events are all-day and keyed on the calendar day so they land squarely in the
+// day cell regardless of time zone; the time (when present) is shown in the marker text.
+DTMN.collectPreviewEvents = function() {
+  const events = [];
+  document.querySelectorAll('input[type=hidden][data-tool][data-field]').forEach(function(hidden) {
+    const value = hidden.value;
+    if (!value) {
+      return;
+    }
+    const tool = hidden.getAttribute('data-tool');
+    const field = hidden.getAttribute('data-field');
+    const useTime = tool !== 'gradebookItems';
+    const parsed = DTMN.parseInputDateValue(value, useTime);
+    if (!parsed || !parsed.isValid()) {
+      return;
+    }
+
+    const row = hidden.closest('tr');
+    const titleEl = row ? row.querySelector('td a span') : null;
+    const itemTitle = titleEl ? titleEl.textContent.trim() : '';
+    const fieldLabel = (DTMN.fieldLabels && DTMN.fieldLabels[field]) || field;
+    const timeSuffix = (useTime && DTMN.hasTime(parsed)) ? ' ' + parsed.format('LT') : '';
+
+    events.push({
+      title: (itemTitle ? itemTitle + ' — ' : '') + fieldLabel + timeSuffix,
+      start: parsed.format('YYYY-MM-DD'),
+      allDay: true,
+      color: DTMN.previewToolColors[tool] || '#6c757d'
+    });
+  });
+  return events;
+};
+
+DTMN.renderCalendarPreview = function() {
+  const events = DTMN.collectPreviewEvents();
+  const emptyMsg = document.getElementById('datemanager-calendar-empty');
+  const calendarEl = document.getElementById('datemanager-calendar');
+  if (!calendarEl) {
+    return;
+  }
+
+  if (!events.length) {
+    emptyMsg && emptyMsg.classList.remove('d-none');
+    calendarEl.classList.add('d-none');
+    return;
+  }
+  emptyMsg && emptyMsg.classList.add('d-none');
+  calendarEl.classList.remove('d-none');
+
+  const locale = (sakai && sakai.locale && sakai.locale.userLanguage) || 'en';
+
+  if (!DTMN.previewCalendar) {
+    DTMN.previewCalendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      themeSystem: 'bootstrap5',
+      locale: locale,
+      displayEventTime: false,
+      height: 'auto',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      },
+      buttonIcons: {
+        prev: 'chevron-left',
+        next: 'chevron-right'
+      },
+      events: events
+    });
+    DTMN.previewCalendar.render();
+  } else {
+    DTMN.previewCalendar.removeAllEvents();
+    DTMN.previewCalendar.addEventSource(events);
+    DTMN.previewCalendar.updateSize();
+  }
+
+  // Open on the earliest date so the first populated month is visible immediately.
+  const earliest = events.reduce(function(min, ev) {
+    return (min === null || ev.start < min) ? ev.start : min;
+  }, null);
+  if (earliest) {
+    DTMN.previewCalendar.gotoDate(earliest);
+  }
+};
+
+DTMN.initCalendarPreview = function() {
+  const button = document.getElementById('datemanager-preview');
+  const modalEl = document.getElementById('modal-calendar-preview');
+  if (!button || !modalEl) {
+    return;
+  }
+
+  button.addEventListener('click', function() {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  });
+
+  // Render only once the modal is visible so FullCalendar can measure the container.
+  modalEl.addEventListener('shown.bs.modal', function() {
+    DTMN.renderCalendarPreview();
+  });
+};

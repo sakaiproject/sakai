@@ -104,6 +104,27 @@ class DateManagerTest extends SakaiUiTestBase {
         assertThat(page.locator(".term-target")).hasCount(0);
     }
 
+    @Test
+    void visualPreviewOpensCalendar() {
+        sakai.login("instructor1");
+
+        // Any site with a dated tool renders the footer actions; the Visual Preview button and its
+        // read-only calendar modal are wired regardless of whether the site has any dated items yet.
+        String site = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.resources"));
+        page.navigate(site);
+        openDateManager();
+
+        Locator previewButton = page.locator("#datemanager-preview");
+        assertThat(previewButton).isVisible();
+
+        previewButton.click();
+
+        // The modal opens (its title resolves via i18n) and mounts either the FullCalendar month grid
+        // or the empty-state message, depending on whether the site has any dated items.
+        assertThat(page.locator("#modal-calendar-preview")).isVisible();
+        assertThat(page.locator("#datemanager-preview-title")).isVisible();
+    }
+
     private void openDateManager() {
         sakai.toolClick("Site Info");
         Locator dateManager = page.locator(".navIntraTool a, .navIntraTool button")

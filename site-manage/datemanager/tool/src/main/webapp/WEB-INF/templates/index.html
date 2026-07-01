@@ -18,6 +18,7 @@
         includeLatestJQuery('datemanager/index.html');
         includeWebjarLibrary('momentjs');
         includeWebjarLibrary('moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js');
+        includeWebjarLibrary('fullcalendar');
       /*]]>*/
     </script>
     <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
@@ -351,6 +352,10 @@
             th:text="#{button.save}"
             disabled>
         </button>
+        <button type="button" class="btn btn-secondary"
+            id="datemanager-preview"
+            aria-controls="modal-calendar-preview"
+            th:text="#{button.calendar.preview}">Visual Preview</button>
         <button type="button" class="btn btn-link" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
@@ -370,6 +375,24 @@
             <div class="modal-footer act">
               <button type="button" class="btn btn-primary" id="modal-btn-confirm" th:text="#{button.save}">Save Changes</button>
               <button type="button" class="btn btn-secondary" id="modal-btn-cancel" th:text="#{button.cancel}">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read-only calendar preview: plots every date currently entered below into a month grid so the
+           user can visually sanity-check a shift/fit/anchor before choosing Save Changes. -->
+      <div class="modal fade" tabindex="-1" aria-hidden="true" aria-labelledby="datemanager-preview-title" id="modal-calendar-preview">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 id="datemanager-preview-title" th:text="#{calendar.preview.title}" class="modal-title">Calendar preview of all dates</h5>
+              <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-muted small" th:text="#{calendar.preview.help}"></p>
+              <p id="datemanager-calendar-empty" class="d-none" th:text="#{calendar.preview.empty}"></p>
+              <div id="datemanager-calendar"></div>
             </div>
           </div>
         </div>
@@ -476,12 +499,25 @@
 
           var notModified = [];
 
+          // Localized labels for each editable date column, used by the calendar preview to name markers
+          // ("<item title> — <field label>"). Reuses the same column keys the table headers render with.
+          DTMN.fieldLabels = {
+            open_date: /*[[#{column.open.date}]]*/ 'Open Date',
+            due_date: /*[[#{column.due.date}]]*/ 'Due Date',
+            accept_until: /*[[#{column.accept.until}]]*/ 'Accept Until Date',
+            feedback_start: /*[[#{column.feedback.start.date}]]*/ 'Show Feedback On',
+            feedback_end: /*[[#{column.feedback.end.date}]]*/ 'Show Feedback Until',
+            signup_begins: /*[[#{column.signup.begins.date}]]*/ 'Sign-up Begins Date',
+            signup_deadline: /*[[#{column.signup.deadline.date}]]*/ 'Sign-up Ends Date'
+          };
+
           DTMN.initDatePicker(updates, notModified);
           DTMN.initShifter(updates, notModified);
           DTMN.initDateDiff();
           DTMN.initFitter(updates, notModified);
           DTMN.initColumnBulkSetters(updates, notModified);
           DTMN.initTermDates(updates, notModified);
+          DTMN.initCalendarPreview();
 
           function printErrors() {
             $('.errors').empty();
