@@ -21,6 +21,7 @@
 
 package org.sakaiproject.announcement.tool;
 
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -231,6 +233,9 @@ public class AnnouncementAction extends PagedResourceActionII
     private static final String VIEW_MODE_POSTED   = "view.posted";
     private static final String VIEW_MODE_SCHEDULED = "view.scheduled";
     private static final String VIEW_MODE_MINE     = "view.mine";
+
+    /** The View filters that narrow the announcement list by state or authorship. */
+    private enum AnnouncementFilter { ALL, DRAFTS, POSTED, SCHEDULED, MINE }
 
     /** The number of days, by default, before retraction. */
     private static final long FUTURE_DAYS = 7;
@@ -753,19 +758,19 @@ public class AnnouncementAction extends PagedResourceActionII
 							}
 							else if (view.equals(VIEW_MODE_DRAFTS))
 							{
-								messages = getMessagesDrafts(channel, null, true, state, portlet);
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.DRAFTS);
 							}
 							else if (view.equals(VIEW_MODE_POSTED))
 							{
-								messages = getMessagesPosted(channel, null, true, state, portlet);
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.POSTED);
 							}
 							else if (view.equals(VIEW_MODE_SCHEDULED))
 							{
-								messages = getMessagesScheduled(channel, null, true, state, portlet);
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.SCHEDULED);
 							}
 							else if (view.equals(VIEW_MODE_MINE))
 							{
-								messages = getMessagesMine(channel, null, true, state, portlet);
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.MINE);
 							}
 						}
 						else
@@ -1378,109 +1383,44 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // getMessagesPublic
 
 	/**
-	 * Get the whole list of viewable announcements and keep only the drafts (hidden messages).
-	 * The underlying getMessages() already restricts drafts to those the current user is
-	 * permitted to see (author or annc.read.drafts), so this simply narrows to draft==true.
-	 *
-	 * @throws PermissionException
+	 * Narrow an already-fetched, viewable announcement list to a single View filter.
+	 * getMessages() has already applied the tool's permission and viewability checks (and
+	 * restricted drafts to those the current user may see), so each case here only narrows by
+	 * message state or authorship. Modeled on AssignmentAction.filterAssignments().
 	 */
-	private List<AnnouncementWrapper> getMessagesDrafts(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
-			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	private List<AnnouncementWrapper> filterMessages(List<AnnouncementWrapper> messageList, AnnouncementFilter filter)
 	{
-		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List<AnnouncementWrapper> rv = new ArrayList<>();
-
-		for (AnnouncementWrapper aMessage : messageList)
+		switch (filter)
 		{
-			if (isHidden(aMessage))
-			{
-				rv.add(aMessage);
-			}
+			case ALL:
+				return messageList;
+			case DRAFTS:
+				return messageList.stream()
+						.filter(this::isHidden)
+						.collect(Collectors.toList());
+			case POSTED:
+				return messageList.stream()
+						.filter(m -> !isHidden(m) && announcementService.isMessageViewable(m))
+						.collect(Collectors.toList());
+			case SCHEDULED:
+				return messageList.stream()
+						.filter(m -> !isHidden(m) && isScheduled(m))
+						.collect(Collectors.toList());
+			case MINE:
+				String currentUserId = SessionManager.getCurrentSessionUserId();
+				if (currentUserId == null)
+				{
+					return Collections.emptyList();
+				}
+				return messageList.stream()
+						.filter(m -> m.getAnnouncementHeader().getFrom() != null
+								&& currentUserId.equals(m.getAnnouncementHeader().getFrom().getId()))
+						.collect(Collectors.toList());
+			default:
+				return Collections.emptyList();
 		}
 
-		return rv;
-
-	} // getMessagesDrafts
-
-	/**
-	 * Get the whole list of viewable announcements and keep only the ones authored by the
-	 * current user. The underlying getMessages() already applies the tool's permission and
-	 * viewability checks, so this simply narrows to messages whose author is the current user.
-	 *
-	 * @throws PermissionException
-	 */
-	private List<AnnouncementWrapper> getMessagesMine(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
-			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
-	{
-		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List<AnnouncementWrapper> rv = new ArrayList<>();
-
-		String currentUserId = SessionManager.getCurrentSessionUserId();
-		if (currentUserId == null)
-		{
-			return rv;
-		}
-
-		for (AnnouncementWrapper aMessage : messageList)
-		{
-			if (aMessage.getAnnouncementHeader().getFrom() != null
-					&& currentUserId.equals(aMessage.getAnnouncementHeader().getFrom().getId()))
-			{
-				rv.add(aMessage);
-			}
-		}
-
-		return rv;
-
-	} // getMessagesMine
-
-	/**
-	 * Get the whole list of viewable announcements and keep only the ones that are currently
-	 * published: not a draft, past their release date, and not yet retracted.
-	 *
-	 * @throws PermissionException
-	 */
-	private List<AnnouncementWrapper> getMessagesPosted(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
-			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
-	{
-		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List<AnnouncementWrapper> rv = new ArrayList<>();
-
-		for (AnnouncementWrapper aMessage : messageList)
-		{
-			if (!isHidden(aMessage) && announcementService.isMessageViewable(aMessage))
-			{
-				rv.add(aMessage);
-			}
-		}
-
-		return rv;
-
-	} // getMessagesPosted
-
-	/**
-	 * Get the whole list of viewable announcements and keep only the ones scheduled for the
-	 * future: not a draft, but with a release date that has not yet arrived.
-	 *
-	 * @throws PermissionException
-	 */
-	private List<AnnouncementWrapper> getMessagesScheduled(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
-			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
-	{
-		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List<AnnouncementWrapper> rv = new ArrayList<>();
-
-		for (AnnouncementWrapper aMessage : messageList)
-		{
-			if (!isHidden(aMessage) && isScheduled(aMessage))
-			{
-				rv.add(aMessage);
-			}
-		}
-
-		return rv;
-
-	} // getMessagesScheduled
+	} // filterMessages
 
 	/**
 	 * Determine if a message has a release date set in the future (i.e. it is scheduled but
@@ -1503,9 +1443,9 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	/**
 	 * Narrow a list of announcements to those matching the active search term (STATE_SEARCH),
-	 * matching case-insensitively against the subject, author display name, and body. When no
-	 * search term is set the list is returned unchanged. Filtering the full viewable list here
-	 * (before paging/trimming) keeps the counts and pager authoritative across all pages.
+	 * matching case- and accent-insensitively against the subject, author display name, and body.
+	 * When no search term is set the list is returned unchanged. Filtering the full viewable list
+	 * here (before paging/trimming) keeps the counts and pager authoritative across all pages.
 	 */
 	private List<AnnouncementWrapper> filterMessagesBySearch(List<AnnouncementWrapper> messages, SessionState sstate)
 	{
@@ -1515,13 +1455,15 @@ public class AnnouncementAction extends PagedResourceActionII
 			return messages;
 		}
 
+		String normalizedSearch = normalizeStringForSearch(search);
 		List<AnnouncementWrapper> rv = new ArrayList<>();
 		for (AnnouncementWrapper aMessage : messages)
 		{
-			if (StringUtils.containsIgnoreCase(aMessage.getAnnouncementHeader().getSubject(), search)
-					|| StringUtils.containsIgnoreCase(aMessage.getBody(), search)
-					|| (aMessage.getAnnouncementHeader().getFrom() != null
-						&& StringUtils.containsIgnoreCase(aMessage.getAnnouncementHeader().getFrom().getDisplayName(), search)))
+			String author = aMessage.getAnnouncementHeader().getFrom() != null
+					? aMessage.getAnnouncementHeader().getFrom().getDisplayName() : null;
+			if (normalizeStringForSearch(aMessage.getAnnouncementHeader().getSubject()).contains(normalizedSearch)
+					|| normalizeStringForSearch(aMessage.getBody()).contains(normalizedSearch)
+					|| normalizeStringForSearch(author).contains(normalizedSearch))
 			{
 				rv.add(aMessage);
 			}
@@ -1530,6 +1472,18 @@ public class AnnouncementAction extends PagedResourceActionII
 		return rv;
 
 	} // filterMessagesBySearch
+
+	/**
+	 * Normalize a string for case- and accent-insensitive search: strip diacritics and lowercase.
+	 * Returns "" for null input so callers can match against nullable fields without a guard.
+	 * Modeled on AssignmentAction.normalizeStringForSearch().
+	 */
+	private String normalizeStringForSearch(String input)
+	{
+		if (input == null) return "";
+		String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
+		return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
+	}
 
 	/**
 	 * This will limit the maximum number of announcements that is shown.
