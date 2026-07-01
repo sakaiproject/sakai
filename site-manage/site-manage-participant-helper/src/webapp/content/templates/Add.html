@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script type="text/javascript" src="/sakai-site-manage-participant-helper/content/js/parsed-count.js"></script>
 </head>
 
 <body>
@@ -124,100 +125,5 @@
 		</form>
 	</div>
 </div>
-<!-- Live "parsed count" indicator: mirrors SiteAddParticipantHandler.normalizeDelimited /
-     effectiveOfficialMode so the user sees how many entries were parsed out of their paste. -->
-<script type="text/javascript">
-//<![CDATA[
-(function () {
-	// keep in sync with EMAIL_EXTRACT_PATTERN in SiteAddParticipantHandler
-	var EMAIL_RE = /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
-
-	function txt(id, fallback) {
-		var el = document.getElementById(id);
-		var s = el ? (el.textContent || '').trim() : '';
-		return s || fallback;
-	}
-
-	function checkedValue(name) {
-		var el = document.querySelector('input[name="' + name + '"]:checked');
-		return el ? el.value : null;
-	}
-
-	// mirrors effectiveOfficialMode: usernames can't be regex-extracted, so username+smart falls back to delimited
-	function effectiveMode(accountType, delimiter) {
-		if (accountType === 'username' && delimiter === 'smart') return 'delimited';
-		return delimiter || 'smart';
-	}
-
-	// mirrors normalizeDelimited: returns the list of entries the server would parse
-	function normalize(raw, mode) {
-		raw = raw || '';
-		if (!raw.trim()) return [];
-		if (mode === 'smart') {
-			if (raw.indexOf('@') >= 0) return raw.match(EMAIL_RE) || [];
-			return raw.trim().split(/[,;\s]+/).filter(Boolean);
-		}
-		if (mode === 'delimited') return raw.trim().split(/[,;\s]+/).filter(Boolean);
-		// "line": one entry per non-empty line
-		return raw.split(/\r\n|\r|\n/).map(function (s) { return s.trim(); }).filter(Boolean);
-	}
-
-	function classify(entries, accountType) {
-		var e = 0, u = 0;
-		for (var i = 0; i < entries.length; i++) {
-			var isEmail;
-			if (accountType === 'email') isEmail = true;
-			else if (accountType === 'username') isEmail = false;
-			else isEmail = entries[i].indexOf('@') >= 0;
-			if (isEmail) e++; else u++;
-		}
-		return { e: e, u: u, n: entries.length };
-	}
-
-	// localized sentence templates; #N#/#E#/#U# are substituted with the parsed counts
-	var T = {
-		emails: txt('countEmailsTmpl', '#N# emails detected'),
-		usernames: txt('countUsernamesTmpl', '#N# usernames detected'),
-		mixed: txt('countMixedTmpl', '#N# entries detected (#E# emails, #U# usernames)')
-	};
-
-	function format(c) {
-		if (c.n === 0) return '';
-		if (c.e > 0 && c.u > 0) {
-			return T.mixed.replace('#N#', c.n).replace('#E#', c.e).replace('#U#', c.u);
-		}
-		if (c.u === 0) return T.emails.replace('#N#', c.e);
-		return T.usernames.replace('#N#', c.u);
-	}
-
-	function wire(textareaId, delimiterName, accountTypeName, outputId) {
-		var ta = document.getElementById(textareaId);
-		var out = document.getElementById(outputId);
-		if (!ta || !out) return;
-
-		function update() {
-			var delimiter = checkedValue(delimiterName);
-			var accountType = accountTypeName ? checkedValue(accountTypeName) : null;
-			var entries = normalize(ta.value, effectiveMode(accountType, delimiter));
-			out.textContent = format(classify(entries, accountType));
-		}
-
-		ta.addEventListener('input', update);
-		var radios = document.querySelectorAll('input[name="' + delimiterName + '"]');
-		for (var i = 0; i < radios.length; i++) radios[i].addEventListener('change', update);
-		if (accountTypeName) {
-			var at = document.querySelectorAll('input[name="' + accountTypeName + '"]');
-			for (var j = 0; j < at.length; j++) at[j].addEventListener('change', update);
-		}
-		update();
-	}
-
-	document.addEventListener('DOMContentLoaded', function () {
-		wire('officialAccountParticipant', 'officialDelimiter', 'officialAccountType', 'officialAccountCount');
-		wire('nonOfficialAccountParticipant', 'nonOfficialDelimiter', null, 'nonOfficialAccountCount');
-	});
-})();
-//]]>
-</script>
 </body>
 </html>
