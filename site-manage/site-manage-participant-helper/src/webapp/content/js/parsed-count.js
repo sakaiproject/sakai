@@ -3,10 +3,12 @@
  *
  * Mirrors SiteAddParticipantHandler.normalizeDelimited / effectiveOfficialMode so the user
  * sees how many entries were parsed out of their paste. Loaded as an external file (rather than
- * inline) because the template is processed by RSF/IKAT as XML, which mangles inline scripts
- * containing '<', '>' or '&&'.
+ * inline) because the template is processed by RSF/IKAT as XML, which mangles inline scripts.
  *
- * Keep EMAIL_RE in sync with EMAIL_EXTRACT_PATTERN in SiteAddParticipantHandler.
+ * RSF re-writes the id/name it renders on bound form controls, so we do NOT look the textareas
+ * up by id. Instead we anchor off the static count <p> elements we control (ids RSF leaves
+ * alone) and find each textarea by walking the DOM near it. Keep EMAIL_RE in sync with
+ * EMAIL_EXTRACT_PATTERN in SiteAddParticipantHandler.
  */
 (function () {
 	"use strict";
@@ -22,6 +24,23 @@
 	function checkedValue(name) {
 		var el = document.querySelector('input[name="' + name + '"]:checked');
 		return el ? el.value : null;
+	}
+
+	// Find the textarea associated with a count output: the nearest textarea that appears
+	// before the output element in the DOM (walking previous siblings, then up to the parent).
+	function textareaFor(outputEl) {
+		var node = outputEl;
+		while (node) {
+			var prev = node.previousElementSibling;
+			while (prev) {
+				if (prev.tagName === "TEXTAREA") return prev;
+				var inner = prev.querySelector ? prev.querySelector("textarea") : null;
+				if (inner) return inner;
+				prev = prev.previousElementSibling;
+			}
+			node = node.parentElement;
+		}
+		return null;
 	}
 
 	// usernames can't be regex-extracted, so username+smart falls back to delimited
@@ -64,10 +83,11 @@
 		return templates.usernames.replace("#N#", c.u);
 	}
 
-	function wire(templates, textareaId, delimiterName, accountTypeName, outputId) {
-		var ta = document.getElementById(textareaId);
+	function wire(templates, outputId, delimiterName, accountTypeName) {
 		var out = document.getElementById(outputId);
-		if (!ta || !out) return;
+		if (!out) return;
+		var ta = textareaFor(out);
+		if (!ta) return;
 
 		function update() {
 			var delimiter = checkedValue(delimiterName);
@@ -77,14 +97,8 @@
 		}
 
 		ta.addEventListener("input", update);
-		document.querySelectorAll('input[name="' + delimiterName + '"]').forEach(function (r) {
-			r.addEventListener("change", update);
-		});
-		if (accountTypeName) {
-			document.querySelectorAll('input[name="' + accountTypeName + '"]').forEach(function (r) {
-				r.addEventListener("change", update);
-			});
-		}
+		// radio names may be re-written by RSF, so recompute on any change in the document
+		document.addEventListener("change", update);
 		update();
 	}
 
@@ -94,8 +108,8 @@
 			usernames: txt("countUsernamesTmpl", "#N# usernames detected"),
 			mixed: txt("countMixedTmpl", "#N# entries detected (#E# emails, #U# usernames)")
 		};
-		wire(templates, "officialAccountParticipant", "officialDelimiter", "officialAccountType", "officialAccountCount");
-		wire(templates, "nonOfficialAccountParticipant", "nonOfficialDelimiter", null, "nonOfficialAccountCount");
+		wire(templates, "officialAccountCount", "officialDelimiter", "officialAccountType");
+		wire(templates, "nonOfficialAccountCount", "nonOfficialDelimiter", null);
 	}
 
 	if (document.readyState === "loading") {
