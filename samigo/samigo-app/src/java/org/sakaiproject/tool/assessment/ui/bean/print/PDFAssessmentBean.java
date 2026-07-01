@@ -258,7 +258,7 @@ public class PDFAssessmentBean implements Serializable {
 				assessmentIntros.append(deliveryBean.getInstructorMessage());
 				assessmentIntros.append("<br />");
 			}
-			
+
 			if (deliveryBean.getAttachmentList() != null && deliveryBean.getAttachmentList().size() > 0) {
 				assessmentIntros.append("<br />");
 				assessmentIntros.append(printMessages.getString("attachments"));
@@ -268,22 +268,18 @@ public class PDFAssessmentBean implements Serializable {
 				while (assessmentAttachmentIter.hasNext()) {
 					assessmentIntros.append("<br />");
 					PublishedAssessmentAttachment assessmentAttachment = (PublishedAssessmentAttachment) assessmentAttachmentIter.next();
-					if (assessmentAttachment.getMimeType().equalsIgnoreCase("image/jpeg") || 
-							assessmentAttachment.getMimeType().equalsIgnoreCase("image/pjpeg") || 
-							assessmentAttachment.getMimeType().equalsIgnoreCase("image/gif") || 
-							assessmentAttachment.getMimeType().equalsIgnoreCase("image/png")) {
-						assessmentIntros.append("  <img src=\"/samigo");
+					assessmentIntros.append("  ");
+					assessmentIntros.append(assessmentAttachment.getFilename());
+
+					if (assessmentAttachment.getMimeType() != null && assessmentAttachment.getMimeType().toLowerCase().startsWith("image/")) {
+						assessmentIntros.append("<br />  <img src=\"/samigo");
 						assessmentIntros.append(assessmentAttachment.getResourceId());
 						assessmentIntros.append("\" />");
 					}
-					else {
-						assessmentIntros.append("  ");
-						assessmentIntros.append(assessmentAttachment.getFilename());
-					}
 				}
 			}
-			
-			setIntro(assessmentIntros.toString());	
+
+			setIntro(assessmentIntros.toString());
 		}
 		else {
 			setIntro("");
@@ -324,7 +320,6 @@ public class PDFAssessmentBean implements Serializable {
 					partIntros.append(section.getDescription());
 				}
 
-				
 				if (section.getAttachmentList() != null && section.getAttachmentList().size() > 0) {
 					partIntros.append("<br />");
 					partIntros.append(printMessages.getString("attachments"));
@@ -334,17 +329,13 @@ public class PDFAssessmentBean implements Serializable {
 					while (partAttachmentIter.hasNext()) {
 						partIntros.append("<br />");
 						PublishedSectionAttachment partAttachment = (PublishedSectionAttachment) partAttachmentIter.next();
-						if (partAttachment.getMimeType().equalsIgnoreCase("image/jpeg") ||
-								partAttachment.getMimeType().equalsIgnoreCase("image/pjpeg") ||
-								partAttachment.getMimeType().equalsIgnoreCase("image/gif") ||
-								partAttachment.getMimeType().equalsIgnoreCase("image/png")) {
-							partIntros.append("  <img src=\"/samigo");
+						partIntros.append("  ");
+						partIntros.append(partAttachment.getFilename());
+
+						if (partAttachment.getMimeType() != null && partAttachment.getMimeType().toLowerCase().startsWith("image/")) {
+							partIntros.append("<br />  <img src=\"/samigo");
 							partIntros.append(partAttachment.getResourceId());
 							partIntros.append("\" />");
-						}
-						else {
-							partIntros.append("  ");
-							partIntros.append(partAttachment.getFilename());
 						}
 					}
 				}
@@ -381,20 +372,15 @@ public class PDFAssessmentBean implements Serializable {
 					Iterator itemAttachmentIter = itemAttachmentList.iterator();
 					while (itemAttachmentIter.hasNext()) {
 						PublishedItemAttachment itemAttachment = (PublishedItemAttachment) itemAttachmentIter.next();
-						if (itemAttachment.getMimeType().equalsIgnoreCase("image/jpeg") || 
-							itemAttachment.getMimeType().equalsIgnoreCase("image/pjpeg") || 
-							itemAttachment.getMimeType().equalsIgnoreCase("image/gif") || 
-							itemAttachment.getMimeType().equalsIgnoreCase("image/png")) {
-							contentBuffer.append("  <img src=\"/samigo");
+						contentBuffer.append("  ");
+						contentBuffer.append(itemAttachment.getFilename());
+
+						if (itemAttachment.getMimeType() != null && itemAttachment.getMimeType().toLowerCase().startsWith("image/")) {
+							contentBuffer.append("<br />  <img src=\"/samigo");
 							contentBuffer.append(itemAttachment.getResourceId());
 							contentBuffer.append("\" />");
 						}
-						else {
-							contentBuffer.append("  ");
-							contentBuffer.append(itemAttachment.getFilename());
-						}
 						contentBuffer.append("<br />");
-						
 					}
 				}
 				if (TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())
@@ -1000,6 +986,7 @@ public class PDFAssessmentBean implements Serializable {
 					float[] widths = {0.05f, 0.95f};
 					PdfPTable table = new PdfPTable(widths);
 					table.setWidthPercentage(100f);
+					table.setSplitLate(false);
 					PdfPCell leftCell = new PdfPCell();
 					PdfPCell rightCell = new PdfPCell();
 					leftCell.setBorderWidth(0);

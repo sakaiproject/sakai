@@ -126,15 +126,21 @@ import lombok.extern.slf4j.Slf4j;
 					//change the src ref to point to the new local temp file
 					h.put("src", temp.getCanonicalPath());
 
+					try {
+						Image imgPdf = Image.getInstance(temp.getCanonicalPath());
+						imgPdf.scaleToFit(400f, 350f);
+						h.put("width", String.valueOf((int) imgPdf.getScaledWidth()));
+						h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
+					} catch (Exception e) {
+						log.warn("Image couldn't be scaled for PDF", e);
+					}
+
 					//Spoof the interface props so that it won't try anything weird with urls
 					Map<String, Object> props = this.getInterfaceProps();
 					Map<String, Object> tempProps = new HashMap();
 					this.setInterfaceProps(tempProps);
-
 					super.startElement(tag, h);
-
 					this.setInterfaceProps(props);
-
 				}
 				catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -160,20 +166,27 @@ import lombok.extern.slf4j.Slf4j;
 			else if (src.startsWith("temp://")) {
 				try {
 					File temp = new File(src.replaceFirst("temp://", ""));
-					
+
 					//keep track of the new temp file for later cleanup
 					tempFiles.add(temp);
 
 					//change the src ref to point to the new local temp file
 					h.put("src", temp.getCanonicalPath());
 
+					try {
+						Image imgPdf = Image.getInstance(temp.getCanonicalPath());
+						imgPdf.scaleToFit(400f, 350f);
+						h.put("width", String.valueOf((int) imgPdf.getScaledWidth()));
+						h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
+					} catch (Exception e) {
+						log.warn("Image couldn't be scaled for PDF", e);
+					}
+
 					//Spoof the interface props so that it won't try anything weird with urls
 					Map<String, Object> props = this.getInterfaceProps();
 					Map<String, Object> tempProps = new HashMap();
 					this.setInterfaceProps(tempProps);
-
 					super.startElement(tag, h);
-
 					this.setInterfaceProps(props);
 				}
 				catch (Exception e) {
@@ -185,6 +198,7 @@ import lombok.extern.slf4j.Slf4j;
 				final String base64Data = src.substring(src.indexOf(",") + 1);
 				try {
 					img = Image.getInstance(Base64.getDecoder().decode(base64Data));
+					img.scaleToFit(400f, 350f);
 				} catch (Exception e) {
 					log.warn("Failed retrieving image", e.toString());
 				}
