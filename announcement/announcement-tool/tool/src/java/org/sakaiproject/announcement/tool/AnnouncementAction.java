@@ -766,6 +766,9 @@ public class AnnouncementAction extends PagedResourceActionII
 							messages = getMessages(channel, null, true, state, portlet);
 						}
 
+						// narrow the list to the active search term, if any
+						messages = filterMessagesBySearch(messages, sstate);
+
 						//readResourcesPage expects messages to be in session, so put the entire messages list in the session
 						sstate.setAttribute("messages", messages);
 						//readResourcesPage just orders the list correctly, so we can trim a correct list
@@ -989,6 +992,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			context.put("view", sstate.getAttribute(STATE_SELECTED_VIEW));
 		}
+
+		// the active search term, so the search box can re-render its value
+		context.put("searchString", sstate.getAttribute(STATE_SEARCH));
 
 		return template;
 
@@ -1454,6 +1460,36 @@ public class AnnouncementAction extends PagedResourceActionII
 			return false;
 		}
 	}
+
+	/**
+	 * Narrow a list of announcements to those matching the active search term (STATE_SEARCH),
+	 * matching case-insensitively against the subject, author display name, and body. When no
+	 * search term is set the list is returned unchanged. Filtering the full viewable list here
+	 * (before paging/trimming) keeps the counts and pager authoritative across all pages.
+	 */
+	private List<AnnouncementWrapper> filterMessagesBySearch(List<AnnouncementWrapper> messages, SessionState sstate)
+	{
+		String search = StringUtils.trimToNull((String) sstate.getAttribute(STATE_SEARCH));
+		if (search == null)
+		{
+			return messages;
+		}
+
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+		for (AnnouncementWrapper aMessage : messages)
+		{
+			if (StringUtils.containsIgnoreCase(aMessage.getAnnouncementHeader().getSubject(), search)
+					|| StringUtils.containsIgnoreCase(aMessage.getBody(), search)
+					|| (aMessage.getAnnouncementHeader().getFrom() != null
+						&& StringUtils.containsIgnoreCase(aMessage.getAnnouncementHeader().getFrom().getDisplayName(), search)))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // filterMessagesBySearch
 
 	/**
 	 * This will limit the maximum number of announcements that is shown.
