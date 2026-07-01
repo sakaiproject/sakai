@@ -65,6 +65,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Entity;
@@ -1491,9 +1493,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			Instant releaseDate = message.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE);
 			return releaseDate != null && Instant.now().isBefore(releaseDate);
 		}
-		catch (Exception e)
+		catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e)
 		{
-			// No release date set, so it is not scheduled for the future
+			// No usable release date set, so it is not scheduled for the future
+			log.debug("No usable release date property for {}", message.getReference(), e);
 			return false;
 		}
 	}
