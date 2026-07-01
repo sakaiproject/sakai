@@ -61,8 +61,8 @@ sakai.announcements.highlightInNode = (root, rx) => {
 
 sakai.announcements.highlightSearch = () => {
 
-  const field = document.getElementById("searchAnnouncement");
-  const table = document.getElementById("announcementsList");
+  const field = document.getElementById("search-announcement");
+  const table = document.getElementById("announcements-list");
   if (!field || !table) return;
 
   const term = field.value.trim();
