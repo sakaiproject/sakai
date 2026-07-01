@@ -3,6 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+      /* Helper notes: de-emphasize by size only, not color, so they keep full
+         WCAG AA contrast in dark mode (Bootstrap's text-muted gray fails on the
+         dark card background). --sakai-text-color-1 flips near-white in dark. */
+      .Mrphs-sakai-datemanager-tool .dm-note { color: var(--sakai-text-color-1); }
+    </style>
   </head>
   <body class="portalBody Mrphs-portalBody Mrphs-sakai-datemanager-tool">
     <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
@@ -34,7 +40,7 @@
     </div>
 
     <h2 class="h5 mt-3" th:text="#{section.batch.heading}">Bulk editing tools</h2>
-    <p class="text-muted small mb-2" th:text="#{section.batch.help}">Set or shift many dates at once. Your changes appear in the item sections below.</p>
+    <p class="dm-note small mb-2" th:text="#{section.batch.help}">Set or shift many dates at once. Your changes appear in the item sections below.</p>
 
     <!-- Bulk tools, grouped behind a coloured accent bar to set them apart from the item sections
          further down. The collapsed Shift / Fit / Set-dates cards live here. Export/Import sit in the
@@ -49,20 +55,8 @@
       </div>
       <div id="dm-batch-shift" class="collapse show">
         <div class="card-body date-manager-shifter">
-          <div class="sak-banner-error d-none" id="dateShifterError">
-            <span th:text="#{dateshifter.error.nonnumeric}"></span>
-          </div>
-          <p>
-            <label>
-              <span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
-              <input id="dateShifterDays" type="text" />
-              <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
-            </label>
-          </p>
-          <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
-          <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
-
-          <div class="date-manager-datediff mt-3">
+          <p class="dm-note small mb-2" th:text="#{dateshifter.help}">This tool is ideal when your items are already correctly spaced relative to each other and can all be moved together by the same fixed number of days across the board. To re-space items to fit a new term, use Smart Shift below instead.</p>
+          <div class="date-manager-datediff mb-3">
             <label class="form-label mb-1 d-block fw-bold" th:text="#{datediff.label}">Days between two dates</label>
             <div class="row g-2 align-items-end">
               <div class="col-auto">
@@ -82,7 +76,21 @@
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="date-diff-apply" th:text="#{datediff.button}" disabled>Use as shift</button>
               </div>
             </div>
+            <p class="dm-note small mt-2 mb-0" th:text="#{datediff.note}">Note: this only loads the whole-day count into the shift field below. That raw integer day shift is what actually takes effect when applied — the From/To dates themselves are not applied.</p>
           </div>
+
+          <div class="sak-banner-error d-none" id="dateShifterError">
+            <span th:text="#{dateshifter.error.nonnumeric}"></span>
+          </div>
+          <p>
+            <label>
+              <span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
+              <input id="dateShifterDays" type="text" />
+              <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
+            </label>
+          </p>
+          <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
+          <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
         </div>
       </div>
     </div>
@@ -95,6 +103,7 @@
       </div>
       <div id="dm-batch-fit" class="collapse">
         <div class="card-body date-manager-fit">
+          <p class="dm-note small mb-2" th:text="#{datefit.help}">This tool is ideal for items that are evenly spaced throughout the term: set a beginning and end date and every item in between is automatically positioned cleanly within that range. The in-between dates are recalculated to fit even as you change the end date.</p>
           <div class="sak-banner-error d-none" id="date-fit-error">
             <span th:text="#{datefit.error.range}"></span>
           </div>
@@ -131,6 +140,7 @@
       </div>
       <div id="dm-batch-set" class="collapse">
         <div class="card-body date-manager-set">
+    <p class="dm-note small mb-2" th:text="#{bulk.help}">This tool is ideal for courses where all items open at the same time and close at the same time: set your term dates once and apply them across every column.</p>
     <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
       <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
       <label class="me-3">
@@ -249,7 +259,7 @@
 
     <hr class="my-4" />
     <h2 class="h5" th:text="#{section.items.heading}">Edit individual items</h2>
-    <p class="text-muted small" th:text="#{section.items.help}">Expand a tool to review or adjust each item's dates.</p>
+    <p class="dm-note small" th:text="#{section.items.help}">Expand a tool to review or adjust each item's dates.</p>
 
     <form id="date-manager-form" method="POST">
       <div class="sak-banner-error d-none" id="form-errors">
@@ -390,7 +400,7 @@
               <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p class="text-muted small" th:text="#{calendar.preview.help}"></p>
+              <p class="dm-note small" th:text="#{calendar.preview.help}"></p>
               <p id="datemanager-calendar-empty" class="d-none" th:text="#{calendar.preview.empty}"></p>
               <div id="datemanager-calendar"></div>
             </div>
