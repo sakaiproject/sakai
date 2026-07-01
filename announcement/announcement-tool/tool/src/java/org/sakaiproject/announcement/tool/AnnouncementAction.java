@@ -228,6 +228,7 @@ public class AnnouncementAction extends PagedResourceActionII
     private static final String VIEW_MODE_DRAFTS   = "view.drafts";
     private static final String VIEW_MODE_POSTED   = "view.posted";
     private static final String VIEW_MODE_SCHEDULED = "view.scheduled";
+    private static final String VIEW_MODE_MINE     = "view.mine";
 
     /** The number of days, by default, before retraction. */
     private static final long FUTURE_DAYS = 7;
@@ -759,6 +760,10 @@ public class AnnouncementAction extends PagedResourceActionII
 							else if (view.equals(VIEW_MODE_SCHEDULED))
 							{
 								messages = getMessagesScheduled(channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_MINE))
+							{
+								messages = getMessagesMine(channel, null, true, state, portlet);
 							}
 						}
 						else
@@ -1394,6 +1399,38 @@ public class AnnouncementAction extends PagedResourceActionII
 		return rv;
 
 	} // getMessagesDrafts
+
+	/**
+	 * Get the whole list of viewable announcements and keep only the ones authored by the
+	 * current user. The underlying getMessages() already applies the tool's permission and
+	 * viewability checks, so this simply narrows to messages whose author is the current user.
+	 *
+	 * @throws PermissionException
+	 */
+	private List<AnnouncementWrapper> getMessagesMine(AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	{
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+
+		String currentUserId = SessionManager.getCurrentSessionUserId();
+		if (currentUserId == null)
+		{
+			return rv;
+		}
+
+		for (AnnouncementWrapper aMessage : messageList)
+		{
+			if (aMessage.getAnnouncementHeader().getFrom() != null
+					&& currentUserId.equals(aMessage.getAnnouncementHeader().getFrom().getId()))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // getMessagesMine
 
 	/**
 	 * Get the whole list of viewable announcements and keep only the ones that are currently
