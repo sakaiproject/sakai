@@ -23,7 +23,6 @@ import java.io.Reader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -122,25 +121,7 @@ import lombok.extern.slf4j.Slf4j;
 
 					//keep track of the new temp file for later cleanup
 					tempFiles.add(temp);
-
-					//change the src ref to point to the new local temp file
-					h.put("src", temp.getCanonicalPath());
-
-					try {
-						Image imgPdf = Image.getInstance(temp.getCanonicalPath());
-						imgPdf.scaleToFit(400f, 350f);
-						h.put("width", String.valueOf((int) imgPdf.getScaledWidth()));
-						h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
-					} catch (Exception e) {
-						log.warn("Image couldn't be scaled for PDF", e);
-					}
-
-					//Spoof the interface props so that it won't try anything weird with urls
-					Map<String, Object> props = this.getInterfaceProps();
-					Map<String, Object> tempProps = new HashMap();
-					this.setInterfaceProps(tempProps);
-					super.startElement(tag, h);
-					this.setInterfaceProps(props);
+					processScaledImage(temp, tag, h);
 				}
 				catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -169,25 +150,7 @@ import lombok.extern.slf4j.Slf4j;
 
 					//keep track of the new temp file for later cleanup
 					tempFiles.add(temp);
-
-					//change the src ref to point to the new local temp file
-					h.put("src", temp.getCanonicalPath());
-
-					try {
-						Image imgPdf = Image.getInstance(temp.getCanonicalPath());
-						imgPdf.scaleToFit(400f, 350f);
-						h.put("width", String.valueOf((int) imgPdf.getScaledWidth()));
-						h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
-					} catch (Exception e) {
-						log.warn("Image couldn't be scaled for PDF", e);
-					}
-
-					//Spoof the interface props so that it won't try anything weird with urls
-					Map<String, Object> props = this.getInterfaceProps();
-					Map<String, Object> tempProps = new HashMap();
-					this.setInterfaceProps(tempProps);
-					super.startElement(tag, h);
-					this.setInterfaceProps(props);
+					processScaledImage(temp, tag, h);
 				}
 				catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -227,5 +190,32 @@ import lombok.extern.slf4j.Slf4j;
 		else {
 			super.startElement(tag, h);
 		}		
+	}
+
+	private void processScaledImage(File temp, String tag, Map<String, String> h) {
+		try {
+			String imgPath = temp.getCanonicalPath();
+			h.put("src", imgPath);
+
+			Image imgPdf = Image.getInstance(imgPath);
+			if (imgPdf.getWidth() > 400f || imgPdf.getHeight() > 350f) {
+				imgPdf.scaleToFit(400f, 350f);
+			}
+			h.put("width", String.valueOf((int) imgPdf.getScaledWidth()));
+			h.put("height", String.valueOf((int) imgPdf.getScaledHeight()));
+
+			Map<String, Object> props = this.getInterfaceProps();
+			Map<String, Object> tempProps = new java.util.HashMap<>();
+
+			Map<String, Image> imgDict = new java.util.HashMap<>();
+			imgDict.put(imgPath, imgPdf);
+			tempProps.put("image_dictionary", imgDict);
+
+			this.setInterfaceProps(tempProps);
+			super.startElement(tag, h);
+			this.setInterfaceProps(props);
+		} catch (Exception e) {
+			log.error("Error processing image for PDF", e);
+		}
 	}
 }
