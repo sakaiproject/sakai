@@ -657,7 +657,7 @@ public class SiteAddParticipantHandler {
 		// normalize any delimited (comma/semicolon) blob to one-entry-per-line first, so the
 		// per-line parsing below is reused unchanged (see normalizeDelimited)
 		officialAccounts = StringUtils.trimToNull(normalizeDelimited(officialAccountParticipant, effectiveOfficialMode(officialAccountType, officialDelimiter)));
-		nonOfficialAccounts = StringUtils.trimToNull(normalizeDelimited(nonOfficialAccountParticipant, nonOfficialDelimiter));
+		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant, nonOfficialDelimiter));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
 
@@ -1010,6 +1010,11 @@ public class SiteAddParticipantHandler {
 	 *       downstream and the per-entry lookup routes emails vs usernames.</li>
 	 * </ul>
 	 *
+	 * <p>This drives the <em>official</em> box, whose entries are single tokens (an email or a
+	 * username). The non-official (guest) box carries structured {@code email,lastName,firstName}
+	 * rows, so it is normalized by {@link #normalizeNonOfficial(String, String)} instead, which
+	 * preserves those name fields under smart mode.
+	 *
 	 * @param raw  the raw textarea value (may be null)
 	 * @param mode the selected format: "smart", "delimited", or "line"
 	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
@@ -1039,6 +1044,66 @@ public class SiteAddParticipantHandler {
 			return raw.trim().replaceAll("[,;\\s]+", "\r\n");
 		}
 		return raw;
+	}
+
+	/**
+	 * Normalize the non-official (guest) box, whose per-person format is
+	 * {@code email,lastName,firstName}, into one person per CRLF-separated line.
+	 * <p>Only {@code "smart"} gets special handling here; {@code "line"} and {@code "delimited"}
+	 * defer to {@link #normalizeDelimited(String, String)} unchanged. Under smart mode:
+	 * <ul>
+	 *   <li>people are separated by line breaks or semicolons (a comma stays <em>inside</em> a
+	 *       person as the field separator between email and names);</li>
+	 *   <li>a chunk holding a single email is kept intact, so its {@code ,lastName,firstName}
+	 *       fields survive downstream {@link #parseAccountIntoParts(String)};</li>
+	 *   <li>a chunk holding more than one email is treated as a bare email blob (no names) and
+	 *       split so each address lands on its own line.</li>
+	 * </ul>
+	 * This lets a guest paste keep structured name rows while still accepting a plain comma /
+	 * semicolon / whitespace separated list of addresses.
+	 *
+	 * @param raw  the raw textarea value (may be null)
+	 * @param mode the selected format: "smart", "delimited", or "line"
+	 * @return the text normalized to CRLF-separated entries, or the raw value unchanged
+	 */
+	// package-private for unit testing
+	String normalizeNonOfficial(String raw, String mode) {
+		if (raw == null) {
+			return null;
+		}
+		if (!"smart".equals(mode)) {
+			return normalizeDelimited(raw, mode);
+		}
+		StringBuilder sb = new StringBuilder();
+		// split people on line breaks / semicolons; commas remain inside a person (field separator)
+		for (String chunk : raw.split("[;\r\n]+")) {
+			String person = chunk.trim();
+			if (person.isEmpty()) {
+				continue;
+			}
+			Matcher m = EMAIL_EXTRACT_PATTERN.matcher(person);
+			int emailCount = 0;
+			while (m.find()) {
+				emailCount++;
+			}
+			if (emailCount > 1) {
+				// bare email blob on one chunk: emit each address on its own line, dropping names
+				Matcher emails = EMAIL_EXTRACT_PATTERN.matcher(person);
+				while (emails.find()) {
+					if (sb.length() > 0) {
+						sb.append("\r\n");
+					}
+					sb.append(emails.group());
+				}
+			} else {
+				// single email (with optional name fields) or an invalid line: keep it intact
+				if (sb.length() > 0) {
+					sb.append("\r\n");
+				}
+				sb.append(person);
+			}
+		}
+		return sb.toString();
 	}
 
 	// package-private for unit testing

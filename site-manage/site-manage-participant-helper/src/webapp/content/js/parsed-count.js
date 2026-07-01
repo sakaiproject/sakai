@@ -62,6 +62,27 @@
 		return raw.split(/\r\n|\r|\n/).map(function (s) { return s.trim(); }).filter(Boolean);
 	}
 
+	// non-official (guest) box mirror of SiteAddParticipantHandler.normalizeNonOfficial: smart mode
+	// keeps structured "email,lastName,firstName" rows intact (one person per line/semicolon) and
+	// only splits a chunk that holds more than one email. "line"/"delimited" defer to normalize().
+	function normalizeNonOfficial(raw, mode) {
+		raw = raw || "";
+		if (!raw.trim()) return [];
+		if (mode !== "smart") return normalize(raw, mode);
+		var out = [];
+		raw.split(/[;\r\n]+/).forEach(function (chunk) {
+			var person = chunk.trim();
+			if (!person) return;
+			var emails = person.match(EMAIL_RE) || [];
+			if (emails.length > 1) {
+				emails.forEach(function (e) { out.push(e); });
+			} else {
+				out.push(person);
+			}
+		});
+		return out;
+	}
+
 	function classify(entries, accountType) {
 		var e = 0, u = 0;
 		entries.forEach(function (entry) {
@@ -83,7 +104,7 @@
 		return templates.usernames.replace("#N#", c.u);
 	}
 
-	function wire(templates, outputId, delimiterName, accountTypeName) {
+	function wire(templates, outputId, delimiterName, accountTypeName, nonOfficial) {
 		var out = document.getElementById(outputId);
 		if (!out) return;
 		var ta = textareaFor(out);
@@ -92,7 +113,8 @@
 		function update() {
 			var delimiter = checkedValue(delimiterName);
 			var accountType = accountTypeName ? checkedValue(accountTypeName) : null;
-			var entries = normalize(ta.value, effectiveMode(accountType, delimiter));
+			var mode = effectiveMode(accountType, delimiter);
+			var entries = nonOfficial ? normalizeNonOfficial(ta.value, mode) : normalize(ta.value, mode);
 			out.textContent = format(templates, classify(entries, accountType));
 		}
 
@@ -109,7 +131,7 @@
 			mixed: txt("countMixedTmpl", "#N# entries detected (#E# emails, #U# usernames)")
 		};
 		wire(templates, "officialAccountCount", "officialDelimiter", "officialAccountType");
-		wire(templates, "nonOfficialAccountCount", "nonOfficialDelimiter", null);
+		wire(templates, "nonOfficialAccountCount", "nonOfficialDelimiter", null, true);
 	}
 
 	if (document.readyState === "loading") {

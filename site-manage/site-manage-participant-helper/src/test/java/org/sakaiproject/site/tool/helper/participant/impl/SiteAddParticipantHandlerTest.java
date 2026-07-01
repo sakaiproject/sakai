@@ -134,6 +134,65 @@ public class SiteAddParticipantHandlerTest {
         assertEquals("auto", fresh.officialAccountType);
     }
 
+    // ---- normalizeNonOfficial: guest box keeps email,lastName,firstName under smart -----------
+
+    @Test
+    public void nonOfficialSmartKeepsStructuredRowIntact() {
+        // regression: with smart the default, a legacy guest row must NOT be flattened to the email
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John", "smart");
+        assertArrayEquals(new String[] {"jdoe@yahoo.com,Doe,John"}, entries(out));
+        // and the name fields still survive the downstream per-line parse
+        assertArrayEquals(new String[] {"jdoe@yahoo.com", "Doe", "John"},
+                handler.parseAccountIntoParts(entries(out)[0]));
+    }
+
+    @Test
+    public void nonOfficialSmartKeepsMultipleStructuredLines() {
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\nasmith@x.edu,Smith,Alice", "smart");
+        assertArrayEquals(
+                new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
+                entries(out));
+    }
+
+    @Test
+    public void nonOfficialSmartSeparatesPeopleOnSemicolonsKeepingNames() {
+        // semicolons separate people; the comma inside each person stays as the field separator
+        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John; asmith@x.edu,Smith,Alice", "smart");
+        assertArrayEquals(
+                new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
+                entries(out));
+    }
+
+    @Test
+    public void nonOfficialSmartSplitsBareEmailBlob() {
+        // no names: a comma/whitespace list of addresses on one line becomes one email per line
+        String out = handler.normalizeNonOfficial("a@x.com, b@y.com c@z.com", "smart");
+        assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
+    }
+
+    @Test
+    public void nonOfficialSmartHandlesMixOfStructuredRowsAndBlobLine() {
+        String out = handler.normalizeNonOfficial(
+                "jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com", "smart");
+        assertArrayEquals(
+                new String[] {"jdoe@yahoo.com,Doe,John", "a@x.com", "b@y.com"},
+                entries(out));
+    }
+
+    @Test
+    public void nonOfficialNonSmartModesDeferToNormalizeDelimited() {
+        String raw = "jdoe@yahoo.com,Doe,John\r\nasmith@x.edu";
+        assertEquals(handler.normalizeDelimited(raw, "line"),
+                handler.normalizeNonOfficial(raw, "line"));
+        assertEquals(handler.normalizeDelimited(raw, "delimited"),
+                handler.normalizeNonOfficial(raw, "delimited"));
+    }
+
+    @Test
+    public void nonOfficialNullReturnsNull() {
+        assertNull(handler.normalizeNonOfficial(null, "smart"));
+    }
+
     // ---- parseAccountIntoParts: non-official email,lastName,firstName ------------------------
 
     @Test
