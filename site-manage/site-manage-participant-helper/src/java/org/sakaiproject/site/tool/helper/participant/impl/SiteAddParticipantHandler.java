@@ -982,6 +982,16 @@ public class SiteAddParticipantHandler {
 	private static final Pattern MAILBOX_UNIT_PATTERN =
 			Pattern.compile("[^<>,;@]*(?:,[^<>,;@]*)?<\\s*(" + EMAIL_EXTRACT_PATTERN.pattern() + ")\\s*>");
 
+	// characters a Sakai username (eid) can never contain: BaseUserDirectoryService.cleanEid()
+	// strips <>,;:\/ from every eid, and Validator.checkUserId() additionally rejects ^%*?.
+	// A token holding any of them (a URL, a path, stray markup) cannot be a username.
+	private static final String EID_IMPOSSIBLE_CHARS = "<>,;:\\/^%*?";
+
+	/** Whether a lone pasted token could syntactically be a username (eid) per the kernel's rules. */
+	private static boolean couldBeEid(String token) {
+		return StringUtils.containsNone(token, EID_IMPOSSIBLE_CHARS);
+	}
+
 	/**
 	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
 	 * existing per-line parsing handles it unchanged. The paste is examined <em>one line at a time</em>
@@ -989,15 +999,16 @@ public class SiteAddParticipantHandler {
 	 * usernames on separate lines:
 	 * <ul>
 	 *   <li>a line containing an {@code @} is treated as an email line: {@code Name <email>}
-	 *       mailboxes and bare email tokens are extracted, display names and prose around them are
-	 *       ignored (so a messy paste like {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)}
-	 *       yields both addresses);</li>
+	 *       mailboxes and bare email tokens are extracted, a lone comma/semicolon-delimited token
+	 *       without an {@code @} is kept as a username entry (the box accepts both, so
+	 *       {@code jsmith, jdoe@x.edu} adds both), and multi-word display names / prose around the
+	 *       addresses are ignored (so a messy paste like
+	 *       {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)} yields just both addresses);</li>
 	 *   <li>a line with no {@code @} is treated as a username list and split on any run of comma /
 	 *       semicolon / whitespace.</li>
 	 * </ul>
-	 * Nothing that looks like an intended entry is dropped silently: on an email line, a leftover
-	 * token that contains an {@code @} (a mistyped address such as {@code jdoe@iu}) or that stands
-	 * alone between delimiters (such as a username mixed onto an email line) is reported back via
+	 * Nothing that looks like an intended entry is dropped silently: a leftover token that still
+	 * contains an {@code @} (a mistyped address such as {@code jdoe@iu}) is reported back via
 	 * {@code skipped} so the caller can raise a visible alert instead of quietly adding fewer
 	 * people than were pasted.
 	 *
@@ -1054,13 +1065,15 @@ public class SiteAddParticipantHandler {
 								skipped.add(token);
 							}
 						}
-					} else if (trimmedChunk.split("\\s+").length == 1) {
-						// a lone delimited token sharing a line with an email address is
-						// ambiguous (username? name fragment? broken address?) — flag it
-						// rather than guessing a user lookup or dropping it silently
-						skipped.add(trimmedChunk);
+					} else if (trimmedChunk.split("\\s+").length == 1 && couldBeEid(trimmedChunk)) {
+						// a lone delimited token without an @ is a username entry: the box
+						// accepts usernames and emails alike, so "jsmith, jdoe@x.edu" adds
+						// both (mailbox display names were already consumed above, so
+						// Outlook "Last, First <email>" pastes don't leak name fragments)
+						appendEntry(sb, trimmedChunk);
 					}
-					// multi-word chunks without an @ are name/prose fragments: ignored
+					// multi-word chunks without an @ (name/prose fragments) and lone tokens
+					// holding eid-impossible characters (URLs, paths) are ignored
 				}
 			} else {
 				// no @ on this line: treat as a username list separated by any delimiter

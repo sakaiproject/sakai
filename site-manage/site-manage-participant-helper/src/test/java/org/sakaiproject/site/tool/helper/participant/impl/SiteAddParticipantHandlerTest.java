@@ -86,12 +86,30 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
-    public void smartEmailLineFlagsNameFragmentsAsSkipped() {
-        // a lone delimited token sharing a line with an email address is never dropped silently:
-        // it is excluded from the entries but flagged so the user gets a visible alert
+    public void smartEmailLineKeepsBareTokensAsUsernames() {
+        // the box accepts usernames AND emails, so a lone delimited token without an @ sharing a
+        // line with an email address is kept as a username entry, not dropped or flagged
         String out = smart("jsmith, teacher01, real@x.com");
-        assertArrayEquals(new String[] {"real@x.com"}, entries(out));
-        assertEquals(Arrays.asList("jsmith", "teacher01"), skipped);
+        assertArrayEquals(new String[] {"jsmith", "teacher01", "real@x.com"}, entries(out));
+        assertTrue("expected no skipped fragments, got " + skipped, skipped.isEmpty());
+    }
+
+    @Test
+    public void smartEmailLineIgnoresMultiWordNameFragments() {
+        // an unbracketed multi-word fragment (a display name) is ignored, not guessed at as
+        // usernames — only lone tokens count as deliberate entries
+        String out = smart("John Doe, jdoe@x.edu");
+        assertArrayEquals(new String[] {"jdoe@x.edu"}, entries(out));
+        assertTrue(skipped.isEmpty());
+    }
+
+    @Test
+    public void smartEmailLineIgnoresTokensThatCannotBeUsernames() {
+        // a lone token holding characters a Sakai eid can never contain (cleanEid strips <>,;:\/
+        // and Validator.checkUserId rejects ^%*?) is signature/prose junk, not a username lookup
+        String out = smart("https://cal.example.edu/book-me, jdoe@x.edu");
+        assertArrayEquals(new String[] {"jdoe@x.edu"}, entries(out));
+        assertTrue(skipped.isEmpty());
     }
 
     @Test

@@ -16,6 +16,10 @@
 	var EMAIL_RE = /[A-Za-z0-9._%+\-][A-Za-z0-9._%+'\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
 	// an RFC-style mailbox: optional display name (one "Last, First" comma allowed, no @) + <email>
 	var MAILBOX_RE = new RegExp("[^<>,;@]*(?:,[^<>,;@]*)?<\\s*(" + EMAIL_RE.source + ")\\s*>", "g");
+	// characters a Sakai username (eid) can never contain — mirror of
+	// SiteAddParticipantHandler.EID_IMPOSSIBLE_CHARS (cleanEid strips <>,;:\/ and
+	// Validator.checkUserId rejects ^%*?)
+	var EID_IMPOSSIBLE_RE = /[<>,;:\\\/^%*?]/;
 
 	/**
 	 * Read the trimmed text content of an element, falling back to a default when the element is
@@ -56,9 +60,10 @@
 	 * Mirror of SiteAddParticipantHandler.normalizeSmart for the official box: return the entries
 	 * the server would parse out of the raw textarea value, plus the fragments it would flag as
 	 * skipped. Each line is handled on its own so a mixed email/username list keeps working: on a
-	 * line with an "@", "Name <email>" mailboxes and bare addresses are extracted, while a leftover
-	 * token holding an "@" (a mistyped address) or standing alone between delimiters is skipped;
-	 * a line without an "@" is split into usernames on any delimiter.
+	 * line with an "@", "Name <email>" mailboxes and bare addresses are extracted and a lone
+	 * delimited token without an "@" counts as a username, while a leftover token still holding
+	 * an "@" (a mistyped address) is skipped; a line without an "@" is split into usernames on
+	 * any delimiter.
 	 * @param {string} raw the raw textarea value
 	 * @returns {{entries: string[], skipped: string[]}} parsed entries and skipped fragments
 	 */
@@ -84,10 +89,12 @@
 						residue.split(/\s+/).forEach(function (t) {
 							if (t.indexOf("@") >= 0) skipped.push(t);
 						});
-					} else if (c.split(/\s+/).length === 1) {
-						skipped.push(c);
+					} else if (c.split(/\s+/).length === 1 && !EID_IMPOSSIBLE_RE.test(c)) {
+						// lone delimited token without an @: a username entry (box takes both)
+						out.push(c);
 					}
-					// multi-word chunks without an @ are name/prose fragments: ignored
+					// multi-word chunks without an @ (name/prose fragments) and lone tokens
+					// holding eid-impossible characters (URLs, paths) are ignored
 				});
 			} else {
 				line.trim().split(/[,;\s]+/).filter(Boolean).forEach(function (u) { out.push(u); });
