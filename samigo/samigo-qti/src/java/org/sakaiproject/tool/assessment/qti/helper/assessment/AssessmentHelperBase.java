@@ -297,7 +297,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
     Date scoreDate = accessControl.getScoreDate();
     Date restractDate = accessControl.getRetractDate();
     Date feedbackDate = accessControl.getFeedbackDate();
-    Date feedbackEndDate = accessControl.getFeedbackDate();
+    Date feedbackEndDate = accessControl.getFeedbackEndDate();
     assessmentXml.setFieldentry("END_DATE", formatDate(dueDate));
     assessmentXml.setFieldentry("FEEDBACK_DELIVERY_DATE",
                                 formatDate(feedbackDate));

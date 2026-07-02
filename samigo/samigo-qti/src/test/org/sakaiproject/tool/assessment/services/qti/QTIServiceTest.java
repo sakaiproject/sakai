@@ -16,11 +16,16 @@
 package org.sakaiproject.tool.assessment.services.qti;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -39,8 +44,12 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
+import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
@@ -98,6 +107,29 @@ public class QTIServiceTest {
 		assertEquals("Multiple Choice", item.getDescription());
 		assertEquals(Double.valueOf(1.0), item.getScore());
 		assertEquals(Double.valueOf(0.0), item.getDiscount());
+	}
+
+	@Test
+	public void updateAssessmentAppliesImportedFeedbackDatesAfterFeedbackIsBuilt() {
+		ExtractionHelper exHelper = new ExtractionHelper(QTIVersion.VERSION_1_2);
+		AssessmentFacade assessment = new AssessmentFacade();
+		assessment.getData().setAssessmentMetaDataSet(new HashSet<>());
+
+		Map assessmentMap = new HashMap();
+		assessmentMap.put("duration", "");
+		assessmentMap.put("metadata", Arrays.asList(
+				"ASSESSMENT_RELEASED_TO|" + AuthoringConstantStrings.ANONYMOUS,
+				"FEEDBACK_DELIVERY|DATED",
+				"FEEDBACK_DELIVERY_DATE|2026-06-20T00:00:00Z",
+				"FEEDBACK_DELIVERY_END_DATE|2026-06-22T00:00:00Z"));
+
+		exHelper.updateAssessment(assessment, assessmentMap);
+
+		AssessmentAccessControl control = (AssessmentAccessControl) assessment.getAssessmentAccessControl();
+		assertNull(control.getFeedbackDate());
+		assertNull(control.getFeedbackEndDate());
+		assertEquals(AssessmentFeedbackIfc.NO_FEEDBACK, assessment.getAssessmentFeedback().getFeedbackDelivery());
+		assertEquals("NONE", assessment.getData().getAssessmentMetaDataByLabel("FEEDBACK_DELIVERY"));
 	}
 
 	public static void printDocument(Document doc, OutputStream out) throws Exception {
