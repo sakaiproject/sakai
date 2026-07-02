@@ -254,7 +254,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
 
         service.integrateAssignmentWithCalendarAndAnnouncement(assignment, "Imported Assignment", openTime, null,
-                openTime, null, false, true, OpenDateNotification.NONE);
+                openTime, null, false, true, true, OpenDateNotification.NONE);
 
         verify(channel).editAnnouncementMessage("draft-announcement-id");
         verify(editHeader).setDraft(false);

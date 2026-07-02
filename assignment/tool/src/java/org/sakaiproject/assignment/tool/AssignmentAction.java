@@ -666,6 +666,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
     private static final String NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH = "new_assignment_check_allow_unrestricted_external_tool_launch";
+    private static final String NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE = AssignmentConstants.NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE;
     private static final String NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS = "new_assignment_check_add_group_tags";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS = "new_assignment_check_add_instructor_tags";
     private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
@@ -3414,6 +3415,13 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null) {
             context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
             context.put("name_OpenDateNotification", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
+            context.put("name_AnnounceOnOpenDate", NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
+            Object val = state.getAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
+            if (val == null) {
+                context.put("value_AnnounceOnOpenDate", serverConfigurationService.getString(AssignmentConstants.SAK_PROP_ANNOUNCE_ON_OPEN_DATE, AssignmentConstants.SAK_PROP_ANNOUNCE_ON_OPEN_DATE_DEFAULT));
+            } else {
+                context.put("value_AnnounceOnOpenDate", val);
+            }
         }
         context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
         context.put("name_CheckAllowUnrestrictedExternalToolLaunch", NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
@@ -8517,6 +8525,13 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
+        // announce immediately checkbox
+        if (params.getString(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE) != null && params.getString(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            state.setAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE, Boolean.TRUE.toString());
+        } else {
+            state.setAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE, Boolean.FALSE.toString());
+        }
+
         if (StringUtils.equalsIgnoreCase(params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE), Boolean.TRUE.toString())) {
             state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE, Boolean.TRUE);
             String isEstimateRequiredStr = params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED);
@@ -9220,6 +9235,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String checkAutoAnnounce = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 
+            String announceOnOpenDate = (String) state.getAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
+
             String valueOpenDateNotification = (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
 
             Boolean checkAddHonorPledge = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
@@ -9409,8 +9426,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 String resolvedAddtoGradebook = getResolvedGradebookIntegration(addtoGradebook, post,
                         gradebookCategoriesMap, gradebookItemMap);
 
-                editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce,
-                    resolvedAddtoGradebook, gradebookItemKeys, allowResubmitNumber,
+                editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, resolvedAddtoGradebook, announceOnOpenDate,
+                    gradebookItemKeys, allowResubmitNumber,
                     aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
                 // Store category information in assignment properties for drafts
@@ -9548,7 +9565,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (post) {
                         assignmentService.integrateAssignmentWithCalendarAndAnnouncement(a, title, openTime, dueTime,
                                 oldOpenTime, oldDueTime, BooleanUtils.toBoolean(checkAddDueTime),
-                                BooleanUtils.toBoolean(checkAutoAnnounce),
+                                BooleanUtils.toBoolean(checkAutoAnnounce), BooleanUtils.toBoolean(announceOnOpenDate),
                                 OpenDateNotification.fromProperty(valueOpenDateNotification));
 
                         // It should only be called once when updateAssignment has already been done
@@ -10121,7 +10138,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void editAssignmentProperties(Assignment assignment, String checkAddDueTime, String checkAutoAnnounce, String addtoGradebook, String associateGradebookAssignment, String allowResubmitNumber, Map<String, String> properties, boolean post, Instant closeTime, boolean checkAnonymousGrading) {
+    private void editAssignmentProperties(Assignment assignment, String checkAddDueTime, String checkAutoAnnounce, String addtoGradebook, String announceOnOpenDate, String associateGradebookAssignment, String allowResubmitNumber, Map<String, String> properties, boolean post, Instant closeTime, boolean checkAnonymousGrading) {
         if (properties.get("newAssignment") != null) {
             if (properties.get("newAssignment").equalsIgnoreCase(Boolean.TRUE.toString())) {
                 // not a newly created assignment, been added.
@@ -10137,6 +10154,11 @@ public class AssignmentAction extends PagedResourceActionII {
             properties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
         }
         properties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
+        if (announceOnOpenDate != null) {
+            properties.put(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE, announceOnOpenDate);
+        } else {
+            properties.remove(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
+        }
 
         properties.put(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, Boolean.toString(checkAnonymousGrading));
 
@@ -10793,6 +10815,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+                String annImm = properties.get(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE);
+                if (annImm != null) {
+                    state.setAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE, annImm);
+                } else {
+                    state.setAttribute(NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE, serverConfigurationService.getString(AssignmentConstants.SAK_PROP_ANNOUNCE_ON_OPEN_DATE, AssignmentConstants.SAK_PROP_ANNOUNCE_ON_OPEN_DATE_DEFAULT));
+                }
 
                 if (StringUtils.isNotBlank(a.getEstimate())) {
                     state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE, Boolean.TRUE);

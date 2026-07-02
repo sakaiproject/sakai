@@ -146,6 +146,7 @@ public final class AssignmentConstants {
      */
     public static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
     public static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
+    public static final String NEW_ASSIGNMENT_ANNOUNCE_ON_OPEN_DATE = "new_assignment_announce_on_open_date";
     /**
      * the String for all choice in dropdown menu
      */
@@ -394,4 +395,10 @@ public final class AssignmentConstants {
     public static final List<String> SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT = List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT);
 
     public static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
+
+    /*
+     * Sakai properties of the option to send a new assignment announcement immediately (false) or delay publishing the announcement until the assignment open date (true).
+     */
+    public static final String SAK_PROP_ANNOUNCE_ON_OPEN_DATE = "assignment.announce.on.open.date.default";
+    public static final String SAK_PROP_ANNOUNCE_ON_OPEN_DATE_DEFAULT = "false";
 }

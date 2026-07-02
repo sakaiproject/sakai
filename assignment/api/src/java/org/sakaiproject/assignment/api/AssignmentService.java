@@ -393,10 +393,11 @@ public interface AssignmentService extends EntityProducer {
      * @param oldDueTime the previous assignment due date.
      * @param checkAddDueTime true to add the due date to calendar.
      * @param checkAutoAnnounce true to announce the open date.
+     * @param announceOnOpenDate true to delay the announcement until the open date, false to publish the announcement immediately.
      * @param openDateNotification open date notification level.
      */
     public void integrateAssignmentWithCalendarAndAnnouncement(Assignment assignment, String title, Instant openTime, Instant dueTime,
-            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce,
+            Instant oldOpenTime, Instant oldDueTime, boolean checkAddDueTime, boolean checkAutoAnnounce, boolean announceOnOpenDate,
             OpenDateNotification openDateNotification);
 
     /**
