@@ -59,11 +59,10 @@
 	/**
 	 * Mirror of SiteAddParticipantHandler.normalizeSmart for the official box: return the entries
 	 * the server would parse out of the raw textarea value, plus the fragments it would flag as
-	 * skipped. Each line is handled on its own so a mixed email/username list keeps working: on a
-	 * line with an "@", "Name <email>" mailboxes and bare addresses are extracted and a lone
-	 * delimited token without an "@" counts as a username, while a leftover token still holding
-	 * an "@" (a mistyped address) is skipped; a line without an "@" is split into usernames on
-	 * any delimiter.
+	 * skipped. A paste with no "@" anywhere is a plain username list split on any delimiter;
+	 * otherwise every line uses the email rules: "Name <email>" mailboxes and bare addresses are
+	 * extracted, a lone delimited token without an "@" counts as a username, a leftover token
+	 * still holding an "@" (a mistyped address) is skipped, and multi-word prose is ignored.
 	 * @param {string} raw the raw textarea value
 	 * @returns {{entries: string[], skipped: string[]}} parsed entries and skipped fragments
 	 */
@@ -71,34 +70,37 @@
 		raw = raw || "";
 		var out = [], skipped = [];
 		if (!raw.trim()) return { entries: out, skipped: skipped };
+		if (raw.indexOf("@") < 0) {
+			// no @ anywhere in the paste: a plain username list separated by any delimiter
+			raw.trim().split(/[,;\s]+/).filter(Boolean).forEach(function (u) { out.push(u); });
+			return { entries: out, skipped: skipped };
+		}
+		// the paste holds email material: parse every line with the email rules, so prose lines
+		// of a pasted request are not shredded into bogus username lookups
 		raw.split(/\r\n|\r|\n/).forEach(function (line) {
-			if (line.indexOf("@") >= 0) {
-				// first take every "display name <email>" mailbox, keeping only the address
-				var rest = line.replace(MAILBOX_RE, function (m, email) {
-					out.push(email);
-					return " ";
-				});
-				rest.split(/[,;]+/).forEach(function (chunk) {
-					var c = chunk.trim();
-					if (!c) return;
-					if (c.indexOf("@") >= 0) {
-						var residue = c.replace(EMAIL_RE, function (email) {
-							out.push(email);
-							return " ";
-						});
-						residue.split(/\s+/).forEach(function (t) {
-							if (t.indexOf("@") >= 0) skipped.push(t);
-						});
-					} else if (c.split(/\s+/).length === 1 && !EID_IMPOSSIBLE_RE.test(c)) {
-						// lone delimited token without an @: a username entry (box takes both)
-						out.push(c);
-					}
-					// multi-word chunks without an @ (name/prose fragments) and lone tokens
-					// holding eid-impossible characters (URLs, paths) are ignored
-				});
-			} else {
-				line.trim().split(/[,;\s]+/).filter(Boolean).forEach(function (u) { out.push(u); });
-			}
+			// first take every "display name <email>" mailbox, keeping only the address
+			var rest = line.replace(MAILBOX_RE, function (m, email) {
+				out.push(email);
+				return " ";
+			});
+			rest.split(/[,;]+/).forEach(function (chunk) {
+				var c = chunk.trim();
+				if (!c) return;
+				if (c.indexOf("@") >= 0) {
+					var residue = c.replace(EMAIL_RE, function (email) {
+						out.push(email);
+						return " ";
+					});
+					residue.split(/\s+/).forEach(function (t) {
+						if (t.indexOf("@") >= 0) skipped.push(t);
+					});
+				} else if (c.split(/\s+/).length === 1 && !EID_IMPOSSIBLE_RE.test(c)) {
+					// lone delimited token without an @: a username entry (box takes both)
+					out.push(c);
+				}
+				// multi-word chunks without an @ (name/prose fragments) and lone tokens
+				// holding eid-impossible characters (URLs, paths) are ignored
+			});
 		});
 		return { entries: out, skipped: skipped };
 	}

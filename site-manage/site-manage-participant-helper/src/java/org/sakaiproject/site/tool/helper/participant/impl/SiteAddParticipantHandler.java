@@ -994,28 +994,23 @@ public class SiteAddParticipantHandler {
 
 	/**
 	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
-	 * existing per-line parsing handles it unchanged. The paste is examined <em>one line at a time</em>
-	 * so the legacy one-entry-per-line format keeps working, including a mixed list of emails and
-	 * usernames on separate lines:
+	 * existing per-line parsing handles it unchanged. The interpretation is decided for the paste
+	 * as a whole:
 	 * <ul>
-	 *   <li>a line containing an {@code @} is treated as an email line: {@code Name <email>}
-	 *       mailboxes and bare email tokens are extracted, a lone comma/semicolon-delimited token
-	 *       without an {@code @} is kept as a username entry (the box accepts both, so
-	 *       {@code jsmith, jdoe@x.edu} adds both), and multi-word display names / prose around the
-	 *       addresses are ignored (so a messy paste like
-	 *       {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)} yields just both addresses);</li>
-	 *   <li>a line with no {@code @} is treated as a username list and split on any run of comma /
-	 *       semicolon / whitespace.</li>
+	 *   <li>a paste with no {@code @} anywhere is a plain username list, split on any run of
+	 *       comma / semicolon / whitespace (the legacy contract);</li>
+	 *   <li>as soon as the paste holds email material, every line is parsed with the email rules:
+	 *       {@code Name <email>} mailboxes and bare email tokens are extracted, a lone
+	 *       comma/semicolon-delimited token without an {@code @} that could syntactically be an
+	 *       eid is kept as a username entry (the box accepts both, so {@code jsmith, jdoe@x.edu}
+	 *       adds both), and multi-word display names / prose are ignored — so a pasted request
+	 *       like {@code Hi, can you add John Doe <jdoe@x.com> and asmith@y.edu?} yields just the
+	 *       two addresses instead of shredding the sentence into bogus username lookups.</li>
 	 * </ul>
 	 * Nothing that looks like an intended entry is dropped silently: a leftover token that still
 	 * contains an {@code @} (a mistyped address such as {@code jdoe@iu}) is reported back via
 	 * {@code skipped} so the caller can raise a visible alert instead of quietly adding fewer
 	 * people than were pasted.
-	 *
-	 * <p>Deciding per line (rather than per blob) preserves everything the pre-smart tool accepted — it
-	 * split only on line breaks and routed each entry by the {@code @} char — while additionally
-	 * accepting other delimiters and messy email pastes. Either way the extracted entries are validated
-	 * downstream and the per-entry lookup routes emails vs usernames.
 	 *
 	 * <p>This drives the <em>official</em> box, whose entries are single tokens (an email or a
 	 * username). The non-official (guest) box carries structured {@code email,lastName,firstName}
@@ -1033,58 +1028,57 @@ public class SiteAddParticipantHandler {
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
+		if (!raw.contains(EMAIL_CHAR)) {
+			// no @ anywhere in the paste: a plain username list separated by any delimiter
+			for (String token : raw.trim().split("[,;\\s]+")) {
+				if (!token.isEmpty()) {
+					appendEntry(sb, token);
+				}
+			}
+			return sb.toString();
+		}
+		// the paste holds email material: parse every line with the email rules, so prose lines
+		// of a pasted request are not shredded into bogus username lookups
 		for (String line : raw.split("\r\n|\r|\n")) {
-			if (line.contains(EMAIL_CHAR)) {
-				// email line: first take every "display name <email>" mailbox, keeping the
-				// address and intentionally ignoring the display name
-				StringBuffer rest = new StringBuffer();
-				Matcher unit = MAILBOX_UNIT_PATTERN.matcher(line);
-				while (unit.find()) {
-					appendEntry(sb, unit.group(1));
-					unit.appendReplacement(rest, " ");
+			// first take every "display name <email>" mailbox, keeping the address and
+			// intentionally ignoring the display name
+			StringBuffer rest = new StringBuffer();
+			Matcher unit = MAILBOX_UNIT_PATTERN.matcher(line);
+			while (unit.find()) {
+				appendEntry(sb, unit.group(1));
+				unit.appendReplacement(rest, " ");
+			}
+			unit.appendTail(rest);
+			// then handle what's left, one comma/semicolon-separated chunk at a time
+			for (String chunk : rest.toString().split("[,;]+")) {
+				String trimmedChunk = chunk.trim();
+				if (trimmedChunk.isEmpty()) {
+					continue;
 				}
-				unit.appendTail(rest);
-				// then handle what's left, one comma/semicolon-separated chunk at a time
-				for (String chunk : rest.toString().split("[,;]+")) {
-					String trimmedChunk = chunk.trim();
-					if (trimmedChunk.isEmpty()) {
-						continue;
+				if (trimmedChunk.contains(EMAIL_CHAR)) {
+					// email chunk: extract the addresses; a leftover token still holding an
+					// @ is a mistyped address the user meant to add, so flag it
+					StringBuffer residue = new StringBuffer();
+					Matcher m = EMAIL_EXTRACT_PATTERN.matcher(trimmedChunk);
+					while (m.find()) {
+						appendEntry(sb, m.group());
+						m.appendReplacement(residue, " ");
 					}
-					if (trimmedChunk.contains(EMAIL_CHAR)) {
-						// email chunk: extract the addresses; a leftover token still holding an
-						// @ is a mistyped address the user meant to add, so flag it
-						StringBuffer residue = new StringBuffer();
-						Matcher m = EMAIL_EXTRACT_PATTERN.matcher(trimmedChunk);
-						while (m.find()) {
-							appendEntry(sb, m.group());
-							m.appendReplacement(residue, " ");
-						}
-						m.appendTail(residue);
-						for (String token : residue.toString().split("\\s+")) {
-							if (token.contains(EMAIL_CHAR)) {
-								skipped.add(token);
-							}
-						}
-					} else if (trimmedChunk.split("\\s+").length == 1 && couldBeEid(trimmedChunk)) {
-						// a lone delimited token without an @ is a username entry: the box
-						// accepts usernames and emails alike, so "jsmith, jdoe@x.edu" adds
-						// both (mailbox display names were already consumed above, so
-						// Outlook "Last, First <email>" pastes don't leak name fragments)
-						appendEntry(sb, trimmedChunk);
-					}
-					// multi-word chunks without an @ (name/prose fragments) and lone tokens
-					// holding eid-impossible characters (URLs, paths) are ignored
-				}
-			} else {
-				// no @ on this line: treat as a username list separated by any delimiter
-				String trimmed = line.trim();
-				if (!trimmed.isEmpty()) {
-					for (String token : trimmed.split("[,;\\s]+")) {
-						if (!token.isEmpty()) {
-							appendEntry(sb, token);
+					m.appendTail(residue);
+					for (String token : residue.toString().split("\\s+")) {
+						if (token.contains(EMAIL_CHAR)) {
+							skipped.add(token);
 						}
 					}
+				} else if (trimmedChunk.split("\\s+").length == 1 && couldBeEid(trimmedChunk)) {
+					// a lone delimited token without an @ is a username entry: the box
+					// accepts usernames and emails alike, so "jsmith, jdoe@x.edu" adds
+					// both (mailbox display names were already consumed above, so
+					// Outlook "Last, First <email>" pastes don't leak name fragments)
+					appendEntry(sb, trimmedChunk);
 				}
+				// multi-word chunks without an @ (name/prose fragments) and lone tokens
+				// holding eid-impossible characters (URLs, paths) are ignored
 			}
 		}
 		return sb.toString();

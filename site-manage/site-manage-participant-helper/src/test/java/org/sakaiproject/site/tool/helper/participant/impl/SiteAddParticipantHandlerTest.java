@@ -104,6 +104,19 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
+    public void smartIgnoresProseLinesInAnEmailPaste() {
+        // pasting a whole request email must not shred greeting/prose lines (which hold no @)
+        // into bogus username lookups: with email material present, multi-word runs are prose
+        String out = smart("Hi, can you add these folks from my course?\r\n"
+                + "\"O'Brien, Pat\" <p.o'brien@iu.edu>; Roe, Jane <jroe@iu.edu>\r\n"
+                + "also carol.white@iu.edu (Carol) and bob@iu -- thanks!");
+        assertArrayEquals(
+                new String[] {"Hi", "p.o'brien@iu.edu", "jroe@iu.edu", "carol.white@iu.edu"},
+                entries(out));
+        assertEquals(Arrays.asList("bob@iu"), skipped);
+    }
+
+    @Test
     public void smartEmailLineIgnoresTokensThatCannotBeUsernames() {
         // a lone token holding characters a Sakai eid can never contain (cleanEid strips <>,;:\/
         // and Validator.checkUserId rejects ^%*?) is signature/prose junk, not a username lookup
