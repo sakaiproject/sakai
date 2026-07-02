@@ -49,7 +49,6 @@ public interface DateManagerService {
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
-	public List<String> getBulkDateFieldsForCurrentSite();
 
 	// Assignments methods
 	public JSONArray getAssignmentsForContext(String siteId);
