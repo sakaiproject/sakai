@@ -43,6 +43,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import java.security.Key;
 import java.security.KeyPairGenerator;
 import java.util.logging.Level;
@@ -134,8 +135,10 @@ public class LTI13Servlet extends HttpServlet {
 
     private CacheManager cacheManager;
     private Cache cache;
+    private Cache clientAssertionReplayCache;
 
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
+	private static final String CLIENT_ASSERTION_REPLAY_CACHE_NAME = "org.sakaiproject.lti13.ClientAssertionReplay_cache";
 	private static final String CACHE_PUBLIC = "key::public";
 	private static final String CACHE_PRIVATE = "key::private";
 
@@ -150,6 +153,7 @@ public class LTI13Servlet extends HttpServlet {
 
         cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
         cache = cacheManager.getCache(CACHE_NAME);
+        clientAssertionReplayCache = cacheManager.getCache(CLIENT_ASSERTION_REPLAY_CACHE_NAME);
 
 		// Lets try to load from properties
 		if (tokenKeyPair == null) {
@@ -817,11 +821,15 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String grant_type = request.getParameter(ClientAssertion.GRANT_TYPE);
+		String client_assertion_type = request.getParameter(ClientAssertion.CLIENT_ASSERTION_TYPE);
 		String client_assertion = request.getParameter(ClientAssertion.CLIENT_ASSERTION);
 		String scope = request.getParameter(ClientAssertion.SCOPE);
 		String missing = "";
 		if (grant_type == null) {
 			missing += " " + "grant_type";
+		}
+		if (client_assertion_type == null) {
+			missing += " " + "client_assertion_type";
 		}
 		if (client_assertion == null) {
 			missing += " " + "client_assertion";
@@ -832,6 +840,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (missing.length() > 0) {
 			LTI13Util.return400(response, "Token request missing fields:" + missing);
 			log.error("Token Request missing fields: {}", missing);
+			return;
+		}
+
+		String tokenRequestError = LTI13TokenRequestValidator.validateTokenRequest(grant_type, client_assertion_type);
+		if (tokenRequestError != null) {
+			LTI13Util.return400(response, "invalid_request", tokenRequestError);
+			log.error("Invalid token request for tool {}: {}", tool_id, tokenRequestError);
 			return;
 		}
 
@@ -874,11 +889,40 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Jws<Claims> claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
+		Jws<Claims> claims = null;
+		try {
+			claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
+		} catch (JwtException | IllegalArgumentException e) {
+			log.error("Could not verify client_assertion for tool {}", tool_id, e);
+			LTI13Util.return400(response, "invalid_client", "Could not verify client_assertion");
+			return;
+		}
 
 		if (claims == null) {
 			LTI13Util.return400(response, "Could not verify signature");
 			log.error("Could not verify signature {}", tool_id);
+			return;
+		}
+
+		String tokenAudience = getOurServerUrl() + LTI13_PATH + "token/" + toolKey;
+		String claimError = LTI13TokenRequestValidator.validateClientAssertionClaims(claims.getBody(), tool.lti13ClientId, tokenAudience);
+		if (claimError != null) {
+			LTI13Util.return400(response, "invalid_client", claimError);
+			log.error("Invalid client_assertion for tool {}: {}", tool_id, claimError);
+			return;
+		}
+
+		LTI13TokenRequestValidator.ClientAssertionReplayResult replayResult =
+				LTI13TokenRequestValidator.validateClientAssertionReplay(clientAssertionReplayCache, claims.getBody(), tool.lti13ClientId);
+		if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE) {
+			LTI13Util.return4XX(response, "temporarily_unavailable", "Token request temporarily unavailable",
+					HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			log.warn("Client assertion replay cache unavailable for tool {} client {}", tool_id, tool.lti13ClientId);
+			return;
+		}
+		if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED) {
+			LTI13Util.return400(response, "invalid_client", replayResult.getClientMessage());
+			log.error("Invalid client_assertion replay state for tool {}: {}", tool_id, replayResult.getClientMessage());
 			return;
 		}
 

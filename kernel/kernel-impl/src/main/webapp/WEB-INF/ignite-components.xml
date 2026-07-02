@@ -260,6 +260,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
                     <property name="name" value="org.sakaiproject.lti13.LTI13Servlet_cache"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.lti13.ClientAssertionReplay_cache"/>
+                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
                     <property name="name" value="org.sakaiproject.basiclti.util.SakaiKeySetUtil_cache"/>
                 </bean>
