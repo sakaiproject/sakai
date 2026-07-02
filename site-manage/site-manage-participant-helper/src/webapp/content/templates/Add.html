@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script type="text/javascript" src="/sakai-site-manage-participant-helper/content/js/parsed-count.js"></script>
 </head>
 
 <body>
@@ -40,9 +41,16 @@
 	           Official Account Label
 	        </label>
 	        <br/>
-	        <textarea rsf:id="officialAccountParticipant" name="officialAccountParticipant" cols="35" rows="4" id="officialAccountParticipant"></textarea>
+	        <textarea rsf:id="officialAccountParticipant" name="officialAccountParticipant" cols="35" rows="4" id="officialAccountParticipant" aria-describedby="officialAccountCount"></textarea>
 			<a href="#" onclick="rsf:id='officialAccountPickerAction'" aria-hidden="true"><strong rsf:id="officialAccountPickerLabel"></strong></a><br />
 			<p class="form-text textPanelFooter" rsf:id="msg=add.multiple"></p>
+			<p class="form-text textPanelFooter" id="officialAccountCount" role="status" aria-live="polite"></p>
+
+			<!-- localized templates used by the live parsed-count indicator below (#N#/#E#/#U# = counts) -->
+			<span id="countEmailsTmpl" rsf:id="countEmailsTmpl" hidden="hidden"></span>
+			<span id="countUsernamesTmpl" rsf:id="countUsernamesTmpl" hidden="hidden"></span>
+			<span id="countMixedTmpl" rsf:id="countMixedTmpl" hidden="hidden"></span>
+			<span id="countSkippedTmpl" rsf:id="countSkippedTmpl" hidden="hidden"></span>
 			
 			<!-- add non-official account -->
 			<h3 rsf:id="nonOfficialAccountSectionTitle"></h3>
@@ -50,8 +58,9 @@
 	           Non-Official Account Label
 	        </label>
 	        <br/>
-	        <textarea rsf:id="nonOfficialAccountParticipant" name="nonOfficialAccountParticipant" cols="35" rows="4" id="nonOfficialAccountParticipant"></textarea>
+	        <textarea rsf:id="nonOfficialAccountParticipant" name="nonOfficialAccountParticipant" cols="35" rows="4" id="nonOfficialAccountParticipant" aria-describedby="nonOfficialAccountCount"></textarea>
 			<p class="help-block textPanelFooter" rsf:id="nonOfficialAddMultiple"></p>
+			<p class="help-block textPanelFooter" id="nonOfficialAccountCount" role="status" aria-live="polite"></p>
 			
 			<!--  choose roles -->
 			<span rsf:id="select-roles"></span>
