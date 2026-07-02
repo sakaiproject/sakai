@@ -195,6 +195,63 @@ test("computeFittedDate: the LATEST date wins the end anchor regardless of colum
 });
 
 // ---------------------------------------------------------------------------
+// computeRowFittedDates - per-row snap guard: snapping must never reorder an item's own dates
+// (the server rejects due-before-open on save) or leave the new term window.
+// ---------------------------------------------------------------------------
+
+const rowCell = (m) => ({ current: m, currentMs: m.valueOf() });
+
+test("computeRowFittedDates falls back to proportional when snapping would invert open/due under compression", () => {
+  // 16-week course squeezed into 4 weeks: open Fri 09:00 / due the following Mon 17:00 snap to
+  // their own weekdays independently, which used to yield due BEFORE open for every such item -
+  // an unsaveable state. The row must fall back to proportional placement instead.
+  const a = { first: mom("2026-09-01T00:00:00"), last: mom("2026-09-28T00:00:00") }; // 4 weeks
+  const oldStart = mom("2026-01-05T00:00:00").valueOf();
+  const oldSpan = mom("2026-04-27T00:00:00").valueOf() - oldStart; // ~16 weeks
+  const open = rowCell(mom("2026-03-06T09:00:00")); // Friday
+  const due = rowCell(mom("2026-03-09T17:00:00")); // the following Monday
+
+  // premise: independent per-cell snapping really does invert this pair
+  const cellSnappedOpen = DTMN.computeFittedDate(open.currentMs, oldStart, oldSpan, a, true, open.current);
+  const cellSnappedDue = DTMN.computeFittedDate(due.currentMs, oldStart, oldSpan, a, true, due.current);
+  assert.ok(cellSnappedOpen.valueOf() > cellSnappedDue.valueOf(), "scenario must trigger the inversion hazard");
+
+  const out = DTMN.computeRowFittedDates([open, due], oldStart, oldSpan, a, true);
+
+  assert.ok(out[0].valueOf() <= out[1].valueOf(), "open must not pass due");
+  assert.ok(out[0].valueOf() >= a.first.valueOf(), "stays inside the new window (start)");
+  assert.ok(out[1].valueOf() <= a.last.valueOf(), "stays inside the new window (end)");
+});
+
+test("computeRowFittedDates keeps weekday snapping on a same-length rollover", () => {
+  // fall -> spring, identical length: snapping is safe, so it must stay active and both cells
+  // keep their weekday and clock time.
+  const oldStart = mom("2026-09-07T00:00:00").valueOf(); // Monday
+  const oldSpan = mom("2026-12-28T00:00:00").valueOf() - oldStart; // 112 days
+  const a = { first: mom("2027-01-04T00:00:00"), last: mom("2027-04-26T00:00:00") }; // 112 days
+  const open = rowCell(mom("2026-10-09T09:00:00")); // Friday
+  const due = rowCell(mom("2026-10-12T17:00:00")); // Monday
+
+  const out = DTMN.computeRowFittedDates([open, due], oldStart, oldSpan, a, true);
+
+  assert.equal(out[0].day(), 5, "open keeps its Friday");
+  assert.equal(out[0].hours(), 9);
+  assert.equal(out[1].day(), 1, "due keeps its Monday");
+  assert.equal(out[1].hours(), 17);
+  assert.ok(out[0].valueOf() < out[1].valueOf(), "row order preserved");
+});
+
+test("computeRowFittedDates without snap returns the plain proportional placement", () => {
+  const a = anchors();
+  const cell = rowCell(mom("2026-08-12T13:00:00"));
+  const out = DTMN.computeRowFittedDates([cell], 1000, 1000, a, false);
+  assert.equal(
+    out[0].valueOf(),
+    DTMN.computeFittedDate(cell.currentMs, 1000, 1000, a, false, null).valueOf()
+  );
+});
+
+// ---------------------------------------------------------------------------
 // computeDayDiff - the date-difference helper feeding the shift field.
 // ---------------------------------------------------------------------------
 

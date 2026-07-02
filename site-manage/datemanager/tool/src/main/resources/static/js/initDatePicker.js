@@ -138,13 +138,15 @@ DTMN.getDateDiffDays = function() {
 };
 
 // Show the count live as soon as both dates are valid, and enable the "use as shift" button.
+// The button stays disabled for a zero-day difference (nothing to shift) and for spans beyond
+// what the shifter accepts (+/-9999 days), so it can never load a value the shifter dead-ends on.
 DTMN.validateDateDiff = function() {
   if (!DTMN.diffApplyBtn) {
     return;
   }
 
   const days = DTMN.getDateDiffDays();
-  DTMN.diffApplyBtn.disabled = days === null;
+  DTMN.diffApplyBtn.disabled = days === null || days === 0 || days < -9999 || days > 9999;
 
   if (DTMN.diffResult) {
     if (days === null) {
@@ -336,6 +338,37 @@ DTMN.computeFittedDate = function(currentMs, oldStartMs, oldSpan, anchors, snap,
   return snap ? DTMN.snapToSourceWeekday(target, sourceMoment) : target;
 };
 
+// Map every cell of one item (table row) onto the new range. Snapping is decided per row, not per
+// cell: each cell is snapped independently first, but if that would reorder the row's own dates
+// (an open/due pair can invert under heavy term compression, which the server rejects on save) or
+// push a date outside the new [first, last] window, the whole row falls back to the plain
+// proportional placement, which preserves both by construction. Pure (no DOM). `rowCells` entries
+// need `current` (moment) and `currentMs`; returns one new moment per cell, in the same order.
+DTMN.computeRowFittedDates = function(rowCells, oldStartMs, oldSpan, anchors, snap) {
+  const proportional = rowCells.map(cell =>
+      DTMN.computeFittedDate(cell.currentMs, oldStartMs, oldSpan, anchors, false, cell.current));
+  if (!snap) {
+    return proportional;
+  }
+
+  const snapped = rowCells.map(cell =>
+      DTMN.computeFittedDate(cell.currentMs, oldStartMs, oldSpan, anchors, true, cell.current));
+  const firstMs = anchors.first.valueOf();
+  const lastMs = anchors.last.valueOf();
+  for (let i = 0; i < rowCells.length; i++) {
+    const snappedMs = snapped[i].valueOf();
+    if (snappedMs < firstMs || snappedMs > lastMs) {
+      return proportional;
+    }
+    for (let j = 0; j < rowCells.length; j++) {
+      if (rowCells[i].currentMs < rowCells[j].currentMs && snappedMs > snapped[j].valueOf()) {
+        return proportional;
+      }
+    }
+  }
+  return snapped;
+};
+
 DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
 
   const sections = restrictToExpanded ? DTMN.findExpandedSections() : DTMN.collapseElements;
@@ -364,7 +397,7 @@ DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
       if (!current.isValid()) {
         return;
       }
-      cells.push({ datepicker, useTime, current, currentMs: current.valueOf() });
+      cells.push({ datepicker, useTime, current, currentMs: current.valueOf(), row: datepicker.closest("tr") });
     });
   });
 
@@ -382,11 +415,23 @@ DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
   const oldSpan = oldEndMs - oldStartMs;
   const snap = DTMN.fitSnapCheckbox ? DTMN.fitSnapCheckbox.checked : false;
 
-  // Pass 2: map each cell onto the new range. The earliest cell lands exactly on the new first date and
-  // the latest exactly on the new last date; everything between is placed proportionally, then snapped.
+  // Pass 2: map each item's cells onto the new range, one row at a time. The earliest cell lands
+  // exactly on the new first date and the latest exactly on the new last date; everything between
+  // is placed proportionally, then snapped - unless snapping would corrupt the row (see
+  // computeRowFittedDates), in which case that row keeps the proportional placement.
+  const rows = new Map();
   cells.forEach(function(cell) {
-    const newDate = DTMN.computeFittedDate(cell.currentMs, oldStartMs, oldSpan, anchors, snap, cell.current);
-    DTMN.setDatePickerValue(cell.datepicker, newDate, cell.useTime);
+    const key = cell.row || cell.datepicker;
+    if (!rows.has(key)) {
+      rows.set(key, []);
+    }
+    rows.get(key).push(cell);
+  });
+  rows.forEach(function(rowCells) {
+    const newDates = DTMN.computeRowFittedDates(rowCells, oldStartMs, oldSpan, anchors, snap);
+    rowCells.forEach(function(cell, i) {
+      DTMN.setDatePickerValue(cell.datepicker, newDates[i], cell.useTime);
+    });
   });
 };
 
@@ -1003,7 +1048,9 @@ DTMN.previewToolColors = {
 // day cell regardless of time zone; the time (when present) is shown in the marker text.
 DTMN.collectPreviewEvents = function() {
   const events = [];
-  document.querySelectorAll('input[type=hidden][data-tool][data-field]').forEach(function(hidden) {
+  // tbody-scoped: the column-header "set whole column" boxes carry the same data attributes
+  // (.bulk-col-hidden in thead) but hold candidate values that are not saved dates
+  document.querySelectorAll('tbody input[type=hidden][data-tool][data-field]').forEach(function(hidden) {
     const value = hidden.value;
     if (!value) {
       return;
