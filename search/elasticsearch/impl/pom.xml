@@ -72,6 +72,10 @@
         </dependency>
         <dependency>
             <groupId>org.opensearch.plugin</groupId>
+            <artifactId>reindex-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>parent-join-client</artifactId>
         </dependency>
         <dependency>
