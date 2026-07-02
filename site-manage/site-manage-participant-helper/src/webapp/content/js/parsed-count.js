@@ -67,7 +67,7 @@
 	 * @returns {{entries: string[], skipped: string[]}} parsed entries and skipped fragments
 	 */
 	function normalize(raw) {
-		raw = raw || "";
+		raw = (raw || "").replace(/ /g, " "); // NBSP from Word/Outlook pastes
 		var out = [], skipped = [];
 		if (!raw.trim()) return { entries: out, skipped: skipped };
 		if (raw.indexOf("@") < 0) {
@@ -95,11 +95,15 @@
 						if (t.indexOf("@") >= 0) skipped.push(t);
 					});
 				} else if (c.split(/\s+/).length === 1 && !EID_IMPOSSIBLE_RE.test(c)) {
-					// lone delimited token without an @: a username entry (box takes both)
+					// lone delimited token without an @: counted as a username candidate. The
+					// server resolves candidates against the user directory at submit time, so
+					// this live count is an approximation (an unregistered word shows here but
+					// is reported as unmatched on submit; a registered multi-word run is added
+					// on submit though not counted here).
 					out.push(c);
 				}
 				// multi-word chunks without an @ (name/prose fragments) and lone tokens
-				// holding eid-impossible characters (URLs, paths) are ignored
+				// holding eid-impossible characters (URLs, paths) are not counted
 			});
 		});
 		return { entries: out, skipped: skipped };
@@ -114,7 +118,7 @@
 	 * @returns {{entries: string[], skipped: string[]}} one entry per guest, plus skipped fragments
 	 */
 	function normalizeNonOfficial(raw) {
-		raw = raw || "";
+		raw = (raw || "").replace(/ /g, " "); // NBSP from Word/Outlook pastes
 		var out = [], skipped = [];
 		if (!raw.trim()) return { entries: out, skipped: skipped };
 		raw.split(/[;\r\n]+/).forEach(function (chunk) {

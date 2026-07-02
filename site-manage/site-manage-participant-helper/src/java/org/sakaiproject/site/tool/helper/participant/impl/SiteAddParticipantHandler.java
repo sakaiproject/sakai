@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -239,14 +240,34 @@ public class SiteAddParticipantHandler {
     	// reset user list
     	resetUserRolesEntries();
     	checkAddParticipant();
-    	if (targettedMessageList != null && targettedMessageList.size() > 0) {
+    	if (hasBlockingMessages()) {
     		// there is error, remain on the same page
     		return "";
     	} else {
-    		// go to next step
+    		// go to next step; advisory smart-parse notes (skipped/unmatched paste fragments)
+    		// stay in the message list and render on the next page, so they inform without
+    		// dead-ending the whole add
     		return roleChoice;
     	}
     }
+
+	// Smart-parse notes that explain what was left out of a messy paste; they must inform the
+	// user but never block the wizard while there are entries to continue with.
+	private static final Set<String> ADVISORY_MESSAGE_CODES = Set.of("java.skipped", "java.unmatched");
+
+	/** Whether the current message list holds anything beyond advisory smart-parse notes. */
+	private boolean hasBlockingMessages() {
+		if (targettedMessageList == null) {
+			return false;
+		}
+		for (int i = 0; i < targettedMessageList.size(); i++) {
+			TargettedMessage msg = targettedMessageList.messageAt(i);
+			if (!ADVISORY_MESSAGE_CODES.contains(msg.acquireMessageCode())) {
+				return true;
+			}
+		}
+		return false;
+	}
     
     private void resetTargettedMessageList() {
     	targettedMessageList.clear();
@@ -652,7 +673,8 @@ public class SiteAddParticipantHandler {
 		// smart-parse each blob into one-entry-per-line first, so the per-line parsing below is
 		// reused unchanged (see normalizeSmart / normalizeNonOfficial)
 		List<String> skippedEntries = new ArrayList<>();
-		officialAccounts = StringUtils.trimToNull(normalizeSmart(officialAccountParticipant, skippedEntries));
+		List<String> unmatchedTokens = new ArrayList<>();
+		officialAccounts = StringUtils.trimToNull(normalizeSmart(officialAccountParticipant, skippedEntries, unmatchedTokens, this::isRegisteredEid));
 		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant, skippedEntries));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
@@ -664,6 +686,15 @@ public class SiteAddParticipantHandler {
 					"java.skipped",
 					new Object[] {skippedEntry},
 					TargettedMessage.SEVERITY_ERROR));
+		}
+
+		// username-looking text that matched no registered account: note it, once, so the user
+		// can see why it was not added (display names and greeting words land here)
+		if (!unmatchedTokens.isEmpty()) {
+			targettedMessageList.addMessage(new TargettedMessage(
+					"java.unmatched",
+					new Object[] {String.join(", ", unmatchedTokens)},
+					TargettedMessage.SEVERITY_INFO));
 		}
 
 		// if there is no eid or nonOfficialAccount entered
@@ -992,6 +1023,16 @@ public class SiteAddParticipantHandler {
 		return StringUtils.containsNone(token, EID_IMPOSSIBLE_CHARS);
 	}
 
+	/** Whether {@code token} is a registered username (eid) in the user directory. */
+	private boolean isRegisteredEid(String token) {
+		try {
+			userDirectoryService.getUserByEid(token);
+			return true;
+		} catch (UserNotDefinedException e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
 	 * existing per-line parsing handles it unchanged. The interpretation is decided for the paste
@@ -1000,12 +1041,14 @@ public class SiteAddParticipantHandler {
 	 *   <li>a paste with no {@code @} anywhere is a plain username list, split on any run of
 	 *       comma / semicolon / whitespace (the legacy contract);</li>
 	 *   <li>as soon as the paste holds email material, every line is parsed with the email rules:
-	 *       {@code Name <email>} mailboxes and bare email tokens are extracted, a lone
-	 *       comma/semicolon-delimited token without an {@code @} that could syntactically be an
-	 *       eid is kept as a username entry (the box accepts both, so {@code jsmith, jdoe@x.edu}
-	 *       adds both), and multi-word display names / prose are ignored — so a pasted request
-	 *       like {@code Hi, can you add John Doe <jdoe@x.com> and asmith@y.edu?} yields just the
-	 *       two addresses instead of shredding the sentence into bogus username lookups.</li>
+	 *       {@code Name <email>} mailboxes and bare email tokens are extracted, and the user
+	 *       directory decides what the leftover words are. A comma/semicolon-delimited chunk
+	 *       whose every whitespace-separated word could syntactically be an eid AND resolves to a
+	 *       registered user is a username list (so {@code jsmith, jdoe@x.edu} adds both, and a
+	 *       {@code instructor7 grader02} run works too); a chunk that looks like identifiers but
+	 *       does not fully resolve (a display name such as {@code John Doe}, a greeting word) is
+	 *       reported via {@code unmatched} and not added; chunks holding eid-impossible
+	 *       characters (URLs, sentence punctuation) are prose and silently ignored.</li>
 	 * </ul>
 	 * Nothing that looks like an intended entry is dropped silently: a leftover token that still
 	 * contains an {@code @} (a mistyped address such as {@code jdoe@iu}) is reported back via
@@ -1018,15 +1061,20 @@ public class SiteAddParticipantHandler {
 	 * preserves those name fields.
 	 *
 	 * @param raw the raw textarea value (may be null)
-	 * @param skipped collects pasted fragments that looked like intended entries but could not be
-	 *                parsed, so the caller can alert on them
+	 * @param skipped collects pasted fragments that looked like intended email entries but could
+	 *                not be parsed, so the caller can alert on them
+	 * @param unmatched collects eid-plausible fragments that matched no registered username, so
+	 *                  the caller can note why they were not added
+	 * @param registeredEid the user-directory oracle: whether a token is a registered eid
 	 * @return the text normalized to CRLF-separated entries, or null when {@code raw} is null
 	 */
 	// package-private for unit testing
-	String normalizeSmart(String raw, List<String> skipped) {
+	String normalizeSmart(String raw, List<String> skipped, List<String> unmatched, Predicate<String> registeredEid) {
 		if (raw == null) {
 			return null;
 		}
+		// Word/Outlook pastes carry non-breaking spaces, which Java's \s does not match
+		raw = raw.replace(' ', ' ');
 		StringBuilder sb = new StringBuilder();
 		if (!raw.contains(EMAIL_CHAR)) {
 			// no @ anywhere in the paste: a plain username list separated by any delimiter
@@ -1070,15 +1118,38 @@ public class SiteAddParticipantHandler {
 							skipped.add(token);
 						}
 					}
-				} else if (trimmedChunk.split("\\s+").length == 1 && couldBeEid(trimmedChunk)) {
-					// a lone delimited token without an @ is a username entry: the box
-					// accepts usernames and emails alike, so "jsmith, jdoe@x.edu" adds
-					// both (mailbox display names were already consumed above, so
-					// Outlook "Last, First <email>" pastes don't leak name fragments)
-					appendEntry(sb, trimmedChunk);
+					continue;
 				}
-				// multi-word chunks without an @ (name/prose fragments) and lone tokens
-				// holding eid-impossible characters (URLs, paths) are ignored
+				// no @ in this chunk: candidate username(s). The user directory is the ground
+				// truth: when every whitespace-separated word could be an eid AND resolves to a
+				// registered user, the chunk is a username list; when it is eid-plausible but
+				// does not fully resolve, it is a display name / greeting word and is reported
+				// via unmatched; when it holds eid-impossible characters it is prose, ignored.
+				String[] words = trimmedChunk.split("\\s+");
+				boolean allPlausible = true;
+				for (String word : words) {
+					if (!couldBeEid(word)) {
+						allPlausible = false;
+						break;
+					}
+				}
+				if (!allPlausible) {
+					continue;
+				}
+				boolean allRegistered = true;
+				for (String word : words) {
+					if (!registeredEid.test(word)) {
+						allRegistered = false;
+						break;
+					}
+				}
+				if (allRegistered) {
+					for (String word : words) {
+						appendEntry(sb, word);
+					}
+				} else {
+					unmatched.add(trimmedChunk);
+				}
 			}
 		}
 		return sb.toString();
@@ -1118,6 +1189,8 @@ public class SiteAddParticipantHandler {
 		if (raw == null) {
 			return null;
 		}
+		// Word/Outlook pastes carry non-breaking spaces, which Java's \s does not match
+		raw = raw.replace(' ', ' ');
 		StringBuilder sb = new StringBuilder();
 		// split people on line breaks / semicolons; commas remain inside a person (field separator)
 		for (String chunk : raw.split("[;\r\n]+")) {

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,10 +55,18 @@ public class SiteAddParticipantHandlerTest {
     /** Fragments the parse flagged as skipped (each becomes a visible alert in the tool). */
     private List<String> skipped;
 
-    /** normalizeSmart, collecting skipped fragments into {@link #skipped}. */
+    /** Eid-plausible fragments that matched no registered username (noted, not added). */
+    private List<String> unmatched;
+
+    /** Stand-in for the user directory: the eids "registered" on this fake instance. */
+    private static final Set<String> REGISTERED_EIDS = Set.of(
+            "jsmith", "teacher01", "prof.x", "admin1", "instructor7", "grader02", "first.last");
+
+    /** normalizeSmart against {@link #REGISTERED_EIDS}, collecting {@link #skipped}/{@link #unmatched}. */
     private String smart(String raw) {
         skipped = new ArrayList<>();
-        return handler.normalizeSmart(raw, skipped);
+        unmatched = new ArrayList<>();
+        return handler.normalizeSmart(raw, skipped, unmatched, REGISTERED_EIDS::contains);
     }
 
     /** normalizeNonOfficial, collecting skipped fragments into {@link #skipped}. */
@@ -86,43 +95,65 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
-    public void smartEmailLineKeepsBareTokensAsUsernames() {
-        // the box accepts usernames AND emails, so a lone delimited token without an @ sharing a
-        // line with an email address is kept as a username entry, not dropped or flagged
+    public void smartEmailLineKeepsRegisteredUsernames() {
+        // the box accepts usernames AND emails: a delimited no-@ token that resolves to a
+        // registered eid is a username entry
         String out = smart("jsmith, teacher01, real@x.com");
         assertArrayEquals(new String[] {"jsmith", "teacher01", "real@x.com"}, entries(out));
         assertTrue("expected no skipped fragments, got " + skipped, skipped.isEmpty());
+        assertTrue("expected no unmatched fragments, got " + unmatched, unmatched.isEmpty());
     }
 
     @Test
-    public void smartEmailLineIgnoresMultiWordNameFragments() {
-        // an unbracketed multi-word fragment (a display name) is ignored, not guessed at as
-        // usernames — only lone tokens count as deliberate entries
+    public void smartUsernameWithPeriodResolves() {
+        // eids like first.last are legal (a period is not an eid-impossible character)
+        String out = smart("first.last, jdoe@x.edu");
+        assertArrayEquals(new String[] {"first.last", "jdoe@x.edu"}, entries(out));
+        assertTrue(unmatched.isEmpty());
+    }
+
+    @Test
+    public void smartWordRunResolvesWhenEveryWordIsRegistered() {
+        // all-words-resolve: a whitespace run is a username list only when EVERY word resolves,
+        // so "instructor7 grader02" works but a display name can never partially match
+        String out = smart("instructor7 grader02\r\njdoe@x.edu");
+        assertArrayEquals(new String[] {"instructor7", "grader02", "jdoe@x.edu"}, entries(out));
+        assertTrue(unmatched.isEmpty());
+    }
+
+    @Test
+    public void smartDisplayNameRunGoesToUnmatchedNotLookup() {
+        // "John Doe" is eid-plausible but does not fully resolve (even if a real user "john"
+        // existed, "doe" would not): reported as unmatched, never partially added
         String out = smart("John Doe, jdoe@x.edu");
         assertArrayEquals(new String[] {"jdoe@x.edu"}, entries(out));
+        assertEquals(Arrays.asList("John Doe"), unmatched);
         assertTrue(skipped.isEmpty());
     }
 
     @Test
     public void smartIgnoresProseLinesInAnEmailPaste() {
         // pasting a whole request email must not shred greeting/prose lines (which hold no @)
-        // into bogus username lookups: with email material present, multi-word runs are prose
+        // into bogus lookups: unresolved words are noted as unmatched, punctuated prose ignored
         String out = smart("Hi, can you add these folks from my course?\r\n"
                 + "\"O'Brien, Pat\" <p.o'brien@iu.edu>; Roe, Jane <jroe@iu.edu>\r\n"
                 + "also carol.white@iu.edu (Carol) and bob@iu -- thanks!");
         assertArrayEquals(
-                new String[] {"Hi", "p.o'brien@iu.edu", "jroe@iu.edu", "carol.white@iu.edu"},
+                new String[] {"p.o'brien@iu.edu", "jroe@iu.edu", "carol.white@iu.edu"},
                 entries(out));
         assertEquals(Arrays.asList("bob@iu"), skipped);
+        // "Hi" was username-shaped but unregistered; the punctuated sentence was plain prose
+        assertEquals(Arrays.asList("Hi"), unmatched);
     }
 
     @Test
     public void smartEmailLineIgnoresTokensThatCannotBeUsernames() {
-        // a lone token holding characters a Sakai eid can never contain (cleanEid strips <>,;:\/
-        // and Validator.checkUserId rejects ^%*?) is signature/prose junk, not a username lookup
+        // a token holding characters a Sakai eid can never contain (cleanEid strips <>,;:\/
+        // and Validator.checkUserId rejects ^%*?) is signature/prose junk: no lookup, no note
         String out = smart("https://cal.example.edu/book-me, jdoe@x.edu");
         assertArrayEquals(new String[] {"jdoe@x.edu"}, entries(out));
         assertTrue(skipped.isEmpty());
+        assertTrue(unmatched.isEmpty());
     }
 
     @Test
