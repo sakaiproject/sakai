@@ -59,6 +59,25 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<Integer> findMaxPositionByUserId(String userId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+        Root<PinnedSite> pinnedSite = query.from(PinnedSite.class);
+        query.select(cb.max(pinnedSite.get("position")));
+        Predicate[] predicates = new Predicate[2];
+        predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
+        predicates[1] = cb.equal(pinnedSite.get("hasBeenUnpinned"), false);
+        query.where(predicates);
+
+        // max() over no rows yields a null result.
+        return Optional.ofNullable(session.createQuery(query).uniqueResult());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<PinnedSite> findByUserIdAndSiteId(String userId, String siteId) {
 
         Session session = sessionFactory.getCurrentSession();

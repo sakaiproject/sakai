@@ -241,18 +241,21 @@ public class PortalServiceTests extends SakaiTests {
         pinnedSites = portalService.getPinnedSites(user1);
         Assert.assertEquals(2, pinnedSites.size());
 
+        // POSITION is a monotonic sort key, not a contiguous index: removing site2 leaves site3 at
+        // its original position (a gap at 1), and order is what matters.
         List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
         Assert.assertEquals(2, pinned.size());
         Assert.assertEquals(0, pinned.get(0).getPosition());
         Assert.assertEquals(site1Id, pinned.get(0).getSiteId());
-        Assert.assertEquals(1, pinned.get(1).getPosition());
+        Assert.assertEquals(2, pinned.get(1).getPosition());
         Assert.assertEquals(site3Id, pinned.get(1).getSiteId());
 
         portalService.addPinnedSite(user1, site4Id, true);
 
+        // A newly pinned site appends after the current maximum position (2), i.e. 3.
         pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
         Assert.assertEquals(3, pinned.size());
-        Assert.assertEquals(2, pinned.get(2).getPosition());
+        Assert.assertEquals(3, pinned.get(2).getPosition());
         Assert.assertEquals(site4Id, pinned.get(2).getSiteId());
 
         siteIds.add(site4Id);

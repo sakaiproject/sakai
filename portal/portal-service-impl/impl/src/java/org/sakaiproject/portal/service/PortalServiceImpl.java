@@ -815,8 +815,8 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		int position = PinnedSite.UNPINNED_POSITION;
 		if (isPinned) {
-			List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
-			position = !pinned.isEmpty() ? pinned.get(pinned.size() - 1).getPosition() + 1 : 1;
+			// Append after the highest existing pinned position (POSITION is a monotonic sort key).
+			position = pinnedSiteRepository.findMaxPositionByUserId(userId).map(max -> max + 1).orElse(1);
 		}
 
 		pin.setPosition(position);
@@ -825,11 +825,6 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		if (!isPinned) {
 			addRecentSite(userId, siteId);
-			List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
-			for (int i = 0; i < pinnedSites.size(); i++) {
-				PinnedSite pinnedSite = pinnedSites.get(i);
-				pinnedSite.setPosition(i);
-			}
 		}
 	}
 
@@ -850,12 +845,6 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		pinnedSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
-
-		List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
-		for (int i = 0; i < pinnedSites.size(); i++) {
-			PinnedSite pinnedSite = pinnedSites.get(i);
-			pinnedSite.setPosition(i);
-		}
 	}
 
 	@Transactional
@@ -881,12 +870,14 @@ public class PortalServiceImpl implements PortalService, Observer
 		// unpin sites
 		sitesToUnpin.forEach(siteId -> addPinnedSite(userId, siteId, false));
 
-		// pin remaining sites
-		int start = currentPinned.size() - sitesToUnpin.size();
+		// pin remaining sites, appending after the highest existing pinned position. POSITION is a
+		// monotonic sort key that may contain gaps (from earlier removals), so we base off the
+		// current maximum rather than the count.
+		int base = pinnedSiteRepository.findMaxPositionByUserId(userId).map(max -> max + 1).orElse(0);
 		IntStream.range(0, sitesToPin.size()).forEach(i -> {
 			String siteId = sitesToPin.get(i);
 			PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId).orElseGet(() -> new PinnedSite(userId, siteId));
-			pin.setPosition(i + start);
+			pin.setPosition(base + i);
 			pin.setHasBeenUnpinned(false);
 			pinnedSiteRepository.save(pin);
 		});
