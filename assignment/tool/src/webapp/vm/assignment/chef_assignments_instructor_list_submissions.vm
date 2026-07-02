@@ -41,6 +41,11 @@ function printView(url) {
 	</div>
 
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
+	#if ($successMessage)
+		<div class="sak-banner-success">
+			$successMessage
+		</div>
+	#end
 	## reminder of submission download url
 	#if ($download_url_reminder) 
 		<div class="sak-banner-info">
@@ -120,6 +125,7 @@ function printView(url) {
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$formattedText.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
+			<input type="hidden" id="withdrawgrad-confirmation-template" value="$formattedText.escapeHtml($tlang.getString('withdrawgrad.confirmation'))" />
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg == 0)
@@ -140,6 +146,11 @@ function printView(url) {
 								## release grades
 								<a href="#" class="assignment-item" id="releaseGrades" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#end
+							#if ($typeOfGrade != 0 && $canWithdrawGrades)
+                                <a href="#" class="assignment-item" id="withdrawGrades"
+                                    onclick="ASN.withdrawGradesConfirm(document.getElementById('withdrawgrad-confirmation-template').value, this); return false;"
+                                    title="$!tlang.getString('withdrawgrad.title')">$!tlang.getString('withdrawgrad.title')</a>
+                            #end
 						#end
 						#if ($taggable)
 							#foreach ($provider in $providers)
