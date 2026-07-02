@@ -1158,9 +1158,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForum(DiscussionForum forum) {
         long id = forum.getId().longValue();
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(forum), false));
-
         forum = (DiscussionForum) getForumById(true, id);
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE,
+                getEventMessage(forum, getForumContext(forum)), false));
+
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
             List<Message> messages = topic.getMessages();
@@ -1421,35 +1422,47 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return idManager.createUuid();
     }
 
-	private boolean isToolInSite(Site thisSite, String toolId) {
-		final Collection toolsInSite = thisSite.getTools(toolId);
+    private boolean isToolInSite(Site thisSite, String toolId) {
+        final Collection toolsInSite = thisSite.getTools(toolId);
 
-		return ! toolsInSite.isEmpty();		
-	}
-
-   private String getEventMessage(Object object) {
-	   return getEventMessage(object, getContextId());
+        return ! toolsInSite.isEmpty();
     }
-    
+
+    private String getForumContext(DiscussionForum forum) {
+        return Optional.ofNullable(forum)
+                .map(DiscussionForum::getArea)
+                .map(Area::getContextId)
+                .orElseGet(this::getContextId);
+    }
+
+    private String getEventMessage(Object object) {
+        return getEventMessage(object, getContextId());
+    }
+
     private String getEventMessage(Object object, String context) {
-    	String eventMessagePrefix = "";
-    	
-    	try {
-    		// TODO: How to determine what prefix to put on event message
-    		if (isToolInSite(siteService.getSite(context), DiscussionForumService.MESSAGE_CENTER_ID))
-    			eventMessagePrefix = "/messages&forums/site/";
-    		else if (isToolInSite(siteService.getSite(context), DiscussionForumService.MESSAGES_TOOL_ID))
-    			eventMessagePrefix = "/messages/site/";
-    		else
-    			eventMessagePrefix = "/forums/site/";
-    	}
-    	catch (IdUnusedException e) {
-    		log.debug("IdUnusedException attempting to get site with id: " + context);
-    		
-    		eventMessagePrefix = "/messages&forums/";
-    	}
-    	
-    	return eventMessagePrefix + context + "/" + object.toString() + "/" + getCurrentUser(); 
+        String eventMessagePrefix = "";
+
+        try {
+            // TODO: How to determine what prefix to put on event message
+            Site site = siteService.getSite(context);
+            if (site != null && isToolInSite(site, DiscussionForumService.MESSAGE_CENTER_ID))
+                eventMessagePrefix = "/messages&forums/site/";
+            else if (site != null && isToolInSite(site, DiscussionForumService.MESSAGES_TOOL_ID))
+                eventMessagePrefix = "/messages/site/";
+            else
+                eventMessagePrefix = "/forums/site/";
+        }
+        catch (IdUnusedException e) {
+            log.debug("IdUnusedException attempting to get site with id: " + context);
+
+            eventMessagePrefix = "/messages&forums/";
+        }
+        catch (RuntimeException e) {
+            log.warn("Could not determine forum event prefix for context {}", context, e);
+            eventMessagePrefix = "/forums/site/";
+        }
+
+        return eventMessagePrefix + context + "/" + object.toString() + "/" + getCurrentUser();
     }
     
     public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid)
