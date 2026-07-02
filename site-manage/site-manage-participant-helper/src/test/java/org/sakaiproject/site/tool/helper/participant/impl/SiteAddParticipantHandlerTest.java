@@ -21,7 +21,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,36 +51,98 @@ public class SiteAddParticipantHandlerTest {
                 .toArray(String[]::new);
     }
 
+    /** Fragments the parse flagged as skipped (each becomes a visible alert in the tool). */
+    private List<String> skipped;
+
+    /** normalizeSmart, collecting skipped fragments into {@link #skipped}. */
+    private String smart(String raw) {
+        skipped = new ArrayList<>();
+        return handler.normalizeSmart(raw, skipped);
+    }
+
+    /** normalizeNonOfficial, collecting skipped fragments into {@link #skipped}. */
+    private String nonOfficial(String raw) {
+        skipped = new ArrayList<>();
+        return handler.normalizeNonOfficial(raw, skipped);
+    }
+
     // ---- normalizeSmart: extract emails from any blob, or split a username list --------------
 
     @Test
     public void nullInputReturnsNull() {
-        assertNull(handler.normalizeSmart(null));
+        assertNull(smart(null));
     }
 
     @Test
     public void smartExtractsEmailsFromMessyBlob() {
         String blob = "Please add John Doe <jdoe@yahoo.com>, and asmith@x.edu (Alice); "
                 + "also \"bob@sub.domain.co.uk\" -- thanks!";
-        String out = handler.normalizeSmart(blob);
+        String out = smart(blob);
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com", "asmith@x.edu", "bob@sub.domain.co.uk"},
                 entries(out));
+        // prose and display names around the addresses are not "skipped entries"
+        assertTrue("expected no skipped fragments, got " + skipped, skipped.isEmpty());
     }
 
     @Test
-    public void smartEmailLineExtractsEmailsAndDropsNameFragments() {
-        // a single line that contains an '@' is an email line: only email-format tokens are kept,
-        // so bare tokens sharing the line (name fragments) are dropped
-        String out = handler.normalizeSmart("jsmith, teacher01, real@x.com");
+    public void smartEmailLineFlagsNameFragmentsAsSkipped() {
+        // a lone delimited token sharing a line with an email address is never dropped silently:
+        // it is excluded from the entries but flagged so the user gets a visible alert
+        String out = smart("jsmith, teacher01, real@x.com");
         assertArrayEquals(new String[] {"real@x.com"}, entries(out));
+        assertEquals(Arrays.asList("jsmith", "teacher01"), skipped);
+    }
+
+    @Test
+    public void smartFlagsMistypedEmailInsteadOfDroppingIt() {
+        // regression guard for the silent-drop hole: a typo'd address (missing TLD) must surface
+        // as a skipped fragment, not vanish while the rest of the paste is added
+        String out = smart("a@x.com\r\njdoe@iu\r\nb@y.com");
+        assertArrayEquals(new String[] {"a@x.com", "b@y.com"}, entries(out));
+        assertEquals(Arrays.asList("jdoe@iu"), skipped);
+    }
+
+    @Test
+    public void smartFlagsMistypedEmailSharingALineWithAValidOne() {
+        String out = smart("a@x.com jdoe@iu");
+        assertArrayEquals(new String[] {"a@x.com"}, entries(out));
+        assertEquals(Arrays.asList("jdoe@iu"), skipped);
+    }
+
+    @Test
+    public void smartConsumesOutlookLastFirstMailboxes() {
+        // Outlook recipient pastes: the display name may hold a comma ("Last, First"), quoted or
+        // not — the name must be consumed with its <email>, not leak fragments like "Doe"
+        String out = smart("\"Doe, John\" <jdoe@x.edu>; Roe, Jane <jroe@x.edu>");
+        assertArrayEquals(new String[] {"jdoe@x.edu", "jroe@x.edu"}, entries(out));
+        assertTrue("expected no skipped fragments, got " + skipped, skipped.isEmpty());
     }
 
     @Test
     public void smartUsernameListSplitsOnAnyDelimiter() {
         // no '@' anywhere: detected as a username list and split on any delimiter
-        String out = handler.normalizeSmart("jsmith, teacher01; prof.x  admin1");
+        String out = smart("jsmith, teacher01; prof.x  admin1");
         assertArrayEquals(new String[] {"jsmith", "teacher01", "prof.x", "admin1"}, entries(out));
+        assertTrue(skipped.isEmpty());
+    }
+
+    // ---- email extraction keeps RFC-valid characters ------------------------------------------
+
+    @Test
+    public void smartKeepsApostropheLocalParts() {
+        // o'brien@x.edu must extract whole: truncating to brien@x.edu could silently add a
+        // different, real user
+        String out = smart("o'brien@x.edu, d'angelo.jr@y.org");
+        assertArrayEquals(new String[] {"o'brien@x.edu", "d'angelo.jr@y.org"}, entries(out));
+        assertTrue(skipped.isEmpty());
+    }
+
+    @Test
+    public void smartDropsSurroundingSingleQuotes() {
+        String out = smart("'jdoe@x.edu'");
+        assertArrayEquals(new String[] {"jdoe@x.edu"}, entries(out));
+        assertTrue(skipped.isEmpty());
     }
 
     // ---- normalizeSmart: legacy one-entry-per-line formats must keep working -----------------
@@ -87,7 +151,7 @@ public class SiteAddParticipantHandlerTest {
     public void smartKeepsLegacyMixedEmailAndUsernameLines() {
         // regression guard: the pre-smart tool split on line breaks and routed each line by the '@'
         // char, so a mixed list of usernames and emails, one per line, must still add ALL of them
-        String out = handler.normalizeSmart("jsmith\r\njdoe@x.com\r\nteacher01\r\nasmith@y.edu");
+        String out = smart("jsmith\r\njdoe@x.com\r\nteacher01\r\nasmith@y.edu");
         assertArrayEquals(
                 new String[] {"jsmith", "jdoe@x.com", "teacher01", "asmith@y.edu"},
                 entries(out));
@@ -95,13 +159,13 @@ public class SiteAddParticipantHandlerTest {
 
     @Test
     public void smartKeepsLegacyOneUsernamePerLine() {
-        String out = handler.normalizeSmart("jsmith\r\nteacher01\r\nadmin1");
+        String out = smart("jsmith\r\nteacher01\r\nadmin1");
         assertArrayEquals(new String[] {"jsmith", "teacher01", "admin1"}, entries(out));
     }
 
     @Test
     public void smartKeepsLegacyOneEmailPerLine() {
-        String out = handler.normalizeSmart("a@x.com\r\nb@y.com\r\nc@z.com");
+        String out = smart("a@x.com\r\nb@y.com\r\nc@z.com");
         assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
     }
 
@@ -109,7 +173,7 @@ public class SiteAddParticipantHandlerTest {
     public void smartExtractsMultipleEmailsFromASingleLine() {
         // improvement over legacy: a line with several addresses (any delimiter) is split, not
         // rejected as one invalid entry
-        String out = handler.normalizeSmart("a@x.com b@y.com\r\nc@z.com");
+        String out = smart("a@x.com b@y.com\r\nc@z.com");
         assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
     }
 
@@ -118,7 +182,7 @@ public class SiteAddParticipantHandlerTest {
     @Test
     public void nonOfficialKeepsStructuredRowIntact() {
         // regression: a legacy guest row must NOT be flattened to the email
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John");
+        String out = nonOfficial("jdoe@yahoo.com,Doe,John");
         assertArrayEquals(new String[] {"jdoe@yahoo.com,Doe,John"}, entries(out));
         // and the name fields still survive the downstream per-line parse
         assertArrayEquals(new String[] {"jdoe@yahoo.com", "Doe", "John"},
@@ -127,7 +191,7 @@ public class SiteAddParticipantHandlerTest {
 
     @Test
     public void nonOfficialKeepsMultipleStructuredLines() {
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\nasmith@x.edu,Smith,Alice");
+        String out = nonOfficial("jdoe@yahoo.com,Doe,John\r\nasmith@x.edu,Smith,Alice");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
                 entries(out));
@@ -136,7 +200,7 @@ public class SiteAddParticipantHandlerTest {
     @Test
     public void nonOfficialSeparatesPeopleOnSemicolonsKeepingNames() {
         // semicolons separate people; the comma inside each person stays as the field separator
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John; asmith@x.edu,Smith,Alice");
+        String out = nonOfficial("jdoe@yahoo.com,Doe,John; asmith@x.edu,Smith,Alice");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "asmith@x.edu,Smith,Alice"},
                 entries(out));
@@ -145,13 +209,30 @@ public class SiteAddParticipantHandlerTest {
     @Test
     public void nonOfficialSplitsBareEmailBlob() {
         // no names: a comma/whitespace list of addresses on one line becomes one email per line
-        String out = handler.normalizeNonOfficial("a@x.com, b@y.com c@z.com");
+        String out = nonOfficial("a@x.com, b@y.com c@z.com");
         assertArrayEquals(new String[] {"a@x.com", "b@y.com", "c@z.com"}, entries(out));
+        assertTrue(skipped.isEmpty());
+    }
+
+    @Test
+    public void nonOfficialFlagsMistypedEmailInBlob() {
+        // a typo'd address inside a multi-address blob must surface as skipped, not vanish
+        String out = nonOfficial("a@x.com, b@y c@z.net");
+        assertArrayEquals(new String[] {"a@x.com", "c@z.net"}, entries(out));
+        assertEquals(Arrays.asList("b@y"), skipped);
+    }
+
+    @Test
+    public void nonOfficialKeepsApostropheLocalPartsInBlob() {
+        // regression guard: truncating o'brien@x.edu to brien@x.edu would invite a stranger
+        String out = nonOfficial("o'brien@x.edu, o'malley@y.edu");
+        assertArrayEquals(new String[] {"o'brien@x.edu", "o'malley@y.edu"}, entries(out));
+        assertTrue(skipped.isEmpty());
     }
 
     @Test
     public void nonOfficialHandlesMixOfStructuredRowsAndBlobLine() {
-        String out = handler.normalizeNonOfficial("jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com");
+        String out = nonOfficial("jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com");
         assertArrayEquals(
                 new String[] {"jdoe@yahoo.com,Doe,John", "a@x.com", "b@y.com"},
                 entries(out));
@@ -159,7 +240,7 @@ public class SiteAddParticipantHandlerTest {
 
     @Test
     public void nonOfficialNullReturnsNull() {
-        assertNull(handler.normalizeNonOfficial(null));
+        assertNull(nonOfficial(null));
     }
 
     // ---- parseAccountIntoParts: non-official email,lastName,firstName ------------------------
@@ -225,7 +306,7 @@ public class SiteAddParticipantHandlerTest {
     @Test
     public void smartExtractionProducesValidatableEmails() {
         String blob = "team: alice@x.edu; bob@y.org,  carol@z.net";
-        for (String eid : entries(handler.normalizeSmart(blob))) {
+        for (String eid : entries(smart(blob))) {
             assertTrue("expected extracted token to validate: " + eid, handler.isValidMail(eid));
         }
     }

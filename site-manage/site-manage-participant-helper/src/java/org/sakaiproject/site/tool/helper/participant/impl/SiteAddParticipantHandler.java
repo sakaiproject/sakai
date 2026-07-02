@@ -651,10 +651,20 @@ public class SiteAddParticipantHandler {
 		// check that there is something with which to work
 		// smart-parse each blob into one-entry-per-line first, so the per-line parsing below is
 		// reused unchanged (see normalizeSmart / normalizeNonOfficial)
-		officialAccounts = StringUtils.trimToNull(normalizeSmart(officialAccountParticipant));
-		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant));
+		List<String> skippedEntries = new ArrayList<>();
+		officialAccounts = StringUtils.trimToNull(normalizeSmart(officialAccountParticipant, skippedEntries));
+		nonOfficialAccounts = StringUtils.trimToNull(normalizeNonOfficial(nonOfficialAccountParticipant, skippedEntries));
 		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
 		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
+
+		// anything the smart parse could not understand must fail loudly, never silently: the
+		// instructor believes everyone they pasted was added
+		for (String skippedEntry : skippedEntries) {
+			targettedMessageList.addMessage(new TargettedMessage(
+					"java.skipped",
+					new Object[] {skippedEntry},
+					TargettedMessage.SEVERITY_ERROR));
+		}
 
 		// if there is no eid or nonOfficialAccount entered
 		if (officialAccounts == null && nonOfficialAccounts == null) {
@@ -962,8 +972,15 @@ public class SiteAddParticipantHandler {
 		}
 	}
 
-	// matches an email-format token anywhere within a blob of pasted text (used by smart parsing)
-	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
+	// matches an email-format token anywhere within a blob of pasted text (used by smart parsing).
+	// The local part accepts an apostrophe (o'brien@x.edu) but must not start with one, so a
+	// single-quoted 'jdoe@x.edu' still extracts without the quote.
+	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-][A-Za-z0-9._%+'\\-]*@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
+
+	// matches an RFC-style mailbox: an optional display name (one "Last, First" comma allowed,
+	// no @ so a neighboring bare address is never swallowed as a name) followed by <email>
+	private static final Pattern MAILBOX_UNIT_PATTERN =
+			Pattern.compile("[^<>,;@]*(?:,[^<>,;@]*)?<\\s*(" + EMAIL_EXTRACT_PATTERN.pattern() + ")\\s*>");
 
 	/**
 	 * Smart-parse a pasted official-account textarea into one entry per CRLF-separated line, so the
@@ -971,37 +988,79 @@ public class SiteAddParticipantHandler {
 	 * so the legacy one-entry-per-line format keeps working, including a mixed list of emails and
 	 * usernames on separate lines:
 	 * <ul>
-	 *   <li>a line containing an {@code @} is treated as an email line and every email-format token on
-	 *       it is extracted, ignoring surrounding names / brackets / punctuation (so a messy paste like
-	 *       {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)} yields both addresses);</li>
+	 *   <li>a line containing an {@code @} is treated as an email line: {@code Name <email>}
+	 *       mailboxes and bare email tokens are extracted, display names and prose around them are
+	 *       ignored (so a messy paste like {@code John Doe <jdoe@x.com>, asmith@y.edu (Alice)}
+	 *       yields both addresses);</li>
 	 *   <li>a line with no {@code @} is treated as a username list and split on any run of comma /
 	 *       semicolon / whitespace.</li>
 	 * </ul>
-	 * Deciding per line (rather than per blob) preserves everything the pre-smart tool accepted — it
+	 * Nothing that looks like an intended entry is dropped silently: on an email line, a leftover
+	 * token that contains an {@code @} (a mistyped address such as {@code jdoe@iu}) or that stands
+	 * alone between delimiters (such as a username mixed onto an email line) is reported back via
+	 * {@code skipped} so the caller can raise a visible alert instead of quietly adding fewer
+	 * people than were pasted.
+	 *
+	 * <p>Deciding per line (rather than per blob) preserves everything the pre-smart tool accepted — it
 	 * split only on line breaks and routed each entry by the {@code @} char — while additionally
 	 * accepting other delimiters and messy email pastes. Either way the extracted entries are validated
 	 * downstream and the per-entry lookup routes emails vs usernames.
 	 *
 	 * <p>This drives the <em>official</em> box, whose entries are single tokens (an email or a
 	 * username). The non-official (guest) box carries structured {@code email,lastName,firstName}
-	 * rows, so it is normalized by {@link #normalizeNonOfficial(String)} instead, which preserves
-	 * those name fields.
+	 * rows, so it is normalized by {@link #normalizeNonOfficial(String, List)} instead, which
+	 * preserves those name fields.
 	 *
 	 * @param raw the raw textarea value (may be null)
+	 * @param skipped collects pasted fragments that looked like intended entries but could not be
+	 *                parsed, so the caller can alert on them
 	 * @return the text normalized to CRLF-separated entries, or null when {@code raw} is null
 	 */
 	// package-private for unit testing
-	String normalizeSmart(String raw) {
+	String normalizeSmart(String raw, List<String> skipped) {
 		if (raw == null) {
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
 		for (String line : raw.split("\r\n|\r|\n")) {
 			if (line.contains(EMAIL_CHAR)) {
-				// email line: pull out every address, ignoring names / brackets / junk
-				Matcher m = EMAIL_EXTRACT_PATTERN.matcher(line);
-				while (m.find()) {
-					appendEntry(sb, m.group());
+				// email line: first take every "display name <email>" mailbox, keeping the
+				// address and intentionally ignoring the display name
+				StringBuffer rest = new StringBuffer();
+				Matcher unit = MAILBOX_UNIT_PATTERN.matcher(line);
+				while (unit.find()) {
+					appendEntry(sb, unit.group(1));
+					unit.appendReplacement(rest, " ");
+				}
+				unit.appendTail(rest);
+				// then handle what's left, one comma/semicolon-separated chunk at a time
+				for (String chunk : rest.toString().split("[,;]+")) {
+					String trimmedChunk = chunk.trim();
+					if (trimmedChunk.isEmpty()) {
+						continue;
+					}
+					if (trimmedChunk.contains(EMAIL_CHAR)) {
+						// email chunk: extract the addresses; a leftover token still holding an
+						// @ is a mistyped address the user meant to add, so flag it
+						StringBuffer residue = new StringBuffer();
+						Matcher m = EMAIL_EXTRACT_PATTERN.matcher(trimmedChunk);
+						while (m.find()) {
+							appendEntry(sb, m.group());
+							m.appendReplacement(residue, " ");
+						}
+						m.appendTail(residue);
+						for (String token : residue.toString().split("\\s+")) {
+							if (token.contains(EMAIL_CHAR)) {
+								skipped.add(token);
+							}
+						}
+					} else if (trimmedChunk.split("\\s+").length == 1) {
+						// a lone delimited token sharing a line with an email address is
+						// ambiguous (username? name fragment? broken address?) — flag it
+						// rather than guessing a user lookup or dropping it silently
+						skipped.add(trimmedChunk);
+					}
+					// multi-word chunks without an @ are name/prose fragments: ignored
 				}
 			} else {
 				// no @ on this line: treat as a username list separated by any delimiter
@@ -1038,13 +1097,17 @@ public class SiteAddParticipantHandler {
 	 *       split so each address lands on its own line.</li>
 	 * </ul>
 	 * This lets a guest paste keep structured name rows while still accepting a plain comma /
-	 * semicolon / whitespace separated list of addresses.
+	 * semicolon / whitespace separated list of addresses. In the blob case, a leftover token that
+	 * still holds an {@code @} (a mistyped address such as {@code b@y}) is reported back via
+	 * {@code skipped} so the caller can alert on it instead of dropping it silently.
 	 *
 	 * @param raw the raw textarea value (may be null)
+	 * @param skipped collects pasted fragments that looked like intended entries but could not be
+	 *                parsed, so the caller can alert on them
 	 * @return the text normalized to CRLF-separated entries, or null when {@code raw} is null
 	 */
 	// package-private for unit testing
-	String normalizeNonOfficial(String raw) {
+	String normalizeNonOfficial(String raw, List<String> skipped) {
 		if (raw == null) {
 			return null;
 		}
@@ -1062,12 +1125,21 @@ public class SiteAddParticipantHandler {
 			}
 			if (emailCount > 1) {
 				// bare email blob on one chunk: emit each address on its own line, dropping names
+				// but flagging any leftover token that still looks like a mistyped address
+				StringBuffer residue = new StringBuffer();
 				Matcher emails = EMAIL_EXTRACT_PATTERN.matcher(person);
 				while (emails.find()) {
 					if (sb.length() > 0) {
 						sb.append("\r\n");
 					}
 					sb.append(emails.group());
+					emails.appendReplacement(residue, " ");
+				}
+				emails.appendTail(residue);
+				for (String token : residue.toString().split("[,\\s]+")) {
+					if (token.contains(EMAIL_CHAR)) {
+						skipped.add(token);
+					}
 				}
 			} else {
 				// single email (with optional name fields) or an invalid line: keep it intact

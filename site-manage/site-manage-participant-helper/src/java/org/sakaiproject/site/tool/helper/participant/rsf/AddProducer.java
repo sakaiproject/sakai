@@ -96,6 +96,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 			UIOutput.make(participantForm, "countEmailsTmpl", messageLocator.getMessage("add.count.emails"));
 			UIOutput.make(participantForm, "countUsernamesTmpl", messageLocator.getMessage("add.count.usernames"));
 			UIOutput.make(participantForm, "countMixedTmpl", messageLocator.getMessage("add.count.mixed"));
+			UIOutput.make(participantForm, "countSkippedTmpl", messageLocator.getMessage("add.count.skipped"));
 
 			String pickerAction = handler.getServerConfigurationString("officialAccountPickerAction");
 			if (pickerAction != null && !pickerAction.isEmpty()) {
