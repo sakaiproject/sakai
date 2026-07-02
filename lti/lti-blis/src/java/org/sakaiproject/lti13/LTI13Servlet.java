@@ -19,14 +19,21 @@ package org.sakaiproject.lti13;
 
 import io.jsonwebtoken.Jws;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -48,6 +55,7 @@ import java.security.KeyPairGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -65,6 +73,8 @@ import org.json.simple.JSONArray;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.util.LegacyShaUtil;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.lti.util.SakaiKeySetUtil;
@@ -105,6 +115,8 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.profile2.api.ProfileService;
+import org.sakaiproject.profile2.api.ProfileTransferBean;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -428,15 +440,15 @@ public class LTI13Servlet extends HttpServlet {
 
 		// https://stackoverflow.com/a/43708457/1994792
 		try {
-			java.net.URL url = new java.net.URL(proxyUrl);
-			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			URL url = new URL(proxyUrl);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(3000);
 			con.setReadTimeout(3000);
 			con.setInstanceFollowRedirects(true);
 
-			try ( java.io.BufferedReader in = new java.io.BufferedReader(
-				new java.io.InputStreamReader(con.getInputStream())) )
+			try ( BufferedReader in = new BufferedReader(
+				new InputStreamReader(con.getInputStream())) )
 			{
 				String inputLine;
 				StringBuffer content = new StringBuffer();
@@ -487,7 +499,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+		LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -506,7 +518,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -545,8 +557,8 @@ public class LTI13Servlet extends HttpServlet {
 
 			// https://stackoverflow.com/questions/3324717/sending-http-post-request-in-java
 			byte [] bytes = jws.getBytes();
-			java.net.URL url = new java.net.URL(callback);
-			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			URL url = new URL(callback);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("POST");
 	        con.setDoOutput(true);
 			con.setFixedLengthStreamingMode(bytes.length);
@@ -591,7 +603,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// TODO: A little moar checking on the session.
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_key);
@@ -744,6 +756,10 @@ public class LTI13Servlet extends HttpServlet {
 		lpc.messages_supported.add(mp);
 
 		lpc.variables.add(LTICustomVars.USER_ID);
+		lpc.variables.add(LTICustomVars.USER_NICKNAME);
+		lpc.variables.add(LTICustomVars.USER_PRONOUNS);
+		lpc.variables.add(LTICustomVars.USER_PHONETIC_NAME);
+		lpc.variables.add(LTICustomVars.USER_MOBILE);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
 
 		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
@@ -857,7 +873,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the tool
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
@@ -1012,7 +1028,7 @@ public class LTI13Servlet extends HttpServlet {
 		String jsonString;
 		try {
 			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
-			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+			jsonString = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 		} catch (IOException ex) {
 			log.error("Could not read POST Data {}", ex.getMessage());
 			LTI13Util.return400(response, "Could not read POST Data");
@@ -1024,7 +1040,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			scoreObj = mapper.readValue(jsonString, Score.class);
-		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+		} catch (JsonProcessingException ex) {
 			log.error("Could not read POST Data Jackson {}", ex.getMessage());
 			LTI13Util.return400(response, "Could not read POST Data Jackson");
 			return;
@@ -1037,8 +1053,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 		String assignment_name = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
@@ -1174,7 +1190,7 @@ public class LTI13Servlet extends HttpServlet {
 		String jsonString;
 		try {
 			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
-			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+			jsonString = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 		} catch (IOException ex) {
 			log.error("Could not read POST Data {}", ex.getMessage());
 			LTI13Util.return400(response, "Could not read POST Data");
@@ -1212,7 +1228,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			log.error("Could not load tool={}", tool_key);
 			LTI13Util.return400(response, "Missing tool");
@@ -1253,7 +1269,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			json_out = JacksonUtil.prettyPrint(jso);
 			tool.lti13AutoRegistration = json_out;
-		} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+		} catch (JsonProcessingException e) {
 			log.error("Could not serialize JSON={}", e.getMessage());
 			LTI13Util.return400(response, "Could not serialize JSON");
 			return;
@@ -1283,6 +1299,48 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+	}
+
+	/**
+	 * Extract the custom_parameters that the tool requested in its LTI 1.3 Dynamic Registration.
+	 *
+	 * The registration request is stored verbatim on the tool as JSON in lti13AutoRegistration.  The
+	 * custom parameters live under the LTI Tool Configuration claim.  Each entry is a custom claim name
+	 * mapped to a substitution variable (e.g. "context_history" : "$Context.id.history").
+	 *
+	 * @return a Properties of (claim-name -> substitution variable).  Empty if the tool was not
+	 *         dynamically registered or did not request any custom parameters.
+	 */
+	private static Properties getRegistrationCustomParameters(LtiToolBean tool) {
+
+		Properties custom = new Properties();
+		if (tool == null || StringUtils.isBlank(tool.lti13AutoRegistration)) {
+			return custom;
+		}
+
+		Object js = JSONValue.parse(tool.lti13AutoRegistration);
+		if (!(js instanceof JSONObject)) {
+			return custom;
+		}
+
+		Object toolConfigurationObj = ((JSONObject) js).get("https://purl.imsglobal.org/spec/lti-tool-configuration");
+		if (!(toolConfigurationObj instanceof JSONObject)) {
+			return custom;
+		}
+
+		Object customParametersObj = ((JSONObject) toolConfigurationObj).get("custom_parameters");
+		if (!(customParametersObj instanceof JSONObject)) {
+			return custom;
+		}
+
+		JSONObject customParameters = (JSONObject) customParametersObj;
+		for (Object entryObj : customParameters.entrySet()) {
+			Map.Entry entry = (Map.Entry) entryObj;
+			if (entry.getKey() != null && entry.getValue() != null) {
+				custom.setProperty(entry.getKey().toString(), entry.getValue().toString());
+			}
+		}
+		return custom;
 	}
 
 	// https://github.com/IMSGlobal/LTI-spec-Names-Role-Provisioning/blob/develop/docs/names-role-provisioning-spec.md
@@ -1327,7 +1385,7 @@ public class LTI13Servlet extends HttpServlet {
 }
 	 */
 	protected void handleNamesAndRoles(String signed_placement, HttpServletRequest request, HttpServletResponse response)
-			throws java.io.IOException {
+			throws IOException {
 
 		// HttpUtil.printHeaders(request);
 		// HttpUtil.printParameters(request);
@@ -1335,6 +1393,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		int start = NumberUtils.toInt(request.getParameter("start"), 0);
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
+		String rlid = request.getParameter("rlid");
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -1349,11 +1408,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -1412,6 +1471,20 @@ public class LTI13Servlet extends HttpServlet {
 
 		PrintWriter out = null;
 
+		String nrpsUserId = ServerConfigurationService.getString(
+				"lti.nrps.userid", "admin");
+		String nrpsUserEid = ServerConfigurationService.getString(
+				"lti.nrps.usereid", "admin");
+
+		Session sess = SessionManager.getCurrentSession();
+		String originalUserId = sess != null ? sess.getUserId() : null;
+		String originalUserEid = sess != null ? sess.getUserEid() : null;
+
+		if (sess != null) {
+			sess.setUserId(nrpsUserId);
+			sess.setUserEid(nrpsUserEid);
+		}
+
 		SakaiLTIUtil.pushAdvisor();
 		try {
 			boolean success = false;
@@ -1464,10 +1537,24 @@ public class LTI13Servlet extends HttpServlet {
 				// /imsblis/lti13/namesandroles/context:6
 				String linkHeader = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement + "?start=" + next;
 				if ( limit > 0 ) linkHeader += "&limit=" + limit;
+				if ( StringUtils.isNotBlank(rlid) ) linkHeader += "&rlid=" + URLEncoder.encode(rlid, StandardCharsets.UTF_8);
 				linkHeader = "<" + linkHeader + ">; rel=\"next\"";
 				log.debug("Link: {}", linkHeader);
 			    response.addHeader("Link", linkHeader);
 			}
+
+			// The custom parameter substitutions the tool requested during LTI 1.3 Dynamic Registration.
+			// These are returned per-member as an LtiResourceLinkRequest message with a custom claim.
+			Properties registrationCustom = getRegistrationCustomParameters(tool);
+			Properties baseSubst = new Properties();
+			if (!registrationCustom.isEmpty()) {
+				// Site/global level substitution variables are the same for every member - build them once.
+				SakaiLTIUtil.addGlobalData(site, new Properties(), baseSubst, null);
+				SakaiLTIUtil.addSiteInfo(new Properties(), baseSubst, site);
+			}
+
+
+			ProfileService profileService = ComponentManager.get(ProfileService.class);
 
 			int current = 0;
 			for (User user : users) {
@@ -1479,6 +1566,8 @@ public class LTI13Servlet extends HttpServlet {
 					log.debug("Limit reached current={} next={} start={} limit={}", current, next, start, limit);
 					break;
 				}
+
+				ProfileTransferBean profile = profileService.getUserProfile(user.getId());
 
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
@@ -1492,6 +1581,7 @@ public class LTI13Servlet extends HttpServlet {
 					jo.put("name", user.getDisplayName());
 					jo.put("given_name", user.getFirstName());
 					jo.put("family_name", user.getLastName());
+					jo.put("picture", profile.imageUrl);
 				}
 				if (Boolean.TRUE.equals(tool.sendemailaddr)) {
 					jo.put("email", user.getEmail());
@@ -1561,25 +1651,82 @@ public class LTI13Servlet extends HttpServlet {
 
 				jo.put("sakai_ext", sakai_ext);
 
-				if (out == null) {
-						JSONObject context_obj = new JSONObject();
-						context_obj.put("id", site.getId());
-						context_obj.put("title", site.getTitle());
+				// Add a message claim containing only the custom parameter substitutions that the tool
+				// requested in its LTI 1.3 Dynamic Registration, resolved for this member.
+				// https://www.imsglobal.org/spec/lti-nrps/v2p0#message-claim
+				if (!registrationCustom.isEmpty()) {
+					Properties userSubst = (Properties) baseSubst.clone();
+					SakaiLTIUtil.addUserInfo(new Properties(), userSubst, user, tool.asMap());
 
-						response.setContentType(APPLICATION_JSON);
-						out = response.getWriter();
-						out.println("{");
-						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
-						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
-						out.println(" \"context\" : ");
-						if (log.isDebugEnabled()) {
-						    log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
-						}
-						out.print(JacksonUtil.prettyPrint(context_obj));
-						out.println(",");
-						out.println(" \"members\": [");
+					// Mirror the role substitutions to the roles we resolved for this member above,
+					// rather than calling addRoleInfo() which keys off the (admin) request session.
+					if (StringUtils.isNotBlank(sakaiRole)) {
+						userSubst.setProperty("Sakai.ext.role", sakaiRole);
+					}
+					String membershipRole = StringUtils.join(roles, ",");
+					if (StringUtils.isNotBlank(membershipRole)) {
+						userSubst.setProperty(LTICustomVars.MEMBERSHIP_ROLE, membershipRole);
+					}
+
+					// Add some of the user profile data into the response. We don't bother to
+					// guard this behind sendname or anything as it would make NRPS pretty useless.
+					// If the user has set this stuff in their profile we may as well send it.
+
+					if (StringUtils.isNotBlank(profile.nickname)) {
+						userSubst.setProperty(LTICustomVars.USER_NICKNAME, profile.nickname);
+					}
+
+					if (StringUtils.isNotBlank(profile.pronouns)) {
+						userSubst.setProperty(LTICustomVars.USER_PRONOUNS, profile.pronouns);
+					}
+
+					if (StringUtils.isNotBlank(profile.phoneticPronunciation)) {
+						userSubst.setProperty(LTICustomVars.USER_PHONETIC_NAME, profile.phoneticPronunciation);
+					}
+
+					if (StringUtils.isNotBlank(profile.mobile)) {
+						userSubst.setProperty(LTICustomVars.USER_MOBILE, profile.mobile);
+					}
+
+					// Allow any locally deployed substitutions, matching launch behaviour.
+					ltiService.filterCustomSubstitutions(userSubst, tool.asMap(), site);
+
+					Properties memberCustom = (Properties) registrationCustom.clone();
+					LTI13Util.substituteCustom(memberCustom, userSubst);
+
+					JSONObject customClaim = new JSONObject();
+					for (String key : memberCustom.stringPropertyNames()) {
+						customClaim.put(key, memberCustom.getProperty(key));
+					}
+
+					JSONObject messageObj = new JSONObject();
+					messageObj.put("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest");
+					messageObj.put("https://purl.imsglobal.org/spec/lti/claim/custom", customClaim);
+
+					JSONArray messageArray = new JSONArray();
+					messageArray.add(messageObj);
+					jo.put("message", messageArray);
+				}
+
+				if (out == null) {
+					JSONObject context_obj = new JSONObject();
+					context_obj.put("id", site.getId());
+					context_obj.put("title", site.getTitle());
+
+					response.setContentType(APPLICATION_JSON);
+					out = response.getWriter();
+					out.println("{");
+					String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+					out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
+					out.println(" \"context\" : ");
+					if (log.isDebugEnabled()) {
+						log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
+					}
+					out.print(JacksonUtil.prettyPrint(context_obj));
+					out.println(",");
+					out.println(" \"members\": [");
 				} else {
-						out.println(",");
+					out.println(",");
 				}
 
 				if (log.isDebugEnabled()) {
@@ -1594,13 +1741,17 @@ public class LTI13Servlet extends HttpServlet {
 				out.println(" ] }");
 			}
 		} finally {
+			if (sess != null) {
+				sess.setUserId(originalUserId);
+				sess.setUserEid(originalUserEid);
+			}
 			SakaiLTIUtil.popAdvisor();
 		}
 
 	}
 
 	protected void handleGroupService(String site_id, HttpServletRequest request, HttpServletResponse response)
-			throws java.io.IOException {
+			throws IOException {
 
 		String subject = request.getParameter("user_id");
 		String user_id = null;
@@ -1626,7 +1777,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		try {
 			site = SiteService.getSite(site_id);
@@ -1768,7 +1919,6 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
-			// System.out.println("jsonResult=" + jsonResult);
 			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
 		} catch (IOException ex) {
 			log.error("PARSE ERROR {}\n{}", ex.getMessage(), claims.toString());
@@ -1831,7 +1981,7 @@ public class LTI13Servlet extends HttpServlet {
 		return parts.length == 3 ? parts[1] : null;
 	}
 
-	protected static org.sakaiproject.lti.beans.LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
+	protected static LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
 
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
@@ -1853,7 +2003,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(contentKey, context_id);
+		LtiContentBean content = ltiService.getContentAsBean(contentKey, context_id);
 		if (content == null) {
 			log.error("Could not load Content Item {}", contentKey);
 			LTI13Util.return400(response, "Could not load Content Item");
@@ -1880,7 +2030,7 @@ public class LTI13Servlet extends HttpServlet {
 		return content;
 	}
 
-	protected Site loadSiteFromContent(org.sakaiproject.lti.beans.LtiContentBean content, String signed_placement, HttpServletResponse response) {
+	protected Site loadSiteFromContent(LtiContentBean content, String signed_placement, HttpServletResponse response) {
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
 			return null;
@@ -1932,7 +2082,7 @@ public class LTI13Servlet extends HttpServlet {
 	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
 	{
 		String search = "lti_content.tool_id = " + toolKey;
-		List<org.sakaiproject.lti.beans.LtiContentBean> contents =
+		List<LtiContentBean> contents =
 			ltiService.getContentsAsBeans(search, null, 0, 1, siteId);
 
 		if (contents.isEmpty()) {
@@ -1943,7 +2093,7 @@ public class LTI13Servlet extends HttpServlet {
 		return true;
 	}
 
-	private static boolean isGradebookReadonlyView(org.sakaiproject.lti.beans.LtiToolBean tool) {
+	private static boolean isGradebookReadonlyView(LtiToolBean tool) {
 		return LineItemUtil.isGradebookReadonlyView(
 				tool != null ? tool.allowgradebookreadonly : null,
 				tool != null ? tool.allowlineitems : null);
@@ -1952,7 +2102,7 @@ public class LTI13Servlet extends HttpServlet {
 	/**
 	 * @return true if the response was written (caller should return)
 	 */
-	private static boolean rejectIfLineItemReadOnly(org.sakaiproject.lti.beans.LtiToolBean tool, String contextId,
+	private static boolean rejectIfLineItemReadOnly(LtiToolBean tool, String contextId,
 			Long toolId, Long lineitemKey, HttpServletResponse response) {
 		if (!isGradebookReadonlyView(tool) || lineitemKey == null) {
 			return false;
@@ -1970,7 +2120,7 @@ public class LTI13Servlet extends HttpServlet {
 		return false;
 	}
 
-	protected org.sakaiproject.lti.beans.LtiToolBean loadToolForContent(org.sakaiproject.lti.beans.LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
+	protected LtiToolBean loadToolForContent(LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
 		Long toolKey = LTIUtil.toLongKey(content.toolId);
 		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
 			log.error("Content / Tool invalid content={} tool={}", content.id, toolKey);
@@ -1978,7 +2128,7 @@ public class LTI13Servlet extends HttpServlet {
 			return null;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -1992,7 +2142,7 @@ public class LTI13Servlet extends HttpServlet {
 		String jsonString;
 		try {
 			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
-			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+			jsonString = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 		} catch (IOException ex) {
 			log.error("Could not read POST Data {}", ex.getMessage());
 			LTI13Util.return400(response, "Could not read POST Data");
@@ -2085,11 +2235,11 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("item={}; resourceLinkId={}", item, item.resourceLinkId);
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2193,11 +2343,11 @@ public class LTI13Servlet extends HttpServlet {
 		if ( item == null ) return; // Error alredy handled
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2314,8 +2464,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2441,8 +2591,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2689,11 +2839,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
