@@ -15,8 +15,10 @@
 
 	// deliberately narrower than RFC 5322 - see EMAIL_EXTRACT_PATTERN in SiteAddParticipantHandler
 	// (extraction from prose must not swallow URL query strings; RFC-grade validation happens
-	// server-side on each extracted candidate). Keep byte-identical with the Java pattern.
-	var EMAIL_RE = /[A-Za-z0-9._%+\-][A-Za-z0-9._%+'\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
+	// server-side on each extracted candidate; the trailing lookahead keeps a prefix of a longer
+	// token like jdoe@example.com123 from counting as an address). Keep byte-identical with the
+	// Java pattern.
+	var EMAIL_RE = /[A-Za-z0-9._%+\-][A-Za-z0-9._%+'\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}(?![A-Za-z0-9_%+\-@])/g;
 	// an RFC-style mailbox: optional display name (one "Last, First" comma allowed, no @) + <email>
 	var MAILBOX_RE = new RegExp("[^<>,;@]*(?:,[^<>,;@]*)?<\\s*(" + EMAIL_RE.source + ")\\s*>", "g");
 	// characters a Sakai username (eid) can never contain — mirror of
@@ -70,7 +72,7 @@
 	 * @returns {{entries: string[], skipped: string[]}} parsed entries and skipped fragments
 	 */
 	function normalize(raw) {
-		raw = (raw || "").replace(/ /g, " "); // NBSP from Word/Outlook pastes
+		raw = (raw || "").replace(/\u00A0/g, " "); // NBSP from Word/Outlook pastes
 		var out = [], skipped = [];
 		if (!raw.trim()) return { entries: out, skipped: skipped };
 		if (raw.indexOf("@") < 0) {
@@ -121,7 +123,7 @@
 	 * @returns {{entries: string[], skipped: string[]}} one entry per guest, plus skipped fragments
 	 */
 	function normalizeNonOfficial(raw) {
-		raw = (raw || "").replace(/ /g, " "); // NBSP from Word/Outlook pastes
+		raw = (raw || "").replace(/\u00A0/g, " "); // NBSP from Word/Outlook pastes
 		var out = [], skipped = [];
 		if (!raw.trim()) return { entries: out, skipped: skipped };
 		raw.split(/[;\r\n]+/).forEach(function (chunk) {

@@ -1011,8 +1011,12 @@ public class SiteAddParticipantHandler {
 	// parts can hold spaces. Every extracted candidate is then validated properly - guest addresses
 	// via commons EmailValidator (RFC-grade), official ones by user-directory resolution. The local
 	// part accepts an apostrophe (o'brien@x.edu) but must not start with one, so a single-quoted
-	// 'jdoe@x.edu' still extracts without the quote. Keep in sync with EMAIL_RE in parsed-count.js.
-	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-][A-Za-z0-9._%+'\\-]*@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
+	// 'jdoe@x.edu' still extracts without the quote. The trailing lookahead rejects a match that is
+	// only a PREFIX of a longer address-like token (jdoe@example.com123 must surface whole as a
+	// skipped fragment, not silently add jdoe@example.com); the apostrophe is deliberately absent
+	// from that guard so the quoted form above keeps matching before its closing quote.
+	// Keep in sync with EMAIL_RE in parsed-count.js.
+	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-][A-Za-z0-9._%+'\\-]*@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}(?![A-Za-z0-9_%+\\-@])");
 
 	// matches an RFC-style mailbox: an optional display name (one "Last, First" comma allowed,
 	// no @ so a neighboring bare address is never swallowed as a name) followed by <email>

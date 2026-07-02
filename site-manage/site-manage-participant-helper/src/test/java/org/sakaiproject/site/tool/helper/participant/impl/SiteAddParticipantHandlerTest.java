@@ -207,6 +207,15 @@ public class SiteAddParticipantHandlerTest {
         assertTrue(skipped.isEmpty());
     }
 
+    @Test
+    public void smartFlagsEmailWithTrailingJunkInsteadOfExtractingAPrefix() {
+        // jdoe@example.com123 must not silently become jdoe@example.com (a different, possibly
+        // real mailbox): the whole token surfaces as skipped so the user can fix it
+        String out = smart("a@x.com, jdoe@example.com123");
+        assertArrayEquals(new String[] {"a@x.com"}, entries(out));
+        assertEquals(Arrays.asList("jdoe@example.com123"), skipped);
+    }
+
     // ---- normalizeSmart: legacy one-entry-per-line formats must keep working -----------------
 
     @Test
@@ -282,6 +291,13 @@ public class SiteAddParticipantHandlerTest {
         String out = nonOfficial("a@x.com, b@y c@z.net");
         assertArrayEquals(new String[] {"a@x.com", "c@z.net"}, entries(out));
         assertEquals(Arrays.asList("b@y"), skipped);
+    }
+
+    @Test
+    public void nonOfficialFlagsEmailWithTrailingJunkInBlob() {
+        String out = nonOfficial("a@x.com, jdoe@example.com123, c@z.net");
+        assertArrayEquals(new String[] {"a@x.com", "c@z.net"}, entries(out));
+        assertEquals(Arrays.asList("jdoe@example.com123"), skipped);
     }
 
     @Test
