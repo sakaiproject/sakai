@@ -283,11 +283,15 @@
                     $("#authorIndexForm\\:remove-selected").attr("tabindex", 0);
                     $("#authorIndexForm\\:publish-selected").removeClass("disabled");
                     $("#authorIndexForm\\:publish-selected").attr("tabindex", 0);
+                    $("#authorIndexForm\\:export-selected-scores-zip").removeClass("disabled");
+                    $("#authorIndexForm\\:export-selected-scores-zip").attr("tabindex", 0);
                 } else {
                     $("#authorIndexForm\\:remove-selected").addClass("disabled");
                     $("#authorIndexForm\\:remove-selected").attr("tabindex", -1);
                     $("#authorIndexForm\\:publish-selected").addClass("disabled");
                     $("#authorIndexForm\\:publish-selected").attr("tabindex", -1);
+                    $("#authorIndexForm\\:export-selected-scores-zip").addClass("disabled");
+                    $("#authorIndexForm\\:export-selected-scores-zip").attr("tabindex", -1);
                 }
             }
         });
@@ -319,6 +323,10 @@
                 }
                 return true;
             }
+        }
+
+        function exportSelectedScoresZipButtonAction() {
+            return !document.getElementById("authorIndexForm:export-selected-scores-zip").classList.contains("disabled");
         }
 
     </script>
@@ -753,6 +761,7 @@
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
         </h:commandButton>
+        <h:commandButton id="export-selected-scores-zip" value="#{authorFrontDoorMessages.assessment_export_zip}" rendered="#{author.allAssessments.size() > 0}" styleClass="disabled ms-2" onclick="if (!exportSelectedScoresZipButtonAction()) return false;" action="#{author.exportAllScoresCsvZip}" />
     </h:form>
 <!-- end content -->
 </div>
