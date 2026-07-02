@@ -36,21 +36,6 @@
     <h2 class="h5 mt-3" th:text="#{section.batch.heading}">Bulk editing tools</h2>
     <p class="small mb-2" th:text="#{section.batch.help}">Set or shift many dates at once. Your changes appear in the item sections below.</p>
 
-    <!-- Governs every column fill on the page: the term-date matrix in the card below AND the
-         per-column setters in the item section headers. Kept outside the collapsible cards so the
-         active mode is always visible. -->
-    <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
-      <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
-      <label class="me-3">
-        <input type="radio" name="bulk-fill-mode" value="existing" checked />
-        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only cells that already have a date</span>
-      </label>
-      <label>
-        <input type="radio" name="bulk-fill-mode" value="all" />
-        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every cell (empty and existing)</span>
-      </label>
-    </div>
-
     <!-- Bulk tools, grouped behind a coloured accent bar to set them apart from the item sections
          further down. The collapsed Shift / Fit / Set-dates cards live here. Export/Import sit in the
          page header, top-right, since they act on the whole site rather than the in-page edits. -->
@@ -150,6 +135,20 @@
       <div id="dm-batch-set" class="collapse" data-bs-parent=".dm-batch-tools">
         <div class="card-body date-manager-set">
     <p class="small mb-2" th:text="#{bulk.help}">This tool is ideal for courses where all items open at the same time and close at the same time: set your term dates once and apply them across every column.</p>
+
+    <!-- Governs the matrix applies below only; the per-column setters in the item section headers
+         carry their own "Fill Empty" checkbox instead. -->
+    <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
+      <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
+      <label class="me-3">
+        <input type="radio" name="bulk-fill-mode" value="existing" checked />
+        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only cells that already have a date</span>
+      </label>
+      <label>
+        <input type="radio" name="bulk-fill-mode" value="all" />
+        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every cell (empty and existing)</span>
+      </label>
+    </div>
 
     <div class="date-manager-term mb-3">
       <p th:text="#{termdates.instructions}">Enter your term dates, tick which columns each one should fill, then apply. Overlapping ticks apply top to bottom, so a lower row wins. Remember to click Save Changes at the bottom of the page.</p>

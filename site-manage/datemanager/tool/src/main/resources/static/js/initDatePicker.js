@@ -445,14 +445,18 @@ DTMN.shouldFillEmptyCells = function() {
 };
 
 // Fill every row of a single column (identified by data-field) within one section with the given date.
-// Always overwrites existing values; honors the global fill mode for blank cells.
-DTMN.fillColumn = function(rootElementId, field, date, updates, notModified) {
+// Always overwrites existing values. Blank cells are filled only when `fillEmpty` is true; when the
+// caller omits it, the term-date matrix's "bulk-fill-mode" radios decide (the per-column header
+// setters pass their own "Fill Empty" checkbox state instead).
+DTMN.fillColumn = function(rootElementId, field, date, updates, notModified, fillEmpty) {
 
   const rootElement = "#" + rootElementId;
 
   DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
 
-  const fillEmpty = DTMN.shouldFillEmptyCells();
+  if (fillEmpty === undefined) {
+    fillEmpty = DTMN.shouldFillEmptyCells();
+  }
   const hiddenFields = document.querySelectorAll(rootElement + ' tbody input[type=hidden][data-field="' + field + '"]');
 
   hiddenFields.forEach(function(hiddenField) {
@@ -529,11 +533,15 @@ DTMN.applyColumnBulkDates = function(button, updates, notModified) {
     return;
   }
 
+  // this column's own "Fill Empty" checkbox decides whether blank cells get the date too
+  const fillEmptyCheckbox = setter.querySelector(".bulk-col-fill-empty");
+  const fillEmpty = fillEmptyCheckbox != null && fillEmptyCheckbox.checked;
+
   button.classList.add("spinButton");
   button.disabled = true;
 
   window.setTimeout(function() {
-    DTMN.fillColumn(section.id, button.dataset.field, date, updates, notModified);
+    DTMN.fillColumn(section.id, button.dataset.field, date, updates, notModified, fillEmpty);
     button.classList.remove("spinButton");
     button.disabled = hidden.value === "";
   }, 25);

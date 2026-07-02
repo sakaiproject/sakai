@@ -169,8 +169,9 @@
 	</div>
 </div>
 
-<!-- Per-column bulk setter rendered inside each editable date column header. Fills every row of that one
-     column in that one section with the entered date (overwrites existing values). -->
+<!-- Per-column bulk setter rendered inside each editable date column header. Fills that one column in
+     that one section with the entered date: always overwrites existing values, and also fills blank
+     cells when its "Fill Empty" checkbox is ticked (unticked by default). -->
 <div th:fragment="bulkColSetter(toolId, field)" class="bulk-col-setter input-group input-group-sm mt-1 fw-normal" th:with="cid=${toolId + '-' + field}">
 	<input type="text" class="form-control bulk-col-input" th:id="${'bulkcol-' + cid}"
 		th:attr="data-tool=${toolId},data-field=${field},aria-label=#{datesetter.column.aria}" />
@@ -178,6 +179,10 @@
 	<button type="button" class="btn btn-secondary bulk-col-apply" th:attr="data-tool=${toolId},data-field=${field},title=#{datesetter.column.button.title},aria-label=#{datesetter.column.button.title}">
 		<i class="fa fa-arrow-down" aria-hidden="true"></i>
 	</button>
+	<label class="w-100 mt-1 mb-0 small text-start">
+		<input type="checkbox" class="bulk-col-fill-empty me-1" th:attr="title=#{datesetter.column.fillempty.title}" />
+		<span th:text="#{datesetter.column.fillempty}" th:remove="tag">Fill Empty</span>
+	</label>
 </div>
 
 <!-- Checkbox cells for one term-date row of the term dates panel. Renders one checkbox per editable
