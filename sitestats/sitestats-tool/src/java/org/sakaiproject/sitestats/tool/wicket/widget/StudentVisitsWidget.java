@@ -98,7 +98,10 @@ public class StudentVisitsWidget extends Panel {
                 Label widgetValue = new Label("widgetValue", Model.of(ms.getValue()));
                 Label widgetLabel = new Label("widgetLabel", Model.of(ms.getLabel()));
                 WebMarkupContainer widgetIcon = new WebMarkupContainer("widgetIcon");
-                widgetIcon.add(new AttributeAppender("class", " " + ms.getSecondValue()));
+                String iconClass = WidgetMetricDisplay.studentIconClass(ms.getMetricId());
+                if (iconClass != null) {
+                    widgetIcon.add(new AttributeAppender("class", " " + iconClass));
+                }
 
                 item.add(widgetValue);
                 item.add(widgetLabel);

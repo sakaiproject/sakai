@@ -20,63 +20,34 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
-import org.apache.wicket.Session;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.handler.EmptyRequestHandler;
 
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.LessonBuilderStat;
-import org.sakaiproject.sitestats.api.ResourceStat;
-import org.sakaiproject.sitestats.api.SitePresence;
-import org.sakaiproject.sitestats.api.Stat;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.Util;
-import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.tool.facade.Locator;
-import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
-import org.sakaiproject.sitestats.tool.wicket.components.ResourceLinkWithIcon;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
-import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
-import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * @author Nuno Fernandes
@@ -87,24 +58,19 @@ public class ReportDataPage extends BasePage {
 
 	private String						realSiteId;
 	private String						siteId;
-	private boolean						inPrintVersion;
 
 	private ReportDefModel				reportDefModel;
-	private Report						report;
-	private PrefsData					prefsdata;
+	private ReportDataPageSource		reportSource;
 	private WebPage						returnPage;
 
-	private AjaxLazyLoadImage			reportChart			= null;
-	private byte[]						chartImage			= null;
-	private int							selectedWidth		= 0;
-	private int							selectedHeight		= 0;
+	private WebMarkupContainer			printLink;
+	private Button						exportButton;
 
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.get("siteId").toString();
-			inPrintVersion = pageParameters.get("printVersion").toBoolean(false);
 		}
 		if(siteId == null){
 			siteId = realSiteId;
@@ -114,9 +80,10 @@ public class ReportDataPage extends BasePage {
 		}else{
 			this.returnPage = returnPage;
 		}
+		reportSource = ReportDataPageSource.resolve(siteId, reportDefModel, pageParameters, this);
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			if(reportDef != null && getReportDef() != null && getReportDef().getReportParams() != null) {
+			if(reportSource != null) {
 				renderBody();
 			}else{
 				setResponsePage(ReportsPage.class);
@@ -129,27 +96,30 @@ public class ReportDataPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		StringBuilder script = new StringBuilder();
+		if (printLink != null && printLink.isVisibleInHierarchy()) {
+			script.append("document.getElementById('").append(printLink.getMarkupId()).append("')?.addEventListener('click', function(event) {")
+					.append("event.preventDefault(); window.print();")
+					.append("});");
+		}
+		if (exportButton != null && exportButton.isVisibleInHierarchy()) {
+			script.append("document.getElementById('").append(exportButton.getMarkupId()).append("')?.addEventListener('click', function(event) {")
+					.append("event.preventDefault();")
+					.append("this.classList.add('d-none');")
+					.append("document.querySelectorAll('.sitestats-export-option').forEach(function(button) { button.classList.remove('d-none'); });")
+					.append("});");
+		}
+		if (script.length() > 0) {
+			response.render(OnDomReadyHeaderItem.forScript(script.toString()));
+		}
 	}
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
-		// Set versioned to false to prevent StalePageException when using printable version
 		setVersioned(false);
 		
 		// reportAction
-		if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
-			String titleStr = null;
-			if(getReportDef().isTitleLocalized()) {
-				titleStr = (String) new ResourceModel("reportres_title_detailed").getObject();
-				titleStr = titleStr.replaceAll("\\$\\{title\\}", (String) new ResourceModel(getReportDef().getTitleBundleKey()).getObject());
-			}else{
-				titleStr = new StringResourceModel("reportres_title_detailed", this, reportDefModel).getString();
-			}
-			add(new Label("reportAction", titleStr));
-		}else{
-			add(new Label("reportAction", new ResourceModel("reportres_title")));
-		}
+		add(new Label("reportAction", reportSource.title()));
 		
 		// model
 		setDefaultModel(new CompoundPropertyModel(this));
@@ -159,108 +129,26 @@ public class ReportDataPage extends BasePage {
 		add(form);
 		
 		// menu
-		add(new Menus("menu", siteId).setVisible(!inPrintVersion));
+		add(new Menus("menu", siteId));
 		
 		// last job run
 		add(new LastJobRun("lastJobRun", siteId));
 		
-		// print link/info
-		WebMarkupContainer toPrintVersion = new WebMarkupContainer("toPrintVersion");
-		toPrintVersion.setVisible(!inPrintVersion);
-		toPrintVersion.setVersioned(false);
-		Link<Void> printLink = new Link<Void>("printLink") {
-			@Override
-			public void onClick() {
-				PageParameters params = new PageParameters();
-				params.set("printVersion", "true");
-				params.set("siteId", siteId);
-				setResponsePage(new ReportDataPage(reportDefModel, params, getWebPage()));
-			}
-		};
+		WebMarkupContainer printContainer = new WebMarkupContainer("printContainer");
+		printContainer.setVisible(reportSource.showPrint());
+		printContainer.setVersioned(false);
+		printLink = new WebMarkupContainer("printLink");
+		printLink.setOutputMarkupId(true);
 		printLink.setVersioned(false);
-		toPrintVersion.add(printLink);
-		add(toPrintVersion);
-		WebMarkupContainer inPrintContainer = new WebMarkupContainer("inPrintVersion");
-		inPrintContainer.setVisible(inPrintVersion);
-		inPrintContainer.setVersioned(false);
-		add(inPrintContainer);
+		printContainer.add(printLink);
+		add(printContainer);
 
 		// Report data
-		final ReportsDataProvider dataProvider = new ReportsDataProvider(getPrefsdata(), getReportDef());
-		report = dataProvider.getReport();
-		
-		// Report: chart
-		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
-			@Override
-			public byte[] getImageData() {
-				return getChartImage();
-			}
-
-			@Override
-			public byte[] getImageData(int width, int height) {
-				return getChartImage(width, height);
-			}		
-		};
-		reportChart.setOutputMarkupId(true);
-		reportChart.setVersioned(false);
-		add(reportChart);
-		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
-			reportChart.setVisible(true);
-			reportChart.setAutoDetermineChartSizeByAjax(".chartContainer");
-		}else{
-			reportChart.setVisible(false);
-		}			
-		
-		// Report: table
-		SakaiDataTable reportTable = new SakaiDataTable(
-				"table", 
-				getTableColumns(getReportParams(), true), 
-				dataProvider, 
-				!inPrintVersion);
-		if(inPrintVersion) {
-			reportTable.setItemsPerPage(Integer.MAX_VALUE);
-		}
-		reportTable.setVisible(
-				ReportManager.HOW_PRESENTATION_TABLE.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-				);
-		form.add(reportTable);
-		
-		
-		// Report: header (report info)		
-		WebMarkupContainer trDescription = new WebMarkupContainer("trDescription");
-		trDescription.setVisible(getReportDescription() != null);
-		trDescription.add(new Label("reportDescription"));
-		add(trDescription);
-		
-		add(new Label("reportSite"));
-		
-		add(new Label("reportActivityBasedOn"));
-		
-		WebMarkupContainer trResourceAction = new WebMarkupContainer("trResourceAction");
-		trResourceAction.setVisible(getReportResourceAction() != null);
-		trResourceAction.add(new Label("reportResourceActionTitle"));
-		trResourceAction.add(new Label("reportResourceAction"));
-		add(trResourceAction);
-		
-		WebMarkupContainer trActivitySelection = new WebMarkupContainer("trActivitySelection");
-		trActivitySelection.setVisible(getReportActivitySelection() != null);
-		trActivitySelection.add(new Label("reportActivitySelectionTitle"));
-		trActivitySelection.add(new Label("reportActivitySelection"));
-		add(trActivitySelection);
-		
-		add(new Label("reportTimePeriod"));
-		
-		add(new Label("reportUserSelectionType"));
-		
-		WebMarkupContainer trReportUserSelection = new WebMarkupContainer("trReportUserSelection");
-		trReportUserSelection.setVisible(getReportUserSelectionTitle() != null);
-		trReportUserSelection.add(new Label("reportUserSelectionTitle"));
-		trReportUserSelection.add(new Label("reportUserSelection"));
-		add(trReportUserSelection);
-		
-		add(new Label("reportGenerationDate"));
+		WebMarkupContainer reportPanel = new WebMarkupContainer("reportPanel");
+		reportPanel.add(AttributeModifier.replace("endpoint", getReportEndpoint()));
+		reportPanel.setOutputMarkupId(true);
+		reportPanel.setVersioned(false);
+		add(reportPanel);
 		
 		
 		// buttons
@@ -271,321 +159,59 @@ public class ReportDataPage extends BasePage {
 				super.onSubmit();
 			}
 		});
-		form.add(new Button("export") {
+		boolean exportAllowed = isExportAllowed();
+		exportButton = new Button("export") {
 			@Override
 			public void onSubmit() {
 				super.onSubmit();
 			}
-		}.setDefaultFormProcessing(false).setVisible(Locator.getFacade().getStatsManager().isEnableReportExport() && !inPrintVersion));
+		};
+		exportButton.setDefaultFormProcessing(false);
+		exportButton.setOutputMarkupId(true);
+		exportButton.setVisible(exportAllowed);
+		form.add(exportButton);
 		form.add(new Button("exportXls") {
 			@Override
 			public void onSubmit() {
 				exportXls();
 				super.onSubmit();
 			}
-		});
+		}.setVisible(exportAllowed));
 		form.add(new Button("exportCsv") {
 			@Override
 			public void onSubmit() {
 				exportCsv();
 				super.onSubmit();
 			}
-		});
+		}.setVisible(exportAllowed));
 		form.add(new Button("exportPdf") {
 			@Override
 			public void onSubmit() {
 				exportPdf();
 				super.onSubmit();
 			}
-		});
+		}.setVisible(exportAllowed));
 	}
-	
-	@SuppressWarnings("serial")
-	public static List<IColumn> getTableColumns(
-			final ReportParams reportParams, final boolean columnsSortable
-		) {
-		List<IColumn> columns = new ArrayList<IColumn>();
-		final Map<String,ToolInfo> eventIdToolMap = Locator.getFacade().getEventRegistryService().getEventIdToolMap();
-		
-		// site
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_SITE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_site"), columnsSortable ? ReportsDataProvider.COL_SITE : null, ReportsDataProvider.COL_SITE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String site = ((Stat) model.getObject()).getSiteId();
-					String lbl = "", href = "";
-					Site s = null;
-					try{
-						s = Locator.getFacade().getSiteService().getSite(site);
-						lbl = s.getTitle();
-						href = s.getUrl();
-					}catch(IdUnusedException e){
-						lbl = (String) new ResourceModel("site_unknown").getObject();
-						href = null;
-					}
-					item.add(new ResourceLinkWithIcon(componentId, null, href, lbl, "_parent"));
-				}
-			});
-		}
-		// user
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_USER)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_id"), columnsSortable ? ReportsDataProvider.COL_USERID : null, ReportsDataProvider.COL_USERID) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String userId = ((Stat) model.getObject()).getUserId();
-					String name = null;
-					if (userId != null) {
-						if(("-").equals(userId) || EventTrackingService.UNKNOWN_USER.equals(userId)) {
-							name = "-";
-						}else{
-							try{
-								name = Locator.getFacade().getUserDirectoryService().getUser(userId).getDisplayId();
-							}catch(UserNotDefinedException e1){
-								name = userId;
-							}
-						}
-					}else{
-						name = (String) new ResourceModel("user_unknown").getObject();
-					}
-					item.add(new Label(componentId, name));
-				}
-			});
-			columns.add(new PropertyColumn(new ResourceModel("th_user"), columnsSortable ? ReportsDataProvider.COL_USERNAME : null, ReportsDataProvider.COL_USERNAME) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String userId = ((Stat) model.getObject()).getUserId();
-					String name = null;
-					if (userId != null) {
-						if(("-").equals(userId)) {
-							name = (String) new ResourceModel("user_anonymous").getObject();
-						}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
-							name = (String) new ResourceModel("user_anonymous_access").getObject();
-						}else{
-							name= Locator.getFacade().getStatsManager().getUserNameForDisplay(userId);
-						}
-					}else{
-						name = (String) new ResourceModel("user_unknown").getObject();
-					}
-					item.add(new Label(componentId, name));
-				}
-			});
-		}
-		// tool
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_tool"), columnsSortable ? ReportsDataProvider.COL_TOOL : null, ReportsDataProvider.COL_TOOL) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String toolId = ((EventStat) model.getObject()).getToolId();
-					String toolName = "";
-					if(!"".equals(toolId)){
-						toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-					}
-					Label toolLabel = new Label(componentId, " " + toolName);
-					String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
-					toolLabel.add(new AttributeModifier("class", new Model(hclass)));
-					toolLabel.add(new AttributeModifier("title", new Model(toolName)));
-					item.add(toolLabel);
-				}
-			});
-		}
-		// event
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_event"), columnsSortable ? ReportsDataProvider.COL_EVENT : null, ReportsDataProvider.COL_EVENT) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String eventId = ((EventStat) model.getObject()).getEventId();
-					String eventName = "";
-					if(!"".equals(eventId)){
-						eventName = Locator.getFacade().getEventRegistryService().getEventName(eventId);
-					}
-					Label eventLabel = new Label(componentId, " " + eventName);
-					ToolInfo toolInfo = eventIdToolMap.get(eventId);
-					if(toolInfo != null) {
-						String toolId = toolInfo.getToolId();
-						String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-						String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
-						eventLabel.add(new AttributeModifier("class", new Model(hclass)));
-						eventLabel.add(new AttributeModifier("title", new Model(toolName)));
-					}
-					item.add(eventLabel);
-				}
-			});
-		}
-		// resource
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_resource"), columnsSortable ? ReportsDataProvider.COL_RESOURCE : null, ReportsDataProvider.COL_RESOURCE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String ref = ((ResourceStat) model.getObject()).getResourceRef();
-					String imgUrl = null, lnkUrl = null, lnkLabel = null;
-					Component resourceComp = null;
-					if(ref != null && !"".equals(ref)){
-						imgUrl = Locator.getFacade().getStatsManager().getResourceImage(ref);
-						lnkUrl = Locator.getFacade().getStatsManager().getResourceURL(ref);
-						lnkLabel = Locator.getFacade().getStatsManager().getResourceName(ref);
-						if ("null".equals(lnkLabel)) {
-							lnkLabel = (String) new ResourceModel("overview_file_unavailable").getObject();
-						}					
-					}
-					resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					
-					item.add(resourceComp);
-				}
-			});
-		}
-		// resource action
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE_ACTION)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_action"), columnsSortable ? ReportsDataProvider.COL_ACTION : null, ReportsDataProvider.COL_ACTION) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String refAction = ((ResourceStat) model.getObject()).getResourceAction();
-					String action = "";
-					if(refAction == null){
-						action = "";
-					}else{
-						if(!"".equals(refAction.trim()))
-							action = (String) new ResourceModel("action_"+refAction).getObject();
-					}
-					item.add(new Label(componentId, action));
-				}
-			});
-		}
-        // lessonbuilder page
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_PAGE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_page"), columnsSortable ? ReportsDataProvider.COL_PAGE : null, ReportsDataProvider.COL_PAGE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					LessonBuilderStat stat = (LessonBuilderStat) model.getObject();
-					final String ref = stat.getPageRef();
-					String lnkLabel = stat.getPageTitle();
-					String imgUrl = "", lnkUrl = "";
-				    if (lnkLabel == null) {
-					    lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
-					}
-					Component resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
-					item.add(resourceComp);
-				}
-			});
-		}
-        // lessonbuilder page action
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_PAGE_ACTION)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_action"), columnsSortable ? ReportsDataProvider.COL_ACTION : null, ReportsDataProvider.COL_ACTION) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String pageAction = ((LessonBuilderStat) model.getObject()).getPageAction();
-					String action = "";
-					if (pageAction == null){
-						action = "";
-					} else {
-						if (!"".equals(pageAction.trim()))
-							action = (String) new ResourceModel("action_" + pageAction).getObject();
-					}
-					item.add(new Label(componentId, action));
-				}
-			});
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					item.add(new Label(componentId, getLocalizedDate((Stat) model.getObject())));
-				}
-			});
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEMONTH)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final Date date = ((Stat) model.getObject()).getDate();
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-					item.add(new Label(componentId, sdf.format(date)));
-				}
-			});
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEYEAR)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final Date date = ((Stat) model.getObject()).getDate();
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-					item.add(new Label(componentId, sdf.format(date)));
-				}
-			});
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_LASTDATE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_lastdate"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					item.add(new Label(componentId, getLocalizedDate((Stat) model.getObject())));
-				}
-			});
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOTAL)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_total"), columnsSortable ? ReportsDataProvider.COL_TOTAL : null, "count"));
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_VISITS)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_visits"), columnsSortable ? ReportsDataProvider.COL_VISITS : null, "totalVisits"));
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_UNIQUEVISITS)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_uniquevisitors"), columnsSortable ? ReportsDataProvider.COL_UNIQUEVISITS : null, "totalUnique"));
-		}
-		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DURATION)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_duration"), columnsSortable ? ReportsDataProvider.COL_DURATION : null, "duration") {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					double duration = (double) ((SitePresence) model.getObject()).getDuration();
-					duration = Util.round(duration / 1000 / 60, 1); // in minutes
-					StringBuilder b = new StringBuilder(String.valueOf(duration));
-					b.append(' ');
-					b.append(new ResourceModel("minutes_abbr").getObject());					
-					item.add(new Label(componentId, b.toString()));
-				}
-			});
-		}
-		return columns;
-	}
-
-	private static String getLocalizedDate(Stat stat) {
-		java.sql.Date sqlDate = (java.sql.Date) stat.getDate();
-		UserTimeService timeServ = Locator.getFacade().getUserTimeService();
-		return timeServ.shortLocalizedDate(sqlDate.toLocalDate(), Session.get().getLocale());
-	}
-	
-	private byte[] getChartImage() {
-		if(chartImage == null) {
-			chartImage = getChartImage(selectedWidth, selectedHeight);
-		}
-		return chartImage;
-	}
-	
-	private byte[] getChartImage(int width, int height) {
-		PrefsData prefsData = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
-		int _width = (width <= 0) ? 350 : width;
-		int _height = (height <= 0) ? 200: height;
-		return Locator.getFacade().getChartService().generateChart(
-					report, _width, _height,
-					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
-					prefsData.isItemLabelsVisible()
-			);
-	}
-	
-	protected String getExportFileName() {
+	protected String getExportFileName(Report exportReport) {
 		StringBuilder exportFileName = new StringBuilder();
-		if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
+		ReportDef reportDef = exportReport.getReportDefinition();
+		ReportParams reportParams = reportDef.getReportParams();
+		if(reportDef.getTitle() != null && reportDef.getTitle().trim().length() != 0) {
 			String titleStr = null;
-			if(getReportDef().isTitleLocalized()) {
-				titleStr = (String) new ResourceModel(getReportDef().getTitleBundleKey()).getObject();
+			if(reportDef.isTitleLocalized()) {
+				titleStr = (String) new ResourceModel(reportDef.getTitleBundleKey()).getObject();
 			}else{
-				titleStr = getReportDef().getTitle();
+				titleStr = reportDef.getTitle();
 			}
 			exportFileName.append((String) new ResourceModel("reportres_title").getObject());
 			exportFileName.append(" (");
 			exportFileName.append(titleStr);
 			exportFileName.append(')');
-		}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)) {
+		}else if(ReportManager.WHAT_VISITS.equals(reportParams.getWhat()) || ReportManager.WHAT_VISITS_TOTALS.equals(reportParams.getWhat())) {
 			exportFileName.append((String) new ResourceModel("report_what_visits").getObject());
-		}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)) {
+		}else if(ReportManager.WHAT_EVENTS.equals(reportParams.getWhat()) || ReportManager.WHAT_ACTIVITY_TOTALS.equals(reportParams.getWhat())) {
 			exportFileName.append((String) new ResourceModel("report_what_events").getObject());
-		}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)) {
+		}else if(ReportManager.WHAT_PRESENCES.equals(reportParams.getWhat())) {
 			exportFileName.append((String) new ResourceModel("report_what_presences").getObject());
 		}else{
 			exportFileName.append((String) new ResourceModel("report_what_resources").getObject());
@@ -602,71 +228,37 @@ public class ReportDataPage extends BasePage {
 	}
 
 	protected void exportXls() {
-		String fileName = getExportFileName();
-		byte[] hssfWorkbookBytes = Locator.getFacade().getReportManager().getReportAsExcel(report, fileName);
-		
-		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
-		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("application/vnd.ms-excel");
-		response.setAttachmentHeader(fileName + ".xls");
-		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(hssfWorkbookBytes.length);
-		OutputStream out = null;
-		try{
-			out = response.getOutputStream();
-			out.write(hssfWorkbookBytes);
-			out.flush();
-		}catch(IOException e){
-			log.error(e.getMessage());
-		}finally{
-			try{
-				if(out != null) out.close();
-			}catch(IOException e){
-				log.error(e.getMessage());
-			}
-		}
+		Report exportReport = getExportReport();
+		String fileName = getExportFileName(exportReport);
+		byte[] hssfWorkbookBytes = Locator.getFacade().getReportManager().getReportAsExcel(exportReport, fileName);
+		writeAttachment(hssfWorkbookBytes, "application/vnd.ms-excel", fileName + ".xls");
 	}
 
 	protected void exportCsv() {
-		String fileName = getExportFileName();
-		String csvString = Locator.getFacade().getReportManager().getReportAsCsv(report);
-		
-		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
-		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("text/comma-separated-values");
-		response.setAttachmentHeader(fileName + ".csv");
-		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(csvString.length());
-		OutputStream out = null;
-		try{
-			out = response.getOutputStream();
-			out.write(csvString.getBytes());
-			out.flush();
-		}catch(IOException e){
-			log.error(e.getMessage());
-		}finally{
-			try{
-				if(out != null) out.close();
-			}catch(IOException e){
-				log.error(e.getMessage());
-			}
-		}
+		Report exportReport = getExportReport();
+		String fileName = getExportFileName(exportReport);
+		byte[] csvBytes = Locator.getFacade().getReportManager().getReportAsCsv(exportReport).getBytes(StandardCharsets.UTF_8);
+		writeAttachment(csvBytes, "text/comma-separated-values", fileName + ".csv");
 	}
 
 	protected void exportPdf() {
-		String fileName = getExportFileName();
-		byte[] pdf = Locator.getFacade().getReportManager().getReportAsPDF(report);
+		Report exportReport = getExportReport();
+		String fileName = getExportFileName(exportReport);
+		byte[] pdf = Locator.getFacade().getReportManager().getReportAsPDF(exportReport);
+		writeAttachment(pdf, "application/pdf", fileName + ".pdf");
+	}
 
+	private void writeAttachment(byte[] bytes, String contentType, String fileName) {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
-		response.setContentType("application/pdf");
-		response.setAttachmentHeader(fileName + ".pdf");
+		response.setContentType(contentType);
+		response.setAttachmentHeader(fileName);
 		response.setHeader("Cache-Control", "max-age=0");
-		response.setContentLength(pdf.length);
+		response.setContentLength(bytes.length);
 		OutputStream out = null;
 		try{
 			out = response.getOutputStream();
-			out.write(pdf);
+			out.write(bytes);
 			out.flush();
 		}catch(IOException e){
 			log.error(e.getMessage());
@@ -679,11 +271,26 @@ public class ReportDataPage extends BasePage {
 		}
 	}
 
-	private PrefsData getPrefsdata() {
-		if(prefsdata == null) {
-			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, true);
+	private boolean isExportAllowed() {
+		if (!Locator.getFacade().getStatsManager().isEnableReportExport()) {
+			return false;
 		}
-		return prefsdata;
+		try {
+			return reportSource.canExport();
+		} catch (RuntimeException e) {
+			log.warn("Unable to determine SiteStats export availability for site {}: {}", siteId, e.getMessage());
+			return false;
+		}
+	}
+
+	private Report getExportReport() {
+		return reportSource.exportReport();
+	}
+
+	private String getReportEndpoint() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setPageSize(50);
+		return reportSource.endpoint(request);
 	}
 
 	public void setReportDef(ReportDef reportDef) {
@@ -691,7 +298,7 @@ public class ReportDataPage extends BasePage {
 	}
 
 	public ReportDef getReportDef() {
-		return (ReportDef) this.reportDefModel.getObject();
+		return this.reportDefModel != null ? (ReportDef) this.reportDefModel.getObject() : null;
 	}
 
 	public void setReportParams(ReportParams reportParams) {
@@ -701,57 +308,5 @@ public class ReportDataPage extends BasePage {
 	public ReportParams getReportParams() {
 		return getReportDef().getReportParams();
 	}
-	
-	// ######################################################################################
-	// Report results: SUMMARY 
-	// ######################################################################################	
-	public String getReportDescription() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportDescription(report);
-	}
-	
-	public String getReportSite() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportSite(report);
-	}
-	
-	public String getReportGenerationDate() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportGenerationDate(report);
-	}
-	
-	public String getReportActivityBasedOn() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
-	}
-	
-	public String getReportActivitySelectionTitle() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
-	}
-	
-	public String getReportActivitySelection() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivitySelection(report);
-	}
-	
-	public String getReportResourceActionTitle() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
-	}
-	
-	public String getReportResourceAction() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportResourceAction(report);
-	}
-	
-	public String getReportTimePeriod() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportTimePeriod(report);
-	}
-	
-	public String getReportUserSelectionType() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionType(report);
-	}
-	
-	public String getReportUserSelectionTitle() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
-	}
-	
-	public String getReportUserSelection() {
-		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
-	}
 
 }
-

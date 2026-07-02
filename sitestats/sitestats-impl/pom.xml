@@ -84,10 +84,6 @@
             <artifactId>lessonbuilder-api</artifactId>
       	</dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.course-management</groupId>
-            <artifactId>coursemanagement-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.presence</groupId>
             <artifactId>sakai-presence-api</artifactId>
         </dependency>
@@ -154,10 +150,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-        </dependency>
 
         <!-- Apache Commons -->
         <dependency>
@@ -173,16 +165,12 @@
             <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-betwixt</groupId>
-            <artifactId>commons-betwixt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
         <!-- Apache others -->
@@ -205,12 +193,6 @@
             <artifactId>quartz</artifactId>
         </dependency>
 
-        <!-- JFreeChart -->
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -225,21 +207,6 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

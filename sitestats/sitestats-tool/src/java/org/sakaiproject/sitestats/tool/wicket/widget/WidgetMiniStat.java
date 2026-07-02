@@ -20,8 +20,6 @@ package org.sakaiproject.sitestats.tool.wicket.widget;
 
 import java.io.Serializable;
 
-import org.sakaiproject.sitestats.api.report.ReportDef;
-
 /** Mini stat class for displaying a single value in the widget top bar. */
 public abstract class WidgetMiniStat implements Serializable {
 	private static final long	serialVersionUID	= 1L;
@@ -35,9 +33,15 @@ public abstract class WidgetMiniStat implements Serializable {
 
 	public abstract String getLabel();
 
+	public String getMetricId() {
+		return null;
+	}
+
 	public abstract String getTooltip();
 
 	public abstract boolean isWiderText();
 
-	public abstract ReportDef getReportDefinition();
+	public String getReportMetricId() {
+		return null;
+	}
 }
