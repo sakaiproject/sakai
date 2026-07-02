@@ -242,8 +242,8 @@ class PollTest extends SakaiUiTestBase {
         String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         String csv = String.join("\n",
-            BULK_POLL_TITLE_ONE + ",Bulk import details," + openDateTime + "," + closeDateTime + ",1,1,1,Alpha,Beta",
-            BULK_POLL_TITLE_TWO + ",Bulk import details," + openDateTime + "," + closeDateTime + ",1,1,1,Yes,No"
+            BULK_POLL_TITLE_ONE + ",Bulk import details,site,," + openDateTime + "," + closeDateTime + ",1,1,1,Alpha,Beta",
+            BULK_POLL_TITLE_TWO + ",Bulk import details,site,," + openDateTime + "," + closeDateTime + ",1,1,1,Yes,No"
         );
 
         page.locator("#poll-uploaded-text").fill(csv);

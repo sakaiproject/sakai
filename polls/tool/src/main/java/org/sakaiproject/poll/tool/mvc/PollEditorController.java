@@ -19,21 +19,23 @@ package org.sakaiproject.poll.tool.mvc;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_ANY;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_EDIT_OWN;
 import org.sakaiproject.poll.api.model.Option;
-import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.util.PollUtils;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -53,7 +55,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static org.sakaiproject.poll.api.PollConstants.*;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping
@@ -132,11 +135,18 @@ public class PollEditorController {
                 new DisplayOption("afterClosing", "new_poll_afterClosing"),
                 new DisplayOption("never", "new_poll_never")
         ));
+        model.addAttribute("accessChoices", List.of(
+            new DisplayOption(Poll.Access.SITE.name(), "new_poll_access_site"),
+            new DisplayOption(Poll.Access.GROUP.name(), "new_poll_access_groups")
+        ));
 
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
+
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        model.addAttribute("groups", pollsService.getSiteGroups(siteId));
         return "polls/edit";
     }
 
@@ -204,6 +214,24 @@ public class PollEditorController {
             return "polls/edit";
         }
 
+        if (pollForm.getTypeOfAccess() == Poll.Access.GROUP
+                && (pollForm.getSelectedGroupIds() == null || pollForm.getSelectedGroupIds().isEmpty())) {
+            bindingResult.addError(new FieldError("pollForm", "selectedGroupIds", messageSource.getMessage("new_poll_groups_required", null, locale)));
+            populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+            return "polls/edit";
+        }
+
+        if (pollForm.getTypeOfAccess() == Poll.Access.GROUP) {
+            Set<String> validGroupIds = pollsService.filterValidGroupIds(currentSiteId, pollForm.getSelectedGroupIds());
+            boolean hasInvalidGroupIds = pollForm.getSelectedGroupIds().stream()
+                    .anyMatch(groupId -> !validGroupIds.contains(groupId));
+            if (hasInvalidGroupIds) {
+                bindingResult.addError(new FieldError("pollForm", "selectedGroupIds", messageSource.getMessage("new_poll_groups_required", null, locale)));
+                populateModelForEdit(model, pollForm, pollEditContext.options(), pollEditContext.hasVotes());
+                return "polls/edit";
+            }
+        }
+
         int optionCount = pollEditContext.options().size();
         if (!isNewPoll && (pollForm.getMinOptions() > optionCount || pollForm.getMaxOptions() > optionCount)) {
             bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("invalid_poll_limits", null, locale)));
@@ -241,11 +269,18 @@ public class PollEditorController {
                 new DisplayOption("afterClosing", "new_poll_afterClosing"),
                 new DisplayOption("never", "new_poll_never")
         ));
+        model.addAttribute("accessChoices", List.of(
+            new DisplayOption(Poll.Access.SITE.name(), "new_poll_access_site"),
+            new DisplayOption(Poll.Access.GROUP.name(), "new_poll_access_groups")
+        ));
         model.addAttribute("isNew", StringUtils.isBlank(pollForm.getPollId()));
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
+
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        model.addAttribute("groups", pollsService.getSiteGroups(siteId));
     }
 
     private PollEditContext resolvePollEditContext(String pollId) {
@@ -293,6 +328,7 @@ public class PollEditorController {
         poll.setDescription(PollUtils.cleanupHtmlPtags(StringUtils.trimToEmpty(sanitizedDescription)));
 
         poll.setPublic(form.isPublic());
+        poll.setTypeOfAccess(form.getTypeOfAccess() != null ? form.getTypeOfAccess() : Poll.Access.SITE);
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
         poll.setDisplayResult(form.getDisplayResult());
@@ -307,6 +343,11 @@ public class PollEditorController {
         }
         if (form.getCloseDate() != null) {
             poll.setVoteClose(form.getCloseDate().atZone(zoneId).toInstant());
+        }
+        if (form.getTypeOfAccess() == Poll.Access.GROUP) {
+            poll.setGroupIds(pollsService.filterValidGroupIds(toolManager.getCurrentPlacement().getContext(), form.getSelectedGroupIds()));
+        } else {
+            poll.setGroupIds(new HashSet<>());
         }
 
         return poll;
@@ -324,6 +365,7 @@ public class PollEditorController {
         form.setDisplayResult("open");
         form.setOpenDate(defaultOpen);
         form.setCloseDate(defaultOpen.plusYears(1));
+        form.setTypeOfAccess(Poll.Access.SITE);
         return form;
     }
 
@@ -338,6 +380,8 @@ public class PollEditorController {
         form.setDisplayResult(poll.getDisplayResult());
         form.setOpenDate(truncateToMinutes(toLocalDateTime(poll.getVoteOpen(), zoneId)));
         form.setCloseDate(truncateToMinutes(toLocalDateTime(poll.getVoteClose(), zoneId)));
+        form.setTypeOfAccess(poll.getTypeOfAccess() != null ? poll.getTypeOfAccess() : Poll.Access.SITE);
+        form.setSelectedGroupIds(poll.getGroupIds() != null ? new HashSet<>(poll.getGroupIds()) : new HashSet<>());
         return form;
     }
 

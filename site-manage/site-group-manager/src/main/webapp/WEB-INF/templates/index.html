@@ -52,6 +52,15 @@
                   </div>
                 </div>
                 <div class="clearfix"></div>
+                <div th:if="${lockedGroupsEntityMap.get(group.id).get('polls') != null and !lockedGroupsEntityMap.get(group.id).get('polls').isEmpty()}">
+                <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingpolls-${group.id}|" tabindex="0" role="button" th:text="#{index.table.polls}" th:aria-label="#{index.table.polls}"></span>
+                  <div th:id="|lockingpolls-${group.id}|" class="collapse">
+                    <ul>
+                      <li th:each="poll : ${lockedGroupsEntityMap.get(group.id).get('polls')}" th:text="${poll}"></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="clearfix"></div>
                 <div th:if="${lockedGroupsEntityMap.get(group.id) != null and lockedGroupsEntityMap.get(group.id).get('joinableSets') != null and !lockedGroupsEntityMap.get(group.id).get('joinableSets').isEmpty()}">
                 <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingjoinablesets-${group.id}|" tabindex="0" role="button" th:text="#{index.table.joinablesets}" th:aria-label="#{index.table.joinablesets}"></span>
                   <div th:id="|lockingjoinablesets-${group.id}|" class="collapse">

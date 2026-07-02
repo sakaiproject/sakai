@@ -70,4 +70,5 @@ public interface PollRepository extends SpringCrudRepository<Poll, String> {
      * @return Optional containing the poll if found, empty Optional if option ID is null or not found
      */
     Optional<Option> findOptionByOptionId(Long optionId);
+
 }
