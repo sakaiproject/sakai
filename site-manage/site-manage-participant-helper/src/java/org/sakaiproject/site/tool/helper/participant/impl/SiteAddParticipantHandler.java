@@ -1005,8 +1005,13 @@ public class SiteAddParticipantHandler {
 	}
 
 	// matches an email-format token anywhere within a blob of pasted text (used by smart parsing).
-	// The local part accepts an apostrophe (o'brien@x.edu) but must not start with one, so a
-	// single-quoted 'jdoe@x.edu' still extracts without the quote.
+	// Deliberately NARROWER than RFC 5322: extraction from prose and validation of a candidate are
+	// different problems. RFC local-part specials (?=&/!#$...) would mis-capture URL fragments
+	// ("page?email=bob@x.edu" must extract bob@x.edu, not the query string), and RFC quoted local
+	// parts can hold spaces. Every extracted candidate is then validated properly - guest addresses
+	// via commons EmailValidator (RFC-grade), official ones by user-directory resolution. The local
+	// part accepts an apostrophe (o'brien@x.edu) but must not start with one, so a single-quoted
+	// 'jdoe@x.edu' still extracts without the quote. Keep in sync with EMAIL_RE in parsed-count.js.
 	private static final Pattern EMAIL_EXTRACT_PATTERN = Pattern.compile("[A-Za-z0-9._%+\\-][A-Za-z0-9._%+'\\-]*@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
 
 	// matches an RFC-style mailbox: an optional display name (one "Last, First" comma allowed,

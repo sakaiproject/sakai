@@ -13,6 +13,9 @@
 (function () {
 	"use strict";
 
+	// deliberately narrower than RFC 5322 - see EMAIL_EXTRACT_PATTERN in SiteAddParticipantHandler
+	// (extraction from prose must not swallow URL query strings; RFC-grade validation happens
+	// server-side on each extracted candidate). Keep byte-identical with the Java pattern.
 	var EMAIL_RE = /[A-Za-z0-9._%+\-][A-Za-z0-9._%+'\-]*@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
 	// an RFC-style mailbox: optional display name (one "Last, First" comma allowed, no @) + <email>
 	var MAILBOX_RE = new RegExp("[^<>,;@]*(?:,[^<>,;@]*)?<\\s*(" + EMAIL_RE.source + ")\\s*>", "g");
