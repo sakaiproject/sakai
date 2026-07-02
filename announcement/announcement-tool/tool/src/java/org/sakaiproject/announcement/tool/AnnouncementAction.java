@@ -21,6 +21,7 @@
 
 package org.sakaiproject.announcement.tool;
 
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +67,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Entity;
@@ -225,6 +229,13 @@ public class AnnouncementAction extends PagedResourceActionII
     private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
     private static final String VIEW_MODE_BYROLE  = "view.byrole";
     private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
+    private static final String VIEW_MODE_DRAFTS   = "view.drafts";
+    private static final String VIEW_MODE_POSTED   = "view.posted";
+    private static final String VIEW_MODE_SCHEDULED = "view.scheduled";
+    private static final String VIEW_MODE_MINE     = "view.mine";
+
+    /** The View filters that narrow the announcement list by state or authorship. */
+    private enum AnnouncementFilter { ALL, DRAFTS, POSTED, SCHEDULED, MINE }
 
     /** The number of days, by default, before retraction. */
     private static final long FUTURE_DAYS = 7;
@@ -745,11 +756,30 @@ public class AnnouncementAction extends PagedResourceActionII
 							{
 								messages = getMessagesByRoles(site, channel, null, true, state, portlet);
 							}
+							else if (view.equals(VIEW_MODE_DRAFTS))
+							{
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.DRAFTS);
+							}
+							else if (view.equals(VIEW_MODE_POSTED))
+							{
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.POSTED);
+							}
+							else if (view.equals(VIEW_MODE_SCHEDULED))
+							{
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.SCHEDULED);
+							}
+							else if (view.equals(VIEW_MODE_MINE))
+							{
+								messages = filterMessages(getMessages(channel, null, true, state, portlet), AnnouncementFilter.MINE);
+							}
 						}
 						else
 						{
 							messages = getMessages(channel, null, true, state, portlet);
 						}
+
+						// narrow the list to the active search term, if any
+						messages = filterMessagesBySearch(messages, sstate);
 
 						//readResourcesPage expects messages to be in session, so put the entire messages list in the session
 						sstate.setAttribute("messages", messages);
@@ -974,6 +1004,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			context.put("view", sstate.getAttribute(STATE_SELECTED_VIEW));
 		}
+
+		// the active search term, so the search box can re-render its value
+		context.put("searchString", sstate.getAttribute(STATE_SEARCH));
 
 		return template;
 
@@ -1348,6 +1381,113 @@ public class AnnouncementAction extends PagedResourceActionII
 		return rv;
 
 	} // getMessagesPublic
+
+	/**
+	 * Narrow an already-fetched, viewable announcement list to a single View filter.
+	 * getMessages() has already applied the tool's permission and viewability checks (and
+	 * restricted drafts to those the current user may see), so each case here only narrows by
+	 * message state or authorship. Modeled on AssignmentAction.filterAssignments().
+	 */
+	private List<AnnouncementWrapper> filterMessages(List<AnnouncementWrapper> messageList, AnnouncementFilter filter)
+	{
+		switch (filter)
+		{
+			case ALL:
+				return messageList;
+			case DRAFTS:
+				return messageList.stream()
+						.filter(this::isHidden)
+						.collect(Collectors.toList());
+			case POSTED:
+				return messageList.stream()
+						.filter(m -> !isHidden(m) && announcementService.isMessageViewable(m))
+						.collect(Collectors.toList());
+			case SCHEDULED:
+				return messageList.stream()
+						.filter(m -> !isHidden(m) && isScheduled(m))
+						.collect(Collectors.toList());
+			case MINE:
+				String currentUserId = SessionManager.getCurrentSessionUserId();
+				if (currentUserId == null)
+				{
+					return Collections.emptyList();
+				}
+				return messageList.stream()
+						.filter(m -> m.getAnnouncementHeader().getFrom() != null
+								&& currentUserId.equals(m.getAnnouncementHeader().getFrom().getId()))
+						.collect(Collectors.toList());
+			default:
+				return Collections.emptyList();
+		}
+
+	} // filterMessages
+
+	/**
+	 * Determine if a message has a release date set in the future (i.e. it is scheduled but
+	 * not yet released). Returns false when no release date is set.
+	 */
+	private boolean isScheduled(AnnouncementMessage message)
+	{
+		try
+		{
+			Instant releaseDate = message.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE);
+			return releaseDate != null && Instant.now().isBefore(releaseDate);
+		}
+		catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e)
+		{
+			// No usable release date set, so it is not scheduled for the future
+			log.debug("No usable release date property for {}", message.getReference(), e);
+			return false;
+		}
+	}
+
+	/**
+	 * Narrow a list of announcements to those matching the active search term (STATE_SEARCH),
+	 * matching case- and accent-insensitively against the subject, author display name, and body.
+	 * When no search term is set the list is returned unchanged. Filtering the full viewable list
+	 * here (before paging/trimming) keeps the counts and pager authoritative across all pages.
+	 */
+	private List<AnnouncementWrapper> filterMessagesBySearch(List<AnnouncementWrapper> messages, SessionState sstate)
+	{
+		String search = StringUtils.trimToNull((String) sstate.getAttribute(STATE_SEARCH));
+		if (search == null)
+		{
+			return messages;
+		}
+
+		String normalizedSearch = normalizeStringForSearch(search);
+		List<AnnouncementWrapper> rv = new ArrayList<>();
+		for (AnnouncementWrapper aMessage : messages)
+		{
+			String author = aMessage.getAnnouncementHeader().getFrom() != null
+					? aMessage.getAnnouncementHeader().getFrom().getDisplayName() : null;
+			// match against the body's visible text, not the stored HTML, so markup (tag and
+			// attribute names, entities) can't produce false matches
+			String body = aMessage.getBody();
+			String bodyText = body != null ? formattedText.convertFormattedTextToPlaintext(body) : null;
+			if (normalizeStringForSearch(aMessage.getAnnouncementHeader().getSubject()).contains(normalizedSearch)
+					|| normalizeStringForSearch(bodyText).contains(normalizedSearch)
+					|| normalizeStringForSearch(author).contains(normalizedSearch))
+			{
+				rv.add(aMessage);
+			}
+		}
+
+		return rv;
+
+	} // filterMessagesBySearch
+
+	/**
+	 * Normalize a string for case- and accent-insensitive search: strip diacritics and lowercase.
+	 * Returns "" for null input so callers can match against nullable fields without a guard.
+	 * Modeled on AssignmentAction.normalizeStringForSearch().
+	 */
+	private String normalizeStringForSearch(String input)
+	{
+		if (input == null) return "";
+		String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
+		return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
+	}
 
 	/**
 	 * This will limit the maximum number of announcements that is shown.
