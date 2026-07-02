@@ -1080,7 +1080,7 @@ public class SiteAddParticipantHandler {
 			return null;
 		}
 		// Word/Outlook pastes carry non-breaking spaces, which Java's \s does not match
-		raw = raw.replace(' ', ' ');
+		raw = raw.replace('\u00A0', ' ');
 		StringBuilder sb = new StringBuilder();
 		if (!raw.contains(EMAIL_CHAR)) {
 			// no @ anywhere in the paste: a plain username list separated by any delimiter
@@ -1196,7 +1196,7 @@ public class SiteAddParticipantHandler {
 			return null;
 		}
 		// Word/Outlook pastes carry non-breaking spaces, which Java's \s does not match
-		raw = raw.replace(' ', ' ');
+		raw = raw.replace('\u00A0', ' ');
 		StringBuilder sb = new StringBuilder();
 		// split people on line breaks / semicolons; commas remain inside a person (field separator)
 		for (String chunk : raw.split("[;\r\n]+")) {

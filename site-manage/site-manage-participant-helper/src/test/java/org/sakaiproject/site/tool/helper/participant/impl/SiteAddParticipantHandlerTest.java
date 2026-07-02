@@ -293,6 +293,15 @@ public class SiteAddParticipantHandlerTest {
     }
 
     @Test
+    public void nonOfficialNormalizesNonBreakingSpacesInStructuredRow() {
+        // Word/Outlook pastes carry U+00A0 after the commas; String.trim() does not remove it,
+        // so without normalization the guest's name fields would keep a leading NBSP
+        String out = nonOfficial("jdoe@yahoo.com,\u00A0Doe,\u00A0John");
+        assertArrayEquals(new String[] {"jdoe@yahoo.com", "Doe", "John"},
+                handler.parseAccountIntoParts(entries(out)[0]));
+    }
+
+    @Test
     public void nonOfficialHandlesMixOfStructuredRowsAndBlobLine() {
         String out = nonOfficial("jdoe@yahoo.com,Doe,John\r\na@x.com, b@y.com");
         assertArrayEquals(
