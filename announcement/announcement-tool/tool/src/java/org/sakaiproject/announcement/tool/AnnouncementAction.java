@@ -1461,8 +1461,12 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			String author = aMessage.getAnnouncementHeader().getFrom() != null
 					? aMessage.getAnnouncementHeader().getFrom().getDisplayName() : null;
+			// match against the body's visible text, not the stored HTML, so markup (tag and
+			// attribute names, entities) can't produce false matches
+			String body = aMessage.getBody();
+			String bodyText = body != null ? formattedText.convertFormattedTextToPlaintext(body) : null;
 			if (normalizeStringForSearch(aMessage.getAnnouncementHeader().getSubject()).contains(normalizedSearch)
-					|| normalizeStringForSearch(aMessage.getBody()).contains(normalizedSearch)
+					|| normalizeStringForSearch(bodyText).contains(normalizedSearch)
 					|| normalizeStringForSearch(author).contains(normalizedSearch))
 			{
 				rv.add(aMessage);

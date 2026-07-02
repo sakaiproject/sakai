@@ -95,12 +95,10 @@
 						##if ($!groups)
 							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 						##end 
+						## no Posted/Scheduled/Drafts options here: the workspace list is built by
+						## getViewableMessages(), which strips drafts and unreleased messages before
+						## the view filter runs, so those filters could never return anything
 						<option value="view.byrole" #if ($!view == "view.byrole")selected="selected"#end >$!tlang.getString('view.byrole')</option>
-						#if ($allow_new)
-							<option value="view.posted" #if ($!view == "view.posted")selected="selected"#end >$!tlang.getString('view.posted')</option>
-							<option value="view.scheduled" #if ($!view == "view.scheduled")selected="selected"#end >$!tlang.getString('view.scheduled')</option>
-							<option value="view.drafts" #if ($!view == "view.drafts")selected="selected"#end >$!tlang.getString('view.drafts')</option>
-						#end
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
