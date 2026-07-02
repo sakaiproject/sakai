@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.tsugi.lti.LTIUtil;
@@ -274,7 +275,7 @@ public class OIDCServlet extends HttpServlet {
 		// For an LTI 1.1 response, check the signature and if it passes, re-sign and forward
 		// to the new URL
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
 
 		if ( tool == null ) {
 			LTI13Util.return400(response, "Invalid tool_id");
@@ -291,7 +292,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+		String oauth_secret = SakaiLTIUtil.getSecret(tool);
 		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
 
 		String URL = SakaiLTIUtil.getOurServletPath(request);

@@ -709,7 +709,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String issuerURL = SakaiLTIUtil.getIssuer();
 		context.put("issuerURL", issuerURL);
 
-		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean);
 		context.put("deploymentId", deploymentId);
 
 		String configUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
@@ -785,49 +785,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 	// Make sure this is ready to handle LTI 1.3 launches
 	private boolean minimalLTI13(Map<String, Object> tool) {
-		boolean retval = false;
-
-		Long tool_id = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
-
-		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-		if (clientId == null ) {
-			clientId = UUID.randomUUID().toString();
-			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
-			retval = true;
+		if (tool == null) {
+			return false;
 		}
-
-		String keyset = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_KEYSET));
-		if (keyset == null ) {
-			keyset = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
-			tool.put(LTIService.LTI13_LMS_KEYSET, keyset);
-			retval = true;
+		LtiToolBean toolBean = LtiToolBean.of(tool);
+		boolean retval = minimalLTI13(toolBean);
+		if (retval) {
+			tool.put(LTIService.LTI13_CLIENT_ID, toolBean.lti13ClientId);
+			tool.put(LTIService.LTI13_LMS_KEYSET, toolBean.lti13LmsKeyset);
+			tool.put(LTIService.LTI13_LMS_ENDPOINT, toolBean.lti13LmsEndpoint);
+			tool.put(LTIService.LTI13_LMS_TOKEN, toolBean.lti13LmsToken);
+			tool.put(LTIService.LTI13_LMS_ISSUER, toolBean.lti13LmsIssuer);
 		}
-
-		String endpoint = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ENDPOINT));
-		if (endpoint == null ) {
-			endpoint = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
-			tool.put(LTIService.LTI13_LMS_ENDPOINT, endpoint);
-			retval = true;
-		}
-
-		String tokenurl = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_TOKEN));
-		if (tokenurl == null && tool_id != null ) {
-			tokenurl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
-			tool.put(LTIService.LTI13_LMS_TOKEN, tokenurl);
-		}
-
-		String issuer = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ISSUER));
-		if ( issuer == null ) {
-			issuer = SakaiLTIUtil.getIssuer();
-			tool.put(LTIService.LTI13_LMS_ISSUER, issuer);
-			retval = true;
-		}
-
 		return retval;
 	}
 
-	// Bean version of minimalLTI13 - Make sure this is ready to handle LTI 1.3 launches
-	private boolean minimalLTI13(org.sakaiproject.lti.beans.LtiToolBean toolBean) {
+	private boolean minimalLTI13(LtiToolBean toolBean) {
 		boolean retval = false;
 
 		Long tool_id = toolBean.id;
@@ -889,11 +862,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Build a minimal tool
-		String clientId = UUID.randomUUID().toString();
-		Map<String, Object> tool = new HashMap<String, Object>();
-		tool.put(LTIService.LTI_TITLE, title);
-		tool.put(LTIService.LTI_LAUNCH, "https://example.com/draft-tool-in-progress");
-		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+		LtiToolBean tool = new LtiToolBean();
+		tool.title = title;
+		tool.launch = "https://example.com/draft-tool-in-progress";
+		tool.lti13ClientId = UUID.randomUUID().toString();
 
 		minimalLTI13(tool);
 
@@ -980,7 +952,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String clientId = toolBean.lti13ClientId;
 		String issuerURL = SakaiLTIUtil.getIssuer();
-		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean.asMap());
+		String deploymentId = SakaiLTIUtil.getToolDeploymentId(null, toolBean);
 
 		String sakaiConfigUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
 		sakaiConfigUrl += "?key=" + URLEncoder.encode(toolKey.toString());
@@ -1332,9 +1304,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Retrieve primary key
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 
-		// find the tool id
-		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
-		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+		LtiToolSiteBean toolSiteBean = ltiService.getToolSiteAsBean(Long.valueOf(id), getSiteId(state));
+		if (toolSiteBean == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+		String toolId = String.valueOf(toolSiteBean.getToolId());
 
 		if (!isLti13Tool(toolId, getSiteId(state))) {
 			reqProps.remove(LTIService.LTI_DEPLOYMENT_GROUP);
@@ -1347,7 +1323,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.tool.site.edit") + " retval=" + retval);
 
 		} else if ( retval instanceof Boolean ) { // Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSiteBean.getSiteId());
 
 		} else { // Unexpected Error
 			log.error("Unexpected return type from updateToolSite={}, id={}, current siteId={}", retval, id, getSiteId(state));
@@ -1424,15 +1400,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Retrieve primary key
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 
-		// find the tool id
-		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
-		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+		LtiToolSiteBean toolSiteBean = ltiService.getToolSiteAsBean(Long.valueOf(id), getSiteId(state));
+		if (toolSiteBean == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+		String toolId = String.valueOf(toolSiteBean.getToolId());
 
 		// Save to DB
 		boolean retval = ltiService.deleteToolSite(Long.valueOf(id), getSiteId(state));
 
 		if (retval) {	// Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.delete.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.delete.success") + " SiteId=" + toolSiteBean.getSiteId());
 		} else { // Fail
 			addAlert(state, rb.getString("error.tool.site.delete") + " retval=" + retval);
 		}
@@ -2182,8 +2162,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return;
 		}
 
-		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
-		if (tool == null) {
+		LtiToolBean toolBean = ltiService.getToolAsBean(toolKey, getSiteId(state));
+		if (toolBean == null) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
 			switchPanel(state, errorPanel);
 			return;
@@ -2215,7 +2195,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		if ( isDeepLink ) {
 
 			// Parse and validate the incoming DeepLink
-			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			String keyset = toolBean.getLti13ToolKeyset();
 			if (keyset == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, errorPanel);
@@ -2224,7 +2204,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 
 			DeepLinkResponse dlr;
 			try {
-				dlr = SakaiLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
+				dlr = SakaiLTIUtil.getDeepLinkFromToken(toolBean, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2249,7 +2229,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					return;
 				}
 
-				reqProps = extractLTIDeepLink(item, tool, toolKey);
+				reqProps = extractLTIDeepLink(item, toolBean.asMap(), toolKey);
 				reqProps.setProperty("returnUrl", returnUrl);
 
 				// Create the gradebook column if we need to do so
@@ -2272,7 +2252,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			// Parse and validate the incoming ContentItem
 			ContentItem contentItem;
 			try {
-				contentItem = SakaiLTIUtil.getContentItemFromRequest(tool);
+				contentItem = SakaiLTIUtil.getContentItemFromRequest(toolBean);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2304,7 +2284,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				}
 
 				// Prepare data for the next phase
-				reqProps = extractLTIContentItem(item, tool, toolKey);
+				reqProps = extractLTIContentItem(item, toolBean.asMap(), toolKey);
 				reqProps.setProperty("returnUrl", returnUrl);
 
 				// Extract the lineItem material
@@ -2444,8 +2424,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			switchPanel(state, errorPanel);
 			return;
 		}
-		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
-		if (tool == null) {
+		LtiToolBean toolBean = ltiService.getToolAsBean(toolKey, getSiteId(state));
+		if (toolBean == null) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
 			switchPanel(state, errorPanel);
 			return;
@@ -2472,7 +2452,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		Long contentKey = null;  // Save for later
 		if ( isDeepLink ) {
 			// Parse and validate the incoming DeepLink
-			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			String keyset = toolBean.getLti13ToolKeyset();
 			if (keyset == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
 				switchPanel(state, errorPanel);
@@ -2481,7 +2461,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 
 			DeepLinkResponse dlr;
 			try {
-				dlr = SakaiLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
+				dlr = SakaiLTIUtil.getDeepLinkFromToken(toolBean, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2498,7 +2478,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			for (Object obj : links) {
 				if ( ! (obj instanceof JSONObject) ) continue;
 				JSONObject item = (JSONObject) obj;
-				reqProps = extractLTIDeepLink(item, tool, toolKey);
+				reqProps = extractLTIDeepLink(item, toolBean.asMap(), toolKey);
 
 				String type = getString(item, DeepLinkResponse.TYPE);
 				if (!DeepLinkResponse.TYPE_LTILINKITEM.equals(type)) {
@@ -2508,7 +2488,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				}
 
 				// We need to establish resource link ids for the LTILinkItems
-				reqProps = extractLTIContentItem(item, tool, toolKey);
+				reqProps = extractLTIContentItem(item, toolBean.asMap(), toolKey);
 
 				String title = reqProps.getProperty(LTIService.LTI_TITLE);
 				if (title == null) {
@@ -2536,9 +2516,9 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				}
 				contentKey = (Long) retval;
 				String contentUrl = null;
-				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
-				if (content != null) {
-					contentUrl = ltiService.getContentLaunch(content);
+				LtiContentBean contentBean = ltiService.getContentAsBean(contentKey, getSiteId(state));
+				if (contentBean != null) {
+					contentUrl = ltiService.getContentLaunch(contentBean);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
 						contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 					}
@@ -2562,7 +2542,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 						if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 							state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
 						} else {
-							handleLineItem(state, sakaiLineItem, toolKey, content);
+							handleLineItem(state, sakaiLineItem, toolKey, contentBean != null ? contentBean.asMap() : null);
 						}
 					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
 						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
@@ -2572,8 +2552,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				item.put("content_key", contentKey);
 				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
-				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
-				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
+				item.put("tool_title", toolBean.getTitle());
+				item.put("tool_newpage", (toolBean.getNewpage() != null) ? Long.valueOf(toolBean.getNewpage()) : Long.valueOf(0));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -2583,7 +2563,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			// Parse and validate the incoming ContentItem
 			ContentItem contentItem = null;
 			try {
-				contentItem = SakaiLTIUtil.getContentItemFromRequest(tool);
+				contentItem = SakaiLTIUtil.getContentItemFromRequest(toolBean);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2606,7 +2586,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				}
 
 				// We need to establish resource link ids for the LTILinkItems
-				reqProps = extractLTIContentItem(item, tool, toolKey);
+				reqProps = extractLTIContentItem(item, toolBean.asMap(), toolKey);
 
 				String title = reqProps.getProperty(LTIService.LTI_TITLE);
 				if (title == null) {
@@ -2634,9 +2614,9 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				}
 				contentKey = (Long) retval;
 				String contentUrl = null;
-				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
-				if (content != null) {
-					contentUrl = ltiService.getContentLaunch(content);
+				LtiContentBean contentBean = ltiService.getContentAsBean(contentKey, getSiteId(state));
+				if (contentBean != null) {
+					contentUrl = ltiService.getContentLaunch(contentBean);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
 						contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 					}
@@ -2662,7 +2642,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 						if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 							state.setAttribute(STATE_LINE_ITEM, sakaiLineItem);
 						} else {
-							handleLineItem(state, sakaiLineItem, toolKey, content);
+							handleLineItem(state, sakaiLineItem, toolKey, contentBean != null ? contentBean.asMap() : null);
 						}
 					} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
 						log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
@@ -2672,8 +2652,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				item.put("content_key", contentKey);
 				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
-				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
-				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
+				item.put("tool_title", toolBean.getTitle());
+				item.put("tool_newpage", (toolBean.getNewpage() != null) ? Long.valueOf(toolBean.getNewpage()) : Long.valueOf(0));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -3454,20 +3434,18 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		}
 
 		String contentUrl = null;
-		Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
+		LtiContentBean contentBean = ltiService.getContentAsBean(contentKey, getSiteId(state));
 
 		// Rare: We just made this a few clicks ago...
-		if (content == null) {
+		if (contentBean == null) {
 			log.error("Unable to load content={}", contentKey);
 			addAlert(state, rb.getString("error.contentitem.content.launch"));
 			return "lti_error";
 		}
 
-		if (content != null) {
-			contentUrl = ltiService.getContentLaunch(content);
-			if (contentUrl != null && contentUrl.startsWith("/")) {
-				contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
-			}
+		contentUrl = ltiService.getContentLaunch(contentBean);
+		if (contentUrl != null && contentUrl.startsWith("/")) {
+			contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 		}
 
 		if (contentUrl == null) {
@@ -3476,28 +3454,26 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_error";
 		}
 
-		Long key = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
-		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
+		Long key = contentBean.getToolId();
+		LtiToolBean toolBean = ltiService.getToolAsBean(key, getSiteId(state));
 
 		JSONArray new_content = new JSONArray();
 
 		JSONObject item = (JSONObject) new JSONObject();
 		item.put(LTIConstants.TYPE, ContentItem.TYPE_LTILINKITEM);
 		item.put("launch", contentUrl);
-		String title = (String) content.get(LTIService.LTI_TITLE);
+		String title = contentBean.getTitle();
 		if (title == null) {
 			title = rb.getString("contentitem.generic.title");
 		}
 		item.put(ContentItem.TITLE, title);
 
-		Long contentNewPage = LTIUtil.toLongNull(content.get(LTIService.LTI_NEWPAGE));
-		if ( contentNewPage == null ) contentNewPage = Long.valueOf(0);
+		Long contentNewPage = (contentBean.getNewpage() != null && contentBean.getNewpage()) ? Long.valueOf(1) : Long.valueOf(0);
 		item.put("content_newpage", contentNewPage);
 
 		Long toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
-		if ( tool != null ) {
-			toolNewPage = LTIUtil.toLongNull(tool.get(LTIService.LTI_NEWPAGE));
-			if ( toolNewPage == null ) toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
+		if ( toolBean != null ) {
+			toolNewPage = (toolBean.getNewpage() != null) ? Long.valueOf(toolBean.getNewpage()) : Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
 			item.put("tool_newpage", toolNewPage);
 		}
 
@@ -3509,7 +3485,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 
 		if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 			context.put("contentId",  contentKey);
-			context.put("contentTitle", (String) content.get(LTIService.LTI_TITLE));
+			context.put("contentTitle", contentBean.getTitle());
 			context.put("contentLaunchNewWindow", contentNewPage);
 			context.put("contentToolNewpage", toolNewPage);
 
@@ -3517,10 +3493,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			state.removeAttribute(STATE_LINE_ITEM);
 			context.put("lineItem", sakaiLineItem);
 
-			if ( tool != null ) {
-				context.put("toolTitle", (String) tool.get(LTIService.LTI_TITLE));
+			if ( toolBean != null ) {
+				context.put("toolTitle", toolBean.getTitle());
 			} else {
-				context.put("toolTitle", (String) content.get(LTIService.LTI_TITLE));
+				context.put("toolTitle", contentBean.getTitle());
 			}
 			return "lti_assignment_return";
 		} else if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
@@ -3599,7 +3575,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
@@ -3661,7 +3637,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
@@ -3714,7 +3690,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_error";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_error";

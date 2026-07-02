@@ -20,6 +20,10 @@
 
 package org.sakaiproject.lti.beans;
 
+import org.sakaiproject.lti.foorm.FoormBaseBean;
+import org.sakaiproject.lti.foorm.FoormField;
+import org.sakaiproject.lti.foorm.FoormType;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -30,6 +34,10 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Stack;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -43,42 +51,62 @@ import org.sakaiproject.lti.api.LTIService;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @ToString(exclude = {"placementsecret", "oldplacementsecret"})
-public class LtiContentBean extends LTIBaseBean {
+public class LtiContentBean extends FoormBaseBean {
 
-    // Core fields from CONTENT_MODEL
-    public Long id;                    // CONTENT_MODEL: "id:key:archive=true"
-    public Long toolId;                // CONTENT_MODEL: "tool_id:integer:hidden=true"
-    public String siteId;              // CONTENT_MODEL: "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin"
-    public String title;               // CONTENT_MODEL: "title:text:label=bl_title:required=true:maxlength=1024:archive=true"
-    public String description;         // CONTENT_MODEL: "description:textarea:label=bl_description:maxlength=4096:archive=true"
-    public Integer frameheight;        // CONTENT_MODEL: "frameheight:integer:label=bl_frameheight:archive=true"
-    public Boolean newpage;            // CONTENT_MODEL: "newpage:checkbox:label=bl_newpage:archive=true"
-    public Boolean protect;            // CONTENT_MODEL: "protect:checkbox:label=bl_protect:role=admin"
-    public Boolean debug;              // CONTENT_MODEL: "debug:checkbox:label=bl_debug"
-    // LTI fields from CONTENT_MODEL
-    public String custom;              // CONTENT_MODEL: "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true"
-    public String launch;              // CONTENT_MODEL: "launch:url:label=bl_launch:hidden=true:maxlength=1024:archive=true"
-    public String xmlimport;           // CONTENT_MODEL: "xmlimport:text:hidden=true:maxlength=1M"
-    public String settings;            // CONTENT_MODEL: "settings:text:hidden=true:maxlength=1M"
-    public String contentitem;         // CONTENT_MODEL: "contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true:archive=true"
-    public String placement;           // CONTENT_MODEL: "placement:text:hidden=true:maxlength=256"
-    public String placementsecret;     // CONTENT_MODEL: "placementsecret:text:hidden=true:maxlength=512"
-    public String oldplacementsecret;  // CONTENT_MODEL: "oldplacementsecret:text:hidden=true:maxlength=512"
-    // Timestamps from CONTENT_MODEL
-    public Date createdAt;             // CONTENT_MODEL: "created_at:autodate"
-    public Date updatedAt;             // CONTENT_MODEL: "updated_at:autodate"
-
-    // Extra fields that can be populated from joins (CONTENT_EXTRA_FIELDS)
-    public String siteTitle;           // CONTENT_EXTRA_FIELDS: "SITE_TITLE:text:table=SAKAI_SITE:realname=TITLE"
-    public String siteContactName;     // CONTENT_EXTRA_FIELDS: "SITE_CONTACT_NAME:text:table=ssp1:realname=VALUE"
-    public String siteContactEmail;    // CONTENT_EXTRA_FIELDS: "SITE_CONTACT_EMAIL:text:table=ssp2:realname=VALUE"
-    public String attribution;         // CONTENT_EXTRA_FIELDS: "ATTRIBUTION:text:table=ssp3:realname=VALUE"
-    public String url;                 // CONTENT_EXTRA_FIELDS: "URL:text:table=ssp4:realname=VALUE"
-    public String searchUrl;           // CONTENT_EXTRA_FIELDS: "searchURL:text:table=ssp5:realname=VALUE"
+    @FoormField(value = "id", type = FoormType.KEY, archive = true)
+    public Long id;
+    @FoormField(value = "tool_id", type = FoormType.INTEGER, hidden = true)
+    public Long toolId;
+    @FoormField(value = "SITE_ID", type = FoormType.TEXT, label = "bl_content_site_id", required = true, maxlength = 99, role = "admin")
+    public String siteId;
+    @FoormField(value = "title", type = FoormType.TEXT, label = "bl_title", required = true, maxlength = 1024, archive = true)
+    public String title;
+    @FoormField(value = "description", type = FoormType.TEXTAREA, label = "bl_description", maxlength = 4096, archive = true)
+    public String description;
+    @FoormField(value = "frameheight", type = FoormType.INTEGER, label = "bl_frameheight", archive = true)
+    public Integer frameheight;
+    @FoormField(value = "newpage", type = FoormType.CHECKBOX, label = "bl_newpage", archive = true)
+    public Boolean newpage;
+    @FoormField(value = "protect", type = FoormType.CHECKBOX, label = "bl_protect", role = "admin")
+    public Boolean protect;
+    @FoormField(value = "debug", type = FoormType.CHECKBOX, label = "bl_debug")
+    public Boolean debug;
+    @FoormField(value = "custom", type = FoormType.TEXTAREA, label = "bl_custom", rows = 5, cols = 25, maxlength = 16384, archive = true)
+    public String custom;
+    @FoormField(value = "launch", type = FoormType.URL, label = "bl_launch", hidden = true, maxlength = 1024, archive = true)
+    public String launch;
+    @FoormField(value = "xmlimport", type = FoormType.TEXT, hidden = true)
+    public String xmlimport;
+    @FoormField(value = "settings", type = FoormType.TEXT, hidden = true)
+    public String settings;
+    @FoormField(value = "contentitem", type = FoormType.TEXTAREA, label = "bl_contentitem", rows = 5, cols = 25, hidden = true, archive = true)
+    public String contentitem;
+    @FoormField(value = "placement", type = FoormType.TEXT, hidden = true, maxlength = 256)
+    public String placement;
+    @FoormField(value = "placementsecret", type = FoormType.TEXT, hidden = true, maxlength = 512)
+    public String placementsecret;
+    @FoormField(value = "oldplacementsecret", type = FoormType.TEXT, hidden = true, maxlength = 512)
+    public String oldplacementsecret;
+    @FoormField(value = "created_at", type = FoormType.AUTODATE)
+    public Date createdAt;
+    @FoormField(value = "updated_at", type = FoormType.AUTODATE)
+    public Date updatedAt;
+    @FoormField(value = "SITE_TITLE", type = FoormType.TEXT)
+    public String siteTitle;
+    @FoormField(value = "SITE_CONTACT_NAME", type = FoormType.TEXT)
+    public String siteContactName;
+    @FoormField(value = "SITE_CONTACT_EMAIL", type = FoormType.TEXT)
+    public String siteContactEmail;
+    @FoormField(value = "ATTRIBUTION", type = FoormType.TEXT)
+    public String attribution;
+    @FoormField(value = "URL", type = FoormType.TEXT)
+    public String url;
+    @FoormField(value = "searchURL", type = FoormType.TEXT)
+    public String searchUrl;
 
     /**
      * Creates an LtiContentBean instance from a Map<String, Object>.
-     * 
+     *
      * @param map The map containing LTI content data
      * @return LtiContentBean instance populated from the map
      */
@@ -86,44 +114,46 @@ public class LtiContentBean extends LTIBaseBean {
         if (map == null) {
             return null;
         }
-        
         LtiContentBean content = new LtiContentBean();
-        
-        // Core fields
-        content.setId(getLongValue(map, LTIService.LTI_ID));
-        content.setToolId(getLongValue(map, LTIService.LTI_TOOL_ID));
-        content.setSiteId(getStringValue(map, LTIService.LTI_SITE_ID));
-        content.setTitle(getStringValue(map, LTIService.LTI_TITLE));
-        content.setDescription(getStringValue(map, LTIService.LTI_DESCRIPTION));
-        content.setFrameheight(getIntegerValue(map, LTIService.LTI_FRAMEHEIGHT));
-        content.setNewpage(getBooleanValue(map, LTIService.LTI_NEWPAGE));
-        content.setProtect(getBooleanValue(map, LTIService.LTI_PROTECT));
-        content.setDebug(getBooleanValue(map, LTIService.LTI_DEBUG));
-        
-        // LTI fields
-        content.setCustom(getStringValue(map, LTIService.LTI_CUSTOM));
-        content.setLaunch(getStringValue(map, LTIService.LTI_LAUNCH));
-        content.setXmlimport(getStringValue(map, LTIService.LTI_XMLIMPORT));
-        content.setSettings(getStringValue(map, LTIService.LTI_SETTINGS));
-        content.setContentitem(getStringValue(map, "contentitem"));
-        content.setPlacement(getStringValue(map, "placement"));
-        content.setPlacementsecret(getStringValue(map, LTIService.LTI_PLACEMENTSECRET));
-        content.setOldplacementsecret(getStringValue(map, LTIService.LTI_OLDPLACEMENTSECRET));
-        
-        
-        // Timestamps
-        content.setCreatedAt(getDateValue(map, LTIService.LTI_CREATED_AT));
-        content.setUpdatedAt(getDateValue(map, LTIService.LTI_UPDATED_AT));
-        
-        // Extra fields from joins
-        content.setSiteTitle(getStringValue(map, "SITE_TITLE"));
-        content.setSiteContactName(getStringValue(map, "SITE_CONTACT_NAME"));
-        content.setSiteContactEmail(getStringValue(map, "SITE_CONTACT_EMAIL"));
-        content.setAttribution(getStringValue(map, "ATTRIBUTION"));
-        content.setUrl(getStringValue(map, "URL"));
-        content.setSearchUrl(getStringValue(map, "searchURL"));
-        
+        content.applyFromMap(map);
         return content;
+    }
+
+    /**
+     * Applies map values to this bean's fields. Used to persist filtered or
+     * mutated map data back into the bean (e.g. after filterContent).
+     *
+     * @param map The map containing LTI content data (null is a no-op)
+     */
+    public void applyFromMap(Map<String, Object> map) {
+        if (map == null) {
+            return;
+        }
+        setId(getLongValue(map, LTIService.LTI_ID));
+        setToolId(getLongValue(map, LTIService.LTI_TOOL_ID));
+        setSiteId(getStringValue(map, LTIService.LTI_SITE_ID));
+        setTitle(getStringValue(map, LTIService.LTI_TITLE));
+        setDescription(getStringValue(map, LTIService.LTI_DESCRIPTION));
+        setFrameheight(getIntegerValue(map, LTIService.LTI_FRAMEHEIGHT));
+        setNewpage(getBooleanValue(map, LTIService.LTI_NEWPAGE));
+        setProtect(getBooleanValue(map, LTIService.LTI_PROTECT));
+        setDebug(getBooleanValue(map, LTIService.LTI_DEBUG));
+        setCustom(getStringValue(map, LTIService.LTI_CUSTOM));
+        setLaunch(getStringValue(map, LTIService.LTI_LAUNCH));
+        setXmlimport(getStringValue(map, LTIService.LTI_XMLIMPORT));
+        setSettings(getStringValue(map, LTIService.LTI_SETTINGS));
+        setContentitem(getStringValue(map, "contentitem"));
+        setPlacement(getStringValue(map, "placement"));
+        setPlacementsecret(getStringValue(map, LTIService.LTI_PLACEMENTSECRET));
+        setOldplacementsecret(getStringValue(map, LTIService.LTI_OLDPLACEMENTSECRET));
+        setCreatedAt(getDateValue(map, LTIService.LTI_CREATED_AT));
+        setUpdatedAt(getDateValue(map, LTIService.LTI_UPDATED_AT));
+        setSiteTitle(getStringValue(map, "SITE_TITLE"));
+        setSiteContactName(getStringValue(map, "SITE_CONTACT_NAME"));
+        setSiteContactEmail(getStringValue(map, "SITE_CONTACT_EMAIL"));
+        setAttribution(getStringValue(map, "ATTRIBUTION"));
+        setUrl(getStringValue(map, "URL"));
+        setSearchUrl(getStringValue(map, "searchURL"));
     }
 
     /**
@@ -169,6 +199,52 @@ public class LtiContentBean extends LTIBaseBean {
         putIfNotNull(map, "searchURL", searchUrl);
         
         return map;
+    }
+
+    /**
+     * Creates an LtiContentBean from an archive XML element.
+     * Uses the same format as {@link #toXml} (child elements per archivable field).
+     * For use in archive/import flows.
+     *
+     * @param element the sakai-lti-content element (or equivalent)
+     * @return new bean populated from the element, or null if element is null
+     */
+    public static LtiContentBean fromXml(Element element) {
+        if (element == null) {
+            return null;
+        }
+        LtiContentBean bean = new LtiContentBean();
+        bean.populateFromArchiveElement(element);
+        return bean;
+    }
+
+    /**
+     * Serializes this bean to an XML element in archive format.
+     * Uses the same structure as the existing archive process (child elements per archivable field).
+     * For use in archive/export flows.
+     *
+     * @param doc   the document to create elements in
+     * @param stack parent stack; if null or empty, the element is appended to doc; otherwise to stack.peek()
+     * @return the created element, or null if doc is null
+     */
+    public Element toXml(Document doc, Stack<Element> stack) {
+        if (doc == null) {
+            return null;
+        }
+        Element el = toArchiveElement(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG);
+        if (el == null) {
+            return null;
+        }
+        if (stack == null || stack.isEmpty()) {
+            doc.appendChild(el);
+        } else {
+            stack.peek().appendChild(el);
+        }
+        if (stack != null) {
+            stack.push(el);
+            stack.pop();
+        }
+        return el;
     }
 
 }

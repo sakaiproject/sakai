@@ -91,6 +91,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -708,9 +710,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 Integer contentKey = assignment.getContentId();
                 if (StringUtils.isNotBlank(submitterId) && contentKey != null) {
                     String siteId = assignment.getContext();
-                    Map<String, Object> content = ltiService.getContent(contentKey.longValue(), siteId);
+                    LtiContentBean content = ltiService.getContentAsBean(contentKey.longValue(), siteId);
                     if (content != null) {
-                        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+                        String contentItem = StringUtils.trimToEmpty(content.getContentitem());
                         boolean submissionReviewAvailable = contentItem.indexOf("\"submissionReview\"") > 0;
                         
                         String ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
@@ -1102,12 +1104,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
 
-            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            LtiContentBean content = ltiService.getContentAsBean(contentKey.longValue(), site.getId());
             if (content != null) {
-                Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
-                Map<String, Object> tool = (toolKey != null) ? ltiService.getTool(toolKey, site.getId()) : null;
+                Long toolKey = content.getToolId();
+                LtiToolBean tool = (toolKey != null) ? ltiService.getToolAsBean(toolKey, site.getId()) : null;
                 simpleAssignment.ltiFrameHeight = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
-                String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+                String contentItem = StringUtils.trimToEmpty(content.getContentitem());
 
                 for (Map<String, Object> submission : submissionMaps) {
                     if (!submission.containsKey("userSubmission")) continue;

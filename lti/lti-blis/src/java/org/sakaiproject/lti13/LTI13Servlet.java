@@ -1245,7 +1245,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( toolConfigurationObj instanceof JSONObject ) {
 			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
 			// No site context during dynamic registration; resolve from the tool record.
-			String deployment_id = SakaiLTIUtil.getToolDeploymentId(null, tool.asMap());
+			String deployment_id = SakaiLTIUtil.getToolDeploymentId(null, tool);
 			toolConfiguration.put(LTIService.LTI_DEPLOYMENT_ID, deployment_id);
 		}
 
@@ -1399,7 +1399,7 @@ public class LTI13Servlet extends HttpServlet {
 		int paging = NumberUtils.toInt(pagingstr, -1);
 		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
 
-		// int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		// int allowOutcomes = (tool.allowoutcomes != null && Boolean.TRUE.equals(tool.allowoutcomes)) ? 1 : 0;
 
 		/* SAK-47261 - Scope NRPS to Context, not Resource Link
 		String assignment_name = (String) content.title;
