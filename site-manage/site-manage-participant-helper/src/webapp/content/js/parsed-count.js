@@ -143,13 +143,15 @@
 	/**
 	 * Render the count message from the localized templates, choosing the emails-only,
 	 * usernames-only, or mixed phrasing based on the tally, with a skipped-fragment warning
-	 * appended when the parse had to skip anything.
+	 * appended when the parse had to skip anything. The skipped fragments themselves are shown
+	 * quoted (capped at five, then an ellipsis) so the user can see exactly what will not be
+	 * added. Rendered via textContent, so the raw paste fragments are safe to include.
 	 * @param {{emails: string, usernames: string, mixed: string, skipped: string}} templates localized strings
 	 * @param {{e: number, u: number, n: number}} c the tally from {@link classify}
-	 * @param {number} skippedCount how many fragments the parse flagged as skipped
+	 * @param {string[]} skipped the fragments the parse flagged as skipped
 	 * @returns {string} the display text (empty when there is nothing to report)
 	 */
-	function format(templates, c, skippedCount) {
+	function format(templates, c, skipped) {
 		var parts = [];
 		if (c.n > 0) {
 			if (c.e > 0 && c.u > 0) {
@@ -160,8 +162,12 @@
 				parts.push(templates.usernames.replace("#N#", c.u));
 			}
 		}
-		if (skippedCount > 0) {
-			parts.push(templates.skipped.replace("#S#", skippedCount));
+		if (skipped.length > 0) {
+			var items = skipped.slice(0, 5).map(function (s) { return "“" + s + "”"; }).join(", ");
+			if (skipped.length > 5) {
+				items += ", …";
+			}
+			parts.push(templates.skipped.replace("#S#", skipped.length).replace("#ITEMS#", items));
 		}
 		return parts.join(" — ");
 	}
@@ -189,7 +195,7 @@
 		 */
 		function update() {
 			var parsed = nonOfficial ? normalizeNonOfficial(ta.value) : normalize(ta.value);
-			out.textContent = format(templates, classify(parsed.entries), parsed.skipped.length);
+			out.textContent = format(templates, classify(parsed.entries), parsed.skipped);
 		}
 
 		ta.addEventListener("input", update);
@@ -205,7 +211,7 @@
 			emails: txt("countEmailsTmpl", "#N# emails detected"),
 			usernames: txt("countUsernamesTmpl", "#N# usernames detected"),
 			mixed: txt("countMixedTmpl", "#N# entries detected (#E# emails, #U# usernames)"),
-			skipped: txt("countSkippedTmpl", "#S# skipped (not a complete email address)")
+			skipped: txt("countSkippedTmpl", "#S# skipped (not a complete email address): #ITEMS#")
 		};
 		wire(templates, "officialAccountCount");
 		wire(templates, "nonOfficialAccountCount", true);
