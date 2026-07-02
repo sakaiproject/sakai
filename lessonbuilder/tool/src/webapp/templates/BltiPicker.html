@@ -71,11 +71,6 @@
       const el = document.getElementById("modal-iframe-div");
       const modal = bootstrap.Modal.getOrCreateInstance(el);
 
-      el.addEventListener("shown.bs.modal", e => {
-        console.log('Height', modalDialogHeight());
-        document.getElementById('#modal-iframe-div').setAttribute('height', modalDialogHeight());
-      });
-
       el.addEventListener("hidden.bs.modal", e => {
           document.getElementById('sakai-lti-admin-iframe').setAttribute('launch-url', '/library/image/sakai/spinner.gif');
           var form = document.getElementById("blti-cancel");
@@ -88,8 +83,6 @@
 
       $(window).resize(function() {
         modal.handleUpdate();
-        // Note that width() gives the content width, taking into consideration the border, padding, etc.
-        console.log('Height', modalDialogHeight());
       });
     }
 
