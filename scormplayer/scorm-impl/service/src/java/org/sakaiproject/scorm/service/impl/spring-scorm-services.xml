@@ -61,17 +61,6 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 
-	<bean id="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
-		class="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
-		init-method="init">
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
-		<property name="contentPackageDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
-		<property name="contentPackageManifestDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="scormResourceService" ref="org.sakaiproject.scorm.service.api.ScormResourceService" />
-		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
-	</bean>
+	<!-- The SCORM entity producer lives in its own file so the test can load the same wiring -->
+	<import resource="classpath:org/sakaiproject/scorm/service/impl/spring-scorm-entityproducer.xml" />
 </beans>
