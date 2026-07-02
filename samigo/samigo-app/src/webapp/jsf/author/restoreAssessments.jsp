@@ -11,30 +11,21 @@
         <body onload="<%= request.getAttribute("html.body.onload") %>">
           <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
-            <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
-            <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
             <script>
-                // Function to normalize search text
-                window.normalizeSearchText = function(text) {
-                    return text
-                        .toLowerCase()
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "");
-                };
-
-                $(document).ready(function() {
-                    var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
-                    if (notEmptyTableTd > 0) {
-                        var table = $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
+                sakaiDataTables.onReady(function() {
+                    const tableElement = document.getElementById("restoreAssessmentsForm:deletedAssessmentsTable");
+                    const notEmptyTableTd = tableElement?.querySelector("td:not(:empty)");
+                    if (notEmptyTableTd) {
+                        const table = sakaiDataTables.init(tableElement, {
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                             "pageLength": 20,
-                            "aaSorting": [[0, "desc"]],
+                            "order": [[0, "desc"]],
                             "columns": [
-                                {"bSortable": true, "bSearchable": true, "type": "span"},
-                                {"bSortable": true, "bSearchable": true},
-                                {"bSortable": true, "bSearchable": true, "type": "numeric"},
-                                {"bSortable": false, "bSearchable": false}
+                                {"orderable": true, "searchable": true, "type": "span"},
+                                {"orderable": true, "searchable": true},
+                                {"orderable": true, "searchable": true, "type": "num"},
+                                {"orderable": false, "searchable": false}
                             ],
                             "language": {
                                 "search": <h:outputText value="'#{dataTablesMessages.search}'" />,
@@ -53,86 +44,39 @@
                                     "sortDescending": <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />
                                 }
                             },
-                            "fnDrawCallback": function(oSettings) {
-                                $(".select-checkbox").prop("checked", false);
+                            "drawCallback": function(oSettings) {
+                                document.querySelectorAll(".select-checkbox").forEach(checkbox => checkbox.checked = false);
                                 updateRestoreButton();
                             },
                             "stateSave": true,
                             "stateDuration": -1
                         });
 
-                        const searchInput = document.querySelector('#restoreAssessmentsForm\\:deletedAssessmentsTable_filter input');
-                        if (table && searchInput) {
-                            if (searchInput.hasCustomSearch) {
-                                return;
-                            }
-                            searchInput.hasCustomSearch = true;
-
-                            let lastSearchTerm = '';
-
-                            const savedState = table.state.loaded();
-                            if (savedState && savedState.search && savedState.search.search) {
-                                lastSearchTerm = savedState.search.search;
-                                searchInput.value = lastSearchTerm;
-                            }
-
-                            $(searchInput).off();
-                            searchInput.removeAttribute('data-dt-search');
-
-                            const customSearchFunction = function(settings, searchData, index, rowData, counter) {
-                                if (settings.nTable.id !== 'restoreAssessmentsForm:deletedAssessmentsTable') {
-                                    return true;
-                                }
-
-                                if (!lastSearchTerm || lastSearchTerm.trim() === '') {
-                                    return true;
-                                }
-
-                                const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
-
-                                return searchData.some(cellData => {
-                                    if (cellData && typeof cellData === 'string') {
-                                        const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-                                        const normalizedCell = window.normalizeSearchText(cleanCellData);
-                                        return normalizedCell.includes(normalizedSearch);
-                                    }
-                                    return false;
-                                });
-                            };
-
-                            $.fn.dataTable.ext.search.push(customSearchFunction);
-
-                            const handleSearch = function() {
-                                lastSearchTerm = this.value;
-                                table.search(lastSearchTerm);
-                                table.draw();
-                            };
-
-                            searchInput.addEventListener('input', handleSearch);
-                            searchInput.addEventListener('keyup', handleSearch);
-
-                            if (searchInput.value) {
-                                lastSearchTerm = searchInput.value;
-                                table.draw();
-                            }
-                        }
+                        sakaiDataTables.attachSearch(table, {
+                            input: "#restoreAssessmentsForm\\:deletedAssessmentsTable_filter input",
+                            tableId: "restoreAssessmentsForm:deletedAssessmentsTable",
+                        });
                     }
 
-                    $("#restoreAssessmentsForm\\:deletedAssessmentsTable").on("change", ".select-checkbox", function() {
+                    tableElement?.addEventListener("change", event => {
+                        if (!event.target.matches(".select-checkbox")) return;
                         updateRestoreButton();
                     });
 
                     function updateRestoreButton() {
-                        var length = $(".select-checkbox:checked").length;
-                        var restoreButton = $("#restoreAssessmentsForm\\:restore-selected");
-                        if (length > 0) {
-                            restoreButton.removeClass("disabled");
-                            restoreButton.addClass("active");
-                            restoreButton.prop('disabled', false);
+                        const restoreButton = document.getElementById("restoreAssessmentsForm:restore-selected");
+                        const hasSelectedAssessments = Boolean(document.querySelector(".select-checkbox:checked"));
+
+                        if (!restoreButton) return;
+
+                        if (hasSelectedAssessments) {
+                            restoreButton.classList.remove("disabled");
+                            restoreButton.classList.add("active");
+                            restoreButton.disabled = false;
                         } else {
-                            restoreButton.removeClass("active");
-                            restoreButton.addClass("disabled");
-                            restoreButton.prop('disabled', true);
+                            restoreButton.classList.remove("active");
+                            restoreButton.classList.add("disabled");
+                            restoreButton.disabled = true;
                         }
                     }
             });

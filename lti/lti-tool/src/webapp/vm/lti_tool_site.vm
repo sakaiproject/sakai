@@ -6,88 +6,112 @@ ${includeLatestJQuery}
 <script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
-    <!-- Tablesorter: required -->
-    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
-    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+	<script id="js">document.addEventListener("DOMContentLoaded", function() {
 
-	<script id="js">$(function(){
+		document.querySelectorAll("#tools_site thead tr th").forEach(function(elem) {
+			var elemId = elem.id;
+			var link = elem.querySelector("a");
 
-		$("thead tr th", "#tools_site").each(function(){
-			var elem = $(this);
-			var elemId = elem.attr('id');
-			var link = elem.children('a').first();
-
-			if(link.size() > 0) {
-				elem.addClass('tablesorter-header');
-				elem.click(function() {
-					$(location).attr("href", '#toolLinkParam("ToolSite" "doSort" "criteria=#elemId#")'
+			if (link) {
+				var sortTable = function() {
+					window.location.href = '#toolLinkParam("ToolSite" "doSort" "criteria=#elemId#")'
 						.replace(/&amp;/g, '&')
-						.replace('#elemId#', elemId));
+						.replace('#elemId#', elemId);
+				};
+				elem.classList.add("tablesorter-header");
+				elem.tabIndex = 0;
+				elem.setAttribute('role', 'button');
+				elem.addEventListener("click", sortTable);
+				elem.addEventListener("keydown", function(event) {
+					if (event.key === 'Enter' || event.key === ' ' || event.keyCode === 13 || event.keyCode === 32) {
+						event.preventDefault();
+						sortTable();
+					}
 				});
 
 				#if($!LAST_SORTED_FIELD)
 				if(elemId == "$!LAST_SORTED_FIELD") {
-					elem.addClass(($!ASCENDING_ORDER) ? 'tablesorter-headerSortDown' : 'tablesorter-headerSortUp');
+					elem.classList.add(($!ASCENDING_ORDER) ? 'tablesorter-headerSortDown' : 'tablesorter-headerSortUp');
 				}
 				#end
 			}
-
 		});
 
 		//prepare searching fields
 		var changeTimeout = null;
 
-		onInputchange = function(){
+		var onInputchange = function(){
 			if(changeTimeout != null) {
 				clearTimeout(changeTimeout);
 			}
-			var id = $(this).attr('id').replace('input_', '');
-			var value = $(this).val();
+			var id = this.id.replace('input_', '');
+			var value = this.value;
 			changeTimeout = setTimeout(function() { doChange(id, value); }, 1000);
 		};
 
-		$("thead tr td input", "#tools_site").keyup(onInputchange).each(function(){
-			var id = $(this).attr('id');
+		document.querySelectorAll("#tools_site thead tr td input").forEach(function(input) {
+			input.addEventListener("input", onInputchange);
+			var id = input.id;
 			if(id) {
-				$(this).attr('placeholder', $('#'+id.replace('input_', '')).attr('data-placeholder'));
-			}
-		}).focus(function() {
-			this.value = this.value;
-		});
-
-		$("thead tr td select", "#tools_site").change(onInputchange);
-
-		var doChange = function(id, val) {
-			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field=#fieldId#&search=#searchField#")'
-				.replace(/&amp;/g, '&')
-				.replace('#fieldId#', id)
-				.replace('#searchField#', encodeURIComponent(val)));
-		};
-
-		$(".pagesize").change(function(){
-			$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePageSize" "pagesize=#pageSize#")'
-				.replace(/&amp;/g, '&')
-				.replace('#pageSize#', $(this).find('option:selected').val()));
-		});
-
-		$(".pager_button").click(function(){
-			var elem = $(this);
-			if(!elem.hasClass("disabled")) {
-				var ev = null;
-				if(elem.hasClass('first')) ev = 'first';
-				if(elem.hasClass('prev')) ev = 'prev';
-				if(elem.hasClass('next')) ev = 'next';
-				if(elem.hasClass('last')) ev = 'last';
-				if(ev != null) {
-					$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePage" "page_event=#pageEvent#")'
-						.replace(/&amp;/g, '&')
-						.replace('#pageEvent#', ev));
+				var header = document.getElementById(id.replace('input_', ''));
+				if (header) {
+					var label = header.getAttribute('data-placeholder');
+					input.setAttribute('placeholder', label);
+					input.setAttribute('aria-label', label);
 				}
 			}
+			input.addEventListener("focus", function() {
+				this.value = this.value;
+			});
+		});
+
+		document.querySelectorAll("#tools_site thead tr td select").forEach(function(select) {
+			select.addEventListener("change", onInputchange);
+		});
+
+		var doChange = function(id, val) {
+			window.location.href = '#toolLinkParam("ToolSite" "doSearch" "field=#fieldId#&search=#searchField#")'
+				.replace(/&amp;/g, '&')
+				.replace('#fieldId#', id)
+				.replace('#searchField#', encodeURIComponent(val));
+		};
+
+		document.querySelectorAll(".pagesize").forEach(function(pageSize) {
+			pageSize.addEventListener("change", function() {
+				window.location.href = '#toolLinkParam("ToolSite" "doChangePageSize" "pagesize=#pageSize#")'
+				.replace(/&amp;/g, '&')
+				.replace('#pageSize#', this.value);
+			});
+		});
+
+		document.querySelectorAll(".pager_button").forEach(function(elem) {
+			var changePage = function() {
+				if(!elem.classList.contains("disabled")) {
+				var ev = null;
+				if(elem.classList.contains('first')) ev = 'first';
+				if(elem.classList.contains('prev')) ev = 'prev';
+				if(elem.classList.contains('next')) ev = 'next';
+				if(elem.classList.contains('last')) ev = 'last';
+				if(ev != null) {
+					window.location.href = '#toolLinkParam("ToolSite" "doChangePage" "page_event=#pageEvent#")'
+						.replace(/&amp;/g, '&')
+						.replace('#pageEvent#', ev);
+				}
+			}
+			};
+			elem.tabIndex = 0;
+			elem.setAttribute('role', 'button');
+			elem.addEventListener("click", changePage);
+			elem.addEventListener("keydown", function(event) {
+				if (event.key === 'Enter' || event.key === ' ' || event.keyCode === 13 || event.keyCode === 32) {
+					event.preventDefault();
+					changePage();
+				}
+			});
 		});
 
 		#if($!SEARCH_LAST_FIELD)
-			$("#input_$!SEARCH_LAST_FIELD").focus();
+			document.getElementById("input_$!SEARCH_LAST_FIELD")?.focus();
 		#end
 
 	});

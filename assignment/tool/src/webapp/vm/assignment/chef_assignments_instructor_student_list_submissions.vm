@@ -8,17 +8,17 @@
 			language: #datatablesBundle($tlang),
 		};
 
-		const table = $("#assignmentsByStudent");
+		const table = document.getElementById("assignmentsByStudent");
 
 		// Clear the table if the tool has been reset
 		// Unfortunatly resetting the state requres creating a temporary instance
 		if ("$!resetTableState" != "false") {
-			let tempDatatable = table.DataTable();
+			const tempDatatable = sakaiDataTables.init(table);
 			tempDatatable.state.clear();
 			tempDatatable.destroy();
 		}
 
-		const datatable = table.DataTable(datatablesConfig);
+		const datatable = sakaiDataTables.init(table, datatablesConfig);
 
 		// Move view selectr to table slot
 		document.querySelector(".dt-header-slot")

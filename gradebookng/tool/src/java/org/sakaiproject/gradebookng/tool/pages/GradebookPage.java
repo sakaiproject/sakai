@@ -658,10 +658,8 @@ public class GradebookPage extends BasePage {
 
 		final String version = PortalUtils.getCDNQuery();
 
-		// tablesorted used by student grade summary
-		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter')", null));
-		response.render(
-				JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
+		// DataTables is used by the student grade summary.
+		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('datatables')", null));
 
 		//Feedback reminder for instructors
 		response.render(

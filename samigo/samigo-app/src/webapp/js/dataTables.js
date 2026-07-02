@@ -11,7 +11,7 @@ function setPageLength(pageLength) {
 }
 
 function onInit(event, settings, pageLength) {
-    $(event.currentTarget).show();
+    settings.table.style.display = "";
 }
 
 function onPageLengthChange(event, settings, pageLength) {
@@ -25,15 +25,26 @@ function setupDataTable(tableId, dataTableConfig) {
     if (!table) return;
 
     const pageLength = getPageLength();
+    const callerHandler = dataTableConfig?.on?.["length.dt"];
 
-    const dataTable = $(table);
-    dataTable.on("init.dt", onInit);
-    dataTable.on("length.dt", onPageLengthChange);
+    const eventHandlers = {
+        ...(dataTableConfig?.on || {}),
+        "length.dt": function() {
+            callerHandler?.apply(this, arguments);
+            onPageLengthChange.apply(this, arguments);
+        },
+    };
 
-    dataTable.DataTable({
+    const dataTable = sakaiDataTables.init(table, {
         ...dataTableConfig,
         pageLength,
+        initComplete(settings) {
+            onInit(null, settings, pageLength);
+            dataTableConfig?.initComplete?.apply(this, arguments);
+        },
     });
+
+    Object.entries(eventHandlers).forEach(([eventName, handler]) => dataTable.on(eventName, handler));
 
     return dataTable;
 }

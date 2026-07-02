@@ -173,7 +173,7 @@
 
 <f:view>
   <sakai:view>
-	  <script>includeWebjarLibrary('jquery.tablesorter');</script>
+	  <script>includeWebjarLibrary('datatables');</script>
 	  <script src="/messageforums-tool/js/synopticLite.js"></script>
   	  <script src="/messageforums-tool/js/popupscripts.js"></script>
   	  <script>
@@ -196,69 +196,25 @@ SynMainLite.setupTableHeaders = function (){
 
 
 SynMainLite.setupTableParsers = function (){
+	var columns = [
+		{ type: "sakai-checkbox" }
+	];
 
-	 //add message count orderer
-	 $.tablesorter.addParser({
-	        id: 'newMessageCount',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            //this is used to parse out the number of messages from the html, or 
-	            //convert 'none' to the number 0, so we can order numberically
-	            return s.toLowerCase().replace('<h:outputText value="#{msgs.syn_no_messages}"/>',0).replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'').replace(new RegExp('<img.*>'),'');           
-	        },
-	        type: "numeric"
-	    });  
-	 //add title sorter
-	    $.tablesorter.addParser({
-	        id: 'title',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            //this is used to parse out the number of messages from the html, or 
-	            //convert 'none' to the number 0, so we can order numberically
-	            return s.toLowerCase().replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'');           
-	        },
-	        type: "text"
-	    });
-	    
-	    //add checkbox sorter
-	    $.tablesorter.addParser({
-	        id: 'checkbox',
-	        is: function(s) {
-	            return false;
-	        },
-	        format: function(s) {
-	            var integer = 0;
-	            if (s.toLowerCase().match(/<input[^>]*checked*/i)) {
-	                integer = 1;
-	            }
-	            return integer;
-	        },
-	        type: "numeric"
-	    }); 
-	    
-	    //apply orderers to workspaceTable
-	    $(".workspaceTable").tablesorter({ 
-		    
-	        headers: {
-	    	0: { 
-	    	    sorter:'checkbox' 
-	    	},
-	    	1: { 
-	 	       sorter:'title' 
-	    	}, 
-	    	2: { 
-		        sorter:'newMessageCount' 
-		    }, 
-	        3: { 
-	            sorter:'newMessageCount' 
-	        } 
-	        } 
-	    });
+	if (document.getElementById("messagesHeader")) {
+		columns.push({ type: "sakai-any-number" });
+	}
+	if (document.getElementById("forumsHeader")) {
+		columns.push({ type: "sakai-any-number" });
+	}
+	columns.push({ type: "sakai-html-text" });
 
+	sakaiDataTables.initIfNotEmpty(".workspaceTable", {
+		paging: false,
+		info: false,
+		searching: false,
+		order: [],
+		columns: columns
+	});
 	};
 
 
@@ -386,4 +342,3 @@ function mySetMainFrameHeightViewCell(id)
 
 
 </html>
-

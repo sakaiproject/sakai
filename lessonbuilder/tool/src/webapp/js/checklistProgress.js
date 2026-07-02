@@ -1,16 +1,26 @@
-(function (checklistProgress, $, undefined) {
+(function (checklistProgress) {
 
     checklistProgress.init = function () {
-        // initialize table sorter
-        $(".checklistProgressTable").tablesorter({
-            sortList: [[0, 0]]
+        document.querySelectorAll(".checklistProgressTable").forEach(table => {
+            sakaiDataTables.init(table, {
+                order: [[0, "asc"]],
+                paging: false,
+                info: false,
+                searching: false
+            });
         });
 
-        $('.headerNum').on("click", function () {
-            var itemTitle = $(this).find('span.itemText').html();
-            $('#descRowTip').html(itemTitle).show();
-            $('.headerNum').removeClass('selectedChItem');
-            $(this).addClass('selectedChItem');
+        document.querySelectorAll(".headerNum").forEach(header => {
+            header.addEventListener("click", function () {
+                const itemTitle = this.querySelector("span")?.textContent || "";
+                const descRowTip = document.getElementById("descRowTip");
+                if (descRowTip) {
+                    descRowTip.textContent = itemTitle;
+                    descRowTip.style.display = "";
+                }
+                document.querySelectorAll(".headerNum").forEach(item => item.classList.remove("selectedChItem"));
+                this.classList.add("selectedChItem");
+            });
         });
     };
-}(window.checklistProgress = window.checklistProgress || {}, jQuery));
+}(window.checklistProgress = window.checklistProgress || {}));

@@ -308,56 +308,31 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 };
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
-  var $table = this.$content.find(".gb-summary-grade-panel table");
+  const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  var stickyHeaderContainer = null;
-  if ($(".tab-pane.active .gb-summary-grade-panel").length == 1) {
-    stickyHeaderContainer = $(".tab-pane.active .gb-summary-grade-panel");
-  }
+  if (!table) return;
 
-  $table.tablesorter({
-    theme : "bootstrap",
-    widthFixed: false,
-    headerTemplate : '{content} {icon}',
-    widgets : [ "uitheme", "zebra", "stickyHeaders" ],
-    widgetOptions : {
-      zebra : ["even", "odd"],
-      //filter_reset : ".reset",
-      filter_hideFilters : true,
-      stickyHeaders_offset : 0,
-      stickyHeaders_cloneId : '-sticky',
-      stickyHeaders_addResizeEvent : true,
-      stickyHeaders_zIndex : 2,
-      stickyHeaders_attachTo : stickyHeaderContainer,
-      stickyHeaders_xScroll : null,
-      stickyHeaders_yScroll : null,
-      stickyHeaders_filteredToTop: true
-    },
-    sortReset   : true,
-    textExtraction: function(node) {
-      var $node = $(node);
-      // sort dates by data-sort-key
-      if ($node.is(".gb-summary-grade-duedate")) {
-        var time = $node.data("sort-key");
-        if (time == 0) {
-          // max integer value so assignments with no due date
-          // appear after those with due dates (to match GB1)
-          return Math.pow(2, 53)-1;
-        }
-        return time;
-      // sort grades by their raw grade
-      } else if ($node.is(".gb-summary-grade-score")) {
-        var grade = $node.find(".gb-summary-grade-score-raw").text().trim();
-        if (grade == "") {
-          return -1;
-        } else {
-          return grade;
-        }
-      }
+  table.querySelectorAll("td, th").forEach(node => {
+    let sortValue = node.textContent.trim();
 
-      return $(node).text().trim();
-    },
-    cssInfoBlock: "gb-summary-category-tbody"
+    if (node.classList.contains("gb-summary-grade-duedate")) {
+      const time = node.dataset.sortKey;
+      sortValue = time == 0 ? Number.MAX_SAFE_INTEGER : time;
+    } else if (node.classList.contains("gb-summary-grade-score")) {
+      sortValue = node.querySelector(".gb-summary-grade-score-raw")?.textContent.trim() || "-1";
+    }
+
+    node.setAttribute("data-order", sortValue);
+  });
+
+  sakaiDataTables.initIfNotEmpty(table, {
+    paging: false,
+    info: false,
+    searching: false,
+    order: [],
+    columnDefs: [
+      { targets: "_all", type: "sakai-data-order" }
+    ]
   });
 };
 
