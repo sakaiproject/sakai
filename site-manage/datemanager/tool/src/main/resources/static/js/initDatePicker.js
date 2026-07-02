@@ -436,10 +436,12 @@ DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
 };
 
 // Returns true when blank cells should also be filled. When false, only cells that already have a
-// date are overwritten and empty cells are left untouched. Driven by the "bulk-fill-mode" radios.
+// date are overwritten and empty cells are left untouched. Driven by the "bulk-fill-mode" radios;
+// defaults to the conservative existing-only mode when no radio is selected, matching the
+// template's checked option.
 DTMN.shouldFillEmptyCells = function() {
   const selected = document.querySelector('input[name="bulk-fill-mode"]:checked');
-  return !selected || selected.value !== "existing";
+  return selected != null && selected.value !== "existing";
 };
 
 // Fill every row of a single column (identified by data-field) within one section with the given date.

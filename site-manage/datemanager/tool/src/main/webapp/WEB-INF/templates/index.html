@@ -42,12 +42,12 @@
     <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
       <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When applying a date to a column:</span>
       <label class="me-3">
-        <input type="radio" name="bulk-fill-mode" value="all" checked />
-        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every cell (empty and existing)</span>
+        <input type="radio" name="bulk-fill-mode" value="existing" checked />
+        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only cells that already have a date</span>
       </label>
       <label>
-        <input type="radio" name="bulk-fill-mode" value="existing" />
-        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only cells that already have a date</span>
+        <input type="radio" name="bulk-fill-mode" value="all" />
+        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every cell (empty and existing)</span>
       </label>
     </div>
 
