@@ -405,10 +405,10 @@ public class ExportPanel extends BasePanel {
 							externalPrefix = IGNORE_COLUMN_PREFIX;
 						}
 						if (!isCustomExport || this.includeGradeItemScores) {
-							header.add(externalPrefix + a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, localeService.getDecimalSeparator() + "0") + "]");
+							header.add(externalPrefix + FormatHelper.htmlUnescape(a1.getName()) + " [" + StringUtils.removeEnd(assignmentPoints, localeService.getDecimalSeparator() + "0") + "]");
 						}
 						if (!isCustomExport || this.includeGradeItemComments) {
-							header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, a1.getName()));
+							header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, FormatHelper.htmlUnescape(a1.getName())));
 						}
 						
 						if (isCustomExport && this.includeCategoryAverages

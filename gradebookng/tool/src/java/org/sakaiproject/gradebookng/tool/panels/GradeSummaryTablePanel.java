@@ -261,7 +261,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						}
 
 						final Label title = new Label("title", assignment.getName());
-						assignmentItem.add(title);
+						assignmentItem.add(title.setEscapeModelStrings(false));
 
 						final BasePage page = (BasePage) getPage();
 
