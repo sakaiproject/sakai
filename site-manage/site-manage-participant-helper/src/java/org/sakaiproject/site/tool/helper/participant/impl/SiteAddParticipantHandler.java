@@ -810,9 +810,10 @@ public class SiteAddParticipantHandler {
 							updatedOfficialAccountParticipant.append(currentOfficialAccount).append("\n");
 						}
 					} else if (eidsForAllMatches.isEmpty()) {
-						// not valid user
+						// no such user: word the error by what was entered - a well-formed email
+						// that matches no account must not be called an invalid "username"
 						targettedMessageList.addMessage(new TargettedMessage(
-								"java.username",
+								officialAccount.contains(EMAIL_CHAR) ? "java.emailnotfound" : "java.username",
 								new Object[] {officialAccount},
 								TargettedMessage.SEVERITY_ERROR));
 					}
