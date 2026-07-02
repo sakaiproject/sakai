@@ -224,21 +224,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	}
 
 	/**
-	 * @return true when the tool is configured for LTI 1.3 or both (not LTI 1.1 only).
-	 */
-	private boolean isLti13Tool(String toolId, String siteId) {
-		if (StringUtils.isBlank(toolId)) {
-			return false;
-		}
-		try {
-			Map<String, Object> toolMap = ltiService.getTool(Long.valueOf(toolId), siteId);
-			return toolMap != null && SakaiLTIUtil.isLTI13(toolMap);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-	}
-
-	/**
 	 * Setup the velocity context and choose the template for the response.
 	 */
 	public String buildErrorPanelContext(VelocityPortlet portlet, Context context,
@@ -1110,7 +1095,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<LtiToolSiteBean> ltiToolSiteBeans = ltiService.getToolSitesByToolIdAsBeans(tool_id, getSiteId(state));
 		context.put("ltiToolSites", ltiToolSiteBeans);
 
-		boolean showDeploymentGroup = isLti13Tool(tool_id, getSiteId(state));
+		// The deployment group is shown for all tools so the deploy form is consistent
+		// regardless of the entry point (initial install, editing a saved tool, or the
+		// Deployment count link). It is only consumed for LTI 1.3 launches (deployment_id).
+		boolean showDeploymentGroup = true;
 		context.put("showDeploymentGroup", showDeploymentGroup);
 		int toolSiteActionSorterColumn = -1;
 		if (ltiService.isAdmin(getSiteId(state))) {
@@ -1153,7 +1141,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("previousPost", previousPost);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
-		context.put("showDeploymentGroup", isLti13Tool(toolId, getSiteId(state)));
+		// Always offer the deployment group field so deploying is consistent across
+		// entry points; it is only used for LTI 1.3 launches (deployment_id).
+		context.put("showDeploymentGroup", true);
 
 		// Remove previous form inputs
 		state.removeAttribute(STATE_POST);
@@ -1229,8 +1219,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<String> insertErrorMessages = new ArrayList<>();
 
 		String adminSiteId = getSiteId(state);
-		boolean isLti13 = isLti13Tool(toolId, adminSiteId);
-		String deploymentGroup = isLti13 ? StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI_DEPLOYMENT_GROUP)) : null;
+		// Persist the deployment group whenever one is supplied; it is only consumed for
+		// LTI 1.3 launches, so it is harmless (and forward-compatible) for other tools.
+		String deploymentGroup = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI_DEPLOYMENT_GROUP));
 
 		for (String inputSiteId : uniqueInputSiteIds) {
 			Properties props = new Properties();
@@ -1302,7 +1293,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		formOutput += formOutput2;
 		context.put("formOutput", formOutput);
 
-		boolean showDeploymentGroup = isLti13Tool(toolId, getSiteId(state));
+		boolean showDeploymentGroup = true;
 		context.put("showDeploymentGroup", showDeploymentGroup);
 		String excludeToolSiteInput = showDeploymentGroup ? "^SITE_ID:.*" : "^SITE_ID:.*|^deployment_group:.*";
 		String[] mappingFormInput = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), null, excludeToolSiteInput);
@@ -1335,10 +1326,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// find the tool id
 		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
 		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
-
-		if (!isLti13Tool(toolId, getSiteId(state))) {
-			reqProps.remove(LTIService.LTI_DEPLOYMENT_GROUP);
-		}
 
 		// Save to DB
 		Object retval = ltiService.updateToolSite(Long.valueOf(id), reqProps, getSiteId(state));
@@ -1391,7 +1378,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String formOutput = ltiService.formOutput(toolBean, mappingFormOutput);
 
 		// Display toolSite attributes (Read-only)
-		boolean showDeploymentGroup = isLti13Tool(toolId, getSiteId(state));
+		boolean showDeploymentGroup = true;
 		context.put("showDeploymentGroup", showDeploymentGroup);
 		String includeToolSiteDeleteFields = showDeploymentGroup
 				? "^SITE_ID:.*|^notes:.*|^deployment_group:.*"
