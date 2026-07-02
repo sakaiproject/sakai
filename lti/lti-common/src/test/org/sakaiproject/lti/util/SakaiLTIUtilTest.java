@@ -517,7 +517,7 @@ public class SakaiLTIUtilTest {
 
 		Map<String, List<String>> roleMap = SakaiLTIUtil.convertInboundRoleMapPropToMap(SakaiLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT);
 		assertTrue(roleMap instanceof Map);
-		assertEquals(roleMap.size(), 9);
+		assertEquals(roleMap.size(), 18);
 		assertTrue(roleMap.get("Yada") == null);
 
 		List<String> roleList = roleMap.get("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner");

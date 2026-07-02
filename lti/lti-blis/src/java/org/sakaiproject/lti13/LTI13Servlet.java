@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -1335,6 +1336,15 @@ public class LTI13Servlet extends HttpServlet {
 
 		int start = NumberUtils.toInt(request.getParameter("start"), 0);
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
+		String roleFilter = StringUtils.trimToNull(request.getParameter("role"));
+
+		if (roleFilter != null) {
+			// Trim the LTI1.3 role down to just the role name. No need for the fully qualified
+			// role. This makes things more readable and gives us the added benefit that we don't
+			// need to url encode the next header links.
+			int lastHashIndex = roleFilter.startsWith(LTI13ConstantsUtil.MEMBERSHIP_BASE) ? roleFilter.lastIndexOf("#") : -1;
+			if (lastHashIndex != -1 && roleFilter.length() > lastHashIndex + 1) roleFilter = roleFilter.substring(lastHashIndex + 1);
+		}
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -1416,6 +1426,17 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			boolean success = false;
 
+			List<String> mappedSakaiRoles = null;
+			if (roleFilter != null) {
+				Map<String, List<String>> propInboundMap = SakaiLTIUtil.convertInboundRoleMapPropToMap(
+					ServerConfigurationService.getString(
+						SakaiLTIUtil.LTI_INBOUND_ROLE_MAP,
+						SakaiLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT
+					)
+				);
+				mappedSakaiRoles = propInboundMap.get(roleFilter);
+			}
+
 			List<Map<String, Object>> lm = new ArrayList<>();
 
 			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
@@ -1424,6 +1445,7 @@ public class LTI13Servlet extends HttpServlet {
 			List<String> userIds = new ArrayList<>();
 			for (Member member : members) {
 				if ( ! member.isActive() ) continue;
+				if (mappedSakaiRoles != null && !mappedSakaiRoles.contains(member.getRole().getId())) continue;
 				userIds.add(member.getUserId());
 				memberMap.put(member.getUserId(), member);
 			}
@@ -1464,6 +1486,7 @@ public class LTI13Servlet extends HttpServlet {
 				// /imsblis/lti13/namesandroles/context:6
 				String linkHeader = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement + "?start=" + next;
 				if ( limit > 0 ) linkHeader += "&limit=" + limit;
+				if ( roleFilter != null)  linkHeader += "&role=" + roleFilter;
 				linkHeader = "<" + linkHeader + ">; rel=\"next\"";
 				log.debug("Link: {}", linkHeader);
 			    response.addHeader("Link", linkHeader);
@@ -1572,9 +1595,7 @@ public class LTI13Servlet extends HttpServlet {
 						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
 						out.println(" \"context\" : ");
-						if (log.isDebugEnabled()) {
-						    log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
-						}
+						log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
 						out.print(JacksonUtil.prettyPrint(context_obj));
 						out.println(",");
 						out.println(" \"members\": [");
@@ -1582,9 +1603,8 @@ public class LTI13Servlet extends HttpServlet {
 						out.println(",");
 				}
 
-				if (log.isDebugEnabled()) {
-				    log.debug("jo={}", JacksonUtil.prettyPrint(jo));
-				}
+				log.debug("jo={}", JacksonUtil.prettyPrint(jo));
+
 				out.print(JacksonUtil.prettyPrint(jo));
 				current++;
 

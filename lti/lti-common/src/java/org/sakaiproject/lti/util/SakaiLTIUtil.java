@@ -216,48 +216,47 @@ public class SakaiLTIUtil {
 	public static final String LTI_OUTBOUND_ROLE_MAP_DEFAULT =
 		// Admin is weird - tools that are simple see them as Instructors, more complex tools know both roles
 		// And we send legacy LTI 1.0 roles as well
-		"admin:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor," +
-			"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor," +
+		"admin:Instructor," + LTI13ConstantsUtil.ROLE_INSTRUCTOR + "," +
+			LTI13ConstantsUtil.ROLE_INSTRUCTOR + "," +
 			"Administrator," +
 			"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator," +
 			"http://purl.imsglobal.org/vocab/lis/v2/system/person#Administrator;" +
 		// !site.template roles
-		"access:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
-		"maintain:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		"access:Learner," + LTI13ConstantsUtil.ROLE_LEARNER + ";" +
+		"maintain:Instructor," + LTI13ConstantsUtil.ROLE_INSTRUCTOR + ";" +
 		// !site.template.course roles
-		"Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
-		"Student:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		"Instructor:Instructor," + LTI13ConstantsUtil.ROLE_INSTRUCTOR + ";" +
+		"Student:Learner," + LTI13ConstantsUtil.ROLE_LEARNER + ";" +
 		// A blank *is* part of the Sakai role and *is not* part of the LTI role
-		"Teaching Assistant:TeachingAssistant,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;" +
+		"Teaching Assistant:TeachingAssistant," + LTI13ConstantsUtil.MEMBERSHIP_BASE + "#Instructor#TeachingAssistant;" +
 		// !site.template.lti roles - The simplest mapping :)
-		"Learner:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
-		"Mentor:Mentor,http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;" +
-		"ContentDeveloper:ContentDeveloper,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;"
+		"Learner:Learner," + LTI13ConstantsUtil.ROLE_LEARNER + ";" +
+		"Mentor:Mentor," + LTI13ConstantsUtil.ROLE_MENTOR + ";" +
+		"ContentDeveloper:ContentDeveloper," + LTI13ConstantsUtil.ROLE_CONTENTDEVELOPER + ";"
 	;
 
 	public static final String LTI_INBOUND_ROLE_MAP = "lti.inbound.role.map";
 	public static final String LTI_INBOUND_ROLE_MAP_DEFAULT =
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper=ContentDeveloper,Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant=Teaching Assistant,Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Learner=Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor=Mentor,Teaching Assistant,Learner,Student,access;" +
-
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Manager=Manager,Guest,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Member=Member,Guest,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Officer,Guest,Student,access;"
+		LTI13ConstantsUtil.ROLE_ADMINISTRATOR + "=Instructor,maintain;" +
+		LTI13ConstantsUtil.ROLE_CONTENTDEVELOPER + "=ContentDeveloper,Instructor,maintain;" +
+		LTI13ConstantsUtil.MEMBERSHIP_BASE + "#Instructor#TeachingAssistant=Teaching Assistant,Instructor,maintain;" +
+		LTI13ConstantsUtil.ROLE_INSTRUCTOR + "=Instructor,maintain;" +
+		LTI13ConstantsUtil.ROLE_LEARNER + "=Learner,Student,access;" +
+		LTI13ConstantsUtil.ROLE_MENTOR + "=Mentor,Teaching Assistant,Learner,Student,access;" +
+		LTI13ConstantsUtil.ROLE_MANAGER + "=Manager,Guest,Student,access;" +
+		LTI13ConstantsUtil.ROLE_MEMBER + "=Member,Guest,Student,access;" +
+		LTI13ConstantsUtil.ROLE_OFFICER + "=Officer,Guest,Student,access;"
 	;
 
 	public static final String LTI_LEGACY_ROLE_MAP = "lti.legacy.role.map";
 	public static final String LTI_LEGACY_ROLE_MAP_DEFAULT =
-		"Learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
-		"learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
-		"Instructor=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
-		"instructor=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		"Learner=" + LTI13ConstantsUtil.ROLE_LEARNER + ";" +
+		"learner=" + LTI13ConstantsUtil.ROLE_LEARNER + ";" +
+		"Instructor=" + LTI13ConstantsUtil.ROLE_INSTRUCTOR + ";" +
+		"instructor=" + LTI13ConstantsUtil.ROLE_INSTRUCTOR + ";" +
 		"TeachingAssistant=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;" +
-		"Mentor=http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;" +
-		"ContentDeveloper=http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;" +
+		"Mentor=" + LTI13ConstantsUtil.ROLE_MENTOR + ";" +
+		"ContentDeveloper=" + LTI13ConstantsUtil.ROLE_CONTENTDEVELOPER + ";" +
 		"Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
 		"urn:lti:sysrole:ims/lis/Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
 		"urn:lti:instrole:ims/lis/Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;"
@@ -3792,11 +3791,16 @@ public class SakaiLTIUtil {
 		String delim = ";";
 		String[] roleMapPairs = roleMapProp.split(delim);
 		for (String s : roleMapPairs) {
-			if ( s.trim().length() < 1 ) continue;
+			if ( StringUtils.isBlank(s) ) continue;
 			String[] roleMapPair = s.split("=", 2);
 			if (roleMapPair.length != 2) continue;
 			String[] sakaiRoles = roleMapPair[1].trim().split(",");
 			roleMap.put(roleMapPair[0].trim(), List.of(sakaiRoles));
+
+			// Let's also add a mapping for the short version of the LTI role
+			int hashIndex = roleMapPair[0].lastIndexOf("#");
+			String shortLTIRole = roleMapPair[0].substring(hashIndex + 1);
+			roleMap.put(shortLTIRole.trim(), List.of(sakaiRoles));
 		}
 		return roleMap;
 	}
