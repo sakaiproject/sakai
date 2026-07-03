@@ -1469,8 +1469,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		String maintainRole = site.getMaintainRole();
 
-		PrintWriter out = null;
-
 		String nrpsUserId = ServerConfigurationService.getString(
 				"lti.nrps.userid", "admin");
 		String nrpsUserEid = ServerConfigurationService.getString(
@@ -1553,6 +1551,20 @@ public class LTI13Servlet extends HttpServlet {
 				SakaiLTIUtil.addSiteInfo(new Properties(), baseSubst, site);
 			}
 
+			response.setContentType(APPLICATION_JSON);
+			PrintWriter out = response.getWriter();
+			JSONObject context_obj = new JSONObject();
+			context_obj.put("id", site.getId());
+			context_obj.put("title", site.getTitle());
+
+			out.println("{");
+			String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+			out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
+			out.println(" \"context\" : ");
+			log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
+			out.print(JacksonUtil.prettyPrint(context_obj));
+			out.println(",");
+			out.println(" \"members\": [");
 
 			ProfileService profileService = ComponentManager.get(ProfileService.class);
 
@@ -1708,38 +1720,14 @@ public class LTI13Servlet extends HttpServlet {
 					jo.put("message", messageArray);
 				}
 
-				if (out == null) {
-					JSONObject context_obj = new JSONObject();
-					context_obj.put("id", site.getId());
-					context_obj.put("title", site.getTitle());
+				if (current > 0) out.println(",");
 
-					response.setContentType(APPLICATION_JSON);
-					out = response.getWriter();
-					out.println("{");
-					String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
-					out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
-					out.println(" \"context\" : ");
-					if (log.isDebugEnabled()) {
-						log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
-					}
-					out.print(JacksonUtil.prettyPrint(context_obj));
-					out.println(",");
-					out.println(" \"members\": [");
-				} else {
-					out.println(",");
-				}
-
-				if (log.isDebugEnabled()) {
-				    log.debug("jo={}", JacksonUtil.prettyPrint(jo));
-				}
+				log.debug("jo={}", JacksonUtil.prettyPrint(jo));
 				out.print(JacksonUtil.prettyPrint(jo));
 				current++;
-
 			}
-			if ( out != null ) {
-				out.println("");
-				out.println(" ] }");
-			}
+			out.println("");
+			out.println(" ] }");
 		} finally {
 			if (sess != null) {
 				sess.setUserId(originalUserId);
