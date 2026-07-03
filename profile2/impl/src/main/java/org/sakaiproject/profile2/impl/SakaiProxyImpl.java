@@ -367,6 +367,18 @@ public class SakaiProxyImpl implements SakaiProxy {
     }
 
     @Override
+    public boolean isEmailDuplicate(final String userId, final String email) {
+
+        if (StringUtils.isBlank(email)
+                || this.serverConfigurationService.getBoolean("user.email.allowduplicates", true)) {
+            return false;
+        }
+
+        return this.userDirectoryService.findUsersByEmail(StringUtils.trim(email)).stream()
+                .anyMatch(user -> !StringUtils.equals(user.getId(), userId));
+    }
+
+    @Override
     public void updateNameForUser(String userId, String firstName, String lastName) {
 
         try {

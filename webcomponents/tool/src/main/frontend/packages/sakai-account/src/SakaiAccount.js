@@ -108,7 +108,9 @@ export class SakaiAccount extends SakaiElement {
           return r.json();
         }
 
-        throw new Error(`Network error while patching to ${url}`);
+        const error = new Error(`Network error while patching to ${url}`);
+        error.status = r.status;
+        throw error;
       })
       .then(profile => this._profile = profile);
   }
@@ -233,7 +235,13 @@ export class SakaiAccount extends SakaiElement {
     })
     .catch(err => {
 
-      console.error(err);
+      if (err.status === 409) {
+        this._currentError = this._i18n.email_in_use;
+        this._emailInvalid = true;
+      } else {
+        console.error(err);
+        this._currentError = this._i18n.contact_info_error;
+      }
       this._displayContactInfoErrorBanner = true;
     });
   }
@@ -317,6 +325,7 @@ export class SakaiAccount extends SakaiElement {
     .catch(err => {
 
       console.error(err);
+      this._currentError = this._i18n.social_info_error;
       this._displaySocialInfoErrorBanner = true;
     });
   }

@@ -127,6 +127,14 @@ public class ProfileController extends AbstractSakaiApiController {
         try {
             JsonNode patched = patch.apply(jsonMapper.convertValue(profile, JsonNode.class));
             ProfileTransferBean patchedProfile = jsonMapper.treeToValue(patched, ProfileTransferBean.class);
+
+            // A change to an email that is already used by another account is rejected with a 409
+            if (StringUtils.isNotBlank(patchedProfile.email)
+                    && !StringUtils.equalsIgnoreCase(StringUtils.trim(patchedProfile.email), StringUtils.trim(profile.email))
+                    && profileService.isEmailDuplicate(userId, patchedProfile.email)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+
             profileService.saveUserProfile(patchedProfile);
 
             patchedProfile = profileService.getUserProfile(userId);

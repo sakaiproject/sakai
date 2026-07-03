@@ -15,6 +15,7 @@ change_profile_picture=Change picture
 first_name_label=First Name
 last_name_label=Last Name
 email_label=Email
+email_in_use=The email is already in use
 name_recording_label=Name Recording
 nickname_label=Nickname
 pronouns_label=Pronouns

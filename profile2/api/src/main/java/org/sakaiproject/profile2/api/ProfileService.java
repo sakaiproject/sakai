@@ -70,6 +70,16 @@ public interface ProfileService {
     void assertCanModifyProfile(String userUuid);
 
     /**
+     * Check whether the given email address is already used by another user. Honours the
+     * <code>user.email.allowduplicates</code> server property.
+     *
+     * @param userId uuid of the user attempting to use the email (excluded from the check)
+     * @param email  the email address to check
+     * @return true if another user already uses this email and duplicates are not allowed
+     */
+    boolean isEmailDuplicate(String userId, String email);
+
+    /**
      * Check if a user has a pronunciation recording. This call does not get the actual bytes, it
      * just checks if the resource exists.
      *

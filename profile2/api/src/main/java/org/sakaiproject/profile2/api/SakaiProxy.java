@@ -227,6 +227,17 @@ public interface SakaiProxy {
 	void updateEmailForUser(String userId, String email);
 
 	/**
+	 * Check if the given email address is already used by another user. Honours the
+	 * <code>user.email.allowduplicates</code> server property; when duplicates are allowed this
+	 * always returns false.
+	 *
+	 * @param userId uuid of the user that is attempting to use the email (excluded from the check)
+	 * @param email  the email address to check
+	 * @return true if another user already uses this email and duplicates are not allowed, false otherwise
+	 */
+	boolean isEmailDuplicate(String userId, String email);
+
+	/**
 	 * Updates a user's name If the user is a provided user (ie from LDAP) this will probably fail so only internal accounts can be updated.
 	 *
 	 * @param userId uuid of the user

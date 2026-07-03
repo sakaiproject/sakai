@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.profile2.impl.test;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.ProfileImage;
@@ -36,6 +38,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -61,6 +64,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private SocialNetworkingInfoRepository socialNetworkingInfoRepository;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private PreferencesService preferencesService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
     private String user1Id = UUID.randomUUID().toString();
     private String user2Id = UUID.randomUUID().toString();
@@ -75,6 +79,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
       reset(sessionManager);
       reset(contentHostingService);
       reset(preferencesService);
+      reset(serverConfigurationService);
 
       user1 = mock(User.class);
       when(user1.getCreatedBy()).thenReturn(user1);
@@ -362,5 +367,72 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(facebookUrl, userProfile.facebookUrl);
         assertEquals(instagramUrl, userProfile.instagramUrl);
         assertEquals(linkedinUrl, userProfile.linkedinUrl);
+    }
+
+    @Test
+    public void saveUserProfileUpdatesAccountEmail() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
+        when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(Optional.of(mock(SakaiPerson.class)));
+
+        UserEdit userEdit = mock(UserEdit.class);
+        when(userDirectoryService.editUser(user1Id)).thenReturn(userEdit);
+        when(serverConfigurationService.getBoolean("user.email.allowduplicates", true)).thenReturn(true);
+
+        ProfileTransferBean userProfile = profileService.getUserProfile(user1Id);
+        String newEmail = "newaddress@mailinator.com";
+        userProfile.email = newEmail;
+
+        profileService.saveUserProfile(userProfile);
+
+        verify(userEdit).setEmail(newEmail);
+        verify(userDirectoryService).commitEdit(userEdit);
+    }
+
+    @Test
+    public void saveUserProfileDiscardsDuplicateEmail() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
+        when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(Optional.of(mock(SakaiPerson.class)));
+
+        UserEdit userEdit = mock(UserEdit.class);
+        when(userDirectoryService.editUser(user1Id)).thenReturn(userEdit);
+
+        // user2 already has this email and duplicates are not allowed
+        String duplicateEmail = "user2@mailinator.com";
+        User user2 = mock(User.class);
+        when(user2.getId()).thenReturn(user2Id);
+        when(serverConfigurationService.getBoolean("user.email.allowduplicates", true)).thenReturn(false);
+        when(userDirectoryService.findUsersByEmail(duplicateEmail)).thenReturn(List.of(user2));
+
+        ProfileTransferBean userProfile = profileService.getUserProfile(user1Id);
+        userProfile.email = duplicateEmail;
+
+        profileService.saveUserProfile(userProfile);
+
+        verify(userEdit, never()).setEmail(anyString());
+        verify(userDirectoryService, never()).commitEdit(any());
+    }
+
+    @Test
+    public void isEmailDuplicateHonoursAllowDuplicatesProperty() {
+
+        String email = "user2@mailinator.com";
+        User user2 = mock(User.class);
+        when(user2.getId()).thenReturn(user2Id);
+        when(userDirectoryService.findUsersByEmail(email)).thenReturn(List.of(user2));
+
+        // Another user has the email and duplicates are not allowed
+        when(serverConfigurationService.getBoolean("user.email.allowduplicates", true)).thenReturn(false);
+        assertTrue(profileService.isEmailDuplicate(user1Id, email));
+
+        // The only user with the email is the user themselves
+        assertFalse(profileService.isEmailDuplicate(user2Id, email));
+
+        // Duplicates are allowed globally
+        when(serverConfigurationService.getBoolean("user.email.allowduplicates", true)).thenReturn(true);
+        assertFalse(profileService.isEmailDuplicate(user1Id, email));
     }
 }

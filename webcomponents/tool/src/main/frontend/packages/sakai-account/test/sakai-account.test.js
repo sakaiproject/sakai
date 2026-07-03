@@ -356,19 +356,59 @@ describe("sakai-account tests", () => {
   it ("displays an error banner when a user fails to update their basic details", async () => {
 
     const profile = { ...data.emptyProfile, firstName: "Adrian", lastName: "Fish", nickname: "Fishy", pronouns: "he/him" };
-    displayErrorBannerTest(profile, "basic");
+    await displayErrorBannerTest(profile, "basic");
   });
 
   it ("displays an error banner when a user fails to update their contact details", async () => {
 
     const profile = { ...data.emptyProfile, email: "adrian@mailinator.com", mobile: "0483 4444" };
-    displayErrorBannerTest(profile, "contact");
+    await displayErrorBannerTest(profile, "contact");
+  });
+
+  it ("displays an email in use error when the email belongs to another user", async () => {
+
+    const profile = { ...data.emptyProfile, email: "adrian@mailinator.com", mobile: "0483 4444" };
+    fetchMock.get(data.profileUrl, profile);
+
+    const el = await fixture(html`
+      <sakai-account user-id="${data.userId}"></sakai-account>
+    `);
+
+    await elementUpdated(el);
+
+    await waitUntil(() => el.renderRoot.querySelectorAll(".content")[0]);
+
+    el.renderRoot.querySelector("#contact-info-edit-button").click();
+
+    await elementUpdated(el);
+
+    fetchMock.patch(data.profileUrl, 409, { name: "patchRequest" });
+
+    el.renderRoot.querySelector("#email-input").value = "userb@mailinator.com";
+
+    const consoleSpy = spy(console, "error");
+
+    el.renderRoot.querySelector("#contact-info-save-button").click();
+
+    await elementUpdated(el);
+
+    await waitUntil(() => el.renderRoot.querySelector(".sak-banner-error"));
+
+    expect(el.renderRoot.querySelector(".sak-banner-error").textContent).to.equal(el._i18n.email_in_use);
+
+    // The edit form is still showing and the change was discarded
+    expect(el.renderRoot.querySelector("#contact-info-save-button")).to.exist;
+    expect(el._profile.email).to.equal(profile.email);
+
+    // A 409 is an expected outcome, not an error worth logging
+    expect(consoleSpy.notCalled).to.be.true;
+    consoleSpy.restore();
   });
 
   it ("displays an error banner when a user fails to update their social details", async () => {
 
     const profile = { ...data.emptyProfile, facebookUrl: "https://facebook.com/adrian", linkedinUrl: "https://linkedin.com/adrian", instagramUrl: "https://instagram.com/adrian" };
-    displayErrorBannerTest(profile, "social");
+    await displayErrorBannerTest(profile, "social");
   });
 
   async function displayErrorBannerTest(profile, prefix) {
@@ -397,7 +437,7 @@ describe("sakai-account tests", () => {
 
     await waitUntil(() => el.renderRoot.querySelector(".sak-banner-error"));
 
-    expect(el.renderRoot.querySelector(".sak-banner-error").textContent).to.equal(el._i18n.contact_info_error);
+    expect(el.renderRoot.querySelector(".sak-banner-error").textContent).to.equal(el._i18n[`${prefix}_info_error`]);
 
     expect(consoleSpy.calledOnce).to.be.true;
     consoleSpy.restore();
