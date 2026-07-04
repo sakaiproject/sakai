@@ -467,7 +467,7 @@ DTMN.fillColumn = function(rootElementId, field, date, updates, notModified, fil
       return;
     }
 
-    // "Only cells that already have a date" mode: leave blanks alone.
+    // "Only update items that already have a date" mode: leave blanks alone.
     if (!fillEmpty && hiddenField.value === "") {
       return;
     }
@@ -557,7 +557,7 @@ DTMN.getTermHiddenId = function(term) {
   return "term-hidden-" + term.replaceAll("_", "-");
 };
 
-// Default term-date -> column mapping applied on load so a fresh Bulk Term Date Matrix arrives pre-checked with
+// Default term-date -> column mapping applied on load so a fresh Term Dates panel arrives pre-checked with
 // sane targets: the term's earliest date (Classes Start) fills every open/start column, and the latest
 // (Exam Ends) fills every due/close column. The instructor can tick or untick freely from there.
 DTMN.defaultTermTargets = {
@@ -632,7 +632,7 @@ DTMN.termHasActionableInput = function() {
 };
 
 // Like termHasActionableInput, but only counts a checked target whose section is currently expanded.
-// The "apply to expanded sections only" path skips collapsed sections, so without this the button could
+// The "apply only to tools expanded below" path skips collapsed sections, so without this the button could
 // be enabled while every checked column lives in a collapsed section, making the click a no-op.
 DTMN.termHasActionableInputInExpandedSections = function() {
   return DTMN.termFields.some(function(term) {
