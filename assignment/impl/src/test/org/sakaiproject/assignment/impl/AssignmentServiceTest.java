@@ -2033,6 +2033,105 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void latePenaltyAppliedToLateSubmission() throws Exception {
+        when(formattedText.getDecimalSeparator()).thenReturn(".");
+        configureScale(100, Locale.ENGLISH);
+
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = createNewSubmission(context, submitterId, null);
+        Assignment assignment = submission.getAssignment();
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setScaleFactor(100);
+        assignment.setDueDate(Instant.now().minus(Duration.ofDays(3)));
+        submission.setGrade("8550");
+
+        // 30 hours late with a 2 points/day penalty rounds up to 2 days: 85.50 - 4 = 81.50
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_TYPE, "PER_DAY");
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_VALUE, "2");
+        submission.setDateSubmitted(assignment.getDueDate().plus(Duration.ofHours(30)));
+        Assert.assertEquals("81.50", assignmentService.getGradeForSubmitter(submission, submitterId));
+
+        // flat penalty: 85.50 - 5 = 80.50 regardless of how late
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_TYPE, "FLAT");
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_VALUE, "5");
+        Assert.assertEquals("80.50", assignmentService.getGradeForSubmitter(submission, submitterId));
+
+        // on-time submission is untouched
+        submission.setDateSubmitted(assignment.getDueDate().minus(Duration.ofHours(1)));
+        Assert.assertEquals("85.50", assignmentService.getGradeForSubmitter(submission, submitterId));
+    }
+
+    @Test
+    public void latePenaltyIgnoredWithSubmissionFlag() throws Exception {
+        when(formattedText.getDecimalSeparator()).thenReturn(".");
+        configureScale(100, Locale.ENGLISH);
+
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = createNewSubmission(context, submitterId, null);
+        Assignment assignment = submission.getAssignment();
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setScaleFactor(100);
+        assignment.setDueDate(Instant.now().minus(Duration.ofDays(3)));
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_TYPE, "FLAT");
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_VALUE, "5");
+        submission.setDateSubmitted(assignment.getDueDate().plus(Duration.ofHours(30)));
+        submission.setGrade("8550");
+        submission.getProperties().put(AssignmentConstants.IGNORE_LATE_PENALTY, "true");
+
+        Assert.assertEquals("85.50", assignmentService.getGradeForSubmitter(submission, submitterId));
+    }
+
+    @Test
+    public void latePenaltyNotAppliedToNonPointsAssignment() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = createNewSubmission(context, submitterId, null);
+        Assignment assignment = submission.getAssignment();
+        assignment.setTypeOfGrade(Assignment.GradeType.PASS_FAIL_GRADE_TYPE);
+        assignment.setDueDate(Instant.now().minus(Duration.ofDays(3)));
+        // stale penalty config (e.g. grade type changed after configuration) must be inert
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_TYPE, "FLAT");
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_VALUE, "5");
+        submission.setDateSubmitted(assignment.getDueDate().plus(Duration.ofHours(30)));
+        submission.setGrade("pass");
+
+        Assert.assertEquals("Pass", assignmentService.getGradeForSubmitter(submission, submitterId));
+    }
+
+    @Test
+    public void latePenaltyAppliedToGroupOverrideGrades() throws Exception {
+        when(formattedText.getDecimalSeparator()).thenReturn(".");
+        configureScale(100, Locale.ENGLISH);
+
+        String context = UUID.randomUUID().toString();
+        String groupSubmitter = UUID.randomUUID().toString();
+        String submitter1 = UUID.randomUUID().toString();
+        String submitter2 = UUID.randomUUID().toString();
+        Set<String> submitters = new HashSet<>();
+        submitters.add(submitter1);
+        submitters.add(submitter2);
+        AssignmentSubmission submission = createNewGroupSubmission(context, groupSubmitter, submitters);
+        Assignment assignment = submission.getAssignment();
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        assignment.setScaleFactor(100);
+        assignment.setDueDate(Instant.now().minus(Duration.ofDays(3)));
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_TYPE, "FLAT");
+        assignment.getProperties().put(AssignmentConstants.LATE_PENALTY_VALUE, "5");
+        submission.setDateSubmitted(assignment.getDueDate().plus(Duration.ofHours(1)));
+        submission.setGrade("8550");
+        submission.getSubmitters().stream()
+                .filter(s -> s.getSubmitter().equals(submitter1))
+                .findAny().get().setGrade("9000");
+
+        // the per-submitter override is penalized too: 90.00 - 5 = 85.00
+        Assert.assertEquals("85.00", assignmentService.getGradeForSubmitter(submission, submitter1));
+        // the other member gets the penalized group grade: 85.50 - 5 = 80.50
+        Assert.assertEquals("80.50", assignmentService.getGradeForSubmitter(submission, submitter2));
+    }
+
+    @Test
     public void peerAssignmentDateTests() {
 
         // Setup a new Assignment

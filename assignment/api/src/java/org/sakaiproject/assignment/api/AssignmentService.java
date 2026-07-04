@@ -760,6 +760,18 @@ public interface AssignmentService extends EntityProducer {
     String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
 
     /**
+     * SAK-15574 the late penalty that applies to this submission, as a display
+     * formatted point amount (e.g. "4.5"), for surfacing in grading UIs. Does
+     * not consider the per-submission {@link AssignmentConstants#IGNORE_LATE_PENALTY}
+     * waiver, so the amount can still be shown alongside the waiver control.
+     *
+     * @param submission the submission
+     * @return the penalty amount, or null when no penalty applies (no penalty
+     *         configured, not a points assignment, or the submission isn't late)
+     */
+    String getLatePenaltyDisplay(AssignmentSubmission submission);
+
+    /**
      * Returns true if this submitter has an overridden grade. This is useful as it avoids
      * bug prone comparisons of the submission grade and individual submitter grades
      *

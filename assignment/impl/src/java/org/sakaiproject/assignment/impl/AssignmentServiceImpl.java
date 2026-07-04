@@ -87,6 +87,8 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.ContentReviewResult;
+import org.sakaiproject.assignment.api.LatePenaltyCalculator;
+import org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyType;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnGroup;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnUser;
@@ -3713,7 +3715,37 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
+
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            LatePenaltyType penaltyType = LatePenaltyType.fromString(assignment.getProperties().get(LATE_PENALTY_TYPE));
+            if (penaltyType != null) {
+                boolean ignorePenalty = Boolean.parseBoolean(submission.getProperties().get(IGNORE_LATE_PENALTY));
+                grade = LatePenaltyCalculator.applyLatePenalty(grade, scale, penaltyType,
+                        assignment.getProperties().get(LATE_PENALTY_VALUE),
+                        assignment.getDueDate(), submission.getDateSubmitted(), ignorePenalty);
+            }
+        }
+
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
+    }
+
+    @Override
+    public String getLatePenaltyDisplay(AssignmentSubmission submission) {
+        if (submission == null) return null;
+
+        Assignment assignment = submission.getAssignment();
+        if (assignment.getTypeOfGrade() != Assignment.GradeType.SCORE_GRADE_TYPE) return null;
+
+        LatePenaltyType penaltyType = LatePenaltyType.fromString(assignment.getProperties().get(LATE_PENALTY_TYPE));
+        if (penaltyType == null) return null;
+
+        Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
+        long penalty = LatePenaltyCalculator.penaltyScaled(scale, penaltyType,
+                assignment.getProperties().get(LATE_PENALTY_VALUE),
+                assignment.getDueDate(), submission.getDateSubmitted());
+        if (penalty == 0) return null;
+
+        return getGradeDisplay(Long.toString(penalty), Assignment.GradeType.SCORE_GRADE_TYPE, scale);
     }
 
     public boolean isGradeOverridden(AssignmentSubmission submission, String submitter) {
