@@ -29,6 +29,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,6 +72,11 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        return mock(LocaleService.class);
     }
 
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")

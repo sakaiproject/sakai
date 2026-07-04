@@ -107,7 +107,10 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -126,6 +129,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private CourseManagementService courseManagementService;
 	@Setter private EditorRegistry editorRegistry;
 	@Setter private EventTrackingService eventTrackingService;
+	@Setter private LocaleService localeService;
+	@Setter private MemoryService memoryService;
 	@Setter private PinnedSiteRepository pinnedSiteRepository;
 	@Setter private PreferencesService preferencesService;
 	@Setter private RecentSiteRepository recentSiteRepository;
@@ -143,12 +148,16 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
-	private static final long TERM_TOKENS_CACHE_TTL_MS = 10 * 60 * 1000L;
-	private final Map<String, TermTokensCacheEntry> termTokensCache = new ConcurrentHashMap<>();
+	private static final long TERM_TOKENS_CACHE_TTL_SECONDS = 10 * 60;
+	private static final long TERM_TOKENS_CACHE_MAX_ENTRIES = 5000;
+	private Cache<String, String> termTokensCache;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 
 	public void init() {
+		termTokensCache = memoryService.createCache(
+				"org.sakaiproject.portal.api.PortalService.termTokensCache",
+				new SimpleConfiguration<>(TERM_TOKENS_CACHE_MAX_ENTRIES, TERM_TOKENS_CACHE_TTL_SECONDS, 0));
 		try {
 			// configure the parser for castor, before anything else get a chance
 			Properties castorProperties = LocalConfiguration.getDefault();
@@ -658,38 +667,36 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		String termEid = StringUtils.trimToNull(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
-		Locale locale = new ResourceLoader().getLocale();
+		Locale locale = localeService.getLocaleForCurrentSiteAndUser();
 		// the {{today}} value makes entries date-sensitive, so the local date is part of the key
 		String cacheKey = site.getId() + "|" + StringUtils.defaultString(termEid) + "|" + locale + "|"
 				+ userTimeService.getLocalTimeZone().getID() + "|" + isoDate(new Date());
 
-		TermTokensCacheEntry entry = termTokensCache.get(cacheKey);
-		if (entry == null || System.currentTimeMillis() - entry.created() > TERM_TOKENS_CACHE_TTL_MS) {
-			String fields;
+		String siteFields = termTokensCache != null ? termTokensCache.get(cacheKey) : null;
+		if (siteFields == null) {
 			try {
-				fields = buildSiteTokenFields(site, termEid, locale);
+				siteFields = buildSiteTokenFields(site, termEid, locale);
 			} catch (Exception e) {
 				// never let a term lookup problem break page rendering
 				log.warn("Could not build the term tokens for term {}", termEid, e);
-				fields = "";
+				siteFields = "";
 			}
-			entry = new TermTokensCacheEntry(System.currentTimeMillis(), fields);
-			termTokensCache.put(cacheKey, entry);
+			if (termTokensCache != null) {
+				termTokensCache.put(cacheKey, siteFields);
+			}
 		}
 
 		// viewer-specific values are session-scoped and never shared, so they stay out of the cache
 		String viewerFields = buildViewerTokenFields();
 
-		if (entry.fields().isEmpty() && viewerFields.isEmpty()) return "";
+		if (siteFields.isEmpty() && viewerFields.isEmpty()) return "";
 
-		String allFields = Stream.of(entry.fields(), viewerFields)
+		String allFields = Stream.of(siteFields, viewerFields)
 				.filter(StringUtils::isNotEmpty)
 				.collect(Collectors.joining(", "));
 		return "sakai.termsInfo = {" + allFields + "};\n"
 				+ "sakai.editor.enableTermTokens = true;\n";
 	}
-
-	private record TermTokensCacheEntry(long created, String fields) {}
 
 	/**
 	 * Builds the site/term half of the sakai.termsInfo fields for one
@@ -743,6 +750,9 @@ public class PortalServiceImpl implements PortalService, Observer
 				}
 			} catch (IdNotFoundException e) {
 				log.debug("No academic session found for term eid {}", termEid);
+			} catch (Exception e) {
+				// keep the term-independent fields (siteTitle, instructor, today, ...) alive
+				log.warn("Could not resolve the term data for term eid {}", termEid, e);
 			}
 		}
 

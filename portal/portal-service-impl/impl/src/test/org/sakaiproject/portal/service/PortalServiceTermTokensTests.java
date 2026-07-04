@@ -40,6 +40,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.test.SakaiTests;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.BaseResourceProperties;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -49,6 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class PortalServiceTermTokensTests extends SakaiTests {
 
     @Autowired private CourseManagementService courseManagementService;
+    @Autowired private LocaleService localeService;
     @Autowired private PortalService portalService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private UserTimeService userTimeService;
@@ -60,6 +62,7 @@ public class PortalServiceTermTokensTests extends SakaiTests {
         super.setup();
         when(userTimeService.getLocalTimeZone()).thenReturn(TZ);
         when(serverConfigurationService.getString(PortalConstants.PROP_SERVICE_NAME, "Sakai")).thenReturn("Test University");
+        when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(java.util.Locale.US);
     }
 
     private void setTermTokensEnabled(boolean enabled) {

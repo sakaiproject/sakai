@@ -38,6 +38,8 @@
         <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
         <property name="editorRegistry" ref="org.sakaiproject.portal.api.EditorRegistry" />
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <property name="pinnedSiteRepository" ref="org.sakaiproject.portal.api.repository.PinnedSiteRepository" />
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="recentSiteRepository" ref="org.sakaiproject.portal.api.repository.RecentSiteRepository" />
