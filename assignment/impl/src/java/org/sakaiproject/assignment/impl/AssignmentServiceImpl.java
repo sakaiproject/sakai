@@ -3715,17 +3715,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
-
-        if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-            LatePenaltyType penaltyType = LatePenaltyType.fromString(assignment.getProperties().get(LATE_PENALTY_TYPE));
-            if (penaltyType != null) {
-                boolean ignorePenalty = Boolean.parseBoolean(submission.getProperties().get(IGNORE_LATE_PENALTY));
-                grade = LatePenaltyCalculator.applyLatePenalty(grade, scale, penaltyType,
-                        assignment.getProperties().get(LATE_PENALTY_VALUE),
-                        assignment.getDueDate(), submission.getDateSubmitted(), ignorePenalty);
-            }
-        }
-
+        grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, grade, scale);
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
 

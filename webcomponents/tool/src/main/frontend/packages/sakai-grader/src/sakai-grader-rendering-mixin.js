@@ -305,6 +305,9 @@ export const graderRenderingMixin = Base => class extends Base {
         ${this._renderSaved()}
         ${this._renderFailed()}
         <span id="grader-max-point-label">(${this._i18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
+        ${this._submission.latePenalty && !this._submission.ignoreLatePenalty ? html`
+          <span class="grader-late-penalty grader-late ms-2 fw-bold">${this.tr("late_penalty_annotation", [ this._submission.latePenalty ])}</span>
+        ` : nothing }
         ${this.gradable.allowPeerAssessment ? html`
           <button id="peer-info"
               class="btn transparent-button"
@@ -440,6 +443,17 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <div id="grader-grade-block" class="grader-block">
             ${this._renderGradeInputs(this._i18n["gen.assign.gra"])}
+            ${this._submission.latePenalty ? html`
+              <div id="grader-ignore-late-penalty-block" class="mt-2">
+                <label>
+                  <input type="checkbox"
+                      id="grader-ignore-late-penalty"
+                      .checked=${this._submission.ignoreLatePenalty}
+                      @click=${this._toggleIgnoreLatePenalty} />
+                  <span>${this._i18n.ignore_late_penalty}</span>
+                </label>
+              </div>
+            ` : nothing }
             <!-- start hasAssociatedRubric -->
             ${this.hasAssociatedRubric === "true" ? html`
               ${!this._rubricShowing && !this._rubricStudentShowing ? html`

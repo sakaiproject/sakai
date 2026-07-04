@@ -77,6 +77,8 @@ class Submission {
         this.firstSubmitterId = init.submitters[0].id;
       }
       this.late = init.late;
+      this.latePenalty = init.latePenalty;
+      this.ignoreLatePenalty = init.properties.ignore_late_penalty === "true";
       this.returned = init.returned;
 
       // This would be grader stuff, not the submission tool

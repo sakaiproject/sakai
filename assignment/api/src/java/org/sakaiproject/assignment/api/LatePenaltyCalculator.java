@@ -21,6 +21,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 
 /**
  * SAK-15574 computes the effective grade for a late submission when the
@@ -84,6 +86,35 @@ public final class LatePenaltyCalculator {
         }
 
         return Long.toString(Math.max(0, rawGrade - penalty));
+    }
+
+    /**
+     * Convenience form reading the penalty configuration and waiver from the
+     * assignment and submission: applies the assignment's late penalty to a
+     * raw scaled grade, returning it unchanged for non-points assignments or
+     * when no penalty is configured or applicable.
+     *
+     * @param rawScaledGrade the grade to penalize, in scaled units (callers
+     *                       pass the submission grade or a per-submitter
+     *                       override)
+     * @param factor         the resolved scale factor (callers default a null
+     *                       assignment scale factor themselves)
+     */
+    public static String effectiveScaledGrade(Assignment assignment, AssignmentSubmission submission,
+            String rawScaledGrade, int factor) {
+
+        if (assignment == null || submission == null
+                || assignment.getTypeOfGrade() != Assignment.GradeType.SCORE_GRADE_TYPE) {
+            return rawScaledGrade;
+        }
+
+        LatePenaltyType type = LatePenaltyType.fromString(assignment.getProperties().get(AssignmentConstants.LATE_PENALTY_TYPE));
+        if (type == null) return rawScaledGrade;
+
+        boolean ignorePenalty = Boolean.parseBoolean(submission.getProperties().get(AssignmentConstants.IGNORE_LATE_PENALTY));
+        return applyLatePenalty(rawScaledGrade, factor, type,
+                assignment.getProperties().get(AssignmentConstants.LATE_PENALTY_VALUE),
+                assignment.getDueDate(), submission.getDateSubmitted(), ignorePenalty);
     }
 
     /**

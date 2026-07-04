@@ -21,6 +21,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.math.BigDecimal;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -661,6 +662,11 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING = "new_assignment_grade_type_switching";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM = "new_assignment_grade_type_switch_confirm";
     private static final String NEW_ASSIGNMENT_GRADE_POINTS = "new_assignment_grade_points";
+    private static final String NEW_ASSIGNMENT_USE_LATE_PENALTY = "new_assignment_use_late_penalty";
+    private static final String NEW_ASSIGNMENT_LATE_PENALTY_TYPE = "new_assignment_late_penalty_type";
+    private static final String NEW_ASSIGNMENT_LATE_PENALTY_FLAT_VALUE = "new_assignment_late_penalty_flat_value";
+    private static final String NEW_ASSIGNMENT_LATE_PENALTY_PER_DAY_VALUE = "new_assignment_late_penalty_per_day_value";
+    private static final String NEW_ASSIGNMENT_LATE_PENALTY_VALUE = "new_assignment_late_penalty_value";
     private static final String NEW_ASSIGNMENT_DESCRIPTION = "new_assignment_instructions";
     private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
@@ -3404,6 +3410,10 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
         context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
         context.put("name_GradePoints", NEW_ASSIGNMENT_GRADE_POINTS);
+        context.put("name_UseLatePenalty", NEW_ASSIGNMENT_USE_LATE_PENALTY);
+        context.put("name_LatePenaltyType", NEW_ASSIGNMENT_LATE_PENALTY_TYPE);
+        context.put("name_LatePenaltyFlatValue", NEW_ASSIGNMENT_LATE_PENALTY_FLAT_VALUE);
+        context.put("name_LatePenaltyPerDayValue", NEW_ASSIGNMENT_LATE_PENALTY_PER_DAY_VALUE);
         context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
         // do not show the choice when there is no Schedule tool yet
         if (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null)
@@ -3473,6 +3483,9 @@ public class AssignmentAction extends PagedResourceActionII {
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
         context.put("value_GradeType", gradeType.ordinal());
         context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, gradeType, scaleFactor));
+        context.put("value_UseLatePenalty", StringUtils.defaultString((String) state.getAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY)));
+        context.put("value_LatePenaltyType", StringUtils.defaultString((String) state.getAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE)));
+        context.put("value_LatePenaltyValue", StringUtils.defaultString((String) state.getAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE)));
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
         context.put("value_CheckAnonymousGrading", anonGrading);
 
@@ -8665,6 +8678,38 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
+
+            // SAK-15574 late penalty settings (points assignments only)
+            boolean useLatePenalty = gradeType == Assignment.GradeType.SCORE_GRADE_TYPE
+                    && params.getBoolean(NEW_ASSIGNMENT_USE_LATE_PENALTY)
+                    && !params.getBoolean(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
+            if (useLatePenalty) {
+                String penaltyType = StringUtils.trimToEmpty(params.getString(NEW_ASSIGNMENT_LATE_PENALTY_TYPE));
+                String penaltyValue = StringUtils.trimToNull("PER_DAY".equals(penaltyType)
+                        ? params.getString(NEW_ASSIGNMENT_LATE_PENALTY_PER_DAY_VALUE)
+                        : params.getString(NEW_ASSIGNMENT_LATE_PENALTY_FLAT_VALUE));
+                state.setAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY, Boolean.TRUE.toString());
+                state.setAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE, "PER_DAY".equals(penaltyType) ? "PER_DAY" : "FLAT");
+                state.setAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE, StringUtils.defaultString(penaltyValue));
+
+                if (penaltyValue == null) {
+                    addAlert(state, rb.getString("grading.latepenalty.alert.value"));
+                } else {
+                    try {
+                        if (new BigDecimal(penaltyValue.replace(",", ".")).signum() <= 0) {
+                            addAlert(state, rb.getString("grading.latepenalty.alert.value"));
+                        } else {
+                            validPointGrade(state, penaltyValue, assignmentService.getScaleFactor());
+                        }
+                    } catch (NumberFormatException nfe) {
+                        addAlert(state, rb.getString("grading.latepenalty.alert.value"));
+                    }
+                }
+            } else {
+                state.removeAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY);
+                state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE);
+                state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE);
+            }
         }
 
     } // setNewAssignmentParameters
@@ -10293,6 +10338,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 log.warn(this + ":commitAssignment " + e.getMessage());
             }
         }
+
+        // SAK-15574 late penalty, points assignments only; cleared when disabled
+        // or when the grade type moves away from points
+        String latePenaltyValue = StringUtils.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE));
+        if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE && !usePeerAssessment
+                && Boolean.parseBoolean((String) state.getAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY))
+                && latePenaltyValue != null) {
+            p.put(AssignmentConstants.LATE_PENALTY_TYPE,
+                    "PER_DAY".equals(state.getAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE)) ? "PER_DAY" : "FLAT");
+            p.put(AssignmentConstants.LATE_PENALTY_VALUE, latePenaltyValue.replace(",", "."));
+        } else {
+            p.remove(AssignmentConstants.LATE_PENALTY_TYPE);
+            p.remove(AssignmentConstants.LATE_PENALTY_VALUE);
+        }
+
         a.setIndividuallyGraded(false);
 
         if (submissionType != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
@@ -10790,6 +10850,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, a.getInstructions());
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, a.getHideDueDate());
                 Map<String, String> properties = a.getProperties();
+
+                // SAK-15574 late penalty settings round-trip
+                if (properties.get(AssignmentConstants.LATE_PENALTY_TYPE) != null) {
+                    state.setAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY, Boolean.TRUE.toString());
+                    state.setAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE, properties.get(AssignmentConstants.LATE_PENALTY_TYPE));
+                    state.setAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE, properties.get(AssignmentConstants.LATE_PENALTY_VALUE));
+                } else {
+                    state.removeAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY);
+                    state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE);
+                    state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE);
+                }
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
@@ -11669,11 +11740,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 
                 // populate grade overrides if they exist (skip when anonymous grading)
+                // use the stored override, not getGradeForSubmitter: these prefill editable
+                // inputs, so a late-penalized effective grade must never round-trip as a grade
                 if (AssignmentToolUtils.allowGroupOverrides(a, assignmentService)) {
                         for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
-                            String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
-                            if (!StringUtils.equals(grade, gradeOverride)) {
-                                state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
+                            if (StringUtils.isNotBlank(submitter.getGrade())) {
+                                String gradeOverride = assignmentService.getGradeDisplay(submitter.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
+                                if (!StringUtils.equals(grade, gradeOverride)) {
+                                    state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
+                                }
                             }
 	                }
                 }
@@ -13396,6 +13471,9 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
+        state.removeAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY);
+        state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE);
         state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);

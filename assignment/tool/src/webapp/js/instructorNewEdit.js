@@ -125,6 +125,42 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 	}
 };
 
+// SAK-15574 Late Penalty controls (points assignments only)
+ASN_INE.toggleLatePenalty = function(checkbox)
+{
+	var section = document.getElementById("latePenaltyOptions");
+	if (section === null)
+	{
+		return;
+	}
+	section.style.display = checkbox.checked ? "block" : "none";
+	if (checkbox.checked)
+	{
+		ASN_INE.syncLatePenaltyInputs();
+	}
+};
+
+// only the input matching the selected penalty type is editable
+ASN_INE.syncLatePenaltyInputs = function()
+{
+	var perDayRadio = document.getElementById("latePenaltyPerDay");
+	var flatValue = document.getElementById("latePenaltyFlatValue");
+	var perDayValue = document.getElementById("latePenaltyPerDayValue");
+	if (perDayRadio === null || flatValue === null || perDayValue === null)
+	{
+		return;
+	}
+	flatValue.disabled = perDayRadio.checked;
+	perDayValue.disabled = !perDayRadio.checked;
+};
+
+ASN_INE.handleLatePenaltyTypeChange = function(radio)
+{
+	ASN_INE.syncLatePenaltyInputs();
+	var value = document.getElementById(radio.value === "PER_DAY" ? "latePenaltyPerDayValue" : "latePenaltyFlatValue");
+	value && value.focus();
+};
+
 ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)
 {
 	if (checkbox.checked)

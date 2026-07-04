@@ -492,6 +492,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       formData.set("extensionDate", this._submission.extensionDate);
     }
 
+    if (this._submission.ignoreLatePenalty) {
+      formData.set("ignoreLatePenalty", "true");
+    }
+
     formData.set("siteId", getSiteId());
 
     return formData;
@@ -899,6 +903,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._submission.extensionAllowed = !e.target.checked;
     this._allowExtension = e.target.checked;
+  }
+
+  _toggleIgnoreLatePenalty(e) {
+
+    this._submission.ignoreLatePenalty = e.target.checked;
+    this.modified = true;
+    this.requestUpdate();
   }
 
   _removePrivateNotes() {

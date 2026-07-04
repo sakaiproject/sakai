@@ -400,6 +400,12 @@ public class AssignmentToolUtils {
                 properties.remove(ALLOW_EXTENSION_CLOSETIME);
             }
 
+            if (Boolean.parseBoolean((String) options.get(IGNORE_LATE_PENALTY))) {
+                properties.put(IGNORE_LATE_PENALTY, Boolean.TRUE.toString());
+            } else {
+                properties.remove(IGNORE_LATE_PENALTY);
+            }
+
             String sReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
 
             // save a timestamp for this grading process
@@ -621,14 +627,12 @@ public class AssignmentToolUtils {
                             // bulk add all grades for assignment into gradebook
                             for (AssignmentSubmission submission : assignmentService.getSubmissions(a)) {
                                 if (submission.getGradeReleased()) {
-                                    String gradeString = StringUtils.trimToNull(submission.getGrade());
                                     String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
 
-                                    String grade = gradeString != null ? displayGrade(gradeString, a.getScaleFactor()) : null;
                                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                                         String submitterId = submitter.getSubmitter();
-                                        String submitterGrade = submitter.getGrade() != null ? displayGrade(submitter.getGrade(), a.getScaleFactor()) : null;
-                                        String gradeStringToUse = (a.getIsGroup() && submitterGrade != null) ? submitterGrade : grade;
+                                        // effective grade: group override resolved and any late penalty applied
+                                        String gradeStringToUse = StringUtils.trimToNull(assignmentService.getGradeForSubmitter(submission, submitterId));
                                         sm.put(submitterId, gradeStringToUse);
                                         cm.put(submitterId, commentString);
                                     }
@@ -647,7 +651,7 @@ public class AssignmentToolUtils {
                                         // the associated assignment is internal one, update records one by one
                                         for (Map.Entry<String, String> entry : sm.entrySet()) {
                                             String submitterId = (String) entry.getKey();
-                                            String grade = StringUtils.trimToNull(displayGrade((String) sm.get(submitterId), a.getScaleFactor()));
+                                            String grade = StringUtils.trimToNull(sm.get(submitterId));
                                             if (grade != null) {
                                                 gradingService.setAssignmentScoreString(gradebookUid, siteId, associateGradebookAssignmentId, submitterId, grade, "", null);
                                                 String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
@@ -666,11 +670,10 @@ public class AssignmentToolUtils {
                             // only update one submission
                             AssignmentSubmission aSubmission = assignmentService.getSubmission(submissionId);
                             if (aSubmission != null) {
-                                int factor = aSubmission.getAssignment().getScaleFactor();
                                 Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                                String gradeString = displayGrade(StringUtils.trimToNull(aSubmission.getGrade()), factor);
                                 for (AssignmentSubmissionSubmitter submitter : submitters) {
-                                    String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? displayGrade(StringUtils.trimToNull(submitter.getGrade()), factor) : gradeString;
+                                    // effective grade: group override resolved and any late penalty applied
+                                    String gradeStringToUse = StringUtils.trimToNull(assignmentService.getGradeForSubmitter(aSubmission, submitter.getSubmitter()));
                                     //Gradebook only supports plaintext strings
                                     String commentString = formattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
                                     if (associateGradebookAssignment != null) {

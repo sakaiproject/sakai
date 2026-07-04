@@ -61,6 +61,48 @@ This section contains the options for grading this assignment, including rubrics
 			<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" />
 		</div>
 
+		## SAK-15574 Late Penalty (points assignments only)
+		#if (!$!value_UsePeerAssessment.equals("true"))
+		<div class="form-group">
+			<div class="checkbox">
+				<label for="useLatePenalty">
+					<input id="useLatePenalty" name="$name_UseLatePenalty" type="checkbox" value="true"
+						#if ($!value_UseLatePenalty.equals("true")) checked="checked" #end
+						onclick="ASN_INE.toggleLatePenalty(this)" />
+					$tlang.getString("grading.latepenalty")
+				</label>
+			</div>
+			<div id="latePenaltyOptions" class="indnt3" #if (!$!value_UseLatePenalty.equals("true"))style="display:none;"#end>
+				<div class="radio">
+					<label for="latePenaltyFlat">
+						<input type="radio" id="latePenaltyFlat" name="$name_LatePenaltyType" value="FLAT"
+							#if (!"PER_DAY".equals($!value_LatePenaltyType))checked#end
+							onclick="ASN_INE.handleLatePenaltyTypeChange(this)" />
+						$tlang.getString("grading.latepenalty.deduct")
+						<input type="text" id="latePenaltyFlatValue" name="$name_LatePenaltyFlatValue" size="4" maxlength="11"
+							aria-label="$tlang.getString("grading.latepenalty.points")"
+							value="#if(!"PER_DAY".equals($!value_LatePenaltyType))$!value_LatePenaltyValue#end"
+							#if ("PER_DAY".equals($!value_LatePenaltyType))disabled="disabled"#end />
+						$tlang.getString("grading.latepenalty.flat")
+					</label>
+				</div>
+				<div class="radio">
+					<label for="latePenaltyPerDay">
+						<input type="radio" id="latePenaltyPerDay" name="$name_LatePenaltyType" value="PER_DAY"
+							#if ("PER_DAY".equals($!value_LatePenaltyType))checked#end
+							onclick="ASN_INE.handleLatePenaltyTypeChange(this)" />
+						$tlang.getString("grading.latepenalty.deduct")
+						<input type="text" id="latePenaltyPerDayValue" name="$name_LatePenaltyPerDayValue" size="4" maxlength="11"
+							aria-label="$tlang.getString("grading.latepenalty.points")"
+							value="#if("PER_DAY".equals($!value_LatePenaltyType))$!value_LatePenaltyValue#end"
+							#if (!"PER_DAY".equals($!value_LatePenaltyType))disabled="disabled"#end />
+						$tlang.getString("grading.latepenalty.perday")
+					</label>
+				</div>
+			</div>
+		</div>
+		#end
+
         ## Rubrics
         <div class="form-group">
             <sakai-rubric-association

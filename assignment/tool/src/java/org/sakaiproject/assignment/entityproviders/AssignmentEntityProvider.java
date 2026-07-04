@@ -757,6 +757,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         submission.put("dateSubmitted", dateSubmitted);
                     }
                     submission.put("late", as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0);
+                    // SAK-15574 note the grade in this map stays raw: it prefills the grader input
+                    String latePenalty = assignmentService.getLatePenaltyDisplay(as);
+                    if (latePenalty != null) submission.put("latePenalty", latePenalty);
                 }
 
                 List<Map<String, String>> submittedAttachments = as.getAttachments().stream().map(ref -> {
@@ -881,7 +884,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     submitter.put("id", ass.getSubmitter());
 
                     if (hydrate) {
-                        String grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), ass.getSubmitter());
+                        // SAK-15574 raw (pre-penalty) grade: this prefills the grader's
+                        // editable override input, so the penalized value must not round-trip
+                        String grade = rawGradeDisplay(ass.getSubmission(), ass.getSubmitter());
                         if (StringUtils.isNotBlank(grade)) submitter.put("grade", grade);
 
                         boolean overridden = assignmentService.isGradeOverridden(ass.getSubmission(), ass.getSubmitter());
@@ -1320,6 +1325,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (StringUtils.isNotBlank(extensionDate)){
             options.put(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS, extensionDate);
         }
+        options.put(IGNORE_LATE_PENALTY, (String) params.get("ignoreLatePenalty"));
         Set<String> attachmentKeys
             = params.keySet().stream().filter(k -> k.startsWith("attachment")).collect(Collectors.toSet());
 
@@ -1655,6 +1661,30 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return rv;
     }
 
+    /**
+     * SAK-15574 the display grade for a submitter WITHOUT any late penalty
+     * applied, resolving group overrides like getGradeForSubmitter. Grading
+     * inputs must prefill with this raw value so the penalized effective grade
+     * never round-trips through a save and compounds.
+     */
+    private String rawGradeDisplay(AssignmentSubmission submission, String submitter) {
+
+        if (submission == null) return null;
+
+        String grade = submission.getGrade();
+        Assignment assignment = submission.getAssignment();
+
+        if (assignment.getIsGroup() && submitter != null) {
+            grade = submission.getSubmitters().stream()
+                    .filter(s -> submitter.equals(s.getSubmitter()))
+                    .findAny()
+                    .map(s -> StringUtils.defaultIfBlank(s.getGrade(), submission.getGrade()))
+                    .orElse(grade);
+        }
+
+        return assignmentService.getGradeDisplay(grade, assignment.getTypeOfGrade(), assignment.getScaleFactor());
+    }
+
     private String getCheckedCurrentUser() throws EntityException {
 
         String userId = sessionManager.getCurrentSessionUserId();
@@ -1893,6 +1923,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String maxGradePoint;
 
+        private String latePenaltyType;
+
+        private String latePenaltyValue;
+
         private String ltiGradableLaunch;
 
         private String ltiFrameHeight;
@@ -1949,6 +1983,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.instructions = a.getInstructions();
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                 this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
+                this.latePenaltyType = a.getProperties().get(LATE_PENALTY_TYPE);
+                this.latePenaltyValue = a.getProperties().get(LATE_PENALTY_VALUE);
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
@@ -2076,6 +2112,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String sortName;
         private String displayId;
         private String grade;
+        /** the pre-penalty grade for grading inputs; only the effective {@link #grade} is student-facing */
+        private String rawGrade;
         private boolean overridden;
         private String timeSpent;
 
@@ -2085,6 +2123,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.id = ass.getSubmitter();
             this.grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), id);
+            this.rawGrade = rawGradeDisplay(ass.getSubmission(), id);
             this.overridden = assignmentService.isGradeOverridden(ass.getSubmission(), id);
             this.timeSpent = ass.getTimeSpent();
 
@@ -2122,6 +2161,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String groupId;
         private String status;
         private String grade;
+        /** the pre-penalty grade for grading inputs; only the effective {@link #grade} is student-facing */
+        private String rawGrade;
+        /** SAK-15574 the late penalty amount that applies to this submission, null when none */
+        private String latePenalty;
         private List<DecoratedAttachment> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
         private Instant assignmentCloseTime;
@@ -2241,7 +2284,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.status = assignmentService.getSubmissionStatus(id, true);
             this.graded = as.getGraded();
-            this.grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
+            String anySubmitter = as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter();
+            this.grade = assignmentService.getGradeForSubmitter(as, anySubmitter);
+            this.rawGrade = rawGradeDisplay(as, anySubmitter);
+            this.latePenalty = assignmentService.getLatePenaltyDisplay(as);
             this.properties.putAll(as.getProperties());
         }
     }

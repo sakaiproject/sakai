@@ -317,4 +317,75 @@ describe("sakai-grader tests", () => {
     // The Assign Grade Overrides UI must not be present when anonymousGrading is true
     expect(el.querySelector("#grader-overrides-wrapper")).to.not.exist;
   });
+
+  it ("shows the late penalty annotation and ignore checkbox for a penalized late submission", async () => {
+
+    // SAK-15574: an assignment with a late penalty configured, and a late submission
+    const submission = generateSubmission();
+    const past = faker.date.past();
+    submission.dateSubmittedEpochSeconds = past.getTime() / 1000;
+    submission.dateSubmitted = past.toDateString();
+    submission.submitted = true;
+    submission.late = true;
+    submission.latePenalty = "4.00";
+    submission.grade = "55.00";
+
+    const gradingData = { ...data.gradableData, submissions: [ submission ], totalSubmissions: 1 };
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${submission.id}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${submission.id}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    // The raw grade prefills the input; the penalty renders as an annotation
+    expect(el.querySelector("#score-grade-input").value).to.equal("55.00");
+    const annotation = el.querySelector(".grader-late-penalty");
+    expect(annotation).to.exist;
+    expect(annotation.innerText.trim()).to.equal("-4.00 late");
+
+    const checkbox = el.querySelector("#grader-ignore-late-penalty");
+    expect(checkbox).to.exist;
+    expect(checkbox.checked).to.be.false;
+
+    // Checking Ignore Late Penalty hides the annotation and flows into the save form data
+    checkbox.click();
+    await elementUpdated(el);
+
+    expect(el.querySelector(".grader-late-penalty")).to.not.exist;
+    expect(el._getFormData().get("ignoreLatePenalty")).to.equal("true");
+  });
+
+  it ("does not show late penalty controls when no penalty applies", async () => {
+
+    const submission = generateSubmission();
+    const past = faker.date.past();
+    submission.dateSubmittedEpochSeconds = past.getTime() / 1000;
+    submission.dateSubmitted = past.toDateString();
+    submission.submitted = true;
+
+    const gradingData = { ...data.gradableData, submissions: [ submission ], totalSubmissions: 1 };
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${submission.id}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${submission.id}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    expect(el.querySelector(".grader-late-penalty")).to.not.exist;
+    expect(el.querySelector("#grader-ignore-late-penalty")).to.not.exist;
+    expect(el._getFormData().get("ignoreLatePenalty")).to.be.null;
+  });
 });

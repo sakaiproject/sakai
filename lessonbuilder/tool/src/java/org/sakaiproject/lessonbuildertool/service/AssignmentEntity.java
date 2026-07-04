@@ -43,6 +43,7 @@ import org.jsoup.nodes.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.LatePenaltyCalculator;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -330,7 +331,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		LessonSubmission ret = new LessonSubmission(null);
 
 		if (submission.getGradeReleased())	{
-			String grade = submission.getGrade();
+			// SAK-15574 completion conditions compare this scaled grade, so apply
+			// any late penalty here too, keeping it consistent with what the
+			// student sees in Assignments and the Gradebook
+			Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
+			String grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, submission.getGrade(), scaleFactor);
 			ret.setGradeString(grade);
 		}
 

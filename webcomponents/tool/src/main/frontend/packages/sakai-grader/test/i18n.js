@@ -137,6 +137,8 @@ gen.sav=Save
 gen.retustud=Save and Release to Student
 gen.can=Cancel
 grades.lateness.late=Late
+late_penalty_annotation=-{} late
+ignore_late_penalty=Ignore Late Penalty
 gen.assign.spent=Time spent:
 select_category_label=Select a category
 `;
