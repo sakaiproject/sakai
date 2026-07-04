@@ -209,6 +209,24 @@ public class PortalServiceTermTokensTests extends SakaiTests {
     }
 
     @Test
+    public void sessionEndingTodayIsStillCurrent() {
+        setTermTokensEnabled(true);
+        Calendar cal = Calendar.getInstance(TZ);
+        Date endOfTermMidnight = date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+        long day = 24L * 60 * 60 * 1000;
+        AcademicSession endingToday = session("LAST1", "Ending Term", new Date(new Date().getTime() - 100L * day), endOfTermMidnight);
+        // newer-started but already over; the flagged list is ordered newest first, so the
+        // get(0) fallback would wrongly pick this one if the date-covering check misfires
+        AcademicSession alreadyOver = session("MINI1", "Short Term", new Date(new Date().getTime() - 10L * day), new Date(new Date().getTime() - 2L * day));
+        when(courseManagementService.getCurrentAcademicSessions()).thenReturn(java.util.Arrays.asList(alreadyOver, endingToday));
+
+        String script = portalService.getTermTokensScript(siteWithTerm(null));
+
+        // a date-only end date is midnight; the term is still current for its whole final day
+        Assert.assertTrue(script.contains("\"currentTerm\": \"Ending Term\""));
+    }
+
+    @Test
     public void currentTermPrefersSessionCoveringToday() {
         setTermTokensEnabled(true);
         Date now = new Date();

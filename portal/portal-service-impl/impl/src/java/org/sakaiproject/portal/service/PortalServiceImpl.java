@@ -839,10 +839,13 @@ public class PortalServiceImpl implements PortalService, Observer
 	private AcademicSession pickSessionCoveringToday(List<AcademicSession> sessions) {
 
 		if (sessions == null) return null;
-		Date now = new Date();
+		// compare calendar days, not instants: a date-only end date is midnight, and the
+		// term should still count as current for the whole of its final day
+		LocalDate today = localDate(new Date());
 		return sessions.stream()
 				.filter(s -> s.getStartDate() != null && s.getEndDate() != null
-						&& !now.before(s.getStartDate()) && !now.after(s.getEndDate()))
+						&& !today.isBefore(localDate(s.getStartDate()))
+						&& !today.isAfter(localDate(s.getEndDate())))
 				// On a boundary day two terms overlap; show the incoming one
 				.max(Comparator.comparing(AcademicSession::getStartDate))
 				.orElse(null);
