@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * SAK-15574 computes the effective grade for a late submission when the
  * assignment has a late penalty configured (a flat point deduction, or points
@@ -33,6 +35,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
  * the penalty is applied wherever the grade is displayed or pushed to the
  * gradebook, never persisted.
  */
+@Slf4j
 public final class LatePenaltyCalculator {
 
     public enum LatePenaltyType {
@@ -45,6 +48,7 @@ public final class LatePenaltyCalculator {
             try {
                 return valueOf(value.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
+                log.debug("Unrecognized late penalty type [{}], treating as no penalty", value);
                 return null;
             }
         }
@@ -82,6 +86,7 @@ public final class LatePenaltyCalculator {
         try {
             rawGrade = Long.parseLong(rawScaledGrade.trim());
         } catch (NumberFormatException e) {
+            log.debug("Not applying late penalty to non-numeric grade [{}], {}", rawScaledGrade, e.toString());
             return rawScaledGrade;
         }
 
@@ -132,6 +137,7 @@ public final class LatePenaltyCalculator {
         try {
             points = new BigDecimal(StringUtils.trimToEmpty(penaltyValue));
         } catch (NumberFormatException e) {
+            log.debug("Ignoring malformed late penalty value [{}], {}", penaltyValue, e.toString());
             return 0;
         }
         if (points.signum() <= 0) return 0;

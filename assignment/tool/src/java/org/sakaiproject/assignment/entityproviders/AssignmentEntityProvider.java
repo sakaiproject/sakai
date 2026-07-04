@@ -1663,9 +1663,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
     /**
      * SAK-15574 the display grade for a submitter WITHOUT any late penalty
-     * applied, resolving group overrides like getGradeForSubmitter. Grading
-     * inputs must prefill with this raw value so the penalized effective grade
-     * never round-trips through a save and compounds.
+     * applied. Grading inputs must prefill with this raw value so the
+     * penalized effective grade never round-trips through a save and
+     * compounds. The group override resolution here intentionally mirrors
+     * {@code AssignmentServiceImpl#getGradeForSubmitter} minus the penalty
+     * step — keep the two in sync.
      */
     private String rawGradeDisplay(AssignmentSubmission submission, String submitter) {
 

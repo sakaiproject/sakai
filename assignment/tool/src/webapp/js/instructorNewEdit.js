@@ -126,10 +126,10 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 };
 
 // SAK-15574 Late Penalty controls (points assignments only)
-ASN_INE.toggleLatePenalty = function(checkbox)
-{
-	var section = document.getElementById("latePenaltyOptions");
-	if (section === null)
+ASN_INE.toggleLatePenalty = (checkbox) => {
+
+	const section = document.getElementById("latePenaltyOptions");
+	if (!section)
 	{
 		return;
 	}
@@ -141,12 +141,12 @@ ASN_INE.toggleLatePenalty = function(checkbox)
 };
 
 // only the input matching the selected penalty type is editable
-ASN_INE.syncLatePenaltyInputs = function()
-{
-	var perDayRadio = document.getElementById("latePenaltyPerDay");
-	var flatValue = document.getElementById("latePenaltyFlatValue");
-	var perDayValue = document.getElementById("latePenaltyPerDayValue");
-	if (perDayRadio === null || flatValue === null || perDayValue === null)
+ASN_INE.syncLatePenaltyInputs = () => {
+
+	const perDayRadio = document.getElementById("latePenaltyPerDay");
+	const flatValue = document.getElementById("latePenaltyFlatValue");
+	const perDayValue = document.getElementById("latePenaltyPerDayValue");
+	if (!perDayRadio || !flatValue || !perDayValue)
 	{
 		return;
 	}
@@ -154,11 +154,11 @@ ASN_INE.syncLatePenaltyInputs = function()
 	perDayValue.disabled = !perDayRadio.checked;
 };
 
-ASN_INE.handleLatePenaltyTypeChange = function(radio)
-{
+ASN_INE.handleLatePenaltyTypeChange = (radio) => {
+
 	ASN_INE.syncLatePenaltyInputs();
-	var value = document.getElementById(radio.value === "PER_DAY" ? "latePenaltyPerDayValue" : "latePenaltyFlatValue");
-	value && value.focus();
+	const value = document.getElementById(radio.value === "PER_DAY" ? "latePenaltyPerDayValue" : "latePenaltyFlatValue");
+	value?.focus();
 };
 
 ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)

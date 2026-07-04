@@ -3715,6 +3715,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
+        // SAK-15574 the raw (pre-penalty) twin of this resolution lives in
+        // AssignmentEntityProvider#rawGradeDisplay for grading inputs — keep in sync
         grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, grade, scale);
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
