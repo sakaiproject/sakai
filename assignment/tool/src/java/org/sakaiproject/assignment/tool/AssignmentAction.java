@@ -8642,6 +8642,19 @@ public class AssignmentAction extends PagedResourceActionII {
         String option = params.get("option");
 
         if (!"attach".equals(option)) {
+            // an existing assignment's own scale factor governs grade and penalty precision
+            Integer scaleFactor = assignmentService.getScaleFactor();
+            try {
+                if (StringUtils.isNotEmpty(assignmentRef)) {
+                    Assignment assignment = assignmentService.getAssignment(assignmentId);
+                    if (assignment != null && assignment.getScaleFactor() != null) {
+                        scaleFactor = assignment.getScaleFactor();
+                    }
+                }
+            } catch (IdUnusedException | PermissionException e) {
+                log.error(e.getMessage());
+            }
+
             // the grade point
             String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
@@ -8650,18 +8663,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     // in case of point grade assignment, user must specify maximum grade point
                     addAlert(state, rb.getString("plespethe3"));
                 } else {
-                    Integer scaleFactor = assignmentService.getScaleFactor();
-                    try {
-                        if (StringUtils.isNotEmpty(assignmentRef)) {
-                            Assignment assignment = assignmentService.getAssignment(assignmentId);
-                            if (assignment != null && assignment.getScaleFactor() != null) {
-                                scaleFactor = assignment.getScaleFactor();
-                            }
-                        }
-                    } catch (IdUnusedException | PermissionException e) {
-                        log.error(e.getMessage());
-                    }
-
                     validPointGrade(state, gradePoints, scaleFactor);
                     // when scale is points, grade must be integer and less than maximum value
                     gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
@@ -8699,7 +8700,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (new BigDecimal(penaltyValue.replace(",", ".")).signum() <= 0) {
                             addAlert(state, rb.getString("grading.latepenalty.alert.value"));
                         } else {
-                            validPointGrade(state, penaltyValue, assignmentService.getScaleFactor());
+                            validPointGrade(state, penaltyValue, scaleFactor);
                         }
                     } catch (NumberFormatException nfe) {
                         addAlert(state, rb.getString("grading.latepenalty.alert.value"));

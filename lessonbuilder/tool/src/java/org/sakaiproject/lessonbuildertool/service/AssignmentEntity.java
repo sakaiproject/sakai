@@ -335,6 +335,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 			// any late penalty here too, keeping it consistent with what the
 			// student sees in Assignments and the Gradebook
 			Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
+			if (scaleFactor == null || scaleFactor <= 0) scaleFactor = 100;
 			String grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, submission.getGrade(), scaleFactor);
 			ret.setGradeString(grade);
 		}

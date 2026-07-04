@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -2286,9 +2287,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.status = assignmentService.getSubmissionStatus(id, true);
             this.graded = as.getGraded();
-            String anySubmitter = as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter();
-            this.grade = assignmentService.getGradeForSubmitter(as, anySubmitter);
-            this.rawGrade = rawGradeDisplay(as, anySubmitter);
+            // deterministic representative: findAny on a Set could surface a different
+            // member's override grade between requests
+            String representativeSubmitter = as.getSubmitters().stream()
+                    .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .filter(Objects::nonNull)
+                    .min(Comparator.naturalOrder())
+                    .orElse(null);
+            this.grade = assignmentService.getGradeForSubmitter(as, representativeSubmitter);
+            this.rawGrade = rawGradeDisplay(as, representativeSubmitter);
             this.latePenalty = assignmentService.getLatePenaltyDisplay(as);
             this.properties.putAll(as.getProperties());
         }
