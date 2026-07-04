@@ -148,6 +148,9 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private Date retractDate;
   private Date feedbackDate;
   @Getter @Setter private Date feedbackEndDate;
+  // SAK-34476 true when the last save was rejected because of the feedback date, so the
+  // settings page can open the Grading and Feedback panel the instructor needs to fix
+  @Getter @Setter private boolean feedbackDateInError = false;
   @Setter private boolean feedbackScoreThresholdEnabled = false;
   @Getter @Setter private String feedbackScoreThreshold;
   private Integer timeLimit; // in seconds, calculated from timedHours & timedMinutes

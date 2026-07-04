@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FeedbackDateValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -83,6 +84,7 @@ public class SaveAssessmentSettingsListener
         lookupBean("assessmentSettings");
 
     boolean error=false;
+		assessmentSettings.setFeedbackDateInError(false);
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     AssessmentService assessmentService = new AssessmentService();
     SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -310,6 +312,12 @@ public class SaveAssessmentSettingsListener
                 String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
                 context.addMessage(null,new FacesMessage(feedbackDateErr));
                 error=true;
+            }
+            // SAK-34476 a feedback date earlier than the last submission deadline reveals feedback mid-take
+            if (!FeedbackDateValidator.isFeedbackDateAfterDeadline(assessmentSettings.getFeedbackDate(), assessmentSettings.getDueDate(),
+                    assessmentSettings.getRetractDate(), assessmentSettings.getLateHandling(), assessmentSettings.getExtendedTimes(), context)) {
+                error=true;
+                assessmentSettings.setFeedbackDateInError(true);
             }
     	}
 

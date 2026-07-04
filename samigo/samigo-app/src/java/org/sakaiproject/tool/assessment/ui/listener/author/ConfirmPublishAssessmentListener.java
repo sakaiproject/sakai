@@ -61,6 +61,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FeedbackDateValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -119,6 +120,7 @@ public class ConfirmPublishAssessmentListener
     //proceed to look for error, save assessment setting and confirm publish
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;
+		assessmentSettings.setFeedbackDateInError(false);
 
     String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle());
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
@@ -349,6 +351,12 @@ public class ConfirmPublishAssessmentListener
 					context.addMessage(null,new FacesMessage(feedbackDateErr));
 					error=true;
 				}
+				// SAK-34476 a feedback date earlier than the last submission deadline reveals feedback mid-take
+				if (!FeedbackDateValidator.isFeedbackDateAfterDeadline(assessmentSettings.getFeedbackDate(), assessmentSettings.getDueDate(),
+						assessmentSettings.getRetractDate(), assessmentSettings.getLateHandling(), assessmentSettings.getExtendedTimes(), context)) {
+					error=true;
+					assessmentSettings.setFeedbackDateInError(true);
+				}
 			}
 
 			if(!assessmentSettings.getIsValidFeedbackDate()){
@@ -391,7 +399,16 @@ public class ConfirmPublishAssessmentListener
     		}
     		else {
     			assessmentSettings.setNoGroupSelectedError(false);
-    		} 
+    		}
+    	}
+
+    	// SAK-34476 publishing straight from the assessment list skips the settings-form checks,
+    	// so the stored dates have to be validated here as well
+    	if ("2".equals(assessmentSettings.getFeedbackDelivery())
+    			&& !FeedbackDateValidator.isFeedbackDateAfterDeadline(assessmentSettings.getFeedbackDate(), assessmentSettings.getDueDate(),
+    					assessmentSettings.getRetractDate(), assessmentSettings.getLateHandling(), assessmentSettings.getExtendedTimes(), context)) {
+    		error=true;
+    		assessmentSettings.setFeedbackDateInError(true);
     	}
     }
     

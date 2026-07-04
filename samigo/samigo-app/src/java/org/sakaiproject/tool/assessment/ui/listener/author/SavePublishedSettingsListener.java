@@ -102,6 +102,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FeedbackDateValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -361,6 +362,7 @@ implements ActionListener
 
 	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, boolean retractNow) {
 		boolean error = false;
+		assessmentSettings.setFeedbackDateInError(false);
 		// Title
 		String assessmentName = assessmentSettings.getTitle();
 		// check if name is empty
@@ -554,6 +556,13 @@ implements ActionListener
 					String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
 					context.addMessage(null,new FacesMessage(feedbackDateErr));
 					error=true;
+				}
+				// SAK-34476 a feedback date earlier than the last submission deadline reveals feedback mid-take;
+				// never block a retract, though - it closes the assessment and ends any leak
+				if (!retractNow && !FeedbackDateValidator.isFeedbackDateAfterDeadline(assessmentSettings.getFeedbackDate(), assessmentSettings.getDueDate(),
+						assessmentSettings.getRetractDate(), assessmentSettings.getLateHandling(), assessmentSettings.getExtendedTimes(), context)) {
+					error=true;
+					assessmentSettings.setFeedbackDateInError(true);
 				}
 			}
 

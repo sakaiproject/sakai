@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,6 +72,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -95,6 +97,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FeedbackDateValidator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -202,6 +205,10 @@ public class PublishAssessmentListener
                     AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
 
                     if (((AssessmentFacade) assessment).isSelected()) {
+                        // SAK-34476 bulk publish never passes through the settings checks, so validate the stored dates here
+                        if (!feedbackDateSafeToPublish(assessmentFacade)) {
+                            continue;
+                        }
                         assessmentList.remove(assessmentFacade);
                         assessmentFacade = assessmentService.ensureUniquePublishedTitleForPublish(assessmentFacade);
                         assessmentSettings.setAssessment(assessmentFacade);
@@ -220,6 +227,29 @@ public class PublishAssessmentListener
 	  } finally {
 		  repeatedPublishLock.unlock();
 	  }
+  }
+
+  /**
+   * SAK-34476 refuse to publish an assessment whose "on specific dates" feedback date falls
+   * before the last moment a student can submit - it would reveal feedback mid-take.
+   */
+  private boolean feedbackDateSafeToPublish(AssessmentFacade assessment) {
+    AssessmentFeedbackIfc feedback = assessment.getAssessmentFeedback();
+    AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
+    if (feedback == null || control == null || !AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedback.getFeedbackDelivery())
+            || control.getFeedbackDate() == null) {
+      return true;
+    }
+    List<ExtendedTime> extendedTimes = PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForAss(assessment.getData());
+    Date deadline = FeedbackDateValidator.latestSubmissionDeadline(control.getDueDate(), control.getRetractDate(),
+            String.valueOf(control.getLateHandling()), extendedTimes);
+    if (deadline == null || control.getFeedbackDate().before(deadline)) {
+      String msg = MessageFormat.format(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages",
+              "feedback_date_blocked_publish"), assessment.getTitle());
+      FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msg));
+      return false;
+    }
+    return true;
   }
 
   private void publishOne(AuthorBean author, AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings, AssessmentService assessmentService, AuthorizationBean authorization, boolean repeatedPublish) {
