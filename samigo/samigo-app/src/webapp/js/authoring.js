@@ -902,3 +902,16 @@ function changeStatusCorrectResponseCheckbox() {
 
   hideCorrectResponse.style.display = (hideCorrectResponse.style.display == "none") ? "block" : "none";
 }
+
+// SAK-34476 When a settings save was rejected because of the feedback date, return the index
+// of the accordion panel that holds the feedback date field so the caller can open it and put
+// the field to fix in front of the instructor. Returns defaultPanel when the flag is false or
+// the panel can't be located. Shared by authorSettings.jsp and publishedSettings.jsp.
+function openFeedbackPanelOnError(feedbackDateInError, defaultPanel) {
+  if (!feedbackDateInError) {
+    return defaultPanel;
+  }
+  const feedbackPanel = $("[id='assessmentSettingsAction:feedbackDate']").closest("div[id^='__hide_division']:not([id$='_container'])");
+  const feedbackPanelIndex = $("#jqueryui-accordion").children("div[id^='__hide_division']:not([id$='_container'])").index(feedbackPanel);
+  return feedbackPanelIndex >= 0 ? feedbackPanelIndex : defaultPanel;
+}

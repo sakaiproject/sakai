@@ -62,16 +62,9 @@
           if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
               accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
           }
-          // SAK-34476 open the Grading and Feedback panel when the save was rejected
-          // because of the feedback date, so the field to fix is in front of the instructor
-          const feedbackDateInError = <h:outputText value="#{publishedSettings.feedbackDateInError}"/>;
-          if (feedbackDateInError) {
-              const feedbackPanel = $("[id='assessmentSettingsAction:feedbackDate']").closest("div[id^='__hide_division']:not([id$='_container'])");
-              const feedbackPanelIndex = $("#jqueryui-accordion").children("div[id^='__hide_division']:not([id$='_container'])").index(feedbackPanel);
-              if (feedbackPanelIndex >= 0) {
-                  accordionPanel = feedbackPanelIndex;
-              }
-          }
+          // SAK-34476 open the Grading and Feedback panel when the save was rejected because of
+          // the feedback date, so the field to fix is in front of the instructor
+          accordionPanel = openFeedbackPanelOnError(<h:outputText value="#{publishedSettings.feedbackDateInError}"/>, accordionPanel);
           $("#jqueryui-accordion").accordion({
               heightStyle: "content",
               activate: function(event, ui) {
