@@ -1,0 +1,33 @@
+/*
+ * Theme the dropdown panel with the same Sakai design tokens the rest of the
+ * editor chrome uses (see the skin's modules/tool/editor/_base.scss and the
+ * SAK-44562 dark mode support in /library/editor/ckeditor.css). The variables
+ * come from the properties skin included via contentsCss; dark values apply
+ * when the plugin mirrors the sakaiUserTheme-dark class onto this document.
+ * Fallbacks match the default moono-lisa light skin.
+ */
+/* bootstrap (loaded via contentsCss) paints body with --bs-body-bg (white);
+   repaint with the Sakai tokens so the list follows the active theme */
+html.cke_panel_container,
+body {
+    background-color: var(--sakai-background-color-1, #fff) !important;
+    color: var(--sakai-text-color-1, #484848);
+}
+
+.cke_panel_grouptitle {
+    background-color: var(--sakai-background-color-2, #f8f8f8) !important;
+    color: var(--sakai-text-color-1, #484848) !important;
+    border-bottom-color: var(--sakai-border-color, #d1d1d1) !important;
+}
+
+.cke_panel_listItem a {
+    color: var(--sakai-text-color-1, #484848) !important;
+}
+
+.cke_panel_listItem a:hover,
+.cke_panel_listItem a:focus,
+.cke_panel_listItem a:active,
+.cke_panel_listItem.cke_selected a {
+    background-color: var(--sakai-background-color-2, #e5e5e5) !important;
+    color: var(--sakai-text-color-1, #484848) !important;
+}

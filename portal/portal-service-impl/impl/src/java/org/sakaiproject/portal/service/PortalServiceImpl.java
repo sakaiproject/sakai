@@ -21,15 +21,22 @@
 
 package org.sakaiproject.portal.service;
 
+import java.text.DateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -40,12 +47,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -60,6 +69,9 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
@@ -71,6 +83,7 @@ import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
@@ -86,12 +99,15 @@ import org.sakaiproject.portal.api.repository.RecentSiteRepository;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -107,6 +123,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private ContentHostingService contentHostingService;
+	@Setter private CourseManagementService courseManagementService;
 	@Setter private EditorRegistry editorRegistry;
 	@Setter private EventTrackingService eventTrackingService;
 	@Setter private PinnedSiteRepository pinnedSiteRepository;
@@ -118,12 +135,16 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private SiteNeighbourhoodService siteNeighbourhoodService;
 	@Setter private SiteService siteService;
 	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private UserTimeService userTimeService;
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
+
+	private static final long TERM_TOKENS_CACHE_TTL_MS = 10 * 60 * 1000L;
+	private final Map<String, TermTokensCacheEntry> termTokensCache = new ConcurrentHashMap<>();
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 
@@ -627,6 +648,215 @@ public class PortalServiceImpl implements PortalService, Observer
 		// Now we are in good shape, make the URL
 		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.lti.admin.helper.helper?panel=CKEditor";
 		return helper_url;
+	}
+
+	@Override
+	public String getTermTokensScript(Site site) {
+
+		if (site == null || !serverConfigurationService.getBoolean(PortalConstants.PROP_TERM_TOKENS_ENABLED, false)) {
+			return "";
+		}
+
+		String termEid = StringUtils.trimToNull(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
+		Locale locale = new ResourceLoader().getLocale();
+		// the {{today}} value makes entries date-sensitive, so the local date is part of the key
+		String cacheKey = site.getId() + "|" + StringUtils.defaultString(termEid) + "|" + locale + "|"
+				+ userTimeService.getLocalTimeZone().getID() + "|" + isoDate(new Date());
+
+		TermTokensCacheEntry entry = termTokensCache.get(cacheKey);
+		if (entry == null || System.currentTimeMillis() - entry.created() > TERM_TOKENS_CACHE_TTL_MS) {
+			String fields;
+			try {
+				fields = buildSiteTokenFields(site, termEid, locale);
+			} catch (Exception e) {
+				// never let a term lookup problem break page rendering
+				log.warn("Could not build the term tokens for term {}", termEid, e);
+				fields = "";
+			}
+			entry = new TermTokensCacheEntry(System.currentTimeMillis(), fields);
+			termTokensCache.put(cacheKey, entry);
+		}
+
+		// viewer-specific values are session-scoped and never shared, so they stay out of the cache
+		String viewerFields = buildViewerTokenFields();
+
+		if (entry.fields().isEmpty() && viewerFields.isEmpty()) return "";
+
+		String allFields = Stream.of(entry.fields(), viewerFields)
+				.filter(StringUtils::isNotEmpty)
+				.collect(Collectors.joining(", "));
+		return "sakai.termsInfo = {" + allFields + "};\n"
+				+ "sakai.editor.enableTermTokens = true;\n";
+	}
+
+	private record TermTokensCacheEntry(long created, String fields) {}
+
+	/**
+	 * Builds the site/term half of the sakai.termsInfo fields for one
+	 * site/term/locale combination (everything except the viewer fields, which
+	 * are per-user and built uncached by {@link #buildViewerTokenFields()}).
+	 * The emitted field names are consumed client-side by
+	 * library/src/webapp/js/sakai-term-tokens.js (substitution) and
+	 * library/src/webapp/editor/ckextraplugins/sakaitermtokens/plugin.js
+	 * (the editor dropdown) — those two files list every token; keep all three
+	 * places in sync when adding or renaming a token.
+	 *
+	 * @param site the site being rendered
+	 * @param termEid the site's term eid (site property term_eid), may be null
+	 * @param locale the user's locale, used to format the dates
+	 * @return the joined json fields, or the empty string when no data is available
+	 */
+	private String buildSiteTokenFields(Site site, String termEid, Locale locale) {
+
+		List<String> fields = new ArrayList<>();
+
+		addTermTokensField(fields, "siteTitle", site.getTitle());
+
+		if (termEid != null) {
+			try {
+				AcademicSession session = courseManagementService.getAcademicSession(termEid);
+				addTermTokensField(fields, "siteTerm", session.getTitle());
+				addTermTokensField(fields, "siteTermShort", session.getEid());
+				addTermTokensField(fields, "termStart", userTimeService.dateFormat(session.getStartDate(), locale, DateFormat.LONG));
+				addTermTokensField(fields, "termStartShort", userTimeService.dateFormat(session.getStartDate(), locale, DateFormat.SHORT));
+				addTermTokensField(fields, "termEnd", userTimeService.dateFormat(session.getEndDate(), locale, DateFormat.LONG));
+				addTermTokensField(fields, "termEndShort", userTimeService.dateFormat(session.getEndDate(), locale, DateFormat.SHORT));
+				addTermTokensField(fields, "termStartIso", isoDate(session.getStartDate()));
+				addTermTokensField(fields, "termEndIso", isoDate(session.getEndDate()));
+				if (session.getStartDate() != null) {
+					addTermTokensField(fields, "termYear", String.valueOf(localDate(session.getStartDate()).getYear()));
+				}
+				if (session.getStartDate() != null && session.getEndDate() != null) {
+					LocalDate today = localDate(new Date());
+					LocalDate termStart = localDate(session.getStartDate());
+					LocalDate termEnd = localDate(session.getEndDate());
+					long daysLeft = ChronoUnit.DAYS.between(today, termEnd);
+					if (daysLeft >= 0) {
+						addTermTokensField(fields, "daysLeftInTerm", String.valueOf(daysLeft));
+					}
+					addTermTokensField(fields, "weeksInTerm",
+							String.valueOf((ChronoUnit.DAYS.between(termStart, termEnd) + 1 + 6) / 7));
+					if (!today.isBefore(termStart) && !today.isAfter(termEnd)) {
+						addTermTokensField(fields, "weekOfTerm",
+								String.valueOf(ChronoUnit.DAYS.between(termStart, today) / 7 + 1));
+					}
+				}
+			} catch (IdNotFoundException e) {
+				log.debug("No academic session found for term eid {}", termEid);
+			}
+		}
+
+		try {
+			AcademicSession current = resolveCurrentAcademicSession();
+			if (current != null) {
+				addTermTokensField(fields, "currentTerm", current.getTitle());
+				addTermTokensField(fields, "currentTermShort", current.getEid());
+				addTermTokensField(fields, "currentTermStart", userTimeService.dateFormat(current.getStartDate(), locale, DateFormat.LONG));
+				addTermTokensField(fields, "currentTermEnd", userTimeService.dateFormat(current.getEndDate(), locale, DateFormat.LONG));
+			}
+			AcademicSession next = resolveNextAcademicSession();
+			if (next != null) {
+				addTermTokensField(fields, "nextTerm", next.getTitle());
+				addTermTokensField(fields, "nextTermStart", userTimeService.dateFormat(next.getStartDate(), locale, DateFormat.LONG));
+			}
+		} catch (Exception e) {
+			log.warn("Could not look up the current or next academic session", e);
+		}
+
+		addTermTokensField(fields, "instructor", site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME));
+		addTermTokensField(fields, "instructorEmail", site.getProperties().getProperty(Site.PROP_SITE_CONTACT_EMAIL));
+		addTermTokensField(fields, "institution", serverConfigurationService.getString(PortalConstants.PROP_SERVICE_NAME, "Sakai"));
+		addTermTokensField(fields, "siteUrl", site.getUrl());
+		LocalDate today = localDate(new Date());
+		addTermTokensField(fields, "today", userTimeService.dateFormat(new Date(), locale, DateFormat.LONG));
+		addTermTokensField(fields, "currentYear", String.valueOf(today.getYear()));
+		addTermTokensField(fields, "currentMonth", today.getMonth().getDisplayName(TextStyle.FULL, locale));
+		addTermTokensField(fields, "dayOfWeek", today.getDayOfWeek().getDisplayName(TextStyle.FULL, locale));
+
+		return String.join(", ", fields);
+	}
+
+	/** The viewer's own name/email fields — session data, cheap, and never cached or shared. */
+	private String buildViewerTokenFields() {
+
+		try {
+			User user = userDirectoryService.getCurrentUser();
+			if (user == null) return "";
+			List<String> fields = new ArrayList<>();
+			addTermTokensField(fields, "firstName", user.getFirstName());
+			addTermTokensField(fields, "lastName", user.getLastName());
+			addTermTokensField(fields, "fullName", user.getDisplayName());
+			addTermTokensField(fields, "userEmail", user.getEmail());
+			return String.join(", ", fields);
+		} catch (Exception e) {
+			log.warn("Could not build the viewer token fields", e);
+			return "";
+		}
+	}
+
+	/** The first academic session that starts after today, or null when none is scheduled. */
+	private AcademicSession resolveNextAcademicSession() {
+
+		List<AcademicSession> sessions = courseManagementService.getAcademicSessions();
+		if (sessions == null) return null;
+		Date now = new Date();
+		return sessions.stream()
+				.filter(s -> s.getStartDate() != null && s.getStartDate().after(now))
+				.min(Comparator.comparing(AcademicSession::getStartDate))
+				.orElse(null);
+	}
+
+	/**
+	 * The term that is current right now. Prefers a session whose date range covers
+	 * today (so the value rolls over by itself), looking first at the admin-flagged
+	 * current sessions, then at all sessions; falls back to the newest flagged
+	 * session when no date range matches.
+	 */
+	private AcademicSession resolveCurrentAcademicSession() {
+
+		List<AcademicSession> flagged = courseManagementService.getCurrentAcademicSessions();
+		AcademicSession current = pickSessionCoveringToday(flagged);
+		if (current == null) {
+			current = pickSessionCoveringToday(courseManagementService.getAcademicSessions());
+		}
+		if (current == null && flagged != null && !flagged.isEmpty()) {
+			// findCurrentAcademicSessions orders by start date descending
+			current = flagged.get(0);
+		}
+		return current;
+	}
+
+	private AcademicSession pickSessionCoveringToday(List<AcademicSession> sessions) {
+
+		if (sessions == null) return null;
+		Date now = new Date();
+		return sessions.stream()
+				.filter(s -> s.getStartDate() != null && s.getEndDate() != null
+						&& !now.before(s.getStartDate()) && !now.after(s.getEndDate()))
+				// On a boundary day two terms overlap; show the incoming one
+				.max(Comparator.comparing(AcademicSession::getStartDate))
+				.orElse(null);
+	}
+
+	/** Appends one escaped "name": "value" JSON field, skipping blank values. */
+	private void addTermTokensField(List<String> fields, String name, String value) {
+
+		if (StringUtils.isNotBlank(value)) {
+			fields.add("\"" + name + "\": \"" + StringEscapeUtils.escapeEcmaScript(value) + "\"");
+		}
+	}
+
+	/** Formats a date as yyyy-MM-dd in the user's timezone, or null for a null date. */
+	private String isoDate(Date date) {
+		if (date == null) return null;
+		return localDate(date).toString();
+	}
+
+	/** The date's calendar day in the user's timezone. */
+	private LocalDate localDate(Date date) {
+		// via epoch millis: hibernate returns java.sql.Date, whose toInstant() throws
+		return Instant.ofEpochMilli(date.getTime())
+				.atZone(userTimeService.getLocalTimeZone().toZoneId()).toLocalDate();
 	}
 
 	@Override

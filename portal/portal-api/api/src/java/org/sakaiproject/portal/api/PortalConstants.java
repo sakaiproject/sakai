@@ -77,6 +77,7 @@ public class PortalConstants {
     public static final String PROP_SERVICE_VERSION = "version.service";
     public static final String PROP_SHOW_SERVER_TIME = "portal.show.time";
     public static final String PROP_SKIN_REPO = "skin.repo";
+    public static final String PROP_TERM_TOKENS_ENABLED = "portal.termtokens.enabled";
     public static final String PROP_TOP_LOGIN = "top.login";
     public static final String PROP_USE_PAGE_ALIAS = "portal.use.page.aliases";
     public static final String PROP_XLOGIN_RELOGIN = "login.use.xlogin.to.relogin";

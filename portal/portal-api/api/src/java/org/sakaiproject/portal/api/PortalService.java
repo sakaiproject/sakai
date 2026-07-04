@@ -271,6 +271,16 @@ public interface PortalService
 	String getContentItemUrl(Site site);
 
 	/**
+	 * Builds a javascript fragment that exposes the site's academic term information
+	 * as sakai.termsInfo, for client-side {{token}} substitution in rendered content,
+	 * and switches on the editor's term-tokens plugin (sakai.editor.enableTermTokens).
+	 * @param site The site that is being rendered.
+	 * @return The script fragment, or the empty string when portal.termtokens.enabled
+	 *         is false, site is null, or no term information is available.
+	 */
+	String getTermTokensScript(Site site);
+
+	/**
 	 * Retrieves the site collection ID for a placement for file browsing to an appropriate location.
 	 * If this is null or cannot be found, the user's My Workspace resources are returned.
 	 * @param placement The placement that is being rendered.

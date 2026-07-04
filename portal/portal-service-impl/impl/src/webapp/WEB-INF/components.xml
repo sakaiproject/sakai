@@ -35,6 +35,7 @@
           init-method="init">
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
         <property name="editorRegistry" ref="org.sakaiproject.portal.api.EditorRegistry" />
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="pinnedSiteRepository" ref="org.sakaiproject.portal.api.repository.PinnedSiteRepository" />
@@ -46,6 +47,7 @@
         <property name="siteNeighbourhoodService" ref="org.sakaiproject.portal.api.SiteNeighbourhoodService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
     </bean>
     <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
           class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"

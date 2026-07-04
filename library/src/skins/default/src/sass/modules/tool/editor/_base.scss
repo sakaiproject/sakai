@@ -190,3 +190,10 @@
 .cke_dialog_container {
 	z-index: 100010 !important;
 }
+
+// The shell around every editor dropdown panel (Format, Styles, Course
+// variables, ...); the stock moono-lisa skin hardcodes #fff
+.cke_panel {
+	background-color: var(--sakai-background-color-1);
+	border-color: var(--sakai-border-color);
+}

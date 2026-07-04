@@ -1208,6 +1208,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         headJs.append("sakai.editor.sitePrintSkin = '").append(CSSUtils.getCssPrintSkin(skin)).append("';\n");
         headJs.append("sakai.editor.sitePropertiesSkin = '").append(CSSUtils.getCssPropertiesSkin(skin)).append("';\n");
         headJs.append("sakai.editor.editors.ckeditor.browser = '").append(EditorConfiguration.getCKEditorFileBrowser()).append("';\n");
+        String termTokensScript = portalService.getTermTokensScript(site);
+        headJs.append(termTokensScript);
         headJs.append("</script>\n");
         headJs.append(preloadScript);
         headJs.append(editorScript);
@@ -1220,6 +1222,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             headJs.append("if ( window.self !== window.top ) {");
             headJs.append(" setTimeout(function(){ window.top.portal_check_pnotify() }, 3000);");
             headJs.append("}</script>");
+        }
+
+        if (StringUtils.isNotEmpty(termTokensScript)) {
+            headJs.append("<script type=\"text/javascript\" src=\"")
+                    .append(PortalUtils.getCDNPath())
+                    .append("/library/js/sakai-term-tokens.js")
+                    .append(PortalUtils.getCDNQuery())
+                    .append("\"></script>\n");
         }
 
         if (site != null && mathJaxEnabled) {

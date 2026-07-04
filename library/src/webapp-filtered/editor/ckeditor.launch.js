@@ -214,6 +214,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     if ( typeof portal !== 'undefined' ) {
         if (portal.portalCDNQuery) cdnVersion = portal.portalCDNQuery;
     }
+
+    // CKEditor stamps every dynamically loaded resource (plugins, lang files,
+    // skin css) with a ?t= token that defaults to a constant baked into the
+    // CKEditor build — so browsers cache Sakai's custom editor plugins forever,
+    // even across Sakai upgrades. Key the token to the portal CDN version
+    // (portal.cdn.version / version.service) so plugin updates bust caches the
+    // same way the rest of the portal's static resources do.
+    if (cdnVersion) {
+        CKEDITOR.timestamp = encodeURIComponent(cdnVersion.replace(/^\?version=/, ''));
+    }
     var ckconfig = {
     //Some defaults for audio recorder
         audiorecorder : {
@@ -351,6 +361,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
             (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
+            (sakai.editor.enableTermTokens ? 'sakaitermtokens' : ''),
             `${ckeditor-extra-plugins}`,
             `${ckeditor-a11y-extra-plugins}`,
             `${ckeditor-math-extra-plugins}`,
@@ -373,7 +384,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         [
             ['A11ychecker', 'Format', 'Bold', 'Italic', 'TextColor', 'BGColor'],
             ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-            ['NumberedList', 'BulletedList', 'Outdent', 'Indent', 'Link', 'Unlink', 'Image', 'Table', 'Templates', 'Source'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent', 'Link', 'Unlink', 'Image', 'Table', 'Templates', 'SakaiTermTokens', 'Source'],
             //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
             // Uncomment the next line and comment the following to enable the default spell checker.
@@ -482,6 +493,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaitermtokens',basePath+'sakaitermtokens/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaiopenlink',basePath+'sakaiopenlink/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');

@@ -22,9 +22,11 @@ import static org.mockito.Mockito.*;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -59,6 +61,16 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.content.api.ContentHostingService")
     public ContentHostingService contentHostingService() {
         return mock(ContentHostingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+    public CourseManagementService courseManagementService() {
+        return mock(CourseManagementService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.UserTimeService")
+    public UserTimeService userTimeService() {
+        return mock(UserTimeService.class);
     }
 
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")
