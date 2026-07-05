@@ -845,11 +845,9 @@ public class GradingService
       }
       
       adata.setTotalAutoScore(totalAutoScore);
-      if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0"))<0){
-    	  adata.setFinalScore(Double.valueOf("0"));
-      }else{
-    	  adata.setFinalScore(totalAutoScore+totalOverrideScore);
-      }
+      // SAK-52267 keep any late penalty applied when recomputing from item scores
+      adata.setFinalScore(computeFinalScore(totalAutoScore, totalOverrideScore,
+          getLatePenalty(adata, pub), adata.getIgnoreLatePenalty()));
       saveOrUpdateAssessmentGrading(adata);
       if (scoreDifference != 0){
         notifyGradebookByScoringType(adata, pub);
@@ -1278,12 +1276,11 @@ public class GradingService
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(totalAutoScore);
-     
-      if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), new Double("0"))<0){
-    	  data.setFinalScore( Double.valueOf("0"));
-      }else{
-    	  data.setFinalScore(totalAutoScore + data.getTotalOverrideScore());
-      }
+
+      // SAK-52267 deduct any configured late penalty (isLate was set above for new
+      // submissions; regrades reuse the stored flag and current settings)
+      data.setFinalScore(computeFinalScore(totalAutoScore, data.getTotalOverrideScore(),
+          getLatePenalty(data, pub), data.getIgnoreLatePenalty()));
       log.debug("****x6. "+(new Date()).getTime());
     } catch (GradebookServiceException ge) {
       log.error(ge.getMessage(), ge);
@@ -1357,9 +1354,14 @@ public class GradingService
 
     Date effectiveDueDate = null;
     if (type == LatePenaltyType.PER_DAY) {
-      // only the per-day mode needs the (extended-time aware) due date
+      // only the per-day mode needs the (extended-time aware) due date; callers pass
+      // facades or bare data objects, and ExtendedTimeDeliveryService re-fetches from
+      // a minimal facade when needed
       effectiveDueDate = pub.getAssessmentAccessControl().getDueDate();
-      ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+      PublishedAssessmentFacade facade = pub instanceof PublishedAssessmentFacade
+          ? (PublishedAssessmentFacade) pub
+          : new PublishedAssessmentFacade(pub.getPublishedAssessmentId(), pub.getTitle(), pub.getAssessmentAccessControl());
+      ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(facade, data.getAgentId());
       if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null) {
         effectiveDueDate = assessmentExtended.getDueDate();
       }
@@ -2514,11 +2516,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         double oldAutoScore = adata.getTotalAutoScore();
         double scoreDifference = totalAutoScore - oldAutoScore;
         adata.setTotalAutoScore(totalAutoScore);
-        if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0"))<0){
-        	adata.setFinalScore(Double.valueOf("0"));
-        }else{
-        	adata.setFinalScore(totalAutoScore+totalOverrideScore);
-        }
+        // SAK-52267 keep any late penalty applied when recomputing from item scores
+        adata.setFinalScore(computeFinalScore(totalAutoScore, totalOverrideScore,
+            getLatePenalty(adata, pub), adata.getIgnoreLatePenalty()));
         saveOrUpdateAssessmentGrading(adata);
         if (scoreDifference != 0 || !newComment.equals(oldComment)){
           notifyGradebookByScoringType(adata, pub);

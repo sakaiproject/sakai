@@ -705,6 +705,17 @@ function checkUserOrGroupRadio() {
 	}
 }
 
+// SAK-52267 show the late penalty points input only while a penalty type is selected
+function toggleLatePenaltyValue() {
+    const radios = document.getElementById('assessmentSettingsAction:latePenaltyType');
+    const valueBlock = document.getElementById('assessmentSettingsAction:latePenaltyValueBlock');
+    if (!radios || !valueBlock) {
+        return;
+    }
+    const checked = radios.querySelector('input:checked');
+    valueBlock.style.display = checked?.value ? 'block' : 'none';
+}
+
 function enableDisableToGradebook() {
     // Handle the display of the gradebook select dropdown
     const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');

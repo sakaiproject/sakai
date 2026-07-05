@@ -568,9 +568,10 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, List agents, Map userRoles){
-	
+
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	Map agentResultsByAssessmentGradingIdMap = new HashMap();
+	GradingService gradingService = new GradingService();
 
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     String moduleId = null;
@@ -635,9 +636,17 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         results.setTimeElapsed(Integer.valueOf(0));      
       
       results.setComments(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(gdata.getComments()));
-      
+
       results.setIsLate(gdata.getIsLate());
-      
+
+      // SAK-52267 the penalty amount this submission attracts (shown even while
+      // waived, next to the Ignore late penalty checkbox)
+      results.setIgnoreLatePenalty(gdata.getIgnoreLatePenalty());
+      double latePenalty = gradingService.getLatePenalty(gdata, p);
+      results.setLatePenalty(latePenalty > 0
+          ? "-" + (latePenalty == Math.floor(latePenalty) ? String.valueOf((long) latePenalty) : String.valueOf(latePenalty))
+          : "0");
+
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)

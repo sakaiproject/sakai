@@ -785,6 +785,24 @@
       </h:panelGroup>
     </h:panelGroup>
 
+    <!-- LATE PENALTY (SAK-52267) -->
+    <h:panelGroup styleClass="row" layout="block">
+      <h:outputLabel for="latePenaltyType" styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.late_penalty}"/>
+      <div class="col-md-10">
+        <h:selectOneRadio id="latePenaltyType" value="#{assessmentSettings.latePenaltyType}" layout="pageDirection"
+            onclick="toggleLatePenaltyValue();">
+          <f:selectItem itemValue="" itemLabel="#{assessmentSettingsMessages.late_penalty_none}"/>
+          <f:selectItem itemValue="FLAT" itemLabel="#{assessmentSettingsMessages.late_penalty_flat}"/>
+          <f:selectItem itemValue="PER_DAY" itemLabel="#{assessmentSettingsMessages.late_penalty_per_day}"/>
+        </h:selectOneRadio>
+      </div>
+      <h:panelGroup layout="block" id="latePenaltyValueBlock" styleClass="col-md-10 col-md-offset-2"
+          style="#{empty assessmentSettings.latePenaltyType ? 'display:none;' : 'display:block;'}">
+        <h:outputLabel for="latePenaltyValue" value="#{assessmentSettingsMessages.late_penalty_points}"/>
+        <h:inputText id="latePenaltyValue" value="#{assessmentSettings.latePenaltyValue}" size="4" maxlength="8"/>
+      </h:panelGroup>
+    </h:panelGroup>
+
     <!-- *** FEEDBACK *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
     <div class="samigo-subheading mt-4">

@@ -76,6 +76,9 @@ public class AgentResults
   private Date submittedDate;
   private Date attemptDate;
   private Boolean isLate;
+  // SAK-52267 automatic late penalty: display amount and per-submission waiver
+  private String latePenalty;
+  private Boolean ignoreLatePenalty;
   private Boolean forGrade;
   private String totalAutoScore;
   private String totalOverrideScore;
@@ -232,6 +235,19 @@ public class AgentResults
   }
   public void setIsLate(Boolean isLate) {
     this.isLate = isLate;
+  }
+  // SAK-52267 the penalty display amount for the Total Scores column, e.g. "-5"
+  public String getLatePenalty() {
+    return Validator.check(latePenalty, "0");
+  }
+  public void setLatePenalty(String latePenalty) {
+    this.latePenalty = latePenalty;
+  }
+  public Boolean getIgnoreLatePenalty() {
+    return Validator.bcheck(ignoreLatePenalty, false);
+  }
+  public void setIgnoreLatePenalty(Boolean ignoreLatePenalty) {
+    this.ignoreLatePenalty = ignoreLatePenalty;
   }
   public Boolean getForGrade() {
     return Validator.bcheck(forGrade, true);

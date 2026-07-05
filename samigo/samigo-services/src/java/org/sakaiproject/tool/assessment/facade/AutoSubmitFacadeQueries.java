@@ -109,6 +109,14 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 				}
 
 				agfq.completeItemGradingData(adata, sectionSetMap);
+
+				// SAK-52267 this path saves directly without storeGrades, so deduct any
+				// configured late penalty here; dueDate above is already extended-time aware
+				GradingService gradingService = new GradingService();
+				double totalAutoScore = adata.getTotalAutoScore() != null ? adata.getTotalAutoScore() : 0d;
+				double totalOverrideScore = adata.getTotalOverrideScore() != null ? adata.getTotalOverrideScore() : 0d;
+				adata.setFinalScore(gradingService.computeFinalScore(totalAutoScore, totalOverrideScore,
+						gradingService.getLatePenalty(adata, assessment, dueDate), adata.getIgnoreLatePenalty()));
 			}
 		}
 

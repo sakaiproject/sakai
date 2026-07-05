@@ -586,6 +586,24 @@ implements ActionListener
 			}
 		}
 
+		// SAK-52267 when a late penalty is selected its point value must be a positive number
+		if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())) {
+			boolean latePenaltyError = false;
+			String submittedPenalty = StringUtils.replace(StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()), ",", ".");
+			try {
+				if (Double.parseDouble(submittedPenalty) <= 0) {
+					latePenaltyError = true;
+				}
+			} catch (NumberFormatException ex) {
+				latePenaltyError = true;
+			}
+			if (latePenaltyError) {
+				error = true;
+				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
+				context.addMessage(null, new FacesMessage(str_err));
+			}
+		}
+
 		org.sakaiproject.grading.api.GradingService gradingService =
 			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
@@ -928,6 +946,13 @@ implements ActionListener
 	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getObjectives()));
 	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getRubrics()));
 	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.TRACK_QUESTIONS, Boolean.toString(assessmentSettings.getTrackQuestions()));
+
+	    // SAK-52267 automatic late penalty; blank type = no penalty, value stored dot-normalized
+	    boolean latePenaltyEnabled = StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType());
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_TYPE,
+	        latePenaltyEnabled ? assessmentSettings.getLatePenaltyType() : "");
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_VALUE,
+	        latePenaltyEnabled ? StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()).replace(",", ".") : "");
 	}
 
 	public boolean checkScore(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, FacesContext context) {

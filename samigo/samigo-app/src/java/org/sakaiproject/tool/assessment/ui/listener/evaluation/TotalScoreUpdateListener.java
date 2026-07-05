@@ -213,6 +213,8 @@ public class TotalScoreUpdateListener
         			data.setTotalOverrideScore(Double.valueOf(agentResults.getTotalOverrideScore()));
         			data.setFinalScore(Double.valueOf(agentResults.getFinalScore()));
         			data.setIsLate(agentResults.getIsLate());
+        			// SAK-52267 persist the grader's late penalty waiver
+        			data.setIgnoreLatePenalty(agentResults.getIgnoreLatePenalty());
         			data.setComments(agentResults.getComments());
         			data.setGradedBy(AgentFacade.getAgentString());
         			data.setGradedDate(new Date());
@@ -443,14 +445,22 @@ public class TotalScoreUpdateListener
         	}
         }
 
-      double newScore = totalAutoScore + totalOverrideScore;
+      // SAK-52267 the stored finalScore is penalized, so the recomputed score must be
+      // too, or every Update click on a late row would erase the deduction
+      GradingService gradingService = new GradingService();
+      double latePenalty = gradingService.getLatePenalty(old, bean.getPublishedAssessment());
+      double newScore = gradingService.computeFinalScore(totalAutoScore, totalOverrideScore,
+          latePenalty, agentResults.getIgnoreLatePenalty());
       newScoreString.append(Double.valueOf(newScore));
 	  double oldScore = 0;
       if (old.getFinalScore()!=null){
         oldScore = old.getFinalScore().doubleValue();
       }
       Boolean oldIsLate=old.getIsLate();
-      
+      // a waiver toggle must persist even when a compensating adjustment keeps the score equal
+      boolean ignoreLatePenaltyUnchanged = Boolean.TRUE.equals(agentResults.getIgnoreLatePenalty())
+          == Boolean.TRUE.equals(old.getIgnoreLatePenalty());
+
       String oldComments = old.getComments();
       log.debug("***oldScore = " + oldScore);
       log.debug("***newScore = " + newScore);
@@ -458,13 +468,13 @@ public class TotalScoreUpdateListener
       log.debug("***newIsLate = " + newIsLate);
       log.debug("***oldComments = " + oldComments);
       log.debug("***newComments = " + newComments);
-      if (Precision.equalsIncludingNaN(oldScore, newScore, 0.0001) && newIsLate.equals(oldIsLate) && 
-    		  ((newComments!=null && newComments.equals(oldComments)) 
+      if (Precision.equalsIncludingNaN(oldScore, newScore, 0.0001) && newIsLate.equals(oldIsLate) && ignoreLatePenaltyUnchanged &&
+    		  ((newComments!=null && newComments.equals(oldComments))
         		   || (newComments==null && oldComments==null)
         		   // following condition will happen when there is no comments (null) and user clicks on SubmissionId.
         		   // getComments() in AgentResults calls Validator.check(comments, "") so the null comment gets set to ""
         		   // there is nothing updated. update flag should be false
-        		   || ((newComments!=null && newComments.equals("")) && oldComments==null)) 
+        		   || ((newComments!=null && newComments.equals("")) && oldComments==null))
         		   ) {
         update = false;
       }

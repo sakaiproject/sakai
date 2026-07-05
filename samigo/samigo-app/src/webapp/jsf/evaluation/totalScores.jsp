@@ -794,6 +794,18 @@ function showLoadingMessage() {
       <h:outputText value="#{description.roundedTotalAutoScore}" />
     </h:column>
     
+    <!-- LATE PENALTY (SAK-52267) -->
+    <h:column rendered="#{totalScores.latePenaltyEnabled && totalScores.allSubmissions!='4'}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.late_penalty}" />
+      </f:facet>
+      <h:outputText value="#{description.latePenalty}" />
+      <h:panelGroup layout="block" rendered="#{description.isLate=='true'}">
+        <h:selectBooleanCheckbox id="ignoreLatePenalty" value="#{description.ignoreLatePenalty}" />
+        <h:outputLabel for="ignoreLatePenalty" value="#{evaluationMessages.ignore_late_penalty}" />
+      </h:panelGroup>
+    </h:column>
+
     <!-- ADJUSTMENT -->
     <h:column rendered="#{totalScores.sortType!='totalOverrideScore' && totalScores.allSubmissions!='4'}">
       <f:facet name="header">

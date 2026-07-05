@@ -342,6 +342,24 @@ public class SaveAssessmentSettingsListener
 		}
     }
 
+    // SAK-52267 when a late penalty is selected its point value must be a positive number
+    if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())) {
+        boolean latePenaltyError = false;
+        String submittedPenalty = StringUtils.replace(StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()), ",", ".");
+        try {
+            if (Double.parseDouble(submittedPenalty) <= 0) {
+                latePenaltyError = true;
+            }
+        } catch (NumberFormatException ex) {
+            latePenaltyError = true;
+        }
+        if (latePenaltyError) {
+            error = true;
+            String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
+            context.addMessage(null, new FacesMessage(str_err));
+        }
+    }
+
     List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();
     ToolSession currentToolSession = SessionManager.getCurrentToolSession();
     for (SelectItem item : existingGradebook) {

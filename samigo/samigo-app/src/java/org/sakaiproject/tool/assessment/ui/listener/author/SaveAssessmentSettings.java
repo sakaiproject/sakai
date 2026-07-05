@@ -350,6 +350,13 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getRubrics()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.TRACK_QUESTIONS, Boolean.toString(assessmentSettings.getTrackQuestions()));
 
+    // SAK-52267 automatic late penalty; blank type = no penalty, value stored dot-normalized
+    boolean latePenaltyEnabled = StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType());
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_TYPE,
+        latePenaltyEnabled ? assessmentSettings.getLatePenaltyType() : "");
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_VALUE,
+        latePenaltyEnabled ? StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()).replace(",", ".") : "");
+
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);
     assessmentService.deleteAllSecuredIP(assessment);

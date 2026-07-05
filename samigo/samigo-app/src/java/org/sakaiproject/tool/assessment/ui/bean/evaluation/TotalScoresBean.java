@@ -69,6 +69,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -1103,6 +1104,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   public PublishedAssessmentData getPublishedAssessment(){
     return publishedAssessment;
+  }
+
+  /** SAK-52267 whether this assessment has an automatic late penalty configured */
+  public boolean getLatePenaltyEnabled(){
+    return publishedAssessment != null
+        && StringUtils.isNotBlank(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
   }
 
   public void setPublishedAssessment(PublishedAssessmentData publishedAssessment){

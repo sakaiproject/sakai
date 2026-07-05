@@ -141,6 +141,9 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private String rubrics;
   private String authors;
   @Getter @Setter private Boolean trackQuestions;
+  // SAK-52267 automatic late penalty: type is "" (none), FLAT or PER_DAY
+  @Getter @Setter private String latePenaltyType;
+  @Getter @Setter private String latePenaltyValue;
 
   // these are properties in PublishedAccessControl
   private Date startDate;
@@ -335,6 +338,8 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
       this.trackQuestions = Boolean.valueOf(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
+      this.latePenaltyType = StringUtils.defaultString(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
+      this.latePenaltyValue = StringUtils.defaultString(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
 
       if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)!=null )
     		  && (!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE).equals(""))){
