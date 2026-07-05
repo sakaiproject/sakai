@@ -218,6 +218,14 @@ DTMN.setDatePickerValue = function(datepicker, date, useTime)
   datepicker.classList.add("border-warning");
 };
 
+// SAK-45285 drop a trailing timezone designator so hidden values parse in the
+// strict local formats; the datepicker writes "-06:00"-style suffixes in
+// negative-offset zones, which a bare split on "+" misses
+DTMN.stripOffset = function(value)
+{
+  return value.replace(/(Z|[+-]\d{2}:?\d{2})$/, "");
+};
+
 // SAK-45285 shift a date by the wall-clock difference between two anchor
 // values: whole calendar days first (so time-of-day never drifts, including
 // across DST) plus any change in the anchor's time of day
@@ -249,8 +257,8 @@ DTMN.syncRowDates = function(hiddenField)
 
   const tool = hiddenField.dataset.tool;
   const useTime = tool !== "gradebookItems";
-  const oldAnchor = DTMN.parseDatePickerInputValue(previous.split("+")[0], useTime);
-  const newAnchor = DTMN.parseDatePickerInputValue(hiddenField.value.split("+")[0], useTime);
+  const oldAnchor = DTMN.parseDatePickerInputValue(DTMN.stripOffset(previous), useTime);
+  const newAnchor = DTMN.parseDatePickerInputValue(DTMN.stripOffset(hiddenField.value), useTime);
   if (!oldAnchor.isValid() || !newAnchor.isValid() || oldAnchor.isSame(newAnchor)) {
     return;
   }
@@ -271,7 +279,7 @@ DTMN.syncRowDates = function(hiddenField)
     }
 
     const siblingUseTime = sibling.dataset.tool !== "gradebookItems";
-    const current = DTMN.parseDatePickerInputValue(sibling.value.split("+")[0], siblingUseTime);
+    const current = DTMN.parseDatePickerInputValue(DTMN.stripOffset(sibling.value), siblingUseTime);
     if (!current.isValid()) {
       return;
     }

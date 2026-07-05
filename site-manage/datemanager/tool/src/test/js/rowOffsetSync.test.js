@@ -32,6 +32,17 @@ function shifted(dateStr, oldAnchorStr, newAnchorStr) {
     .format("YYYY-MM-DDTHH:mm:ss");
 }
 
+test("offset suffixes are stripped whatever their sign (the Americas write negative offsets)", () => {
+  assert.equal(DTMN.stripOffset("2026-07-04T16:25:00-06:00"), "2026-07-04T16:25:00");
+  assert.equal(DTMN.stripOffset("2026-07-04T16:25:00+02:00"), "2026-07-04T16:25:00");
+  assert.equal(DTMN.stripOffset("2026-07-04T16:25:00+0000"), "2026-07-04T16:25:00");
+  assert.equal(DTMN.stripOffset("2026-07-04T16:25:00Z"), "2026-07-04T16:25:00");
+  // untouched when there is no offset: bare seconds are not an offset
+  assert.equal(DTMN.stripOffset("2026-07-04T16:25:00"), "2026-07-04T16:25:00");
+  assert.equal(DTMN.stripOffset("2026-07-04"), "2026-07-04");
+  assert.equal(DTMN.stripOffset(""), "");
+});
+
 test("anchor fields are the open date and the sign-up begins column", () => {
   // copy out of the vm realm so deepEqual compares contents, not prototypes
   assert.deepEqual(Array.from(DTMN.rowAnchorFields), ["open_date", "signup_begins"]);
