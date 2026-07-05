@@ -216,9 +216,12 @@ implements ActionListener
 	    // scores never disagree with the current settings
 	    String oldPenaltyType = StringUtils.trimToEmpty(originalAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
 	    String oldPenaltyValue = StringUtils.trimToEmpty(originalAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+	    String oldPenaltyUnit = StringUtils.trimToEmpty(originalAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_UNIT));
 	    String newPenaltyType = StringUtils.trimToEmpty(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
 	    String newPenaltyValue = StringUtils.trimToEmpty(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
-	    if (!StringUtils.equals(oldPenaltyType, newPenaltyType) || !StringUtils.equals(oldPenaltyValue, newPenaltyValue)) {
+	    String newPenaltyUnit = StringUtils.trimToEmpty(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_UNIT));
+	    if (!StringUtils.equals(oldPenaltyType, newPenaltyType) || !StringUtils.equals(oldPenaltyValue, newPenaltyValue)
+	            || !StringUtils.equals(oldPenaltyUnit, newPenaltyUnit)) {
 	        new GradingService().applyLatePenaltiesToSubmissions(assessment);
 	    }
 
@@ -599,13 +602,20 @@ implements ActionListener
 			}
 		}
 
-		// SAK-52267 when a late penalty is selected its point value must be a positive
-		// number; the same parser runs at scoring time so validation cannot drift
-		if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())
-				&& LatePenaltyCalculator.parsePenaltyValue(assessmentSettings.getLatePenaltyValue()) == null) {
-			error = true;
-			String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
-			context.addMessage(null, new FacesMessage(str_err));
+		// SAK-52267 when a late penalty is selected its value must be a positive number
+		// (and at most 100 for percentages); the same parser runs at scoring time so
+		// validation cannot drift
+		if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())) {
+			Double latePenaltyValue = LatePenaltyCalculator.parsePenaltyValue(assessmentSettings.getLatePenaltyValue());
+			if (latePenaltyValue == null) {
+				error = true;
+				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
+				context.addMessage(null, new FacesMessage(str_err));
+			} else if ("PERCENT".equals(assessmentSettings.getLatePenaltyUnit()) && latePenaltyValue > 100d) {
+				error = true;
+				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_percent_error");
+				context.addMessage(null, new FacesMessage(str_err));
+			}
 		}
 
 		org.sakaiproject.grading.api.GradingService gradingService =
@@ -957,6 +967,8 @@ implements ActionListener
 	        latePenaltyEnabled ? assessmentSettings.getLatePenaltyType() : "");
 	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_VALUE,
 	        latePenaltyEnabled ? StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()).replace(",", ".") : "");
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_UNIT,
+	        latePenaltyEnabled && "PERCENT".equals(assessmentSettings.getLatePenaltyUnit()) ? "PERCENT" : "");
 	}
 
 	public boolean checkScore(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, FacesContext context) {

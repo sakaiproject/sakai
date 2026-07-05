@@ -356,6 +356,8 @@ public class SaveAssessmentSettings
         latePenaltyEnabled ? assessmentSettings.getLatePenaltyType() : "");
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_VALUE,
         latePenaltyEnabled ? StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()).replace(",", ".") : "");
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.LATE_PENALTY_UNIT,
+        latePenaltyEnabled && "PERCENT".equals(assessmentSettings.getLatePenaltyUnit()) ? "PERCENT" : "");
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);

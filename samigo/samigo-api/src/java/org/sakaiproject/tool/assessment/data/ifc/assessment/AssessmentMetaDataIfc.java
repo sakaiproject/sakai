@@ -48,6 +48,8 @@ public interface AssessmentMetaDataIfc
    */
   public static final String LATE_PENALTY_TYPE = "ASSESSMENT_LATE_PENALTY_TYPE";
   public static final String LATE_PENALTY_VALUE = "ASSESSMENT_LATE_PENALTY_VALUE";
+  /** POINTS (default when absent) or PERCENT of the assessment's maximum score */
+  public static final String LATE_PENALTY_UNIT = "ASSESSMENT_LATE_PENALTY_UNIT";
 
   Long getId();
 

@@ -793,13 +793,19 @@
             onclick="toggleLatePenaltyValue();">
           <f:selectItem itemValue="" itemLabel="#{assessmentSettingsMessages.late_penalty_none}"/>
           <f:selectItem itemValue="FLAT" itemLabel="#{assessmentSettingsMessages.late_penalty_flat}"/>
+          <f:selectItem itemValue="PER_HOUR" itemLabel="#{assessmentSettingsMessages.late_penalty_per_hour}"/>
           <f:selectItem itemValue="PER_DAY" itemLabel="#{assessmentSettingsMessages.late_penalty_per_day}"/>
+          <f:selectItem itemValue="PER_WEEK" itemLabel="#{assessmentSettingsMessages.late_penalty_per_week}"/>
         </h:selectOneRadio>
       </div>
       <h:panelGroup layout="block" id="latePenaltyValueBlock" styleClass="col-md-10 col-md-offset-2"
           style="#{empty assessmentSettings.latePenaltyType ? 'display:none;' : 'display:block;'}">
         <h:outputLabel for="latePenaltyValue" value="#{assessmentSettingsMessages.late_penalty_points}"/>
         <h:inputText id="latePenaltyValue" value="#{assessmentSettings.latePenaltyValue}" size="4" maxlength="8"/>
+        <h:selectOneMenu id="latePenaltyUnit" value="#{assessmentSettings.latePenaltyUnit}">
+          <f:selectItem itemValue="POINTS" itemLabel="#{assessmentSettingsMessages.late_penalty_unit_points}"/>
+          <f:selectItem itemValue="PERCENT" itemLabel="#{assessmentSettingsMessages.late_penalty_unit_percent}"/>
+        </h:selectOneMenu>
       </h:panelGroup>
     </h:panelGroup>
 

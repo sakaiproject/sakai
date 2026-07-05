@@ -149,6 +149,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   // SAK-52267 automatic late penalty: type is "" (none), FLAT or PER_DAY
   @Getter @Setter private String latePenaltyType;
   @Getter @Setter private String latePenaltyValue;
+  // POINTS (default) or PERCENT of the assessment's maximum score
+  @Getter @Setter private String latePenaltyUnit;
 
   // these are properties in AssessmentAccessControl
   private Date startDate;
@@ -372,6 +374,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.trackQuestions = Boolean.valueOf(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
       this.latePenaltyType = StringUtils.defaultString(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
       this.latePenaltyValue = StringUtils.defaultString(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+      this.latePenaltyUnit = StringUtils.defaultIfBlank(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_UNIT), "POINTS");
       if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 						    BGIMAGE)!=null )&&(!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 																										BGIMAGE).equals(""))){

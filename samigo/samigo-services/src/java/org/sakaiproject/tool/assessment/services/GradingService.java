@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator;
 import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator.LatePenaltyType;
+import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator.LatePenaltyUnit;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
@@ -1382,7 +1383,17 @@ public class GradingService
     if (type == null) return 0d;
 
     Double value = LatePenaltyCalculator.parsePenaltyValue(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
-    return LatePenaltyCalculator.penaltyPoints(type, value, data.getIsLate(), effectiveDueDate, data.getSubmittedDate());
+    LatePenaltyUnit unit = LatePenaltyUnit.fromString(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_UNIT));
+    Double maxPoints = null;
+    if (unit == LatePenaltyUnit.PERCENT) {
+      try {
+        maxPoints = pub.getTotalScore();
+      } catch (Exception e) {
+        log.debug("Could not resolve total score for percent late penalty on assessment {}, applying nothing: {}",
+            pub.getPublishedAssessmentId(), e.toString());
+      }
+    }
+    return LatePenaltyCalculator.penaltyPoints(type, unit, value, maxPoints, data.getIsLate(), effectiveDueDate, data.getSubmittedDate());
   }
 
   /**
