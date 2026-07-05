@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -342,22 +343,13 @@ public class SaveAssessmentSettingsListener
 		}
     }
 
-    // SAK-52267 when a late penalty is selected its point value must be a positive number
-    if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())) {
-        boolean latePenaltyError = false;
-        String submittedPenalty = StringUtils.replace(StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()), ",", ".");
-        try {
-            if (Double.parseDouble(submittedPenalty) <= 0) {
-                latePenaltyError = true;
-            }
-        } catch (NumberFormatException ex) {
-            latePenaltyError = true;
-        }
-        if (latePenaltyError) {
-            error = true;
-            String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
-            context.addMessage(null, new FacesMessage(str_err));
-        }
+    // SAK-52267 when a late penalty is selected its point value must be a positive
+    // number; the same parser runs at scoring time so validation cannot drift
+    if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())
+            && LatePenaltyCalculator.parsePenaltyValue(assessmentSettings.getLatePenaltyValue()) == null) {
+        error = true;
+        String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
+        context.addMessage(null, new FacesMessage(str_err));
     }
 
     List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();

@@ -61,6 +61,29 @@ public final class LatePenaltyCalculator {
     }
 
     /**
+     * Parses a penalty point value as entered in settings or stored in
+     * metadata, accepting either decimal separator. Both the settings
+     * validation and scoring-time parsing use this, so they cannot drift.
+     *
+     * @return the positive point value, or null when blank, malformed, NaN,
+     *         zero or negative
+     */
+    public static Double parsePenaltyValue(String raw) {
+        if (StringUtils.isBlank(raw)) return null;
+        try {
+            double value = Double.parseDouble(raw.trim().replace(",", "."));
+            if (Double.isNaN(value) || value <= 0d) {
+                log.debug("Rejecting non-positive late penalty value [{}]", raw);
+                return null;
+            }
+            return value;
+        } catch (NumberFormatException e) {
+            log.debug("Rejecting malformed late penalty value [{}], {}", raw, e.toString());
+            return null;
+        }
+    }
+
+    /**
      * Days late as whole 24-hour chunks with any remainder counting as a full
      * day, so one minute late is 1 day and 24h+1s is 2 days. 0 when the
      * submission is not after the due date or either date is missing.

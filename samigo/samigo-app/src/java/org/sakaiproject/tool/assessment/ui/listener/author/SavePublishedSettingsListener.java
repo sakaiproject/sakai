@@ -102,6 +102,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -209,6 +210,18 @@ implements ActionListener
 
 		// jj. save assessment first, then deal with ip
 	    assessmentService.saveAssessment(assessment);
+
+	    // SAK-52267 a late penalty configuration change re-scores existing graded
+	    // submissions immediately (and renotifies the gradebook), so stored final
+	    // scores never disagree with the current settings
+	    String oldPenaltyType = StringUtils.trimToEmpty(originalAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
+	    String oldPenaltyValue = StringUtils.trimToEmpty(originalAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+	    String newPenaltyType = StringUtils.trimToEmpty(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
+	    String newPenaltyValue = StringUtils.trimToEmpty(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+	    if (!StringUtils.equals(oldPenaltyType, newPenaltyType) || !StringUtils.equals(oldPenaltyValue, newPenaltyValue)) {
+	        new GradingService().applyLatePenaltiesToSubmissions(assessment);
+	    }
+
 	    assessmentService.deleteAllSecuredIP(assessment);
 	    // k. set ipAddresses
 	    Set ipSet = new HashSet();
@@ -586,22 +599,13 @@ implements ActionListener
 			}
 		}
 
-		// SAK-52267 when a late penalty is selected its point value must be a positive number
-		if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())) {
-			boolean latePenaltyError = false;
-			String submittedPenalty = StringUtils.replace(StringUtils.trimToEmpty(assessmentSettings.getLatePenaltyValue()), ",", ".");
-			try {
-				if (Double.parseDouble(submittedPenalty) <= 0) {
-					latePenaltyError = true;
-				}
-			} catch (NumberFormatException ex) {
-				latePenaltyError = true;
-			}
-			if (latePenaltyError) {
-				error = true;
-				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
-				context.addMessage(null, new FacesMessage(str_err));
-			}
+		// SAK-52267 when a late penalty is selected its point value must be a positive
+		// number; the same parser runs at scoring time so validation cannot drift
+		if (StringUtils.isNotBlank(assessmentSettings.getLatePenaltyType())
+				&& LatePenaltyCalculator.parsePenaltyValue(assessmentSettings.getLatePenaltyValue()) == null) {
+			error = true;
+			String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "late_penalty_error");
+			context.addMessage(null, new FacesMessage(str_err));
 		}
 
 		org.sakaiproject.grading.api.GradingService gradingService =

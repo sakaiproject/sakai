@@ -53,6 +53,25 @@ public class LatePenaltyCalculatorTest {
         assertNull(LatePenaltyType.fromString("bogus"));
     }
 
+    // shared parser behind both settings validation and scoring-time reads
+    @Test
+    public void parsePenaltyValueAcceptsPositiveNumbersEitherSeparator() {
+        assertEquals(Double.valueOf(5.0), LatePenaltyCalculator.parsePenaltyValue("5"));
+        assertEquals(Double.valueOf(2.5), LatePenaltyCalculator.parsePenaltyValue("2.5"));
+        assertEquals(Double.valueOf(2.5), LatePenaltyCalculator.parsePenaltyValue("2,5"));
+        assertEquals(Double.valueOf(1.0), LatePenaltyCalculator.parsePenaltyValue(" 1 "));
+    }
+
+    @Test
+    public void parsePenaltyValueRejectsInvalidInput() {
+        assertNull(LatePenaltyCalculator.parsePenaltyValue(null));
+        assertNull(LatePenaltyCalculator.parsePenaltyValue(""));
+        assertNull(LatePenaltyCalculator.parsePenaltyValue("abc"));
+        assertNull(LatePenaltyCalculator.parsePenaltyValue("0"));
+        assertNull(LatePenaltyCalculator.parsePenaltyValue("-2"));
+        assertNull(LatePenaltyCalculator.parsePenaltyValue("NaN"));
+    }
+
     // days late: ceiling of 24h chunks, 0 when on time
     @Test
     public void daysLateComputation() {

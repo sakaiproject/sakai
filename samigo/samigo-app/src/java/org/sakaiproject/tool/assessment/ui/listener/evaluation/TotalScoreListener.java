@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -640,12 +641,17 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       results.setIsLate(gdata.getIsLate());
 
       // SAK-52267 the penalty amount this submission attracts (shown even while
-      // waived, next to the Ignore late penalty checkbox)
+      // waived, next to the Ignore late penalty checkbox), in the user's locale
       results.setIgnoreLatePenalty(gdata.getIgnoreLatePenalty());
       double latePenalty = gradingService.getLatePenalty(gdata, p);
-      results.setLatePenalty(latePenalty > 0
-          ? "-" + (latePenalty == Math.floor(latePenalty) ? String.valueOf((long) latePenalty) : String.valueOf(latePenalty))
-          : "0");
+      if (latePenalty > 0) {
+        NumberFormat penaltyFormat = NumberFormat.getInstance(localeService.getLocaleForCurrentSiteAndUser());
+        penaltyFormat.setGroupingUsed(false);
+        penaltyFormat.setMaximumFractionDigits(2);
+        results.setLatePenalty("-" + penaltyFormat.format(latePenalty));
+      } else {
+        results.setLatePenalty("0");
+      }
 
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();

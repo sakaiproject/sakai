@@ -1381,17 +1381,34 @@ public class GradingService
     LatePenaltyType type = LatePenaltyType.fromString(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
     if (type == null) return 0d;
 
-    Double value = parseLatePenaltyValue(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+    Double value = LatePenaltyCalculator.parsePenaltyValue(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
     return LatePenaltyCalculator.penaltyPoints(type, value, data.getIsLate(), effectiveDueDate, data.getSubmittedDate());
   }
 
-  private Double parseLatePenaltyValue(String raw) {
-    if (StringUtils.isBlank(raw)) return null;
-    try {
-      return Double.valueOf(raw.trim().replace(",", "."));
-    } catch (NumberFormatException e) {
-      log.debug("Ignoring malformed late penalty value [{}], {}", raw, e.toString());
-      return null;
+  /**
+   * SAK-52267 re-applies the current late penalty configuration to every
+   * stored graded submission of a published assessment, so a settings change
+   * takes effect immediately rather than on the next per-submission recompute.
+   * Rows whose finalScore changes are saved and renotified to the gradebook.
+   */
+  public void applyLatePenaltiesToSubmissions(PublishedAssessmentIfc pub) {
+    if (pub == null) return;
+    List<AssessmentGradingData> submissions = getAllSubmissions(pub.getPublishedAssessmentId().toString());
+    int updated = 0;
+    for (AssessmentGradingData data : submissions) {
+      double totalAutoScore = data.getTotalAutoScore() != null ? data.getTotalAutoScore() : 0d;
+      double totalOverrideScore = data.getTotalOverrideScore() != null ? data.getTotalOverrideScore() : 0d;
+      double newFinalScore = computeFinalScore(totalAutoScore, totalOverrideScore,
+          getLatePenalty(data, pub), data.getIgnoreLatePenalty());
+      if (data.getFinalScore() == null || Math.abs(data.getFinalScore() - newFinalScore) > 0.0001d) {
+        data.setFinalScore(newFinalScore);
+        saveOrUpdateAssessmentGrading(data);
+        notifyGradebookByScoringType(data, pub);
+        updated++;
+      }
+    }
+    if (updated > 0) {
+      log.info("Late penalty settings change re-scored {} submission(s) of published assessment {}", updated, pub.getPublishedAssessmentId());
     }
   }
 
