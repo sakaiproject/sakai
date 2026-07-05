@@ -140,29 +140,8 @@ ASN_INE.toggleLatePenalty = (checkbox) => {
 	section.style.display = checkbox.checked ? "block" : "none";
 	if (checkbox.checked)
 	{
-		ASN_INE.syncLatePenaltyInputs();
+		document.getElementById("latePenaltyValue")?.focus();
 	}
-};
-
-// only the input matching the selected penalty type is editable
-ASN_INE.syncLatePenaltyInputs = () => {
-
-	const perDayRadio = document.getElementById("latePenaltyPerDay");
-	const flatValue = document.getElementById("latePenaltyFlatValue");
-	const perDayValue = document.getElementById("latePenaltyPerDayValue");
-	if (!perDayRadio || !flatValue || !perDayValue)
-	{
-		return;
-	}
-	flatValue.disabled = perDayRadio.checked;
-	perDayValue.disabled = !perDayRadio.checked;
-};
-
-ASN_INE.handleLatePenaltyTypeChange = (radio) => {
-
-	ASN_INE.syncLatePenaltyInputs();
-	const value = document.getElementById(radio.value === "PER_DAY" ? "latePenaltyPerDayValue" : "latePenaltyFlatValue");
-	value?.focus();
 };
 
 ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)

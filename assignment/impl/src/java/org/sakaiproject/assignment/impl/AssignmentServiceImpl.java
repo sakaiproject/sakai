@@ -3733,7 +3733,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
         long penalty = LatePenaltyCalculator.penaltyScaled(scale, penaltyType,
+                LatePenaltyCalculator.LatePenaltyUnit.fromString(assignment.getProperties().get(LATE_PENALTY_UNIT)),
                 assignment.getProperties().get(LATE_PENALTY_VALUE),
+                assignment.getMaxGradePoint(),
                 assignment.getDueDate(), submission.getDateSubmitted());
         if (penalty == 0) return null;
 

@@ -1930,6 +1930,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String latePenaltyValue;
 
+        private String latePenaltyUnit;
+
         private String ltiGradableLaunch;
 
         private String ltiFrameHeight;
@@ -1988,6 +1990,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
                 this.latePenaltyType = a.getProperties().get(LATE_PENALTY_TYPE);
                 this.latePenaltyValue = a.getProperties().get(LATE_PENALTY_VALUE);
+                this.latePenaltyUnit = a.getProperties().get(LATE_PENALTY_UNIT);
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);

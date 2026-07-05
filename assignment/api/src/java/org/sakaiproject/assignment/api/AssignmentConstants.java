@@ -242,6 +242,12 @@ public final class AssignmentConstants {
      */
     public static final String LATE_PENALTY_VALUE = "late_penalty_value";
     /**
+     * SAK-15574 assignment property holding the late penalty unit, a
+     * {@link org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyUnit}
+     * name (POINTS or PERCENT of the max grade); absent means POINTS.
+     */
+    public static final String LATE_PENALTY_UNIT = "late_penalty_unit";
+    /**
      * SAK-15574 submission property ("true" when set): the grader chose to
      * waive the assignment's late penalty for this submission
      */

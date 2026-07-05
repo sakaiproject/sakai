@@ -64,7 +64,8 @@ This section contains the options for grading this assignment, including rubrics
 		## SAK-15574 Late Penalty (points assignments only, not with peer assessment;
 		## ASN_INE.togglePeerAssessment shows/hides this container)
 		#set($lpEnabled = ($!value_UseLatePenalty == "true"))
-		#set($lpPerDay = ($!value_LatePenaltyType == "PER_DAY"))
+		#set($lpType = $!value_LatePenaltyType)
+		#set($lpPercent = ($!value_LatePenaltyUnit == "PERCENT"))
 		<div class="form-group" id="latePenaltyContainer" #if ($!value_UsePeerAssessment == "true")style="display:none;"#end>
 			<div class="checkbox">
 				<label for="useLatePenalty">
@@ -78,28 +79,40 @@ This section contains the options for grading this assignment, including rubrics
 				<div class="radio">
 					<label for="latePenaltyFlat">
 						<input type="radio" id="latePenaltyFlat" name="$name_LatePenaltyType" value="FLAT"
-							#if (!$lpPerDay)checked#end
-							onclick="ASN_INE.handleLatePenaltyTypeChange(this)" />
-						$tlang.getString("grading.latepenalty.deduct")
-						<input type="text" id="latePenaltyFlatValue" name="$name_LatePenaltyFlatValue" size="4" maxlength="11"
-							aria-label="$tlang.getString("grading.latepenalty.points")"
-							value="#if(!$lpPerDay)$!value_LatePenaltyValue#end"
-							#if ($lpPerDay)disabled="disabled"#end />
+							#if ($lpType != "PER_HOUR" && $lpType != "PER_DAY" && $lpType != "PER_WEEK")checked#end />
 						$tlang.getString("grading.latepenalty.flat")
+					</label>
+				</div>
+				<div class="radio">
+					<label for="latePenaltyPerHour">
+						<input type="radio" id="latePenaltyPerHour" name="$name_LatePenaltyType" value="PER_HOUR"
+							#if ($lpType == "PER_HOUR")checked#end />
+						$tlang.getString("grading.latepenalty.perhour")
 					</label>
 				</div>
 				<div class="radio">
 					<label for="latePenaltyPerDay">
 						<input type="radio" id="latePenaltyPerDay" name="$name_LatePenaltyType" value="PER_DAY"
-							#if ($lpPerDay)checked#end
-							onclick="ASN_INE.handleLatePenaltyTypeChange(this)" />
-						$tlang.getString("grading.latepenalty.deduct")
-						<input type="text" id="latePenaltyPerDayValue" name="$name_LatePenaltyPerDayValue" size="4" maxlength="11"
-							aria-label="$tlang.getString("grading.latepenalty.points")"
-							value="#if($lpPerDay)$!value_LatePenaltyValue#end"
-							#if (!$lpPerDay)disabled="disabled"#end />
+							#if ($lpType == "PER_DAY")checked#end />
 						$tlang.getString("grading.latepenalty.perday")
 					</label>
+				</div>
+				<div class="radio">
+					<label for="latePenaltyPerWeek">
+						<input type="radio" id="latePenaltyPerWeek" name="$name_LatePenaltyType" value="PER_WEEK"
+							#if ($lpType == "PER_WEEK")checked#end />
+						$tlang.getString("grading.latepenalty.perweek")
+					</label>
+				</div>
+				<div class="form-group">
+					<label for="latePenaltyValue">$tlang.getString("grading.latepenalty.deduct")</label>
+					<input type="text" id="latePenaltyValue" name="$name_LatePenaltyValue" size="4" maxlength="11"
+						value="$!value_LatePenaltyValue" />
+					<label for="latePenaltyUnit" class="sr-only">$tlang.getString("grading.latepenalty.unit")</label>
+					<select id="latePenaltyUnit" name="$name_LatePenaltyUnit">
+						<option value="POINTS" #if (!$lpPercent)selected="selected"#end>$tlang.getString("grading.latepenalty.unit.points")</option>
+						<option value="PERCENT" #if ($lpPercent)selected="selected"#end>$tlang.getString("grading.latepenalty.unit.percent")</option>
+					</select>
 				</div>
 			</div>
 		</div>
