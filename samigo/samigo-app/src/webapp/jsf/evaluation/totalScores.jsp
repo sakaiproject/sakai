@@ -33,9 +33,14 @@
       <title><h:outputText
         value="#{commonMessages.total_scores}" /></title>
 		<style type="text/css">
+			/* Tint the disabled "Requires student submission" comment boxes.
+			   Use Sakai theme variables (defined for both light and dark) so the
+			   boxes track the active theme instead of painting a fixed light-mode
+			   grey that renders near-white in dark mode. */
 			.disabled
 			{
-				background-color: #f1f1f1;
+				background-color: var(--sakai-background-color-2);
+				color: var(--sakai-text-color-1);
 			}
 		</style>
       <script src='/library/js/spinner.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
