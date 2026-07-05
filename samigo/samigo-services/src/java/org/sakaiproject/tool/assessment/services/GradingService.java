@@ -1405,6 +1405,10 @@ public class GradingService
   public void applyLatePenaltiesToSubmissions(PublishedAssessmentIfc pub) {
     if (pub == null) return;
     List<AssessmentGradingData> submissions = getAllSubmissions(pub.getPublishedAssessmentId().toString());
+    if (submissions == null) {
+      log.warn("Could not load submissions of published assessment {} to re-apply late penalties", pub.getPublishedAssessmentId());
+      return;
+    }
     int updated = 0;
     for (AssessmentGradingData data : submissions) {
       double totalAutoScore = data.getTotalAutoScore() != null ? data.getTotalAutoScore() : 0d;

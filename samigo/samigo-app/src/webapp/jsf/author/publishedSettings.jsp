@@ -799,6 +799,7 @@
           style="#{empty publishedSettings.latePenaltyType ? 'display:none;' : 'display:block;'}">
         <h:outputLabel for="latePenaltyValue" value="#{assessmentSettingsMessages.late_penalty_points}"/>
         <h:inputText id="latePenaltyValue" value="#{publishedSettings.latePenaltyValue}" size="4" maxlength="8"/>
+        <h:outputLabel for="latePenaltyUnit" styleClass="sr-only" value="#{assessmentSettingsMessages.late_penalty_unit_label}"/>
         <h:selectOneMenu id="latePenaltyUnit" value="#{publishedSettings.latePenaltyUnit}">
           <f:selectItem itemValue="POINTS" itemLabel="#{assessmentSettingsMessages.late_penalty_unit_points}"/>
           <f:selectItem itemValue="PERCENT" itemLabel="#{assessmentSettingsMessages.late_penalty_unit_percent}"/>
