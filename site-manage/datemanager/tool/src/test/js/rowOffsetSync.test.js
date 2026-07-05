@@ -1,0 +1,90 @@
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// SAK-45285 when a row's open date is edited, the row's later dates shift by
+// the same wall-clock delta, preserving the offsets the item already had.
+
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { loadDtmn } = require("./loadDtmn");
+
+const { DTMN, moment } = loadDtmn();
+
+function m(value) {
+  return moment(value, "YYYY-MM-DDTHH:mm:ss", true);
+}
+
+function shifted(dateStr, oldAnchorStr, newAnchorStr) {
+  return DTMN.shiftPreservingWallClock(m(dateStr), m(oldAnchorStr), m(newAnchorStr))
+    .format("YYYY-MM-DDTHH:mm:ss");
+}
+
+test("anchor fields are the open date and the sign-up begins column", () => {
+  // copy out of the vm realm so deepEqual compares contents, not prototypes
+  assert.deepEqual(Array.from(DTMN.rowAnchorFields), ["open_date", "signup_begins"]);
+});
+
+test("moving the open date forward a week moves the due date the same week, wall clock preserved", () => {
+  assert.equal(
+    shifted("2026-08-20T23:59:00", "2026-08-13T08:00:00", "2026-08-20T08:00:00"),
+    "2026-08-27T23:59:00");
+});
+
+test("moving the open date backward shifts siblings backward", () => {
+  assert.equal(
+    shifted("2026-08-20T23:59:00", "2026-08-13T08:00:00", "2026-08-06T08:00:00"),
+    "2026-08-13T23:59:00");
+});
+
+test("a year rollover preserves the original open-to-due spread", () => {
+  // Aug 13 2025 -> Aug 12 2026 (364 days); due follows exactly
+  assert.equal(
+    shifted("2025-08-27T23:59:00", "2025-08-13T08:00:00", "2026-08-12T08:00:00"),
+    "2026-08-26T23:59:00");
+});
+
+test("changing only the open time shifts sibling times by the same amount", () => {
+  assert.equal(
+    shifted("2026-08-20T23:00:00", "2026-08-13T08:00:00", "2026-08-13T08:30:00"),
+    "2026-08-20T23:30:00");
+});
+
+test("changing date and time together applies both parts", () => {
+  assert.equal(
+    shifted("2026-08-20T22:00:00", "2026-08-13T08:00:00", "2026-08-14T09:15:00"),
+    "2026-08-21T23:15:00");
+});
+
+test("a shift is a no-op when the anchor did not move", () => {
+  assert.equal(
+    shifted("2026-08-20T23:59:00", "2026-08-13T08:00:00", "2026-08-13T08:00:00"),
+    "2026-08-20T23:59:00");
+});
+
+test("days are applied as calendar days so time-of-day never drifts", () => {
+  // 90-day jump lands at the same wall-clock time
+  assert.equal(
+    shifted("2026-01-10T17:45:00", "2026-01-05T09:00:00", "2026-04-05T09:00:00"),
+    "2026-04-10T17:45:00");
+});
+
+test("date-only values (gradebook style) shift by whole days", () => {
+  const result = DTMN.shiftPreservingWallClock(
+    moment("2026-08-20", "YYYY-MM-DD", true),
+    m("2026-08-13T08:00:00"),
+    m("2026-08-20T08:00:00"));
+  assert.equal(result.format("YYYY-MM-DD"), "2026-08-27");
+});

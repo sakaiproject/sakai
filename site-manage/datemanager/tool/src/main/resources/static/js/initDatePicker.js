@@ -5,6 +5,10 @@ DTMN.collapseElements = [ ];
 DTMN.bulkFields = DTMN.bulkFields || [];
 DTMN.nextIndex = -1;
 
+// SAK-45285 the row column that, when edited by hand, drags the row's other
+// dates along by the same delta so an item's original spacing is preserved
+DTMN.rowAnchorFields = [ "open_date", "signup_begins" ];
+
 DTMN.initDatePicker = function(updates, notModified) {
 
   // use an event listener to populate the date pickers on demand instead of populating everything on page load
@@ -203,12 +207,78 @@ DTMN.setDatePickerValue = function(datepicker, date, useTime)
   const hiddenField = td ? td.querySelector("input[type=hidden]") : null;
   if (hiddenField) {
     hiddenField.value = DTMN.getHiddenDateValue(date, useTime);
+    // programmatic write (shift/bulk/row-sync): the row-sync listener must not
+    // treat it as a hand edit, or bulk shifts would compound per row
+    hiddenField.dataset.dtmnProgrammatic = "true";
     hiddenField.dispatchEvent(new Event("change", {bubbles: true}));
   } else {
     datepicker.dispatchEvent(new Event("change", {bubbles: true}));
   }
 
   datepicker.classList.add("border-warning");
+};
+
+// SAK-45285 shift a date by the wall-clock difference between two anchor
+// values: whole calendar days first (so time-of-day never drifts, including
+// across DST) plus any change in the anchor's time of day
+DTMN.shiftPreservingWallClock = function(date, oldAnchor, newAnchor)
+{
+  const dayDelta = newAnchor.clone().startOf("day").diff(oldAnchor.clone().startOf("day"), "days");
+  const timeDelta = newAnchor.diff(newAnchor.clone().startOf("day"))
+      - oldAnchor.diff(oldAnchor.clone().startOf("day"));
+  return date.clone().add(dayDelta, "days").add(timeDelta, "milliseconds");
+};
+
+// SAK-45285 when a row's anchor date is edited by hand, move the row's other
+// populated dates by the same delta; empty cells stay empty and every field
+// remains editable afterward
+DTMN.syncRowDates = function(hiddenField)
+{
+  const previous = hiddenField.dataset.dtmnPrevValue || "";
+  hiddenField.dataset.dtmnPrevValue = hiddenField.value;
+
+  if (hiddenField.dataset.dtmnProgrammatic === "true") {
+    delete hiddenField.dataset.dtmnProgrammatic;
+    return;
+  }
+
+  const field = hiddenField.dataset.field;
+  if (!DTMN.rowAnchorFields.includes(field) || previous === "" || hiddenField.value === "") {
+    return;
+  }
+
+  const tool = hiddenField.dataset.tool;
+  const useTime = tool !== "gradebookItems";
+  const oldAnchor = DTMN.parseDatePickerInputValue(previous.split("+")[0], useTime);
+  const newAnchor = DTMN.parseDatePickerInputValue(hiddenField.value.split("+")[0], useTime);
+  if (!oldAnchor.isValid() || !newAnchor.isValid() || oldAnchor.isSame(newAnchor)) {
+    return;
+  }
+
+  const idx = hiddenField.dataset.idx;
+  const siblings = document.querySelectorAll(
+      'input[type=hidden][data-tool="' + tool + '"][data-idx="' + idx + '"]');
+
+  siblings.forEach(function(sibling) {
+    if (sibling === hiddenField || sibling.value === "" || DTMN.rowAnchorFields.includes(sibling.dataset.field)) {
+      return;
+    }
+
+    const td = sibling.closest("td");
+    const datepicker = td ? td.querySelector("input.datepicker") : null;
+    if (!datepicker || datepicker.disabled) {
+      return;
+    }
+
+    const siblingUseTime = sibling.dataset.tool !== "gradebookItems";
+    const current = DTMN.parseDatePickerInputValue(sibling.value.split("+")[0], siblingUseTime);
+    if (!current.isValid()) {
+      return;
+    }
+
+    DTMN.setDatePickerValue(datepicker,
+        DTMN.shiftPreservingWallClock(current, oldAnchor, newAnchor), siblingUseTime);
+  });
 };
 
 DTMN.attachDatePicker = function (selector, updates, notModified) {
@@ -283,6 +353,12 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
       }
       notModified.push(tool + idx + field);
     });
+
+    // SAK-45285 a hand edit of the row's anchor date drags the row's other
+    // dates along by the same delta; registered after the bookkeeping handler
+    // above so the anchor's own update is recorded first
+    $hidden.attr('data-dtmn-prev-value', $hidden.val());
+    $hidden.on('change', function () { DTMN.syncRowDates(this); });
 
     $hidden.attr('id', 'hidden_datepicker_' + DTMN.nextIndex);
     var dateFormat = 'YYYY-MM-DDTHH:mm:ss';
