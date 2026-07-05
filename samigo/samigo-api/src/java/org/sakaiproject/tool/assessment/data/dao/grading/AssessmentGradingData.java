@@ -45,6 +45,9 @@ public class AssessmentGradingData implements java.io.Serializable
 	// private PublishedAssessmentIfc publishedAssessment;
 	private Date submittedDate;
 	private Boolean isLate;
+	// SAK-52267 grader chose to waive the assessment's automatic late penalty
+	// for this submission; null/false means the penalty applies
+	private Boolean ignoreLatePenalty;
 	private Boolean forGrade;
 	private Double totalAutoScore;
 	private Double totalOverrideScore;
@@ -234,6 +237,14 @@ public class AssessmentGradingData implements java.io.Serializable
 
 	public void setIsLate(Boolean isLate) {
 		this.isLate = isLate;
+	}
+
+	public Boolean getIgnoreLatePenalty() {
+		return ignoreLatePenalty;
+	}
+
+	public void setIgnoreLatePenalty(Boolean ignoreLatePenalty) {
+		this.ignoreLatePenalty = ignoreLatePenalty;
 	}
 
 	public Boolean getForGrade() {
@@ -487,6 +498,7 @@ public class AssessmentGradingData implements java.io.Serializable
         builder.append(gradedBy);
         builder.append(gradedDate);
         builder.append(gradedDate);
+        builder.append(ignoreLatePenalty);
         builder.append(isAutoSubmitted);
         builder.append(isLate);
         builder.append(isRecorded);
@@ -523,6 +535,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	    builder.append(forGrade,other.forGrade);
 	    builder.append(gradedBy,other.gradedBy);
 	    builder.append(gradedDate,other.gradedDate);
+	    builder.append(ignoreLatePenalty,other.ignoreLatePenalty);
 	    builder.append(isAutoSubmitted,other.isAutoSubmitted);
 	    builder.append(isLate,other.isLate);
 	    builder.append(isRecorded,other.isRecorded);

@@ -45,6 +45,7 @@
     <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" />
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
+    <property name="ignoreLatePenalty" type="boolean" column="IGNORELATEPENALTY" not-null="false" />
     <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />
     <property name="totalAutoScore" type="double" column="TOTALAUTOSCORE" not-null="false" />
     <property name="totalOverrideScore" type="double" column="TOTALOVERRIDESCORE" not-null="false" />

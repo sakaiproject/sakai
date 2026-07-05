@@ -40,6 +40,15 @@ public interface AssessmentMetaDataIfc
   public static final String TO_GRADEBOOK_ID = "TO_GRADEBOOK_ID";
   public static final String CATEGORY_LIST = "CATEGORY_LIST";
 
+  /**
+   * SAK-52267 automatic late penalty: mode is a
+   * {@code org.sakaiproject.tool.assessment.util.LatePenaltyCalculator.LatePenaltyType}
+   * name (FLAT or PER_DAY), absent/blank when no penalty is configured; value
+   * is the point deduction as an unsigned decimal string.
+   */
+  public static final String LATE_PENALTY_TYPE = "ASSESSMENT_LATE_PENALTY_TYPE";
+  public static final String LATE_PENALTY_VALUE = "ASSESSMENT_LATE_PENALTY_VALUE";
+
   Long getId();
 
   void setId(Long id);

@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -94,6 +95,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
+import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator;
+import org.sakaiproject.tool.assessment.util.LatePenaltyCalculator.LatePenaltyType;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
@@ -1323,6 +1326,71 @@ public class GradingService
         }
     }
     return totalAutoScore.doubleValue();
+  }
+
+  /**
+   * SAK-52267 the single formula behind every finalScore write:
+   * max(0, totalAutoScore + totalOverrideScore) minus the late penalty
+   * (still floored at zero), with the penalty waived when the submission's
+   * ignoreLatePenalty flag is set.
+   */
+  public double computeFinalScore(double totalAutoScore, double totalOverrideScore, double latePenalty, Boolean ignoreLatePenalty) {
+    double raw = totalAutoScore + totalOverrideScore;
+    if (raw < 0d) raw = 0d;
+    return LatePenaltyCalculator.applyPenalty(raw, latePenalty, ignoreLatePenalty);
+  }
+
+  /**
+   * SAK-52267 the late penalty in points that the assessment's settings assign
+   * to this submission, or 0 when none applies (no penalty configured, or the
+   * submission is not late). Does not consider the per-submission
+   * ignoreLatePenalty waiver so the amount can still be displayed alongside
+   * the waiver control. Resolves the student's effective due date itself; use
+   * {@link #getLatePenalty(AssessmentGradingData, PublishedAssessmentIfc, Date)}
+   * when the caller already has it.
+   */
+  public double getLatePenalty(AssessmentGradingData data, PublishedAssessmentIfc pub) {
+    if (data == null || pub == null || !Boolean.TRUE.equals(data.getIsLate())) return 0d;
+
+    LatePenaltyType type = LatePenaltyType.fromString(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
+    if (type == null) return 0d;
+
+    Date effectiveDueDate = null;
+    if (type == LatePenaltyType.PER_DAY) {
+      // only the per-day mode needs the (extended-time aware) due date
+      effectiveDueDate = pub.getAssessmentAccessControl().getDueDate();
+      ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+      if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null) {
+        effectiveDueDate = assessmentExtended.getDueDate();
+      }
+    }
+
+    return getLatePenalty(data, pub, effectiveDueDate);
+  }
+
+  /**
+   * Variant of {@link #getLatePenalty(AssessmentGradingData, PublishedAssessmentIfc)}
+   * for callers that have already resolved the student's effective due date
+   * (e.g. the autosubmit job).
+   */
+  public double getLatePenalty(AssessmentGradingData data, PublishedAssessmentIfc pub, Date effectiveDueDate) {
+    if (data == null || pub == null || !Boolean.TRUE.equals(data.getIsLate())) return 0d;
+
+    LatePenaltyType type = LatePenaltyType.fromString(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_TYPE));
+    if (type == null) return 0d;
+
+    Double value = parseLatePenaltyValue(pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.LATE_PENALTY_VALUE));
+    return LatePenaltyCalculator.penaltyPoints(type, value, data.getIsLate(), effectiveDueDate, data.getSubmittedDate());
+  }
+
+  private Double parseLatePenaltyValue(String raw) {
+    if (StringUtils.isBlank(raw)) return null;
+    try {
+      return Double.valueOf(raw.trim().replace(",", "."));
+    } catch (NumberFormatException e) {
+      log.debug("Ignoring malformed late penalty value [{}], {}", raw, e.toString());
+      return null;
+    }
   }
 
   private boolean isAnswered(ItemGradingData data, Long type) {

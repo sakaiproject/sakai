@@ -115,7 +115,35 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalJUn
 			Assert.fail();
 		}
 	}
-	
+
+	// SAK-52267 the grader's per-submission late penalty waiver round-trips
+	@Test
+	public void testIgnoreLatePenaltyRoundTrip() {
+		AssessmentGradingData data = new AssessmentGradingData();
+		data.setPublishedAssessmentId(Long.valueOf(1));
+		data.setAgentId("agent");
+		data.setIsLate(true);
+		data.setForGrade(true);
+		data.setStatus(Integer.valueOf(1));
+		data.setIgnoreLatePenalty(Boolean.TRUE);
+		queries.saveOrUpdateAssessmentGrading(data);
+		Assert.assertNotNull(data.getAssessmentGradingId());
+
+		AssessmentGradingData loaded = queries.load(data.getAssessmentGradingId());
+		Assert.assertEquals(Boolean.TRUE, loaded.getIgnoreLatePenalty());
+
+		// absent by default so existing rows read as "penalty applies"
+		AssessmentGradingData plain = new AssessmentGradingData();
+		plain.setPublishedAssessmentId(Long.valueOf(1));
+		plain.setAgentId("agent2");
+		plain.setIsLate(true);
+		plain.setForGrade(true);
+		plain.setStatus(Integer.valueOf(1));
+		queries.saveOrUpdateAssessmentGrading(plain);
+		AssessmentGradingData loadedPlain = queries.load(plain.getAssessmentGradingId());
+		Assert.assertNotEquals(Boolean.TRUE, loadedPlain.getIgnoreLatePenalty());
+	}
+
 	@Test
 	public void testLoad() {
 		loadData();
