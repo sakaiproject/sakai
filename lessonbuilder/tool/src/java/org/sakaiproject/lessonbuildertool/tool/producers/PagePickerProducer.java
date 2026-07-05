@@ -355,14 +355,20 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             UIOutput.make(form, "hr");
             if (!StringUtils.equals(returnView, "reorder")) {
                 UIOutput.make(form, "options");
+                UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
+                UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
             }
-            UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
-            UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
+            UIOutput.make(form, "subpage-copy-options");
+            UISelect subpageCopyRadios = UISelect.make(form, "subpage-copy-select",
+                    new String[] {SimplePageBean.SUBPAGE_COPY_SHARED, SimplePageBean.SUBPAGE_COPY_DUPLICATE},
+                    "#{simplePageBean.subpageCopyMode}", SimplePageBean.SUBPAGE_COPY_SHARED);
+            UISelectChoice.make(form, "subpage-copy-shared", subpageCopyRadios.getFullID(), 0);
+            UISelectChoice.make(form, "subpage-copy-duplicate", subpageCopyRadios.getFullID(), 1);
         }
 
         if (StringUtils.equals(returnView, "reorder")) {
             UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"),
-                    "#{simplePageBean.selectPage}");
+                    "#{simplePageBean.addItemsFromPage}");
         } else if (params.newTopLevel) {
             UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", params.getAddBefore());
             UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"),
@@ -389,6 +395,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         cases.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
         GeneralViewParameters selectSite = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
         selectSite.setSource("anotherPage");
+        selectSite.setReturnView("reorder");
         cases.add(new NavigationCase("selectsite", selectSite));
         return cases;
     }
