@@ -85,6 +85,22 @@ test("a shift is a no-op when the anchor did not move", () => {
     "2026-08-20T23:59:00");
 });
 
+test("a shift across a DST boundary keeps wall-clock time (zone-aware moments)", () => {
+  // America/New_York springs forward 2026-03-08: the anchor moves Mar 6 -> Mar 13
+  // (7 calendar days across the transition) and the 23:00 due time stays 23:00,
+  // even though the interval is only 167 real hours
+  const tz = require("moment-timezone");
+  const oldAnchor = tz.tz("2026-03-06T08:00:00", "America/New_York");
+  const newAnchor = tz.tz("2026-03-13T08:00:00", "America/New_York");
+  const due = tz.tz("2026-03-06T23:00:00", "America/New_York");
+  const shiftedDue = DTMN.shiftPreservingWallClock(due, oldAnchor, newAnchor);
+  assert.equal(shiftedDue.format("YYYY-MM-DDTHH:mm:ss"), "2026-03-13T23:00:00");
+  assert.equal(newAnchor.diff(oldAnchor, "hours"), 167); // proves we really crossed DST
+  // and back again across the same boundary
+  const restored = DTMN.shiftPreservingWallClock(shiftedDue, newAnchor, oldAnchor);
+  assert.equal(restored.format("YYYY-MM-DDTHH:mm:ss"), "2026-03-06T23:00:00");
+});
+
 test("days are applied as calendar days so time-of-day never drifts", () => {
   // 90-day jump lands at the same wall-clock time
   assert.equal(
