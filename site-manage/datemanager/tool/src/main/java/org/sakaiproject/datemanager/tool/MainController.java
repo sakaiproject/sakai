@@ -106,6 +106,10 @@ public class MainController {
         model.addAttribute("userLanguage", loc.getLanguage());
         model.addAttribute("userLocale", loc.toString());
         model.addAttribute("userTimeZone", userTimeService.getLocalTimeZone().getID());
+        // SAK-45285 version the tool's static assets so browsers refetch them on
+        // upgrade; same convention as PortalUtils.getCDNQuery()
+        model.addAttribute("cdnVersion", serverConfigurationService.getString("portal.cdn.version",
+                serverConfigurationService.getString("version.service", "0")));
 
         return model;
     }
