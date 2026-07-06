@@ -42,8 +42,10 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<Long> criteria = cb.createQuery(Long.class);
 		Root<UserAuditLog> root = criteria.from(UserAuditLog.class);
+		List<Predicate> filters = new ArrayList<>();
+		addFilters(filters, query, cb, root);
 
-		criteria.select(cb.count(root)).where(filters(query, cb, root).toArray(new Predicate[0]));
+		criteria.select(cb.count(root)).where(filters.toArray(new Predicate[0]));
 		return session.createQuery(criteria).uniqueResult();
 	}
 
@@ -54,10 +56,12 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<UserAuditLog> criteria = cb.createQuery(UserAuditLog.class);
 		Root<UserAuditLog> root = criteria.from(UserAuditLog.class);
+		List<Predicate> filters = new ArrayList<>();
+		addFilters(filters, query, cb, root);
 
 		String sortProperty = query.getSortColumn().getEntityProperty();
 		criteria.select(root)
-				.where(filters(query, cb, root).toArray(new Predicate[0]))
+				.where(filters.toArray(new Predicate[0]))
 				.orderBy(query.isSortAscending() ? cb.asc(root.get(sortProperty)) : cb.desc(root.get(sortProperty)),
 						cb.asc(root.get("userId")));
 
@@ -81,8 +85,7 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		return session.createQuery(delete).executeUpdate();
 	}
 
-	private List<Predicate> filters(UserAuditLogQuery query, CriteriaBuilder cb, Root<UserAuditLog> root) {
-		List<Predicate> filters = new ArrayList<>();
+	private void addFilters(List<Predicate> filters, UserAuditLogQuery query, CriteriaBuilder cb, Root<UserAuditLog> root) {
 		filters.add(cb.equal(root.get("siteId"), query.getSiteId()));
 		if (query.getUserId() != null) {
 			filters.add(cb.equal(root.get("userId"), query.getUserId()));
@@ -93,6 +96,5 @@ public class UserAuditLogRepositoryImpl extends SpringCrudRepositoryImpl<UserAud
 		if (query.getToAuditStamp() != null) {
 			filters.add(cb.lessThan(root.get("auditStamp"), query.getToAuditStamp()));
 		}
-		return filters;
 	}
 }
