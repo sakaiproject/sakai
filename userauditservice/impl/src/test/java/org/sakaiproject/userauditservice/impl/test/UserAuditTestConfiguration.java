@@ -16,34 +16,41 @@
 
 package org.sakaiproject.userauditservice.impl.test;
 
-import org.hibernate.SessionFactory;
+import org.mockito.Mockito;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
 import org.sakaiproject.test.SakaiTestConfiguration;
-import org.sakaiproject.userauditservice.api.model.UserAuditLog;
-import org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository;
-import org.sakaiproject.userauditservice.impl.repository.UserAuditLogRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
+@ImportResource("classpath:/WEB-INF/components.xml")
 @PropertySource("classpath:/hibernate.properties")
 public class UserAuditTestConfiguration extends SakaiTestConfiguration {
 
+	@Autowired
+	@Qualifier("org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.userauditservice")
+	private AdditionalHibernateMappings additionalHibernateMappings;
+
 	@Override
 	protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
-		AdditionalHibernateMappingsImpl mappings = new AdditionalHibernateMappingsImpl();
-		mappings.setAnnotatedClasses(new Class<?>[] { UserAuditLog.class });
-		return mappings;
+		return additionalHibernateMappings;
 	}
 
-	@Bean
-	public UserAuditLogRepository userAuditLogRepository(SessionFactory sessionFactory) {
-		UserAuditLogRepositoryImpl repository = new UserAuditLogRepositoryImpl();
-		repository.setSessionFactory(sessionFactory);
-		return repository;
+	@Bean(name = "org.sakaiproject.event.api.EventTrackingService")
+	public EventTrackingService eventTrackingService() {
+		return Mockito.mock(EventTrackingService.class);
+	}
+
+	@Bean(name = "org.sakaiproject.site.api.SiteService")
+	public SiteService siteService() {
+		return Mockito.mock(SiteService.class);
 	}
 }

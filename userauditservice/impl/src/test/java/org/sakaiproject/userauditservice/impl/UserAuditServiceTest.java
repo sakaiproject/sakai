@@ -18,46 +18,40 @@ package org.sakaiproject.userauditservice.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.runner.RunWith;
 import org.sakaiproject.userauditservice.api.UserAuditLogQuery;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.UserAuditSortColumn;
 import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.userauditservice.api.model.UserAuditLog;
-import org.sakaiproject.userauditservice.api.repository.UserAuditLogRepository;
+import org.sakaiproject.userauditservice.impl.test.UserAuditTestConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { UserAuditTestConfiguration.class })
+@Transactional
 public class UserAuditServiceTest {
 
-	private UserAuditLogRepository userAuditLogRepository;
-	private UserAuditService userAuditService;
+	private static final String SITE_ID = "site-service";
+	private static final String OTHER_SITE_ID = "site-other";
 
-	@Before
-	public void setUp() {
-		userAuditLogRepository = mock(UserAuditLogRepository.class);
-		UserAuditServiceImpl userAuditServiceImpl = new UserAuditServiceImpl();
-		userAuditServiceImpl.setUserAuditLogRepository(userAuditLogRepository);
-		userAuditService = userAuditServiceImpl;
-	}
+	@Autowired
+	private UserAuditService userAuditService;
 
 	@Test
 	public void registerTracksItemsAndDerivesKeysOnDemand() {
-		UserAuditRegistration first = mock(UserAuditRegistration.class);
-		when(first.getDatabaseSourceKey()).thenReturn("M");
-		UserAuditRegistration second = mock(UserAuditRegistration.class);
-		when(second.getDatabaseSourceKey()).thenReturn("S");
+		UserAuditRegistration first = new TestUserAuditRegistration("M");
+		UserAuditRegistration second = new TestUserAuditRegistration("S");
 
 		userAuditService.register(first);
 		userAuditService.register(second);
@@ -67,41 +61,38 @@ public class UserAuditServiceTest {
 	}
 
 	@Test
-	public void addToUserAuditingSavesAuditEntriesAsJpaEntities() {
+	public void addToUserAuditingPersistsAuditEntries() {
 		List<UserAuditEntry> userAuditEntries = List.of(
-				UserAuditEntry.of("site-a", "user-a", "maintain", "A", "M", "admin-a"),
-				UserAuditEntry.of("site-a", "user-b", "access", "R", "S", "admin-b"));
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a"),
+				UserAuditEntry.of(SITE_ID, "user-b", "access", "D", "S", "admin-b"));
 
 		userAuditService.addToUserAuditing(userAuditEntries);
 
-		ArgumentCaptor<Iterable<UserAuditLog>> auditLogsCaptor = ArgumentCaptor.forClass(Iterable.class);
-		verify(userAuditLogRepository).saveAll(auditLogsCaptor.capture());
-
-		List<UserAuditLog> auditLogs = new ArrayList<UserAuditLog>();
-		for (UserAuditLog auditLog : auditLogsCaptor.getValue()) {
-			auditLogs.add(auditLog);
-		}
+		List<UserAuditLog> auditLogs = userAuditService.getUserAuditLogs(UserAuditLogQuery.builder()
+				.siteId(SITE_ID)
+				.sortColumn(UserAuditSortColumn.USER_ID)
+				.sortAscending(true)
+				.build());
 
 		assertEquals(2, auditLogs.size());
-		assertAuditLog(auditLogs.get(0), "site-a", "user-a", "maintain", "A", "M", "admin-a");
-		assertAuditLog(auditLogs.get(1), "site-a", "user-b", "access", "R", "S", "admin-b");
+		assertAuditLog(auditLogs.get(0), SITE_ID, "user-a", "maintain", "A", "M", "admin-a");
+		assertAuditLog(auditLogs.get(1), SITE_ID, "user-b", "access", "D", "S", "admin-b");
 	}
 
 	@Test
 	public void addToUserAuditingUsesNonDecreasingAuditStamps() {
 		List<UserAuditEntry> userAuditEntries = List.of(
-				UserAuditEntry.of("site-a", "user-a", "maintain", "A", "M", "admin-a"),
-				UserAuditEntry.of("site-a", "user-b", "access", "R", "S", "admin-b"));
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a"),
+				UserAuditEntry.of(SITE_ID, "user-b", "access", "D", "S", "admin-b"));
 
 		userAuditService.addToUserAuditing(userAuditEntries);
 
-		ArgumentCaptor<Iterable<UserAuditLog>> auditLogsCaptor = ArgumentCaptor.forClass(Iterable.class);
-		verify(userAuditLogRepository).saveAll(auditLogsCaptor.capture());
+		List<UserAuditLog> auditLogs = userAuditService.getUserAuditLogs(UserAuditLogQuery.builder()
+				.siteId(SITE_ID)
+				.sortAscending(true)
+				.build());
 
-		List<UserAuditLog> auditLogs = new ArrayList<UserAuditLog>();
-		for (UserAuditLog auditLog : auditLogsCaptor.getValue()) {
-			auditLogs.add(auditLog);
-		}
+		assertEquals(2, auditLogs.size());
 		assertTrue(auditLogs.get(0).getAuditStamp().compareTo(auditLogs.get(1).getAuditStamp()) <= 0);
 	}
 
@@ -110,71 +101,72 @@ public class UserAuditServiceTest {
 		userAuditService.addToUserAuditing(null);
 		userAuditService.addToUserAuditing(List.of());
 
-		verify(userAuditLogRepository, never()).saveAll(org.mockito.ArgumentMatchers.any());
+		assertEquals(0L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build()));
 	}
 
 	@Test
 	public void addToUserAuditingSkipsNullEntries() {
 		List<UserAuditEntry> userAuditEntries = new ArrayList<UserAuditEntry>();
 		userAuditEntries.add(null);
-		userAuditEntries.add(UserAuditEntry.of("site-a", "user-b", "access", "R", "S", "admin-b"));
+		userAuditEntries.add(UserAuditEntry.of(SITE_ID, "user-b", "access", "D", "S", "admin-b"));
 
 		userAuditService.addToUserAuditing(userAuditEntries);
 
-		ArgumentCaptor<Iterable<UserAuditLog>> auditLogsCaptor = ArgumentCaptor.forClass(Iterable.class);
-		verify(userAuditLogRepository).saveAll(auditLogsCaptor.capture());
-
-		int savedRows = 0;
-		for (UserAuditLog ignored : auditLogsCaptor.getValue()) {
-			savedRows++;
-		}
-		assertEquals(1, savedRows);
+		assertEquals(1L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build()));
 	}
 
 	@Test
-	public void deleteUserAuditingFromSiteDelegatesToRepository() {
-		userAuditService.deleteUserAuditingFromSite("site-a");
+	public void deleteUserAuditingFromSiteRemovesMatchingRows() {
+		userAuditService.addToUserAuditing(List.of(
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a"),
+				UserAuditEntry.of(OTHER_SITE_ID, "user-z", "access", "A", "M", "admin-a")));
 
-		verify(userAuditLogRepository).deleteBySiteId("site-a");
+		userAuditService.deleteUserAuditingFromSite(SITE_ID);
+
+		assertEquals(0L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build()));
+		assertEquals(1L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(OTHER_SITE_ID).build()));
 	}
 
 	@Test
 	public void deleteUserAuditingFromSiteSkipsNullSiteId() {
+		userAuditService.addToUserAuditing(List.of(
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a")));
+
 		userAuditService.deleteUserAuditingFromSite(null);
 
-		verify(userAuditLogRepository, never()).deleteBySiteId(org.mockito.ArgumentMatchers.any());
+		assertEquals(1L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build()));
 	}
 
 	@Test
-	public void countUserAuditLogsDelegatesToRepository() {
-		UserAuditLogQuery query = UserAuditLogQuery.builder().siteId("site-a").build();
-		when(userAuditLogRepository.count(same(query))).thenReturn(7L);
+	public void countUserAuditLogsCountsPersistedRows() {
+		userAuditService.addToUserAuditing(List.of(
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a"),
+				UserAuditEntry.of(SITE_ID, "user-b", "access", "D", "S", "admin-b")));
 
-		assertEquals(7L, userAuditService.countUserAuditLogs(query));
+		assertEquals(2L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build()));
 	}
 
 	@Test
 	public void countUserAuditLogsReturnsZeroWithoutSiteId() {
 		assertEquals(0L, userAuditService.countUserAuditLogs(null));
 		assertEquals(0L, userAuditService.countUserAuditLogs(UserAuditLogQuery.builder().build()));
-		verify(userAuditLogRepository, never()).count(org.mockito.ArgumentMatchers.any());
 	}
 
 	@Test
-	public void getUserAuditLogsDelegatesToRepository() {
-		UserAuditLogQuery query = UserAuditLogQuery.builder().siteId("site-a").build();
-		UserAuditLog auditLog = new UserAuditLog();
-		List<UserAuditLog> auditLogs = List.of(auditLog);
-		when(userAuditLogRepository.find(same(query))).thenReturn(auditLogs);
+	public void getUserAuditLogsReturnsPersistedRows() {
+		userAuditService.addToUserAuditing(List.of(
+				UserAuditEntry.of(SITE_ID, "user-a", "maintain", "A", "M", "admin-a")));
 
-		assertSame(auditLogs, userAuditService.getUserAuditLogs(query));
+		List<UserAuditLog> auditLogs = userAuditService.getUserAuditLogs(UserAuditLogQuery.builder().siteId(SITE_ID).build());
+
+		assertEquals(1, auditLogs.size());
+		assertAuditLog(auditLogs.get(0), SITE_ID, "user-a", "maintain", "A", "M", "admin-a");
 	}
 
 	@Test
 	public void getUserAuditLogsReturnsEmptyWithoutSiteId() {
 		assertTrue(userAuditService.getUserAuditLogs(null).isEmpty());
 		assertTrue(userAuditService.getUserAuditLogs(UserAuditLogQuery.builder().build()).isEmpty());
-		verify(userAuditLogRepository, never()).find(org.mockito.ArgumentMatchers.any());
 	}
 
 	private void assertAuditLog(UserAuditLog auditLog, String siteId, String userId, String roleName,
@@ -187,5 +179,29 @@ public class UserAuditServiceTest {
 		assertEquals(source, auditLog.getSource());
 		assertEquals(actionUserId, auditLog.getActionUserId());
 		assertNotNull(auditLog.getAuditStamp());
+	}
+
+	private static class TestUserAuditRegistration implements UserAuditRegistration {
+
+		private final String databaseSourceKey;
+
+		private TestUserAuditRegistration(String databaseSourceKey) {
+			this.databaseSourceKey = databaseSourceKey;
+		}
+
+		@Override
+		public String getDatabaseSourceKey() {
+			return databaseSourceKey;
+		}
+
+		@Override
+		public String getSourceText(String parameter) {
+			return databaseSourceKey;
+		}
+
+		@Override
+		public Object getResourceLoader(String location) {
+			return null;
+		}
 	}
 }
