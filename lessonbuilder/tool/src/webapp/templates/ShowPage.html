@@ -1435,6 +1435,26 @@
                       <input type="text" name="question-max" id="question-max" rsf:id="question-max" />
                     </p>
                   </div>
+                  <div rsf:id="questionAggregateDiv">
+                    <p class="checkbox">
+                      <input type="checkbox" name="question-aggregate" id="question-aggregate" rsf:id="question-aggregate" />
+                      <label for="question-aggregate"><span rsf:id="question-aggregate-label-text"></span></label>
+                    </p>
+                    <p class="instruction textPanelFooter indnt2">
+                      <span rsf:id="question-aggregate-note"></span>
+                      <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#question-aggregate-dialog" aria-controls="question-aggregate-dialog">
+                        <span rsf:id="msg=simplepage.question-aggregate-settings"></span>
+                      </a>
+                    </p>
+                  </div>
+                  <div rsf:id="questionAggregateDiscoverDiv">
+                    <p class="instruction textPanelFooter">
+                      <span rsf:id="msg=simplepage.question-aggregate-discover"></span>
+                      <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#question-aggregate-dialog" aria-controls="question-aggregate-dialog">
+                        <span rsf:id="msg=simplepage.question-aggregate-settings"></span>
+                      </a>
+                    </p>
+                  </div>
                   <div class="longtext">
                     <label for="question-correct-text"><span rsf:id="msg=simplepage.correct-text"></span></label>
                     <br />
@@ -1792,6 +1812,12 @@
                 </a>
                 <!-- just a message, so will display when it should not-->
               </li>
+              <!-- shared gradebook item for inline questions -->
+              <li class="list-group-item m-1" rsf:id="question-aggregate-li">
+                <a rsf:id="question-aggregate-settings" id="question-aggregate-settings" href="#" role="button" data-bs-toggle="modal" data-bs-target="#question-aggregate-dialog" aria-controls="question-aggregate-dialog" aria-expanded="false">
+                  <span rsf:id="msg=simplepage.question-aggregate-settings"></span>
+                </a>
+              </li>
               <li class="list-group-item m-1" rsf:id="show-lti-import">
                 <form action="#" rsf:id="lti-import-form" method="post" enctype="multipart/form-data">
                   <input type="hidden" rsf:id="csrf1" />
@@ -1878,6 +1904,103 @@
           <div class="modal-footer">
             <button class="btn btn-link" type="submit" rsf:id="remove-page-submit" id="remove-page-submit"></button>
             <button type="button" class="btn btn-primary btn-link" data-bs-dismiss="modal" rsf:id="remove-page-cancel"></button>
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
+
+    <div class="modal fade" id="question-aggregate-dialog" rsf:id="question-aggregate-dialog" tabindex="-1" aria-labelledby="questionAggregateLabel" aria-hidden="true">
+      <form action="#" rsf:id="question-aggregate-form">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="questionAggregateLabel" rsf:id="msg=simplepage.question-aggregate-heading">simplepage.question-aggregate-heading</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" rsf:id="csrf30" />
+            <div class="sak-banner-warn" rsf:id="qagg-group-warning">
+              <span rsf:id="msg=simplepage.question-aggregate-group-unsupported"></span>
+            </div>
+            <div rsf:id="qagg-body">
+              <p class="instruction" rsf:id="msg=simplepage.question-aggregate-explanation"></p>
+              <p class="shorttext">
+                <label for="qagg-title"><span rsf:id="msg=simplepage.question-aggregate-title-label"></span></label>
+                <input type="text" name="qagg-title" id="qagg-title" rsf:id="qagg-title" size="40" />
+              </p>
+              <p class="instruction textPanelFooter" rsf:id="msg=simplepage.question-aggregate-title-help"></p>
+              <fieldset class="mb-3">
+                <legend rsf:id="msg=simplepage.question-aggregate-mode-label"></legend>
+                <span rsf:id="qagg-mode" />
+                <p class="checkbox">
+                  <input type="radio" name="qaggModeGroup" rsf:id="qagg-mode-participation" id="qagg-mode-participation" />
+                  <label for="qagg-mode-participation" rsf:id="msg=simplepage.question-aggregate-mode-participation" />
+                </p>
+                <p class="checkbox">
+                  <input type="radio" name="qaggModeGroup" rsf:id="qagg-mode-correctness" id="qagg-mode-correctness" />
+                  <label for="qagg-mode-correctness" rsf:id="msg=simplepage.question-aggregate-mode-correctness" />
+                </p>
+                <div class="indnt2">
+                  <p class="instruction textPanelFooter" rsf:id="msg=simplepage.question-aggregate-essay-label"></p>
+                  <span rsf:id="qagg-essay" />
+                  <p class="checkbox">
+                    <input type="radio" name="qaggEssayGroup" rsf:id="qagg-essay-anyanswer" id="qagg-essay-anyanswer" />
+                    <label for="qagg-essay-anyanswer" rsf:id="msg=simplepage.question-aggregate-essay-anyanswer" />
+                  </p>
+                  <p class="checkbox">
+                    <input type="radio" name="qaggEssayGroup" rsf:id="qagg-essay-carry" id="qagg-essay-carry" />
+                    <label for="qagg-essay-carry" rsf:id="msg=simplepage.question-aggregate-essay-carry" />
+                  </p>
+                </div>
+              </fieldset>
+              <fieldset class="mb-3">
+                <legend rsf:id="msg=simplepage.question-aggregate-worth-label"></legend>
+                <span rsf:id="qagg-worth" />
+                <p class="checkbox">
+                  <input type="radio" name="qaggWorthGroup" rsf:id="qagg-worth-peritem" id="qagg-worth-peritem" />
+                  <label for="qagg-worth-peritem"><span rsf:id="msg=simplepage.question-aggregate-worth-peritem"></span></label>
+                  <input type="text" name="qagg-item-points" id="qagg-item-points" rsf:id="qagg-item-points" size="4" />
+                  <span rsf:id="msg=simplepage.question-aggregate-worth-peritem-2"></span>
+                </p>
+                <p class="checkbox">
+                  <input type="radio" name="qaggWorthGroup" rsf:id="qagg-worth-total" id="qagg-worth-total" />
+                  <label for="qagg-worth-total"><span rsf:id="msg=simplepage.question-aggregate-worth-total"></span></label>
+                  <input type="text" name="qagg-points" id="qagg-points" rsf:id="qagg-points" size="6" />
+                  <span rsf:id="msg=simplepage.question-aggregate-worth-total-2"></span>
+                </p>
+                <p class="instruction textPanelFooter" rsf:id="msg=simplepage.question-aggregate-worth-help"></p>
+              </fieldset>
+              <p class="shorttext">
+                <label for="qagg-due"><span rsf:id="msg=simplepage.question-aggregate-due-label"></span></label>
+                <input type="datetime-local" name="qagg-due" id="qagg-due" rsf:id="qagg-due" />
+              </p>
+              <p class="instruction textPanelFooter" rsf:id="msg=simplepage.question-aggregate-due-help"></p>
+              <p class="checkbox">
+                <input type="checkbox" name="qagg-autoinclude" id="qagg-autoinclude" rsf:id="qagg-autoinclude" />
+                <label for="qagg-autoinclude"><span rsf:id="msg=simplepage.question-aggregate-autoinclude"></span></label>
+              </p>
+              <fieldset class="mb-3">
+                <legend rsf:id="msg=simplepage.question-aggregate-scope-label"></legend>
+                <span rsf:id="qagg-scope" />
+                <p class="checkbox">
+                  <input type="radio" name="qaggScopeGroup" rsf:id="qagg-scope-none" id="qagg-scope-none" />
+                  <label for="qagg-scope-none" rsf:id="msg=simplepage.question-aggregate-scope-none" />
+                </p>
+                <p class="checkbox">
+                  <input type="radio" name="qaggScopeGroup" rsf:id="qagg-scope-page" id="qagg-scope-page" />
+                  <label for="qagg-scope-page" rsf:id="msg=simplepage.question-aggregate-scope-page" />
+                </p>
+                <p class="checkbox">
+                  <input type="radio" name="qaggScopeGroup" rsf:id="qagg-scope-site" id="qagg-scope-site" />
+                  <label for="qagg-scope-site" rsf:id="msg=simplepage.question-aggregate-scope-site" />
+                </p>
+              </fieldset>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary" type="submit" rsf:id="qagg-save" id="qagg-save"></button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="qagg-cancel"></button>
           </div>
         </div>
       </div>
@@ -3256,6 +3379,7 @@
                   <span style="display:none" rsf:id="questionGrade" class="questionGrade"></span>
                   <span style="display:none" rsf:id="questionMaxPoints" class="questionMaxPoints"></span>
                   <span style="display:none" rsf:id="questionGradebookTitle" class="questionGradebookTitle"></span>
+                  <span style="display:none" rsf:id="questionAggregate" class="questionAggregate"></span>
                   <span style="display:none" rsf:id="questionitem-required" class="questionitem-required"></span>
                   <span style="display:none" rsf:id="questionitem-prerequisite" class="questionitem-prerequisite"></span>
                   <span style="display:none" rsf:id="questionitem-groups" class="item-groups"></span>
@@ -3409,6 +3533,7 @@
         <p rsf:id="msg=simplepage.max-file-upload-size" id="simplepage.max-file-upload-size"></p>
         <p rsf:id="msg=simplepage.max-file-upload-size-save" id="simplepage.max-file-upload-size-save"></p>
         <p rsf:id="siteid" id="siteid"></p>
+        <p style="display:none" rsf:id="questionAggregateAutoinclude" id="questionAggregateAutoinclude"></p>
         <p rsf:id="locale" id="locale"></p>
       </div>
 

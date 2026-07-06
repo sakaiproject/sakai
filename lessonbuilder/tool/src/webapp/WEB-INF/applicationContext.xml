@@ -318,6 +318,7 @@ simplePageBean.addForumSummary,
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="questionAggregateService" ref="org.sakaiproject.lessonbuildertool.api.QuestionAggregateService"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>

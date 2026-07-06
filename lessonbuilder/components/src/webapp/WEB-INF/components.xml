@@ -56,4 +56,11 @@
     <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.api.QuestionAggregateService"
+      class="org.sakaiproject.lessonbuildertool.service.QuestionAggregateServiceImpl" init-method="init">
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+    <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+  </bean>
+
 </beans>

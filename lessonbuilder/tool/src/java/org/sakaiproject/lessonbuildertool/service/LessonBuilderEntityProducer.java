@@ -200,6 +200,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private LessonEntity bltiEntity;
 	private LessonEntity scormEntity;
 	private GradebookIfc gradebookIfc;
+	private org.sakaiproject.lessonbuildertool.api.QuestionAggregateService questionAggregateService;
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
 	private MessageSource messageSource;
 	private LTIService ltiService;
@@ -2327,6 +2328,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// set this flag for the group update, which we really do need in duplicate
 		simplePageToolDao.setNeedsGroupFixup(toContext, 2);
 
+		// the copied question items carry their shared-gradebook-item membership
+		// flags; carry the item's configuration too so the feature arrives enabled
+		try {
+			questionAggregateService.copyConfig(fromContext, toContext);
+		} catch (Exception e) {
+			log.warn("Could not copy the shared question gradebook item config to {}: {}", toContext, e.toString());
+		}
+
 		return entityMap;
 
 	}
@@ -2649,6 +2658,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	public void setGradebookIfc(GradebookIfc g) {
 		gradebookIfc = g;
+	}
+
+	public void setQuestionAggregateService(org.sakaiproject.lessonbuildertool.api.QuestionAggregateService s) {
+		questionAggregateService = s;
 	}
 
 	public void setMemoryService(MemoryService m) {

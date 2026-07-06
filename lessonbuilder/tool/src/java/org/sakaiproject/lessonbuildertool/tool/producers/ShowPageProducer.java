@@ -737,6 +737,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc.tooltip")));
 				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
+				UIOutput.make(tofill, "question-aggregate-li");
+				UIOutput.make(tofill, "question-aggregate-settings").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.question-aggregate-settings.tooltip")));
 
 				// Check to see if we have tools registered for external import
 				List<Map<String, Object>> toolsImportItem = simplePageBean.getToolsImportItem();
@@ -778,6 +780,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			UIOutput.make(tofill, "dialogDiv");
 			UIOutput.make(tofill, "siteid", simplePageBean.getCurrentSiteId());
+			UIOutput.make(tofill, "questionAggregateAutoinclude",
+					String.valueOf(simplePageBean.questionAggregateEnabled() && simplePageBean.currentQuestionAggregateAutoInclude()));
 			UIOutput.make(tofill, "locale", M_locale.toString());
 
 		} else if (!canReadPage) {
@@ -3307,6 +3311,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "questionId", String.valueOf(i.getId()));
 						boolean graded = "true".equals(i.getAttribute("questionGraded")) || i.getGradebookId() != null;
 						UIOutput.make(tableRow, "questionGrade", String.valueOf(graded));
+						UIOutput.make(tableRow, "questionAggregate", String.valueOf(SimplePageBean.isAggregateMember(i)));
 						UIOutput.make(tableRow, "questionMaxPoints", String.valueOf(i.getGradebookPoints()));
 						UIOutput.make(tableRow, "questionGradebookTitle", String.valueOf(i.getGradebookTitle()));
 						UIOutput.make(tableRow, "questionitem-required", String.valueOf(i.isRequired()));
@@ -3607,6 +3612,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createCommentsDialog(tofill);
 		createStudentContentDialog(tofill, currentPage);
 		createQuestionDialog(tofill, currentPage);
+		createQuestionAggregateDialog(tofill);
 		createTwitterDialog(tofill, currentPage);
 		createForumSummaryDialog(tofill, currentPage);
 		createLayoutDialog(tofill, currentPage);
@@ -5332,6 +5338,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
 		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
 
+		boolean questionAggregateEnabled = simplePageBean.questionAggregateEnabled();
+		UIOutput questionAggregateDiv = UIOutput.make(form, "questionAggregateDiv");
+		if (!questionAggregateEnabled) {
+			questionAggregateDiv.decorate(new UIStyleDecorator("noDisplay"));
+		} else {
+			UIOutput.make(form, "question-aggregate-label-text",
+					messageLocator.getMessage("simplepage.question-aggregate").replace("{}", simplePageBean.currentQuestionAggregateTitle()));
+			UIOutput.make(form, "question-aggregate-note",
+					messageLocator.getMessage("simplepage.question-aggregate-settings-pointer"));
+		}
+		UIBoundBoolean.make(form, "question-aggregate", "#{simplePageBean.questionAggregate}");
+		if (!questionAggregateEnabled && simplePageBean.isGradebookExists()) {
+			// feature not configured yet: point the instructor at the settings dialog
+			UIOutput.make(form, "questionAggregateDiscoverDiv");
+		}
+
 		UIInput.make(form, "multi_gradebook", String.valueOf(gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())));
 
 		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
@@ -5347,6 +5369,65 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.updateQuestion}");
 		UICommand.make(form, "cancel-question", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+	private void createQuestionAggregateDialog(UIContainer tofill) {
+		// site-wide gradebook configuration: not for student page owners,
+		// whose canEditPage() got them the rest of the edit dialogs
+		if (!simplePageBean.canConfigureQuestionAggregate()) {
+			return;
+		}
+
+		UIOutput.make(tofill, "question-aggregate-dialog")
+				.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.question-aggregate-heading")));
+
+		UIForm form = UIForm.make(tofill, "question-aggregate-form");
+		makeCsrf(form, "csrf30");
+
+		if (gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())) {
+			UIOutput.make(form, "qagg-group-warning");
+		} else {
+			UIOutput.make(form, "qagg-body");
+			String aggregateTitle = simplePageBean.currentQuestionAggregateTitle();
+			if (StringUtils.isBlank(aggregateTitle)) {
+				aggregateTitle = messageLocator.getMessage("simplepage.question-aggregate-title-default");
+			}
+			UIInput.make(form, "qagg-title", "#{simplePageBean.questionAggregateTitle}", aggregateTitle);
+
+			UISelect mode = UISelect.make(form, "qagg-mode",
+					new String[] {"participation", "correctness"},
+					"#{simplePageBean.questionAggregateMode}", simplePageBean.currentQuestionAggregateMode());
+			UISelectChoice.make(form, "qagg-mode-participation", mode.getFullID(), 0);
+			UISelectChoice.make(form, "qagg-mode-correctness", mode.getFullID(), 1);
+
+			UISelect essay = UISelect.make(form, "qagg-essay",
+					new String[] {"anyanswer", "carry"},
+					"#{simplePageBean.questionAggregateEssay}", simplePageBean.currentQuestionAggregateEssay());
+			UISelectChoice.make(form, "qagg-essay-anyanswer", essay.getFullID(), 0);
+			UISelectChoice.make(form, "qagg-essay-carry", essay.getFullID(), 1);
+
+			UISelect worth = UISelect.make(form, "qagg-worth",
+					new String[] {"peritem", "total"},
+					"#{simplePageBean.questionAggregateWorth}", simplePageBean.currentQuestionAggregateWorth());
+			UISelectChoice.make(form, "qagg-worth-peritem", worth.getFullID(), 0);
+			UISelectChoice.make(form, "qagg-worth-total", worth.getFullID(), 1);
+			UIInput.make(form, "qagg-item-points", "#{simplePageBean.questionAggregateItemPoints}", simplePageBean.currentQuestionAggregateItemPoints());
+			UIInput.make(form, "qagg-points", "#{simplePageBean.questionAggregatePoints}", simplePageBean.currentQuestionAggregatePoints());
+
+			UIInput.make(form, "qagg-due", "#{simplePageBean.questionAggregateDue}", simplePageBean.currentQuestionAggregateDueLocal());
+			UIBoundBoolean.make(form, "qagg-autoinclude", "#{simplePageBean.questionAggregateAutoInclude}",
+					simplePageBean.currentQuestionAggregateAutoInclude());
+
+			UISelect scope = UISelect.make(form, "qagg-scope",
+					new String[] {"none", "page", "site"},
+					"#{simplePageBean.questionAggregateApplyScope}", "site");
+			UISelectChoice.make(form, "qagg-scope-none", scope.getFullID(), 0);
+			UISelectChoice.make(form, "qagg-scope-page", scope.getFullID(), 1);
+			UISelectChoice.make(form, "qagg-scope-site", scope.getFullID(), 2);
+
+			UICommand.make(form, "qagg-save", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.saveQuestionAggregateSettings}");
+		}
+		UICommand.make(form, "qagg-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
 	private void createLayoutDialog(UIContainer tofill, SimplePage currentPage) {

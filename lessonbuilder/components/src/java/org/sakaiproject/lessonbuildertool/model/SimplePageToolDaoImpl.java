@@ -272,6 +272,35 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
     // warning: only the id and html fields will be filled out
     // we had serious performance issues with an earlier version, so I'm doing it without hibernate
+	public List<SimplePageItem> findQuestionItemsInSite(String siteId) {
+	    // one query for the question item ids, then load each through the cached
+	    // findItem so attributes (membership flag, type, groups) are populated —
+	    // far cheaper than getSitePages + findItemsOnPage per page, which hydrates
+	    // every item (including large text bodies) on every page.
+	    Object [] fields = new Object[] { siteId, Integer.valueOf(SimplePageItem.QUESTION) };
+	    List<Long> ids = sqlService.dbRead("select b.id from lesson_builder_pages a, lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = ?", fields, new SqlReader() {
+		    public Object readSqlResultRecord(ResultSet result) {
+			try {
+			    return Long.valueOf(result.getLong(1));
+			} catch (SQLException e) {
+			    log.warn("findQuestionItemsInSite: {}", e.toString());
+			    return null;
+			}
+		    }
+		});
+
+	    List<SimplePageItem> items = new ArrayList<SimplePageItem>();
+	    if (ids != null) {
+		for (Long id : ids) {
+		    SimplePageItem item = findItem(id);
+		    if (item != null) {
+			items.add(item);
+		    }
+		}
+	    }
+	    return items;
+	}
+
 	public List<SimplePageItem> findTextItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;

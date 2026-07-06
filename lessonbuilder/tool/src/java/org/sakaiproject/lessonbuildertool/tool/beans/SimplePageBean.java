@@ -94,6 +94,8 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.api.QuestionAggregateCalculator;
+import org.sakaiproject.lessonbuildertool.api.QuestionAggregateService;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
@@ -147,6 +149,9 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -279,6 +284,16 @@ public class SimplePageBean {
 	public boolean graded, sGraded;
 	public String gradebookTitle;
 	public String maxPoints, sMaxPoints;
+	public boolean questionAggregate;
+	public String questionAggregateTitle;
+	public String questionAggregateMode;
+	public String questionAggregateApplyScope;
+	public String questionAggregateWorth;
+	public String questionAggregateItemPoints;
+	public String questionAggregatePoints;
+	public String questionAggregateDue;
+	public String questionAggregateEssay;
+	public boolean questionAggregateAutoInclude;
 	
 	public boolean comments;
 	public boolean forcedAnon;
@@ -488,6 +503,7 @@ public class SimplePageBean {
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
     @Setter private ConditionService conditionService;
+    @Setter private QuestionAggregateService questionAggregateService;
     @Getter @Setter private TaskService taskService;
     @Getter @Setter private ArchiveService archiveService;
 
@@ -2271,6 +2287,12 @@ public class SimplePageBean {
 			}
 		}
 
+		// deleting an aggregate member changes the shared item's max and everyone's counts
+		if (deleted && item.getType() == SimplePageItem.QUESTION
+				&& questionAggregateEnabled() && isAggregateMember(item)) {
+			recomputeQuestionAggregate();
+		}
+
 		// When a question item is deleted, remove assotiated Conditions
 		if (deleted && item.getType() == SimplePageItem.QUESTION) {
 			for (Condition condition : getItemConditions(item)) {
@@ -3189,6 +3211,7 @@ public class SimplePageBean {
 		    return;
 		}
 		// delete all the items on the page
+		boolean deletedAggregateMember = false;
 		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(target.getPageId());
 		for (SimplePageItem item: items) {
 		    // if access controlled, clear it before deleting item
@@ -3206,9 +3229,19 @@ public class SimplePageBean {
 			gradebookIfc.removeExternalAssessment(siteId, item.getAltGradebook());
 		    }
 
+		    if (item.getType() == SimplePageItem.QUESTION) {
+			simplePageToolDao.deleteQuestionResponsesForItem(item);
+			deletedAggregateMember = deletedAggregateMember || isAggregateMember(item);
+		    }
+
 		    //actually delete item
 		    simplePageToolDao.deleteItem(item);
 
+		}
+
+		// deleting member questions moves the shared item's max and everyone's scores
+		if (deletedAggregateMember && questionAggregateService.isEnabled(siteId)) {
+		    questionAggregateService.recompute(siteId);
 		}
 		
 
@@ -8160,6 +8193,18 @@ public class SimplePageBean {
 
 		setItemGroups(item, selectedGroups);
 
+		boolean aggregateChanged = false;
+		if (questionAggregateEnabled()) {
+			boolean wantMember = questionAggregate;
+			if (wantMember && QuestionAggregateService.isGroupRestricted(item)) {
+				// students outside the groups could never earn this share
+				wantMember = false;
+				setErrMessage(messageLocator.getMessage("simplepage.question-aggregate-grouped"));
+			}
+			aggregateChanged = isAggregateMember(item) != wantMember;
+			item.setAttribute("questionAggregate", String.valueOf(wantMember));
+		}
+
 		saveOrUpdate(item);
 
 		// Create or update a task
@@ -8189,7 +8234,18 @@ public class SimplePageBean {
 		}
 
 		regradeAllQuestionResponses(item.getId());
-		
+
+		// Membership changes move the shared item's max points and everyone's scores.
+		// For an unchanged member, only a correctness-mode edit can shift scores (the
+		// answer key just re-graded above); participation depends only on whether a
+		// question was answered, which a content edit does not change — so skip the
+		// full-site recompute for participation-mode content edits.
+		if (aggregateChanged
+				|| (questionAggregateEnabled() && isAggregateMember(item)
+					&& QuestionAggregateCalculator.MODE_CORRECTNESS.equals(currentQuestionAggregateMode()))) {
+			recomputeQuestionAggregate();
+		}
+
 		return "success";
 	}
 
@@ -8262,6 +8318,140 @@ public class SimplePageBean {
 			}
 		}
 	}
+
+	// ---- shared inline-question aggregate gradebook item ----
+	// Settings, membership flags, scoring, and the post-due-date final pass all
+	// live in QuestionAggregateService (component layer); this bean only handles
+	// the dialog plumbing. Not supported with group gradebooks.
+
+	public static boolean isAggregateMember(SimplePageItem item) {
+		return "true".equals(item.getAttribute(QuestionAggregateService.MEMBER_ATTRIBUTE));
+	}
+
+	public boolean questionAggregateEnabled() {
+		return questionAggregateService.isEnabled(getCurrentSiteId());
+	}
+
+	public String currentQuestionAggregateTitle() {
+		return questionAggregateService.getTitle(getCurrentSiteId());
+	}
+
+	public String currentQuestionAggregateMode() {
+		return questionAggregateService.getMode(getCurrentSiteId());
+	}
+
+	public boolean currentQuestionAggregateAutoInclude() {
+		return questionAggregateService.isAutoInclude(getCurrentSiteId());
+	}
+
+	public String currentQuestionAggregatePoints() {
+		return formatPoints(questionAggregateService.getFixedPoints(getCurrentSiteId()));
+	}
+
+	public String currentQuestionAggregateItemPoints() {
+		Double points = questionAggregateService.getPerQuestionPoints(getCurrentSiteId());
+		return points == null ? "1" : formatPoints(points);
+	}
+
+	/** which worth model the radio should show: fixed total wins when stored */
+	public String currentQuestionAggregateWorth() {
+		return questionAggregateService.getFixedPoints(getCurrentSiteId()) != null ? "total" : "peritem";
+	}
+
+	public String currentQuestionAggregateEssay() {
+		return questionAggregateService.getEssayMode(getCurrentSiteId());
+	}
+
+	private String formatPoints(Double points) {
+		if (points == null) {
+			return "";
+		}
+		return points == Math.floor(points) ? String.valueOf(points.intValue()) : String.valueOf(points);
+	}
+
+	/** stored due date formatted for a datetime-local input, in the user's time zone */
+	public String currentQuestionAggregateDueLocal() {
+		Instant due = questionAggregateService.getDueDate(getCurrentSiteId());
+		if (due == null) {
+			return "";
+		}
+		return LocalDateTime.ofInstant(due, userTimeService.getLocalTimeZone().toZoneId())
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+	}
+
+	public boolean recomputeQuestionAggregate() {
+		return questionAggregateService.recompute(getCurrentSiteId());
+	}
+
+	public void updateAggregateScoreForUser(String userId) {
+		questionAggregateService.updateScoreForUser(getCurrentSiteId(), userId);
+	}
+
+	/** true only for users with the site-level Lessons update permission —
+	 *  canEditPage() is not enough here because student page owners pass it,
+	 *  and this action changes site-wide gradebook configuration */
+	public boolean canConfigureQuestionAggregate() {
+		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + getCurrentSiteId());
+	}
+
+	public String saveQuestionAggregateSettings() {
+		if (!canConfigureQuestionAggregate()) {
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+			return "permission-failed";
+		}
+		if (!checkCsrf()) {
+			return "permission-failed";
+		}
+		String siteId = getCurrentSiteId();
+		if (gradebookIfc.isGradebookGroupEnabled(siteId)) {
+			setErrMessage(messageLocator.getMessage("simplepage.question-aggregate-group-unsupported"));
+			return "failure";
+		}
+
+		Double perQuestionPoints = null;
+		Double fixedPoints = null;
+		if ("total".equals(questionAggregateWorth)) {
+			fixedPoints = QuestionAggregateCalculator.parsePositivePoints(questionAggregatePoints);
+			if (fixedPoints == null) {
+				setErrMessage(messageLocator.getMessage("simplepage.question-aggregate-points-invalid"));
+				return "failure";
+			}
+		} else {
+			// per-question worth; blank keeps the default of 1 point each
+			if (StringUtils.isNotBlank(questionAggregateItemPoints)) {
+				perQuestionPoints = QuestionAggregateCalculator.parsePositivePoints(questionAggregateItemPoints);
+				if (perQuestionPoints == null) {
+					setErrMessage(messageLocator.getMessage("simplepage.question-aggregate-points-invalid"));
+					return "failure";
+				}
+			}
+		}
+
+		Instant dueDate = null;
+		if (StringUtils.isNotBlank(questionAggregateDue)) {
+			try {
+				dueDate = LocalDateTime.parse(questionAggregateDue.trim())
+						.atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+			} catch (DateTimeParseException dtpe) {
+				setErrMessage(messageLocator.getMessage("simplepage.question-aggregate-due-invalid"));
+				return "failure";
+			}
+		}
+
+		if ("page".equals(questionAggregateApplyScope)) {
+			questionAggregateService.includeAllQuestions(siteId, getCurrentPageId());
+		} else if ("site".equals(questionAggregateApplyScope)) {
+			questionAggregateService.includeAllQuestions(siteId, -1);
+		}
+
+		if (!questionAggregateService.configure(siteId, questionAggregateTitle, questionAggregateMode,
+				questionAggregateEssay, perQuestionPoints, fixedPoints, dueDate, questionAggregateAutoInclude)) {
+			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
+			return "failure";
+		}
+		return "success";
+	}
+
 
 	private void regradeAllQuestionResponses(long questionId) {
 		List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionId);
@@ -8382,14 +8572,18 @@ public class SimplePageBean {
 		
 		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 		response.setOriginalText(answer.getText());
-		
+
 		gradeQuestionResponse(response);
 
 		// Complete user task
 		this.completeUserTask(questionId, userId);
 
 		saveItem(response);
-		
+
+		if (questionAggregateEnabled() && isAggregateMember(question)) {
+			updateAggregateScoreForUser(userId);
+		}
+
 		return "success";
 	}
 	
@@ -8418,12 +8612,16 @@ public class SimplePageBean {
 		    questionResponse = questionResponse.trim();
 		response.setShortanswer(questionResponse);
 		gradeQuestionResponse(response);
-		
+
 		// Complete user task
 		this.completeUserTask(questionId, userId);
-		
+
 		saveItem(response);
-		
+
+		if (questionAggregateEnabled() && isAggregateMember(question)) {
+			updateAggregateScoreForUser(userId);
+		}
+
 		return "success";
 	}
 	

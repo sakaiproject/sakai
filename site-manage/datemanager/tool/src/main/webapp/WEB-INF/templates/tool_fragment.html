@@ -17,7 +17,7 @@
 						<th th:case="'lessons'" th:text="#{column.hide.until}">Hide Until Date</th>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th:block th:case="'lessons'"></th:block>
+						<th th:case="'lessons'" th:text="#{column.due.date}">Due Date</th>
 						<th th:case="'assignments'" th:text="#{column.due.date}" class="field-required" title="Required">Due Date</th>
 						<th th:case="'assessments'" th:text="#{column.due.date}">Due Date</th>
 						<th th:case="'signupMeetings'" th:text="#{column.end.date}" class="field-required" title="Required">End Date</th>
@@ -55,6 +55,22 @@
 						</td>
 						<th:block th:switch="${toolId}">
 							<th:block th:case="'gradebookItems'"></th:block>
+							<!-- the Lessons shared question item has a due date instead of a release date -->
+							<th:block th:case="'lessons'">
+								<td th:if="${item['qagg'] != null}"></td>
+								<td th:if="${item['qagg'] == null}">
+									<div>
+										<input type="text" class="form-control datepicker" />
+										<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+											<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+										</a>
+										<input type="hidden" th:value="${item.open_date}" th:data-null-date="(${item.open_date} == null OR ${item.open_date} == '')? true : false"
+										th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="open_date" />
+										<div><small class="text-muted day-of-week"></small></div>
+										<div><small class="errors"></small></div>
+									</div>
+								</td>
+							</th:block>
 							<td th:case="*">
 								<div>
 									<input type="text" class="form-control datepicker" />
@@ -69,7 +85,21 @@
 							</td>
 						</th:block>
 						<th:block th:switch="${toolId}">
-							<th:block th:case="'lessons'"></th:block>
+							<th:block th:case="'lessons'">
+								<td th:if="${item['qagg'] == null}"></td>
+								<td th:if="${item['qagg'] != null}">
+									<div>
+										<input type="text" class="form-control datepicker" />
+										<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+											<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+										</a>
+										<input type="hidden" th:value="${item.due_date}" th:data-null-date="(${item.due_date} == null OR ${item.due_date} == '')? true : false"
+										th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="due_date" />
+										<div><small class="text-muted day-of-week"></small></div>
+										<div><small class="errors"></small></div>
+									</div>
+								</td>
+							</th:block>
 							<td th:case="*">
 								<div>
 									<input type="text" class="form-control datepicker" />

@@ -98,6 +98,11 @@ public interface SimplePageToolDao {
 
 	public List<SimplePageItem> findTextItemsInSite(String siteId);
 
+	// All inline-question items (type QUESTION) in the site, fully loaded, in one
+	// query rather than a page-by-page walk. Used by the shared question-aggregate
+	// gradebook item, which needs every question in the site.
+	public List<SimplePageItem> findQuestionItemsInSite(String siteId);
+
 	public SimplePageItem findItem(long id);
 	
 	public SimplePageProperty findProperty(String attribute);

@@ -30,6 +30,7 @@ import org.sakaiproject.grading.api.ExternalAssignmentProviderCompat;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.api.QuestionAggregateService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -57,7 +58,15 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider, Ext
         return "sakai.lessonbuildertool";
     }
 
+    /** the shared inline-question aggregate item: site-wide, never grouped, always visible */
+    private boolean isQuestionAggregate(String id) {
+        return id != null && id.startsWith(QuestionAggregateService.EXTERNAL_ID_PREFIX);
+    }
+
     public boolean isAssignmentGrouped(String id) {
+        if (isQuestionAggregate(id)) {
+            return false;
+        }
         SimplePageItem simplePageItem = getAssignment(id);
         if (simplePageItem != null) {
             return simplePageItem.getGroups() != null;
@@ -69,10 +78,16 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider, Ext
         if (!externalAppName.equals(getAppKey())) {
           return false;
         }
+        if (isQuestionAggregate(id)) {
+            return true;
+        }
         return getAssignment(id) != null;
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
+        if (isQuestionAggregate(id)) {
+            return true;
+        }
         SimplePageItem simplePageItem = getAssignment(id);
         if (simplePageItem != null) {
             SimplePage simplePage = simplePageToolDao.getPage(simplePageItem.getPageId());

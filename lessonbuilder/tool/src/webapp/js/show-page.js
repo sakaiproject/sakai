@@ -1155,6 +1155,7 @@ $(document).ready(function () {
       $("#question-graded").prop("checked", false);
       $("#question-gradebook-title").val("");
       $("#question-max").val("");
+      $("#question-aggregate").prop("checked", $("#questionAggregateAutoinclude").text() === "true");
       $("#question-required").prop("checked", false);
       $("#question-prerequisite").prop("checked", false);
       $("#question-show-poll").prop("checked", false);
@@ -1291,6 +1292,8 @@ $(document).ready(function () {
       } else {
         $("#question-gradebook-title").val(gradebookTitle);
       }
+
+      $("#question-aggregate").prop("checked", row.find(".questionAggregate").text() === "true");
 
       var maxPoints = row.find(".questionMaxPoints").text();
       if (maxPoints === "null") {

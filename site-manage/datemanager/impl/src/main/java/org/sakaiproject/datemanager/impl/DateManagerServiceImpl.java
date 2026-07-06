@@ -132,6 +132,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private AssessmentFacadeQueriesAPI assessmentServiceQueries;
 	@Setter private PublishedAssessmentFacadeQueriesAPI pubAssessmentServiceQueries;
 	@Setter private GradingService gradingService;
+	@Setter private org.sakaiproject.lessonbuildertool.api.QuestionAggregateService questionAggregateService;
 	@Setter private SignupMeetingService signupService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private CalendarService calendarService;
@@ -1680,11 +1681,29 @@ public class DateManagerServiceImpl implements DateManagerService {
         }
     }
 
+	/** synthetic Date Manager row id for the Lessons shared inline-question gradebook item */
+	private static final String QUESTION_AGGREGATE_ID = "question-aggregate";
+
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
 		JSONArray jsonLessons = new JSONArray();
 		List<Long> processedItemIDs = new ArrayList<>();
 		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false", processedItemIDs);
+
+		// the shared inline-question gradebook item carries a due date, not a release date
+		if (questionAggregateService != null && questionAggregateService.isEnabled(siteId)) {
+			JSONObject qagg = new JSONObject();
+			qagg.put(DateManagerConstants.JSON_ID_PARAM_NAME, QUESTION_AGGREGATE_ID);
+			qagg.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, questionAggregateService.getTitle(siteId));
+			Instant due = questionAggregateService.getDueDate(siteId);
+			qagg.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, due != null ? formatToUserDateFormat(Date.from(due)) : null);
+			qagg.put("qagg", "true");
+			qagg.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, getToolTitle(DateManagerConstants.COMMON_ID_LESSONS));
+			qagg.put(DateManagerConstants.JSON_URL_PARAM_NAME, getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS));
+			qagg.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, resourceLoader.getString("tool.lessons.extra.qaggregate"));
+			jsonLessons.add(qagg);
+		}
+
 		return orderJSONArrayByTitle(jsonLessons);
 	}
 
@@ -1732,6 +1751,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			try {
 
+				if (QUESTION_AGGREGATE_ID.equals(jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME))) {
+					String dueDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_DUEDATE_PARAM_NAME);
+					Instant aggregateDue = null;
+					if (StringUtils.isNotBlank(dueDateRaw)) {
+						aggregateDue = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
+					}
+					// carry the site id through as the update target; updateLessons dispatches on it
+					updates.add(new DateManagerUpdate(siteId, null, aggregateDue, null, null, null));
+					continue;
+				}
+
 				String openDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_OPENDATE_PARAM_NAME);
 				Instant openDate = null;
 				Long itemId;
@@ -1771,6 +1801,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception {
                 for (DateManagerUpdate update : lessonsValidation.getUpdates()) {
+                        if (update.object instanceof String) {
+                                // the shared inline-question gradebook item; the object is the site id
+                                questionAggregateService.setDueDate((String) update.object, update.dueDate);
+                                continue;
+                        }
                         SimplePage page = (SimplePage) update.object;
                         Date openDateTemp = update.openDate != null ? Date.from(update.openDate) : null;
                         page.setReleaseDate(openDateTemp);
@@ -2186,13 +2221,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 			int i = 0;
 			while (i < jsonLessons.size() && !changed) {
 				JSONObject lesson = (JSONObject) jsonLessons.get(i);
-				if (Long.toString((Long)lesson.get("id")).equals(id) && columns[2] != null && columns[2].matches(".*\\d.*")) {
+				if (String.valueOf(lesson.get("id")).equals(id) && columns[2] != null && columns[2].matches(".*\\d.*")) {
 					if (lesson.get("open_date") != null) {
 						changed = this.compareDates(this.stringToDate((String) lesson.get("open_date")), columns[2]);
 					} else {
 						changed = true; // new open_date
 					}
-				} else if (Long.toString((Long)lesson.get("id")).equals(id) && !columns[2].matches(".*\\d.*") && lesson.get("open_date") != null) {
+				} else if (String.valueOf(lesson.get("id")).equals(id) && !columns[2].matches(".*\\d.*") && lesson.get("open_date") != null) {
 					changed = true; // remove open_date
 				}
 				i++;

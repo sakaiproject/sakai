@@ -275,8 +275,13 @@ public class GradingBean {
 			
 			response.setOverridden(true);
 			simplePageBean.update(response);
+
+			// an override can flip the correct flag, which moves the shared aggregate score
+			if (simplePageBean.questionAggregateEnabled() && SimplePageBean.isAggregateMember(questionItem)) {
+				simplePageBean.updateAggregateScoreForUser(response.getUserId());
+			}
 		}
-		
+
 		return r;
 	}
 }
