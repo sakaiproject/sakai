@@ -161,17 +161,19 @@ const samigoDraft = (() => {
         if (!editor || editor.samigoDraftHooked) { return; }
         editor.samigoDraftHooked = true;
 
-        if (!restoredFields[editor.name]) {
-            const draft = read(editor.name);
-            if (draft && isBlank(editor.getData())) {
-                editor.setData(draft);
-                restoredFields[editor.name] = true;
-                showRestoredNotice();
-            } else if (!isBlank(editor.getData())) {
-                // Confirmed by the server - but only when the content did not
-                // come from our own just-restored, still-unsaved draft.
-                remove(editor.name);
-            }
+        const draft = read(editor.name);
+        if (draft && isBlank(editor.getData())) {
+            // Restore into the live editor even when hookTextarea already put
+            // the draft into the underlying textarea: an editor launched
+            // before init() was instantiated from the still-empty textarea,
+            // so the textarea restore never reached what the student sees.
+            editor.setData(draft);
+            restoredFields[editor.name] = true;
+            showRestoredNotice();
+        } else if (!restoredFields[editor.name] && !isBlank(editor.getData())) {
+            // Confirmed by the server - but only when the content did not
+            // come from our own just-restored, still-unsaved draft.
+            remove(editor.name);
         }
         editor.on("change", () => {
             debounced(editor.name, () => store(editor.name, editor.getData()));
