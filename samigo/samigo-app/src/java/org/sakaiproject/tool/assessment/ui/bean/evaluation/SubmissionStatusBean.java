@@ -657,13 +657,13 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
         String pageSizesConfig = StringUtils.isNotBlank(sitePageSizes)
                 ? sitePageSizes
                 : ServerConfigurationService.getString(
-                        "sakai.pager.pageSizes",
+                        "sakai.pager.pagesizes",
                         DEFAULT_PAGE_SIZES);
 
         String allowAllConfig = StringUtils.isNotBlank(siteAllowAll)
                 ? siteAllowAll
                 : ServerConfigurationService.getString(
-                        "sakai.pager.allowAll",
+                        "sakai.pager.allowall",
                         "false");
 
         Set<Integer> pageSizes = Arrays.stream(pageSizesConfig.split(","))

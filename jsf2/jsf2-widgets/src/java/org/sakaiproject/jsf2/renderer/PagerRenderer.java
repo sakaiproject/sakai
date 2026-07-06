@@ -17,7 +17,6 @@ package org.sakaiproject.jsf2.renderer;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -62,7 +61,7 @@ public class PagerRenderer extends Renderer {
         // in case we are rendering before decode()ing we need to adjust the states
         adjustState(context, component, firstItem, lastItem, pageSize, totalItems, firstItem, lastItem, pageSize);
 
-        pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
+        pageSize = getInt(context, component, "pageSize", 0);
         totalItems = getInt(context, component, "totalItems", 0);
         firstItem = getInt(context, component, "firstItem", 0);
         lastItem = getInt(context, component, "lastItem", -1);
@@ -261,8 +260,13 @@ public class PagerRenderer extends Renderer {
             } else if (req.containsKey(idNext)) {
                 newFirstItem = Math.min(firstItem + pageSize, totalItems - 1);
             } else if (req.containsKey(idLast)) {
-                int lastPage = (totalItems - 1) / pageSize;
-                newFirstItem = lastPage * pageSize;
+                if (pageSize <= 0) {
+                    // if displaying all items, then first item is 0
+                    newFirstItem = 0;
+                } else {
+                    int lastPage = (totalItems - 1) / pageSize;
+                    newFirstItem = lastPage * pageSize;
+                }
             } else if (req.containsKey(idSelect)) {
                 newPageSize = Integer.parseInt((String)req.get(idSelect));
             }
