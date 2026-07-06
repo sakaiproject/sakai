@@ -56,6 +56,27 @@ function objectMerge(obj/*, ...*/) {
     return obj;
 }
 
+// Applies the dark-theme class to an editor's editable document. Kept at module
+// scope (not nested in launch()) so the CKEDITOR.on('instanceReady', ...) below
+// is registered with a stable function reference: CKEditor 4 dedups listeners by
+// reference identity, so a page that creates/recreates many editors ends up with
+// a single global handler instead of one leaked per launch() call.
+function addThemeClassToEditorDocument(editor){
+    try {
+        //Add sakai-dark-theme class to ckeditor iframe
+        editor.document.$.documentElement.classList.add('sakaiUserTheme-dark');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function addClassOnInstanceReady(evt){
+    addThemeClassToEditorDocument(evt.editor);
+    //contentDom fires whenever the editable document is recreated —
+    //mode switches, setData, and dialogs that reopen the same instance
+    evt.editor.on('contentDom', () => addThemeClassToEditorDocument(evt.editor));
+}
+
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
@@ -85,22 +106,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
       if (document.body) {
         return document.body.clientWidth;
       }
-    }
-
-    function addThemeClassToEditorDocument(editor){
-        try {
-            //Add sakai-dark-theme class to ckeditor iframe
-            editor.document.$.documentElement.classList.add('sakaiUserTheme-dark');
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    function addClassOnInstanceReady(evt){
-        addThemeClassToEditorDocument(evt.editor);
-        //contentDom fires whenever the editable document is recreated —
-        //mode switches, setData, and dialogs that reopen the same instance
-        evt.editor.on('contentDom', () => addThemeClassToEditorDocument(evt.editor));
     }
 
     // Prune the GET parameters and '?' off the URL
@@ -509,10 +514,12 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         }
 
         //CKEditor doesn't have a method to add classes to the HTML element
-        //so we manually add the class as each instance becomes ready. This must
-        //apply to EVERY instance, not once per page: tools like Lessons destroy
-        //and recreate editors (e.g. reopening the question dialog), and a
-        //once-handler leaves every later instance with a white background.
+        //so we manually add the class as each instance becomes ready. instanceReady
+        //fires per instance, so this correctly applies to EVERY editor — including
+        //ones tools like Lessons destroy and recreate (e.g. reopening the question
+        //dialog). addClassOnInstanceReady is defined at module scope so repeat
+        //launch() calls re-register the same reference, which CKEditor 4 dedups to
+        //a single global handler rather than leaking one listener per call.
         //should be refactored when ckeditor5 is implemented
         if (document.firstElementChild.classList.contains('sakaiUserTheme-dark')){
             CKEDITOR.on('instanceReady', addClassOnInstanceReady);
