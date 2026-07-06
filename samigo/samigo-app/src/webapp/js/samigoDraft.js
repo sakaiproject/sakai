@@ -11,47 +11,59 @@
  * a field the server rendered EMPTY, with a visible notice. Everything is
  * best-effort: storage failures are silent.
  */
-var samigoDraft = (function () {
+const samigoDraft = (() => {
     "use strict";
 
-    var PREFIX = "samigoDraft_";
-    var LAST_PURGE_KEY = "samigoDraftLastPurge";
-    var MAX_FIELD_LENGTH = 262144; // 256 KB per field
-    var TTL_MS = 7 * 24 * 60 * 60 * 1000;
-    var PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
-    var DEBOUNCE_MS = 2000;
+    const PREFIX = "samigoDraft_";
+    const LAST_PURGE_KEY = "samigoDraftLastPurge";
+    const MAX_FIELD_LENGTH = 262144; // 256 KB per field
+    const TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    const PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+    const DEBOUNCE_MS = 2000;
 
-    var attemptKey = null;
-    var pageKey = "";
-    var timers = {};
+    let attemptKey = null;
+    let pageKey = "";
+    const timers = {};
+    // Pending debounced writes by field name, so a Save/Next submit or a
+    // page hide can commit them before the debounce timer would have fired.
+    const pendingWrites = {};
     // Fields we restored a draft into this render: their content is NOT
     // server-confirmed, so the confirmed-content cleanup must skip them.
-    var restoredFields = {};
+    const restoredFields = {};
 
-    function username() {
+    const username = () => {
         try {
             if (typeof portal !== "undefined" && portal.user && typeof portal.user.eid === "string") {
                 return portal.user.eid;
             }
         } catch (e) { }
         return "";
-    }
+    };
 
-    function hiddenValue(name) {
+    const assessmentForm = () => document.getElementById("takeAssessmentForm");
+
+    const hiddenValue = (name) => {
         try {
-            var field = document.forms[0].elements["takeAssessmentForm:" + name];
+            const field = assessmentForm().elements[`takeAssessmentForm:${name}`];
             return field && field.value ? field.value : "";
         } catch (e) { return ""; }
-    }
+    };
 
-    function fieldKey(name) {
+    const fieldKey = (name) => {
         // JSF client ids are positional and repeat across pages in
         // question-per-page and part-per-page layouts, so the page position
         // must be part of the key or drafts leak between questions.
-        return PREFIX + attemptKey + "_" + pageKey + "_" + name + "_" + username();
-    }
+        return `${PREFIX}${attemptKey}_${pageKey}_${name}_${username()}`;
+    };
 
-    function store(name, value) {
+    const isBlank = (html) => {
+        if (!html) { return true; }
+        // Embedded media/structure is content even when there is no text.
+        if (/<\s*(img|iframe|audio|video|object|embed|svg|math|canvas|table|hr)\b/i.test(html)) { return false; }
+        return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/\s+/g, "") === "";
+    };
+
+    const store = (name, value) => {
         try {
             if (isBlank(value) || value.length > MAX_FIELD_LENGTH) {
                 // A cleared field must not resurrect later - including one an
@@ -62,65 +74,76 @@ var samigoDraft = (function () {
             }
             localStorage.setItem(fieldKey(name), JSON.stringify({ t: Date.now(), v: value }));
         } catch (e) { /* quota exceeded or private mode */ }
-    }
+    };
 
-    function read(name) {
+    const read = (name) => {
         try {
-            var raw = localStorage.getItem(fieldKey(name));
+            const raw = localStorage.getItem(fieldKey(name));
             if (!raw) { return null; }
-            var parsed = JSON.parse(raw);
+            const parsed = JSON.parse(raw);
             return parsed && parsed.v ? parsed.v : null;
         } catch (e) { return null; }
-    }
+    };
 
-    function remove(name) {
+    const remove = (name) => {
         try { localStorage.removeItem(fieldKey(name)); } catch (e) { }
-    }
+    };
 
-    function purgeExpired() {
+    const purgeExpired = () => {
         try {
-            var now = Date.now();
-            var last = parseInt(localStorage.getItem(LAST_PURGE_KEY), 10);
+            const now = Date.now();
+            const last = parseInt(localStorage.getItem(LAST_PURGE_KEY), 10);
             if (!isNaN(last) && (now - last) < PURGE_INTERVAL_MS) {
                 return;
             }
             localStorage.setItem(LAST_PURGE_KEY, String(now));
-            for (var i = localStorage.length - 1; i >= 0; i--) {
-                var k = localStorage.key(i);
-                if (k && k.indexOf(PREFIX) === 0) {
-                    var drop = true;
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.indexOf(PREFIX) === 0) {
+                    let drop = true;
                     try {
-                        var parsed = JSON.parse(localStorage.getItem(k));
+                        const parsed = JSON.parse(localStorage.getItem(key));
                         drop = !parsed || !parsed.t || (now - parsed.t) > TTL_MS;
                     } catch (e) { /* unparseable: drop */ }
-                    if (drop) { localStorage.removeItem(k); }
+                    if (drop) { localStorage.removeItem(key); }
                 }
             }
         } catch (e) { }
-    }
+    };
 
-    function debounced(name, fn) {
+    const debounced = (name, fn) => {
         if (timers[name]) { clearTimeout(timers[name]); }
-        timers[name] = setTimeout(fn, DEBOUNCE_MS);
-    }
+        pendingWrites[name] = fn;
+        timers[name] = setTimeout(() => {
+            delete pendingWrites[name];
+            delete timers[name];
+            fn();
+        }, DEBOUNCE_MS);
+    };
 
-    function isBlank(html) {
-        if (!html) { return true; }
-        // Embedded media/structure is content even when there is no text.
-        if (/<\s*(img|iframe|audio|video|object|embed|svg|math|canvas|table|hr)\b/i.test(html)) { return false; }
-        return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/\s+/g, "") === "";
-    }
+    // A Save/Next click right after typing must not outrun the debounce: the
+    // whole point is surviving a POST that dies, so the snapshot has to be in
+    // localStorage BEFORE the request leaves.
+    const flushPending = () => {
+        Object.keys(pendingWrites).forEach((name) => {
+            clearTimeout(timers[name]);
+            const fn = pendingWrites[name];
+            delete pendingWrites[name];
+            delete timers[name];
+            fn();
+        });
+    };
 
-    function showRestoredNotice() {
-        var notice = document.getElementById("draft-restored-info");
+    const showRestoredNotice = () => {
+        const notice = document.getElementById("draft-restored-info");
         if (notice) { notice.style.display = "block"; }
-    }
+    };
 
-    function hookTextarea(area) {
+    const hookTextarea = (area) => {
         if (!area.name || area.samigoDraftHooked) { return; }
         area.samigoDraftHooked = true;
 
-        var draft = read(area.name);
+        const draft = read(area.name);
         if (draft && isBlank(area.value)) {
             area.value = draft;
             restoredFields[area.name] = true;
@@ -129,22 +152,17 @@ var samigoDraft = (function () {
             // Server-confirmed content: the local draft is obsolete.
             remove(area.name);
         }
-        var handler = function () {
-            debounced(area.name, function () { store(area.name, area.value); });
-        };
-        if (area.addEventListener) {
-            area.addEventListener("input", handler, false);
-        } else {
-            area.onkeyup = handler;
-        }
-    }
+        area.addEventListener("input", () => {
+            debounced(area.name, () => store(area.name, area.value));
+        });
+    };
 
-    function hookEditor(editor) {
+    const hookEditor = (editor) => {
         if (!editor || editor.samigoDraftHooked) { return; }
         editor.samigoDraftHooked = true;
 
         if (!restoredFields[editor.name]) {
-            var draft = read(editor.name);
+            const draft = read(editor.name);
             if (draft && isBlank(editor.getData())) {
                 editor.setData(draft);
                 restoredFields[editor.name] = true;
@@ -155,34 +173,38 @@ var samigoDraft = (function () {
                 remove(editor.name);
             }
         }
-        editor.on("change", function () {
-            debounced(editor.name, function () { store(editor.name, editor.getData()); });
+        editor.on("change", () => {
+            debounced(editor.name, () => store(editor.name, editor.getData()));
         });
-    }
+    };
 
-    function init(gradingId) {
+    const init = (gradingId) => {
         if (!gradingId || !window.localStorage) { return; }
         attemptKey = String(gradingId);
-        pageKey = "p" + hiddenValue("partIndex") + "q" + hiddenValue("questionIndex");
+        pageKey = `p${hiddenValue("partIndex")}q${hiddenValue("questionIndex")}`;
         purgeExpired();
 
-        var form = document.getElementById("takeAssessmentForm");
+        const form = assessmentForm();
         if (!form) { return; }
 
-        var areas = form.getElementsByTagName("textarea");
-        for (var i = 0; i < areas.length; i++) {
-            hookTextarea(areas[i]);
-        }
+        // Capture phase so the flush runs even if another submit handler
+        // stops propagation; pagehide/visibilitychange cover programmatic
+        // form.submit() calls and the tab being closed or backgrounded.
+        form.addEventListener("submit", flushPending, true);
+        window.addEventListener("pagehide", flushPending);
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") { flushPending(); }
+        });
+
+        Array.from(form.getElementsByTagName("textarea")).forEach(hookTextarea);
 
         if (window.CKEDITOR) {
-            CKEDITOR.on("instanceReady", function (evt) { hookEditor(evt.editor); });
-            for (var name in CKEDITOR.instances) {
-                if (CKEDITOR.instances.hasOwnProperty(name) && CKEDITOR.instances[name].status === "ready") {
-                    hookEditor(CKEDITOR.instances[name]);
-                }
-            }
+            CKEDITOR.on("instanceReady", (evt) => hookEditor(evt.editor));
+            Object.values(CKEDITOR.instances)
+                .filter((instance) => instance.status === "ready")
+                .forEach(hookEditor);
         }
-    }
+    };
 
-    return { init: init };
+    return { init };
 })();
