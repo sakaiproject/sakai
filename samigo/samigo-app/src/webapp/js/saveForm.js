@@ -95,6 +95,37 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 	// So if we need anything from it we have to get it.
 	// Get new date from response and update the form variable
 
+	// SAK-44349: the server rejected this autosave because the assessment
+	// moved on in another tab. Nothing was saved (or lost); stop autosaving
+	// here and tell the student to continue in the newer tab.
+	if (text.indexOf("samigo-stale-tab-marker") >= 0) {
+	    document.getElementById("autosave-msg").style.display = "none";
+	    // Re-enable the buttons/links so the student can still click through
+	    // (any post from here lands on the recoverable resync page).
+	    for (var i=0; i<disabledButtons.length; i++) {
+		document.forms[formId].elements[disabledButtons[i]].disabled=false;
+	    }
+	    for (var i=0; i<disabledLinks.length; i++) {
+		var item = disabledLinks[i];
+		var link = document.getElementById(item[0]);
+		link.onmouseup = item[1];
+		link.onclick = item[2];
+	    }
+	    // The attempt was submitted in another tab/window: force a post so
+	    // this tab leaves its editable (but unsaveable) state.
+	    if (text.indexOf("samigo-attempt-submitted-marker") >= 0) {
+	        $("#autosave-timeexpired-warning").show();
+	        $("[id$=\\:save]")[0].click();
+	        return;
+	    }
+	    var staleWarning = document.getElementById("stale-tab-warning");
+	    if (staleWarning != null) {
+		staleWarning.style.display = "block";
+	    }
+	    window.status = "";
+	    return;
+	}
+
 	var saveok = true;
         var i = text.indexOf('"' + updateVar);
 	if (i < 0) {

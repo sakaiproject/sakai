@@ -102,6 +102,85 @@ public class SubmitToGradingActionListener implements ActionListener {
 	private final PublishedAssessmentService publishedAssesmentService = new PublishedAssessmentService();
 
 	private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
+
+	/**
+	 * SAK-44349: does the persistence backstop apply to this request? Only the
+	 * forced time-expiry submit can bypass the token gate while carrying answer
+	 * inputs, so the backstop is scoped to exactly that: a STALE timeout submit
+	 * (guard on, timeout param present, token not verified) may add first-time
+	 * answers but never blank or delete existing ones. Everything else - normal
+	 * verified posts, guard-disabled deployments, non-JSF invocations, the
+	 * final submit from the confirmation page - keeps full legacy authority.
+	 */
+	private boolean isBackstopRequired() {
+		if (!DeliveryStateGuard.isGuardEnabled()) {
+			return false;
+		}
+		FacesContext context = FacesContext.getCurrentInstance();
+		if (context == null) {
+			return false;
+		}
+		return DeliveryStateGuard.isTimeoutSubmit(context.getExternalContext().getRequestParameterMap())
+				&& !DeliveryStateGuard.isVerified(context);
+	}
+
+	/**
+	 * SAK-44349: does this row hold an actual student answer? Rationale-only
+	 * and media-only (file upload/audio) rows are deliberately not counted -
+	 * those types never generate removals, so the freeze below is moot for
+	 * them and counting them would only over-freeze.
+	 */
+	static boolean hasAnswerContent(ItemGradingData item) {
+		return item != null && (item.getPublishedAnswerId() != null
+				|| StringUtils.isNotBlank(item.getAnswerText()));
+	}
+
+	/**
+	 * SAK-44349: an unverified post must not overwrite a persisted answer
+	 * with a blank one (e.g. the time-expiry submit firing from a stale,
+	 * never-touched tab while another tab holds the real answers).
+	 */
+	static boolean shouldPreserveExistingAnswer(boolean tokenVerified, ItemGradingData oldItem, ItemGradingData newItem) {
+		return !tokenVerified && hasAnswerContent(oldItem) && !hasAnswerContent(newItem);
+	}
+
+	/**
+	 * SAK-44349: for an unverified post, an item that already holds a saved
+	 * answer is frozen - its removals are blocked AND its incoming rows are
+	 * dropped. Blocking only the removal while letting the replacement row
+	 * through would create duplicate rows on single-select items (or violate
+	 * the uniqueStudentResponse constraint and abort the forced submit).
+	 * Items with no saved content may still receive first-time answers.
+	 *
+	 * Freezing is deliberately per-ITEM, not per-blank: on a multi-blank FIB
+	 * where one blank is saved, a stale timeout post cannot add the other
+	 * blank either. Conservative by design - an unverified post never
+	 * modifies an item that holds any saved answer.
+	 *
+	 * @return how many rows were dropped from the set
+	 */
+	static int dropRowsForFrozenItems(Set<ItemGradingData> rows, Set<Long> frozenItemIds) {
+		if (rows == null || rows.isEmpty() || frozenItemIds.isEmpty()) {
+			return 0;
+		}
+		int before = rows.size();
+		rows.removeIf(row -> row != null && row.getPublishedItemId() != null
+				&& frozenItemIds.contains(row.getPublishedItemId()));
+		return before - rows.size();
+	}
+
+	/** SAK-44349: published item ids that already hold a saved answer. */
+	static Set<Long> answeredItemIds(Collection<ItemGradingData> persistedRows) {
+		Set<Long> answered = new HashSet<>();
+		if (persistedRows != null) {
+			for (ItemGradingData row : persistedRows) {
+				if (hasAnswerContent(row) && row.getPublishedItemId() != null) {
+					answered.add(row.getPublishedItemId());
+				}
+			}
+		}
+		return answered;
+	}
 	private final UserDirectoryService userDirectoryService = ComponentManager.get( UserDirectoryService.class );
         private final TaskService taskService = ComponentManager.get( TaskService.class );
 
@@ -438,6 +517,21 @@ public class SubmitToGradingActionListener implements ActionListener {
 			log.debug("*** 2a. before removal & addition {}", (new Date()));
 			if (itemGradingSet != null) {
 				log.debug("*** 2aa. removing old itemGrading {}", (new Date()));
+				// SAK-44349: a stale timeout submit must not touch items that
+				// already hold a saved answer - neither deleting their rows nor
+				// inserting replacements. Freeze them wholesale; first-time
+				// answers to other items still land.
+				if (isBackstopRequired() && adata.getAssessmentGradingId() != null) {
+					Set<ItemGradingData> persistedRows =
+							service.getItemGradingSet(adata.getAssessmentGradingId().toString());
+					Set<Long> frozenItemIds = answeredItemIds(persistedRows);
+					int blockedRemoves = dropRowsForFrozenItems(removes, frozenItemIds);
+					int blockedAdds = dropRowsForFrozenItems(adds, frozenItemIds);
+					if (blockedRemoves + blockedAdds > 0) {
+						log.warn("SAK-44349 backstop: froze {} removal(s) and {} add(s) for already-answered items on a stale timeout submit, gradingId={}",
+								blockedRemoves, blockedAdds, adata.getAssessmentGradingId());
+					}
+				}
 				itemGradingSet.removeAll(removes);
 				service.deleteAll(removes);
 				// refresh itemGradingSet & assessmentGrading after removal
@@ -540,13 +634,21 @@ public class SubmitToGradingActionListener implements ActionListener {
 			map.put(item.getItemGradingId(), item);
 		}
 
+		// SAK-44349: a stale timeout submit may add answers but never blank existing ones
+		boolean tokenVerified = !isBackstopRequired();
+
 		// go through new itemGrading
 		Iterator<ItemGradingData> iter1 = newItemGradingSet.iterator();
 		while (iter1.hasNext()) {
 			ItemGradingData newItem = iter1.next();
 			ItemGradingData oldItem = map.get(newItem.getItemGradingId());
 			if (oldItem != null) {
-			    if (!oldItem.equals(newItem) || 
+			    if (shouldPreserveExistingAnswer(tokenVerified, oldItem, newItem)) {
+			        log.warn("SAK-44349 backstop: kept existing answer for itemGrading {} over a blank from a stale timeout submit, gradingId={}",
+			                oldItem.getItemGradingId(), adata.getAssessmentGradingId());
+			        continue;
+			    }
+			    if (!oldItem.equals(newItem) ||
 			    // Check for presence of old data in the EMI, calcQuestion and imagQuestion maps.
 			    // FIB, NR, and MCMR maps are not checked; checking them for previous data can cause updates when only the date has changed.
 			    // The above check (!oldItem.equals(newItem) suffices for checking new data against these question types. See SAK-39928 for more details.

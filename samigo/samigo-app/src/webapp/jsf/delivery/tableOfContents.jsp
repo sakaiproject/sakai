@@ -83,7 +83,10 @@ function saveTime()
 
 <h:form id="tableOfContentsForm">
 
-<h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
+<%-- SAK-44349: raw input on purpose - the posted (possibly stale) token must
+     never be written back into the shared session bean by JSF --%>
+<input type="hidden" name="dlvrStateToken" value="<h:outputText value="#{delivery.stateGuard.token}"/>" />
+<h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 

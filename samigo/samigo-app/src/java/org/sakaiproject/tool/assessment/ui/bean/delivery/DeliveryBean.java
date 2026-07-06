@@ -98,6 +98,7 @@ import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryStateGuard;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
@@ -132,6 +133,11 @@ public class DeliveryBean implements Serializable {
   private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
   
   public static final String LINEAR_ACCESS = "1";
+
+  // SAK-44349: per-render state token; a stale tab's POST fails its check
+  // before JSF can bind that tab's inputs into this shared session-scoped bean
+  @Getter
+  private final DeliveryStateGuard stateGuard = new DeliveryStateGuard();
 
   @Getter @Setter
   private String assessmentId;
@@ -2105,10 +2111,34 @@ public class DeliveryBean implements Serializable {
     }
     
     log.debug("check 4");
-    // check 4: check for multiple window & browser trick 
+    // check 4: check for multiple window & browser trick
+    // SAK-44349: for a token-verified post the browser-echoed timestamp can
+    // only false-positive (e.g. an autosave whose response was lost to the
+    // network still advanced submittedDate), but the token is session-scoped
+    // and proves nothing about OTHER sessions (a second browser or device on
+    // the same attempt). So verified posts compare the session bean's
+    // submittedDate against the DB - in sync for this session's own writes,
+    // divergent when another session moved the attempt - and land on the
+    // recoverable resync page instead of the fatal error. Unverified posts
+    // keep the legacy check unchanged.
     boolean discrepancyInData = false;
-    if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
-      discrepancyInData = true;
+    if (assessmentGrading != null) {
+      if (isTokenVerifiedRequest()) {
+        // Another session (a second browser or device on the same attempt)
+        // advanced the DB submittedDate strictly beyond what this session last
+        // saw. Use after(), not equals(): the DB truncates to whole seconds
+        // while the session bean may hold a millisecond-precision Date from its
+        // own last write, so equals() would false-positive on this session's
+        // own saves.
+        Date sessionDate = adata != null ? adata.getSubmittedDate() : null;
+        Date dbDate = assessmentGrading.getSubmittedDate();
+        if (dbDate != null && (sessionDate == null || dbDate.after(sessionDate))) {
+          log.info("SAK-44349 attempt {} advanced by another session; sending resync", assessmentGrading.getAssessmentGradingId());
+          return "staleTabResync";
+        }
+      } else if (!checkDataIntegrity(assessmentGrading)) {
+        discrepancyInData = true;
+      }
     }
 
     log.debug("check 5");
@@ -2353,6 +2383,11 @@ public class DeliveryBean implements Serializable {
 	  return status.equals(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
   }
   
+  /** SAK-44349: was this request accepted by the delivery state guard? */
+  private boolean isTokenVerifiedRequest() {
+    return DeliveryStateGuard.isVerified(FacesContext.getCurrentInstance());
+  }
+
   private boolean checkDataIntegrity(AssessmentGradingData assessmentGrading){
     // get assessmentGrading from DB, this is to avoid same assessment being
     // opened in the differnt browser

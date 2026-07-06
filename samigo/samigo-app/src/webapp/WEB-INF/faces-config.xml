@@ -309,6 +309,11 @@
       <to-view-id>/jsf/delivery/discrepancyInData.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <!-- SAK-44349 stale-tab guard rejection -->
+      <from-outcome>staleTabResync</from-outcome>
+      <to-view-id>/jsf/delivery/staleTabResync.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>assessmentNotAvailable</from-outcome>
       <to-view-id>/jsf/delivery/assessmentNotAvailable.jsp</to-view-id>
     </navigation-case>
@@ -999,5 +1004,10 @@
     </navigation-case>
     <!-- Add other navigation cases based on possible return values from validate() -->
   </navigation-rule>
+
+  <lifecycle>
+    <!-- SAK-44349: reject stale multi-tab delivery posts before model update -->
+    <phase-listener>org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryStateGuardPhaseListener</phase-listener>
+  </lifecycle>
 
 </faces-config>

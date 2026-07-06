@@ -240,6 +240,9 @@ document.links[newindex].onclick();
    rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
+<%-- SAK-44349: raw input on purpose - the posted (possibly stale) token must
+     never be written back into the shared session bean by JSF --%>
+<input type="hidden" name="dlvrStateToken" value="<h:outputText value="#{delivery.stateGuard.token}"/>" />
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="attemptDate" value="#{delivery.assessmentGrading.attemptDate.time}" rendered ="#{delivery.assessmentGrading.attemptDate!=null}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
@@ -508,6 +511,10 @@ document.links[newindex].onclick();
                <h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" />
              </p>
            </div>
+           <%-- SAK-44349: shown when this tab's autosave was rejected as stale --%>
+           <div role="alert" class="sak-banner-warn" style="display: none" id="stale-tab-warning">
+             <h:outputText value="#{deliveryMessages.stale_tab_autosave_warning}" escape="false" />
+           </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="multiple-tabs-warning">
              <h5><h:outputText value="#{deliveryMessages.multipleTabsWarning_heading}" escape="false" /></h5>
              <p>
@@ -694,7 +701,7 @@ document.links[newindex].onclick();
 	setLocation(); 
 	checkRadio();
 	fixImplicitLabeling();
-	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
+	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>);
 	setTimeout('setLocation2()',2);
 	questionProgress.transposeTOCTables();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);

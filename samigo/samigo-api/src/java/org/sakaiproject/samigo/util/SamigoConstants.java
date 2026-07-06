@@ -158,6 +158,7 @@ public final class SamigoConstants {
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED     = "samigo.email.autoSubmit.errorNotification.enabled";
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
     public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
+    public static final     String      SAK_PROP_DELIVERY_STALE_TAB_GUARD                   = "samigo.delivery.staleTabGuard";
     public static final     String      SAK_PROP_EVENTLOG_IPADDRESS_ENABLED                 = "samigo.eventlog.ipaddress.enabled";
 
     /*

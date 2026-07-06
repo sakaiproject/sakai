@@ -571,6 +571,7 @@ public class DeliveryActionListener
     	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
         }
       }
+
     } catch (RuntimeException e) {
     	DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     	String id = getPublishedAssessmentId(delivery);

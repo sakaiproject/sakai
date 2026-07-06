@@ -61,6 +61,9 @@ remove the javascript onclick stuff.
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
+<%-- SAK-44349: raw input on purpose - the posted (possibly stale) token must
+     never be written back into the shared session bean by JSF --%>
+<input type="hidden" name="dlvrStateToken" value="<h:outputText value="#{delivery.stateGuard.token}"/>" />
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
