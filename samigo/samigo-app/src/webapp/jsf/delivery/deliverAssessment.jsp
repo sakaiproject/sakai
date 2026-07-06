@@ -276,6 +276,13 @@ document.links[newindex].onclick();
 
     <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+    <%-- SAK-44349: shown when this tab's autosave was rejected as stale. Kept
+         outside the part/question tables - ids inside them are duplicated per
+         question in part/assessment layouts, so getElementById only ever
+         reaches the first copy. --%>
+    <div role="alert" class="sak-banner-warn" style="display: none" id="stale-tab-warning">
+      <h:outputText value="#{deliveryMessages.stale_tab_autosave_warning}" escape="false" />
+    </div>
     <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
     <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
@@ -510,10 +517,6 @@ document.links[newindex].onclick();
                <h:outputText value="#{deliveryMessages.autosaveFailed_reason}" escape="false" /><br />
                <h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" />
              </p>
-           </div>
-           <%-- SAK-44349: shown when this tab's autosave was rejected as stale --%>
-           <div role="alert" class="sak-banner-warn" style="display: none" id="stale-tab-warning">
-             <h:outputText value="#{deliveryMessages.stale_tab_autosave_warning}" escape="false" />
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="multiple-tabs-warning">
              <h5><h:outputText value="#{deliveryMessages.multipleTabsWarning_heading}" escape="false" /></h5>
