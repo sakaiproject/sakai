@@ -146,6 +146,16 @@ public interface PollsService {
     Poll savePoll(Poll poll) throws SecurityException, IllegalArgumentException;
 
     /**
+     * Import polls from CSV content strings into the given site as the given owner.
+     *
+     * @param csvContents list of CSV content strings to parse
+     * @param siteId the site id where polls will be created
+     * @param ownerId the user id that will own the imported polls
+     * @throws PollImportException when the CSV content is empty, malformed, or fails poll validation
+     */
+    void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId);
+
+    /**
      * Is this poll public?
      * @param poll
      * @return
@@ -159,6 +169,20 @@ public interface PollsService {
      * @return true or false
      */
     boolean userCanDeletePoll(Poll poll);
+
+    /**
+     * Check whether the current user is allowed to add polls in the given site.
+     * @param siteId the site id
+     * @return true if allowed
+     */
+    boolean isAllowedPollAdd(String siteId);
+
+    /**
+     * Check whether the current user is a site owner for the given site.
+     * @param siteId the site id
+     * @return true if site owner
+     */
+    boolean isSiteOwner(String siteId);
 
     // Vote Management Methods
 

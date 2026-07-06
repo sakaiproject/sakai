@@ -47,7 +47,7 @@ public class AllSitesViewImpl extends AbstractSiteViewImpl
 	 */
 	public Object getRenderContextObject()
 	{
-		List l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId,
+		List l = siteHelper.convertSitesToMaps(request, getMySites(), prefix, currentSiteId, myWorkspaceSiteId,
 			includeSummary, expandSite, resetTools, doPages, toolContextPath,
 			loggedIn);
 		return l;

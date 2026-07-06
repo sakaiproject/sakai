@@ -261,16 +261,15 @@ public interface SakaiProxy {
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
 	 * <p>
-	 * Possible values for the sakai property are 'upload', 'url' and 'official'. If not set, defaults to 'upload'.
+	 * Possible values for the sakai property are 'upload' and 'official'. If not set, defaults to 'upload'.
 	 * </p>
 	 * <p>
-	 * This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, ProfileConstants.PICTURE_SETTING_URL,
-	 * ProfileConstants.PICTURE_SETTING_OFFICIAL.
+	 * This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD or ProfileConstants.PICTURE_SETTING_OFFICIAL.
 	 * </p>
 	 *
 	 * <p>
 	 * Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which users can add their
-	 * own image. ie by uploading their own image, providing a URL, or not at all (for official)
+	 * own image. ie by uploading their own image or not at all (for official)
 	 * </p>
 	 *
 	 * @return

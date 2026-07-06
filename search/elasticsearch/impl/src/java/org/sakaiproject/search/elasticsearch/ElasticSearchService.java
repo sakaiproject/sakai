@@ -57,6 +57,7 @@ import org.opensearch.cluster.node.DiscoveryNodeRole;
 import org.opensearch.common.network.InetAddresses;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.set.Sets;
+import org.opensearch.index.reindex.ReindexPlugin;
 import org.opensearch.node.InternalSettingsPreparer;
 import org.opensearch.node.Node;
 import org.opensearch.node.NodeValidationException;
@@ -253,7 +254,8 @@ import lombok.extern.slf4j.Slf4j;
     protected Node initializeSearchNode(Settings settings) {
         Collection<Class<? extends Plugin>> plugins = Arrays.asList(
                 Netty4Plugin.class,
-                CommonAnalysisPlugin.class);
+                CommonAnalysisPlugin.class,
+                ReindexPlugin.class);
 
         Map<String, String> systemProperties = System.getProperties().entrySet().stream()
                 .filter(e -> String.valueOf(e.getKey()).startsWith(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX))

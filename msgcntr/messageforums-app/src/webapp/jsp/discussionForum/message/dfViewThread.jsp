@@ -18,7 +18,11 @@
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
 		<script>includeLatestJQuery("msgcntr");</script>
-		<script>includeWebjarLibrary('bootstrap')</script>
+		<script>
+		  if (window.location !== window.parent.location) {
+		    includeWebjarLibrary('bootstrap');
+		  }
+		</script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script src="/messageforums-tool/js/sak-10625.js"></script>

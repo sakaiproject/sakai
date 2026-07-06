@@ -73,7 +73,7 @@ These versions are actively supported by the community.
 
 Sakai 25.2 ([release](http://source.sakaiproject.org/release/25.2/) | [fixes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/34160771076/25.2+Features+by+Tool) | [notes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/33232420865/Sakai+25+Release+Notes))
 
-Sakai 23.4 ([release](http://source.sakaiproject.org/release/23.4/) | [fixes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/33392099329/23.4+Fixes+by+Tool) | [notes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/32324812801/Sakai+23+Release+Notes))
+Sakai 23.5 ([release](http://source.sakaiproject.org/release/23.5/) | [fixes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/34237218817/23.5+Fixes+by+Tool) | [notes](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/32324812801/Sakai+23+Release+Notes))
 
 ## Previous community versions which are no longer supported
 These versions are no longer supported by the community and will only receive security changes.
@@ -95,8 +95,7 @@ For full history of supported releases please see our [release information on co
 ## Under Development
 
 - *Sakai 25.3* is the current development release of Sakai 25. It is expected to release Q4 2026.
-- *Sakai 23.5* is the current development release of Sakai 23. It is expected to release Q2 2026.
-- *Sakai 22.6* is the current development release of Sakai 22. It is expected to release Q2 2026.
+- *Sakai 23.6* is the current development release of Sakai 23. It is expected to release Q4 2026.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.

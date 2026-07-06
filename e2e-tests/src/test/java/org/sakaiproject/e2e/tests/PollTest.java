@@ -38,6 +38,8 @@ class PollTest extends SakaiUiTestBase {
     private static final String POLL_TITLE = "Playwright Poll " + System.currentTimeMillis();
     private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
     private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll " + System.currentTimeMillis();
+    private static final String BULK_POLL_TITLE_ONE = "Playwright Bulk Poll One " + System.currentTimeMillis();
+    private static final String BULK_POLL_TITLE_TWO = "Playwright Bulk Poll Two " + System.currentTimeMillis();
     private static boolean pollWithTwoOptionsCreated;
 
     @Test
@@ -222,6 +224,39 @@ class PollTest extends SakaiUiTestBase {
 
     @Test
     @Order(5)
+    void canBulkImportPollsFromText() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Bulk Creation", Pattern.CASE_INSENSITIVE))).first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("#poll-uploaded-text")).isVisible();
+        assertThat(page.locator("label[for=\"poll-uploaded-text\"]")).isVisible();
+        assertThat(page.locator("label[for=\"poll-upload-file\"]")).isVisible();
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDateTime = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        String closeDateTime = now.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+        String csv = String.join("\n",
+            BULK_POLL_TITLE_ONE + ",Bulk import details," + openDateTime + "," + closeDateTime + ",1,1,1,Alpha,Beta",
+            BULK_POLL_TITLE_TWO + ",Bulk import details," + openDateTime + "," + closeDateTime + ",1,1,1,Yes,No"
+        );
+
+        page.locator("#poll-uploaded-text").fill(csv);
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator(".sak-banner-success")).containsText("Polls imported successfully");
+        assertThat(page.locator("body")).containsText(BULK_POLL_TITLE_ONE);
+        assertThat(page.locator("body")).containsText(BULK_POLL_TITLE_TWO);
+    }
+
+    @Test
+    @Order(6)
     void canVoteAndViewResultsChart() {
         ensurePollWithTwoOptionsExists();
         sakai.login("instructor1");

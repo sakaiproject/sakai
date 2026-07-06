@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +62,7 @@ import org.sakaiproject.authz.api.SecurityService;
 
 @Slf4j
 @RestController
+@Setter
 public class TasksController extends AbstractSakaiApiController {
 
     private static final String COMMA = ",";
@@ -179,16 +181,19 @@ public class TasksController extends AbstractSakaiApiController {
         } else if (AssignationType.group.name().equals(assignationType)) {
             try {
                 Site site = siteService.getSite(taskTransfer.getSiteId());
-                Set<String> users = new HashSet();
-                List<String> groups = new ArrayList();
+                Set<String> users = new HashSet<>();
+                List<String> groups = new ArrayList<>();
                 for (String groupId : taskTransfer.getSelectedGroups()) {
-                    groups.add(groupId);
                     Group group = site.getGroup(groupId);
-                    Set<Member> members = group.getMembers();
-                    for (Iterator membersIter = members.iterator(); membersIter.hasNext();) {
-                        Member member = (Member) membersIter.next();
-                        users.add(member.getUserId());
+                    if (group == null) {
+                        log.warn("Skipping unknown group id {} on site {}", groupId, taskTransfer.getSiteId());
+                        continue;
                     }
+                    groups.add(groupId);
+                    users.addAll(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
+                }
+                if (groups.isEmpty() || users.isEmpty()) {
+                    throw new IllegalArgumentException("No valid groups/users found for group task assignment");
                 }
                 task = taskService.createTask(task, users, taskTransfer.getPriority());
                 result = UserTaskAdapterBean.from(taskService.createUserTask(task, taskTransfer));

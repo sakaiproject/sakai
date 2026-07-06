@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.Collection;
@@ -1034,9 +1035,11 @@ public class SakaiLTIUtil {
 
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
 		if (rb != null) {
-			String locale = rb.getLocale().toString();
-			setProperty(props, LTIConstants.LAUNCH_PRESENTATION_LOCALE, locale);
-			setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
+			String locale = formatLocaleForLti(rb.getLocale());
+			if (locale != null) {
+				setProperty(props, LTIConstants.LAUNCH_PRESENTATION_LOCALE, locale);
+				setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
+			}
 		}
 
 		addPropertyExtensionData(props, custom);
@@ -1073,6 +1076,10 @@ public class SakaiLTIUtil {
 		String serverId = ServerConfigurationService.getServerId();
 		setProperty(props, "ext_sakai_serverid", serverId);
 		setProperty(props, "ext_sakai_server", getOurServerUrl());
+	}
+
+	static String formatLocaleForLti(Locale locale) {
+		return locale == null ? null : locale.toLanguageTag();
 	}
 
 		// This must return an HTML message as the [0] in the array
@@ -2767,8 +2774,8 @@ public class SakaiLTIUtil {
 			String external_id = gradebookColumn.getExternalId();
 			// Check if the column was created in Gradebook and is associated with an assignment (assumes only one; cannot handle multiple yet)
 			org.sakaiproject.assignment.api.model.Assignment assignment = LineItemUtil.getAssignmentForGradebookLink(siteId, gradebookColumn.getId());
-			log.debug("external_id: {} assignment with GB item from GB={}", external_id, assignment);
-			if ( external_id != null && (LineItemUtil.isAssignmentColumn(external_id) || (assignment != null)) ) {
+			log.debug("external_id: {}; isAssignmentColumn={}; assignment with GB item from GB={}", external_id, LineItemUtil.isAssignmentColumn(external_id), assignment);
+			if ( (external_id != null && LineItemUtil.isAssignmentColumn(external_id)) || assignment != null ) {
 				pushAdvisor(); // Add security advisor to allow access to assignments
 				try {
 					org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);

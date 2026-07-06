@@ -72,25 +72,27 @@
 						</td>
 						</tr>
 				#end
-			#else
-				## for new site
-				#foreach ($k in [0..$manualAddNumber])
-					#set($courseFieldValues = $!fieldValues.get($k))
-					#set($bound = $!form_requiredFields.size())
-					#set($bound = $bound - 1)
-					<tr>
-					<td style="padding-left:1em">
-						#set($courseFieldString="")
-						#foreach ($fieldCount in [0..$!bound])
-							#set($courseFieldString=$courseFieldString.concat($!courseFieldValues.get($fieldCount).getValue()).concat(" "))
+				#else
+					## for new site
+					#if ($!manualAddNumber)
+						#foreach ($k in [0..$manualAddNumber])
+							#set($courseFieldValues = $!fieldValues.get($k))
+							#set($bound = $!form_requiredFields.size())
+							#set($bound = $bound - 1)
+							<tr>
+							<td style="padding-left:1em">
+								#set($courseFieldString="")
+								#foreach ($fieldCount in [0..$!bound])
+									#set($courseFieldString=$courseFieldString.concat($!courseFieldValues.get($fieldCount).getValue()).concat(" "))
+								#end
+								#set($courseFieldString=$courseFieldString.trim())
+								$courseFieldString $tlang.getString("man.requested")
+							</td>
+							</tr>
 						#end
-						#set($courseFieldString=$courseFieldString.trim())
-						$courseFieldString $tlang.getString("man.requested")
-					</td>
-					</tr>
+					#end
+				#end
 			#end
-			#end
-		#end
 		</table>
 	#end
 	#if (!$!existingSite && $!isProjectSite)

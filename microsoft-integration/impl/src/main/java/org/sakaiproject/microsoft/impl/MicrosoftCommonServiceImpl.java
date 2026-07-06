@@ -173,7 +173,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	public static int COLUMN_SIZE = 7;
 	private static final int TEAM_CHARACTER_LIMIT = 256;// 256 is the maximum length for a Team name in the UI, no limits specified on the API docs
 	private static final int CHANNEL_CHARACTER_LIMIT = 50;// this is an official restriction
-	private final int MAX_RETRY = 2;
+	private final int MAX_RETRY = 6;
 	private final int MAX_PER_REQUEST = 20;
 	private final int MAX_LENGTH = 20;
 
@@ -698,12 +698,13 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.byGroupId(id)
 						.team()
 						.get(requestConfig -> {
-							requestConfig.queryParameters.select = new String[]{"id", "displayName", "description"};
+							requestConfig.queryParameters.select = new String[]{"id", "displayName", "description", "isArchived"};
 						});
 			MicrosoftTeam mt = MicrosoftTeam.builder()
 					.id(team.getId())
 					.name(team.getDisplayName())
 					.description(team.getDescription())
+					.isArchived(team.getIsArchived())
 					.build();
 			
 			//update cache
@@ -900,8 +901,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					teamCreated = true;
 				} catch (ODataError e) {
 					attempts++;
-					log.debug("Group not yet provisioned for groupId={}, attempt {}/{} - code: {}",
-							groupId, attempts, MAX_RETRY, e.getError().getCode());
+					log.info("Group not yet provisioned for groupId={}, attempt {}/{} - Exception: {}",
+							groupId, attempts, MAX_RETRY, e.toString());
 					if (attempts < MAX_RETRY) {
 						try {
 							Thread.sleep(5000L * attempts);
@@ -910,6 +911,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 							break;
 						}
 					}
+				} catch (Exception e) {
+					attempts++;
+					log.error("Unexpected error converting group to Team, groupId={}, attempt {}/{}",
+							groupId, attempts, MAX_RETRY, e.toString());
+					break;
 				}
 			}
 			
@@ -923,8 +929,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				Map<String, MicrosoftTeam> teamsMap = (Map<String, MicrosoftTeam>) cachedValue.get();
 				teamsMap.put(groupId, MicrosoftTeam.builder()
 						.id(groupId)
-						.name(name)
-						.description(name)
+						.name(truncatedName)
+						.description(truncatedName)
 						.build());
 				getCache().put(CACHE_TEAMS, teamsMap);
 			}
@@ -1057,11 +1063,21 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			ArchivePostRequestBody requestBody = new ArchivePostRequestBody();
 			requestBody.setShouldSetSpoSiteReadOnlyForMembers(false);
 
-			getGraphClient().teams().byTeamId(teamId)
-				.archive()
-				.post(requestBody);
+			// 2. Check the current state of the team before executing anything
+			MicrosoftTeam team = this.getTeam(teamId, true);
+			if (team == null) {
+				log.warn("Could not retrieve team state before archiving, teamId={}", teamId);
+				return false;
+			}
+			if (team.isArchived()) {
+				log.info("Team already archived, skipping archive call: teamId={}", teamId);
+			} else {
+				getGraphClient().teams().byTeamId(teamId)
+					.archive()
+					.post(requestBody);
+			}
 
-			// 2. Obtain the associated SharePoint site to ensure the team is fully archived before setting it to read-only
+			// 3. Obtain the associated SharePoint site to ensure the team is fully archived before setting it to read-only
 			Site site = getGraphClient().groups().byGroupId(teamId)
 				.sites()
 				.bySiteId("root")
@@ -1072,7 +1088,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				return false;
 			}
 
-			// 3. Set SharePoint site to read-only (as a backup in case the archive operation did not set it correctly)
+			// 4. Set SharePoint site to read-only (as a backup in case the archive operation did not set it correctly)
 			Site siteUpdate = new Site();
 			Map<String, Object> additionalData = new HashMap<>();
 			additionalData.put("lockState", "readOnly");
@@ -1080,6 +1096,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 			getGraphClient().sites().bySiteId(site.getId()).patch(siteUpdate);
 
+			team.setArchived(true);
 			log.info("Team archived and SharePoint site set to read-only: teamId={}", teamId);
 
 			return true;
@@ -1093,12 +1110,22 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 	public boolean unarchiveTeam(String teamId) throws MicrosoftCredentialsException {
 		try {
-			//1. Unarchive team
-			getGraphClient().teams().byTeamId(teamId)
-				.unarchive()
-				.post();
+			// 1. Check the current state of the team before executing anything
+			MicrosoftTeam team = this.getTeam(teamId, true);
+			if (team == null) {
+				log.warn("Could not retrieve team state before unarchiving, teamId={}", teamId);
+				return false;
+			}
+			if (!team.isArchived()) {
+				log.info("Team already unarchived, skipping unarchive call: teamId={}", teamId);
+			} else {
+				//2. Unarchive team
+				getGraphClient().teams().byTeamId(teamId)
+					.unarchive()
+					.post();
+			}
 
-			// 2. Obtain the associated SharePoint site to ensure the team is fully unarchived before returning
+			// 3. Obtain the associated SharePoint site to ensure the team is fully unarchived before returning
 			Site site = getGraphClient().groups().byGroupId(teamId)
 				.sites()
 				.bySiteId("root")
@@ -1109,7 +1136,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				return false;
 			}
 
-			//3. Set SharePoint site to unlocked (as a backup in case the unarchive operation did not set it correctly)
+			//4. Set SharePoint site to unlocked (as a backup in case the unarchive operation did not set it correctly)
 			Site siteUpdate = new Site();
 			HashMap<String, Object> additionalData = new HashMap<>();
 			additionalData.put("lockState", "unlocked");
@@ -1117,6 +1144,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 			getGraphClient().sites().bySiteId(site.getId()).patch(siteUpdate);
 
+			team.setArchived(false);
 			log.info("Team unarchived and SharePoint site unlocked: teamId={}", teamId);
 
 			return true;

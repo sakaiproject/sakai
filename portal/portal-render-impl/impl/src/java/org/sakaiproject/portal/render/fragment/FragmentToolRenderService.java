@@ -51,6 +51,9 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
+
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -123,12 +126,12 @@ public class FragmentToolRenderService implements ToolRenderService
 					{
 						if (session.getUserId() == null)
 						{
-							option = "/site/"
+							option = SITE_URL_SEGMENT
 									+ ServerConfigurationService.getGatewaySiteId();
 						}
 						else
 						{
-							option = "/site/"
+							option = SITE_URL_SEGMENT
 									+ SiteService.getUserSiteId(session.getUserId());
 						}
 					}

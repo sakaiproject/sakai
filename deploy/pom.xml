@@ -253,6 +253,11 @@
         </dependency>
         <dependency>
             <groupId>org.opensearch.plugin</groupId>
+            <artifactId>reindex-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>parent-join-client</artifactId>
             <scope>compile</scope>
         </dependency>

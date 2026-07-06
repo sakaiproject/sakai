@@ -40,6 +40,8 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
@@ -57,6 +59,8 @@ import org.sakaiproject.profile2.api.ProfileDao;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +74,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Autowired private ProfileDao dao;
     @Autowired private EntityManager entityManager;
     @Autowired private MemoryService memoryService;
+    @Autowired private PreferencesService preferencesService;
     @Autowired private SakaiProxy sakaiProxy;
     @Autowired private SessionManager sessionManager;
 
@@ -207,21 +212,30 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         //get the image based on the global type/preference
         switch (imageType) {
             case ProfileConstants.PICTURE_SETTING_UPLOAD:
-                MimeTypeByteArray mtba = getUploadedProfileImage(userUuid, size);
 
-                //if no uploaded image, use the default image url
-                if (mtba == null || mtba.getBytes() == null) {
-                    boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
-                    if (useAvatarInitials) {
-                        image = this.getProfileAvatarInitials(userUuid);
-                        image.setMimeType("image/png");
-                    } else {
-                        image.setExternalImageUrl(defaultImageUrl);
-                        image.setDefault(true);
-                    }
+                String userImagePreference
+                    = preferencesService.getValue(userUuid, "profile", "image-type")
+                        .orElse(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP);
+
+                if (userImagePreference.equals(ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)) {
+                    image = getOfficialImage(userUuid, image, defaultImageUrl, isSameUser);
                 } else {
-                    image.setUploadedImage(mtba.getBytes());
-                    image.setMimeType(mtba.getMimeType());
+                    MimeTypeByteArray mtba = getUploadedProfileImage(userUuid, size);
+
+                    //if no uploaded image, use the default image url
+                    if (mtba == null || mtba.getBytes() == null) {
+                        boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+                        if (useAvatarInitials) {
+                            image = this.getProfileAvatarInitials(userUuid);
+                            image.setMimeType("image/png");
+                        } else {
+                            image.setExternalImageUrl(defaultImageUrl);
+                            image.setDefault(true);
+                        }
+                    } else {
+                        image.setUploadedImage(mtba.getBytes());
+                        image.setMimeType(mtba.getMimeType());
+                    }
                 }
                 image.setAltText(getAltText(userUuid, isSameUser, true));
             break;
@@ -824,17 +838,22 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         p.displayName = u.getDisplayName();
         p.imageUrl = getProfileImageEntityUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
         p.imageThumbUrl = getProfileImageEntityUrl(userId, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+        p.imageUserPreference = preferencesService.getValue(userId, "profile", "image-type")
+            .orElse(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP);
         p.creatorDisplayName = u.getCreatedBy().getDisplayName();
         p.hasPronunciationRecording = sakaiProxy.resourceExists(getUserNamePronunciationResourceId(userId));
         p.modifierDisplayName = u.getModifiedBy().getDisplayName();
         p.type = u.getType();
 
-        p.canUpdatePicture = (StringUtils.equals(currentUserId, userId) && sakaiProxy.isProfilePictureChangeEnabled()) || sakaiProxy.isSuperUser();
+        p.canUpdatePicture = !sakaiProxy.isUsingOfficialImage()
+                                && !p.imageUserPreference.equals(ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)
+                                && ((StringUtils.equals(currentUserId, userId) && sakaiProxy.isProfilePictureChangeEnabled()) || sakaiProxy.isSuperUser());
+        p.canSelectPictureSource = sakaiProxy.isOfficialImageEnabledGlobally() && !sakaiProxy.isUsingOfficialImage();
         p.canEdit = StringUtils.equals(currentUserId, userId) || sakaiProxy.isSuperUser();
         p.canEditNameAndEmail = sakaiProxy.isSuperUser();
 
-        Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-        sakaiPerson.ifPresent(sp -> {
+        sakaiProxy.getSakaiPerson(userId).ifPresent(sp -> {
+
             p.nickname = sp.getNickname();
             p.phoneticPronunciation = sp.getPhoneticPronunciation();
             p.pronouns = sp.getPronouns();
@@ -842,6 +861,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         });
 
         dao.getSocialNetworkingInfo(userId).ifPresent(socialInfo -> {
+
             p.facebookUrl = socialInfo.getFacebookUrl();
             p.instagramUrl = socialInfo.getInstagramUrl();
             p.linkedinUrl = socialInfo.getLinkedinUrl();
@@ -874,6 +894,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
         Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
         sakaiPerson.ifPresent(sp -> {
+
             sp.setNickname(profileBean.nickname);
             sp.setPronouns(profileBean.pronouns);
             sp.setPhoneticPronunciation(profileBean.phoneticPronunciation);
@@ -886,6 +907,24 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         socialInfo.setFacebookUrl(profileBean.facebookUrl);
         socialInfo.setInstagramUrl(profileBean.instagramUrl);
         socialInfo.setLinkedinUrl(profileBean.linkedinUrl);
+
+        if (profileBean.imageUserPreference != null) {
+            if (!ProfileConstants.PICTURE_SETTING_UPLOAD_PROP.equals(profileBean.imageUserPreference)
+                    && !ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP.equals(profileBean.imageUserPreference)) {
+                log.warn("Unsupported image preference '{}' for user {}", profileBean.imageUserPreference, profileBean.id);
+                return false;
+            }
+
+            boolean preferenceSaved = preferencesService.applyEditWithAutoCommit(profileBean.id, edit -> {
+                ResourcePropertiesEdit profileProps = edit.getPropertiesEdit("profile");
+                profileProps.addProperty("image-type", profileBean.imageUserPreference);
+            });
+
+            if (!preferenceSaved) {
+                log.warn("Failed to persist image preference '{}' for user {}", profileBean.imageUserPreference, profileBean.id);
+                return false;
+            }
+        }
 
         dao.saveSocialNetworkingInfo(socialInfo);
 

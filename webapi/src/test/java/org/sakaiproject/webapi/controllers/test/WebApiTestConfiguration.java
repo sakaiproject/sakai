@@ -15,7 +15,56 @@
  */
 package org.sakaiproject.webapi.controllers.test;
 
+import static org.mockito.Mockito.mock;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class WebApiTestConfiguration { }
+public class WebApiTestConfiguration {
+
+    @Bean
+    public EntityManager entityManager() {
+        return mock(EntityManager.class);
+    }
+
+    @Bean
+    public PortalService portalService() {
+        return mock(PortalService.class);
+    }
+
+    @Bean
+    public SecurityService securityService() {
+        return mock(SecurityService.class);
+    }
+
+    @Bean
+    @Qualifier("org.sakaiproject.tool.api.SessionManager")
+    public SessionManager sessionManager() {
+        return mock(SessionManager.class);
+    }
+
+    @Bean
+    public SiteService siteService() {
+        return mock(SiteService.class);
+    }
+
+    @Bean
+    public TaskService taskService() {
+        return mock(TaskService.class);
+    }
+
+    @Bean
+    public UserDirectoryService userDirectoryService() {
+        return mock(UserDirectoryService.class);
+    }
+}

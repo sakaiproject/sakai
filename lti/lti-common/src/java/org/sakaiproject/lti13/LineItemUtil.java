@@ -399,13 +399,17 @@ public class LineItemUtil {
 		}
 
 		boolean createNew = true;
+		boolean updateName = true;
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
 			Assignment gbColumn = (Assignment) i.next();
-
-			if (lineItem.label.equals(gbColumn.getName())) {
+			org.sakaiproject.assignment.api.model.Assignment asn = getAssignmentForGradebookLink(context_id, gbColumn.getId());
+			boolean matchesAsnContentId = content_id != null && asn != null && asn.getContentId() != null &&
+			    NumberUtils.compare(content_id.longValue(), asn.getContentId().longValue()) == 0;
+			if (matchesAsnContentId || lineItem.label.equals(gbColumn.getName())) {
 				gradebookColumn = gbColumn;
 				gradebookColumnId = gbColumn.getId();
 				createNew = false;
+				updateName = !matchesAsnContentId;
 				break;
 			}
 		}
@@ -425,7 +429,9 @@ public class LineItemUtil {
 			gradebookColumn.setExternalId(stableExternalId);
 			gradebookColumn.setLineItemMetadata(lineitem_metadata);
 			gradebookColumn.setExternalAppName(GB_EXTERNAL_APP_NAME);
-			gradebookColumn.setName(lineItem.label);
+			if (updateName) {
+			    gradebookColumn.setName(lineItem.label);
+			}
 			Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 			Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 			gradebookColumn.setReleased(releaseToStudent); // default true

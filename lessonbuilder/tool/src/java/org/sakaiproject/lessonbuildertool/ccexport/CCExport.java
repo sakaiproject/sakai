@@ -888,6 +888,21 @@ public class CCExport {
             }
             if (changed) Xml.writeDocument(doc, assignmentXml);
         }
+
+        // Patch messageforum.xml - remove forum posts because they are user data.
+        String messageForumXml = path + "messageforum.xml";
+        doc = Xml.readDocument(messageForumXml);
+        if (doc != null) {
+            boolean changed = false;
+
+            nodeList = doc.getElementsByTagName("messages");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+            if (changed) Xml.writeDocument(doc, messageForumXml);
+        }
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {

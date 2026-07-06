@@ -1,0 +1,140 @@
+== Tasks
+
+__See the login api about session cookies__
+
+=== GET /api/users/me/tasks
+Returns the currently logged in user's tasks
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-user-tasks/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the user's tasks
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-user-tasks/response-body.adoc[]
+
+=== GET /api/sites/:SITEID:/tasks
+Returns the currently logged in user's tasks, for the specified site
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/get-site-tasks/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns a JSON document with the user's tasks, for the specified site.
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/get-site-tasks/response-body.adoc[]
+
+=== POST /api/tasks
+Create a student task from some supplied JSON
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/create-student-task/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns the created task as JSON.
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/create-student-task/response-body.adoc[]
+
+=== POST /api/tasks
+Create a personal (single user) task from some supplied JSON
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/create-personal-task/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns the created task as JSON.
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/create-personal-task/response-body.adoc[]
+
+=== PUT /api/tasks/:TASKID:
+Update a task from some supplied JSON
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+| Consumes       | application/json
+| Produces       | application/json
+|===
+
+==== Example Request
+include::{snippets}/update-task/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | Returns the updated task as JSON.
+| 403 Forbidden | Error | User is not authenticated.
+|===
+
+==== Example Success Response
+include::{snippets}/update-task/response-body.adoc[]
+
+=== DELETE /api/tasks/:TASKID:
+Delete a task
+
+[cols="1h,3", grid=rows, frame=topbot]
+|===
+| Authentication | User must be authenticated
+|===
+
+==== Example Request
+include::{snippets}/delete-task/curl-request.adoc[]
+
+==== Responses
+[cols="1,2,2", options="header"]
+|===
+| Status Code | Status | Details
+| 200 OK | Success | -
+| 401 Unauthorized | Error | User is not authenticated.
+|===

@@ -23,7 +23,9 @@ package org.sakaiproject.calendar.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -4651,7 +4653,25 @@ extends VelocityPortletStateAction
 		state.setIsNewCalendar(true);
 		sstate.setAttribute(FREQUENCY_SELECT, null);
 		sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
-		
+
+		// Prefill the date and start time from the calendar grid (e.g. double-click on a time slot).
+		String newEventDate = data.getParameters().getString("newEventDate");
+		if (StringUtils.isNotBlank(newEventDate))
+		{
+			try
+			{
+				LocalDate date = LocalDate.parse(newEventDate);
+				int hour = data.getParameters().getInt("newEventHour", 0);
+				int minute = data.getParameters().getInt("newEventMinute", 0);
+				String am = hour < 12 ? "am" : "pm";
+				state.setNewData(state.getPrimaryCalendarReference(), "", "", date.getMonthValue(), date.getDayOfMonth(),
+						String.valueOf(date.getYear()), hour, minute, -1, -1, "", am, "", new HashMap(), "");
+			}
+			catch (DateTimeParseException e)
+			{
+				log.warn("invalid date '{}' from calendar grid", newEventDate, e);
+			}
+		}
 	}	 // doNew
 	
 	/**

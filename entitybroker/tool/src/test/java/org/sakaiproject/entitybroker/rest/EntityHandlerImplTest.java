@@ -57,17 +57,21 @@ public class EntityHandlerImplTest {
     @Autowired private ServerConfigurationService serverConfigurationService;
 
     private TestData td;
+    private EntityViewAccessProviderMock accessProvider;
 
     @Before
     public void setUp() {
         td = new TestData(entityProviderManager);
-        entityViewAccessProviderManager.registerProvider(TestData.PREFIX8, new EntityViewAccessProviderMock(TestData.PREFIX8));
+        accessProvider = new EntityViewAccessProviderMock(TestData.PREFIX8);
+        entityViewAccessProviderManager.registerProvider(TestData.PREFIX8, accessProvider);
         Mockito.when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost:8080");
         Locale.setDefault(Locale.ENGLISH);
     }
 
     @After
     public void tearDown() {
+        entityViewAccessProviderManager.unregisterProvider(TestData.PREFIX8);
+        accessProvider = null;
         entityProviderManager.unRegistrarAllProvidersAndListeners();
         td = null;
     }

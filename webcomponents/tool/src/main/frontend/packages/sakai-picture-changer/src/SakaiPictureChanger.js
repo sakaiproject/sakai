@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import Cropper from "cropperjs";
-import { getUserId } from "@sakai-ui/sakai-portal-utils";
+import { refreshProfileImageTags } from "@sakai-ui/sakai-user-photo";
 
 export class SakaiPictureChanger extends SakaiElement {
 
@@ -26,7 +26,6 @@ export class SakaiPictureChanger extends SakaiElement {
     super.attributeChangedCallback(name, oldValue, newValue);
 
     if (name === "user-id") {
-      console.log(this.userId);
       this._loadExisting();
     }
   }
@@ -119,22 +118,6 @@ export class SakaiPictureChanger extends SakaiElement {
     this._needsSave = true;
   }
 
-  _refreshProfileImageTags() {
-
-    const d = new Date();
-
-    const uid = this.userId?.trim() || "blank";
-    const imageUrl = `/api/users/${uid}/profile/image?${d.getTime()}`;
-    console.log(imageUrl);
-
-    if (this.userId === getUserId()) {
-      document.querySelectorAll(".sakai-accountProfileImage")
-        .forEach(pic => pic.setAttribute("src", imageUrl));
-    }
-
-    document.querySelectorAll(`.sakai-user-photo[user-id='${this.userId}']`).forEach(up => up.refresh());
-  }
-
   _loadExisting() {
 
     const uid = this.userId?.trim() || "blank";
@@ -184,7 +167,7 @@ export class SakaiPictureChanger extends SakaiElement {
         this._uploadError = false;
         this._needsSave = false;
         this._loadExisting();
-        this._refreshProfileImageTags();
+        refreshProfileImageTags(this.userId);
         this.dispatchEvent(new CustomEvent("updated"));
       } else {
         this._uploadError = true;
@@ -211,7 +194,7 @@ export class SakaiPictureChanger extends SakaiElement {
         this._removeError = false;
         this._needsSave = false;
         this._loadExisting();
-        this._refreshProfileImageTags();
+        refreshProfileImageTags(this.userId);
         this.dispatchEvent(new CustomEvent("updated"));
       } else {
         this._removeError = true;

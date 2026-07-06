@@ -350,14 +350,12 @@
 				## the site should be public
 				$tlang.getString("ediacc.dismysit")
 			</p>
-			<p />
 		</div>
 		<div id="publicChangeableNoUnpublishDiv" $publicChangeableNoUnpublishDivDisplay>
 			<p>
 				## not changeable due to this is a draft site
 				$tlang.getString("ediacc.disdraft")
 			</p>
-			<p />
 		</div>
 		</fieldset>
 		## END site visibility ##

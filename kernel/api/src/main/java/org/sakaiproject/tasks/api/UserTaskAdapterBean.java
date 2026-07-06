@@ -51,7 +51,7 @@ public class UserTaskAdapterBean {
     private String notes;
     private String url;
     private Boolean softDeleted;
-    private String assignationType;
+	private String assignationType;
     private String[] selectedGroups;
     private String taskAssignedTo;
     
@@ -65,5 +65,4 @@ public class UserTaskAdapterBean {
         bean.setDue(userTask.getTask().getDue());
         return bean;
     }
-    
 }

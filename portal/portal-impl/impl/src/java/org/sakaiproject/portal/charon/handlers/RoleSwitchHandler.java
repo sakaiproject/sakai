@@ -40,6 +40,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+import static org.sakaiproject.portal.api.PortalConstants.TOOL_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -124,7 +127,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 			try
 			{
-				String url = portalUrl + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
+				String url = portalUrl + SITE_URL_SEGMENT + parts[2] + TOOL_URL_SEGMENT + parts[4] + "/";
 
 				AtomicBoolean isToolHidden = new AtomicBoolean(false);
 				activeSite.getPages().stream() // get all pages in site
@@ -136,7 +139,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 						if (tool.getId().equals(parts[4]) && toolManager.isHidden(tool)) { isToolHidden.set(true); } //check if the active tool is hidden
 					});
 
-				if (isToolHidden.get()) { url = (!homePageIsHidden(activeSite)) ? portalUrl + "/site/" + parts[2] + "/" : portalUrl; }
+				if (isToolHidden.get()) { url = (!homePageIsHidden(activeSite)) ? portalUrl + SITE_URL_SEGMENT + parts[2] + "/" : portalUrl; }
 
 				portalService.setResetState("true"); // flag the portal to reset
 				

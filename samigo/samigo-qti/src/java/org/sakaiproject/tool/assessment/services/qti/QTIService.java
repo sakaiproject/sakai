@@ -21,20 +21,17 @@
 
 package org.sakaiproject.tool.assessment.services.qti;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.util.MergeConfig;
+import org.w3c.dom.Document;
 /**
  * <p>This service provides translation between database and QTI representations.
  * This is used to import/export IMS QTI format XML, and for web services.

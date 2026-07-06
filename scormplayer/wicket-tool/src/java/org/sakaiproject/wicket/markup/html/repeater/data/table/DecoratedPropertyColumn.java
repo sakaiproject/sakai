@@ -33,9 +33,10 @@ public abstract class DecoratedPropertyColumn extends PropertyColumn
 		super(displayModel, sortProperty, propertyExpression);
 	}
 
-	protected IModel createLabelModel(IModel embeddedModel)
+	@Override
+	public IModel<?> getDataModel(IModel rowModel)
 	{
-		return new PropertyModel(embeddedModel, getPropertyExpression())
+		return new PropertyModel(rowModel, getPropertyExpression())
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -45,7 +46,7 @@ public abstract class DecoratedPropertyColumn extends PropertyColumn
 				Object object = super.getObject();
 				return convertObject(object);
 			}
-			
+
 		};
 	}
 

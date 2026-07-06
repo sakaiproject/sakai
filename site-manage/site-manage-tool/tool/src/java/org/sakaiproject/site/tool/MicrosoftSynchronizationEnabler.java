@@ -159,7 +159,7 @@ public class MicrosoftSynchronizationEnabler {
 
                 // Add site property defined in microsoft.forced.synchronization.propertyname (only if not already present)
                 if (nameAndValueForSynchronization.length > 0) {
-                	final String propName = nameAndValueForSynchronization[0];
+                    final String propName = nameAndValueForSynchronization[0];
                     final String propValue = nameAndValueForSynchronization[1];
 
                     // Validate propValue is not empty
@@ -176,12 +176,17 @@ public class MicrosoftSynchronizationEnabler {
                     }
                 }
 
-                createOrRestoreMicrosoftTeamForSite(site, microsoftCommonService, microsoftConfigurationService, microsoftSynchronizationService);
+                boolean teamReady = createOrRestoreMicrosoftTeamForSite(site, microsoftCommonService, microsoftConfigurationService, microsoftSynchronizationService);
+
+                if (!teamReady) {
+                    props.removeProperty(SITE_PROPERTY);
+                    state.setAttribute("alertMessage", rb.getString("sinfo.error.creating.microsoft.team"));
+                    state.setAttribute(STATE_KEY, false);
+                    return false;
+                }
 
                 
             } else {
-                props.removeProperty(SITE_PROPERTY);
-
                 // If a SiteSynchronization exists with a Team, archive it
                 if (microsoftSynchronizationService != null && microsoftCommonService != null) {
                     List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(site.getId());
@@ -190,11 +195,17 @@ public class MicrosoftSynchronizationEnabler {
                             // If the SiteSynchronization has a Team, archive it first
                             if (ss.getTeamId() != null && !ss.getTeamId().isEmpty()) {
                                 try {
-                                    if (microsoftCommonService.archiveTeam(ss.getTeamId())) {
-                                        log.info("Microsoft Team archived for site: {}, teamId: {}", site.getId(), ss.getTeamId());
+                                    if (!microsoftCommonService.archiveTeam(ss.getTeamId())) {
+                                        log.error("Could not archive Microsoft Team for site: {}, teamId: {}, skipping state update", site.getId(), ss.getTeamId());
+                                        state.setAttribute("alertMessage", rb.getString("sinfo.error.archiving.microsoft.team"));
+                                        state.setAttribute(STATE_KEY, true);
+                                        return false;
                                     }
                                 } catch (Exception e) {
-                                    log.warn("Could not archive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), ss.getTeamId(), e.toString());
+                                    log.error("Could not archive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), ss.getTeamId(), e.toString());
+                                    state.setAttribute("alertMessage", rb.getString("sinfo.error.archiving.microsoft.team"));
+                                    state.setAttribute(STATE_KEY, true);
+                                    return false;
                                 }
                             }
                             // Disable and update the SiteSynchronization
@@ -204,6 +215,7 @@ public class MicrosoftSynchronizationEnabler {
                         }
                     }
                 }
+                props.removeProperty(SITE_PROPERTY);
             }
         }
 
@@ -235,7 +247,7 @@ public class MicrosoftSynchronizationEnabler {
      * @param microsoftConfigurationService   the Microsoft configuration service
      * @param microsoftSynchronizationService the Microsoft synchronization service
      */
-    private static void createOrRestoreMicrosoftTeamForSite(
+    private static boolean createOrRestoreMicrosoftTeamForSite(
             Site site,
             MicrosoftCommonService microsoftCommonService,
             MicrosoftConfigurationService microsoftConfigurationService,
@@ -243,7 +255,7 @@ public class MicrosoftSynchronizationEnabler {
 
         if (microsoftCommonService == null || microsoftConfigurationService == null || microsoftSynchronizationService == null) {
             log.warn("One or more Microsoft services are null, cannot create team for site: {}", site.getId());
-            return;
+            return false;
         }
 
         try {
@@ -251,7 +263,7 @@ public class MicrosoftSynchronizationEnabler {
 
             if (credentials == null || credentials.getEmail() == null) {
                 log.warn("Could not resolve Microsoft credentials email for site: {}, team will not be created", site.getId());
-                return;
+                return false;
             }
 
             final long syncDuration = microsoftConfigurationService.getSyncDuration();
@@ -266,11 +278,11 @@ public class MicrosoftSynchronizationEnabler {
                         try {
                             if (!microsoftCommonService.unarchiveTeam(existingSs.getTeamId())) {
                                 log.error("Could not unarchive Microsoft Team for site: {}, teamId: {}, skipping state update", site.getId(), existingSs.getTeamId());
-                                continue;
+                                return false;
                             }
                         } catch (Exception e) {
                             log.error("Could not unarchive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), existingSs.getTeamId(), e.toString());
-                            continue;
+                            return false;
                         }
                     }
                     // Only reached if unarchiveTeam succeeded
@@ -287,12 +299,12 @@ public class MicrosoftSynchronizationEnabler {
                     teamId = microsoftCommonService.createTeam(site.getTitle(), credentials.getEmail());
                 } catch (Exception e) {
                     log.error("Microsoft Team creation failed for site: {}, {}", site.getId(), e.toString());
-                    return;
+                    return false;
                 }
 
                 if (teamId == null || teamId.isEmpty()) {
                     log.warn("Microsoft Team creation returned null or empty teamId for site: {}", site.getId());
-                    return;
+                    return false;
                 }
 
                 final SiteSynchronization ss = SiteSynchronization.builder()
@@ -308,7 +320,10 @@ public class MicrosoftSynchronizationEnabler {
             }
         } catch (Exception e) {
             log.error("Unexpected error while creating Microsoft Team for site: {}, {}", site.getId(), e.toString());
+            return false;
         }
+
+        return true;
     }
 
     /**

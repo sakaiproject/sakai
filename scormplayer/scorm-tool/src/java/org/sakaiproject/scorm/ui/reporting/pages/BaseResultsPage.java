@@ -15,8 +15,11 @@
  */
 package org.sakaiproject.scorm.ui.reporting.pages;
 
+import java.util.Locale;
+
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.RepeatingView;
@@ -238,6 +241,37 @@ public abstract class BaseResultsPage extends ConsoleBasePage
 			}
 
 			return percentage;
+		}
+	}
+
+	public class StatusPropertyColumn extends DecoratedPropertyColumn
+	{
+		private static final long serialVersionUID = 1L;
+
+		private final String keyPrefix;
+
+		public StatusPropertyColumn(IModel displayModel, String sortProperty, String propertyExpression, String keyPrefix)
+		{
+			super(displayModel, sortProperty, propertyExpression);
+			this.keyPrefix = keyPrefix;
+		}
+
+		@Override
+		public Object convertObject(Object object)
+		{
+			if (object == null)
+			{
+				return "";
+			}
+
+			String value = object.toString().trim();
+			if (StringUtils.isBlank(value))
+			{
+				return "";
+			}
+
+			String key = keyPrefix + value.toLowerCase(Locale.ROOT).replace(' ', '_');
+			return getLocalizer().getString(key, BaseResultsPage.this, value);
 		}
 	}
 }

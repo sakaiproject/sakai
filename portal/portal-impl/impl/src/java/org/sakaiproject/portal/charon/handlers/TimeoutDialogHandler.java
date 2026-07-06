@@ -32,6 +32,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_PREFIX;
+
 /**
  * This is a portal handler to get the necessary information for the timeout
  * dialog functionality. This is new functionality in Sakai 2.6, detailed in
@@ -103,7 +105,7 @@ public class TimeoutDialogHandler extends BasePortalHandler
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						null,
 						/* toolId */null, req.getContextPath() + req.getServletPath(),
-						/* prefix */"site", /* doPages */false, /* resetTools */false,
+						/* prefix */SITE_URL_PREFIX, /* doPages */false, /* resetTools */false,
 						/* includeSummary */false, /* expandSite */false);
 				portal.sendResponse(rcontext, res, parts[1], "text/html; charset=UTF-8");
 			} catch (Exception e) {

@@ -44,6 +44,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+
+import static org.sakaiproject.portal.api.PortalConstants.SITE_URL_SEGMENT;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -159,7 +162,7 @@ public class DirectToolHandler extends BasePortalHandler
 		// storedstate will replace directool with tool, so we just insert site
 		String portalPath = serverConfigurationService.getString("portalPath", "/portal");
 		if (toolContextPath.startsWith(portalPath + "/directtool/")) {
-		    toolContextPath = portalPath + "/site/" + siteTool.getSiteId() + toolContextPath.substring(portalPath.length());
+		    toolContextPath = portalPath + SITE_URL_SEGMENT + siteTool.getSiteId() + toolContextPath.substring(portalPath.length());
 		}
 
 		// permission check - visit the site (unless the tool is configured to

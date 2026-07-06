@@ -28,6 +28,7 @@ import java.util.List;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -36,9 +37,10 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -198,6 +200,11 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			UIInput.make(cancelform, "select", "simplePageBean.selectedBlti", ltiItemId);
 			UICommand.make(cancelform, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			UICommand.make(cancelform, "cancel2", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+
+			String allow = ServerConfigurationService.getBrowserFeatureAllowString();
+			String allowEscaped = StringEscapeUtils.escapeHtml4(allow);
+			String iframeHtml = "<sakai-lti-iframe id=\"sakai-lti-admin-iframe\" name=\"sakai-lti-admin-iframe\" launch-url=\"/library/image/sakai/spinner.gif\" allow=\"" + allowEscaped + "\" height=\"100%\" allow-resize=\"yes\"></sakai-lti-iframe>";
+			UIVerbatim.make(tofill, "iframe-container", iframeHtml);
 		}
 	}
 

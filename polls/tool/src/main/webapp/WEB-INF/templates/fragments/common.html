@@ -21,6 +21,12 @@
           <a th:href="@{/voteAdd}" th:text="#{action_add_poll}" th:unless="${current}=='add'">Add</a>
         </span>
         </li>
+        <li th:if="${canAdd}">
+        <span th:class="${current}=='import' ? 'current'">
+          <span th:if="${current}=='import'" th:text="#{action_import_polls}">Bulk Creation</span>
+          <a th:href="@{/pollImport}" th:text="#{action_import_polls}" th:unless="${current}=='import'">Bulk Creation</a>
+        </span>
+        </li>
         <li th:if="${isSiteOwner}">
         <span th:class="${current}=='permissions' ? 'current'">
           <span th:if="${current}=='permissions'" th:text="#{action_set_permissions}">Permissions</span>

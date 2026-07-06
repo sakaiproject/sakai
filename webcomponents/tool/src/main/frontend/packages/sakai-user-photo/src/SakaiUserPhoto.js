@@ -43,10 +43,12 @@ export class SakaiUserPhoto extends SakaiElement {
     this.profilePopup = SakaiUserPhoto.OFF;
   }
 
-  refresh() {
+  refresh(imageType) {
+
     if (this.blank) {
       this.url = "/api/users/blank/profile/image";
     } else {
+      imageType && (this.official = imageType === "official");
       this.url = this.getImageUrl();
     }
   }
@@ -56,6 +58,7 @@ export class SakaiUserPhoto extends SakaiElement {
   }
 
   willUpdate(changedProperties) {
+
     if (changedProperties.has("userId") || changedProperties.has("official") || changedProperties.has("blank") || changedProperties.has("siteId")) {
       if (this.blank) {
         this.url = "/api/users/blank/profile/image";
@@ -66,6 +69,7 @@ export class SakaiUserPhoto extends SakaiElement {
   }
 
   getImageUrl() {
+
     const uid = this.userId?.trim() || "blank";
     const sid = this.siteId?.trim() || getSiteId();
     const imageType = this.official ? "official" : "thumb";

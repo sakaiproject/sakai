@@ -1124,35 +1124,29 @@
     overflow:visible;
     margin:1em 0;
   }
-  .layoutReorderer-module {
+  .reorder-item {
     display: flex;
     align-items: center;
     background-color: var(--sakai-background-color-2);
     border-radius: 5px;
   }
 
-  .layoutReorderer-module-content {
-    padding: 6px;
-    width: 95%;
-    overflow: auto;
-  }
-
-  .flc-reorderer-module {
+  .reorder-item {
     border: 1px solid var(--sakai-border-color);
     margin:5px 0;
     position:relative;
     padding: 0px 0px 0px 10px;
   }
-  .flc-reorderer-module:focus {
+  .reorder-item:focus {
     outline:1px dashed var(--focus-outline-color);
   }
-  .flc-reorderer-module:hover {
+  .reorder-item:hover {
     border:1px solid var(--focus-outline-color);
   }
   .reorderItemsContainer {
     min-height: 60px;
   }
-  .ui-sortable-handle {
+  .reorder-item[draggable="true"] {
     cursor: move;
   }
   .reordItemContainer {
@@ -1193,49 +1187,8 @@
     color: var(--sakai-text-color-1);
     width: 22px;
   }
-  /**
-   * Interaction styling.
-   */
-
-  .layoutReorderer-movable-selected {
-    border: 1px solid var(--sakai-background-color-1);
-  }
-
-  .layoutReorderer-avatar {
-    background-color:var(--sakai-background-color-3);
-    outline: 2px solid var(--focus-outline-color);
-    opacity: 0.5;
-    filter: alpha(opacity=50); /* ie opacity fix */
-  }
-  .layoutReorderer-avatar .layoutReorderer-module-dragbar,
-  .layoutReorderer-avatar .layoutReorderer-module-content {
-    /* hide contents of the module's avatar, while dragging. */
-    visibility: hidden;
-  }
-
-  .layoutReorderer-movable-dragging {
+  .reorder-item-dragging {
     margin: 6px 2px 6px 12px;
-  }
-
-  .layoutReorderer-movable-mousedrag {
-    /* hide the original module while being dragged. */
-    display:none;
-  }
-
-  .layoutReorderer-dropMarker {
-    background: var(--sakai-active-color-1);
-    color: var(--sakai-text-color-3);
-    height: 40px;
-    padding: 0 0 0 0;
-    margin-left: 1em;
-    margin-right: 1em;
-  }
-
-  .layoutReorderer-dropMarker:before {
-    font-family: FontAwesome;
-    content: "\f061";
-    font-size: 1.5em;
-    line-height: 2em;
   }
 
   .deleteListMessage {

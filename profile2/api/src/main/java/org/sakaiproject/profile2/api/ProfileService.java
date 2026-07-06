@@ -169,7 +169,7 @@ public interface ProfileService {
      * @param url           url to image
      * @return
      */
-    boolean saveOfficialImageUrl(final String userUuid, final String url);
+    boolean saveOfficialImageUrl(String userUuid, String url);
 
     /**
      * Get the entity url to a profile image for a user.
@@ -196,14 +196,14 @@ public interface ProfileService {
      * @param userUuid uuid for the user
      * @return
      */
-    boolean profileImageIsDefault(final String userUuid);
+    boolean profileImageIsDefault(String userUuid);
 
     /**
      * Generate a profile image for a user with his name/last name initials
      * @param userUuid uuid for the user
      * @return The ProfileImage object, populated with either a url or binary data.
      */
-    ProfileImage getProfileAvatarInitials(final String userUuid);
+    ProfileImage getProfileAvatarInitials(String userUuid);
 
     String getProfileImageURL(String userId, boolean thumbnail);
 }

@@ -164,7 +164,7 @@ public class ProfileController extends AbstractSakaiApiController {
         }
 
         if (!StringUtils.equals(currentUserId, userId)) {
-		    eventTrackingService.post(this.eventTrackingService.newEvent(ProfileConstants.EVENT_IMAGE_REQUEST, "/profile/" + currentUserId + "/imagerequest/", false));
+            eventTrackingService.post(this.eventTrackingService.newEvent(ProfileConstants.EVENT_IMAGE_REQUEST, "/profile/" + currentUserId + "/imagerequest/", false));
         }
 
         // check for binary

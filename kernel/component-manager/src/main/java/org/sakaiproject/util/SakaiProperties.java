@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -44,137 +43,100 @@ import org.springframework.util.DefaultPropertiesPersister;
 import org.springframework.util.PropertiesPersister;
 import org.springframework.util.PropertyPlaceholderHelper;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * A configurer for "sakai.properties" files. These differ from the usual Spring default properties
- * files by mixing together lines which define property-value pairs and lines which define
+ * files by mixing lines which define property-value pairs and lines which define
  * bean property overrides. The two can be distinguished because Sakai conventionally uses
  * the bean name separator "@" instead of the default "."
  * 
  * This class creates separate PropertyPlaceholderConfigurer and PropertyOverrideConfigurer
- * objects to handle bean configuration, and loads them with the input properties.
+ * objects to handle bean configuration and loads them with the input properties.
  * 
  * SakaiProperties configuration supports most of the properties documented for 
  * PropertiesFactoryBean, PropertyPlaceholderConfigurer, and PropertyOverrideConfigurer.
  */
 @Slf4j
 public class SakaiProperties implements BeanFactoryPostProcessorCreator, InitializingBean {
-    private SakaiPropertiesFactoryBean propertiesFactoryBean = new SakaiPropertiesFactoryBean();
-    //private PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-    private ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
-    private PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+
+    private final SakaiPropertiesFactoryBean propertiesFactoryBean;
+    private final ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer;
+    private final PropertyPlaceholderConfigurer propertyPlaceholderConfigurer;
 
     public SakaiProperties() {
-        // Set defaults.
+        propertiesFactoryBean = new SakaiPropertiesFactoryBean();
         propertiesFactoryBean.setIgnoreResourceNotFound(true);
+
+        propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
         propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
         propertyPlaceholderConfigurer.setOrder(0);
+
+        propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
         propertyOverrideConfigurer.setBeanNameAtEnd(true);
         propertyOverrideConfigurer.setBeanNameSeparator("@");
         propertyOverrideConfigurer.setIgnoreInvalidKeys(true);
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         // Load demo properties when sakai.demo=true
         if ("true".equalsIgnoreCase(System.getProperty("sakai.demo"))) {
             Resource demoProperties = new ClassPathResource("org/sakaiproject/config/bundle/demo.sakai.properties");
             if (demoProperties.exists()) {
                 log.info("Loading demo properties from {}", demoProperties.getFilename());
-                propertiesFactoryBean.addLocation(demoProperties);
+                propertiesFactoryBean.addLocation(demoProperties, "kernel.properties");
             }
         }
 
         // Connect properties to configurers.
         propertiesFactoryBean.afterPropertiesSet();
-        propertyPlaceholderConfigurer.setProperties((Properties)propertiesFactoryBean.getObject());
-        propertyOverrideConfigurer.setProperties((Properties)propertiesFactoryBean.getObject());
+        propertyPlaceholderConfigurer.setProperties(propertiesFactoryBean.getObject());
+        propertyOverrideConfigurer.setProperties(propertiesFactoryBean.getObject());
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.util.BeanFactoryPostProcessorCreator#getBeanFactoryPostProcessors()
-     */
+    @Override
     public Collection<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
         return (Arrays.asList(new BeanFactoryPostProcessor[] {propertyOverrideConfigurer, propertyPlaceholderConfigurer}));
     }
 
     /**
-     * Gets the individual properties from each properties file which is read in
+     * Gets the individual properties from each properties file that is read in
      * 
      * @return a map of filename -> Properties
      */
     public Map<String, Properties> getSeparateProperties() {
-        LinkedHashMap<String, Properties> m = new LinkedHashMap<String, Properties>();
-        /* This doesn't work because spring always returns only the first of the properties files -AZ
-         * very disappointing because it means we can't tell which file a property came from
-        try {
-            // have to use reflection to get the fields here because Spring does not expose them directly
-            Field localPropertiesField = PropertiesLoaderSupport.class.getDeclaredField("localProperties");
-            Field locationsField = PropertiesLoaderSupport.class.getDeclaredField("locations");
-            localPropertiesField.setAccessible(true);
-            locationsField.setAccessible(true);
-            Properties[] localProperties = (Properties[]) localPropertiesField.get(propertiesFactoryBean);
-            Resource[] locations = (Resource[]) locationsField.get(propertiesFactoryBean);
-            log.info("found "+locations.length+" locations and "+localProperties.length+" props files");
-            for (int i = 0; i < localProperties.length; i++) {
-                Properties p = localProperties[i];
-                Properties props = dereferenceProperties(p);
-                Resource r = locations[i];
-                log.info("found "+p.size()+" props ("+props.size()+") in "+r.getFilename());
-                if (m.put(r.getFilename(), props) != null) {
-                    log.warn("SeparateProperties: Found use of 2 sakai properties files with the same name (probable data loss): "+r.getFilename());
-                }
-            }
-        } catch (Exception e) {
-            log.warn("SeparateProperties: Failure trying to get the separate properties: "+e);
-            m.clear();
-            m.put("ALL", getProperties());
-        }
-        */
-        /*
-        m.put("ALL", getProperties());
-        */
-        for (Entry<String, Properties> entry : propertiesFactoryBean.getLoadedProperties().entrySet()) {
-            m.put(entry.getKey(), dereferenceProperties(entry.getValue()));
-        }
-        return m;
+        return propertiesFactoryBean.getLoadedProperties().entrySet().stream()
+                .collect(LinkedHashMap::new,
+                        (m, entry) -> m.put(entry.getKey(), dereferenceProperties(entry.getValue())),
+                        LinkedHashMap::putAll);
     }
 
     /**
-     * INTERNAL
-     * @return the set of properties after processing
+     * @return the map of properties after processing
      */
     public Properties getProperties() {
         Properties rawProperties = getRawProperties();
-        Properties parsedProperties = dereferenceProperties(rawProperties);
-        return parsedProperties; 
+        return dereferenceProperties(rawProperties);
     }
 
     /**
-     * INTERNAL
      * @return the complete set of properties exactly as read from the files
      */
     public Properties getRawProperties() {
-        try {
-            return (Properties)propertiesFactoryBean.getObject();
-        } catch (IOException e) {
-            if (log.isWarnEnabled()) log.warn("Error collecting Sakai properties", e);
-            return new Properties();
-        }
+        return propertiesFactoryBean.getObject();
     }
 
     /**
      * Dereferences property placeholders in the given {@link Properties}
-     * in exactly the same way the {@link BeanFactoryPostProcessor}s in this
-     * object perform their placeholder dereferencing. Unfortunately, this
-     * process is not readily decoupled from the act of processing a
-     * bean factory in the Spring libraries. Hence the reflection.
-     * 
+     * using a {@link PropertyPlaceholderHelper}.
+     *
      * @param srcProperties a collection of name-value pairs
-     * @return a new collection of properties. If <code>srcProperties</code>
-     *   is <code>null</code>, returns null. If <code>srcProperties</code>
-     *   is empty, returns a reference to same object.
-     * @throws RuntimeException if any aspect of processing fails
+     * @return a new collection of properties. If {@code srcProperties}
+     *   is {@code null}, returns null. If {@code srcProperties}
+     *   is empty, returns a reference to the same object.
      */
     private Properties dereferenceProperties(Properties srcProperties) throws RuntimeException {
         if ( srcProperties == null ) {
@@ -192,42 +154,50 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
         return parsedProperties;
     }
 
-    // Delegate properties loading.
     public void setProperties(Properties properties) {
         propertiesFactoryBean.setProperties(properties);
     }
+
     public void setPropertiesArray(Properties[] propertiesArray) {
         propertiesFactoryBean.setPropertiesArray(propertiesArray);
     }
+
     public void setLocation(Resource location) {
         propertiesFactoryBean.setLocation(location);
     }
+
     public void setLocations(Resource[] locations) {
         propertiesFactoryBean.setLocations(locations);
     }
+
     public void setFileEncoding(String encoding) {
         propertiesFactoryBean.setFileEncoding(encoding);
     }
+
     public void setIgnoreResourceNotFound(boolean ignoreResourceNotFound) {
         propertiesFactoryBean.setIgnoreResourceNotFound(ignoreResourceNotFound);
     }
+
     public void setLocalOverride(boolean localOverride) {
         propertiesFactoryBean.setLocalOverride(localOverride);
     }
 
-    // Delegate PropertyPlaceholderConfigurer.
     public void setIgnoreUnresolvablePlaceholders(boolean ignoreUnresolvablePlaceholders) {
         propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(ignoreUnresolvablePlaceholders);
     }
+
     public void setOrder(int order) {
         propertyPlaceholderConfigurer.setOrder(order);
     }
+
     public void setPlaceholderPrefix(String placeholderPrefix) {
         propertyPlaceholderConfigurer.setPlaceholderPrefix(placeholderPrefix);
     }
+
     public void setPlaceholderSuffix(String placeholderSuffix) {
         propertyPlaceholderConfigurer.setPlaceholderSuffix(placeholderSuffix);
     }
+
     public void setSearchSystemEnvironment(boolean searchSystemEnvironment) {
         propertyPlaceholderConfigurer.setSearchSystemEnvironment(searchSystemEnvironment);
     }
@@ -238,72 +208,56 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
         propertyPlaceholderConfigurer.setSystemPropertiesModeName(constantName);
     }
 
-    // Delegate PropertyOverrideConfigurer.
     public void setBeanNameAtEnd(boolean beanNameAtEnd) {
         propertyOverrideConfigurer.setBeanNameAtEnd(beanNameAtEnd);
     }
+
     public void setBeanNameSeparator(String beanNameSeparator) {
         propertyOverrideConfigurer.setBeanNameSeparator(beanNameSeparator);
     }
+
     public void setIgnoreInvalidKeys(boolean ignoreInvalidKeys) {
         propertyOverrideConfigurer.setIgnoreInvalidKeys(ignoreInvalidKeys);
     }
 
     /**
-     * Blatantly stolen from the Spring classes in order to get access to the properties files as they are read in,
-     * this could not be done by overrides because the stupid finals and private vars, this is why frameworks should
-     * never use final and private in their code.... sigh
-     * 
-     * @author Spring Framework
-     * @author Aaron Zeckoski (azeckoski @ vt.edu)
+     * Custom properties factory bean that tracks the properties loaded from each file separately,
+     * allowing callers to determine which file a property originated from.
      */
-    public class SakaiPropertiesFactoryBean implements FactoryBean, InitializingBean {
+    public static class SakaiPropertiesFactoryBean implements FactoryBean<Properties>, InitializingBean {
         public static final String XML_FILE_EXTENSION = ".xml";
-        
-        private Map<String, Properties> loadedProperties = new LinkedHashMap<String, Properties>();
-        /**
-         * @return a map of file -> properties for everything loaded here
-         */
-        public Map<String, Properties> getLoadedProperties() {
-            return loadedProperties;
-        }
 
-        private Properties[] localProperties;
-        private Resource[] locations;
-        private boolean localOverride = false;
-        private boolean ignoreResourceNotFound = false;
-        private String fileEncoding;
+        @Getter private Map<String, Properties> loadedProperties = new LinkedHashMap<>();
+        @Setter private Resource[] locations;
+        @Setter private boolean localOverride = false;
+        @Setter private boolean ignoreResourceNotFound = false;
+        @Setter private String fileEncoding;
+
         private PropertiesPersister propertiesPersister = new DefaultPropertiesPersister();
+        private Properties[] localProperties;
+        private Properties singletonInstance;
 
-        private boolean singleton = true;
-        private Object singletonInstance;
-        public final void setSingleton(boolean singleton) {
-            // ignore this
-        }
+        @Override
         public final boolean isSingleton() {
-            return this.singleton;
+            return true;
         }
 
+        @Override
         public final void afterPropertiesSet() throws IOException {
-            if (this.singleton) {
-                this.singletonInstance = createInstance();
-            }
+            this.singletonInstance = createInstance();
         }
 
-        public final Object getObject() throws IOException {
-            if (this.singleton) {
-                return this.singletonInstance;
-            } else {
-                return createInstance();
-            }
+        @Override
+        public final Properties getObject() {
+            return this.singletonInstance;
         }
 
-        @SuppressWarnings("rawtypes")
-        public Class getObjectType() {
+        @Override
+        public Class<Properties> getObjectType() {
             return Properties.class;
         }
 
-        protected Object createInstance() throws IOException {
+        protected Properties createInstance() throws IOException {
             return mergeProperties();
         }
 
@@ -315,28 +269,25 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
             this.localProperties = propertiesArray;
         }
 
-        public void addLocation(Resource location) {
-            this.locations = ArrayUtils.add(locations, location);
+        public void addLocation(Resource location, String afterFilename) {
+            int index = -1;
+            if (afterFilename != null && this.locations != null) {
+                for (int i = 0; i < this.locations.length; i++) {
+                    if (afterFilename.equals(this.locations[i].getFilename())) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0) {
+                this.locations = ArrayUtils.insert(index + 1, this.locations, location);
+            } else {
+                this.locations = ArrayUtils.add(this.locations, location);
+            }
         }
 
         public void setLocation(Resource location) { // unused
             this.locations = new Resource[] {location};
-        }
-
-        public void setLocations(Resource[] locations) {
-            this.locations = locations;
-        }
-
-        public void setLocalOverride(boolean localOverride) {
-            this.localOverride = localOverride;
-        }
-
-        public void setIgnoreResourceNotFound(boolean ignoreResourceNotFound) {
-            this.ignoreResourceNotFound = ignoreResourceNotFound;
-        }
-
-        public void setFileEncoding(String encoding) {
-            this.fileEncoding = encoding;
         }
 
         public void setPropertiesPersister(PropertiesPersister propertiesPersister) {
@@ -364,11 +315,11 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
             }
 
             if (!this.localOverride) {
-                // Load properties from file afterwards, to let those properties override.
+                // Load properties from file afterward, to let those properties override.
                 loadProperties(result);
             }
 
-            if (log.isInfoEnabled()) log.info("Loaded a total of "+result.size()+" properties");
+            log.info("Loaded a total of {} properties", result.size());
             return result;
         }
 
@@ -376,21 +327,17 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
          * Load properties into the given instance.
          * 
          * @param props the Properties instance to load into
-         * @throws java.io.IOException in case of I/O errors
+         * @throws java.io.IOException in the case of I/O errors
          * @see #setLocations
          */
         protected void loadProperties(Properties props) throws IOException {
             if (this.locations != null) {
-                for (int i = 0; i < this.locations.length; i++) {
-                    Resource location = this.locations[i];
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loading properties file from " + location);
-                    }
-                    InputStream is = null;
-                    try {
+                for (Resource location : this.locations) {
+                    log.debug("Loading properties file from {}", location);
+                    try (InputStream is = location.getInputStream()) {
                         Properties p = new Properties();
-                        is = location.getInputStream();
-                        if (location.getFilename().endsWith(XML_FILE_EXTENSION)) {
+                        String fileName = location.getFilename();
+                        if (fileName != null && fileName.toLowerCase().endsWith(XML_FILE_EXTENSION)) {
                             this.propertiesPersister.loadFromXml(p, is);
                         } else {
                             if (this.fileEncoding != null) {
@@ -399,22 +346,14 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
                                 this.propertiesPersister.load(p, is);
                             }
                         }
-                        if (log.isInfoEnabled()) {
-                            log.info("Loaded "+p.size()+" properties from file " + location);
-                        }
-                        loadedProperties.put(location.getFilename(), p);
+                        log.info("Loaded {} properties from file {}", p.size(), location);
+                        loadedProperties.put(fileName, p);
                         props.putAll(p); // merge the properties
-                    } catch (IOException ex) {
+                    } catch (IOException ioe) {
                         if (this.ignoreResourceNotFound) {
-                            if (log.isWarnEnabled()) {
-                                log.warn("Could not load properties from " + location + ": " + ex.getMessage());
-                            }
+                            log.warn("Could not load properties from {}, {}", location, ioe.toString());
                         } else {
-                            throw ex;
-                        }
-                    } finally {
-                        if (is != null) {
-                            is.close();
+                            throw ioe;
                         }
                     }
                 }
