@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -198,15 +197,14 @@ class SamigoMultiTabTest extends SakaiUiTestBase {
             selectMcOption(tabA, 1);
             selectMcOption(tabB, 2);
 
-            // Fire both saves as close to simultaneously as possible.
-            CompletableFuture<Void> a = CompletableFuture.runAsync(() ->
-                tabA.evaluate("() => document.getElementById('takeAssessmentForm:save').click()"));
-            CompletableFuture<Void> b = CompletableFuture.runAsync(() ->
-                tabB.evaluate("() => document.getElementById('takeAssessmentForm:save').click()"));
-            CompletableFuture.allOf(a, b).join();
+            // Fire both saves as close to simultaneously as possible. Playwright
+            // Java is not thread-safe, so instead of Java threads each page arms
+            // a JS timer and the clicks fire concurrently browser-side.
+            tabA.evaluate("() => setTimeout(() => document.getElementById('takeAssessmentForm:save').click(), 100)");
+            tabB.evaluate("() => setTimeout(() => document.getElementById('takeAssessmentForm:save').click(), 100)");
             tabA.waitForLoadState(LoadState.DOMCONTENTLOADED);
             tabB.waitForLoadState(LoadState.DOMCONTENTLOADED);
-            tabA.waitForTimeout(1_500);
+            tabA.waitForTimeout(2_000);
 
             if (!dbChecksEnabled()) {
                 continue;
@@ -286,6 +284,7 @@ class SamigoMultiTabTest extends SakaiUiTestBase {
         // The forced timeout submit from the CURRENT tab must keep today's
         // semantics: the student's last (unsaved) change wins, with exactly one
         // row per single-select item - no duplicate rows, no constraint abort.
+        assumeDb();
         ensureCourseUrl();
         long quizId = publishedAssessmentId(QUIZ_TIMED);
 
