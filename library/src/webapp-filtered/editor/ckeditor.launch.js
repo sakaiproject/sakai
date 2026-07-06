@@ -635,6 +635,19 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 ] 
                 {id} .cke_button_arrow [
                     border--top-color: {toolbarElementsBorder};
+                ]
+                {id} a.cke_toolbox_collapser [
+                    background-color:{defaultBackground};
+                    border-color:{defaultBorder};
+                ]
+                {id} a.cke_toolbox_collapser:hover [
+                    background-color:{darkBackground};
+                ]
+                {id}.cke_chrome a.cke_toolbox_collapser:not(.cke_toolbox_collapser_min) .cke_arrow [
+                    border-top-color:{defaultTextColor};
+                ]
+                {id}.cke_chrome a.cke_toolbox_collapser_min .cke_arrow [
+                    border-left-color:{defaultTextColor};
                 ]` +
                 // Combo buttons.
                 `{id} a.cke_combo_button:hover,
