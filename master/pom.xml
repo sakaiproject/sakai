@@ -1315,6 +1315,12 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-ssl-config</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.opensearch.plugin</groupId>
         <artifactId>transport-netty4-client</artifactId>
         <version>${sakai.opensearch.version}</version>

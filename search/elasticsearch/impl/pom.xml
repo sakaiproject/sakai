@@ -63,6 +63,10 @@
             <artifactId>opensearch-rest-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-ssl-config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opensearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
         </dependency>
