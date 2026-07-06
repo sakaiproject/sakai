@@ -39,6 +39,7 @@
       <script src="/sakai-editor/editor.js"></script>
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
+      <script src="/samigo-app/js/samigoDraft.js"></script>
       <script src="/samigo-app/js/deliveryQuestionCancellation.js"></script>
       <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
@@ -282,6 +283,10 @@ document.links[newindex].onclick();
          reaches the first copy. --%>
     <div role="alert" class="sak-banner-warn" style="display: none" id="stale-tab-warning">
       <h:outputText value="#{deliveryMessages.stale_tab_autosave_warning}" escape="false" />
+    </div>
+    <%-- SAK-52710: shown when an unsaved local draft was restored --%>
+    <div role="alert" class="sak-banner-info" style="display: none" id="draft-restored-info">
+      <h:outputText value="#{deliveryMessages.draft_restored}" escape="false" />
     </div>
     <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
     <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
@@ -705,6 +710,10 @@ document.links[newindex].onclick();
 	checkRadio();
 	fixImplicitLabeling();
 	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>);
+	<%-- SAK-52710: local draft snapshots of typed answers (take modes only) --%>
+	<h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && delivery.assessmentGrading != null}">
+	samigoDraft.init('<h:outputText value="#{delivery.assessmentGrading.assessmentGradingId}"/>');
+	</h:panelGroup>
 	setTimeout('setLocation2()',2);
 	questionProgress.transposeTOCTables();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);

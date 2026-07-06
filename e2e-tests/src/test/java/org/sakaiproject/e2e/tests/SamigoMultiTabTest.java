@@ -406,6 +406,53 @@ class SamigoMultiTabTest extends SakaiUiTestBase {
         dup.close();
     }
 
+    @Test
+    @Order(11)
+    void typedEssayDraftSurvivesTabLossWithoutSaving() {
+        // SAK-44349 draft layer: text typed but never saved must be recoverable
+        // on this device after the tab/browser is lost (the 23.x essay-loss
+        // report). Simulated by navigating away without any form submit.
+        assumeDb();
+        ensureCourseUrl();
+        long quizId = publishedAssessmentId(QUIZ_NAV);
+
+        sakai.login(STUDENT);
+        String toolUrl = enterTestsTool(page);
+        beginQuiz(page, QUIZ_NAV);
+
+        // Get to the essay page (Q1 MC unanswered is fine) and type WITHOUT saving.
+        if (page.locator("#takeAssessmentForm textarea:visible").count() == 0) {
+            clickDelivery(page, "next");
+        }
+        String draftText = "draft only, never saved " + RUN_ID;
+        fillEssay(page, draftText);
+        // Let the 2s draft debounce fire.
+        page.waitForTimeout(3_500);
+
+        // Abandon the page without submitting anything (tab close / crash).
+        page.navigate(toolUrl);
+
+        // Server never saw the text.
+        assertFalse(gradingRows(quizId).stream().anyMatch(r -> r[3].contains("draft only")),
+            "draft text must not be on the server yet");
+
+        // Re-enter the attempt: the empty essay field must be restored from
+        // the local draft, with a visible notice.
+        beginQuiz(page, QUIZ_NAV);
+        if (page.locator("#takeAssessmentForm textarea:visible").count() == 0) {
+            clickDelivery(page, "next");
+        }
+        assertThat(page.locator("#draft-restored-info")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(10_000));
+        String restored = page.locator("#takeAssessmentForm textarea:visible").first().inputValue();
+        assertTrue(restored.contains("draft only, never saved"),
+            "restored textarea should contain the draft, got: " + restored);
+
+        // And saving the restored draft persists it.
+        clickDelivery(page, "save");
+        assertTrue(gradingRows(quizId).stream().anyMatch(r -> r[3].contains("draft only")),
+            "restored draft should persist on save");
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private void createAndPublishTwoQuestionQuiz(String title) {
