@@ -159,7 +159,7 @@ public class MicrosoftSynchronizationEnabler {
 
                 // Add site property defined in microsoft.forced.synchronization.propertyname (only if not already present)
                 if (nameAndValueForSynchronization.length > 0) {
-                	final String propName = nameAndValueForSynchronization[0];
+                    final String propName = nameAndValueForSynchronization[0];
                     final String propValue = nameAndValueForSynchronization[1];
 
                     // Validate propValue is not empty
@@ -187,8 +187,6 @@ public class MicrosoftSynchronizationEnabler {
 
                 
             } else {
-                props.removeProperty(SITE_PROPERTY);
-
                 // If a SiteSynchronization exists with a Team, archive it
                 if (microsoftSynchronizationService != null && microsoftCommonService != null) {
                     List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(site.getId());
@@ -197,11 +195,17 @@ public class MicrosoftSynchronizationEnabler {
                             // If the SiteSynchronization has a Team, archive it first
                             if (ss.getTeamId() != null && !ss.getTeamId().isEmpty()) {
                                 try {
-                                    if (microsoftCommonService.archiveTeam(ss.getTeamId())) {
-                                        log.info("Microsoft Team archived for site: {}, teamId: {}", site.getId(), ss.getTeamId());
+                                    if (!microsoftCommonService.archiveTeam(ss.getTeamId())) {
+                                        log.error("Could not archive Microsoft Team for site: {}, teamId: {}, skipping state update", site.getId(), ss.getTeamId());
+                                        state.setAttribute("alertMessage", rb.getString("sinfo.error.archiving.microsoft.team"));
+                                        state.setAttribute(STATE_KEY, true);
+                                        return false;
                                     }
                                 } catch (Exception e) {
-                                    log.warn("Could not archive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), ss.getTeamId(), e.toString());
+                                    log.error("Could not archive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), ss.getTeamId(), e.toString());
+                                    state.setAttribute("alertMessage", rb.getString("sinfo.error.archiving.microsoft.team"));
+                                    state.setAttribute(STATE_KEY, true);
+                                    return false;
                                 }
                             }
                             // Disable and update the SiteSynchronization
@@ -211,6 +215,7 @@ public class MicrosoftSynchronizationEnabler {
                         }
                     }
                 }
+                props.removeProperty(SITE_PROPERTY);
             }
         }
 
@@ -273,11 +278,11 @@ public class MicrosoftSynchronizationEnabler {
                         try {
                             if (!microsoftCommonService.unarchiveTeam(existingSs.getTeamId())) {
                                 log.error("Could not unarchive Microsoft Team for site: {}, teamId: {}, skipping state update", site.getId(), existingSs.getTeamId());
-                                continue;
+                                return false;
                             }
                         } catch (Exception e) {
                             log.error("Could not unarchive Microsoft Team for site: {}, teamId: {}, {}", site.getId(), existingSs.getTeamId(), e.toString());
-                            continue;
+                            return false;
                         }
                     }
                     // Only reached if unarchiveTeam succeeded

@@ -31,4 +31,5 @@ public class MicrosoftTeam {
 	private String description;
 	@Builder.Default
 	private boolean fullyCreated = true;
+	private boolean isArchived = false;
 }
