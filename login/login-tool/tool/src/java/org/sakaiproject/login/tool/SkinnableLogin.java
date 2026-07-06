@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletConfig;
@@ -347,6 +350,20 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			LoginCredentials credentials = new LoginCredentials(req);
 			credentials.setSessionId(session.getId());
+
+			List<String> blockedIdentifiers = serverConfigurationService.getStringList("login.local.blocked.identifiers", Collections.<String>emptyList());
+
+			String username = Optional.ofNullable(credentials.getIdentifier())
+				.map(String::toLowerCase)
+				.orElse("");
+
+			if (blockedIdentifiers.stream()
+					.map(s -> s.trim().toLowerCase())
+					.anyMatch(username::contains)) {
+				rcontext.put(ATTR_MSG, rb.getString("log.sso.required"));
+				sendResponse(rcontext, res, "xlogin", null);
+				return;
+			}
 
 			try {
 				loginService.authenticate(credentials);

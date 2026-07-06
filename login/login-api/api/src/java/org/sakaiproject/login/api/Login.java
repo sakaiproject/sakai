@@ -32,4 +32,5 @@ public interface Login {
 	
 	public static final String EXCEPTION_DISABLED = "Account Disabled: The user's authentication has been disabled";
 	
+	public static final String EXCEPTION_SSO_REQUIRED = "sso-required-login";
 }
