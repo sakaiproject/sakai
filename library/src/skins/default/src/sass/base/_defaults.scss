@@ -147,6 +147,9 @@ input[type="submit"],input[type="button"],input[type="reset"] {
 
 input[type="checkbox"], input[type="radio"], input.form-check-input[type="checkbox"], input.form-check-input[type="radio"]{
   border: 1px solid var(--sakai-text-color-1);
+  // Bootstrap's .form-check-input backgrounds are white regardless of theme;
+  // unchecked boxes should sit on the page like plain inputs do
+  background-color: transparent;
   color: var(--sakai-text-color-1);
   display: inline-block;
   height: 16px;
