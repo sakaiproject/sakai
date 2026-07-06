@@ -53,9 +53,10 @@ var samigoDraft = (function () {
 
     function store(name, value) {
         try {
-            if (!value || value.length === 0 || value.length > MAX_FIELD_LENGTH) {
-                // A cleared field must not resurrect later; an over-long field
-                // must not freeze at a misleading older snapshot.
+            if (isBlank(value) || value.length > MAX_FIELD_LENGTH) {
+                // A cleared field must not resurrect later - including one an
+                // editor "cleared" to blank markup like <p>&nbsp;</p> - and an
+                // over-long field must not freeze at a misleading older snapshot.
                 localStorage.removeItem(fieldKey(name));
                 return;
             }
