@@ -87,38 +87,20 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
       }
     }
 
-    function addClassOnLoad(){
+    function addThemeClassToEditorDocument(editor){
         try {
-            if (typeof this.instances !== 'undefined'){
-                //Run on all ckeditor instances on the page
-                for (const instance in this.instances) {
-                    //check for the instance to be an object not a function
-                    if (Object.hasOwnProperty.call(this.instances, instance)) {
-                        const instanceDoc = this.instances[instance];
-                        //Add sakai-dark-theme class to ckeditor iframe
-                        instanceDoc.document.$.documentElement.classList.add('sakaiUserTheme-dark');
-                    }
-                }
-            }
+            //Add sakai-dark-theme class to ckeditor iframe
+            editor.document.$.documentElement.classList.add('sakaiUserTheme-dark');
         } catch (error) {
             console.error(error);
         }
     }
 
-    function addClassOnModeChange(){
-        try {
-            //Only run when switching out of source mode into mysiwyg mode
-            if (this.mode === 'wysiwyg') {
-                //Check for the editor to be an object not a function
-                if (Object.prototype.hasOwnProperty.call(this, 'document')) {
-                    const instanceDoc = this.document.$;
-                    //Add sakai-dark-theme class to ckeditor iframe
-                    instanceDoc.documentElement.classList.add('sakaiUserTheme-dark');
-                }
-            }
-        } catch (error) {
-            console.error(error);
-        }
+    function addClassOnInstanceReady(evt){
+        addThemeClassToEditorDocument(evt.editor);
+        //contentDom fires whenever the editable document is recreated —
+        //mode switches, setData, and dialogs that reopen the same instance
+        evt.editor.on('contentDom', () => addThemeClassToEditorDocument(evt.editor));
     }
 
     // Prune the GET parameters and '?' off the URL
@@ -527,15 +509,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         }
 
         //CKEditor doesn't have a method to add classes to the HTML element
-        //so we manually add the class on load
+        //so we manually add the class as each instance becomes ready. This must
+        //apply to EVERY instance, not once per page: tools like Lessons destroy
+        //and recreate editors (e.g. reopening the question dialog), and a
+        //once-handler leaves every later instance with a white background.
         //should be refactored when ckeditor5 is implemented
         if (document.firstElementChild.classList.contains('sakaiUserTheme-dark')){
-  
-            CKEDITOR.once('instanceReady', addClassOnLoad);
-            // //and we watch for switching out or source mode
-            CKEDITOR.once('instanceReady', function(editor){
-                editor.editor.on('mode', addClassOnModeChange);
-            });
+            CKEDITOR.on('instanceReady', addClassOnInstanceReady);
         }
 
         //Enable ckeditor to reflect themeswitcher changes. Overrides:
