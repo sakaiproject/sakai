@@ -8438,16 +8438,19 @@ public class SimplePageBean {
 			}
 		}
 
-		if ("page".equals(questionAggregateApplyScope)) {
-			questionAggregateService.includeAllQuestions(siteId, getCurrentPageId());
-		} else if ("site".equals(questionAggregateApplyScope)) {
-			questionAggregateService.includeAllQuestions(siteId, -1);
-		}
-
 		if (!questionAggregateService.configure(siteId, questionAggregateTitle, questionAggregateMode,
 				questionAggregateEssay, perQuestionPoints, fixedPoints, dueDate, questionAggregateAutoInclude)) {
 			setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
 			return "failure";
+		}
+
+		// Only flag questions as members once the aggregate item is known to exist; otherwise a
+		// failed configure() (e.g. gradebook name conflict) would leave questions pointing at an
+		// item that was never saved.
+		if ("page".equals(questionAggregateApplyScope)) {
+			questionAggregateService.includeAllQuestions(siteId, getCurrentPageId());
+		} else if ("site".equals(questionAggregateApplyScope)) {
+			questionAggregateService.includeAllQuestions(siteId, -1);
 		}
 		return "success";
 	}

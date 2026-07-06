@@ -737,8 +737,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc.tooltip")));
 				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
-				UIOutput.make(tofill, "question-aggregate-li");
-				UIOutput.make(tofill, "question-aggregate-settings").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.question-aggregate-settings.tooltip")));
+				// Only show the link when the dialog will actually render (same gate as
+				// createQuestionAggregateDialog); otherwise a page owner without gradebook
+				// config rights would get a link that opens nothing.
+				if (simplePageBean.canConfigureQuestionAggregate()) {
+					UIOutput.make(tofill, "question-aggregate-li");
+					UIOutput.make(tofill, "question-aggregate-settings").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.question-aggregate-settings.tooltip")));
+				}
 
 				// Check to see if we have tools registered for external import
 				List<Map<String, Object>> toolsImportItem = simplePageBean.getToolsImportItem();

@@ -1752,6 +1752,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 			try {
 
 				if (QUESTION_AGGREGATE_ID.equals(jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME))) {
+					// this row is a gradebook item; changing its due date requires gradebook edit rights
+					if (!gradingService.currentUserHasEditPerm(getCurrentSiteId())) {
+						errors.add(new DateManagerError("lessons", resourceLoader.getString("error.update.permission.denied"), "lessons", toolTitle, idx));
+						continue;
+					}
 					String dueDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_DUEDATE_PARAM_NAME);
 					Instant aggregateDue = null;
 					if (StringUtils.isNotBlank(dueDateRaw)) {
@@ -2393,9 +2398,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 			}
 			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
 				JSONArray lessonsJson = getLessonsForContext(siteId);
-				if (!lessonsJson.isEmpty()) {
+				// The synthetic shared-question row carries a due date, not an open date, so it does not
+				// round-trip through the open_date-only Lessons CSV columns; edit it in the grid instead.
+				JSONArray lessonsCsv = new JSONArray();
+				for (Object lessonObj : lessonsJson) {
+					if (!QUESTION_AGGREGATE_ID.equals(((JSONObject) lessonObj).get(DateManagerConstants.JSON_ID_PARAM_NAME))) {
+						lessonsCsv.add(lessonObj);
+					}
+				}
+				if (!lessonsCsv.isEmpty()) {
 					int[] columnsIndex = {0, 1, 10};
-					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsJson, columnsNames[6]);
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsCsv, columnsNames[6]);
 				}
 			}
 		} catch (Exception e) {
