@@ -341,11 +341,17 @@ public class SiteHandler extends WorksiteHandler
 					siteId = serverConfigurationService.getGatewaySiteId();
 				}
 			}
+			else if (serverConfigurationService.getBoolean("myworkspace.show", true))
+			{
+				// When My Workspace is shown it is the first entry in the site navigation,
+				// so land the user on their Home (My Workspace) by default.
+				siteId = siteService.getUserSiteId(userId);
+			}
 			else
 			{
-				// We only need the first accessible site id to use as the default landing site, so
-				// fetch ids with getSiteIds rather than hydrating (and converting to maps) every
-				// site the user can access.
+				// My Workspace is hidden, so land on the first accessible member site. We only need
+				// the first id, so fetch ids with getSiteIds rather than hydrating (and converting to
+				// maps) every site the user can access.
 				List<String> siteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
 						SiteService.SortType.NONE, new PagingPosition(1, 1));
 				if (!siteIds.isEmpty()) {
