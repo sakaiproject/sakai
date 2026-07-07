@@ -20,6 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.login.impl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,6 +73,10 @@ public abstract class LoginServiceComponent implements LoginService {
 			
 			boolean isEidEmpty = (eid == null) || (eid.length() == 0);
 			boolean isPwEmpty = (pw == null) || (pw.length() == 0);
+
+			if (isBlockedIdentifier(eid)) {
+				throw new LoginException(Login.EXCEPTION_SSO_REQUIRED);
+			}
 			
 			if (isAdvisorEnabled) {
 				if (!loginAdvisor.checkCredentials(credentials)) {
@@ -172,5 +179,39 @@ public abstract class LoginServiceComponent implements LoginService {
 		
 		return loginAdvisor;
 	}
-	
+
+	private boolean isBlockedIdentifier(String identifier) {
+		if (identifier == null) {
+			return false;
+		}
+
+		String normalizedIdentifier = identifier.trim().toLowerCase(Locale.ROOT);
+
+		List<String> blockedIdentifiers = serverConfigurationService()
+				.getStringList("login.local.blocked.identifiers", Collections.emptyList());
+
+		return blockedIdentifiers.stream()
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.map(s -> s.toLowerCase(Locale.ROOT))
+				.anyMatch(pattern -> matchesPattern(normalizedIdentifier, pattern));
+	}
+
+	private boolean matchesPattern(String identifier, String pattern) {
+		if (pattern.startsWith("*") && pattern.endsWith("*") && pattern.length() > 2) {
+			return identifier.contains(pattern.substring(1, pattern.length() - 1));
+		}
+
+		if (pattern.startsWith("*")) {
+			return identifier.endsWith(pattern.substring(1));
+		}
+
+		if (pattern.endsWith("*")) {
+			return identifier.startsWith(pattern.substring(0, pattern.length() - 1));
+		}
+
+		// exacto
+		return identifier.equals(pattern);
+	}
+
 }

@@ -351,20 +351,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			LoginCredentials credentials = new LoginCredentials(req);
 			credentials.setSessionId(session.getId());
 
-			List<String> blockedIdentifiers = serverConfigurationService.getStringList("login.local.blocked.identifiers", Collections.<String>emptyList());
-
-			String username = Optional.ofNullable(credentials.getIdentifier())
-				.map(String::toLowerCase)
-				.orElse("");
-
-			if (blockedIdentifiers.stream()
-					.map(s -> s.trim().toLowerCase())
-					.anyMatch(username::contains)) {
-				rcontext.put(ATTR_MSG, rb.getString("log.sso.required"));
-				sendResponse(rcontext, res, "xlogin", null);
-				return;
-			}
-
 			try {
 				loginService.authenticate(credentials);
 				String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
@@ -396,6 +382,10 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				} else if (message.equals(EXCEPTION_MISSING_CREDENTIALS)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.tryagain"));
 					//Do we need to log this one? You can't really brute force with empty credentials...
+				} else if (message.equals(EXCEPTION_SSO_REQUIRED)) {
+					rcontext.put(ATTR_MSG, rb.getString("log.sso.required"));
+					sendResponse(rcontext, res, "xlogin", null);
+					return;
 				} else {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid"));
 					logFailedAttempt(credentials);
