@@ -198,6 +198,10 @@ public abstract class LoginServiceComponent implements LoginService {
 	}
 
 	private boolean matchesPattern(String identifier, String pattern) {
+		if ("*".equals(pattern)) {
+        	return false;
+		}
+
 		if (pattern.startsWith("*") && pattern.endsWith("*") && pattern.length() > 2) {
 			return identifier.contains(pattern.substring(1, pattern.length() - 1));
 		}
