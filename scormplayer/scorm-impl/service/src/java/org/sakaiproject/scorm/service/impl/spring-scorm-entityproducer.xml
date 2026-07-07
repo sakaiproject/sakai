@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- SCORM Import from Site / archive-merge entity producer. Kept in its own file so the
+	     production wiring can be reused verbatim by ScormEntityProducerTest. -->
+	<bean id="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
+		class="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
+		init-method="init">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+		<property name="contentPackageDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
+		<property name="contentPackageManifestDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="scormResourceService" ref="org.sakaiproject.scorm.service.api.ScormResourceService" />
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+</beans>
