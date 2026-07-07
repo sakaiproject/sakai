@@ -564,5 +564,21 @@ public class AnnouncementService
 
 		return service.getVisibleMessagesOfTheDay(afterDate, numberOfAnnouncements, ascending);
 	}
-	
+
+	public static void recordRead(String messageRef, String userId, java.time.Instant when)
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return;
+
+		service.recordRead(messageRef, userId, when);
+	}
+
+	public static java.util.List<org.sakaiproject.announcement.api.model.AnnouncementReadReceipt> getReadReceipts(String messageRef)
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
+
+		return service.getReadReceipts(messageRef);
+	}
+
 }

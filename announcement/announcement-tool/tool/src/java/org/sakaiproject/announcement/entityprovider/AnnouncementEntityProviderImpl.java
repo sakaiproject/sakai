@@ -21,16 +21,21 @@
 
 package org.sakaiproject.announcement.entityprovider;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +50,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.announcement.api.ViewableFilter;
+import org.sakaiproject.announcement.api.model.AnnouncementReadReceipt;
 import org.sakaiproject.announcement.tool.AnnouncementAction;
 import org.sakaiproject.announcement.tool.AnnouncementWrapper;
 import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
@@ -70,6 +76,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.Message;
@@ -80,6 +88,9 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
@@ -689,7 +700,134 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		String announcementId = view.getPathSegment(4);
 		return getAnnouncement(siteId, channelId, announcementId);
 	}
-	
+
+	/**
+	 * Read receipts for a single announcement, for managers only.
+	 *
+	 * Route: /direct/announcement/readReceipts/{siteId}/{channelId}/{messageId}.json
+	 *
+	 * Returns {@code {viewed:[...], notViewed:[...], viewedCount, totalCount}} where each row carries
+	 * userId, displayName, sortName, emailEnabled and (for viewed rows) firstViewed.
+	 */
+	@EntityCustomAction(action="readReceipts", viewKey=EntityView.VIEW_LIST)
+	public Map<String, Object> getReadReceipts(EntityView view, Map<String, Object> params) {
+
+		String siteId = view.getPathSegment(2);
+		String channelId = view.getPathSegment(3);
+		String announcementId = view.getPathSegment(4);
+
+		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(channelId) || StringUtils.isBlank(announcementId)) {
+			throw new IllegalArgumentException("You must supply siteId, channelId and messageId");
+		}
+
+		String channelRef = announcementService.channelReference(siteId, channelId);
+		AnnouncementChannel channel;
+		AnnouncementMessage message;
+		try {
+			channel = announcementService.getAnnouncementChannel(channelRef);
+			message = channel.getAnnouncementMessage(announcementId);
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Couldn't find: " + e.getId(), e.getId());
+		} catch (PermissionException e) {
+			throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
+		}
+
+		// Permission-gate to managers: only those who can edit messages in this channel may see receipts.
+		if (!channel.allowEditMessage(announcementId)) {
+			throw new EntityException("You don't have permission to view read receipts for this announcement.", channelRef, 403);
+		}
+
+		// The stored MESSAGE_REF equals message.getReference() (what the read event carries).
+		String messageRef = message.getReference();
+
+		Site site;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+		}
+
+		// Map of userId -> firstViewed for everyone who has read the announcement.
+		Map<String, Instant> viewedTimes = new HashMap<>();
+		for (AnnouncementReadReceipt receipt : announcementService.getReadReceipts(messageRef)) {
+			viewedTimes.put(receipt.getUserId(), receipt.getFirstViewed());
+		}
+
+		// Focus the receipts on students: everyone allowed to read the announcement, minus
+		// those who can post announcements (instructors/TAs/managers).
+		Set<String> allowedUserIds = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
+		Set<String> managerUserIds = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_ADD);
+		Set<String> studentUserIds = allowedUserIds.stream()
+				.filter(id -> !managerUserIds.contains(id))
+				.collect(Collectors.toSet());
+
+		Set<String> viewedUserIds = studentUserIds.stream()
+				.filter(viewedTimes::containsKey)
+				.collect(Collectors.toSet());
+		Set<String> notViewedUserIds = studentUserIds.stream()
+				.filter(id -> !viewedTimes.containsKey(id))
+				.collect(Collectors.toSet());
+
+		List<Map<String, Object>> viewed = new ArrayList<>();
+		for (User user : userDirectoryService.getUsers(viewedUserIds)) {
+			Map<String, Object> row = buildUserRow(user);
+			Instant firstViewed = viewedTimes.get(user.getId());
+			row.put("firstViewed", formatInstant(firstViewed));
+			row.put("firstViewedSort", firstViewed != null ? firstViewed.toEpochMilli() : 0L);
+			viewed.add(row);
+		}
+
+		List<Map<String, Object>> notViewed = new ArrayList<>();
+		for (User user : userDirectoryService.getUsers(notViewedUserIds)) {
+			notViewed.add(buildUserRow(user));
+		}
+
+		Comparator<Map<String, Object>> bySortName =
+				Comparator.comparing(r -> StringUtils.defaultString((String) r.get("sortName")), String.CASE_INSENSITIVE_ORDER);
+		viewed.sort(bySortName);
+		notViewed.sort(bySortName);
+
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("viewed", viewed);
+		result.put("notViewed", notViewed);
+		result.put("viewedCount", viewed.size());
+		result.put("totalCount", viewed.size() + notViewed.size());
+		return result;
+	}
+
+	private Map<String, Object> buildUserRow(User user) {
+		Map<String, Object> row = new LinkedHashMap<>();
+		row.put("userId", user.getId());
+		row.put("displayName", user.getDisplayName());
+		row.put("sortName", user.getSortName());
+		row.put("emailEnabled", isAnnouncementEmailEnabled(user.getId()));
+		return row;
+	}
+
+	/**
+	 * Resolve a user's standing announcement email-notification preference. Mirrors the kernel
+	 * resolution in EmailNotification: a missing preference (or any read failure) defaults to
+	 * enabled (NOTI_OPTIONAL); only an explicit NOTI_NONE disables it.
+	 */
+	boolean isAnnouncementEmailEnabled(String userId) {
+		try {
+			Preferences prefs = preferencesService.getPreferences(userId);
+			ResourceProperties props = prefs.getProperties(NotificationService.PREFS_TYPE + AnnouncementService.APPLICATION_ID);
+			int level = (int) props.getLongProperty(Integer.toString(NotificationService.NOTI_OPTIONAL));
+			return level != NotificationService.NOTI_NONE;
+		} catch (Exception e) {
+			// Missing preference or unparseable value: default to the standing OPTIONAL (enabled) level.
+			return true;
+		}
+	}
+
+	private String formatInstant(Instant instant) {
+		if (instant == null) {
+			return "";
+		}
+		return timeService.newTime(instant.toEpochMilli()).toStringLocalFull();
+	}
+
 	/**
 	* message/siteId/EntityID
 	*/
@@ -740,6 +878,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		try {
 			AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
 			AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
+			// This is a full-body read of a single announcement over REST, which otherwise fires no
+			// read event. Post it so the read receipt is captured like any in-tool view. List
+			// endpoints (getAnnouncements / createDecoratedAnnouncement) intentionally do NOT post.
+			eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.SECURE_ANNC_READ, message.getReference(), false));
 			return createDecoratedAnnouncement(message, null);
 		} catch (IdUnusedException e) {
 			throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
@@ -869,6 +1011,12 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 
 	@Setter
 	private LocaleService localeService;
+
+	@Setter
+	private EventTrackingService eventTrackingService;
+
+	@Setter
+	private PreferencesService preferencesService;
 
 	private Locale getLocale() {
 		return localeService.getLocaleForCurrentSiteAndUser();

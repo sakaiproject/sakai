@@ -582,7 +582,8 @@
 											$formattedText.escapeHtml($ann_item.Header.subject) <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
 										#if ($channel.allowEditMessage($ann_item.Id))
-											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $formattedText.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a></div>
+											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $formattedText.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
+											<a href="#" class="annc-receipts-link ms-3" data-bs-toggle="modal" data-bs-target="#anncReceiptsModal" data-annc-ref="$formattedText.escapeHtml($ann_item.reference)" title="$tlang.getString('receipts.link')"><i class="fa fa-eye" aria-hidden="true"></i> $tlang.getString("receipts.link") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a></div>
 										#end
 									</td>
 									<td headers="author" class="d-none d-sm-table-cell">
@@ -813,6 +814,7 @@
 										#end
 											#if ($channel.allowEditMessage($ann_item.Id))
 												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $formattedText.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
+												<a href="#" class="annc-receipts-link ms-3" data-bs-toggle="modal" data-bs-target="#anncReceiptsModal" data-annc-ref="$formattedText.escapeHtml($ann_item.reference)" title="$tlang.getString('receipts.link')"><i class="fa fa-eye" aria-hidden="true"></i> $tlang.getString("receipts.link") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
 											#end
 											$separator 
 											#set ($ref = $entityManager.newReference($ann_item.Reference))
@@ -845,6 +847,57 @@
 				#end
 			#end
 		#end
-	#end	
+	#end
 </div>
+
+## Shared read-receipts modal (populated by announcements.js on show.bs.modal)
+<style>
+	/* Status row colours from Bootstrap colour tokens (Sakai themes "success" purple, so green uses
+	   --sakai-color-green). Light mode: light tint + dark text. Dark mode: darker tint + white text. */
+	.annc-receipts-table > tbody > tr.annc-row-noemail { --bs-table-bg: color-mix(in srgb, var(--bs-danger) 26%, var(--bs-white, #fff)); --bs-table-color: var(--bs-black, #000); }
+	.annc-receipts-table > tbody > tr.annc-row-emailed { --bs-table-bg: color-mix(in srgb, var(--bs-warning) 20%, var(--bs-white, #fff)); --bs-table-color: var(--bs-black, #000); }
+	.annc-receipts-table > tbody > tr.annc-row-viewed  { --bs-table-bg: color-mix(in srgb, var(--sakai-color-green) 20%, var(--bs-white, #fff)); --bs-table-color: var(--bs-black, #000); }
+	.sakaiUserTheme-dark .annc-receipts-table > tbody > tr.annc-row-noemail { --bs-table-bg: color-mix(in srgb, var(--bs-danger) 68%, #000); --bs-table-color: #fff; }
+	.sakaiUserTheme-dark .annc-receipts-table > tbody > tr.annc-row-emailed { --bs-table-bg: color-mix(in srgb, var(--bs-warning) 45%, #000); --bs-table-color: #fff; }
+	.sakaiUserTheme-dark .annc-receipts-table > tbody > tr.annc-row-viewed  { --bs-table-bg: color-mix(in srgb, var(--sakai-color-green) 45%, #000); --bs-table-color: #fff; }
+</style>
+<div class="modal fade" id="anncReceiptsModal" tabindex="-1" role="dialog" aria-labelledby="anncReceiptsModalLabel" aria-hidden="true"
+	data-yes="$tlang.getString('receipts.yes')" data-no="$tlang.getString('receipts.no')">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="anncReceiptsModalLabel">$tlang.getString("receipts.title")</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="$tlang.getString('receipts.close')"></button>
+			</div>
+				<div class="modal-body">
+					<div id="anncReceiptsError" class="alert alert-danger d-none" role="alert"></div>
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<span class="small">$tlang.getString("receipts.viewed") <span id="anncReceiptsViewedCount">0</span> / <span id="anncReceiptsTotalCount">0</span></span>
+						<div class="form-check form-switch mb-0">
+							<input class="form-check-input" type="checkbox" role="switch" id="anncReceiptsHighlightToggle" checked>
+							<label class="form-check-label" for="anncReceiptsHighlightToggle">$tlang.getString("receipts.highlight")</label>
+						</div>
+					</div>
+					<div id="anncReceiptsTableWrap" class="annc-highlight-on">
+						<table class="table table-sm table-hover annc-receipts-table" id="anncReceiptsTable">
+							<thead>
+								<tr>
+									<th scope="col" class="annc-sortable" data-sort-key="sortName" role="button">$tlang.getString("receipts.name") <i class="annc-sort-icon fa fa-sort" aria-hidden="true"></i></th>
+									<th scope="col" class="annc-sortable" data-sort-key="firstViewedSort" role="button">$tlang.getString("receipts.time") <i class="annc-sort-icon fa fa-sort" aria-hidden="true"></i></th>
+									<th scope="col" class="annc-sortable" data-sort-key="emailEnabled" role="button">$tlang.getString("receipts.emailenabled") <i class="fa fa-info-circle" title="$tlang.getString('receipts.emailnuance')" aria-hidden="true"></i> <i class="annc-sort-icon fa fa-sort" aria-hidden="true"></i></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+					<div id="anncReceiptsNone" class="alert alert-info d-none mt-2" role="alert">$tlang.getString("receipts.none")</div>
+				</div>
+			<div class="modal-footer">
+				<small class="me-auto">$tlang.getString("receipts.disclaimer")</small>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$tlang.getString("receipts.close")</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script src="/sakai-announcement-tool/js/announcements.js$!{portalCdnQuery}"></script>

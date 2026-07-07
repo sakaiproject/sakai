@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+
+	<bean id="announcementHibernateMappings"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.announcement.api.model.AnnouncementReadReceipt</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.announcement.api.repository.AnnouncementReadReceiptRepository"
+		  class="org.sakaiproject.announcement.impl.repository.AnnouncementReadReceiptRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
 
 	<bean id="org.sakaiproject.announcement.impl.AnnouncementObserver"
 		  class="org.sakaiproject.announcement.impl.AnnouncementObserver"
@@ -11,6 +29,9 @@
 		</property>
 		<property name="eventTrackingService">
 			<ref bean="org.sakaiproject.event.api.EventTrackingService" />
+		</property>
+		<property name="announcementService">
+			<ref bean="org.sakaiproject.announcement.api.AnnouncementService" />
 		</property>
 	</bean>
 
@@ -40,6 +61,7 @@
 		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="siteEmailNotificationAnnc"><ref bean="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"/></property>
+		<property name="announcementReadReceiptRepository"><ref bean="org.sakaiproject.announcement.api.repository.AnnouncementReadReceiptRepository"/></property>
  		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
  		<property name="resourceTableName"><value>ANNOUNCEMENT_MESSAGE</value></property>
  		<property name="locksInDb"><value>false</value></property>

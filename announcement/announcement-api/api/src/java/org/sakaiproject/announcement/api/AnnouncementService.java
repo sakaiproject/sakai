@@ -21,8 +21,10 @@
 
 package org.sakaiproject.announcement.api;
 
+import java.time.Instant;
 import java.util.List;
 
+import org.sakaiproject.announcement.api.model.AnnouncementReadReceipt;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
@@ -243,4 +245,22 @@ public interface AnnouncementService extends MessageService
 	 * @return list of visible MOTD announcements.
 	 */
 	public List<AnnouncementMessage> getVisibleMessagesOfTheDay(Time afterDate, int numberOfAnnouncements, boolean ascending);
+
+	/**
+	 * Record that a user has read (opened) an announcement message inside Sakai. The earliest view
+	 * time is retained; subsequent reads of the same message by the same user are ignored.
+	 *
+	 * @param messageRef the message reference (as returned by {@link org.sakaiproject.message.api.Message#getReference()})
+	 * @param userId     the id of the user who read the announcement
+	 * @param when       the time the announcement was read
+	 */
+	public void recordRead(String messageRef, String userId, Instant when);
+
+	/**
+	 * Return the read receipts recorded for the given announcement message reference.
+	 *
+	 * @param messageRef the message reference
+	 * @return the list of read receipts, one per user who has read the message; never null
+	 */
+	public List<AnnouncementReadReceipt> getReadReceipts(String messageRef);
 }

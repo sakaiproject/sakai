@@ -67,6 +67,8 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.announcement.api.ViewableFilter;
+import org.sakaiproject.announcement.api.model.AnnouncementReadReceipt;
+import org.sakaiproject.announcement.api.repository.AnnouncementReadReceiptRepository;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -141,6 +143,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Setter private AliasService aliasService;
 	@Setter private ToolManager toolManager;
 	@Setter private PreferencesService preferencesService;
+	@Setter private AnnouncementReadReceiptRepository announcementReadReceiptRepository;
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
 
@@ -2632,5 +2635,37 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		} catch (PermissionException e) {
 			log.error("The current user does not have permission to remove announcementChannel aliases for context: {}", siteId, e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void recordRead(String messageRef, String userId, Instant when) {
+		if (StringUtils.isBlank(messageRef) || StringUtils.isBlank(userId) || when == null) {
+			return;
+		}
+
+		// Keep the earliest view time; ignore re-reads. A unique constraint on (MESSAGE_REF, USER_ID)
+		// guards against the rare race where two events for the same user arrive concurrently.
+		if (announcementReadReceiptRepository.findByMessageRefAndUserId(messageRef, userId).isPresent()) {
+			return;
+		}
+
+		try {
+			announcementReadReceiptRepository.save(new AnnouncementReadReceipt(messageRef, userId, when));
+		} catch (Exception e) {
+			// Most likely a concurrent insert tripping the unique constraint; the row already exists.
+			log.debug("Could not record announcement read receipt for message {} and user {}: {}", messageRef, userId, e.toString());
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<AnnouncementReadReceipt> getReadReceipts(String messageRef) {
+		if (StringUtils.isBlank(messageRef)) {
+			return new ArrayList<>();
+		}
+		return announcementReadReceiptRepository.findByMessageRef(messageRef);
 	}
 }

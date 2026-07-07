@@ -36,6 +36,8 @@ public class AnnouncementObserver implements Observer {
     private EventTrackingService eventTrackingService;
     @Setter
     private MemoryService memoryService;
+    @Setter
+    private AnnouncementService announcementService;
     private Cache<String, List<Message>> messagesCache;
 
     public void init() {
@@ -65,6 +67,15 @@ public class AnnouncementObserver implements Observer {
                     String channelName = getChannel(event);
                     log.debug("Announcement event: {}", eventType);
                     messagesCache.remove(channelName);
+                    break;
+                case AnnouncementService.SECURE_ANNC_READ:
+                    // Persist a read receipt for this view. Never let a receipt failure disrupt
+                    // event processing, and do NOT clear the channel cache (a read changes nothing).
+                    try {
+                        announcementService.recordRead(event.getResource(), event.getUserId(), event.getEventTime().toInstant());
+                    } catch (Exception e) {
+                        log.warn("Failed to record announcement read receipt for {}: {}", event.getResource(), e.toString());
+                    }
                     break;
                 default:
                     break;
