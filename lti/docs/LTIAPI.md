@@ -100,8 +100,8 @@ The well-known configuration (`/imsblis/lti13/well_known`) advertises these vari
 | `sakai.lti.serverUrl` | (falls back to `serverUrl`) | Base URL for LTI services and substitutions (`Sakai.api.url` is always `{serverUrl}/api`) |
 | `lti.advantage.lti13servlet.public` | — | Optional SAT signing public key (Base64) |
 | `lti.advantage.lti13servlet.private` | — | Optional SAT signing private key (Base64) |
-| `lti.bearer.webapi.enabled` | `true` | Allow LTI Bearer tokens on webapi (`/api`); when false, Bearer requests get 403 without validation |
-| `lti.bearer.direct.enabled` | `true` | Allow LTI Bearer tokens on Entity Broker (`/direct`); when false, Bearer requests get 403 without validation |
+| `lti.webapi.enabled` | `true` | Allow LTI Bearer tokens on webapi (`/api`); when false, Bearer requests get 403 without validation |
+| `lti.direct.enabled` | `true` | Allow LTI Bearer tokens on Entity Broker (`/direct`); when false, Bearer requests get 403 without validation |
 
 ## webapi bearer authentication
 
@@ -129,7 +129,7 @@ actual entity calls is not implemented yet (same as webapi).
 4. **Clear all and save** → launch shows empty `scopes`; token request for that scope fails.
 5. `GET /api/lti/bearer-probe` and `GET /direct/lti/bearer-probe` with `Authorization: Bearer <SAT>` → JSON with
    `ltiAuthenticated: true`, `toolId`, and `scope`.
-6. Set `lti.bearer.webapi.enabled=false` or `lti.bearer.direct.enabled=false` → matching probe returns 403 without
+6. Set `lti.webapi.enabled=false` or `lti.direct.enabled=false` → matching probe returns 403 without
    validating the token.
 
 ## Security notes

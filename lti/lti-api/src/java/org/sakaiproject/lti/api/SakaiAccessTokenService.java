@@ -32,11 +32,11 @@ public interface SakaiAccessTokenService {
     String PROPERTY_PRIVATE = "lti.advantage.lti13servlet.private";
 
     /** When false, LTI Bearer tokens are rejected on webapi ({@code /api}) without validation. */
-    String PROPERTY_WEBAPI_ENABLED = "lti.bearer.webapi.enabled";
+    String PROPERTY_WEBAPI_ENABLED = "lti.webapi.enabled";
     Boolean PROPERTY_WEBAPI_ENABLED_DEFAULT = true;
 
     /** When false, LTI Bearer tokens are rejected on Entity Broker ({@code /direct}) without validation. */
-    String PROPERTY_DIRECT_ENABLED = "lti.bearer.direct.enabled";
+    String PROPERTY_DIRECT_ENABLED = "lti.direct.enabled";
     Boolean PROPERTY_DIRECT_ENABLED_DEFAULT = true;
 
     void init();
