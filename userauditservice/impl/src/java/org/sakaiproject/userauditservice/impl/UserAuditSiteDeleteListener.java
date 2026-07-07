@@ -22,13 +22,13 @@ import java.util.Observer;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 
 public class UserAuditSiteDeleteListener implements Observer {
 	
 	protected EventTrackingService eventTrackingService = null;
 	protected SiteService siteService = null;
-	protected UserAuditRegistration userAuditRegistration = null;
+	protected UserAuditService userAuditService = null;
 	
 	public void init()
 	{
@@ -45,9 +45,9 @@ public class UserAuditSiteDeleteListener implements Observer {
 		siteService = service;
 	}
 	
-	public void setUserAuditRegistration(UserAuditRegistration service)
+	public void setUserAuditService(UserAuditService service)
 	{
-		userAuditRegistration = service;
+		userAuditService = service;
 	}
 	
 	public void update(Observable o, Object arg)
@@ -63,7 +63,7 @@ public class UserAuditSiteDeleteListener implements Observer {
 				if (resource.startsWith(siteRefRoot))
 				{
 					String siteId = resource.substring(siteRefRoot.length()+1);
-					userAuditRegistration.deleteUserAuditingFromSite(siteId);
+					userAuditService.deleteUserAuditingFromSite(siteId);
 				}
 			}
 		}

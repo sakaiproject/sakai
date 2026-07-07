@@ -32,6 +32,10 @@
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.jsf2</groupId>
             <artifactId>jsf2-tool</artifactId>
         </dependency>

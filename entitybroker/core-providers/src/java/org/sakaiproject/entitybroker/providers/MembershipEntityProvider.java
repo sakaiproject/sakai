@@ -71,6 +71,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 
 /**
  * This provides access to memberships as entities
@@ -122,6 +123,11 @@ RESTful, ActionsExecutable {
     private static UserAuditRegistration userAuditRegistration;
     public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
         this.userAuditRegistration = userAuditRegistration;
+    }
+
+    private static UserAuditService userAuditService;
+    public void setUserAuditService(UserAuditService userAuditService) {
+        this.userAuditService = userAuditService;
     }
 
     public static String PREFIX = "membership";
@@ -195,10 +201,15 @@ RESTful, ActionsExecutable {
         try {
             siteService.unjoin(siteId);
             //String user = sessionManager().getCurrentSessionUserId();
-            String currentUserId = userEntityProvider.getCurrentUser(view).getId(); //userDirectoryService.getCurrentUser().getEid();
-            String roleId = siteService.getSite(siteId).getJoinerRole();
-            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserId,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId});
-            userAuditRegistration.addToUserAuditing(userAuditList);
+            EntityUser currentUser = userEntityProvider.getCurrentUser(view);
+            if (currentUser != null) {
+                String currentUserId = currentUser.getId(); //userDirectoryService.getCurrentUser().getEid();
+                String roleId = siteService.getSite(siteId).getJoinerRole();
+                List<UserAuditEntry> userAuditList = Collections.singletonList(UserAuditEntry.of(siteId, currentUserId,
+                        roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                        userAuditRegistration.getDatabaseSourceKey(), currentUserId));
+                userAuditService.addToUserAuditing(userAuditList);
+            }
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
                     + ") could not be found: " + e, e);
@@ -859,8 +870,7 @@ RESTful, ActionsExecutable {
 
         checkSiteSecurity(sg.site.getId());
 
-        String[] userAuditString;
-        List<String[]> userAuditList = new ArrayList<>();
+        List<UserAuditEntry> userAuditList = new ArrayList<>();
         
         // check for a batch add
         String[] userIds = checkForBatch(params, userId);
@@ -885,17 +895,18 @@ RESTful, ActionsExecutable {
                     sg.site.addMember(userIds[i], roleId, active, false);
                     saveSiteMembership(sg.site);
                 }
-                User user = null;
                 // Add change to user_audits_log table.
+                String auditUserId = userIds[i];
                 try {
-                    user = userDirectoryService.getUser(userIds[i]);
+                    User user = userDirectoryService.getUser(userIds[i]);
+                    auditUserId = user.getId();
                 }
                 catch (UserNotDefinedException e) {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
-                userAuditString = new String[]{sg.site.getId(),user.getId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
-                userAuditList.add(userAuditString);
+                userAuditList.add(UserAuditEntry.of(sg.site.getId(), auditUserId, roleId,
+                        UserAuditService.USER_AUDIT_ACTION_ADD, userAuditRegistration.getDatabaseSourceKey(),
+                        userDirectoryService.getCurrentUser().getId()));
             } else {
                 // group and site
                 try {
@@ -913,7 +924,7 @@ RESTful, ActionsExecutable {
         }
 
         if (userAuditList.size() > 0) {
-            userAuditRegistration.addToUserAuditing(userAuditList);
+            userAuditService.addToUserAuditing(userAuditList);
         }
 
         if (userIds.length > 1) {
@@ -948,8 +959,7 @@ RESTful, ActionsExecutable {
         String userId = parts[0];
         SiteGroup sg = findLocationByReference(parts[1]);
 
-        String[] userAuditString;
-        List<String[]> userAuditList = new ArrayList<>();
+        List<UserAuditEntry> userAuditList = new ArrayList<>();
         
         // check for a batch
         String[] userIds = checkForBatch(params, userId);
@@ -959,10 +969,11 @@ RESTful, ActionsExecutable {
                 Site site = sg.site;
 
                 // Add change to user_audits_log table.
-                String role = site.getUserRole(userIds[i]).getId();
-                userAuditString = new String[]{site.getId(), userId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
-                userAuditList.add(userAuditString);
+                Role userRole = site.getUserRole(userIds[i]);
+                String role = userRole != null ? userRole.getId() : "unknown";
+                userAuditList.add(UserAuditEntry.of(site.getId(), userIds[i], role,
+                        UserAuditService.USER_AUDIT_ACTION_REMOVE, userAuditRegistration.getDatabaseSourceKey(),
+                        userDirectoryService.getCurrentUser().getId()));
 
                 site.removeMember(userIds[i]);
                 saveSiteMembership(site);
@@ -979,7 +990,7 @@ RESTful, ActionsExecutable {
         }
 
         if (userAuditList.size() > 0) {
-            userAuditRegistration.addToUserAuditing(userAuditList);
+            userAuditService.addToUserAuditing(userAuditList);
         }
 
         if (userIds.length > 1) {

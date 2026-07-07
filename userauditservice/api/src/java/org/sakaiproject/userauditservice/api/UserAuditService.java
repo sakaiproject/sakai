@@ -23,6 +23,9 @@ package org.sakaiproject.userauditservice.api;
 
 import java.util.List;
 
+import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
+import org.sakaiproject.userauditservice.api.model.UserAuditLog;
+
 /**
  * Service interface that allows tools to register their own database key and associated text for User Auditing
  *
@@ -55,4 +58,34 @@ public interface UserAuditService {
 	 * @return
 	 */
 	public List<String> getKeys();
+
+	/**
+	 * Processes audit entries and writes them to persistence.
+	 *
+	 * @param userAuditList audit entries to write
+	 */
+	public void addToUserAuditing(List<UserAuditEntry> userAuditList);
+
+	/**
+	 * Delete all user audit log entries for a site.
+	 *
+	 * @param siteId site id to delete audit logs for
+	 */
+	public void deleteUserAuditingFromSite(String siteId);
+
+	/**
+	 * Count persisted user audit log entries matching a query.
+	 *
+	 * @param query audit log query
+	 * @return matching row count
+	 */
+	public long countUserAuditLogs(UserAuditLogQuery query);
+
+	/**
+	 * Fetch persisted user audit log entries matching a query.
+	 *
+	 * @param query audit log query
+	 * @return matching audit log rows
+	 */
+	public List<UserAuditLog> getUserAuditLogs(UserAuditLogQuery query);
 }

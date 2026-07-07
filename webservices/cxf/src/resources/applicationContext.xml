@@ -238,6 +238,7 @@
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
         <property name="logConfigurationManager" ref="org.sakaiproject.log.api.LogConfigurationManager"/>
         <property name="userAuditRegistration" ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.webservice"/>
+        <property name="userAuditService" ref="org.sakaiproject.userauditservice.api.UserAuditService"/>
         <property name="siteManageService" ref="org.sakaiproject.sitemanage.api.SiteManageService.webservice"/>
     </bean>
 
