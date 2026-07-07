@@ -32,6 +32,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,6 +75,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
@@ -405,6 +408,48 @@ public class DateManagerServiceTest {
 
         // Change start date
         Assert.assertTrue(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_ASSESSMENTS, new String[]{"789", "Title", "2025-05-17", "", ""}));
+    }
+
+    @Test
+    public void validateAssessmentsRejectsFeedbackByDateWithoutFeedbackStart() throws Exception {
+        String siteId = toolSession.getAttribute(DateManagerService.STATE_SITE_ID).toString();
+        String openDate = "2026-06-01";
+        when(userTimeService.parseISODateInUserTimezone(openDate)).thenReturn(Date.from(
+                LocalDate.parse(openDate).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        when(resourceLoader.getString("error.feedback.start.not.found")).thenReturn("Feedback start is required");
+
+        AssessmentAccessControlIfc control = Mockito.mock(AssessmentAccessControlIfc.class);
+        when(control.getLateHandling()).thenReturn(null);
+
+        AssessmentFeedbackIfc feedback = Mockito.mock(AssessmentFeedbackIfc.class);
+        when(feedback.getFeedbackDelivery()).thenReturn(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+
+        AssessmentFacade assessment = Mockito.mock(AssessmentFacade.class);
+        when(assessment.getAssessmentAccessControl()).thenReturn(control);
+        when(assessment.getAssessmentFeedback()).thenReturn(feedback);
+
+        AssessmentFacadeQueriesAPI facadeQueries = persistenceService.getAssessmentFacadeQueries();
+        when(facadeQueries.getAssessment(789L)).thenReturn(assessment);
+
+        JSONObject jsonAssessment = new JSONObject();
+        jsonAssessment.put(DateManagerConstants.JSON_ID_PARAM_NAME, 789L);
+        jsonAssessment.put(DateManagerConstants.JSON_IDX_PARAM_NAME, 0);
+        jsonAssessment.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, openDate);
+        jsonAssessment.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, "");
+        jsonAssessment.put(DateManagerConstants.JSON_ISDRAFT_PARAM_NAME, true);
+
+        JSONArray assessments = new JSONArray();
+        assessments.add(jsonAssessment);
+
+        DateManagerValidation validation = dateManagerService.validateAssessments(siteId, assessments);
+
+        Assert.assertEquals(1, validation.getErrors().size());
+        Assert.assertEquals(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, validation.getErrors().get(0).field);
+        Assert.assertEquals("Feedback start is required", validation.getErrors().get(0).msg);
+        Assert.assertEquals(0, validation.getUpdates().size());
     }
 
     @Test

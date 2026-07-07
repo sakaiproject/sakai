@@ -256,7 +256,7 @@ public class SaveAssessmentSettingsListener
 		 break;
 	     }
 	 }
-	
+
      }
 	if(ipErr){
 	    error=true;
@@ -280,7 +280,7 @@ public class SaveAssessmentSettingsListener
 			context.addMessage(null,new FacesMessage(submission_err));
 		}
 	}
-	
+
 	//String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
 	String scoringType=assessmentSettings.getScoringType();
 	if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE.toString()) && "0".equals(assessmentSettings.getUnlimitedSubmissions())) {
@@ -297,28 +297,9 @@ public class SaveAssessmentSettingsListener
 			context.addMessage(null,new FacesMessage(submission_err));
 		}
 	}
-		
-    //check feedback - if at specific time then time should be defined.
-    if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
-    	if (StringUtils.isBlank(assessmentSettings.getFeedbackDateString())) {
-    		error=true;
-    		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
-    		context.addMessage(null,new FacesMessage(date_err));
-    	}
-    	else {
-    		if(StringUtils.isNotBlank(assessmentSettings.getFeedbackEndDateString()) && assessmentSettings.getFeedbackDate().after(assessmentSettings.getFeedbackEndDate())){
-                String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_ranges");
-                context.addMessage(null,new FacesMessage(feedbackDateErr));
-                error=true;
-            }
-    	}
-
-    	if(!assessmentSettings.getIsValidFeedbackDate()){
-        	String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
-        	context.addMessage(null,new FacesMessage(feedbackDateErr));
-        	error=true;
-        }
-
+	//check feedback - if at specific time then time should be defined.
+	error |= AssessmentFeedbackDateValidationHelper.addFeedbackDateErrors(context, assessmentSettings);
+	if (AssessmentFeedbackDateValidationHelper.isFeedbackByDate(assessmentSettings)) {
 		boolean scoreThresholdEnabled = assessmentSettings.getFeedbackScoreThresholdEnabled();
 		//Check if the value is empty
 		boolean scoreThresholdError = StringUtils.isBlank(assessmentSettings.getFeedbackScoreThreshold());
@@ -340,7 +321,7 @@ public class SaveAssessmentSettingsListener
 			String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","feedback_score_threshold_required");
 			context.addMessage(null,new FacesMessage(str_err));
 		}
-    }
+	}
 
     List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();
     ToolSession currentToolSession = SessionManager.getCurrentToolSession();
