@@ -331,37 +331,25 @@ public class SiteHandler extends WorksiteHandler
 
 		// default site if not set
 		String userId = session.getUserId();
-		if (siteId == null)
-		{
-			if (userId == null)
-			{
-				siteId = portal.getSiteHelper().getGatewaySiteId();
-				if (siteId == null)
-				{
-					siteId = serverConfigurationService.getGatewaySiteId();
-				}
-			}
-			else if (serverConfigurationService.getBoolean("myworkspace.show", true))
-			{
-				// When My Workspace is shown it is the first entry in the site navigation,
-				// so land the user on their Home (My Workspace) by default.
-				siteId = siteService.getUserSiteId(userId);
-			}
-			else
-			{
-				// My Workspace is hidden, so land on the first accessible member site. We only need
-				// the first id, so fetch ids with getSiteIds rather than hydrating (and converting to
-				// maps) every site the user can access.
-				List<String> siteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
-						SiteService.SortType.NONE, new PagingPosition(1, 1));
-				if (!siteIds.isEmpty()) {
-					siteId = siteIds.get(0);
-				} else {
-					siteId = siteService.getUserSiteId(userId);
-				}
-			}
-		}
-
+		if (siteId == null) {
+            if (userId != null) {
+                if (serverConfigurationService.getBoolean("myworkspace.show", true)) {
+                    // When My Workspace is shown it is the first entry in the site navigation,
+                    // so land the user on their Home (My Workspace) by default.
+                    siteId = siteService.getUserSiteId(userId);
+                } else {
+                    // My Workspace is hidden, so land on the first accessible member site.
+                    List<String> siteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null,
+                            SiteService.SortType.NONE, new PagingPosition(1, 1));
+                    siteId = siteIds.isEmpty() ? siteService.getUserSiteId(userId) : siteIds.get(0);
+                }
+            } else {
+                siteId = portal.getSiteHelper().getGatewaySiteId();
+                if (siteId == null) {
+                    siteId = serverConfigurationService.getGatewaySiteId();
+                }
+            }
+        }
 		// Can get a URL like /portal/site/-/page/-/tool/sakai.rwiki.  
 		// The "mutable" site and page can not be given specific values since the 
 		// final resolution depends on looking up the specific placement of the tool 
