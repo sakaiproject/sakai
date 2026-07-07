@@ -86,6 +86,8 @@ public class SakaiAccessTokenServiceImplTest {
         when(serverConfigurationService.getString(SakaiAccessTokenService.PROPERTY_PUBLIC, null)).thenReturn(null);
         when(serverConfigurationService.getString(SakaiAccessTokenService.PROPERTY_PRIVATE, null)).thenReturn(null);
 
+        when(ltiService.isApiEnabled()).thenReturn(true);
+
         service.init();
         assertTrue(service.isSigningKeyAvailable());
 

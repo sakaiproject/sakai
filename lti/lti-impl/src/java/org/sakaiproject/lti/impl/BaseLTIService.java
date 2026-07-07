@@ -51,6 +51,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTISubstitutionsFilter;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -314,6 +315,12 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		if (!ADMIN_SITE.equals(siteId) ) return false;
 		return isMaintain(siteId);
+	}
+
+	@Override
+	public boolean isApiEnabled() {
+		return serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT)
+            || serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED, SakaiAccessTokenService.PROPERTY_DIRECT_ENABLED_DEFAULT);
 	}
 
 	@Override
@@ -1115,8 +1122,8 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public List<String> getToolFunctionNames(String toolId, String siteId) {
-		if (!isAdmin(siteId)) {
+	public List<String> getGrantedToolFunctionNames(String toolId, String siteId) {
+		if (!isAdmin(siteId) || !isApiEnabled()) {
 			return new ArrayList<>();
 		}
 		return getGrantedToolFunctionNames(LTIUtil.toLongKey(toolId));

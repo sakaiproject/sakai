@@ -31,7 +31,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.lti.impl.testutil.LtiToolFunctionTestDatabase;
 
 /**
@@ -49,6 +54,10 @@ public class BaseLTIServiceToolFunctionTest {
     public void setUp() throws SQLException {
         database = new LtiToolFunctionTestDatabase();
         ltiService = database.getLtiService();
+
+        ServerConfigurationService scs = mock(ServerConfigurationService.class);
+        when(scs.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT)).thenReturn(true);
+        ((BaseLTIService) ltiService).setServerConfigurationService(scs);
     }
 
     @After
@@ -66,7 +75,7 @@ public class BaseLTIServiceToolFunctionTest {
         Object result = ltiService.setToolFunctionNames(toolId, requested, ADMIN_SITE);
         assertEquals(toolId, result);
 
-        List<String> stored = ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
+        List<String> stored = ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
         assertEquals(2, stored.size());
         assertTrue(stored.contains("content.read"));
         assertTrue(stored.contains("gradebook.write"));
@@ -79,7 +88,7 @@ public class BaseLTIServiceToolFunctionTest {
         ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("content.read")), ADMIN_SITE);
         ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("gradebook.read")), ADMIN_SITE);
 
-        List<String> stored = ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
+        List<String> stored = ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
         assertEquals(1, stored.size());
         assertEquals("gradebook.read", stored.get(0));
     }
@@ -91,7 +100,7 @@ public class BaseLTIServiceToolFunctionTest {
 
         ltiService.setToolFunctionNames(toolId, requested, ADMIN_SITE);
 
-        List<String> stored = ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
+        List<String> stored = ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
         assertEquals(1, stored.size());
         assertEquals("content.read", stored.get(0));
     }
@@ -103,15 +112,15 @@ public class BaseLTIServiceToolFunctionTest {
 
         ltiService.setToolFunctionNames(toolId, new HashSet<>(), ADMIN_SITE);
 
-        assertTrue(ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
+        assertTrue(ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
     }
 
     @Test
-    public void getToolFunctionNames_nonAdminSiteReturnsEmpty() {
+    public void getGrantedToolFunctionNames_nonAdminSiteReturnsEmpty() {
         Long toolId = insertTestTool();
         ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("content.read")), ADMIN_SITE);
 
-        assertTrue(ltiService.getToolFunctionNames(String.valueOf(toolId), REGULAR_SITE).isEmpty());
+        assertTrue(ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), REGULAR_SITE).isEmpty());
     }
 
     @Test
@@ -121,7 +130,7 @@ public class BaseLTIServiceToolFunctionTest {
         Object result = ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("content.read")), REGULAR_SITE);
 
         assertEquals("Not authorized", result);
-        assertTrue(ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
+        assertTrue(ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
     }
 
     @Test
@@ -138,7 +147,8 @@ public class BaseLTIServiceToolFunctionTest {
         int deleted = ltiService.deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
 
         assertTrue(deleted >= 2);
-        assertTrue(ltiService.getToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
+
+        assertTrue(ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE).isEmpty());
     }
 
     @Test

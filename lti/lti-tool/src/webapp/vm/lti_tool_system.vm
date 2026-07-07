@@ -174,7 +174,7 @@ ${includeLatestJQuery}
                                 <ul style="list-style: none;">
 									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolBean.id">$tlang.getString("gen.edit")</a></li>
 	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolBean.id">$tlang.getString("gen.delete")</a> </li>
-									#if ( $isAdmin )
+									#if ( $isAdmin && $isApiEnabled)
 										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolApiConfig")&id=$toolBean.id">$tlang.getString("tool.api.access")</a></li>
 									#end
 									#if ( $toolBean.ltiContentCount > 0 )

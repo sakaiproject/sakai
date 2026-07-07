@@ -23,7 +23,11 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.junit.Test;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.tsugi.lti13.LTI13Util;
 
@@ -51,7 +55,10 @@ public class SakaiLTIUtilLtiApiSubstitutionTest {
     @Test
     public void addLtiApiLaunchSubstitutions_emptyScopesPresentsKey() {
         Properties lti13subst = new Properties();
-        SakaiLTIUtil.addLtiApiLaunchSubstitutions(lti13subst, null, null);
+		LTIService ltiService = mock(LTIService.class);
+		when(ltiService.isApiEnabled()).thenReturn(true);
+		when(ltiService.isAdmin(any())).thenReturn(true);
+        SakaiLTIUtil.addLtiApiLaunchSubstitutions(lti13subst, null, ltiService);
         assertEquals("", lti13subst.getProperty(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE));
     }
 

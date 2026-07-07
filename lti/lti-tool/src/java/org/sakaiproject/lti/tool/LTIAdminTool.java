@@ -78,6 +78,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -612,6 +613,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
+		context.put("isApiEnabled", ltiService.isApiEnabled());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		if (ltiService.isAdmin(getSiteId(state))
 				&& serverConfigurationService.getString(SakaiLTIUtil.LTI_ENCRYPTION_KEY, null) == null) {
@@ -619,7 +621,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("allowMaintainerAddSystemTool", Boolean.valueOf(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
 
@@ -1028,7 +1029,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<String> functions = new ArrayList<>(functionManager.getRegisteredFunctions());
 		functions.sort(String.CASE_INSENSITIVE_ORDER);
 
-		List<String> granted = ltiService.getToolFunctionNames(id, getSiteId(state));
+		List<String> granted = ltiService.getGrantedToolFunctionNames(id, getSiteId(state));
 		Set<String> grantedSet = new HashSet<>(granted);
 
 		context.put("tool", toolBean);

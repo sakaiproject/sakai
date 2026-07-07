@@ -1123,7 +1123,7 @@ public class SakaiLTIUtil {
 	 * LTI 1.3 custom substitution values for Sakai bearer API access.
 	 */
 	public static void addLtiApiLaunchSubstitutions(Properties lti13subst, Map<String, Object> tool, LTIService ltiService) {
-		if (lti13subst == null) {
+		if (lti13subst == null || !ltiService.isApiEnabled()) {
 			return;
 		}
 		setProperty(lti13subst, SAKAI_LTI_SUBSTITUTION_DIRECT_URL, getLtiDirectBaseUrl());

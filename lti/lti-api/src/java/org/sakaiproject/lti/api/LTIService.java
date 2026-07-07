@@ -581,6 +581,11 @@ public interface LTIService extends LTISubstitutionsFilter {
     boolean isAdmin(String siteId);
 
     /**
+     * Are either of the lti.api.enabled or lti.direct.enabled properties switched on?
+     */
+    boolean isApiEnabled();
+
+    /**
      * This adds a filter for the custom properties.
      * @param filter The filter to add.
      */
@@ -616,7 +621,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String[] getToolFunctionModel(String siteId);
 
-    List<String> getToolFunctionNames(String toolId, String siteId);
+    List<String> getGrantedToolFunctionNames(String toolId, String siteId);
 
     /**
      * API function names granted to a tool (from {@code lti_tool_functions}), for token issuance.

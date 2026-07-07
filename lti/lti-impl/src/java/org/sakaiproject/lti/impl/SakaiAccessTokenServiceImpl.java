@@ -274,14 +274,16 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
             sat.addScope(SakaiAccessToken.SCOPE_CONTEXTGROUP_READONLY);
         }
 
-        Set<String> grantedFunctions = new HashSet<>(ltiService.getGrantedToolFunctionNames(toolId));
-        for (String ltiApiScope : requestedScopes) {
-            String functionName = SakaiAccessToken.ltiApiScopeToFunction(ltiApiScope);
-            if (functionName == null || !grantedFunctions.contains(functionName)) {
-                continue;
+        if (ltiService.isApiEnabled()) {
+            Set<String> grantedFunctions = new HashSet<>(ltiService.getGrantedToolFunctionNames(toolId));
+            for (String ltiApiScope : requestedScopes) {
+                String functionName = SakaiAccessToken.ltiApiScopeToFunction(ltiApiScope);
+                if (functionName == null || !grantedFunctions.contains(functionName)) {
+                    continue;
+                }
+                returnScopeSet.add(ltiApiScope);
+                sat.addScope(ltiApiScope);
             }
-            returnScopeSet.add(ltiApiScope);
-            sat.addScope(ltiApiScope);
         }
 
         if (returnScopeSet.isEmpty()) {
