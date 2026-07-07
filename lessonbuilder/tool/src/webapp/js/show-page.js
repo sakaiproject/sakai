@@ -26,13 +26,6 @@ $(window).load(function () {
     setCollapsedStatus($(this).prev(), true);
   });
 
-  // Scroll the last-answered question into view
-  const questionToScrollTo = sessionStorage.getItem('question-submit-return-id');
-  if (questionToScrollTo) {
-    sessionStorage.removeItem('question-submit-return-id');
-    document.getElementById(questionToScrollTo).scrollIntoView(true);
-  }
-
   // Print the current page
   document.getElementById('print-view').addEventListener('click', function(event) {
     event.preventDefault();
@@ -154,14 +147,6 @@ $(document).ready(function () {
     box = $(this).children().first();
     box.attr('title', $(this).children().nextAll('.tooltip-content').html())
     box.tooltip();
-  });
-
-  document.querySelectorAll('.question-submit').forEach(el => {
-    el.addEventListener("click", e => {
-      // Store the question the student just answered and jump to it on new page load
-      const qEl = e.target.parentElement.closest('[id]');
-      qEl && sessionStorage.setItem('question-submit-return-id', qEl.id);
-    });
   });
 
   $("input[type=checkbox].checklist-checkbox").on("change", function () {

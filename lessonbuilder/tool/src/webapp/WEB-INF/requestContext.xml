@@ -350,6 +350,12 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 	</bean>
 
+	<bean name="questionResponseBean" class="org.sakaiproject.lessonbuildertool.tool.beans.QuestionResponseBean">
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="messageLocator" ref="messageLocator"/>
+	</bean>
+
         <!-- Bean override for rootHandlerHook see RSF-123 and CTL-1214 -->
 	<bean id="reportHandlerHook"
           class="org.sakaiproject.lessonbuildertool.tool.beans.ReportHandlerHook">

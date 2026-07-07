@@ -64,6 +64,7 @@
   <script src="$context/js/commonGrading.js"></script>
   <script src="$context/js/gradingAjax.js"></script>
   <script src="$context/js/checklistDisplay.js"></script>
+  <script src="$context/js/questionResponse.js"></script>
   <script src="$context/js/forum-summary.js"></script>
   <script src="$context/js/lessons-calendar.js"></script>
   <script src="$context/js/pdf-js.js"></script>
@@ -1388,7 +1389,7 @@
                       <table id="multipleChoiceAnswers" class="table table-striped table-bordered table-hover">
                         <thead>
                           <tr>
-                            <th><span rsf:id="msg=simplepage.question-tableheader-selectcorrect">Select Correct Answer(s)</span></th>
+                            <th><span rsf:id="msg=simplepage.question-tableheader-selectcorrect">Select Correct Answer(s)</span> <span rsf:id="selectcorrect-help" class="fa fa-info-circle text-muted ms-1" tabindex="0" role="img"></span></th>
                             <th><span rsf:id="msg=simplepage.question-tableheader-answeroption">Answer Option</span></th>
                             <th><span rsf:id="msg=simplepage.question-tableheader-answertext">Answer Text</span></th>
                             <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
@@ -3191,6 +3192,7 @@
                           <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf4" />
                           <input type="hidden" rsf:id="multipleChoiceId" />
+                          <input type="hidden" rsf:id="multipleChoiceResponse" />
                           <span rsf:id="multipleChoiceSelect:"></span>
                           <div rsf:id="multipleChoiceAnswer:" class="multipleChoiceAnswer">
                             <input type="radio" rsf:id="multipleChoiceAnswerRadio" name="multipleChoiceAnswerRadio" />
@@ -3206,11 +3208,14 @@
                           <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf5" />
                           <input type="hidden" rsf:id="shortanswerId" />
+                          <input type="hidden" rsf:id="shortanswerResponse" />
                           <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
                           <textarea rsf:id="shortanswerInput" aria-labelledby="answerInput" class="shortAnswerInput" rows="4"></textarea>
                           <input class="bold question-submit mt-2" type="submit" value="Answer!" rsf:id="answerShortanswer" />
                         </form>
                       </div>
+
+                      <script rsf:id="questionForm-init"></script>
 
                       <div rsf:id="questionStatusText" class="questionStatusText"></div>
 

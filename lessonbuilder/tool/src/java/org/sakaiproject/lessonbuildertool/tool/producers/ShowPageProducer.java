@@ -3170,9 +3170,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						answers = simplePageToolDao.findAnswerChoices(i);
 						UIOutput.make(tableRow, "multipleChoiceDiv");
 						UIForm questionForm = UIForm.make(tableRow, "multipleChoiceForm");
-						makeCsrf(questionForm, "csrf4");
+						// Answered over AJAX (UVB) so the page does not reload; see questionResponse.js
+						questionForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+						Object mcCsrfToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+						UIInput mcCsrfInput = UIInput.make(questionForm, "csrf4", "#{questionResponseBean.csrfToken}", mcCsrfToken == null ? "" : mcCsrfToken.toString());
 
-						UIInput.make(questionForm, "multipleChoiceId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+						UIInput mcQuestionIdInput = UIInput.make(questionForm, "multipleChoiceId", "#{questionResponseBean.questionId}", String.valueOf(i.getId()));
+						UIInput mcResponseInput = UIInput.make(questionForm, "multipleChoiceResponse", "#{questionResponseBean.questionResponse}");
 						UIInput.make(questionForm, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 						
 						String[] options = new String[answers.size()];
@@ -3198,6 +3202,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "multipleChoiceAnswer:", String.valueOf(j));
 							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
 							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
+							// carry the answer choice id so the AJAX submit can report the selection without a reload
+							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("data-answer-id", options[j]));
 							char answerOption = (char) (j + 65); // 65 Corresponds to A
 							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answerOption + " : " + answers.get(j).getText())
 								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
@@ -3217,13 +3223,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    else
 							answerButton.decorate(new UIDisabledDecorator());
 						}
+
+						// RSF emits no id attribute by default, yet UIInitBlock passes each component's
+						// fullID to questionResponse.js; decorate the fields with that same id so the
+						// client's getElementById can find them (matching the radio decoration above).
+						answerButton.decorate(new UIFreeAttributeDecorator("id", answerButton.getFullID()));
+						mcQuestionIdInput.decorate(new UIFreeAttributeDecorator("id", mcQuestionIdInput.getFullID()));
+						mcResponseInput.decorate(new UIFreeAttributeDecorator("id", mcResponseInput.getFullID()));
+						mcCsrfInput.decorate(new UIFreeAttributeDecorator("id", mcCsrfInput.getFullID()));
+						UIInitBlock.make(tableRow, "questionForm-init", "questionResponse.initAnswerForm",
+							new Object[] { answerButton, mcQuestionIdInput, mcResponseInput, mcCsrfInput, "questionResponseBean.results" });
 					}else if("shortanswer".equals(i.getAttribute("questionType"))) {
 						UIOutput.make(tableRow, "shortanswerDiv");
 						
 						UIForm questionForm = UIForm.make(tableRow, "shortanswerForm");
-						makeCsrf(questionForm, "csrf5");
+						// Answered over AJAX (UVB) so the page does not reload; see questionResponse.js
+						questionForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+						Object saCsrfToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+						UIInput saCsrfInput = UIInput.make(questionForm, "csrf5", "#{questionResponseBean.csrfToken}", saCsrfToken == null ? "" : saCsrfToken.toString());
 
-						UIInput.make(questionForm, "shortanswerId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+						UIInput saQuestionIdInput = UIInput.make(questionForm, "shortanswerId", "#{questionResponseBean.questionId}", String.valueOf(i.getId()));
+						UIInput saResponseInput = UIInput.make(questionForm, "shortanswerResponse", "#{questionResponseBean.questionResponse}");
 						UIInput.make(questionForm, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
 
@@ -3244,11 +3264,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    else
 							answerButton.decorate(new UIDisabledDecorator());
 						}
+
+						// RSF emits no id attribute by default, yet UIInitBlock passes each component's
+						// fullID to questionResponse.js; decorate the fields with that same id so the
+						// client's getElementById can find them (matching the radio decoration above).
+						answerButton.decorate(new UIFreeAttributeDecorator("id", answerButton.getFullID()));
+						saQuestionIdInput.decorate(new UIFreeAttributeDecorator("id", saQuestionIdInput.getFullID()));
+						saResponseInput.decorate(new UIFreeAttributeDecorator("id", saResponseInput.getFullID()));
+						saCsrfInput.decorate(new UIFreeAttributeDecorator("id", saCsrfInput.getFullID()));
+						UIInitBlock.make(tableRow, "questionForm-init", "questionResponse.initAnswerForm",
+							new Object[] { answerButton, saQuestionIdInput, saResponseInput, saCsrfInput, "questionResponseBean.results" });
 					}
-					
+
 					Status questionStatus = getQuestionStatus(i, response);
-					addStatusIcon(questionStatus, tableRow, "questionStatus");
-					String statusNote = getStatusNote(questionStatus);
+					// Only a question with a defined answer key can be "Correct"; polls and
+					// participation-only questions stay "Completed".
+					boolean questionHasAnswerKey = questionHasAnswerKey(i);
+					addStatusIcon(questionStatus, tableRow, "questionStatus", questionHasAnswerKey);
+					String statusNote = getStatusNote(questionStatus, questionHasAnswerKey);
 					if (statusNote != null) // accessibility version of icon
 					    UIOutput.make(tableRow, "questionNote", statusNote);
 					String statusText = null;
@@ -5337,6 +5370,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
 		UIInput.make(form, "question-multiplechoice-answer-id", null);
 		UIBoundBoolean.make(form, "question-multiplechoice-answer-correct");
+
+		// Tooltip on the "Select Correct Answer(s)" header explaining that leaving all answers
+		// unchecked turns the question into a survey (or manual grading when a grade is assigned).
+		String selectCorrectTip = messageLocator.getMessage("simplepage.question-selectcorrect-tooltip");
+		UIOutput.make(form, "selectcorrect-help")
+			.decorate(new UIFreeAttributeDecorator("title", selectCorrectTip))
+			.decorate(new UIFreeAttributeDecorator("aria-label", selectCorrectTip));
 		UIInput.make(form, "question-multiplechoice-answer", null);
 		UIBoundBoolean.make(form, "question-show-poll", "#{simplePageBean.questionShowPoll}");
 		
@@ -5487,25 +5527,48 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private String getStatusNote(Status status) {
+		return getStatusNote(status, false);
+	}
+
+	private String getStatusNote(Status status, boolean questionHasAnswerKey) {
 		if (status == Status.COMPLETED)
-			return messageLocator.getMessage("simplepage.status.completed");
+			// A completed question with an answer key is "Correct"; polls/participation stay "Completed"
+			return messageLocator.getMessage(questionHasAnswerKey ? "simplepage.status.correct" : "simplepage.status.completed");
 		else if (status == Status.REQUIRED)
 			return messageLocator.getMessage("simplepage.status.required");
 		else if (status == Status.NEEDSGRADING)
 			return messageLocator.getMessage("simplepage.status.needsgrading");
 		else if (status == Status.FAILED)
-			return messageLocator.getMessage("simplepage.status.failed");
+			// FAILED only arises from an incorrectly answered question; show "Incorrect"
+			return messageLocator.getMessage("simplepage.status.incorrect");
 		else
 		return null;
 	}
 
+	// A question can be graded "Correct"/"Incorrect" only when it defines an answer key;
+	// multiple-choice with a correct option, or short answer with a model answer. Polls and
+	// participation-only questions have no key and stay "Completed".
+	private boolean questionHasAnswerKey(SimplePageItem question) {
+		String questionType = question.getAttribute("questionType");
+		if ("multipleChoice".equals(questionType))
+			return simplePageToolDao.hasCorrectAnswer(question);
+		if ("shortanswer".equals(questionType))
+			return !"".equals(question.getAttribute("questionAnswer"));
+		return false;
+	}
+
 	private void addStatusIcon(Status status, UIContainer container, String iconId) {
+		addStatusIcon(status, container, iconId, false);
+	}
+
+	private void addStatusIcon(Status status, UIContainer container, String iconId, boolean questionHasAnswerKey) {
 		String iconClass = "fa fa-";
 		String title;
 		switch (status) {
 			case COMPLETED:
 				iconClass += "check";
-				title = messageLocator.getMessage("simplepage.status.completed");
+				// A completed question with an answer key is "Correct"; polls/participation stay "Completed"
+				title = messageLocator.getMessage(questionHasAnswerKey ? "simplepage.status.correct" : "simplepage.status.completed");
 				break;
 			case DISABLED:
 				iconClass += "circle-o";
@@ -5513,7 +5576,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				break;
 			case FAILED:
 				iconClass += "times";
-				title = messageLocator.getMessage("simplepage.status.failed");
+				// FAILED only arises from an incorrectly answered question; show "Incorrect"
+				title = messageLocator.getMessage("simplepage.status.incorrect");
 				break;
 			case REQUIRED:
 				iconClass += "asterisk";

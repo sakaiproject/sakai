@@ -8355,75 +8355,91 @@ public class SimplePageBean {
 		return correct;
 	}
 	
+	/**
+	 * Records and grades a student's answer to an inline question, then marks the
+	 * associated task complete and persists the response. Shared by the legacy
+	 * full-page submit ({@link #answerMultipleChoiceQuestion()} /
+	 * {@link #answerShortanswerQuestion()}) and the AJAX path
+	 * ({@code QuestionResponseBean}).
+	 *
+	 * Callers are responsible for permission and CSRF checks before calling this.
+	 * The question type ("multipleChoice" / "shortanswer") is read from the item,
+	 * so a single path handles both.
+	 *
+	 * @param questionItemId the id of the question item being answered
+	 * @param answer         the selected answer choice id (multiple choice) or the
+	 *                       typed answer text (short answer)
+	 * @param userId         the id of the user answering
+	 * @return the saved response, or null if the user already answered and may not
+	 *         re-answer (only editors may re-answer, e.g. to test a question)
+	 */
+	public SimplePageQuestionResponse submitQuestionResponse(Long questionItemId, String answer, String userId) {
+		SimplePageItem question = findItem(questionItemId);
+
+		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionItemId, userId);
+		if(response != null) {
+			if(!canEditPage()) {
+				// Don't let students re-answer questions.
+				return null;
+			}
+		}else {
+			response = simplePageToolDao.makeQuestionResponse(userId, questionItemId);
+		}
+
+		if("multipleChoice".equals(question.getAttribute("questionType"))) {
+			long responseId = Long.valueOf(answer);
+			response.setMultipleChoiceId(responseId);
+			simplePageToolDao.incrementQRCount(questionItemId, responseId);
+
+			SimplePageQuestionAnswer answerChoice = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
+			response.setOriginalText(answerChoice.getText());
+		}else {
+			if (answer != null)
+			    answer = answer.trim();
+			response.setShortanswer(answer);
+		}
+
+		gradeQuestionResponse(response);
+
+		// Complete user task
+		this.completeUserTask(questionItemId, userId);
+
+		saveItem(response);
+
+		return response;
+	}
+
 	public String answerMultipleChoiceQuestion() {
 		String userId = getCurrentUserId();
-		
+
 		if (!itemOk(questionId) || !canReadPage())
 		    return "permission-failed";
 		if (!checkCsrf())
 		    return "permission-failed";
 
-		SimplePageItem question = findItem(questionId);
-
-		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
-		if(response != null) {
-			if(!canEditPage()) {
-				// Don't let students re-answer questions.
-				setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
-				return "failure";
-			}
-		}else {
-			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
+		if (submitQuestionResponse(questionId, questionResponse, userId) == null) {
+			// Don't let students re-answer questions.
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
+			return "failure";
 		}
-		
-		long responseId = Long.valueOf(questionResponse);
-		response.setMultipleChoiceId(responseId);
-		simplePageToolDao.incrementQRCount(questionId, responseId);
-		
-		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
-		response.setOriginalText(answer.getText());
-		
-		gradeQuestionResponse(response);
 
-		// Complete user task
-		this.completeUserTask(questionId, userId);
-
-		saveItem(response);
-		
 		return "success";
 	}
-	
+
 	public String answerShortanswerQuestion() {
 		String userId = getCurrentUserId();
-		
+
 		if (!itemOk(questionId) || !canReadPage())
 		    return "permission-failed";
 		if (!checkCsrf())
 		    return "permission-failed";
 
-		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
-		if(response != null) {
-			if(!canEditPage()) {
-				// Don't let students re-answer questions.
-				setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
-				return "failure";
-			}
-		}else {
-			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
+		if (submitQuestionResponse(questionId, questionResponse, userId) == null) {
+			// Don't let students re-answer questions.
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
+			return "failure";
 		}
-		
-		SimplePageItem question = findItem(response.getQuestionId());
-		
-		if (questionResponse != null)
-		    questionResponse = questionResponse.trim();
-		response.setShortanswer(questionResponse);
-		gradeQuestionResponse(response);
-		
-		// Complete user task
-		this.completeUserTask(questionId, userId);
-		
-		saveItem(response);
-		
+
 		return "success";
 	}
 	

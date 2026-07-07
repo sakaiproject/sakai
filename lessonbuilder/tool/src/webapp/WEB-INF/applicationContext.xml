@@ -226,6 +226,10 @@ simplePageBean.addForumSummary,
 		<property name="value" value="checklistBean" />
 	</bean>
 
+	<bean parent="requestAddressibleParent">
+		<property name="value" value="questionResponseBean" />
+	</bean>
+
   <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
     <property name="value" value="true" />
   </bean>
