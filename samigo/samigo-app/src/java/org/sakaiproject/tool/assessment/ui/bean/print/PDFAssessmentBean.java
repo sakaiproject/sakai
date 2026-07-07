@@ -40,8 +40,8 @@ import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAtta
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.pdf.HTMLWorker;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
@@ -61,9 +62,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.component.cover.ComponentManager;
 
-import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
@@ -75,7 +74,8 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
+
+import lombok.extern.slf4j.Slf4j;
 
 /* Print to PDF backing bean. */
 @Slf4j
@@ -267,7 +267,6 @@ public class PDFAssessmentBean implements Serializable {
 				while (assessmentAttachmentIter.hasNext()) {
 					assessmentIntros.append("<br />");
 					PublishedAssessmentAttachment assessmentAttachment = (PublishedAssessmentAttachment) assessmentAttachmentIter.next();
-					assessmentIntros.append("  ");
 					appendAttachmentHtml(assessmentIntros, assessmentAttachment.getFilename(), assessmentAttachment.getMimeType(), assessmentAttachment.getResourceId());
 				}
 			}
@@ -323,7 +322,6 @@ public class PDFAssessmentBean implements Serializable {
 					while (partAttachmentIter.hasNext()) {
 						partIntros.append("<br />");
 						PublishedSectionAttachment partAttachment = (PublishedSectionAttachment) partAttachmentIter.next();
-						partIntros.append("  ");
 						appendAttachmentHtml(partIntros, partAttachment.getFilename(), partAttachment.getMimeType(), partAttachment.getResourceId());
 					}
 				}
@@ -361,7 +359,6 @@ public class PDFAssessmentBean implements Serializable {
 					Iterator itemAttachmentIter = itemAttachmentList.iterator();
 					while (itemAttachmentIter.hasNext()) {
 						PublishedItemAttachment itemAttachment = (PublishedItemAttachment) itemAttachmentIter.next();
-						contentBuffer.append("  ");
 						appendAttachmentHtml(contentBuffer, itemAttachment.getFilename(), itemAttachment.getMimeType(), itemAttachment.getResourceId());
 					}
 				}

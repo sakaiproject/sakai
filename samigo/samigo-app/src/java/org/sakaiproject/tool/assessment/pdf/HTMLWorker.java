@@ -161,7 +161,9 @@ import lombok.extern.slf4j.Slf4j;
 				final String base64Data = src.substring(src.indexOf(",") + 1);
 				try {
 					img = Image.getInstance(Base64.getDecoder().decode(base64Data));
-					img.scaleToFit(400f, 350f);
+					if (img.getWidth() > 400f || img.getHeight() > 350f) {
+						img.scaleToFit(400f, 350f);
+					}
 				} catch (Exception e) {
 					log.warn("Failed retrieving image", e.toString());
 				}
@@ -211,7 +213,7 @@ import lombok.extern.slf4j.Slf4j;
 
 			Map<String, Image> imgDict = new java.util.HashMap<>();
 			imgDict.put(imgPath, imgPdf);
-			tempProps.put("image_dictionary", imgDict);
+			tempProps.put("img_static", imgDict);
 
 			this.setInterfaceProps(tempProps);
 			try {
