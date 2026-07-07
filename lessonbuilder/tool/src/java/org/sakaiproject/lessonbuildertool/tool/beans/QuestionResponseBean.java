@@ -129,7 +129,7 @@ public class QuestionResponseBean {
 	 * does for an answered question: manually graded questions await grading, otherwise
 	 * the response's correctness drives completed vs. failed.
 	 */
-	private String classifyStatus(SimplePageItem question, SimplePageQuestionResponse response) {
+	String classifyStatus(SimplePageItem question, SimplePageQuestionResponse response) {
 		String questionType = question.getAttribute("questionType");
 		boolean noSpecifiedAnswers = false;
 		boolean manuallyGraded = false;
@@ -194,7 +194,7 @@ public class QuestionResponseBean {
 		result.put("poll", poll);
 	}
 
-	private String statusNote(String status, boolean questionHasAnswerKey) {
+	String statusNote(String status, boolean questionHasAnswerKey) {
 		if ("COMPLETED".equals(status)) {
 			// A completed question with an answer key is "Correct"; polls/participation stay "Completed"
 			return messageLocator.getMessage(questionHasAnswerKey ? "simplepage.status.correct" : "simplepage.status.completed");
@@ -209,7 +209,7 @@ public class QuestionResponseBean {
 
 	// A question can be graded "Correct"/"Incorrect" only when it defines an answer key;
 	// polls and participation-only questions have none and stay "Completed".
-	private boolean questionHasAnswerKey(SimplePageItem question) {
+	boolean questionHasAnswerKey(SimplePageItem question) {
 		String questionType = question.getAttribute("questionType");
 		if ("multipleChoice".equals(questionType)) {
 			return simplePageToolDao.hasCorrectAnswer(question);
