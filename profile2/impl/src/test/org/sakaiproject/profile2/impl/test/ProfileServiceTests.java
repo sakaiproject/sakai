@@ -417,6 +417,23 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void saveUserProfileSkipsAccountEditWhenEmailUnchanged() throws Exception {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1Id);
+        when(userDirectoryService.getUser(user1Id)).thenReturn(user1);
+        when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(Optional.of(mock(SakaiPerson.class)));
+
+        ProfileTransferBean userProfile = profileService.getUserProfile(user1Id);
+        // email is left as loaded (user1@mailinator.com), only another field changes
+        userProfile.nickname = "Ace";
+
+        profileService.saveUserProfile(userProfile);
+
+        // No account edit round-trip (isAccountUpdateAllowed / updateEmailForUser) when the email did not change
+        verify(userDirectoryService, never()).editUser(anyString());
+    }
+
+    @Test
     public void isEmailDuplicateHonoursAllowDuplicatesProperty() {
 
         String email = "user2@mailinator.com";
