@@ -331,7 +331,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		LessonSubmission ret = new LessonSubmission(null);
 
 		if (submission.getGradeReleased())	{
-			// SAK-15574 completion conditions compare this scaled grade, so apply
+			// completion conditions compare this scaled grade, so apply
 			// any late penalty here too, keeping it consistent with what the
 			// student sees in Assignments and the Gradebook
 			Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();

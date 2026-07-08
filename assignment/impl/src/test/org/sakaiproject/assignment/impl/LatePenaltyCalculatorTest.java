@@ -27,7 +27,7 @@ import org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyType;
 import org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyUnit;
 
 /**
- * SAK-15574 late penalty computation. Grades are scaled integer strings
+ * Late penalty computation. Grades are scaled integer strings
  * (e.g. 85.5 at scale factor 100 is "8550"); the penalty is computed in the
  * same scaled space and never persisted — the raw instructor grade is the
  * stored value. Deductions are fixed points or a percent of the max grade,

@@ -230,25 +230,25 @@ public final class AssignmentConstants {
     public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
     public static final String ALLOW_EXTENSION_CLOSETIME = "allow_extension_closeTime"; //constant for Extension, very similar to Resubmission
     /**
-     * SAK-15574 assignment property holding the late penalty mode, a
+     * assignment property holding the late penalty mode, a
      * {@link org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyType} name
      * (FLAT or PER_DAY); absent when no late penalty is configured. Only
      * honored for SCORE_GRADE_TYPE assignments.
      */
     public static final String LATE_PENALTY_TYPE = "late_penalty_type";
     /**
-     * SAK-15574 assignment property holding the late penalty amount in points
+     * assignment property holding the late penalty amount in points
      * (unscaled decimal string, e.g. "2.5")
      */
     public static final String LATE_PENALTY_VALUE = "late_penalty_value";
     /**
-     * SAK-15574 assignment property holding the late penalty unit, a
+     * assignment property holding the late penalty unit, a
      * {@link org.sakaiproject.assignment.api.LatePenaltyCalculator.LatePenaltyUnit}
      * name (POINTS or PERCENT of the max grade); absent means POINTS.
      */
     public static final String LATE_PENALTY_UNIT = "late_penalty_unit";
     /**
-     * SAK-15574 submission property ("true" when set): the grader chose to
+     * submission property ("true" when set): the grader chose to
      * waive the assignment's late penalty for this submission
      */
     public static final String IGNORE_LATE_PENALTY = "ignore_late_penalty";

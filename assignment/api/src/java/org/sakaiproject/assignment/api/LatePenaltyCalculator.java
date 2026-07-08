@@ -26,7 +26,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * SAK-15574 computes the effective grade for a late submission when the
+ * Computes the effective grade for a late submission when the
  * assignment has a late penalty configured: a deduction in fixed points or a
  * percentage of the maximum grade, applied once (flat) or per hour/day/week
  * late where any part of a period counts as a full period. All grade
@@ -35,8 +35,8 @@ import lombok.extern.slf4j.Slf4j;
  * submission grade is always the instructor's raw grade; the penalty is
  * applied wherever the grade is displayed or pushed to the gradebook, never
  * persisted. The Tests & Quizzes twin
- * ({@code org.sakaiproject.tool.assessment.util.LatePenaltyCalculator},
- * SAK-52267) mirrors these semantics — keep the two in sync.
+ * ({@code org.sakaiproject.tool.assessment.util.LatePenaltyCalculator})
+ * mirrors these semantics — keep the two in sync.
  */
 @Slf4j
 public final class LatePenaltyCalculator {
@@ -98,6 +98,7 @@ public final class LatePenaltyCalculator {
     }
 
     private LatePenaltyCalculator() {
+        throw new AssertionError("LatePenaltyCalculator is a static utility class and must not be instantiated");
     }
 
     /**

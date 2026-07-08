@@ -86,7 +86,7 @@ ASN_INE.togglePeerAssessment = function(element)
 		ASN.resizeFrame('grow');
 	}
 
-	// SAK-15574 late penalty does not combine with peer assessment
+	// late penalty does not combine with peer assessment
 	const latePenaltyContainer = document.getElementById("latePenaltyContainer");
 	latePenaltyContainer && (latePenaltyContainer.style.display = element.checked ? "none" : "block");
 };
@@ -129,7 +129,7 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 	}
 };
 
-// SAK-15574 Late Penalty controls (points assignments only)
+// Late Penalty controls (points assignments only)
 ASN_INE.toggleLatePenalty = (checkbox) => {
 
 	const section = document.getElementById("latePenaltyOptions");

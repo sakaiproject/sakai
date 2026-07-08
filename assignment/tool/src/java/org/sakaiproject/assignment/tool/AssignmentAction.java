@@ -8645,14 +8645,14 @@ public class AssignmentAction extends PagedResourceActionII {
             // an existing assignment's own scale factor governs grade and penalty precision
             Integer scaleFactor = assignmentService.getScaleFactor();
             try {
-                if (StringUtils.isNotEmpty(assignmentRef)) {
+                if (StringUtils.isNotEmpty(assignmentId)) {
                     Assignment assignment = assignmentService.getAssignment(assignmentId);
                     if (assignment != null && assignment.getScaleFactor() != null) {
                         scaleFactor = assignment.getScaleFactor();
                     }
                 }
             } catch (IdUnusedException | PermissionException e) {
-                log.error(e.getMessage());
+                log.warn("Could not fetch assignment with id [{}], {}", assignmentId, e.toString());
             }
 
             // the grade point
@@ -8680,7 +8680,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-            // SAK-15574 late penalty settings (points assignments only)
+            // late penalty settings (points assignments only)
             boolean useLatePenalty = gradeType == Assignment.GradeType.SCORE_GRADE_TYPE
                     && params.getBoolean(NEW_ASSIGNMENT_USE_LATE_PENALTY)
                     && !params.getBoolean(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
@@ -10347,7 +10347,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        // SAK-15574 late penalty, points assignments only; cleared when disabled
+        // late penalty, points assignments only; cleared when disabled
         // or when the grade type moves away from points
         String latePenaltyValue = StringUtils.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_LATE_PENALTY_VALUE));
         if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE && !usePeerAssessment
@@ -10863,7 +10863,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, a.getHideDueDate());
                 Map<String, String> properties = a.getProperties();
 
-                // SAK-15574 late penalty settings round-trip
+                // late penalty settings round-trip
                 if (properties.get(AssignmentConstants.LATE_PENALTY_TYPE) != null) {
                     state.setAttribute(NEW_ASSIGNMENT_USE_LATE_PENALTY, Boolean.TRUE.toString());
                     state.setAttribute(NEW_ASSIGNMENT_LATE_PENALTY_TYPE, properties.get(AssignmentConstants.LATE_PENALTY_TYPE));

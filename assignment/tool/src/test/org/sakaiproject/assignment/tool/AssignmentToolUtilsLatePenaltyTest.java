@@ -19,14 +19,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_GRADE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.IGNORE_LATE_PENALTY;
 import static org.sakaiproject.assignment.api.AssignmentConstants.LATE_PENALTY_TYPE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.LATE_PENALTY_VALUE;
-import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
 import static org.sakaiproject.assignment.api.AssignmentConstants.SUBMISSION_OPTION_SAVE;
 
 import java.time.Duration;
@@ -42,7 +39,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -54,9 +50,11 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * SAK-15574 the grade pushed to the gradebook must be the effective
- * (late-penalized) grade while the stored submission grade stays raw, and the
- * per-submission ignore flag must round-trip through gradeSubmission options.
+ * Verifies that {@code gradeSubmission} keeps the stored submission grade raw and
+ * round-trips the per-submission ignore-late-penalty flag through its options. The
+ * late-penalty computation itself (and that the effective grade is what integrates to
+ * the gradebook) is exercised against the real service and calculator in the impl
+ * module's {@code AssignmentServiceTest}, so it is not re-asserted here through a mock.
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AssignmentToolUtilsLatePenaltyTest {
@@ -108,34 +106,6 @@ public class AssignmentToolUtilsLatePenaltyTest {
         Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
         submitters.add(submitter);
         submission.setSubmitters(submitters);
-    }
-
-    @Test
-    public void integrateGradebookPushesEffectiveGradeNotStoredGrade() throws Exception {
-
-        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        String submissionRef = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        String associate = "gbitem1";
-
-        when(assignmentService.getToolId()).thenReturn("sakai.assignment.grades");
-        when(assignmentService.getAssignment("a1")).thenReturn(assignment);
-        when(assignmentService.getSubmission("s1")).thenReturn(submission);
-        // the service computes 90.00 - 5 = 85.00 for this late submission
-        when(assignmentService.getGradeForSubmitter(submission, STUDENT)).thenReturn("85.00");
-        when(gradingService.currentUserHasGradingPerm(SITE_ID)).thenReturn(true);
-        when(gradingService.isExternalAssignmentDefined(SITE_ID, associate)).thenReturn(true);
-        assignment.getProperties().put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
-                GRADEBOOK_INTEGRATION_ASSOCIATE);
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("siteId", SITE_ID);
-
-        assignmentToolUtils.integrateGradebook(options, SITE_ID, assignmentRef, associate,
-                null, null, -1, null, submissionRef, "update", -1);
-
-        // the pushed score is the effective grade, the stored grade is untouched
-        verify(gradingService).updateExternalAssessmentScore(SITE_ID, SITE_ID, associate, STUDENT, "85.00");
-        assertEquals("9000", submission.getGrade());
     }
 
     @Test

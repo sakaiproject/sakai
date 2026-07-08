@@ -758,7 +758,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         submission.put("dateSubmitted", dateSubmitted);
                     }
                     submission.put("late", as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0);
-                    // SAK-15574 note the grade in this map stays raw: it prefills the grader input
+                    // note the grade in this map stays raw: it prefills the grader input
                     String latePenalty = assignmentService.getLatePenaltyDisplay(as);
                     if (latePenalty != null) submission.put("latePenalty", latePenalty);
                 }
@@ -885,7 +885,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     submitter.put("id", ass.getSubmitter());
 
                     if (hydrate) {
-                        // SAK-15574 raw (pre-penalty) grade: this prefills the grader's
+                        // raw (pre-penalty) grade: this prefills the grader's
                         // editable override input, so the penalized value must not round-trip
                         String grade = rawGradeDisplay(ass.getSubmission(), ass.getSubmitter());
                         if (StringUtils.isNotBlank(grade)) submitter.put("grade", grade);
@@ -1663,29 +1663,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     }
 
     /**
-     * SAK-15574 the display grade for a submitter WITHOUT any late penalty
-     * applied. Grading inputs must prefill with this raw value so the
-     * penalized effective grade never round-trips through a save and
-     * compounds. The group override resolution here intentionally mirrors
-     * {@code AssignmentServiceImpl#getGradeForSubmitter} minus the penalty
-     * step — keep the two in sync.
+     * The display grade for a submitter WITHOUT any late penalty applied. Grading
+     * inputs must prefill with this raw value so the penalized effective grade never
+     * round-trips through a save and compounds.
      */
     private String rawGradeDisplay(AssignmentSubmission submission, String submitter) {
-
-        if (submission == null) return null;
-
-        String grade = submission.getGrade();
-        Assignment assignment = submission.getAssignment();
-
-        if (assignment.getIsGroup() && submitter != null) {
-            grade = submission.getSubmitters().stream()
-                    .filter(s -> submitter.equals(s.getSubmitter()))
-                    .findAny()
-                    .map(s -> StringUtils.defaultIfBlank(s.getGrade(), submission.getGrade()))
-                    .orElse(grade);
-        }
-
-        return assignmentService.getGradeDisplay(grade, assignment.getTypeOfGrade(), assignment.getScaleFactor());
+        return assignmentService.getRawGradeForSubmitter(submission, submitter);
     }
 
     private String getCheckedCurrentUser() throws EntityException {
@@ -2169,7 +2152,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String grade;
         /** the pre-penalty grade for grading inputs; only the effective {@link #grade} is student-facing */
         private String rawGrade;
-        /** SAK-15574 the late penalty amount that applies to this submission, null when none */
+        /** the late penalty amount that applies to this submission, null when none */
         private String latePenalty;
         private List<DecoratedAttachment> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();

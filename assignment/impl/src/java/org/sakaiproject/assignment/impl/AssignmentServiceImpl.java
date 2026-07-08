@@ -3703,11 +3703,25 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getGradeForSubmitter(AssignmentSubmission submission, String submitter) {
         if (submission == null || StringUtils.isBlank(submitter)) return null;
+        return resolveGradeForSubmitter(submission, submitter, true);
+    }
 
+    @Override
+    public String getRawGradeForSubmitter(AssignmentSubmission submission, String submitter) {
+        if (submission == null) return null;
+        return resolveGradeForSubmitter(submission, submitter, false);
+    }
+
+    /**
+     * Resolves the submitter's grade (honouring a group override) and formats it for
+     * display, optionally applying the configured late penalty. The raw path backs the
+     * grading inputs so a penalized grade never round-trips through a save.
+     */
+    private String resolveGradeForSubmitter(AssignmentSubmission submission, String submitter, boolean applyLatePenalty) {
         String grade = submission.getGrade(); // start with submission grade
         Assignment assignment = submission.getAssignment();
 
-        if (assignment.getIsGroup()) {
+        if (assignment.getIsGroup() && StringUtils.isNotBlank(submitter)) {
             Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
             if (submissionSubmitter.isPresent()) {
                 grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
@@ -3715,9 +3729,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
-        // SAK-15574 the raw (pre-penalty) twin of this resolution lives in
-        // AssignmentEntityProvider#rawGradeDisplay for grading inputs — keep in sync
-        grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, grade, scale);
+        if (applyLatePenalty) {
+            grade = LatePenaltyCalculator.effectiveScaledGrade(assignment, submission, grade, scale);
+        }
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
 
