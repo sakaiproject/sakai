@@ -32,12 +32,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{commonMessages.total_scores}" /></title>
-		<style type="text/css">
-			.disabled
-			{
-				background-color: #f1f1f1;
-			}
-		</style>
       <script src='/library/js/spinner.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 <%@ include file="/js/delivery.js" %>
 
@@ -937,7 +931,7 @@ function showLoadingMessage() {
      </f:facet>
 
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}" styleClass="awesomplete" />
-   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled awesomplete" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="awesomplete" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
    <h:panelGroup rendered="#{description.attemptDate != null}">
    		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
    </h:panelGroup>
@@ -961,7 +955,7 @@ function showLoadingMessage() {
 	  </h:panelGroup>
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}"/>
-   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
    <h:panelGroup rendered="#{description.attemptDate != null}">
    		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
    </h:panelGroup>
@@ -985,7 +979,7 @@ function showLoadingMessage() {
 	  </h:panelGroup>
       </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}"/>
-   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" disabled="true" cols="30" rendered="#{description.attemptDate == null}"/>
    <h:panelGroup rendered="#{description.attemptDate != null}" >
    		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
    </h:panelGroup>
