@@ -778,8 +778,7 @@ public class PublishedAssessmentService extends AssessmentService{
         try {
           gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
         } catch (Exception e1) {
-          // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-          log.info("Exception thrown in updateGB():" + e1.getMessage());
+          log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e1);
         }
 
         gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
@@ -883,7 +882,7 @@ public class PublishedAssessmentService extends AssessmentService{
       try {
         gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
       } catch(Exception e) {
-        log.warn("Something happened while removing the external assessment {}", e.getMessage());
+        log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e);
       }
     }
 }

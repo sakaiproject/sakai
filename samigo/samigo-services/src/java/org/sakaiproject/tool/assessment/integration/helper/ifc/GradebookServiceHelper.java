@@ -44,7 +44,11 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
  */
 public interface GradebookServiceHelper extends Serializable
 {
-  public void removeExternalAssessment(String gradebookUId,
+  /**
+   * Remove the gradebook item linked to a published assessment, if one exists.
+   * @return true if an item was removed, false if the assessment was not in the gradebook
+   */
+  public boolean removeExternalAssessment(String gradebookUId,
      String publishedAssessmentId, GradingService g) throws Exception;
 
   public boolean addToGradebook(String gradebookUId, PublishedAssessmentData publishedAssessment, Long categoryId,

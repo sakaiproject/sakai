@@ -283,11 +283,11 @@ public class RemoveAssessmentListener implements ActionListener
             getBean("org.sakaiproject.grading.api.GradingService");
         }
         try {
-            log.debug("before gbsHelper.removeGradebook()");
-            gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessmentId, g);
-        } catch (Exception e1) {
-            // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-            log.info("Exception thrown in updateGB():" + e1.getMessage());
+            if (!gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessmentId, g)) {
+                log.debug("Published assessment {} was not linked to the gradebook, nothing to remove", assessmentId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to remove gradebook item for published assessment {}", assessmentId, e);
         }
     }
 

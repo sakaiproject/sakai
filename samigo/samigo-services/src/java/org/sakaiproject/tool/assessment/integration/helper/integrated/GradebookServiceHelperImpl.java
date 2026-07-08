@@ -79,16 +79,18 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	private LocaleService localeService = (LocaleService) ComponentManager.get(LocaleService.class);
 	
    /**
-    * Remove a published assessment from the gradebook.
+    * Remove a published assessment from the gradebook, if it is linked to one.
     * @param gradebookUId the gradebook id
     * @param g  the Gradebook Service
     * @param publishedAssessmentId the id of the published assessment
+    * @return true if a gradebook item was removed, false if the assessment was not in the gradebook
     * @throws java.lang.Exception
     */
-    public void removeExternalAssessment(String gradebookUId, String publishedAssessmentId, GradingService g)
+    public boolean removeExternalAssessment(String gradebookUId, String publishedAssessmentId, GradingService g)
         throws Exception {
         if (gradebookUId == null) {
-            throw new AssessmentNotFoundException("Cannot remove external assessment without a gradebook uid");
+            log.debug("No gradebook uid, nothing to remove for published assessment {}", publishedAssessmentId);
+            return false;
         }
 
         List<String> gradebookUids = new ArrayList<>(List.of(gradebookUId));
@@ -101,22 +103,18 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
             }
         }
 
-        AssessmentNotFoundException lastNotFound = null;
         boolean removed = false;
 
         for (String uid : gradebookUids) {
-            try {
+            if (g.isExternalAssignmentDefined(uid, publishedAssessmentId)) {
                 g.removeExternalAssignment(uid, publishedAssessmentId, getAppName());
                 removed = true;
-            } catch (AssessmentNotFoundException e) {
-                lastNotFound = e;
+            } else {
                 log.debug("No external assessment id={} in gradebook uid={}", publishedAssessmentId, uid);
             }
         }
 
-        if (!removed && lastNotFound != null) {
-            throw lastNotFound;
-        }
+        return removed;
     }
 
   public boolean isAssignmentDefined(String assessmentTitle,
