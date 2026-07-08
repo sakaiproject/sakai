@@ -147,6 +147,11 @@ input[type="submit"],input[type="button"],input[type="reset"] {
 
 input[type="checkbox"], input[type="radio"], input.form-check-input[type="checkbox"], input.form-check-input[type="radio"]{
   border: 1px solid var(--sakai-text-color-1);
+  // Bootstrap's .form-check-input hardcodes a white unchecked background regardless
+  // of theme, which glares white in dark mode. Track the theme instead: this token is
+  // white in the light theme (matching Bootstrap's default, so the light skin is
+  // unchanged) and dark in the dark theme.
+  background-color: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
   display: inline-block;
   height: 16px;
