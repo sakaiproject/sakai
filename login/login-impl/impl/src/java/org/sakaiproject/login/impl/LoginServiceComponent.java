@@ -214,7 +214,6 @@ public abstract class LoginServiceComponent implements LoginService {
 			return identifier.startsWith(pattern.substring(0, pattern.length() - 1));
 		}
 
-		// exacto
 		return identifier.equals(pattern);
 	}
 
