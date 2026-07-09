@@ -2021,12 +2021,24 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean getShowFeedbackLink() {
-      return ("reviewAssessment".equals(getActionString())
-              || "takeAssessment".equals(getActionString())
-              || "takeAssessmentViaUrl".equals(getActionString())
-              || "previewAssessment".equals(getActionString()))
-             && ! ("1".equals(getNavigation()) && getPageContents().getIsNoParts())
-             && (getFeedbackComponent().getShowImmediate() || feedbackOnDate);
+      boolean takingAssessment = "takeAssessment".equals(getActionString())
+              || "takeAssessmentViaUrl".equals(getActionString());
+      boolean reviewingOrPreviewing = "reviewAssessment".equals(getActionString())
+              || "previewAssessment".equals(getActionString());
+      if (!takingAssessment && !reviewingOrPreviewing) {
+          return false;
+      }
+      if ("1".equals(getNavigation()) && getPageContents().getIsNoParts()) {
+          return false;
+      }
+      // While a student is actively taking the assessment, only Immediate Feedback shows
+      // feedback mid-take. "On specific dates" feedback is for review after submission, so
+      // feedbackOnDate must not surface the Feedback link during a take (also covers post-deadline
+      // retakes/resubmits, where feedbackOnDate has since flipped true).
+      if (takingAssessment) {
+          return getFeedbackComponent().getShowImmediate();
+      }
+      return getFeedbackComponent().getShowImmediate() || feedbackOnDate;
   }
 
   public boolean getShowReturnToAssessmentLink() {

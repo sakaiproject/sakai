@@ -2636,8 +2636,17 @@ public class DeliveryActionListener
     delivery.setNoFeedback("false");
     switch (action){
     case 1: // take assessment
-    case 2: // preview assessment
     case 5: // take assessment via url
+            // Do not trust the showfeedbacknow request parameter on its own: while
+            // actively taking, feedback is only served when Immediate Feedback is configured.
+            // This is the server-side entitlement check behind the (hidden) Feedback link, so a
+            // forged parameter cannot reveal "on specific dates" feedback during a take.
+            if (showfeedbacknow != null && showfeedbacknow.equals("true")
+                && delivery.getFeedbackComponent() != null && delivery.getFeedbackComponent().getShowImmediate()) {
+              delivery.setFeedback("true");
+            }
+            break;
+    case 2: // preview assessment
             if (showfeedbacknow != null && showfeedbacknow.equals("true")) {
               delivery.setFeedback("true");
             }
