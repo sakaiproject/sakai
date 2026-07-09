@@ -10,6 +10,7 @@ import {
   siteStatsFallbackTable,
   useDepthEffect,
 } from "./site-stats-chart-adapter.js";
+import { siteStatsVisuallyHiddenStyles } from "./site-stats-a11y-styles.js";
 import { siteStatsChartTheme, siteStatsChartThemeSignature } from "./site-stats-chart-theme.js";
 
 export class SakaiSiteStatsChart extends SakaiShadowElement {
@@ -22,6 +23,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   static styles = [
     ...SakaiShadowElement.styles,
+    siteStatsVisuallyHiddenStyles,
     css`
       :host {
         display: block;
@@ -73,17 +75,6 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         background: var(--sakai-background-color-2, #f8f9fb);
       }
 
-      .visually-hidden:where(:not(:focus-within, :active)) {
-        position: absolute !important;
-        clip-path: inset(50%) !important;
-        overflow: hidden !important;
-        width: 1px !important;
-        height: 1px !important;
-        margin: -1px !important;
-        padding: 0 !important;
-        border: 0 !important;
-        white-space: nowrap !important;
-      }
     `
   ];
 
@@ -103,6 +94,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   disconnectedCallback() {
 
+    this._unwatchResize();
     this._unwatchThemeChanges();
     this._destroyChart();
     super.disconnectedCallback();
@@ -121,7 +113,9 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     if (!this._i18n) return nothing;
 
     if (!hasSiteStatsChartData(this.chart)) {
-      return html`<div class="empty">${this.chart?.unsupportedReason || this.chart?.emptyMessage || this._i18n.no_data_available}</div>`;
+      return this.renderTableFallback
+        ? html`<div class="empty">${this.chart?.unsupportedReason || this.chart?.emptyMessage || this._i18n.no_data_available}</div>`
+        : nothing;
     }
 
     const chartLabel = this.chart.title || this._i18n.site_statistics_chart;
@@ -134,13 +128,14 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         ${this.chart.title ? html`<figcaption>${this.chart.title}</figcaption>` : nothing}
       </figure>
       ${this.renderTableFallback && this._fallbackTable
-        ? html`<sakai-sitestats-table class="visually-hidden" .table=${this._fallbackTable}></sakai-sitestats-table>`
+        ? html`<sakai-sitestats-table class="visually-hidden" .hideCaption=${true} .table=${this._fallbackTable}></sakai-sitestats-table>`
         : nothing}
     `;
   }
 
   _renderChart() {
 
+    this._unwatchResize();
     this._destroyChart();
     if (!hasSiteStatsChartData(this.chart)) return;
 
@@ -157,6 +152,8 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
       options: siteStatsChartOptions(this.chart, theme, showItemLabels),
       plugins: showItemLabels ? [ this._valueLabelsPlugin(theme) ] : [],
     });
+
+    this._watchResize(canvas.closest(".chart-frame"));
   }
 
   _destroyChart() {
@@ -165,6 +162,31 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
       this._chartInstance.destroy();
       this._chartInstance = undefined;
     }
+  }
+
+  _watchResize(target) {
+
+    if (this._resizeObserver || !target) return;
+
+    this._resizeObserver = new ResizeObserver(() => this._scheduleChartResize());
+    this._resizeObserver.observe(target);
+  }
+
+  _unwatchResize() {
+
+    this._resizeObserver?.disconnect();
+    if (this._resizeHandle) {
+      cancelAnimationFrame(this._resizeHandle);
+    }
+    this._resizeObserver = undefined;
+    this._resizeHandle = undefined;
+  }
+
+  _scheduleChartResize() {
+
+    if (!this._chartInstance) return;
+
+    this._scheduleOncePerFrame("_resizeHandle", () => this._chartInstance?.resize());
   }
 
   _showItemLabels() {
@@ -242,10 +264,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   _scheduleThemeRender() {
 
-    if (this._themeRenderHandle) return;
-
-    this._themeRenderHandle = requestAnimationFrame(() => {
-      this._themeRenderHandle = undefined;
+    this._scheduleOncePerFrame("_themeRenderHandle", () => {
       this.updateComplete.then(() => {
         if (!hasSiteStatsChartData(this.chart)) return;
 
@@ -255,6 +274,16 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
           this._renderChart();
         }
       });
+    });
+  }
+
+  _scheduleOncePerFrame(handleProperty, callback) {
+
+    if (this[handleProperty]) return;
+
+    this[handleProperty] = requestAnimationFrame(() => {
+      this[handleProperty] = undefined;
+      callback();
     });
   }
 

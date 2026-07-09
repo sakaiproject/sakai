@@ -1,6 +1,6 @@
 import "../sakai-sitestats-chart.js";
 import * as i18n from "./i18n.js";
-import { expect, fixture, html, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
 import {
   siteStatsChartData,
@@ -51,7 +51,9 @@ describe("sakai-sitestats-chart tests", () => {
     expect(dataset.borderWidth).to.equal(3);
     expect(el._chartInstance.config.options.layout.padding.top).to.equal(18);
     expect(plugins.some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.true;
-    expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.exist;
+    const fallbackTable = el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden");
+    expect(fallbackTable).to.exist;
+    expect(fallbackTable.hideCaption).to.be.true;
   });
 
   it("uses Sakai theme variables for chart colors", async () => {
@@ -110,5 +112,75 @@ describe("sakai-sitestats-chart tests", () => {
     await waitUntil(() => el._chartInstance);
 
     expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
+  });
+
+  it("suppresses empty chart messaging when a visible table owns the no-data state", async () => {
+
+    const emptyChart = {
+      title: "Visits",
+      type: "bar",
+      datasets: [],
+    };
+
+    const el = await fixture(html`
+      <sakai-sitestats-chart
+          .chart=${emptyChart}
+          .renderTableFallback=${false}>
+      </sakai-sitestats-chart>
+    `);
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    expect(el.shadowRoot.querySelector(".empty")).to.not.exist;
+    expect(el.shadowRoot.querySelector("canvas")).to.not.exist;
+  });
+
+  it("resizes the Chart.js instance when ResizeObserver reports a chart frame size change", async () => {
+
+    const nativeResizeObserver = window.ResizeObserver;
+    const observers = [];
+
+    window.ResizeObserver = class {
+
+      constructor(callback) {
+
+        this.callback = callback;
+        observers.push(this);
+      }
+
+      observe(target) {
+
+        this.target = target;
+      }
+
+      disconnect() {
+
+        this.disconnected = true;
+      }
+    };
+
+    try {
+      const el = await fixture(html`<sakai-sitestats-chart .chart=${chart}></sakai-sitestats-chart>`);
+      await waitUntil(() => el._chartInstance);
+
+      const frame = el.shadowRoot.querySelector(".chart-frame");
+      await waitUntil(() => observers.some(observer => observer.target === frame));
+      const frameObservers = observers.filter(observer => observer.target === frame);
+      const resizeObserver = frameObservers[frameObservers.length - 1];
+      expect(resizeObserver.target).to.equal(frame);
+
+      let resizeCount = 0;
+      el._chartInstance.resize = () => {
+        resizeCount += 1;
+      };
+
+      resizeObserver.callback([{ target: frame }]);
+      resizeObserver.callback([{ target: frame }]);
+      await new Promise(resolve => requestAnimationFrame(resolve));
+
+      expect(resizeCount).to.equal(1);
+    } finally {
+      window.ResizeObserver = nativeResizeObserver;
+    }
   });
 });

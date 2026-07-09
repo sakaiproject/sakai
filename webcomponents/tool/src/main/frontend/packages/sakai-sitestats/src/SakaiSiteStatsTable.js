@@ -1,16 +1,19 @@
 import { html, css, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { siteStatsVisuallyHiddenStyles } from "./site-stats-a11y-styles.js";
 
 export class SakaiSiteStatsTable extends SakaiShadowElement {
 
   static properties = {
     table: { type: Object },
     compact: { type: Boolean },
+    hideCaption: { type: Boolean, attribute: "hide-caption" },
   };
 
   static styles = [
     ...SakaiShadowElement.styles,
+    siteStatsVisuallyHiddenStyles,
     css`
       :host {
         display: block;
@@ -98,7 +101,7 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
     return html`
       <div class="table-wrap">
         <table>
-          ${this.table.caption ? html`<caption>${this.table.caption}</caption>` : nothing}
+          ${this.table.caption ? html`<caption class=${this.hideCaption ? "visually-hidden" : nothing}>${this.table.caption}</caption>` : nothing}
           <thead>
             <tr>
               ${repeat(this.table.columns, column => column.key, column => html`

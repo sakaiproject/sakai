@@ -38,6 +38,7 @@ import org.sakaiproject.webapi.controllers.SiteStatsController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -268,12 +269,8 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	}
 
 	@Configuration
+	@Import(SiteStatsController.class)
 	public static class TestConfiguration {
-
-		@Bean
-		public SiteStatsController siteStatsController() {
-			return new SiteStatsController();
-		}
 
 		@Bean
 		public PortalService portalService() {
