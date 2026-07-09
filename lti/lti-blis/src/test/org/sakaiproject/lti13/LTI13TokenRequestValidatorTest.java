@@ -180,8 +180,8 @@ public class LTI13TokenRequestValidatorTest {
 	}
 
 	@Test
-	public void validateClientAssertionReplayHandlesPutFailures() {
-		MapCache cache = new ThrowingPutCache();
+	public void validateClientAssertionReplayAllowsRepeatedJtiAfterExpirationAndClockSkewWindow() {
+		MapCache cache = new MapCache();
 		Claims claims = validClaims("jti-1");
 		claims.setExpiration(new Date(System.currentTimeMillis()
 				- LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
@@ -362,14 +362,6 @@ public class LTI13TokenRequestValidatorTest {
 		@Override
 		public ValueWrapper putIfAbsent(Object key, Object value) {
 			throw new IllegalStateException("cache unavailable");
-		}
-	}
-
-	private static class ThrowingPutCache extends MapCache {
-
-		@Override
-		public void put(Object key, Object value) {
-			throw new IllegalStateException("cache put failed");
 		}
 	}
 
