@@ -340,18 +340,6 @@
                 </bean>
                 <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
                     <property name="required" value="false"/>
-                    <property name="labelResourceKey" value="max.changes"/>
-                    <property name="descriptionResourceKey" value="max.changes.description"/>
-                    <property name="defaultValue" value="0"/>
-                </bean>
-                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
-                    <property name="required" value="false"/>
-                    <property name="labelResourceKey" value="batch.size"/>
-                    <property name="descriptionResourceKey" value="batch.size.description"/>
-                    <property name="defaultValue" value="500"/>
-                </bean>
-                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
-                    <property name="required" value="false"/>
                     <property name="labelResourceKey" value="log.changes"/>
                     <property name="descriptionResourceKey" value="log.changes.description"/>
                     <property name="defaultValue" value="false"/>

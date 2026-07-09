@@ -52,10 +52,8 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
     private static final String SAMIGO_APP_NAME = "sakai.samigo";
     private static final String APPLY = "apply";
     private static final String SITE_ID = "site.id";
-    private static final String MAX_CHANGES = "max.changes";
-    private static final String BATCH_SIZE = "batch.size";
     private static final String LOG_CHANGES = "log.changes";
-    private static final int DEFAULT_BATCH_SIZE = 500;
+    private static final int BATCH_SIZE = 500;
 
     private SqlService sqlService;
     private GradingService gradingService;
@@ -83,8 +81,6 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
         boolean apply = Boolean.parseBoolean(data.getString(APPLY));
         boolean logChanges = Boolean.parseBoolean(data.getString(LOG_CHANGES));
         String siteId = trimToNull(data.getString(SITE_ID));
-        int maxChanges = getInt(data, MAX_CHANGES, 0);
-        int batchSize = getPositiveInt(data, BATCH_SIZE, DEFAULT_BATCH_SIZE);
 
         Session session = sessionManager.getCurrentSession();
         try {
@@ -98,10 +94,9 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
             int guardedNoop = 0;
             int batches = 0;
             Long lastGradebookItemId = 0L;
-            boolean stop = false;
 
-            while (run && !stop) {
-                BatchResult batch = findNextBatch(siteId, lastGradebookItemId, batchSize);
+            while (run) {
+                BatchResult batch = findNextBatch(siteId, lastGradebookItemId, BATCH_SIZE);
                 if (batch.rows.isEmpty()) {
                     break;
                 }
@@ -135,12 +130,6 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                         continue;
                     }
 
-                    if (maxChanges > 0 && updated >= maxChanges) {
-                        log.info("Stopping Samigo Gradebook title backfill after configured max.changes={}", maxChanges);
-                        stop = true;
-                        break;
-                    }
-
                     if (updateGradebookTitle(row, decodedTitle)) {
                         updated++;
                     } else {
@@ -151,13 +140,13 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                 }
 
                 lastGradebookItemId = batch.lastGradebookItemId;
-                if (batch.rows.size() < batchSize) {
+                if (batch.rows.size() < BATCH_SIZE) {
                     break;
                 }
             }
 
             log.info("Samigo Gradebook title backfill {}: examined={}, candidates={}, updated={}, skippedBlank={}, guardedNoop={}, batches={}, batchSize={}, siteId={}",
-                    apply ? "apply" : "dry-run", examined, needsUpdate, updated, skippedBlank, guardedNoop, batches, batchSize, siteId);
+                    apply ? "apply" : "dry-run", examined, needsUpdate, updated, skippedBlank, guardedNoop, batches, BATCH_SIZE, siteId);
         } finally {
             session.clear();
             run = true;
@@ -251,26 +240,6 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
         } catch (ConflictingAssignmentNameException e) {
             throw new JobExecutionException("Failed to update Samigo Gradebook title for gradebook item id=" + row.gradebookItemId, e);
         }
-    }
-
-    private int getInt(JobDataMap data, String key, int defaultValue) throws JobExecutionException {
-        String value = trimToNull(data.getString(key));
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new JobExecutionException("Invalid integer for " + key + ": " + value, e);
-        }
-    }
-
-    private int getPositiveInt(JobDataMap data, String key, int defaultValue) throws JobExecutionException {
-        int value = getInt(data, key, defaultValue);
-        if (value <= 0) {
-            throw new JobExecutionException(key + " must be greater than zero");
-        }
-        return value;
     }
 
     private String trimToNull(String value) {
