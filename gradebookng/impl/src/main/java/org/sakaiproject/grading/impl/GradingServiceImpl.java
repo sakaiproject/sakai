@@ -4387,13 +4387,12 @@ public class GradingServiceImpl implements GradingService {
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-        // name cannot contain these chars as they are reserved for special columns in import/export
-        GradebookHelper.validateGradeItemName(title);
+        String validatedTitle = validateUpdatedAssignmentTitle(asn, title);
 
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
-        asn.setName(title);
+        asn.setName(validatedTitle);
         asn.setDueDate(dueDate);
         // support selective release
         asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
@@ -4431,20 +4430,31 @@ public class GradingServiceImpl implements GradingService {
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-        GradebookHelper.validateGradeItemName(title);
-
         GradebookAssignment asn = optAsn.get();
         if (!Objects.equals(asn.getName(), currentTitle)) {
             return false;
         }
 
-        asn.setName(title);
+        String validatedTitle = validateUpdatedAssignmentTitle(asn, title);
+        asn.setName(validatedTitle);
         gradingPersistenceManager.saveGradebookAssignment(asn);
 
         log.info("External assessment title updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
 
         updatePlusLineItem(gradebookUid, asn);
         return true;
+    }
+
+    private String validateUpdatedAssignmentTitle(GradebookAssignment assignment, String title) throws ConflictingAssignmentNameException {
+        String validatedTitle = GradebookHelper.validateGradeItemName(title);
+        long conflicts = gradingPersistenceManager.countAssignmentsByNameAndGradebookUid(validatedTitle, assignment.getGradebook().getUid());
+        if (Objects.equals(assignment.getName(), validatedTitle)) {
+            conflicts--;
+        }
+        if (conflicts > 0L) {
+            throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+        }
+        return validatedTitle;
     }
 
     private void updatePlusLineItem(final String gradebookUid, GradebookAssignment asn) {

@@ -238,7 +238,9 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                     row.gradebookItemId, row.gradebookUid, row.publishedAssessmentId);
             return false;
         } catch (ConflictingAssignmentNameException e) {
-            throw new JobExecutionException("Failed to update Samigo Gradebook title for gradebook item id=" + row.gradebookItemId, e);
+            log.warn("Samigo Gradebook title backfill skipped gradebook item id={} in gradebook uid={} for published assessment id={} because decoded title '{}' conflicts with an existing gradebook item title; current title='{}'",
+                    row.gradebookItemId, row.gradebookUid, row.publishedAssessmentId, decodedTitle, row.gradebookTitle);
+            return false;
         }
     }
 
