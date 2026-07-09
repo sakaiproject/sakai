@@ -189,7 +189,18 @@ public class LTI13TokenRequestValidatorTest {
 
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE,
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayRejectsRepeatedJtiWhenPutIfAbsentDoesNotReturnExistingValue() {
+		MapCache cache = new NullReturningPutIfAbsentCache();
+		Claims claims = validClaims("jti-1");
+
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 	}
 
@@ -359,6 +370,15 @@ public class LTI13TokenRequestValidatorTest {
 		@Override
 		public void put(Object key, Object value) {
 			throw new IllegalStateException("cache put failed");
+		}
+	}
+
+	private static class NullReturningPutIfAbsentCache extends MapCache {
+
+		@Override
+		public ValueWrapper putIfAbsent(Object key, Object value) {
+			super.putIfAbsent(key, value);
+			return null;
 		}
 	}
 }

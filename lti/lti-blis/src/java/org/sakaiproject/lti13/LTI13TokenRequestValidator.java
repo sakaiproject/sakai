@@ -137,14 +137,14 @@ final class LTI13TokenRequestValidator {
 			String cacheKey = CACHE_CLIENT_ASSERTION_JTI + clientId + "::" + claims.getId();
 			Long expires = Long.valueOf(claims.getExpiration().getTime() + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS);
 			long now = System.currentTimeMillis();
-			Cache.ValueWrapper existing = cache.putIfAbsent(cacheKey, expires);
+			Cache.ValueWrapper existing = cache.get(cacheKey);
 			if (existing != null) {
 				Object existingExpires = existing.get();
 				if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > now) {
 					return ClientAssertionReplayResult.REPLAYED;
 				}
-				cache.put(cacheKey, expires);
 			}
+			cache.putIfAbsent(cacheKey, expires);
 		} catch (RuntimeException e) {
 			log.warn("Client assertion replay cache operation failed for client {} jti {}", clientId, claims.getId(), e);
 			return ClientAssertionReplayResult.CACHE_UNAVAILABLE;
