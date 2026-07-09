@@ -319,6 +319,47 @@
         </property>
     </bean>
 
+    <bean id="org.sakaiproject.api.app.scheduler.SamigoGradebookTitleBackfillJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.samigo.SamigoGradebookTitleBackfillJob"/>
+        <constructor-arg value="Samigo Gradebook title backfill"/>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.samigo.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="apply"/>
+                    <property name="descriptionResourceKey" value="apply.description"/>
+                    <property name="defaultValue" value="false"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="site.id"/>
+                    <property name="descriptionResourceKey" value="site.id.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="max.changes"/>
+                    <property name="descriptionResourceKey" value="max.changes.description"/>
+                    <property name="defaultValue" value="0"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="batch.size"/>
+                    <property name="descriptionResourceKey" value="batch.size.description"/>
+                    <property name="defaultValue" value="500"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="log.changes"/>
+                    <property name="descriptionResourceKey" value="log.changes.description"/>
+                    <property name="defaultValue" value="false"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
     <!-- global quartz scheduler proxy bean -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSiteRemovalJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
@@ -404,6 +445,7 @@
                 </bean>
                 <ref bean="org.sakaiproject.api.app.scheduler.BackFillRoleJob"/>
                 <ref bean="org.sakaiproject.api.app.scheduler.BackFillToolJob"/>
+                <ref bean="org.sakaiproject.api.app.scheduler.SamigoGradebookTitleBackfillJob"/>
             </list>
         </property>
     </bean>

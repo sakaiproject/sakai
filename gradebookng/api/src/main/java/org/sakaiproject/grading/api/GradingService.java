@@ -768,6 +768,20 @@ public interface GradingService extends EntityProducer {
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
 
     /**
+     * Update only the title of an external assessment, preserving the rest of the Gradebook item.
+     *
+     * @param gradebookUid
+     * @param externalId
+     * @param currentTitle the title expected on the Gradebook item before updating
+     * @param title
+     * @return true when the title was updated; false when the current title no longer matches
+     * @throws AssessmentNotFoundException
+     * @throws ConflictingAssignmentNameException
+     */
+    public boolean updateExternalAssessmentTitle(String gradebookUid, String externalId, String currentTitle, String title)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException;
+
+    /**
      * Remove the assessment reference from the gradebook.
      *
      * @param gradebookUid

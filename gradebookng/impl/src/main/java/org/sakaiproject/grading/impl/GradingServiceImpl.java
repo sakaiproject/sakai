@@ -4414,7 +4414,40 @@ public class GradingServiceImpl implements GradingService {
 
         log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
 
-        // Check if this is a plus course
+        updatePlusLineItem(gradebookUid, asn);
+    }
+
+    @Override
+    public boolean updateExternalAssessmentTitle(final String gradebookUid, final String externalId, final String currentTitle, final String title)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException {
+        final Optional<GradebookAssignment> optAsn = getDbExternalAssignment(gradebookUid, externalId);
+
+        if (optAsn.isEmpty()) {
+            throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+        }
+
+        if (StringUtils.trimToNull(externalId) == null ||
+                StringUtils.trimToNull(title) == null) {
+            throw new RuntimeException("ExternalId, and title must not be empty");
+        }
+
+        GradebookHelper.validateGradeItemName(title);
+
+        GradebookAssignment asn = optAsn.get();
+        if (!Objects.equals(asn.getName(), currentTitle)) {
+            return false;
+        }
+
+        asn.setName(title);
+        gradingPersistenceManager.saveGradebookAssignment(asn);
+
+        log.info("External assessment title updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
+
+        updatePlusLineItem(gradebookUid, asn);
+        return true;
+    }
+
+    private void updatePlusLineItem(final String gradebookUid, GradebookAssignment asn) {
         if ( plusService.enabled() && isCurrentGbSite(gradebookUid)) {
             try {
                 final Site site = this.siteService.getSite(gradebookUid);
