@@ -2640,7 +2640,7 @@ public class DeliveryActionListener
     switch (action){
     case 1: // take assessment
     case 5: // take assessment via url
-            // SAK-34476 do not trust the showfeedbacknow request parameter on its own: while
+            // Do not trust the showfeedbacknow request parameter on its own: while
             // actively taking, feedback is only served when Immediate Feedback is configured.
             // This is the server-side entitlement check behind the (hidden) Feedback link, so a
             // forged parameter cannot reveal "on specific dates" feedback during a take.
