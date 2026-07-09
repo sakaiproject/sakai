@@ -91,6 +91,7 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
             int needsUpdate = 0;
             int updated = 0;
             int skippedBlank = 0;
+            int skippedConflict = 0;
             int guardedNoop = 0;
             int batches = 0;
             Long lastGradebookItemId = 0L;
@@ -130,12 +131,18 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                         continue;
                     }
 
-                    if (updateGradebookTitle(row, decodedTitle)) {
-                        updated++;
-                    } else {
-                        guardedNoop++;
-                        log.warn("Samigo Gradebook title backfill skipped gradebook item id={} because the current title no longer matched the scanned title",
-                                row.gradebookItemId);
+                    switch (updateGradebookTitle(row, decodedTitle)) {
+                        case UPDATED:
+                            updated++;
+                            break;
+                        case CONFLICT:
+                            skippedConflict++;
+                            break;
+                        case GUARDED_NOOP:
+                            guardedNoop++;
+                            log.warn("Samigo Gradebook title backfill skipped gradebook item id={} because the current title no longer matched the scanned title",
+                                    row.gradebookItemId);
+                            break;
                     }
                 }
 
@@ -145,8 +152,8 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                 }
             }
 
-            log.info("Samigo Gradebook title backfill {}: examined={}, candidates={}, updated={}, skippedBlank={}, guardedNoop={}, batches={}, batchSize={}, siteId={}",
-                    apply ? "apply" : "dry-run", examined, needsUpdate, updated, skippedBlank, guardedNoop, batches, BATCH_SIZE, siteId);
+            log.info("Samigo Gradebook title backfill {}: examined={}, candidates={}, updated={}, skippedBlank={}, skippedConflict={}, guardedNoop={}, batches={}, batchSize={}, siteId={}",
+                    apply ? "apply" : "dry-run", examined, needsUpdate, updated, skippedBlank, skippedConflict, guardedNoop, batches, BATCH_SIZE, siteId);
         } finally {
             session.clear();
             run = true;
@@ -226,21 +233,22 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
         return sql.toString();
     }
 
-    private boolean updateGradebookTitle(TitleRow row, String decodedTitle) throws JobExecutionException {
+    private UpdateGradebookTitleResult updateGradebookTitle(TitleRow row, String decodedTitle) throws JobExecutionException {
         try {
-            return gradingService.updateExternalAssessmentTitle(
+            boolean updated = gradingService.updateExternalAssessmentTitle(
                     row.gradebookUid,
                     row.publishedAssessmentId,
                     row.gradebookTitle,
                     decodedTitle);
+            return updated ? UpdateGradebookTitleResult.UPDATED : UpdateGradebookTitleResult.GUARDED_NOOP;
         } catch (AssessmentNotFoundException e) {
             log.warn("Samigo Gradebook title backfill could not find gradebook item id={} in gradebook uid={} for published assessment id={}",
                     row.gradebookItemId, row.gradebookUid, row.publishedAssessmentId);
-            return false;
+            return UpdateGradebookTitleResult.GUARDED_NOOP;
         } catch (ConflictingAssignmentNameException e) {
             log.warn("Samigo Gradebook title backfill skipped gradebook item id={} in gradebook uid={} for published assessment id={} because decoded title '{}' conflicts with an existing gradebook item title; current title='{}'",
                     row.gradebookItemId, row.gradebookUid, row.publishedAssessmentId, decodedTitle, row.gradebookTitle);
-            return false;
+            return UpdateGradebookTitleResult.CONFLICT;
         }
     }
 
@@ -269,6 +277,12 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
             this.rows = rows;
             this.lastGradebookItemId = lastGradebookItemId;
         }
+    }
+
+    private enum UpdateGradebookTitleResult {
+        UPDATED,
+        GUARDED_NOOP,
+        CONFLICT
     }
 
     private static class TitleRow {
