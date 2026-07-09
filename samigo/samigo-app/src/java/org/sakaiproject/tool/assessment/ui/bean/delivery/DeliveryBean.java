@@ -2035,8 +2035,8 @@ public class DeliveryBean implements Serializable {
       if ("1".equals(getNavigation()) && getPageContents().getIsNoParts()) {
           return false;
       }
-      // SAK-34476 while a student is actively taking the assessment, only Immediate Feedback
-      // shows feedback mid-take. "On specific dates" feedback is for review after submission, so
+      // While a student is actively taking the assessment, only Immediate Feedback shows
+      // feedback mid-take. "On specific dates" feedback is for review after submission, so
       // feedbackOnDate must not surface the Feedback link during a take (also covers post-deadline
       // retakes/resubmits, where feedbackOnDate has since flipped true).
       if (takingAssessment) {
