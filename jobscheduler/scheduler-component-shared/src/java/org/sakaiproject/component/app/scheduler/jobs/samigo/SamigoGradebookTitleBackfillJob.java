@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.quartz.InterruptableJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -37,6 +36,7 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -58,6 +58,7 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
     private SqlService sqlService;
     private GradingService gradingService;
     private SessionManager sessionManager;
+    private FormattedText formattedText;
     private volatile boolean run = true;
 
     @Autowired
@@ -73,6 +74,11 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
     @Autowired
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    @Autowired
+    public void setFormattedText(FormattedText formattedText) {
+        this.formattedText = formattedText;
     }
 
     @Override
@@ -109,7 +115,7 @@ public class SamigoGradebookTitleBackfillJob implements InterruptableJob {
                     }
                     examined++;
 
-                    String decodedTitle = StringEscapeUtils.unescapeHtml4(row.samigoTitle);
+                    String decodedTitle = formattedText.unEscapeHtml(row.samigoTitle);
                     if (isBlank(decodedTitle)) {
                         skippedBlank++;
                         log.warn("Skipping Samigo Gradebook title backfill for gradebook item id={} in gradebook uid={} because decoded title is blank",
