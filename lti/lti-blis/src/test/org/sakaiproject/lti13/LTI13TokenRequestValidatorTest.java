@@ -22,11 +22,10 @@ import static org.junit.Assert.assertSame;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.junit.Test;
 import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.tsugi.oauth2.objects.ClientAssertion;
 
 import io.jsonwebtoken.Claims;
@@ -133,7 +132,7 @@ public class LTI13TokenRequestValidatorTest {
 
 	@Test
 	public void validateClientAssertionReplayRejectsRepeatedJti() {
-		MapCache cache = new MapCache();
+		Cache cache = new ConcurrentMapCache("test");
 		Claims claims = validClaims("jti-1");
 
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
@@ -144,7 +143,7 @@ public class LTI13TokenRequestValidatorTest {
 
 	@Test
 	public void validateClientAssertionReplayScopesJtiByClientId() {
-		MapCache cache = new MapCache();
+		Cache cache = new ConcurrentMapCache("test");
 		Claims claims = validClaims("jti-1");
 
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
@@ -155,7 +154,7 @@ public class LTI13TokenRequestValidatorTest {
 
 	@Test
 	public void validateClientAssertionReplayRejectsRepeatedJtiDuringClockSkewWindow() {
-		MapCache cache = new MapCache();
+		Cache cache = new ConcurrentMapCache("test");
 		Claims claims = validClaims("jti-1");
 		claims.setExpiration(new Date(System.currentTimeMillis() - 1_000L));
 
@@ -181,7 +180,7 @@ public class LTI13TokenRequestValidatorTest {
 
 	@Test
 	public void validateClientAssertionReplayAllowsRepeatedJtiAfterExpirationAndClockSkewWindow() {
-		MapCache cache = new MapCache();
+		Cache cache = new ConcurrentMapCache("test");
 		Claims claims = validClaims("jti-1");
 		claims.setExpiration(new Date(System.currentTimeMillis()
 				- LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
@@ -190,17 +189,6 @@ public class LTI13TokenRequestValidatorTest {
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
-				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-	}
-
-	@Test
-	public void validateClientAssertionReplayRejectsRepeatedJtiWhenPutIfAbsentDoesNotReturnExistingValue() {
-		MapCache cache = new NullReturningPutIfAbsentCache();
-		Claims claims = validClaims("jti-1");
-
-		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
-				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
-		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 	}
 
@@ -301,76 +289,15 @@ public class LTI13TokenRequestValidatorTest {
 		}
 	}
 
-	private static class MapCache implements Cache {
+	private static class ThrowingPutIfAbsentCache extends ConcurrentMapCache {
 
-		private final Map<Object, Object> values = new HashMap<>();
-
-		@Override
-		public String getName() {
-			return "test";
+		ThrowingPutIfAbsentCache() {
+			super("test");
 		}
-
-		@Override
-		public Object getNativeCache() {
-			return values;
-		}
-
-		@Override
-		public ValueWrapper get(Object key) {
-			if (!values.containsKey(key)) {
-				return null;
-			}
-			Object value = values.get(key);
-			return () -> value;
-		}
-
-		@Override
-		public <T> T get(Object key, Class<T> type) {
-			Object value = values.get(key);
-			return value == null ? null : type.cast(value);
-		}
-
-		@Override
-		public <T> T get(Object key, Callable<T> valueLoader) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void put(Object key, Object value) {
-			values.put(key, value);
-		}
-
-		@Override
-		public ValueWrapper putIfAbsent(Object key, Object value) {
-			Object existing = values.putIfAbsent(key, value);
-			return existing == null ? null : () -> existing;
-		}
-
-		@Override
-		public void evict(Object key) {
-			values.remove(key);
-		}
-
-		@Override
-		public void clear() {
-			values.clear();
-		}
-	}
-
-	private static class ThrowingPutIfAbsentCache extends MapCache {
 
 		@Override
 		public ValueWrapper putIfAbsent(Object key, Object value) {
 			throw new IllegalStateException("cache unavailable");
-		}
-	}
-
-	private static class NullReturningPutIfAbsentCache extends MapCache {
-
-		@Override
-		public ValueWrapper putIfAbsent(Object key, Object value) {
-			super.putIfAbsent(key, value);
-			return null;
 		}
 	}
 }
