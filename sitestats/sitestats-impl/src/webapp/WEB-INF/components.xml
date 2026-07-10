@@ -314,7 +314,7 @@
 		  factory-method="create"/>
 
 	<!-- SiteStatsReportAccess _____________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess">
 		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
@@ -332,7 +332,7 @@
 		<property name="serverWideReportCatalog" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
 		<property name="serverWideReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
-		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"/>
 		<property name="siteStatsReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper"/>
 	</bean>
 
@@ -342,7 +342,7 @@
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
-		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"/>
 	</bean>
 
 

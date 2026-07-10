@@ -8,12 +8,12 @@
 		class="org.sakaiproject.sitestats.tool.facade.SakaiFacadeImpl">
 		<!-- SiteStats services -->
         <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
-        <property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
         <property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService" />
         <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
 	        <property name="siteStatsToolEventsService" ref="org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService" />
 	        <property name="siteStatsViewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsViewService" />
 	        <property name="siteStatsReportExportService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportExportService" />
+	        <property name="siteStatsReportAccessService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService" />
 	        <property name="siteStatsReportPreviewService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService" />
         <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager" />
         <property name="serverWideReportManager" ref="org.sakaiproject.sitestats.api.ServerWideReportManager" />

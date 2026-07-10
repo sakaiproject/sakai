@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -8,8 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
@@ -21,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 public class SiteStatsControllerTest {
 
     private SakaiFacade facade;
-    private StatsAuthz statsAuthz;
+    private SiteStatsReportAccessService reportAccessService;
     private Tool tool;
     private MockMvc mockMvc;
 
@@ -31,12 +32,12 @@ public class SiteStatsControllerTest {
         ToolManager toolManager = mock(ToolManager.class);
         tool = mock(Tool.class);
         Placement placement = mock(Placement.class);
-        statsAuthz = mock(StatsAuthz.class);
+        reportAccessService = mock(SiteStatsReportAccessService.class);
         when(facade.getToolManager()).thenReturn(toolManager);
         when(toolManager.getCurrentTool()).thenReturn(tool);
         when(toolManager.getCurrentPlacement()).thenReturn(placement);
         when(placement.getContext()).thenReturn("site1");
-        when(facade.getStatsAuthz()).thenReturn(statsAuthz);
+        when(facade.getSiteStatsReportAccessService()).thenReturn(reportAccessService);
         SiteStatsToolService toolService = new SiteStatsToolService(facade);
         SiteStatsController controller = new SiteStatsController(toolService, facade, new StaticMessageSource());
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -61,7 +62,8 @@ public class SiteStatsControllerTest {
     @Test
     public void unauthorizedDirectRouteReturnsForbidden() throws Exception {
         when(tool.getId()).thenReturn(StatsManager.SITESTATS_TOOLID);
-        when(statsAuthz.isUserAbleToViewSiteStats("site1")).thenReturn(false);
+        doThrow(new SecurityException("Not authorized"))
+                .when(reportAccessService).assertCanViewAll("site1");
         mockMvc.perform(get("/reports").param("siteId", "site1"))
                 .andExpect(status().isForbidden());
     }

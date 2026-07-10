@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -57,7 +58,7 @@ public class SiteStatsToolService {
     }
 
     public String currentUserId() {
-        return facade.getStatsAuthz().getCurrentSessionUserId();
+        return facade.getSiteStatsReportAccessService().currentUserId();
     }
 
     public boolean isAdminTool() {
@@ -65,35 +66,39 @@ public class SiteStatsToolService {
     }
 
     public SiteStatsOverview overview(String requestedSiteId) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = viewSite(requestedSiteId);
         SiteStatsOverview overview = facade.getSiteStatsViewService().getOverview(siteId);
         facade.getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
         return overview;
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
-        return facade.getSiteStatsViewService().getReports(authorizedSite(requestedSiteId, false));
+        return facade.getSiteStatsViewService().getReports(reportSite(requestedSiteId));
     }
 
     public ReportDef reportDefinition(String requestedSiteId, long reportId) {
-        String siteId = authorizedSite(requestedSiteId, false);
-        ReportDef report = facade.getReportManager().getReportDefinition(reportId);
-        if (report == null || (report.getSiteId() != null && !siteId.equals(report.getSiteId()))) {
-            throw new IllegalArgumentException("Unknown report");
-        }
+        String siteId = reportSite(requestedSiteId);
+        ReportDef report = facade.getSiteStatsReportAccessService().persistedReportDefinition(siteId, reportId);
+        return new ReportDef(report, siteId);
+    }
+
+    public ReportDef editableReportDefinition(String requestedSiteId, long reportId) {
+        String siteId = reportSite(requestedSiteId);
+        ReportDef report = facade.getSiteStatsReportAccessService().persistedSiteReportDefinition(siteId, reportId);
         return new ReportDef(report, siteId);
     }
 
     public List<ReportDef> reportTemplates(String requestedSiteId) {
-        authorizedSite(requestedSiteId, false);
+        reportSite(requestedSiteId);
         return facade.getReportManager().getReportDefinitions(null, true, false);
     }
 
     public ReportDef buildReport(String requestedSiteId, ReportForm form) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = reportSite(requestedSiteId);
+        assertReportTypeAvailable(siteId, form);
         ReportDef report;
         if (form.getId() > 0) {
-            report = reportDefinition(siteId, form.getId());
+            report = editableReportDefinition(siteId, form.getId());
         } else if (form.getTemplateId() > 0) {
             report = reportDefinition(siteId, form.getTemplateId());
             report.setId(0);
@@ -113,7 +118,34 @@ public class SiteStatsToolService {
     }
 
     public ReportEditorOptions reportEditorOptions(String requestedSiteId) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = reportSite(requestedSiteId);
+        Site site;
+        try {
+            site = facade.getSiteService().getSite(siteId);
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("Unknown site", e);
+        }
+
+        boolean visitsAvailable = facade.getStatsManager().getEnableSiteVisits()
+                && facade.getStatsManager().getVisitsInfoAvailable();
+        boolean activityAvailable = facade.getStatsManager().isEnableSiteActivity();
+        boolean resourcesAvailable = facade.getStatsManager().isEnableResourceStats()
+                && site.getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null;
+        boolean presencesAvailable = facade.getStatsManager().getEnableSitePresences();
+        List<String> availableReportTypes = new ArrayList<String>();
+        if (visitsAvailable) {
+            availableReportTypes.add(ReportManager.WHAT_VISITS);
+        }
+        if (activityAvailable) {
+            availableReportTypes.add(ReportManager.WHAT_EVENTS);
+        }
+        if (resourcesAvailable) {
+            availableReportTypes.add(ReportManager.WHAT_RESOURCES);
+        }
+        if (presencesAvailable) {
+            availableReportTypes.add(ReportManager.WHAT_PRESENCES);
+        }
+
         PrefsData preferences = facade.getStatsManager().getPreferences(siteId, true);
         List<NamedOption> tools = new ArrayList<NamedOption>();
         List<NamedOption> events = new ArrayList<NamedOption>();
@@ -131,27 +163,58 @@ public class SiteStatsToolService {
         tools.sort(byLabel);
         events.sort(byLabel);
 
+        List<NamedOption> groups = site.getGroups().stream()
+                .map(group -> new NamedOption(group.getId(), group.getTitle()))
+                .sorted(byLabel).collect(Collectors.toList());
+        List<NamedOption> users = site.getUsers().stream()
+                .map(userId -> new NamedOption(userId, displayName(userId)))
+                .sorted(byLabel).collect(Collectors.toList());
+        Set<String> roleIds = new HashSet<String>();
         try {
-            Site site = facade.getSiteService().getSite(siteId);
-            List<NamedOption> groups = site.getGroups().stream()
-                    .map(group -> new NamedOption(group.getId(), group.getTitle()))
-                    .sorted(byLabel).collect(Collectors.toList());
-            List<NamedOption> users = site.getUsers().stream()
-                    .map(userId -> new NamedOption(userId, displayName(userId)))
-                    .sorted(byLabel).collect(Collectors.toList());
-            Set<String> roleIds = new HashSet<String>();
-            try {
-                facade.getAuthzGroupService().getAuthzGroup(facade.getSiteService().siteReference(siteId)).getRoles()
-                        .forEach(role -> roleIds.add(role.getId()));
-            } catch (GroupNotDefinedException e) {
-                throw new IllegalArgumentException("The site authorization group is unavailable", e);
-            }
-            List<NamedOption> roles = roleIds.stream().map(role -> new NamedOption(role, role))
-                    .sorted(byLabel).collect(Collectors.toList());
-            return new ReportEditorOptions(tools, events, roles, groups, users);
+            facade.getAuthzGroupService().getAuthzGroup(facade.getSiteService().siteReference(siteId)).getRoles()
+                    .forEach(role -> roleIds.add(role.getId()));
+        } catch (GroupNotDefinedException e) {
+            throw new IllegalArgumentException("The site authorization group is unavailable", e);
+        }
+        List<NamedOption> roles = roleIds.stream().map(role -> new NamedOption(role, role))
+                .sorted(byLabel).collect(Collectors.toList());
+        return new ReportEditorOptions(tools, events, roles, groups, users, availableReportTypes,
+                visitsAvailable, activityAvailable, resourcesAvailable, presencesAvailable);
+    }
+
+    public void prepareReportForm(ReportForm form, ReportEditorOptions options) {
+        if (!options.getAvailableReportTypes().contains(form.getWhat())
+                && !options.getAvailableReportTypes().isEmpty()) {
+            form.setWhat(options.getAvailableReportTypes().get(0));
+        }
+    }
+
+    public String validateReport(String requestedSiteId, ReportForm form) {
+        String siteId = reportSite(requestedSiteId);
+        if (!reportEditorOptions(siteId).getAvailableReportTypes().contains(form.getWhat())) {
+            return "sitestats_report_type_unavailable";
+        }
+        Site site;
+        try {
+            site = facade.getSiteService().getSite(siteId);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Unknown site", e);
         }
+        if (ReportManager.WHO_ROLE.equals(form.getWho())
+                && (StringUtils.isBlank(form.getWhoRoleId())
+                        || site.getUsersHasRole(form.getWhoRoleId()).isEmpty())) {
+            return "report_err_emptyrole";
+        }
+        if (ReportManager.WHO_GROUPS.equals(form.getWho()) && StringUtils.isNotBlank(form.getWhoGroupId())) {
+            Group group = site.getGroup(form.getWhoGroupId());
+            if (group == null) {
+                return "report_err_nogroup";
+            }
+            if (group.getUsers().isEmpty()) {
+                return "report_err_emptygroup";
+            }
+        }
+        return validateReport(form);
     }
 
     public String validateReport(ReportForm form) {
@@ -168,6 +231,11 @@ public class SiteStatsToolService {
                 return "report_err_noevents";
             }
         }
+        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat()) && form.isWhatLimitedResourceIds()
+                && Arrays.stream(StringUtils.defaultString(form.getWhatResourceIds()).split("[\\r\\n]+"))
+                        .noneMatch(StringUtils::isNotBlank)) {
+            return "report_err_noresources";
+        }
         if (ReportManager.WHEN_CUSTOM.equals(form.getWhen())
                 && (form.getWhenFrom() == null || form.getWhenTo() == null || form.getWhenFrom().isAfter(form.getWhenTo()))) {
             return "report_err_nocustomdates";
@@ -180,6 +248,15 @@ public class SiteStatsToolService {
         }
         if (form.getHowTotalsBy().isEmpty()) {
             return "reportParams.howTotalsBy.Required";
+        }
+        if (ReportManager.WHAT_EVENTS.equals(form.getWhat())
+                && (form.getHowTotalsBy().contains(StatsManager.T_RESOURCE)
+                        || form.getHowTotalsBy().contains(StatsManager.T_RESOURCE_ACTION))) {
+            return "report_err_totalsbyevent";
+        }
+        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat())
+                && form.getHowTotalsBy().contains(StatsManager.T_EVENT)) {
+            return "report_err_totalsbyresource";
         }
         if (form.isHowLimitedMaxResults() && form.getHowMaxResults() <= 0) {
             return "reportParams.howMaxResults.IConverter.int";
@@ -210,8 +287,11 @@ public class SiteStatsToolService {
         params.setWhoGroupId(form.getWhoGroupId());
         params.setWhoUserIds(new ArrayList<String>(form.getWhoUserIds()));
         params.setHowTotalsBy(new ArrayList<String>(form.getHowTotalsBy()));
-        params.setHowSort(form.isHowSort());
-        params.setHowSortBy(form.getHowSortBy());
+        boolean validSort = !form.isHowSort() || ReportManager.HOW_SORT_DEFAULT.equals(form.getHowSortBy())
+                || StatsManager.T_TOTAL.equals(form.getHowSortBy())
+                || form.getHowTotalsBy().contains(form.getHowSortBy());
+        params.setHowSort(form.isHowSort() && validSort);
+        params.setHowSortBy(validSort ? form.getHowSortBy() : ReportManager.HOW_SORT_DEFAULT);
         params.setHowSortAscending(form.isHowSortAscending());
         params.setHowLimitedMaxResults(form.isHowLimitedMaxResults());
         params.setHowMaxResults(form.getHowMaxResults());
@@ -221,6 +301,12 @@ public class SiteStatsToolService {
         params.setHowChartCategorySource(form.getHowChartCategorySource());
         params.setHowChartSeriesSource(form.getHowChartSeriesSource());
         params.setHowChartSeriesPeriod(form.getHowChartSeriesPeriod());
+    }
+
+    private void assertReportTypeAvailable(String siteId, ReportForm form) {
+        if (!reportEditorOptions(siteId).getAvailableReportTypes().contains(form.getWhat())) {
+            throw new IllegalArgumentException("The selected report type is unavailable for this site");
+        }
     }
 
     public long saveReport(String requestedSiteId, ReportForm form) {
@@ -237,18 +323,18 @@ public class SiteStatsToolService {
     }
 
     public void deleteReport(String requestedSiteId, long reportId) {
-        ReportDef report = reportDefinition(requestedSiteId, reportId);
-        if (report.getSiteId() == null || !facade.getReportManager().removeReportDefinition(report)) {
+        ReportDef report = editableReportDefinition(requestedSiteId, reportId);
+        if (!facade.getReportManager().removeReportDefinition(report)) {
             throw new IllegalStateException("The report could not be deleted");
         }
     }
 
     public PrefsData preferences(String requestedSiteId) {
-        return facade.getStatsManager().getPreferences(authorizedSite(requestedSiteId, false), true);
+        return facade.getStatsManager().getPreferences(viewSite(requestedSiteId), true);
     }
 
     public void savePreferences(String requestedSiteId, PreferencesForm form) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = viewSite(requestedSiteId);
         PrefsData preferences = facade.getStatsManager().getPreferences(siteId, true);
         preferences.setListToolEventsOnlyAvailableInSite(form.isListToolEventsOnlyAvailableInSite());
         preferences.setShowOwnStatisticsToStudents(form.isShowOwnStatisticsToStudents());
@@ -271,7 +357,7 @@ public class SiteStatsToolService {
     }
 
     public UserActivityResult userActivity(String requestedSiteId, UserActivityForm form) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = viewSite(requestedSiteId);
         List<UserOption> users = facade.getDetailedEventsManager().getUsersForTracking(siteId).stream()
                 .map(userId -> new UserOption(userId, displayName(userId)))
                 .sorted(Comparator.comparing(UserOption::getDisplayName, String.CASE_INSENSITIVE_ORDER))
@@ -300,7 +386,7 @@ public class SiteStatsToolService {
     }
 
     public EventDetailsResult eventDetails(String requestedSiteId, long eventId) {
-        String siteId = authorizedSite(requestedSiteId, false);
+        String siteId = viewSite(requestedSiteId);
         DetailedEvent event = facade.getDetailedEventsManager().getDetailedEventById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown event"));
         if (!siteId.equals(event.getSiteId())) {
@@ -313,7 +399,7 @@ public class SiteStatsToolService {
     }
 
     public List<Site> adminSites(String search, String type, int page) {
-        authorizedSite(currentSiteId(), true);
+        adminSite(currentSiteId());
         Object siteType = StringUtils.isBlank(type) || "all".equals(type) ? null : type;
         int first = (Math.max(1, page) - 1) * PAGE_SIZE + 1;
         PagingPosition paging = new PagingPosition(first, first + PAGE_SIZE - 1);
@@ -322,12 +408,12 @@ public class SiteStatsToolService {
     }
 
     public List<String> siteTypes() {
-        authorizedSite(currentSiteId(), true);
+        adminSite(currentSiteId());
         return facade.getSiteService().getSiteTypes();
     }
 
     public JobRun latestJobRun() {
-        authorizedSite(currentSiteId(), true);
+        adminSite(currentSiteId());
         try {
             return facade.getStatsUpdateManager().getLatestJobRun();
         } catch (Exception e) {
@@ -335,19 +421,38 @@ public class SiteStatsToolService {
         }
     }
 
-    public String authorizedSite(String requestedSiteId, boolean adminRequired) {
+    public String viewSite(String requestedSiteId) {
+        return authorizedSite(requestedSiteId, AccessLevel.VIEW);
+    }
+
+    public String reportSite(String requestedSiteId) {
+        return authorizedSite(requestedSiteId, AccessLevel.ALL);
+    }
+
+    public String adminSite(String requestedSiteId) {
+        return authorizedSite(requestedSiteId, AccessLevel.ADMIN);
+    }
+
+    private String authorizedSite(String requestedSiteId, AccessLevel accessLevel) {
         String siteId = StringUtils.defaultIfBlank(requestedSiteId, currentSiteId());
-        boolean allowed = adminRequired
-                ? facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(currentSiteId())
-                : facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
-        if (!allowed) {
-            throw new SecurityException("Not authorized to view SiteStats");
+        String currentSiteId = currentSiteId();
+        if (!siteId.equals(currentSiteId)) {
+            facade.getSiteStatsReportAccessService().assertCanViewAdmin(currentSiteId);
         }
-        if (!siteId.equals(currentSiteId())
-                && !facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(currentSiteId())) {
-            throw new SecurityException("Not authorized for the requested site");
+        if (AccessLevel.ADMIN == accessLevel) {
+            facade.getSiteStatsReportAccessService().assertCanViewAdmin(siteId);
+        } else if (AccessLevel.ALL == accessLevel) {
+            facade.getSiteStatsReportAccessService().assertCanViewAll(siteId);
+        } else {
+            facade.getSiteStatsReportAccessService().assertCanView(siteId);
         }
         return siteId;
+    }
+
+    private enum AccessLevel {
+        VIEW,
+        ALL,
+        ADMIN
     }
 
     private String displayName(String userId) {
@@ -374,6 +479,11 @@ public class SiteStatsToolService {
         private final List<NamedOption> roles;
         private final List<NamedOption> groups;
         private final List<NamedOption> users;
+        private final List<String> availableReportTypes;
+        private final boolean visitsAvailable;
+        private final boolean activityAvailable;
+        private final boolean resourcesAvailable;
+        private final boolean presencesAvailable;
     }
 
     @Getter

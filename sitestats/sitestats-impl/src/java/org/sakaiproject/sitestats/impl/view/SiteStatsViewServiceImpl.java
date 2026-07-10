@@ -86,9 +86,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 	@Override
 	public SiteStatsReportView getReport(String siteId, long reportId, SiteStatsReportRequest request) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
-
-		ReportDef reportDef = siteStatsReportAccess.persistedReportDefinition(reportId);
+		ReportDef reportDef = siteStatsReportAccess.persistedReportDefinition(siteId, reportId);
 		ReportDef safeReportDef = new ReportDef(reportDef, siteId);
 		PrefsData prefsData = statsManager.getPreferences(siteId, false);
 		Report report = reportManager.getReport(safeReportDef, prefsData.isListToolEventsOnlyAvailableInSite(), null, true);
@@ -102,8 +100,6 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 	@Override
 	public SiteStatsReportView getPreviewReport(String siteId, String previewId, SiteStatsReportRequest request) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
-
 		ReportDef reportDef = siteStatsReportAccess.previewReportDefinition(siteId, previewId);
 		ReportDef safeReportDef = new ReportDef(reportDef, siteId);
 		PrefsData prefsData = statsManager.getPreferences(siteId, false);

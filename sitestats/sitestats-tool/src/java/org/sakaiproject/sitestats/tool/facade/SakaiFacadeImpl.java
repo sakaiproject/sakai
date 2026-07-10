@@ -25,7 +25,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.ServerWideReportManager;
-import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -33,6 +32,7 @@ import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -44,12 +44,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 	// SiteStats services
 	@Getter @Setter private transient StatsManager				statsManager;
-	@Getter @Setter private transient StatsAuthz				statsAuthz;
 	@Getter @Setter private transient EventRegistryService		eventRegistryService;
 	@Getter @Setter private transient ReportManager				reportManager;
 	@Getter @Setter private transient SiteStatsToolEventsService	siteStatsToolEventsService;
 	@Getter @Setter private transient SiteStatsViewService		siteStatsViewService;
 	@Getter @Setter private transient SiteStatsReportExportService	siteStatsReportExportService;
+	@Getter @Setter private transient SiteStatsReportAccessService	siteStatsReportAccessService;
 	@Getter @Setter private transient SiteStatsReportPreviewService	siteStatsReportPreviewService;
 	@Getter @Setter private transient StatsUpdateManager		statsUpdateManager;
 	@Getter @Setter private transient ServerWideReportManager	serverWideReportManager;

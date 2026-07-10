@@ -22,7 +22,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.ServerWideReportManager;
-import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -30,6 +29,7 @@ import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -43,12 +43,12 @@ public interface SakaiFacade {
 	// SiteStats services
 	
 	public StatsManager getStatsManager();
-	public StatsAuthz getStatsAuthz();
 	public EventRegistryService getEventRegistryService();
 	public ReportManager getReportManager();
 	public SiteStatsToolEventsService getSiteStatsToolEventsService();
 	public SiteStatsViewService getSiteStatsViewService();
 	public SiteStatsReportExportService getSiteStatsReportExportService();
+	public SiteStatsReportAccessService getSiteStatsReportAccessService();
 	public SiteStatsReportPreviewService getSiteStatsReportPreviewService();
 	public StatsUpdateManager getStatsUpdateManager();
 	public ServerWideReportManager getServerWideReportManager();

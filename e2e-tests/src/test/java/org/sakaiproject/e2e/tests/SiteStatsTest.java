@@ -75,6 +75,38 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Add report$", Pattern.CASE_INSENSITIVE))).first();
         addReportLink.click(new Locator.ClickOptions().setForce(true));
 
+        Locator activity = page.getByLabel("Activity:");
+        assertThat(activity.locator("option[value='what-resources']")).hasCount(0);
+        assertThat(page.locator("#event-options")).isHidden();
+        activity.selectOption("what-events");
+        assertThat(page.locator("#event-options")).isVisible();
+        assertThat(page.locator("#tool-selection")).isVisible();
+        page.getByLabel("Selection:").selectOption(new SelectOption().setLabel("Select by event"));
+        assertThat(page.locator("#tool-selection")).isHidden();
+        assertThat(page.locator("#event-selection-list")).isVisible();
+
+        assertThat(page.locator("#custom-dates")).isHidden();
+        page.getByLabel("Period:").selectOption("when-custom");
+        assertThat(page.locator("#custom-dates")).isVisible();
+        assertThat(page.locator("#who-role-options")).isHidden();
+        page.getByLabel("Users:").selectOption("who-role");
+        assertThat(page.locator("#who-role-options")).isVisible();
+
+        page.getByLabel("Specify sorting field").check();
+        assertThat(page.locator("#sorting-options")).isVisible();
+        page.getByLabel("Limit to:").check();
+        assertThat(page.locator("#max-results-options")).isVisible();
+        page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
+        assertThat(page.locator("#chart-options")).isVisible();
+        page.getByLabel("Chart type:").selectOption("timeseries");
+        assertThat(page.locator("#chart-source-options")).isHidden();
+        assertThat(page.locator("#chart-series-options")).isVisible();
+
+        activity.selectOption("what-visits");
+        page.getByLabel("Period:").selectOption("when-last7days");
+        page.getByLabel("Users:").selectOption("who-all");
+        page.getByLabel("Specify sorting field").uncheck();
+        page.getByLabel("Limit to:").uncheck();
         page.getByLabel("Title").fill(REPORT_TITLE);
         page.getByLabel("Description").fill(REPORT_DESC);
         page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
