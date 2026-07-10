@@ -68,6 +68,12 @@ public interface AnnouncementService extends MessageService
     /** The property name of the channel to use instead of the site channel */
     public final static String ANNOUNCEMENT_CHANNEL_PROPERTY = "channel";
 
+	/** Message property: the persisted email-notification choice for the announcement, pre-selected on edit and kept on site copy. */
+	public static final String NOTIFICATION_LEVEL = "notificationLevel";
+
+	/** Message property: when an email notification actually went out, for the "Last email sent" hint; not carried onto an imported copy. */
+	public static final String NOTIFICATION_SENT_TIME = "notificationSentTime";
+
 	/** The Reference type for an announcement rss feed */
 	public static final String REF_TYPE_ANNOUNCEMENT_RSS = "rss";
 	

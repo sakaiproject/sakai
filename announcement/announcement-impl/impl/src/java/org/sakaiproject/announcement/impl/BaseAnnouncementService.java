@@ -1710,6 +1710,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						ResourcePropertiesEdit p = nMessage.getPropertiesEdit();
 						p.clear();
 						p.addAll(oProperties);
+						// an imported copy has not been emailed in the destination site, so don't carry the
+						// source's "last email sent" marker over (the chosen notification level is kept)
+						p.removeProperty(AnnouncementService.NOTIFICATION_SENT_TIME);
 
 						// complete the edit
 						nChannel.commitMessage(nMessage, NotificationService.NOTI_IGNORE);

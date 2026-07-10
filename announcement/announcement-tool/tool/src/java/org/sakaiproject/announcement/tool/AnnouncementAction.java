@@ -1845,7 +1845,33 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			context.put(SPECIFY_DATES, specify);
 			context.put(HIDDEN, edit.getHeader().getDraft());
-			// there is no chance to get the notification setting at this point
+			// pre-select the previously chosen notification level rather than resetting to None,
+			// so the author can see whether recipients will be notified when they re-open the item.
+			String editNotification = edit.getProperties().getProperty(AnnouncementService.NOTIFICATION_LEVEL);
+			if (editNotification == null) {
+				editNotification = serverConfigurationService.getString("announcement.default.notification", "n");
+			}
+			context.put("noti", editNotification);
+
+			// only offer an explicit "Save & Notify (Again)" when editing an already-released item.
+			boolean anncReleased = !edit.getHeader().getDraft() && releaseDate != null && !TimeService.newTime().before(releaseDate);
+			context.put("anncReleased", anncReleased);
+			boolean anncAlreadyNotified = anncReleased && ("r".equals(editNotification) || "o".equals(editNotification));
+			String lastEmailSent = null;
+			try {
+				lastEmailSent = edit.getProperties().getTimeProperty(AnnouncementService.NOTIFICATION_SENT_TIME).toStringLocalFull();
+			} catch (Exception e) {
+				// no recorded send time
+			}
+			if (lastEmailSent == null && anncAlreadyNotified) {
+				lastEmailSent = releaseDate.toStringLocalFull();
+			}
+			context.put("lastEmailSent", lastEmailSent);
+			// server-resolved "is this item visible right now", in the site/user timezone, so the one-off
+			// "Send now" control's initial state does not depend on the browser's clock
+			context.put("visibleNowAtLoad", !edit.getHeader().getDraft()
+					&& (releaseDate == null || !TimeService.newTime().before(releaseDate))
+					&& (retractDate == null || TimeService.newTime().before(retractDate)));
 		
 			//output notification history
 			if (state.getEdit()!= null){
@@ -2625,6 +2651,64 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // doPost
 
 	/**
+	 * Sakai's existing "when to notify" behaviour for the persistent Email Notification level.
+	 * The level is now persisted and pre-selected on edit, so this keeps a plain re-save of a live
+	 * announcement from re-emailing: notify only for a brand-new post, a draft being released, or a
+	 * scheduled future release, and never while the item is saved hidden/draft. A deliberate one-off
+	 * send is handled separately by the "Send an email notification now" checkbox.
+	 */
+	static boolean shouldSendNotification(boolean isNew, boolean wasDraft, boolean nowHidden, Time releaseDate, Time now) {
+		return !nowHidden
+			&& (isNew
+				|| wasDraft
+				|| (releaseDate != null && now != null && now.before(releaseDate)));
+	}
+
+	/**
+	 * the notification level to actually send when saving. A ticked one-off "Send an email
+	 * notification now" wins and sends at its own chosen level; otherwise Sakai's existing first
+	 * notification (new post / publishing a draft / scheduled release) sends at the persistent level;
+	 * otherwise nothing is sent.
+	 */
+	static int resolveCommitLevel(boolean sendNow, int oneOffLevel, boolean firstNotification, int persistentLevel) {
+		if (sendNow) return oneOffLevel;
+		if (firstNotification) return persistentLevel;
+		return NotificationService.NOTI_NONE;
+	}
+
+	/**
+	 * Whether the one-off "Send an email notification now" may fire. Only when the user ticked it and
+	 * the item is actually visible right now -- not while saved hidden/draft, not before a future
+	 * release, and not once it has been retracted. Enforced server-side so a bypassed client control
+	 * cannot email an item recipients can no longer see.
+	 */
+	static boolean canSendNow(boolean notifyNowChecked, boolean nowHidden, Time releaseDate, Time retractDate, Time now) {
+		return notifyNowChecked
+			&& !nowHidden
+			&& (releaseDate == null || now == null || !now.before(releaseDate))
+			&& (retractDate == null || now == null || now.before(retractDate));
+	}
+
+	/** Maps a stored notification-level property value ("r"/"n"/other) to a NotificationService level. */
+	static int notiLevelFor(String level) {
+		if ("r".equals(level)) return NotificationService.NOTI_REQUIRED;
+		if ("n".equals(level)) return NotificationService.NOTI_NONE;
+		return NotificationService.NOTI_OPTIONAL;
+	}
+
+	/**
+	 * The email-notification level to persist. The level locks once the announcement has been released, so
+	 * a released item -- or a request that omits the disabled control -- keeps its stored value rather than
+	 * trusting the submitted parameter (which could otherwise overwrite it or default it to Optional).
+	 */
+	static String resolveNotificationLevel(String submitted, String stored, boolean locked) {
+		if ((locked || StringUtils.isBlank(submitted)) && StringUtils.isNotBlank(stored)) {
+			return stored;
+		}
+		return submitted;
+	}
+
+	/**
 	 * post or save draft of a message?
 	 */
 	protected void postOrSaveDraft(RunData rundata, Context context, boolean post)
@@ -2667,15 +2751,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// read the notification options
 			String notification = (String) sstate.getAttribute(AnnouncementAction.SSTATE_NOTI_VALUE);
 
-			int noti = NotificationService.NOTI_OPTIONAL;
-			if ("r".equals(notification))
-			{
-				noti = NotificationService.NOTI_REQUIRED;
-			}
-			else if ("n".equals(notification))
-			{
-				noti = NotificationService.NOTI_NONE;
-			}
+			int noti = notiLevelFor(notification);
 
 			try
 			{
@@ -2755,7 +2831,10 @@ public class AnnouncementAction extends PagedResourceActionII
 				{
 					// in addition to setting release date property, also set Date to release date so properly sorted
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, tempReleaseDate.toString());
-					header.setDate(tempReleaseDate);					
+					header.setDate(tempReleaseDate);
+					// adopt the effective release so the notification decisions below (schedule vs send-now,
+					// sent-time record) see the future date instead of a null from this Preview path
+					releaseDate = tempReleaseDate;
 				}
 				else
 				{
@@ -2783,6 +2862,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				else if (tempRetractDate != null)
 				{
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, tempRetractDate.toString());
+					retractDate = tempRetractDate;
 				}
 				else 
 				{
@@ -2895,22 +2975,50 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				// save notification level if this is a future notification message
 				Time now = TimeService.newTime();
-				
+
+				// the persisted level locks once the announcement has been released: for a released item, or a
+				// request that omits the disabled control, keep the stored value so a crafted or missing notify
+				// parameter can't overwrite it or silently downgrade it to Optional
+				boolean levelLocked = !oDraft && releaseDate != null && !now.before(releaseDate);
+				notification = resolveNotificationLevel(notification,
+						msg.getProperties().getProperty(AnnouncementService.NOTIFICATION_LEVEL), levelLocked);
+				noti = notiLevelFor(notification);
+
 				int notiLevel=noti;
 				if (msg.getAnnouncementHeaderEdit().getDraft()){
 					notiLevel=3; //Set notilevel as 3 if it a hidden announcement, as no notification is sent regardless of the notification option
 				}
 				
+				// persist the chosen level on every save (not only future posts) so the dropdown can
+				// pre-select it on re-open, and so it survives import (import copies all message properties).
+				if (notification != null) {
+					msg.getPropertiesEdit().addProperty(AnnouncementService.NOTIFICATION_LEVEL, notification);
+				}
+
 				if (releaseDate != null && now.before(releaseDate))// && noti != NotificationService.NOTI_NONE)
 				{
-					msg.getPropertiesEdit().addProperty("notificationLevel", notification);
 					msg.getPropertiesEdit().addPropertyToList("noti_history", now.toStringLocalFull()+"_"+notiLevel+"_"+releaseDate.toStringLocalFull());
 				}
 				else {
 					msg.getPropertiesEdit().addPropertyToList("noti_history", now.toStringLocalFull()+"_"+notiLevel);
 				}
 				
-				channel.commitMessage(msg, noti, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+				// keep Sakai's existing "when to notify" behaviour for the persistent level -- send
+				// only for a new post, a draft being released, or a scheduled future release; a plain re-save of
+				// a live announcement never re-emails. The transient "Send an email notification now" checkbox
+				// can additionally send one email now at its own chosen level (not persisted, not copied).
+				boolean firstNotification = shouldSendNotification(state.getIsNewAnnouncement(), oDraft, Boolean.TRUE.equals(tempHidden), releaseDate, now);
+				// the one-off "Send now" only fires for an item that is visible right now -- enforced server-side
+				// so a bypassed/disabled client control can't email a future or hidden announcement
+				boolean sendNow = canSendNow("true".equals(params.getString("notifyNow")), Boolean.TRUE.equals(tempHidden), releaseDate, retractDate, now);
+				int oneOffLevel = "r".equals(params.getString("notifyNowLevel")) ? NotificationService.NOTI_REQUIRED : NotificationService.NOTI_OPTIONAL;
+				int commitNoti = resolveCommitLevel(sendNow, oneOffLevel, firstNotification, noti);
+				// remember when an email actually went out (immediate send/re-notify) so a later edit
+				// can show "Last email sent"; scheduled future sends are inferred from the release date instead.
+				if (commitNoti != NotificationService.NOTI_NONE && (releaseDate == null || !now.before(releaseDate))) {
+					msg.getPropertiesEdit().addProperty(AnnouncementService.NOTIFICATION_SENT_TIME, now.toString());
+				}
+				channel.commitMessage(msg, commitNoti, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
 
 				setMotdAttachmentsPublic(header, channelId);
 

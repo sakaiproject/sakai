@@ -50,6 +50,72 @@ function resizeFrame(){
 			}
 		});
 
+		// two email controls — persisted "Send on release" + transient one-off "Send now".
+		(function(){
+			var relBox=$('#sendOnRelease'), relLvl=$('#releaseLevel'), relLocked=$('#sendOnReleaseLocked'), notifyHidden=$('#notifyHidden');
+			var nowBox=$('#notifyNow'), nowLvl=$('#notifyNowLevel');
+			if (!relBox.length && !nowBox.length) return;
+			var anncReleasedAtLoad = #if($anncReleased)true#{else}false#end;
+			// server-resolved visibility at load, in the site/user timezone (not the browser's)
+			var visibleNowAtLoad = #if($visibleNowAtLoad)true#{else}false#end;
+			var releaseEdited = false, retractEdited = false;
+			var isDraft = function(){ return $('#hidden_true').is(':checked'); };
+			var releaseInPast = function() {
+				var g = function(n){ return document.querySelector('input[name="'+n+'"]'); };
+				var y=g('release_year'), mo=g('release_month'), d=g('release_day');
+				if (!y || !mo || !d || !y.value || !mo.value || !d.value) return false;
+				var h = parseInt((g('release_hour')||{}).value || '0', 10) || 0;
+				var mi = parseInt((g('release_minute')||{}).value || '0', 10) || 0;
+				var ap = (((g('release_ampm')||{}).value) || '').toString().toLowerCase();
+				if (ap.indexOf('pm') >= 0) { if (h < 12) h += 12; } else if (ap.indexOf('am') >= 0) { if (h === 12) h = 0; }
+				return new Date(parseInt(y.value,10), parseInt(mo.value,10)-1, parseInt(d.value,10), h, mi).getTime() <= Date.now();
+			};
+			var retractInPast = function() {
+				var g = function(n){ return document.querySelector('input[name="'+n+'"]'); };
+				var y=g('retract_year'), mo=g('retract_month'), d=g('retract_day');
+				if (!y || !mo || !d || !y.value || !mo.value || !d.value) return false;
+				var h = parseInt((g('retract_hour')||{}).value || '0', 10) || 0;
+				var mi = parseInt((g('retract_minute')||{}).value || '0', 10) || 0;
+				var ap = (((g('retract_ampm')||{}).value) || '').toString().toLowerCase();
+				if (ap.indexOf('pm') >= 0) { if (h < 12) h += 12; } else if (ap.indexOf('am') >= 0) { if (h === 12) h = 0; }
+				return new Date(parseInt(y.value,10), parseInt(mo.value,10)-1, parseInt(d.value,10), h, mi).getTime() <= Date.now();
+			};
+			var visibleNow = function() {
+				if (isDraft()) return false;
+				if (!$('#hidden_specify').is(':checked')) return true;
+				// trust the server's timezone-correct answer until the user edits a date
+				if (!releaseEdited && !retractEdited) return visibleNowAtLoad;
+				var afterRelease = !$('#use_start_date').is(':checked') || releaseInPast();
+				var beforeRetract = !$('#use_end_date').is(':checked') || !retractInPast();
+				return afterRelease && beforeRetract;
+			};
+			var syncNotify = function(){ notifyHidden.val(relBox.is(':checked') ? relLvl.val() : 'n'); };
+			// Row 1 "Send on release": locked once released (revert to draft to change)
+			var refreshRelease = function() {
+				var locked = anncReleasedAtLoad && !isDraft();
+				relBox.prop('disabled', locked);
+				relLvl.prop('disabled', locked || !relBox.is(':checked'));
+				relLocked.toggleClass('d-none', !locked);
+				syncNotify();
+			};
+			relBox.add(relLvl).on('change', refreshRelease);
+			// Row 2 "Send now": enabled only when the item is visible now; only ever ticked by the user
+			var refreshNow = function() {
+				var enabled = visibleNow();
+				nowBox.prop('disabled', !enabled);
+				if (!enabled) nowBox.prop('checked', false);
+				nowLvl.prop('disabled', !enabled || !nowBox.is(':checked'));
+			};
+			nowBox.on('change', refreshNow);
+			$('input[name="hidden"], #use_start_date').on('change', function(){ refreshRelease(); refreshNow(); });
+			// once the user edits the release date, fall back to the live client-side check
+			$('input[name^="release_"]').on('change', function(){ releaseEdited = true; refreshNow(); });
+			$('input[name^="retract_"], #use_end_date').on('change', function(){ retractEdited = true; refreshNow(); });
+			$('#opendate').on('change blur', function(){ releaseEdited = true; setTimeout(function(){ refreshRelease(); refreshNow(); }, 50); });
+			$('#closedate').on('change blur', function(){ retractEdited = true; setTimeout(function(){ refreshNow(); }, 50); });
+			refreshRelease(); refreshNow();
+		})();
+
 		updateEmailDropdownOptions();
 		
 	});
@@ -505,24 +571,42 @@ function resizeFrame(){
 				<div id="email-notify-warning" class="sak-banner-error">$tlang.getString("revise.notify_alert")</div>
 				#end
 
-				<div class="form-group row">
-					<label for="notify" class="form-control-label col-md-2">
-      				$tlang.getString("revise.notify")
-					</label>
-					<div class="col-md-10">
-						<select name="notify" id="notify">
-							#if ($noti)
-								<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
-								<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>
-								<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("revise.notify_none")</option>
-							#else	
-								<option value="r">$tlang.getString("revise.notify_high")</option>
-								<option value="o">$tlang.getString("revise.notify_low")</option>
-								<option value="n" selected="selected">$tlang.getString("revise.notify_none")</option>
-							#end
-						</select>
+				<div class="form-group">
+					<label class="form-control-label">$tlang.getString("revise.notify")</label>
+					<input type="hidden" name="notify" id="notifyHidden" value="$!noti"/>
+					<div class="mt-1">
+						<div class="d-flex align-items-center gap-2" id="sendOnReleaseRow">
+							<div class="checkbox mb-0">
+								<label for="sendOnRelease" class="mb-0">
+									<input type="checkbox" name="sendOnRelease" id="sendOnRelease" value="true" #if($noti=="r" || $noti=="o")checked="checked"#end/>
+									$tlang.getString("revise.sendonrelease")
+								</label>
+							</div>
+							<select name="releaseLevel" id="releaseLevel" aria-label="$tlang.getString('revise.notify.level')">
+								<option value="r" #if($noti!="o")selected#end>$tlang.getString("revise.notify_high")</option>
+								<option value="o" #if($noti=="o")selected#end>$tlang.getString("revise.notify_low")</option>
+							</select>
+							<i class="fa fa-info-circle" role="img" title="$tlang.getString('revise.sendonrelease.tip')" aria-label="$tlang.getString('revise.sendonrelease.tip')"></i>
+							<span class="small fst-italic ms-1 d-none" id="sendOnReleaseLocked">$tlang.getString("revise.sendonrelease.locked")</span>
+						</div>
+						<div class="d-flex align-items-center gap-2 mt-1" id="sendNowRow">
+							<div class="checkbox mb-0">
+								<label for="notifyNow" class="mb-0">
+									<input type="checkbox" name="notifyNow" id="notifyNow" value="true"/>
+									$tlang.getString("revise.notifynow")
+								</label>
+							</div>
+							<select name="notifyNowLevel" id="notifyNowLevel" disabled aria-label="$tlang.getString('revise.notify.level')">
+								<option value="r" #if($noti!="o")selected#end>$tlang.getString("revise.notify_high")</option>
+								<option value="o" #if($noti=="o")selected#end>$tlang.getString("revise.notify_low")</option>
+							</select>
+							<i class="fa fa-info-circle" role="img" title="$tlang.getString('revise.notifynow.tip')" aria-label="$tlang.getString('revise.notifynow.tip')"></i>
+						</div>
+						#if ($lastEmailSent)
+							<div class="small mt-1" id="lastEmailSent">$tlang.getFormattedMessage("revise.lastemailsent", $lastEmailSent)</div>
+						#end
 					</div>
-				</div>	
+				</div>
 			#end
 		
 		#if ($notiHistory)
@@ -578,7 +662,8 @@ function resizeFrame(){
 			</table>
 			</div>
 		#end
-		<p class="act">
+		<hr class="itemSeparator" />
+		<p class="act mt-2">
 				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
 					#if ( $newAnn =="true")				
 						"$tlang.getString("revise.add")"
@@ -610,23 +695,15 @@ function resizeFrame(){
 		function updateEmailDropdownOptions() {
 			var defaultText = "$tlang.getString("revise.notify_high")";
 			var groupsText  = "$tlang.getString("revise.notify_high_groups")";
-
-			//Checks for #notify to prevent errors on MOTD
-			if (document.getElementById('notify') !== null) {
-
-				var options = document.getElementById('notify').children;
-				for (var i = 0; i < options.length; i++) {
-					if (options[i].text == defaultText || options[i].text == groupsText) {
-						var highOption = options[i];
-						break;
-					}
+			var text = theAnnouncementIsForGroups() ? groupsText : defaultText;
+			// keep the "High" option label (all participants vs all group members) in sync on both rows
+			["releaseLevel", "notifyNowLevel"].forEach(function(id) {
+				var sel = document.getElementById(id);
+				if (sel === null) return;
+				for (var i = 0; i < sel.options.length; i++) {
+					if (sel.options[i].value === "r") { sel.options[i].text = text; }
 				}
-				if (theAnnouncementIsForGroups()) {
-					highOption.text = groupsText;
-				} else {
-					highOption.text = defaultText;
-				}
-			}
+			});
 		}
 
 		function theAnnouncementIsForGroups() {

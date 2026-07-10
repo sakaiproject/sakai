@@ -484,7 +484,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				final AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 		
 				// read the notification options
-				final String notification = msg.getProperties().getProperty("notificationLevel");
+				final String notification = msg.getProperties().getProperty(AnnouncementService.NOTIFICATION_LEVEL);
 		
 				int noti = NotificationService.NOTI_OPTIONAL;
 				if ("r".equals(notification))
