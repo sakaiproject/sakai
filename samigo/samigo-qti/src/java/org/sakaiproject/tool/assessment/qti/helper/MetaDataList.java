@@ -175,7 +175,7 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
                     Optional collection = tagService.getTagCollections().getForExternalSourceName(tagCollectionName);
                     if (collection.isPresent()) {
                         TagCollection tagCollection = (TagCollection) collection.get();
-                        List<Tag> potentialTags = tagService.getTags().getTagsByExactLabel(tagLabel.trim());
+                        List<Tag> potentialTags = tagService.getTags().getTagsByExactLabel(tagLabel.trim(), tagCollection.getTagCollectionId());
                         potentialTags.stream().filter(t -> t.getCollectionName().equals(tagCollection.getName())).forEach(t -> {
                                 item.addItemTag(t.getTagId(), t.getTagLabel(), t.getTagCollectionId(), t.getCollectionName());
                         });

@@ -141,7 +141,7 @@ public class TagServiceImpl implements TagService {
         for (String tagId : tagIds) {
             Tag tag = tags.getForId(tagId).orElse(null);
             if (tag == null) {
-                log.warn("Tag with id {} does not exist anymore" + tagId);
+                log.warn("Tag with id {} does not exist anymore", tagId);
                 continue;
             }
 

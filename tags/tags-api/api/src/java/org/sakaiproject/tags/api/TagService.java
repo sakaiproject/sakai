@@ -42,28 +42,28 @@ public interface TagService {
     public void destroy();
 
     /**
-     * Return the tags sub-service.
-     */
+        * Return the tags sub-service.
+    */
     public Tags getTags();
 
     /**
-     * Return the collections sub-service
-     */
+        * Return the collections sub-service
+    */
     public TagCollections getTagCollections();
 
     /**
-     * Return an I18N translator for a given file and locale.
-     */
+        * Return an I18N translator for a given file and locale.
+    */
     public I18n getI18n(ClassLoader loader, String resourceBase);
 
     /**
-     * Return if the service is enabled or not.
-     */
+        * Return if the service is enabled or not.
+    */
     public Boolean getServiceActive ();
 
     /**
-     * Return the max size of the pages
-     */
+        * Return the max size of the pages
+    */
     public int getMaxPageSize();
 
     /**
