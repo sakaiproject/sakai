@@ -74,6 +74,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -756,8 +757,27 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
+		resetForumsToolSession(toContext);
+
 		return transversalMap;
+	}
+
+	private void resetForumsToolSession(String toContext) {
+
+		Session session = sessionManager.getCurrentSession();
+		if (session == null) {
+			return;
+		}
+
+		try {
+			Site site = siteService.getSite(toContext);
+			for (ToolConfiguration toolConfiguration : site.getTools(FORUMS_TOOL_ID)) {
+				session.getToolSession(toolConfiguration.getId()).clearAttributes();
+			}
+		} catch (IdUnusedException e) {
+			log.warn("Could not reset the forums tool session, site {} not found", toContext);
+		}
 	}
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
