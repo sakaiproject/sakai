@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head th:replace="~{fragments/common :: head(#{menu_prefs})}"></head>
+<body>
+<main class="portletBody container-fluid">
+  <div th:replace="~{fragments/common :: menu('preferences')}"></div>
+  <div th:replace="~{fragments/common :: messages}"></div>
+  <h1 class="h3 mt-3" th:text="#{menu_prefs}">Preferences</h1>
+  <form method="post" th:action="@{/preferences}" th:object="${preferencesForm}">
+    <input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <fieldset class="mb-4"><legend class="h4" th:text="#{prefs_sep_general}">General</legend><p class="instruction" th:text="#{instructions_prefs_general}"></p>
+      <div class="form-check mb-2"><input id="site-tools-only" class="form-check-input" type="checkbox" th:field="*{listToolEventsOnlyAvailableInSite}"/><label class="form-check-label" for="site-tools-only" th:text="#{prefs_listToolEventsOnlyAvailableInSite}"></label></div>
+      <div class="form-check"><input id="student-own-stats" class="form-check-input" type="checkbox" th:field="*{showOwnStatisticsToStudents}"/><label class="form-check-label" for="student-own-stats" th:text="#{prefs_showOwnStatisticsToStudents}"></label></div>
+    </fieldset>
+    <fieldset class="mb-4"><legend class="h4" th:text="#{prefs_sep_chart}">Charts</legend>
+      <div class="form-check mb-3"><input id="item-labels" class="form-check-input" type="checkbox" th:field="*{itemLabelsVisible}"/><label class="form-check-label" for="item-labels" th:text="#{prefs_itemLabelsVisible}"></label></div>
+      <label class="form-label" for="chart-transparency" th:text="#{prefs_chartTransparency}">Transparency</label><select id="chart-transparency" class="form-select w-auto" th:field="*{chartTransparency}"><option th:each="value : ${chartTransparencyChoices}" th:value="${value}" th:text="${#numbers.formatPercent(value,0,0)}"></option></select>
+    </fieldset>
+    <fieldset class="mb-4"><legend class="h4" th:text="#{prefs_sep_activity_definition}">Activity definition</legend><div class="form-check"><input id="all-tools" class="form-check-input" type="checkbox" th:field="*{useAllTools}"/><label class="form-check-label" for="all-tools" th:text="#{prefs_useAllTools}"></label></div><div class="row g-3 mt-2" th:if="${!#lists.isEmpty(tools)}"><section class="col-12 col-md-6" th:each="tool : ${tools}"><h2 class="h6" th:text="${tool.toolId}"></h2><div class="form-check" th:each="event : ${tool.events}"><input class="form-check-input" type="checkbox" th:field="*{selectedEventIds}" th:value="${event.eventId}" th:id="${'event-' + event.eventId}"/><label class="form-check-label" th:for="${'event-' + event.eventId}" th:text="${event.eventId}"></label></div></section></div></fieldset>
+    <div class="d-flex gap-2 act"><button class="btn btn-primary" type="submit" th:text="#{update}">Save changes</button><a class="btn btn-link" th:href="@{/home(siteId=${siteId})}" th:text="#{cancel}">Cancel</a></div>
+  </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${title}">SiteStats</title>
+  <th:block th:utext="${sakaiHtmlHead}"></th:block>
+  <script type="module" th:src="@{~/webcomponents/bundles/sitestats.js} + ${cdnQuery}"></script>
+  <script type="module" th:src="@{/js/sitestats-tool.js}"></script>
+</head>
+<body>
+  <nav th:fragment="menu(active)" class="navIntraTool" aria-label="SiteStats">
+    <ul class="nav nav-tabs flex-wrap">
+      <li class="nav-item" th:if="${!adminTool}"><a class="nav-link" th:classappend="${active == 'overview'} ? ' active'" th:href="@{/home(siteId=${siteId})}" th:text="#{menu_overview}">Overview</a></li>
+      <li class="nav-item" th:if="${!adminTool}"><a class="nav-link" th:classappend="${active == 'reports'} ? ' active'" th:href="@{/reports(siteId=${siteId})}" th:text="#{menu_reports}">Reports</a></li>
+      <li class="nav-item" th:if="${!adminTool}"><a class="nav-link" th:classappend="${active == 'useractivity'} ? ' active'" th:href="@{/useractivity(siteId=${siteId})}" th:text="#{menu_useractivity}">User Activity</a></li>
+      <li class="nav-item" th:if="${!adminTool}"><a class="nav-link" th:classappend="${active == 'preferences'} ? ' active'" th:href="@{/preferences(siteId=${siteId})}" th:text="#{menu_prefs}">Preferences</a></li>
+      <li class="nav-item" th:if="${adminTool}"><a class="nav-link" th:classappend="${active == 'admin'} ? ' active'" th:href="@{/admin}" th:text="#{menu_sitelist}">Sites</a></li>
+      <li class="nav-item" th:if="${adminTool and active == 'serverwide'}"><a class="nav-link active" aria-current="page" th:href="@{/serverwide(siteId=${siteId})}" th:text="#{menu_serverwide}">Server-wide</a></li>
+    </ul>
+  </nav>
+
+  <div th:fragment="messages" aria-live="polite">
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}"></div>
+    <div th:if="${error}" class="sak-banner-error" role="alert" th:text="${error}"></div>
+  </div>
+</body>
+</html>

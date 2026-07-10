@@ -18,18 +18,12 @@
  */
 package org.sakaiproject.sitestats.tool.facade;
 
-import org.apache.wicket.Application;
-import org.sakaiproject.sitestats.tool.wicket.SiteStatsApplication;
+import org.sakaiproject.component.cover.ComponentManager;
 
 public class Locator {
 
-	private static transient SakaiFacade facade;
-	
 	public static SakaiFacade getFacade() {
-		if(facade == null) {
-			facade = ((SiteStatsApplication) Application.get()).getFacade();
-		}
-		return facade;
+		return ComponentManager.get(SakaiFacade.class);
 	}
 	
 }
