@@ -19,9 +19,9 @@
             <div class="card-body">
               <h3 class="h6 card-title" th:text="${metric.label}"></h3>
               <p class="display-6 mb-1"
-                 th:text="${metric.snapshot != null ? metric.snapshot.primary : '—'}"></p>
+                 th:text="${metric.snapshot.primary}"></p>
               <p class="text-body-secondary mb-0"
-                 th:if="${metric.snapshot != null}"
+                 th:if="${metric.snapshot.detail != null}"
                  th:text="${metric.snapshot.detail}"></p>
             </div>
           </div>

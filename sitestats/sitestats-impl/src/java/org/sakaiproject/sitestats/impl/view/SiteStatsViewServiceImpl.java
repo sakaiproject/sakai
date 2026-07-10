@@ -43,7 +43,8 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		boolean allAllowed = siteStatsReportAccess.isViewAllAllowed(siteId);
 		boolean ownAllowed = siteStatsReportAccess.isViewOwnAllowed(siteId);
 		boolean adminAllowed = siteStatsReportAccess.isViewAdminAllowed(siteId);
-		return siteStatsWidgetCatalog.getOverview(siteId, allAllowed, ownAllowed, adminAllowed);
+		String userId = ownAllowed ? siteStatsReportAccess.currentUserId() : null;
+		return siteStatsWidgetCatalog.getOverview(siteId, allAllowed, ownAllowed, adminAllowed, userId);
 	}
 
 	@Override

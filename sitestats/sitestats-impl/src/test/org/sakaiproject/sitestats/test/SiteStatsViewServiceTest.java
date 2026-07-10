@@ -19,9 +19,11 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 
 import java.sql.Date;
@@ -113,6 +115,14 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		SiteStatsFilter roleFilter = filter(overview, WIDGET_VISITS, TAB_BY_DATE, "role");
 		assertEquals("Instructor", roleFilter.getOptions().get(1).getValue());
+	}
+
+	@Test
+	public void getOverviewIncludesMetricSnapshotsForAllAndOwnWidgets() {
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+
+		assertEquals("3", metric(overview, WIDGET_VISITS, METRIC_VISITS_TOTAL).getSnapshot().getPrimary());
+		assertNotNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL).getSnapshot());
 	}
 
 	@Test
@@ -265,6 +275,19 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 			}
 		}
 		throw new AssertionError("Missing filter " + widgetId + "/" + tabId + "/" + filterId);
+	}
+
+	private SiteStatsWidgetMetric metric(SiteStatsOverview overview, String widgetId, String metricId) {
+		for (SiteStatsWidget widget : overview.getWidgets()) {
+			if (widgetId.equals(widget.getId())) {
+				for (SiteStatsWidgetMetric metric : widget.getMetrics()) {
+					if (metricId.equals(metric.getId())) {
+						return metric;
+					}
+				}
+			}
+		}
+		throw new AssertionError("Missing metric " + widgetId + "/" + metricId);
 	}
 
 }
