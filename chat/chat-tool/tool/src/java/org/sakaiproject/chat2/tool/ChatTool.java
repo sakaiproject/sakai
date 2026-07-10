@@ -1186,7 +1186,7 @@ public class ChatTool {
       try {
          return userDirectoryService.getUser(channel.getOwner()).getDisplayName(channel.getContext());
       } catch (UserNotDefinedException e) {
-         log.debug("Failed to find user for ID: " + channel.getOwner(), e);
+         log.debug("Failed to find the owner of chat room [{}]", channel.getId(), e);
          return channel.getOwner();
       }
    }

@@ -178,16 +178,21 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         try {
 
             // register functions
-            if(functionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX).size() == 0) {
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL, true);
+            List<String> chatFunctions = List.of(
+                    ChatFunctions.CHAT_FUNCTION_READ,
+                    ChatFunctions.CHAT_FUNCTION_NEW,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_ANY,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_OWN,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL);
+            List<String> registeredChatFunctions = functionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX);
+            for (String chatFunction : chatFunctions) {
+                if (!registeredChatFunctions.contains(chatFunction)) {
+                    functionManager.registerFunction(chatFunction, true);
+                }
             }
 
             pollInterval = serverConfigurationService.getInt("chat.pollInterval", 5000);
