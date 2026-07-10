@@ -24,7 +24,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("org.sakaiproject.sitestats.tool.mvc")
+@ComponentScan({"org.sakaiproject.sitestats.tool.mvc", "org.sakaiproject.sitestats.tool.transformers"})
 public class SiteStatsWebMvcConfiguration implements ApplicationContextAware, WebMvcConfigurer {
 
     private static final String UTF8 = "UTF-8";

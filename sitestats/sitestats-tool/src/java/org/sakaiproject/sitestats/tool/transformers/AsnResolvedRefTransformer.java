@@ -25,8 +25,8 @@ import org.sakaiproject.sitestats.api.event.detailed.assignments.AssignmentData;
 import org.sakaiproject.sitestats.api.event.detailed.assignments.AssignmentsData;
 import org.sakaiproject.sitestats.api.event.detailed.assignments.GroupSubmissionData;
 import org.sakaiproject.sitestats.api.event.detailed.assignments.SubmissionData;
-import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -50,7 +50,8 @@ public class AsnResolvedRefTransformer
 	 * @param rl resource loader for i18n
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(AssignmentsData data, ResourceLoader rl)
+	public static List<EventDetail> transform(AssignmentsData data, ResourceLoader rl,
+			UserDirectoryService userDirectoryService, String siteId)
 	{
 		if (data instanceof AssignmentData)
 		{
@@ -68,7 +69,9 @@ public class AsnResolvedRefTransformer
 				return details;
 			}
 
-			String subDetails = isGroup ? getSubmitterDetails((GroupSubmissionData) data, rl) : getSubmitterDetails((SubmissionData) data, rl);
+			String subDetails = isGroup
+					? getSubmitterDetails((GroupSubmissionData) data, rl, userDirectoryService, siteId)
+					: getSubmitterDetails((SubmissionData) data, rl, userDirectoryService, siteId);
 			details.add(EventDetail.newText(rl.getString(SUBMITTER), subDetails));
 			return details;
 		}
@@ -86,15 +89,18 @@ public class AsnResolvedRefTransformer
 		return EventDetail.newText(rl.getString("de_asn"), title);
 	}
 
-	private static String getSubmitterDetails(GroupSubmissionData gsub, ResourceLoader rl)
+	private static String getSubmitterDetails(GroupSubmissionData gsub, ResourceLoader rl,
+			UserDirectoryService userDirectoryService, String siteId)
 	{
-		String by = gsub.byInstructor ? rl.getString(INS) : getSubmitterDisplay(gsub.submitterId.orElse(""), rl);
+		String by = gsub.byInstructor ? rl.getString(INS)
+				: getSubmitterDisplay(gsub.submitterId.orElse(""), rl, userDirectoryService, siteId);
 		return rl.getFormattedMessage(BY_FOR, by, gsub.group);
 	}
 
-	private static String getSubmitterDetails(SubmissionData sub, ResourceLoader rl)
+	private static String getSubmitterDetails(SubmissionData sub, ResourceLoader rl,
+			UserDirectoryService userDirectoryService, String siteId)
 	{
-		String submitter = getSubmitterDisplay(sub.submitterId, rl);
+		String submitter = getSubmitterDisplay(sub.submitterId, rl, userDirectoryService, siteId);
 		if (sub.byInstructor)
 		{
 			return rl.getFormattedMessage(BY_FOR, rl.getString(INS), submitter);
@@ -103,11 +109,11 @@ public class AsnResolvedRefTransformer
 		return submitter;
 	}
 
-	private static Optional<User> getUser(String userId)
+	private static Optional<User> getUser(String userId, UserDirectoryService userDirectoryService)
 	{
 		try
 		{
-			return Optional.of(Locator.getFacade().getUserDirectoryService().getUser(userId));
+			return Optional.of(userDirectoryService.getUser(userId));
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -116,11 +122,11 @@ public class AsnResolvedRefTransformer
 		}
 	}
 
-	private static String getSubmitterDisplay(String userId, ResourceLoader rl)
+	private static String getSubmitterDisplay(String userId, ResourceLoader rl,
+			UserDirectoryService userDirectoryService, String siteId)
 	{
-		String site = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
-		return getUser(userId)
-				.map(u -> rl.getFormattedMessage(SUBMITTER_DISPLAY, u.getDisplayName(site), u.getDisplayId(site)))
+		return getUser(userId, userDirectoryService)
+				.map(u -> rl.getFormattedMessage(SUBMITTER_DISPLAY, u.getDisplayName(siteId), u.getDisplayId(siteId)))
 				.orElse(rl.getString(UNKNOWN));
 	}
 }

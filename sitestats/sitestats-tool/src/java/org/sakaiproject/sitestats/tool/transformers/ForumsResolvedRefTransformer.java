@@ -23,7 +23,6 @@ import org.sakaiproject.sitestats.api.event.detailed.forums.ForumData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.MessageData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.MsgForumsData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.TopicData;
-import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -40,7 +39,7 @@ public class ForumsResolvedRefTransformer
 	 * @param rl resource loader for i18n
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(MsgForumsData resolved, ResourceLoader rl)
+	public static List<EventDetail> transform(MsgForumsData resolved, ResourceLoader rl, UserTimeService userTimeService)
 	{
 		if (resolved instanceof ForumData)
 		{
@@ -83,10 +82,9 @@ public class ForumsResolvedRefTransformer
 				return list;
 			}
 
-			UserTimeService timeServ = Locator.getFacade().getUserTimeService();
-			msg.conversation.ifPresent(c -> ForumsResolvedRefTransformer.addMsgDetails(list, rl.getString("de_msgforums_conversation"), c, timeServ, rl));
+			msg.conversation.ifPresent(c -> ForumsResolvedRefTransformer.addMsgDetails(list, rl.getString("de_msgforums_conversation"), c, userTimeService, rl));
 			String key = msg.repliedTo ? rl.getString("de_msgforums_message_responded") : rl.getString("de_msgforums_message");
-			ForumsResolvedRefTransformer.addMsgDetails(list, key, msg, timeServ, rl);
+			ForumsResolvedRefTransformer.addMsgDetails(list, key, msg, userTimeService, rl);
 
 			return list;
 		}

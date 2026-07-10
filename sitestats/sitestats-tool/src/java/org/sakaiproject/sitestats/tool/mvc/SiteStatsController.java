@@ -9,10 +9,8 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
@@ -20,14 +18,14 @@ import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.CopiedReport;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -48,7 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 public class SiteStatsController {
 
     private final SiteStatsToolService toolService;
-    private final SakaiFacade facade;
+    private final SiteStatsToolExportService exportService;
     private final MessageSource messageSource;
 
     @GetMapping({"/", "/index.html"})
@@ -92,9 +90,9 @@ public class SiteStatsController {
 
     @GetMapping("/reports/{reportId}/edit")
     public String editReport(@PathVariable long reportId, @RequestParam(required = false) String siteId, Model model) {
-        ReportDef report = toolService.editableReportDefinition(siteId, reportId);
-        ReportForm form = ReportForm.from(report, facade.getUserTimeService().getLocalTimeZone().toZoneId());
-        commonReportForm(model, report.getSiteId(), form);
+        String authorizedSiteId = toolService.reportSite(siteId);
+        ReportForm form = toolService.editReportForm(authorizedSiteId, reportId);
+        commonReportForm(model, authorizedSiteId, form);
         return "reports/edit";
     }
 
@@ -120,13 +118,9 @@ public class SiteStatsController {
     @PostMapping("/reports/{reportId}/copy")
     public String copyReport(@PathVariable long reportId, @RequestParam(required = false) String siteId,
             RedirectAttributes redirectAttributes) {
-        ReportDef report = toolService.reportDefinition(siteId, reportId);
-        ReportForm form = ReportForm.from(report, facade.getUserTimeService().getLocalTimeZone().toZoneId());
-        form.setId(0);
-        form.setTemplateId(report.getId());
-        long copyId = toolService.saveReport(report.getSiteId(), form);
+        CopiedReport copiedReport = toolService.copyReport(siteId, reportId);
         redirectAttributes.addFlashAttribute("success", message("sitestats_report_copied"));
-        return "redirect:/reports/" + copyId + "?siteId=" + report.getSiteId();
+        return "redirect:/reports/" + copiedReport.getReportId() + "?siteId=" + copiedReport.getSiteId();
     }
 
     @PostMapping("/reports/{reportId}/delete")
@@ -151,7 +145,7 @@ public class SiteStatsController {
     @GetMapping("/reports/preview/{previewId}")
     public String preview(@PathVariable String previewId, @RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        if (!facade.getSiteStatsReportExportService().canExportPreviewReport(authorizedSiteId, previewId)) {
+        if (!toolService.canViewPreview(authorizedSiteId, previewId)) {
             throw new IllegalArgumentException("The report preview expired or is unavailable");
         }
         commonModel(model, authorizedSiteId, "reports");
@@ -164,17 +158,15 @@ public class SiteStatsController {
     @GetMapping("/reports/{reportId}/export/{format}")
     public ResponseEntity<byte[]> exportReport(@PathVariable long reportId, @PathVariable String format,
             @RequestParam(required = false) String siteId) {
-        ReportDef reportDef = toolService.reportDefinition(siteId, reportId);
-        Report report = facade.getSiteStatsReportExportService().getPersistedReport(reportDef.getSiteId(), reportId);
-        return export(report, reportDef.getTitle(), format);
+        String authorizedSiteId = toolService.reportSite(siteId);
+        return export(exportService.persistedReport(authorizedSiteId, reportId, format));
     }
 
     @GetMapping("/reports/preview/{previewId}/export/{format}")
     public ResponseEntity<byte[]> exportPreview(@PathVariable String previewId, @PathVariable String format,
             @RequestParam(required = false) String siteId) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        Report report = facade.getSiteStatsReportExportService().getPreviewReport(authorizedSiteId, previewId);
-        return export(report, "sitestats-report", format);
+        return export(exportService.previewReport(authorizedSiteId, previewId, format));
     }
 
     @GetMapping("/preferences")
@@ -287,29 +279,13 @@ public class SiteStatsController {
         return request;
     }
 
-    private ResponseEntity<byte[]> export(Report report, String title, String format) {
-        byte[] body;
-        MediaType mediaType;
-        String extension;
-        if ("csv".equals(format)) {
-            body = facade.getReportManager().getReportAsCsv(report).getBytes(StandardCharsets.UTF_8);
-            mediaType = MediaType.parseMediaType("text/csv");
-            extension = "csv";
-        } else if ("pdf".equals(format)) {
-            body = facade.getReportManager().getReportAsPDF(report);
-            mediaType = MediaType.APPLICATION_PDF;
-            extension = "pdf";
-        } else {
-            body = facade.getReportManager().getReportAsExcel(report, title);
-            mediaType = MediaType.parseMediaType("application/vnd.ms-excel");
-            extension = "xls";
-        }
+    private ResponseEntity<byte[]> export(ExportResult exportResult) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(mediaType);
+        headers.setContentType(exportResult.getMediaType());
         headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(StringUtils.defaultIfBlank(title, "sitestats-report") + "." + extension, StandardCharsets.UTF_8)
+                .filename(exportResult.getFilename(), StandardCharsets.UTF_8)
                 .build());
-        return new ResponseEntity<byte[]>(body, headers, HttpStatus.OK);
+        return new ResponseEntity<byte[]>(exportResult.getBody(), headers, HttpStatus.OK);
     }
 
     private String message(String code) {

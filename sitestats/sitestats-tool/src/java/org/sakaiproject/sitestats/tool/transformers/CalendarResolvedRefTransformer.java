@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.calendar.CalendarEntryData;
-import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -36,14 +35,13 @@ public class CalendarResolvedRefTransformer
 	 * @param msg resource loader for i18n
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(CalendarEntryData calEntry, ResourceLoader msg)
+	public static List<EventDetail> transform(CalendarEntryData calEntry, ResourceLoader msg, UserTimeService userTimeService)
 	{
 		List<EventDetail> details = new ArrayList<>(4);
 		details.add(EventDetail.newText(msg.getString("de_calendar_title"), calEntry.title));
 
-		UserTimeService uts = Locator.getFacade().getUserTimeService();
-		String start = uts.shortLocalizedTimestamp(calEntry.start, msg.getLocale());
-		String end = uts.shortLocalizedTimestamp(calEntry.end, msg.getLocale());
+		String start = userTimeService.shortLocalizedTimestamp(calEntry.start, msg.getLocale());
+		String end = userTimeService.shortLocalizedTimestamp(calEntry.end, msg.getLocale());
 		details.add(EventDetail.newText(msg.getString("de_calendar_duration"),
 				msg.getFormattedMessage("de_calendar_duration_range", start, end)));
 

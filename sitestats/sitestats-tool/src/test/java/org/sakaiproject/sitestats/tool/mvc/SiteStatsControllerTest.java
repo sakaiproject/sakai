@@ -10,36 +10,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 public class SiteStatsControllerTest {
 
-    private SakaiFacade facade;
-    private SiteStatsReportAccessService reportAccessService;
+    private SiteStatsToolServiceTestFixture fixture;
     private Tool tool;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
-        facade = mock(SakaiFacade.class);
-        ToolManager toolManager = mock(ToolManager.class);
+        fixture = new SiteStatsToolServiceTestFixture();
         tool = mock(Tool.class);
         Placement placement = mock(Placement.class);
-        reportAccessService = mock(SiteStatsReportAccessService.class);
-        when(facade.getToolManager()).thenReturn(toolManager);
-        when(toolManager.getCurrentTool()).thenReturn(tool);
-        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(fixture.toolManager.getCurrentTool()).thenReturn(tool);
+        when(fixture.toolManager.getCurrentPlacement()).thenReturn(placement);
         when(placement.getContext()).thenReturn("site1");
-        when(facade.getSiteStatsReportAccessService()).thenReturn(reportAccessService);
-        SiteStatsToolService toolService = new SiteStatsToolService(facade);
-        SiteStatsController controller = new SiteStatsController(toolService, facade, new StaticMessageSource());
+        SiteStatsToolService toolService = fixture.createService();
+        SiteStatsController controller = new SiteStatsController(
+                toolService, mock(SiteStatsToolExportService.class), new StaticMessageSource());
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -63,7 +56,7 @@ public class SiteStatsControllerTest {
     public void unauthorizedDirectRouteReturnsForbidden() throws Exception {
         when(tool.getId()).thenReturn(StatsManager.SITESTATS_TOOLID);
         doThrow(new SecurityException("Not authorized"))
-                .when(reportAccessService).assertCanViewAll("site1");
+                .when(fixture.reportAccessService).assertCanViewAll("site1");
         mockMvc.perform(get("/reports").param("siteId", "site1"))
                 .andExpect(status().isForbidden());
     }

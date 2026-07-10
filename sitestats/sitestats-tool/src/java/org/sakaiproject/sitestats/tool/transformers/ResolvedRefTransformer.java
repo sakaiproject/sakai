@@ -17,6 +17,8 @@ package org.sakaiproject.sitestats.tool.transformers;
 
 import java.util.Collections;
 import java.util.List;
+
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.calendar.CalendarEntryData;
@@ -32,34 +34,52 @@ import org.sakaiproject.sitestats.api.event.detailed.podcasts.PodcastData;
 import org.sakaiproject.sitestats.api.event.detailed.samigo.SamigoData;
 import org.sakaiproject.sitestats.api.event.detailed.web.WebData;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
  * default mechanism of presentation is a simple K/V list
  * @author plukasew
  */
+@Service
 public class ResolvedRefTransformer
 {
 	private static final ResourceLoader MSG = new ResourceLoader("Messages");
+
+	private final StatsManager statsManager;
+	private final UserTimeService userTimeService;
+	private final UserDirectoryService userDirectoryService;
+
+	public ResolvedRefTransformer(StatsManager statsManager,
+			@Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
+			UserDirectoryService userDirectoryService)
+	{
+		this.statsManager = statsManager;
+		this.userTimeService = userTimeService;
+		this.userDirectoryService = userDirectoryService;
+	}
 
 	/**
 	 * Transforms ResolvedEventData for presentation to the user
 	 * @param resolved the data
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(ResolvedEventData resolved)
+	public List<EventDetail> transform(ResolvedEventData resolved, String siteId)
 	{
 		if (resolved instanceof CalendarEntryData)
 		{
-			return CalendarResolvedRefTransformer.transform((CalendarEntryData) resolved, MSG);
+			return CalendarResolvedRefTransformer.transform((CalendarEntryData) resolved, MSG, userTimeService);
 		}
 		else if (resolved instanceof MsgForumsData)
 		{
-			return ForumsResolvedRefTransformer.transform((MsgForumsData) resolved, MSG);
+			return ForumsResolvedRefTransformer.transform((MsgForumsData) resolved, MSG, userTimeService);
 		}
 		else if (resolved instanceof LessonsData)
 		{
-			return LessonsResolvedRefTransformer.transform((LessonsData) resolved, MSG);
+			return LessonsResolvedRefTransformer.transform((LessonsData) resolved, MSG, userTimeService, statsManager, siteId);
 		}
 		else if (resolved instanceof PollData)
 		{
@@ -79,11 +99,11 @@ public class ResolvedRefTransformer
 		}
 		else if (resolved instanceof AssignmentsData)
 		{
-			return AsnResolvedRefTransformer.transform((AssignmentsData) resolved, MSG);
+			return AsnResolvedRefTransformer.transform((AssignmentsData) resolved, MSG, userDirectoryService, siteId);
 		}
 		else if (resolved instanceof PodcastData)
 		{
-			return PodcastResolvedRefTransformer.transform((PodcastData) resolved, MSG);
+			return PodcastResolvedRefTransformer.transform((PodcastData) resolved, MSG, userTimeService);
 		}
 		else if (resolved instanceof ContentData)
 		{

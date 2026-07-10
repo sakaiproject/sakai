@@ -6,22 +6,26 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.RequiredArgsConstructor;
-
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.api.LocaleService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 @ControllerAdvice(basePackages = "org.sakaiproject.sitestats.tool.mvc")
-@RequiredArgsConstructor
 public class SiteStatsControllerAdvice {
 
     private final LocaleService localeService;
-    private final SakaiFacade facade;
+    private final UserTimeService userTimeService;
+
+    public SiteStatsControllerAdvice(LocaleService localeService,
+            @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
+        this.localeService = localeService;
+        this.userTimeService = userTimeService;
+    }
 
     @ModelAttribute("locale")
     public Locale locale(HttpServletRequest request, HttpServletResponse response) {
@@ -35,7 +39,7 @@ public class SiteStatsControllerAdvice {
 
     @ModelAttribute("timeZone")
     public ZoneId timeZone() {
-        return facade.getUserTimeService().getLocalTimeZone().toZoneId();
+        return userTimeService.getLocalTimeZone().toZoneId();
     }
 
     @ModelAttribute("sakaiHtmlHead")

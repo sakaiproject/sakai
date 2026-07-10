@@ -13,21 +13,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.ToolManager;
 
 public class SiteStatsToolServiceTest {
 
     private SiteStatsToolService service;
-    private SakaiFacade facade;
+    private SiteStatsToolServiceTestFixture fixture;
 
     @Before
     public void setup() {
-        facade = mock(SakaiFacade.class);
-        service = new SiteStatsToolService(facade);
+        fixture = new SiteStatsToolServiceTestFixture();
+        service = fixture.createService();
     }
 
     @Test
@@ -79,17 +76,13 @@ public class SiteStatsToolServiceTest {
 
     @Test
     public void reportRoutesUseCentralViewAllAuthorization() {
-        ToolManager toolManager = mock(ToolManager.class);
         Placement placement = mock(Placement.class);
-        SiteStatsReportAccessService access = mock(SiteStatsReportAccessService.class);
-        when(facade.getToolManager()).thenReturn(toolManager);
-        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(fixture.toolManager.getCurrentPlacement()).thenReturn(placement);
         when(placement.getContext()).thenReturn("site-1");
-        when(facade.getSiteStatsReportAccessService()).thenReturn(access);
 
         assertEquals("site-1", service.reportSite("site-1"));
 
-        verify(access).assertCanViewAll("site-1");
+        verify(fixture.reportAccessService).assertCanViewAll("site-1");
     }
 
     @Test

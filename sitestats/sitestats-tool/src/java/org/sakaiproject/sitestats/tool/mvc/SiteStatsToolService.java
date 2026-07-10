@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
@@ -27,10 +28,14 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.UserId;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
+import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.PagingParams;
 import org.sakaiproject.sitestats.api.event.detailed.SortingParams;
@@ -39,58 +44,122 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.tool.transformers.ResolvedRefTransformer;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class SiteStatsToolService {
 
     private static final int PAGE_SIZE = 50;
 
-    private final SakaiFacade facade;
+    private final StatsManager statsManager;
+    private final StatsUpdateManager statsUpdateManager;
+    private final EventRegistryService eventRegistryService;
+    private final SiteStatsToolEventsService siteStatsToolEventsService;
+    private final DetailedEventsManager detailedEventsManager;
+    private final ReportManager reportManager;
+    private final SiteStatsViewService siteStatsViewService;
+    private final SiteStatsReportAccessService reportAccessService;
+    private final SiteStatsReportExportService reportExportService;
+    private final SiteStatsReportPreviewService reportPreviewService;
+    private final SiteService siteService;
+    private final AuthzGroupService authzGroupService;
+    private final UserDirectoryService userDirectoryService;
+    private final UserTimeService userTimeService;
+    private final ToolManager toolManager;
+    private final ResolvedRefTransformer resolvedRefTransformer;
+
+    public SiteStatsToolService(StatsManager statsManager, StatsUpdateManager statsUpdateManager,
+            EventRegistryService eventRegistryService, SiteStatsToolEventsService siteStatsToolEventsService,
+            DetailedEventsManager detailedEventsManager, ReportManager reportManager,
+            SiteStatsViewService siteStatsViewService, SiteStatsReportAccessService reportAccessService,
+            SiteStatsReportExportService reportExportService, SiteStatsReportPreviewService reportPreviewService,
+            SiteService siteService, AuthzGroupService authzGroupService, UserDirectoryService userDirectoryService,
+            @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
+            ToolManager toolManager, ResolvedRefTransformer resolvedRefTransformer) {
+        this.statsManager = statsManager;
+        this.statsUpdateManager = statsUpdateManager;
+        this.eventRegistryService = eventRegistryService;
+        this.siteStatsToolEventsService = siteStatsToolEventsService;
+        this.detailedEventsManager = detailedEventsManager;
+        this.reportManager = reportManager;
+        this.siteStatsViewService = siteStatsViewService;
+        this.reportAccessService = reportAccessService;
+        this.reportExportService = reportExportService;
+        this.reportPreviewService = reportPreviewService;
+        this.siteService = siteService;
+        this.authzGroupService = authzGroupService;
+        this.userDirectoryService = userDirectoryService;
+        this.userTimeService = userTimeService;
+        this.toolManager = toolManager;
+        this.resolvedRefTransformer = resolvedRefTransformer;
+    }
 
     public String currentSiteId() {
-        return facade.getToolManager().getCurrentPlacement().getContext();
+        return toolManager.getCurrentPlacement().getContext();
     }
 
     public String currentUserId() {
-        return facade.getSiteStatsReportAccessService().currentUserId();
+        return reportAccessService.currentUserId();
     }
 
     public boolean isAdminTool() {
-        return StatsManager.SITESTATS_ADMIN_TOOLID.equals(facade.getToolManager().getCurrentTool().getId());
+        return StatsManager.SITESTATS_ADMIN_TOOLID.equals(toolManager.getCurrentTool().getId());
     }
 
     public SiteStatsOverview overview(String requestedSiteId) {
         String siteId = viewSite(requestedSiteId);
-        SiteStatsOverview overview = facade.getSiteStatsViewService().getOverview(siteId);
-        facade.getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
+        SiteStatsOverview overview = siteStatsViewService.getOverview(siteId);
+        statsManager.logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
         return overview;
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
-        return facade.getSiteStatsViewService().getReports(reportSite(requestedSiteId));
+        return siteStatsViewService.getReports(reportSite(requestedSiteId));
     }
 
     public ReportDef reportDefinition(String requestedSiteId, long reportId) {
         String siteId = reportSite(requestedSiteId);
-        ReportDef report = facade.getSiteStatsReportAccessService().persistedReportDefinition(siteId, reportId);
+        ReportDef report = reportAccessService.persistedReportDefinition(siteId, reportId);
         return new ReportDef(report, siteId);
     }
 
     public ReportDef editableReportDefinition(String requestedSiteId, long reportId) {
         String siteId = reportSite(requestedSiteId);
-        ReportDef report = facade.getSiteStatsReportAccessService().persistedSiteReportDefinition(siteId, reportId);
+        ReportDef report = reportAccessService.persistedSiteReportDefinition(siteId, reportId);
         return new ReportDef(report, siteId);
+    }
+
+    public ReportForm editReportForm(String requestedSiteId, long reportId) {
+        ReportDef report = editableReportDefinition(requestedSiteId, reportId);
+        return ReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
+    }
+
+    public CopiedReport copyReport(String requestedSiteId, long reportId) {
+        ReportDef report = reportDefinition(requestedSiteId, reportId);
+        ReportForm form = ReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
+        form.setId(0);
+        form.setTemplateId(report.getId());
+        return new CopiedReport(saveReport(report.getSiteId(), form), report.getSiteId());
+    }
+
+    public boolean canViewPreview(String requestedSiteId, String previewId) {
+        return reportExportService.canExportPreviewReport(reportSite(requestedSiteId), previewId);
     }
 
     public List<ReportDef> reportTemplates(String requestedSiteId) {
         reportSite(requestedSiteId);
-        return facade.getReportManager().getReportDefinitions(null, true, false);
+        return reportManager.getReportDefinitions(null, true, false);
     }
 
     public ReportDef buildReport(String requestedSiteId, ReportForm form) {
@@ -121,17 +190,17 @@ public class SiteStatsToolService {
         String siteId = reportSite(requestedSiteId);
         Site site;
         try {
-            site = facade.getSiteService().getSite(siteId);
+            site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Unknown site", e);
         }
 
-        boolean visitsAvailable = facade.getStatsManager().getEnableSiteVisits()
-                && facade.getStatsManager().getVisitsInfoAvailable();
-        boolean activityAvailable = facade.getStatsManager().isEnableSiteActivity();
-        boolean resourcesAvailable = facade.getStatsManager().isEnableResourceStats()
+        boolean visitsAvailable = statsManager.getEnableSiteVisits()
+                && statsManager.getVisitsInfoAvailable();
+        boolean activityAvailable = statsManager.isEnableSiteActivity();
+        boolean resourcesAvailable = statsManager.isEnableResourceStats()
                 && site.getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null;
-        boolean presencesAvailable = facade.getStatsManager().getEnableSitePresences();
+        boolean presencesAvailable = statsManager.getEnableSitePresences();
         List<String> availableReportTypes = new ArrayList<String>();
         if (visitsAvailable) {
             availableReportTypes.add(ReportManager.WHAT_VISITS);
@@ -146,17 +215,17 @@ public class SiteStatsToolService {
             availableReportTypes.add(ReportManager.WHAT_PRESENCES);
         }
 
-        PrefsData preferences = facade.getStatsManager().getPreferences(siteId, true);
+        PrefsData preferences = statsManager.getPreferences(siteId, true);
         List<NamedOption> tools = new ArrayList<NamedOption>();
         List<NamedOption> events = new ArrayList<NamedOption>();
-        for (ToolInfo tool : facade.getEventRegistryService().getEventRegistry(
+        for (ToolInfo tool : eventRegistryService.getEventRegistry(
                 siteId, preferences.isListToolEventsOnlyAvailableInSite())) {
-            if (!facade.getSiteStatsToolEventsService().isToolSupported(siteId, tool, preferences)) {
+            if (!siteStatsToolEventsService.isToolSupported(siteId, tool, preferences)) {
                 continue;
             }
-            tools.add(new NamedOption(tool.getToolId(), facade.getEventRegistryService().getToolName(tool.getToolId())));
+            tools.add(new NamedOption(tool.getToolId(), eventRegistryService.getToolName(tool.getToolId())));
             for (EventInfo event : tool.getEvents()) {
-                events.add(new NamedOption(event.getEventId(), facade.getEventRegistryService().getEventName(event.getEventId())));
+                events.add(new NamedOption(event.getEventId(), eventRegistryService.getEventName(event.getEventId())));
             }
         }
         Comparator<NamedOption> byLabel = Comparator.comparing(NamedOption::getLabel, String.CASE_INSENSITIVE_ORDER);
@@ -171,7 +240,7 @@ public class SiteStatsToolService {
                 .sorted(byLabel).collect(Collectors.toList());
         Set<String> roleIds = new HashSet<String>();
         try {
-            facade.getAuthzGroupService().getAuthzGroup(facade.getSiteService().siteReference(siteId)).getRoles()
+            authzGroupService.getAuthzGroup(siteService.siteReference(siteId)).getRoles()
                     .forEach(role -> roleIds.add(role.getId()));
         } catch (GroupNotDefinedException e) {
             throw new IllegalArgumentException("The site authorization group is unavailable", e);
@@ -196,7 +265,7 @@ public class SiteStatsToolService {
         }
         Site site;
         try {
-            site = facade.getSiteService().getSite(siteId);
+            site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Unknown site", e);
         }
@@ -275,7 +344,7 @@ public class SiteStatsToolService {
         params.setWhatResourceIds(Arrays.stream(StringUtils.defaultString(form.getWhatResourceIds()).split("[\\r\\n]+"))
                 .map(String::trim).filter(StringUtils::isNotBlank).collect(Collectors.toList()));
         params.setWhen(form.getWhen());
-        ZoneId zoneId = facade.getUserTimeService().getLocalTimeZone().toZoneId();
+        ZoneId zoneId = userTimeService.getLocalTimeZone().toZoneId();
         if (form.getWhenFrom() != null) {
             params.setWhenFrom(Date.from(form.getWhenFrom().atStartOfDay(zoneId).toInstant()));
         }
@@ -311,7 +380,7 @@ public class SiteStatsToolService {
 
     public long saveReport(String requestedSiteId, ReportForm form) {
         ReportDef report = buildReport(requestedSiteId, form);
-        if (!facade.getReportManager().saveReportDefinition(report)) {
+        if (!reportManager.saveReportDefinition(report)) {
             throw new IllegalStateException("The report could not be saved");
         }
         return report.getId();
@@ -319,23 +388,23 @@ public class SiteStatsToolService {
 
     public String previewReport(String requestedSiteId, ReportForm form) {
         ReportDef report = buildReport(requestedSiteId, form);
-        return facade.getSiteStatsReportPreviewService().register(report.getSiteId(), currentUserId(), report);
+        return reportPreviewService.register(report.getSiteId(), currentUserId(), report);
     }
 
     public void deleteReport(String requestedSiteId, long reportId) {
         ReportDef report = editableReportDefinition(requestedSiteId, reportId);
-        if (!facade.getReportManager().removeReportDefinition(report)) {
+        if (!reportManager.removeReportDefinition(report)) {
             throw new IllegalStateException("The report could not be deleted");
         }
     }
 
     public PrefsData preferences(String requestedSiteId) {
-        return facade.getStatsManager().getPreferences(viewSite(requestedSiteId), true);
+        return statsManager.getPreferences(viewSite(requestedSiteId), true);
     }
 
     public void savePreferences(String requestedSiteId, PreferencesForm form) {
         String siteId = viewSite(requestedSiteId);
-        PrefsData preferences = facade.getStatsManager().getPreferences(siteId, true);
+        PrefsData preferences = statsManager.getPreferences(siteId, true);
         preferences.setListToolEventsOnlyAvailableInSite(form.isListToolEventsOnlyAvailableInSite());
         preferences.setShowOwnStatisticsToStudents(form.isShowOwnStatisticsToStudents());
         preferences.setUseAllTools(form.isUseAllTools());
@@ -351,50 +420,50 @@ public class SiteStatsToolService {
             }
             tool.setSelected(toolSelected);
         }
-        if (!facade.getStatsManager().setPreferences(siteId, preferences)) {
+        if (!statsManager.setPreferences(siteId, preferences)) {
             throw new IllegalStateException("The preferences could not be saved");
         }
     }
 
     public UserActivityResult userActivity(String requestedSiteId, UserActivityForm form) {
         String siteId = viewSite(requestedSiteId);
-        List<UserOption> users = facade.getDetailedEventsManager().getUsersForTracking(siteId).stream()
+        List<UserOption> users = detailedEventsManager.getUsersForTracking(siteId).stream()
                 .map(userId -> new UserOption(userId, displayName(userId)))
                 .sorted(Comparator.comparing(UserOption::getDisplayName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
         List<String> tools = new ArrayList<String>();
         tools.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
-        PrefsData preferences = facade.getStatsManager().getPreferences(siteId, false);
-        tools.addAll(facade.getSiteStatsToolEventsService().getToolIds(siteId, preferences));
+        PrefsData preferences = statsManager.getPreferences(siteId, false);
+        tools.addAll(siteStatsToolEventsService.getToolIds(siteId, preferences));
         List<DetailedEvent> events = Collections.emptyList();
         long total = 0;
         if (StringUtils.isNotBlank(form.getUserId()) && !ReportManager.WHO_NONE.equals(form.getUserId())) {
-            ZoneId zoneId = facade.getUserTimeService().getLocalTimeZone().toZoneId();
+            ZoneId zoneId = userTimeService.getLocalTimeZone().toZoneId();
             Instant start = form.getStartDate().atStartOfDay(zoneId).toInstant();
             Instant end = form.getEndDate().plusDays(1).atStartOfDay(zoneId).toInstant();
             TrackingParams tracking = new TrackingParams(siteId,
-                    facade.getSiteStatsToolEventsService().getEventsForToolFilter(
+                    siteStatsToolEventsService.getEventsForToolFilter(
                             form.getToolId(), siteId, preferences, true),
                     Collections.singletonList(form.getUserId()), start, end);
-            total = facade.getDetailedEventsManager().getDetailedEventsCount(tracking);
+            total = detailedEventsManager.getDetailedEventsCount(tracking);
             long offset = (long) Math.max(0, form.getPage() - 1) * PAGE_SIZE;
-            events = facade.getDetailedEventsManager().getDetailedEvents(tracking,
+            events = detailedEventsManager.getDetailedEvents(tracking,
                     new PagingParams(offset, PAGE_SIZE), new SortingParams("eventDate", true));
-            facade.getStatsManager().logEvent(new UserId(form.getUserId()), StatsManager.LOG_ACTION_TRACK, siteId, false);
+            statsManager.logEvent(new UserId(form.getUserId()), StatsManager.LOG_ACTION_TRACK, siteId, false);
         }
         return new UserActivityResult(siteId, users, tools, events, total, PAGE_SIZE);
     }
 
     public EventDetailsResult eventDetails(String requestedSiteId, long eventId) {
         String siteId = viewSite(requestedSiteId);
-        DetailedEvent event = facade.getDetailedEventsManager().getDetailedEventById(eventId)
+        DetailedEvent event = detailedEventsManager.getDetailedEventById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown event"));
         if (!siteId.equals(event.getSiteId())) {
             throw new SecurityException("Not authorized for the requested event");
         }
-        List<EventDetail> details = ResolvedRefTransformer.transform(
-                facade.getDetailedEventsManager().resolveEventReference(
-                        event.getEventId(), event.getEventRef(), event.getSiteId()));
+        List<EventDetail> details = resolvedRefTransformer.transform(
+                detailedEventsManager.resolveEventReference(
+                        event.getEventId(), event.getEventRef(), event.getSiteId()), siteId);
         return new EventDetailsResult(siteId, event, details);
     }
 
@@ -403,19 +472,19 @@ public class SiteStatsToolService {
         Object siteType = StringUtils.isBlank(type) || "all".equals(type) ? null : type;
         int first = (Math.max(1, page) - 1) * PAGE_SIZE + 1;
         PagingPosition paging = new PagingPosition(first, first + PAGE_SIZE - 1);
-        return facade.getSiteService().getSites(SiteService.SelectionType.NON_USER, siteType,
+        return siteService.getSites(SiteService.SelectionType.NON_USER, siteType,
                 StringUtils.trimToNull(search), null, SiteService.SortType.TITLE_ASC, paging);
     }
 
     public List<String> siteTypes() {
         adminSite(currentSiteId());
-        return facade.getSiteService().getSiteTypes();
+        return siteService.getSiteTypes();
     }
 
     public JobRun latestJobRun() {
         adminSite(currentSiteId());
         try {
-            return facade.getStatsUpdateManager().getLatestJobRun();
+            return statsUpdateManager.getLatestJobRun();
         } catch (Exception e) {
             return null;
         }
@@ -437,14 +506,14 @@ public class SiteStatsToolService {
         String siteId = StringUtils.defaultIfBlank(requestedSiteId, currentSiteId());
         String currentSiteId = currentSiteId();
         if (!siteId.equals(currentSiteId)) {
-            facade.getSiteStatsReportAccessService().assertCanViewAdmin(currentSiteId);
+            reportAccessService.assertCanViewAdmin(currentSiteId);
         }
         if (AccessLevel.ADMIN == accessLevel) {
-            facade.getSiteStatsReportAccessService().assertCanViewAdmin(siteId);
+            reportAccessService.assertCanViewAdmin(siteId);
         } else if (AccessLevel.ALL == accessLevel) {
-            facade.getSiteStatsReportAccessService().assertCanViewAll(siteId);
+            reportAccessService.assertCanViewAll(siteId);
         } else {
-            facade.getSiteStatsReportAccessService().assertCanView(siteId);
+            reportAccessService.assertCanView(siteId);
         }
         return siteId;
     }
@@ -457,8 +526,8 @@ public class SiteStatsToolService {
 
     private String displayName(String userId) {
         try {
-            User user = facade.getUserDirectoryService().getUser(userId);
-            return facade.getStatsManager().getUserNameForDisplay(user);
+            User user = userDirectoryService.getUser(userId);
+            return statsManager.getUserNameForDisplay(user);
         } catch (Exception e) {
             return userId;
         }
@@ -484,6 +553,13 @@ public class SiteStatsToolService {
         private final boolean activityAvailable;
         private final boolean resourcesAvailable;
         private final boolean presencesAvailable;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class CopiedReport {
+        private final long reportId;
+        private final String siteId;
     }
 
     @Getter
