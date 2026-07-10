@@ -50,7 +50,7 @@ public interface Tags {
 
     public List<Tag> getAllInCollection(String tagCollectionId);
 
-    public List<Tag> getTagsByExactLabel(String label);
+    public List<Tag> getTagsByExactLabel(String label, String collectionId);
 
     public List<Tag> getTagsByPartialLabel(String label);
 

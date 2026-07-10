@@ -173,6 +173,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -5301,6 +5302,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
+
+                    // duplicate tags
+                    if (serverConfigurationService.getBoolean("tagservice.enable.integrations", false)) {
+                        List<Tag> associatedTags = tagService.getAssociatedTagsForItem(oAssignment.getContext(), oAssignmentId);
+
+                        List<String> newTagIds = new ArrayList<>();
+
+                        for (Tag tag : associatedTags) {
+                            List<Tag> tags = tagService.getTagsByExactLabel(tag.getTagLabel(), nAssignment.getContext());
+                            if (tags == null || tags.isEmpty()) {
+                               newTagIds.add(tag.getTagId());
+                            } else {
+                                tagService.saveTagAssociation(nAssignmentId, tags.get(0).getTagId());
+                            }
+                        }
+
+                        if (!newTagIds.isEmpty()) {
+                            tagService.duplicateTags(nAssignment.getContext(), true, newTagIds, nAssignmentId);
+                        }
+                    }
 
                     try {
                         if (taggingManager.isTaggable()) {
