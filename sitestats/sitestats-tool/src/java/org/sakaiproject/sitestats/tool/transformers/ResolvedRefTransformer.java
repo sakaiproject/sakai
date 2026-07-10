@@ -33,10 +33,11 @@ import org.sakaiproject.sitestats.api.event.detailed.content.ContentData;
 import org.sakaiproject.sitestats.api.event.detailed.podcasts.PodcastData;
 import org.sakaiproject.sitestats.api.event.detailed.samigo.SamigoData;
 import org.sakaiproject.sitestats.api.event.detailed.web.WebData;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,19 +48,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResolvedRefTransformer
 {
-	private static final ResourceLoader MSG = new ResourceLoader("Messages");
-
 	private final StatsManager statsManager;
 	private final UserTimeService userTimeService;
 	private final UserDirectoryService userDirectoryService;
+	private final MessageSource messageSource;
+	private final LocaleService localeService;
 
 	public ResolvedRefTransformer(StatsManager statsManager,
 			@Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
-			UserDirectoryService userDirectoryService)
+			UserDirectoryService userDirectoryService, MessageSource messageSource, LocaleService localeService)
 	{
 		this.statsManager = statsManager;
 		this.userTimeService = userTimeService;
 		this.userDirectoryService = userDirectoryService;
+		this.messageSource = messageSource;
+		this.localeService = localeService;
 	}
 
 	/**
@@ -69,64 +72,71 @@ public class ResolvedRefTransformer
 	 */
 	public List<EventDetail> transform(ResolvedEventData resolved, String siteId)
 	{
+		LocalizedMessages messages = new LocalizedMessages(
+				messageSource, localeService.getLocaleForCurrentSiteAndUser());
 		if (resolved instanceof CalendarEntryData)
 		{
-			return CalendarResolvedRefTransformer.transform((CalendarEntryData) resolved, MSG, userTimeService);
+			return CalendarResolvedRefTransformer.transform((CalendarEntryData) resolved, messages, userTimeService);
 		}
 		else if (resolved instanceof MsgForumsData)
 		{
-			return ForumsResolvedRefTransformer.transform((MsgForumsData) resolved, MSG, userTimeService);
+			return ForumsResolvedRefTransformer.transform((MsgForumsData) resolved, messages, userTimeService);
 		}
 		else if (resolved instanceof LessonsData)
 		{
-			return LessonsResolvedRefTransformer.transform((LessonsData) resolved, MSG, userTimeService, statsManager, siteId);
+			return LessonsResolvedRefTransformer.transform((LessonsData) resolved, messages,
+					userTimeService, statsManager, siteId);
 		}
 		else if (resolved instanceof PollData)
 		{
-			return PollsResolvedRefTransformer.transform((PollData) resolved, MSG);
+			return PollsResolvedRefTransformer.transform((PollData) resolved, messages);
 		}
 		else if (resolved instanceof PageData)
 		{
-			return WikiResolvedRefTransformer.transform((PageData) resolved, MSG);
+			return WikiResolvedRefTransformer.transform((PageData) resolved, messages);
 		}
 		else if (resolved instanceof FeedData)
 		{
-			return NewsResolvedRefTransformer.transform((FeedData) resolved, MSG);
+			return NewsResolvedRefTransformer.transform((FeedData) resolved, messages);
 		}
 		else if (resolved instanceof AnnouncementData)
 		{
-			return AnncResolvedRefTransformer.transform((AnnouncementData) resolved, MSG);
+			return AnncResolvedRefTransformer.transform((AnnouncementData) resolved, messages);
 		}
 		else if (resolved instanceof AssignmentsData)
 		{
-			return AsnResolvedRefTransformer.transform((AssignmentsData) resolved, MSG, userDirectoryService, siteId);
+			return AsnResolvedRefTransformer.transform((AssignmentsData) resolved, messages,
+					userDirectoryService, siteId);
 		}
 		else if (resolved instanceof PodcastData)
 		{
-			return PodcastResolvedRefTransformer.transform((PodcastData) resolved, MSG, userTimeService);
+			return PodcastResolvedRefTransformer.transform((PodcastData) resolved, messages, userTimeService);
 		}
 		else if (resolved instanceof ContentData)
 		{
-			return ContentResolvedRefTransformer.transform((ContentData) resolved, MSG);
+			return ContentResolvedRefTransformer.transform((ContentData) resolved, messages);
 		}
 		else if (resolved instanceof WebData)
 		{
-			return WebResolvedRefTransformer.transform((WebData) resolved, MSG);
+			return WebResolvedRefTransformer.transform((WebData) resolved, messages);
 		}
 		else if (resolved instanceof SamigoData)
 		{
-			return SamigoResolvedRefTransformer.transform((SamigoData) resolved, MSG);
+			return SamigoResolvedRefTransformer.transform((SamigoData) resolved, messages);
 		}
 		else if (resolved instanceof ResolvedEventData.NoDetails)
 		{
-			return Collections.singletonList(EventDetail.newText(MSG.getString("de_info"), MSG.getString("de_nodetails")));
+			return Collections.singletonList(EventDetail.newText(
+					messages.getString("de_info"), messages.getString("de_nodetails")));
 		}
 		else if (resolved instanceof ResolvedEventData.PermissionError)
 		{
-			return Collections.singletonList(EventDetail.newText(MSG.getString("de_error"), MSG.getString("de_noperms")));
+			return Collections.singletonList(EventDetail.newText(
+					messages.getString("de_error"), messages.getString("de_noperms")));
 		}
 
 		// ResolvedEventData.Error or other error state
-		return Collections.singletonList(EventDetail.newText(MSG.getString("de_error"), MSG.getString("de_nodata")));
+		return Collections.singletonList(EventDetail.newText(
+				messages.getString("de_error"), messages.getString("de_nodata")));
 	}
 }

@@ -20,7 +20,6 @@ import java.util.List;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.calendar.CalendarEntryData;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -32,10 +31,11 @@ public class CalendarResolvedRefTransformer
 	/**
 	 * Transforms CalendarEntryData for presentation to the user
 	 * @param calEntry the data
-	 * @param msg resource loader for i18n
+	 * @param msg localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(CalendarEntryData calEntry, ResourceLoader msg, UserTimeService userTimeService)
+	public static List<EventDetail> transform(CalendarEntryData calEntry, LocalizedMessages msg,
+			UserTimeService userTimeService)
 	{
 		List<EventDetail> details = new ArrayList<>(4);
 		details.add(EventDetail.newText(msg.getString("de_calendar_title"), calEntry.title));

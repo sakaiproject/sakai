@@ -32,7 +32,6 @@ import org.sakaiproject.sitestats.api.event.detailed.lessons.LessonsData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.PageData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.TextItemData;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -47,10 +46,10 @@ public class LessonsResolvedRefTransformer
 	/**
 	 * Transforms LessonsData for presentation to the user
 	 * @param resolved the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(LessonsData resolved, ResourceLoader rl,
+	public static List<EventDetail> transform(LessonsData resolved, LocalizedMessages rl,
 			UserTimeService userTimeService, StatsManager statsManager, String siteId)
 	{
 		List<EventDetail> eventDetails = new ArrayList<>(3);
@@ -154,7 +153,7 @@ public class LessonsResolvedRefTransformer
 	 * @param page
 	 * @return the page title, or full page hierarchy for sub-pages
 	 */
-	private static String getPageDisplay(PageData page, ResourceLoader rl)
+	private static String getPageDisplay(PageData page, LocalizedMessages rl)
 	{
 		return page.pageHierarchy.stream()
 				.map(pg -> PageData.DELETED_HIERARCHY_PAGE.equals(pg) ? rl.getString("de_lessons_deleted_page") : pg)

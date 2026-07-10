@@ -24,7 +24,6 @@ import org.sakaiproject.sitestats.api.event.detailed.forums.MessageData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.MsgForumsData;
 import org.sakaiproject.sitestats.api.event.detailed.forums.TopicData;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -36,10 +35,11 @@ public class ForumsResolvedRefTransformer
 	/**
 	 * Transforms MsgForumsData for presentation to the user
 	 * @param resolved the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(MsgForumsData resolved, ResourceLoader rl, UserTimeService userTimeService)
+	public static List<EventDetail> transform(MsgForumsData resolved, LocalizedMessages rl,
+			UserTimeService userTimeService)
 	{
 		if (resolved instanceof ForumData)
 		{
@@ -92,13 +92,14 @@ public class ForumsResolvedRefTransformer
 		return Collections.emptyList();
 	}
 
-	private static void addMsgDetails(List<EventDetail> list, String key, MessageData msg, UserTimeService timeServ, ResourceLoader rl)
+	private static void addMsgDetails(List<EventDetail> list, String key, MessageData msg,
+			UserTimeService timeServ, LocalizedMessages rl)
 	{
 		String date = timeServ.shortLocalizedTimestamp(msg.creationDate, timeServ.getLocalTimeZone(), rl.getLocale());
 		list.add(EventDetail.newText(key, rl.getFormattedMessage("de_msgforums_message_template", msg.title, msg.author, date)));
 	}
 
-	private static EventDetail topicToRef(TopicData topic, ResourceLoader rl)
+	private static EventDetail topicToRef(TopicData topic, LocalizedMessages rl)
 	{
 		if (topic.deleted)
 		{

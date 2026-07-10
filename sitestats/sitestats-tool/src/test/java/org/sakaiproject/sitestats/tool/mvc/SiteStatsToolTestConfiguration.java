@@ -26,9 +26,11 @@ import org.sakaiproject.sitestats.tool.config.SiteStatsWebMvcConfiguration;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.api.LocaleService;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
@@ -129,5 +131,11 @@ public class SiteStatsToolTestConfiguration extends SakaiTestConfiguration {
         LocaleService localeService = mock(LocaleService.class);
         when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
         return localeService;
+    }
+
+    @Bean
+    @Primary
+    public MessageSource testMessageSource() {
+        return mock(MessageSource.class);
     }
 }

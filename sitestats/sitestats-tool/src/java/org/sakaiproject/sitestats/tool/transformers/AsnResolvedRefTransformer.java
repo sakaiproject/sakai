@@ -28,7 +28,6 @@ import org.sakaiproject.sitestats.api.event.detailed.assignments.SubmissionData;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -47,10 +46,10 @@ public class AsnResolvedRefTransformer
 	/**
 	 * Transforms AssignmentData for presentation to the user
 	 * @param data assignment data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(AssignmentsData data, ResourceLoader rl,
+	public static List<EventDetail> transform(AssignmentsData data, LocalizedMessages rl,
 			UserDirectoryService userDirectoryService, String siteId)
 	{
 		if (data instanceof AssignmentData)
@@ -79,7 +78,7 @@ public class AsnResolvedRefTransformer
 		return Collections.emptyList();
 	}
 
-	private static EventDetail getAsnDetails(AssignmentData asn, ResourceLoader rl)
+	private static EventDetail getAsnDetails(AssignmentData asn, LocalizedMessages rl)
 	{
 		String title = asn.anonymous ? rl.getString("de_asn_anon") : asn.title;
 		if (!asn.anonymous && asn.deleted)
@@ -89,7 +88,7 @@ public class AsnResolvedRefTransformer
 		return EventDetail.newText(rl.getString("de_asn"), title);
 	}
 
-	private static String getSubmitterDetails(GroupSubmissionData gsub, ResourceLoader rl,
+	private static String getSubmitterDetails(GroupSubmissionData gsub, LocalizedMessages rl,
 			UserDirectoryService userDirectoryService, String siteId)
 	{
 		String by = gsub.byInstructor ? rl.getString(INS)
@@ -97,7 +96,7 @@ public class AsnResolvedRefTransformer
 		return rl.getFormattedMessage(BY_FOR, by, gsub.group);
 	}
 
-	private static String getSubmitterDetails(SubmissionData sub, ResourceLoader rl,
+	private static String getSubmitterDetails(SubmissionData sub, LocalizedMessages rl,
 			UserDirectoryService userDirectoryService, String siteId)
 	{
 		String submitter = getSubmitterDisplay(sub.submitterId, rl, userDirectoryService, siteId);
@@ -122,7 +121,7 @@ public class AsnResolvedRefTransformer
 		}
 	}
 
-	private static String getSubmitterDisplay(String userId, ResourceLoader rl,
+	private static String getSubmitterDisplay(String userId, LocalizedMessages rl,
 			UserDirectoryService userDirectoryService, String siteId)
 	{
 		return getUser(userId, userDirectoryService)
