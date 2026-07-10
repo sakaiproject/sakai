@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -20,6 +21,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
@@ -54,6 +56,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,8 @@ import org.springframework.stereotype.Service;
 public class SiteStatsToolService {
 
     private static final int PAGE_SIZE = 50;
+    private static final int USER_SEARCH_CANDIDATE_LIMIT = 50;
+    private static final int USER_SEARCH_RESULT_LIMIT = 20;
 
     private final StatsManager statsManager;
     private final StatsUpdateManager statsUpdateManager;
@@ -191,6 +196,10 @@ public class SiteStatsToolService {
     }
 
     public ReportEditorOptions reportEditorOptions(String requestedSiteId) {
+        return reportEditorOptions(requestedSiteId, Collections.emptyList());
+    }
+
+    public ReportEditorOptions reportEditorOptions(String requestedSiteId, Collection<String> selectedUserIds) {
         String siteId = reportSite(requestedSiteId);
         Site site;
         try {
@@ -239,8 +248,9 @@ public class SiteStatsToolService {
         List<NamedOption> groups = site.getGroups().stream()
                 .map(group -> new NamedOption(group.getId(), group.getTitle()))
                 .sorted(byLabel).collect(Collectors.toList());
-        List<NamedOption> users = site.getUsers().stream()
-                .map(userId -> new NamedOption(userId, displayName(userId)))
+        List<NamedOption> users = userDirectoryService.getUsers(selectedUserIds).stream()
+                .filter(user -> isActiveSiteMember(site, user.getId()))
+                .map(user -> new NamedOption(user.getId(), displayName(user)))
                 .sorted(byLabel).collect(Collectors.toList());
         Set<String> roleIds = new HashSet<String>();
         try {
@@ -253,6 +263,39 @@ public class SiteStatsToolService {
                 .sorted(byLabel).collect(Collectors.toList());
         return new ReportEditorOptions(tools, events, roles, groups, users, availableReportTypes,
                 visitsAvailable, activityAvailable, resourcesAvailable, presencesAvailable);
+    }
+
+    public List<NamedOption> searchReportUsers(String requestedSiteId, String query) {
+        String siteId = reportSite(requestedSiteId);
+        String normalizedQuery = StringUtils.trimToEmpty(query);
+        if (normalizedQuery.length() < 2) {
+            return Collections.emptyList();
+        }
+        Site site;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("Unknown site", e);
+        }
+        List<User> candidates = new ArrayList<User>();
+        try {
+            User exactMatch = userDirectoryService.getUserByEid(normalizedQuery);
+            if (exactMatch != null) {
+                candidates.add(exactMatch);
+            }
+        } catch (UserNotDefinedException e) {
+            // Continue with the bounded directory search.
+        }
+        candidates.addAll(userDirectoryService.searchUsers(
+                normalizedQuery, 1, USER_SEARCH_CANDIDATE_LIMIT));
+        Set<String> seenUserIds = new HashSet<String>();
+        return candidates.stream()
+                .filter(user -> seenUserIds.add(user.getId()))
+                .filter(user -> isActiveSiteMember(site, user.getId()))
+                .map(user -> new NamedOption(user.getId(), displayName(user)))
+                .sorted(Comparator.comparing(NamedOption::getLabel, String.CASE_INSENSITIVE_ORDER))
+                .limit(USER_SEARCH_RESULT_LIMIT)
+                .collect(Collectors.toList());
     }
 
     public void prepareReportForm(ReportForm form, ReportEditorOptions options) {
@@ -551,10 +594,20 @@ public class SiteStatsToolService {
     private String displayName(String userId) {
         try {
             User user = userDirectoryService.getUser(userId);
-            return statsManager.getUserNameForDisplay(user);
+            return displayName(user);
         } catch (Exception e) {
             return userId;
         }
+    }
+
+    private String displayName(User user) {
+        return StringUtils.defaultIfBlank(statsManager.getUserNameForDisplay(user),
+                StringUtils.defaultIfBlank(user.getDisplayName(), user.getId()));
+    }
+
+    private boolean isActiveSiteMember(Site site, String userId) {
+        Member member = site.getMember(userId);
+        return member != null && member.isActive();
     }
 
     private String toolName(String toolId) {

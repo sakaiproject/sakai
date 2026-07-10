@@ -34,6 +34,70 @@ if (reportEditor) {
   const chartSource = control("chart-source");
   const chartCategory = control("chart-category");
   const chartSeries = control("chart-series");
+  const userSearch = control("who-user-search");
+  const userSearchResults = control("who-user-search-results");
+  const userSearchStatus = control("who-user-search-status");
+  const selectedUsers = control("who-users");
+
+  let userSearchTimer;
+  let userSearchRequest;
+
+  const messageWithName = (message, name) => message.replace("{0}", name);
+  const searchUsers = async query => {
+    userSearchRequest?.abort();
+    userSearchRequest = new AbortController();
+    userSearchStatus.textContent = userSearch.dataset.searching;
+    const endpoint = new URL(userSearch.dataset.endpoint, window.location.href);
+    endpoint.searchParams.set("q", query);
+    try {
+      const response = await fetch(endpoint, {
+        headers: { Accept: "application/json" },
+        signal: userSearchRequest.signal,
+      });
+      if (!response.ok) {
+        throw new Error(`User search failed with status ${response.status}`);
+      }
+      const selectedIds = new Set(Array.from(selectedUsers.options, option => option.value));
+      const users = (await response.json()).filter(user => !selectedIds.has(user.id));
+      userSearchResults.replaceChildren(...users.map(user => {
+        const item = document.createElement("li");
+        item.className = "list-group-item p-1";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn btn-link text-start w-100";
+        button.textContent = messageWithName(userSearch.dataset.add, user.label);
+        button.addEventListener("click", () => {
+          selectedUsers.add(new Option(user.label, user.id, true, true));
+          item.remove();
+          userSearchStatus.textContent = messageWithName(userSearch.dataset.added, user.label);
+          userSearch.focus();
+        });
+        item.append(button);
+        return item;
+      }));
+      userSearchStatus.textContent = users.length > 0
+        ? messageWithName(users.length === 1
+          ? userSearch.dataset.resultOne : userSearch.dataset.resultMany, String(users.length))
+        : userSearch.dataset.empty;
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        userSearchResults.replaceChildren();
+        userSearchStatus.textContent = userSearch.dataset.error;
+      }
+    }
+  };
+
+  userSearch?.addEventListener("input", () => {
+    window.clearTimeout(userSearchTimer);
+    userSearchRequest?.abort();
+    userSearchResults.replaceChildren();
+    const query = userSearch.value.trim();
+    if (query.length < 2) {
+      userSearchStatus.textContent = "";
+      return;
+    }
+    userSearchTimer = window.setTimeout(() => searchUsers(query), 300);
+  });
 
   const updateTotals = () => {
     const invalidByReportType = {

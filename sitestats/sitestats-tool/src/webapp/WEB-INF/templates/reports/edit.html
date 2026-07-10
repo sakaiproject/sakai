@@ -144,7 +144,14 @@
         </select>
       </div>
       <div id="who-custom-options" class="mb-3">
-        <label class="form-label" for="who-users" th:text="#{report_who_custom_sel}">Custom</label>
+        <label class="form-label" for="who-user-search" th:text="#{sitestats_user_search}">Search site users</label>
+        <input id="who-user-search" class="form-control" type="search" minlength="2"
+               aria-describedby="who-user-search-help who-user-search-status"
+               th:attr="data-endpoint=@{/reports/users(siteId=${siteId})},data-searching=#{sitestats_user_searching},data-empty=#{sitestats_user_search_empty},data-error=#{sitestats_user_search_error},data-result-one=#{sitestats_user_search_result_one},data-result-many=#{sitestats_user_search_result_many},data-add=#{sitestats_user_add},data-added=#{sitestats_user_added}"/>
+        <p id="who-user-search-help" class="form-text" th:text="#{sitestats_user_search_help}">Enter at least two characters.</p>
+        <div id="who-user-search-status" class="form-text" aria-live="polite"></div>
+        <ul id="who-user-search-results" class="list-group mb-3"></ul>
+        <label class="form-label" for="who-users" th:text="#{sitestats_selected_users}">Selected users</label>
         <select id="who-users" class="form-select" th:field="*{whoUserIds}" multiple size="7"
                 th:title="#{report_multiple_sel_instruction}">
           <option th:each="user : ${editorOptions.users}" th:value="${user.id}" th:text="${user.label}"></option>

@@ -91,6 +91,14 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator("#who-role-options")).isHidden();
         page.getByLabel("Users:").selectOption("who-role");
         assertThat(page.locator("#who-role-options")).isVisible();
+        page.getByLabel("Users:").selectOption("who-custom");
+        Locator userSearch = page.getByLabel("Search site users");
+        assertThat(userSearch).isVisible();
+        userSearch.fill("instructor1");
+        Locator userResult = page.locator("#who-user-search-results button").first();
+        assertThat(userResult).isVisible();
+        userResult.click();
+        assertThat(page.locator("#who-users option:checked")).hasCount(1);
 
         page.getByLabel("Specify sorting field").check();
         assertThat(page.locator("#sorting-options")).isVisible();

@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -84,6 +85,13 @@ public class SiteStatsController {
         ReportForm form = new ReportForm();
         commonReportForm(model, authorizedSiteId, form);
         return "reports/edit";
+    }
+
+    @GetMapping("/reports/users")
+    @ResponseBody
+    public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(required = false) String siteId,
+            @RequestParam String q) {
+        return toolService.searchReportUsers(siteId, q);
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -253,7 +261,8 @@ public class SiteStatsController {
 
     private void commonReportForm(Model model, String siteId, ReportForm form) {
         commonModel(model, siteId, "reports");
-        SiteStatsToolService.ReportEditorOptions editorOptions = toolService.reportEditorOptions(siteId);
+        SiteStatsToolService.ReportEditorOptions editorOptions = toolService.reportEditorOptions(
+                siteId, form.getWhoUserIds());
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
         model.addAttribute("templates", toolService.reportTemplates(siteId));

@@ -7,14 +7,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -40,10 +43,15 @@ import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityResult;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -58,15 +66,18 @@ public class SiteStatsToolServiceTest {
     @Autowired private EventRegistryService eventRegistryService;
     @Autowired private LocaleService localeService;
     @Autowired private SiteStatsReportAccessService reportAccessService;
+    @Autowired private SiteService siteService;
     @Autowired private SiteStatsToolEventsService siteStatsToolEventsService;
     @Autowired private StatsManager statsManager;
     @Autowired private ToolManager toolManager;
     @Autowired private UserTimeService userTimeService;
+    @Autowired private UserDirectoryService userDirectoryService;
 
     @Before
     public void setup() {
         reset(detailedEventsManager, eventRegistryService, localeService, reportAccessService,
-                siteStatsToolEventsService, statsManager, toolManager, userTimeService);
+                siteService, siteStatsToolEventsService, statsManager, toolManager, userDirectoryService,
+                userTimeService);
     }
 
     @Test
@@ -193,6 +204,34 @@ public class SiteStatsToolServiceTest {
         assertEquals("Assignment submitted", activityEvent.getLabel());
         assertEquals(timestamp.toString(), activityEvent.getTimestamp());
         assertEquals("Jul 10, 2026, 2:30 PM EDT", activityEvent.getDisplayTimestamp());
+    }
+
+    @Test
+    public void reportUserSearchIsBoundedAndReturnsOnlyActiveSiteMembers() throws Exception {
+        Placement placement = mock(Placement.class);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(placement.getContext()).thenReturn("site-1");
+        Site site = mock(Site.class);
+        when(siteService.getSite("site-1")).thenReturn(site);
+        User memberUser = mock(User.class);
+        User otherUser = mock(User.class);
+        when(memberUser.getId()).thenReturn("member-1");
+        when(otherUser.getId()).thenReturn("other-1");
+        when(userDirectoryService.getUserByEid("ali")).thenReturn(memberUser);
+        when(userDirectoryService.searchUsers("ali", 1, 50)).thenReturn(Arrays.asList(memberUser, otherUser));
+        Member member = mock(Member.class);
+        when(member.isActive()).thenReturn(true);
+        when(site.getMember("member-1")).thenReturn(member);
+        when(statsManager.getUserNameForDisplay(memberUser)).thenReturn("Alice Member");
+
+        List<SiteStatsToolService.NamedOption> result = service.searchReportUsers("site-1", " ali ");
+
+        assertEquals(1, result.size());
+        assertEquals("member-1", result.get(0).getId());
+        assertEquals("Alice Member", result.get(0).getLabel());
+        verify(userDirectoryService).getUserByEid("ali");
+        verify(userDirectoryService).searchUsers("ali", 1, 50);
+        verify(site, never()).getUsers();
     }
 
     private ReportForm validForm() {

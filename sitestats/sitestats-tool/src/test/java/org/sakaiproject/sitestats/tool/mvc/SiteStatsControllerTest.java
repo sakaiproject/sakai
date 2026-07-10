@@ -6,6 +6,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -24,6 +25,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -94,5 +96,27 @@ public class SiteStatsControllerTest {
                 .andExpect(model().attribute("timeZone", ZoneId.of("America/New_York")))
                 .andExpect(model().attribute("cdnQuery", "?version=test"))
                 .andExpect(model().attribute("siteId", "site1"));
+    }
+
+    @Test
+    public void reportUserSearchUsesJsonRoute() throws Exception {
+        mockMvc.perform(get("/reports/users")
+                    .param("siteId", "site1")
+                    .param("q", "a")
+                    .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("[]"));
+    }
+
+    @Test
+    public void reportUserSearchRequiresReportAuthorization() throws Exception {
+        doThrow(new SecurityException("Not authorized"))
+                .when(reportAccessService).assertCanViewAll("site1");
+
+        mockMvc.perform(get("/reports/users")
+                    .param("siteId", "site1")
+                    .param("q", "alice")
+                    .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }
