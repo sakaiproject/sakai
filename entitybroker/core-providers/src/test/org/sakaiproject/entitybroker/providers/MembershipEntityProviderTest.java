@@ -43,6 +43,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -69,6 +70,8 @@ public class MembershipEntityProviderTest {
     private PrivacyManager privacyManager;
     private UserDirectoryService userDirectoryService;
     private UserAuditRegistration userAuditRegistrationService;
+    @Mock
+    private UserAuditService userAuditService;
 
     @Before
     public void setUp() throws UserNotDefinedException {
@@ -82,9 +85,11 @@ public class MembershipEntityProviderTest {
         userAuditRegistrationService = Mockito.mock(UserAuditRegistration.class);
         provider.setUserDirectoryService(userDirectoryService);
         provider.setUserAuditRegistration(userAuditRegistrationService);
+        provider.setUserAuditService(userAuditService);
         provider.setPrivacyManager(privacyManager);
 
         User user = mock(User.class);
+        when(user.getId()).thenReturn("user-foo");
         when(userDirectoryService.getUser("user-foo")).thenReturn(user);
     }
 
@@ -646,6 +651,7 @@ public class MembershipEntityProviderTest {
 
         EntityUser entityUser = mock(EntityUser.class);
         when(entityUser.getEid()).thenReturn("user-foo");
+        when(entityUser.getId()).thenReturn("user-foo");
         when(userEntityProvider.getCurrentUser(entityView)).thenReturn(entityUser);
 
         Site site = mock(Site.class);
@@ -664,6 +670,7 @@ public class MembershipEntityProviderTest {
 
         EntityUser entityUser = mock(EntityUser.class);
         when(entityUser.getEid()).thenReturn("user-foo");
+        when(entityUser.getId()).thenReturn("user-foo");
         when(userEntityProvider.getCurrentUser(entityView)).thenReturn(entityUser);
 
         Site site = mock(Site.class);
@@ -684,6 +691,7 @@ public class MembershipEntityProviderTest {
 
         EntityUser entityUser = mock(EntityUser.class);
         when(entityUser.getEid()).thenReturn("user-foo");
+        when(entityUser.getId()).thenReturn("user-foo");
         when(userEntityProvider.getCurrentUser(entityView)).thenReturn(entityUser);
 
         Site site = mock(Site.class);
