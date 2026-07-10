@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletResponse;
-
 @Controller
 @RequiredArgsConstructor
 public class SiteStatsController {
@@ -182,7 +180,7 @@ public class SiteStatsController {
         form.setSelectedEventIds(new ArrayList<String>(preferences.getToolEventsStringList()));
         commonModel(model, authorizedSiteId, "preferences");
         model.addAttribute("preferencesForm", form);
-        model.addAttribute("tools", preferences.getToolEventsDef());
+        model.addAttribute("tools", toolService.activityDefinitionTools(preferences));
         model.addAttribute("chartTransparencyChoices", Arrays.asList(
                 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f));
         return "preferences";
@@ -244,17 +242,13 @@ public class SiteStatsController {
     }
 
     @ExceptionHandler(SecurityException.class)
-    public String forbidden(SecurityException exception, Model model, HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        model.addAttribute("message", exception.getMessage());
-        return "error/403";
+    public ResponseEntity<Void> forbidden() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
-    public String notFound(RuntimeException exception, Model model, HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        model.addAttribute("message", exception.getMessage());
-        return "error/404";
+    public ResponseEntity<Void> notFound() {
+        return ResponseEntity.notFound().build();
     }
 
     private void commonReportForm(Model model, String siteId, ReportForm form) {

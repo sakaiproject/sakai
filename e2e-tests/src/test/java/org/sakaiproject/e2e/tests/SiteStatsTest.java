@@ -179,6 +179,12 @@ class SiteStatsTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).click();
+        Locator preferenceTools = page.locator("fieldset").filter(
+            new Locator.FilterOptions().setHasText("Activity definition")).locator("h2");
+        assertTrue(preferenceTools.count() > 0);
+        for (int index = 0; index < preferenceTools.count(); index++) {
+            assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));
+        }
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.getByText("The preferences were saved.")).isVisible();
@@ -186,6 +192,13 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^User Activity$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.locator("input[type=date]")).hasCount(2);
+        Locator toolOptions = page.locator("#activity-tool option");
+        for (int index = 0; index < toolOptions.count(); index++) {
+            String value = toolOptions.nth(index).getAttribute("value");
+            if (value != null && value.contains(".")) {
+                assertTrue(!value.equals(toolOptions.nth(index).textContent()));
+            }
+        }
         Locator users = page.getByLabel("User");
         if (users.locator("option").count() > 1) {
             users.selectOption(new SelectOption().setIndex(1));

@@ -5,7 +5,7 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('overview')}"></div>
   <h1 class="h3 mt-3" th:text="#{menu_overview}">Overview</h1>
-  <div th:if="${#lists.isEmpty(overview.widgets)}" class="sak-banner-info" role="status">No statistics are available for this site.</div>
+  <div th:if="${#lists.isEmpty(overview.widgets)}" class="sak-banner-info" role="status" th:text="#{sitestats_no_statistics}">No statistics are available for this site.</div>
   <div class="row g-4" th:if="${!#lists.isEmpty(overview.widgets)}">
     <section class="col-12" th:each="widget : ${overview.widgets}" th:if="${widget.visible}">
       <h2 class="h4" th:text="${widget.title}">Report</h2>

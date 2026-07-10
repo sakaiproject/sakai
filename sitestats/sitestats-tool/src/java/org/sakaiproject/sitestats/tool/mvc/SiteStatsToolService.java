@@ -54,6 +54,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,7 @@ public class SiteStatsToolService {
     private final SiteService siteService;
     private final AuthzGroupService authzGroupService;
     private final UserDirectoryService userDirectoryService;
+    private final LocaleService localeService;
     private final UserTimeService userTimeService;
     private final ToolManager toolManager;
     private final ResolvedRefTransformer resolvedRefTransformer;
@@ -85,6 +87,7 @@ public class SiteStatsToolService {
             SiteStatsViewService siteStatsViewService, SiteStatsReportAccessService reportAccessService,
             SiteStatsReportExportService reportExportService, SiteStatsReportPreviewService reportPreviewService,
             SiteService siteService, AuthzGroupService authzGroupService, UserDirectoryService userDirectoryService,
+            LocaleService localeService,
             @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
             ToolManager toolManager, ResolvedRefTransformer resolvedRefTransformer) {
         this.statsManager = statsManager;
@@ -100,6 +103,7 @@ public class SiteStatsToolService {
         this.siteService = siteService;
         this.authzGroupService = authzGroupService;
         this.userDirectoryService = userDirectoryService;
+        this.localeService = localeService;
         this.userTimeService = userTimeService;
         this.toolManager = toolManager;
         this.resolvedRefTransformer = resolvedRefTransformer;
@@ -402,6 +406,15 @@ public class SiteStatsToolService {
         return statsManager.getPreferences(viewSite(requestedSiteId), true);
     }
 
+    public List<ActivityDefinitionTool> activityDefinitionTools(PrefsData preferences) {
+        return preferences.getToolEventsDef().stream()
+                .map(tool -> new ActivityDefinitionTool(tool.getToolId(), toolName(tool.getToolId()),
+                        tool.getEvents().stream()
+                                .map(event -> new NamedOption(event.getEventId(), eventName(event.getEventId())))
+                                .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
     public void savePreferences(String requestedSiteId, PreferencesForm form) {
         String siteId = viewSite(requestedSiteId);
         PrefsData preferences = statsManager.getPreferences(siteId, true);
@@ -431,11 +444,14 @@ public class SiteStatsToolService {
                 .map(userId -> new UserOption(userId, displayName(userId)))
                 .sorted(Comparator.comparing(UserOption::getDisplayName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
-        List<String> tools = new ArrayList<String>();
-        tools.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
+        List<NamedOption> tools = new ArrayList<NamedOption>();
+        tools.add(new NamedOption(ReportManager.WHAT_EVENTS_ALLTOOLS,
+                toolName(ReportManager.WHAT_EVENTS_ALLTOOLS)));
         PrefsData preferences = statsManager.getPreferences(siteId, false);
-        tools.addAll(siteStatsToolEventsService.getToolIds(siteId, preferences));
-        List<DetailedEvent> events = Collections.emptyList();
+        siteStatsToolEventsService.getToolIds(siteId, preferences).stream()
+                .map(toolId -> new NamedOption(toolId, toolName(toolId)))
+                .forEach(tools::add);
+        List<ActivityEvent> events = Collections.emptyList();
         long total = 0;
         if (StringUtils.isNotBlank(form.getUserId()) && !ReportManager.WHO_NONE.equals(form.getUserId())) {
             ZoneId zoneId = userTimeService.getLocalTimeZone().toZoneId();
@@ -448,7 +464,10 @@ public class SiteStatsToolService {
             total = detailedEventsManager.getDetailedEventsCount(tracking);
             long offset = (long) Math.max(0, form.getPage() - 1) * PAGE_SIZE;
             events = detailedEventsManager.getDetailedEvents(tracking,
-                    new PagingParams(offset, PAGE_SIZE), new SortingParams("eventDate", true));
+                    new PagingParams(offset, PAGE_SIZE), new SortingParams("eventDate", true)).stream()
+                    .map(event -> new ActivityEvent(event.getId(), eventName(event.getEventId()), event.getEventRef(),
+                            event.getEventDate().toInstant().toString(), formatTimestamp(event.getEventDate())))
+                    .collect(Collectors.toList());
             statsManager.logEvent(new UserId(form.getUserId()), StatsManager.LOG_ACTION_TRACK, siteId, false);
         }
         return new UserActivityResult(siteId, users, tools, events, total, PAGE_SIZE);
@@ -481,10 +500,15 @@ public class SiteStatsToolService {
         return siteService.getSiteTypes();
     }
 
-    public JobRun latestJobRun() {
+    public LastJobRunResult latestJobRun() {
         adminSite(currentSiteId());
         try {
-            return statsUpdateManager.getLatestJobRun();
+            JobRun jobRun = statsUpdateManager.getLatestJobRun();
+            if (jobRun == null || jobRun.getJobEndDate() == null) {
+                return null;
+            }
+            return new LastJobRunResult(jobRun.getJobEndDate().toInstant().toString(),
+                    formatTimestamp(jobRun.getJobEndDate()));
         } catch (Exception e) {
             return null;
         }
@@ -533,11 +557,32 @@ public class SiteStatsToolService {
         }
     }
 
+    private String toolName(String toolId) {
+        return StringUtils.defaultIfBlank(eventRegistryService.getToolName(toolId), toolId);
+    }
+
+    private String eventName(String eventId) {
+        return StringUtils.defaultIfBlank(eventRegistryService.getEventName(eventId), eventId);
+    }
+
+    private String formatTimestamp(Date date) {
+        return userTimeService.shortLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(),
+                localeService.getLocaleForCurrentSiteAndUser());
+    }
+
     @Getter
     @RequiredArgsConstructor
     public static class NamedOption {
         private final String id;
         private final String label;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class ActivityDefinitionTool {
+        private final String id;
+        private final String label;
+        private final List<NamedOption> events;
     }
 
     @Getter
@@ -574,10 +619,27 @@ public class SiteStatsToolService {
     public static class UserActivityResult {
         private final String siteId;
         private final List<UserOption> users;
-        private final List<String> tools;
-        private final List<DetailedEvent> events;
+        private final List<NamedOption> tools;
+        private final List<ActivityEvent> events;
         private final long total;
         private final int pageSize;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class ActivityEvent {
+        private final long id;
+        private final String label;
+        private final String reference;
+        private final String timestamp;
+        private final String displayTimestamp;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class LastJobRunResult {
+        private final String timestamp;
+        private final String displayTimestamp;
     }
 
     @Getter

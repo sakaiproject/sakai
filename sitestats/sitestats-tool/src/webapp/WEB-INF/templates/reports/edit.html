@@ -5,10 +5,10 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('reports')}"></div>
   <div th:replace="~{fragments/common :: messages}"></div>
-  <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? 'Edit report' : 'Add report'">Edit report</h1>
+  <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? #{sitestats_report_edit} : #{sitestats_report_add}">Edit report</h1>
 
   <div class="sak-banner-error mb-3" role="alert" th:if="${#lists.isEmpty(editorOptions.availableReportTypes)}">
-    No report types are available for this site.
+    <span th:text="#{sitestats_report_types_empty}">No report types are available for this site.</span>
   </div>
 
   <form id="report-editor" method="post" th:action="@{/reports/save}" th:object="${reportForm}"
@@ -19,7 +19,7 @@
     <div id="report-error" class="sak-banner-error mb-3" role="alert" th:if="${error}" th:text="${error}"></div>
 
     <div class="mb-3" th:if="${reportForm.id == 0 and !#lists.isEmpty(templates)}">
-      <label class="form-label" for="template-id">Report type</label>
+      <label class="form-label" for="template-id" th:text="#{sitestats_report_type}">Report type</label>
       <select id="template-id" class="form-select" th:field="*{templateId}">
         <option th:each="template : ${templates}" th:value="${template.id}" th:text="${template.title}"></option>
       </select>
@@ -72,7 +72,7 @@
                    th:field="*{whatLimitedAction}" aria-controls="resource-action"/>
             <label class="form-check-label" for="limit-resource-action" th:text="#{report_what_resource_action}"></label>
           </div>
-          <label class="visually-hidden" for="resource-action">Resource action</label>
+          <label class="visually-hidden" for="resource-action" th:text="#{report_what_resource_action}">Resource action</label>
           <select id="resource-action" class="form-select mt-2" th:field="*{whatResourceAction}">
             <option value="new" th:text="#{action_new}"></option>
             <option value="read" th:text="#{action_read}"></option>
@@ -87,9 +87,9 @@
                    th:field="*{whatLimitedResourceIds}" aria-controls="resource-ids"/>
             <label class="form-check-label" for="limit-resources" th:text="#{report_what_sel_resources}"></label>
           </div>
-          <label class="visually-hidden" for="resource-ids">Resource IDs</label>
+          <label class="visually-hidden" for="resource-ids" th:text="#{sitestats_resource_ids}">Resource IDs</label>
           <textarea id="resource-ids" class="form-control mt-2" th:field="*{whatResourceIds}" rows="3"
-                    placeholder="One resource ID per line"></textarea>
+                    th:placeholder="#{sitestats_resource_ids_hint}"></textarea>
         </div>
       </div>
     </fieldset>
@@ -263,12 +263,12 @@
               </select>
             </div>
             <div class="col-12 col-md-6">
-              <label class="form-label" for="series-period">Time-series period</label>
+              <label class="form-label" for="series-period" th:text="#{sitestats_timeseries_period}">Time-series period</label>
               <select id="series-period" class="form-select" th:field="*{howChartSeriesPeriod}">
-                <option value="byday">Day</option>
-                <option value="byweekday">Weekday</option>
-                <option value="bymonth">Month</option>
-                <option value="byyear">Year</option>
+                <option value="byday" th:text="#{sitestats_period_day}">Day</option>
+                <option value="byweekday" th:text="#{sitestats_period_weekday}">Weekday</option>
+                <option value="bymonth" th:text="#{sitestats_period_month}">Month</option>
+                <option value="byyear" th:text="#{sitestats_period_year}">Year</option>
               </select>
             </div>
           </div>
@@ -280,26 +280,26 @@
       <legend class="float-none w-auto px-2 h4" th:text="#{report_details}">Report</legend>
       <p th:text="#{report_details_instructions}"></p>
       <div class="mb-3">
-        <label class="form-label" for="report-title">Title <span aria-hidden="true">*</span></label>
+        <label class="form-label" for="report-title"><span th:text="#{report_reporttitle}">Title</span> <span aria-hidden="true">*</span></label>
         <input id="report-title" class="form-control" th:field="*{title}" required maxlength="255"
                th:attr="aria-invalid=${error != null},aria-describedby=${error != null ? 'report-error' : null}"/>
       </div>
       <div class="mb-3">
-        <label class="form-label" for="report-description">Description</label>
+        <label class="form-label" for="report-description" th:text="#{report_reportdescription}">Description</label>
         <textarea id="report-description" class="form-control" th:field="*{description}" rows="4"></textarea>
       </div>
       <div class="form-check">
         <input id="report-hidden" class="form-check-input" type="checkbox" th:field="*{hidden}"/>
-        <label class="form-check-label" for="report-hidden">Hide this report from the normal report list</label>
+        <label class="form-check-label" for="report-hidden" th:text="#{sitestats_report_hide}">Hide this report from the normal report list</label>
       </div>
     </fieldset>
 
     <div class="d-flex flex-wrap gap-2 act">
       <button class="btn btn-primary" type="submit" name="action" value="save"
-              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}">Save report</button>
+              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}" th:text="#{report_save}">Save report</button>
       <button class="btn btn-outline-secondary" type="submit" name="action" value="preview"
-              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}">Generate report</button>
-      <a class="btn btn-link" th:href="@{/reports(siteId=${siteId})}">Cancel</a>
+              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}" th:text="#{report_generate}">Generate report</button>
+      <a class="btn btn-link" th:href="@{/reports(siteId=${siteId})}" th:text="#{report_cancelsave}">Cancel</a>
     </div>
   </form>
 </main>
