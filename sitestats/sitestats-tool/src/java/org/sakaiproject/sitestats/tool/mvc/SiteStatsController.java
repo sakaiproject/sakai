@@ -50,7 +50,7 @@ public class SiteStatsController {
     private final MessageSource messageSource;
 
     @GetMapping({"/", "/index.html"})
-    public String index() {
+    public String index(RedirectAttributes redirectAttributes) {
         return toolService.isAdminTool() ? "redirect:/admin" : "redirect:/home";
     }
 

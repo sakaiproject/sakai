@@ -3,38 +3,45 @@ package org.sakaiproject.sitestats.tool.mvc;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SiteStatsToolTestConfiguration.class)
+@WebAppConfiguration("src/webapp")
 public class SiteStatsToolExportServiceTest {
 
     private static final String SITE_ID = "site-1";
     private static final long REPORT_ID = 42L;
 
-    private SiteStatsReportAccessService reportAccessService;
-    private SiteStatsReportExportService reportExportService;
-    private ReportManager reportManager;
+    @Autowired private SiteStatsReportAccessService reportAccessService;
+    @Autowired private SiteStatsReportExportService reportExportService;
+    @Autowired private ReportManager reportManager;
+    @Autowired private SiteStatsToolExportService service;
+
     private Report report;
-    private SiteStatsToolExportService service;
 
     @Before
     public void setup() {
-        reportAccessService = mock(SiteStatsReportAccessService.class);
-        reportExportService = mock(SiteStatsReportExportService.class);
-        reportManager = mock(ReportManager.class);
+        reset(reportAccessService, reportExportService, reportManager);
         report = mock(Report.class);
-        service = new SiteStatsToolExportService(reportAccessService, reportExportService, reportManager);
 
         ReportDef reportDef = mock(ReportDef.class);
         when(reportDef.getTitle()).thenReturn("Activity report");

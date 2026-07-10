@@ -2,8 +2,10 @@ package org.sakaiproject.sitestats.tool.mvc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -11,20 +13,30 @@ import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SiteStatsToolTestConfiguration.class)
+@WebAppConfiguration("src/webapp")
 public class SiteStatsToolServiceTest {
 
-    private SiteStatsToolService service;
-    private SiteStatsToolServiceTestFixture fixture;
+    @Autowired private SiteStatsToolService service;
+    @Autowired private SiteStatsReportAccessService reportAccessService;
+    @Autowired private ToolManager toolManager;
 
     @Before
     public void setup() {
-        fixture = new SiteStatsToolServiceTestFixture();
-        service = fixture.createService();
+        reset(reportAccessService, toolManager);
     }
 
     @Test
@@ -77,12 +89,12 @@ public class SiteStatsToolServiceTest {
     @Test
     public void reportRoutesUseCentralViewAllAuthorization() {
         Placement placement = mock(Placement.class);
-        when(fixture.toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
         when(placement.getContext()).thenReturn("site-1");
+        doThrow(new SecurityException("Not authorized"))
+                .when(reportAccessService).assertCanViewAll("site-1");
 
-        assertEquals("site-1", service.reportSite("site-1"));
-
-        verify(fixture.reportAccessService).assertCanViewAll("site-1");
+        assertThrows(SecurityException.class, () -> service.reportSite("site-1"));
     }
 
     @Test

@@ -1,12 +1,13 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,11 +20,13 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 public class SiteStatsControllerAdvice {
 
     private final LocaleService localeService;
+    private final ServerConfigurationService serverConfigurationService;
     private final UserTimeService userTimeService;
 
-    public SiteStatsControllerAdvice(LocaleService localeService,
+    public SiteStatsControllerAdvice(LocaleService localeService, ServerConfigurationService serverConfigurationService,
             @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
         this.localeService = localeService;
+        this.serverConfigurationService = serverConfigurationService;
         this.userTimeService = userTimeService;
     }
 
@@ -49,6 +52,13 @@ public class SiteStatsControllerAdvice {
 
     @ModelAttribute("cdnQuery")
     public String cdnQuery() {
-        return PortalUtils.getCDNQuery();
+        long expirySeconds = serverConfigurationService.getInt("portal.cdn.expire", 0);
+        String defaultVersion = serverConfigurationService.getString("version.service", "0");
+        String version = serverConfigurationService.getString("portal.cdn.version", defaultVersion);
+        StringBuilder query = new StringBuilder("?version=").append(version);
+        if (expirySeconds > 0) {
+            query.append("&expire=").append(Instant.now().getEpochSecond() / expirySeconds);
+        }
+        return query.toString();
     }
 }
