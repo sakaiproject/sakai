@@ -5,12 +5,38 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('reports')}"></div>
   <div th:replace="~{fragments/common :: messages}"></div>
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"><h1 class="h3 mb-0" th:text="${preview} ? #{sitestats_report_preview} : ${report.title}">Report</h1><button id="print-report" type="button" class="btn btn-link d-print-none" th:text="#{sitestats_print_report}">Print report</button></div>
-  <sakai-sitestats-report-panel th:attr="endpoint=${reportEndpoint}"></sakai-sitestats-report-panel>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+    <h1 class="h3 mb-0" th:text="${preview} ? #{sitestats_report_preview} : ${report.title}">Report</h1>
+    <button id="print-report" type="button" class="btn btn-link d-print-none"
+            th:text="#{sitestats_print_report}">Print report</button>
+  </div>
+  <sakai-sitestats-report-panel th:attr="endpoint=${reportEndpoint}">
+  </sakai-sitestats-report-panel>
   <div class="d-flex flex-wrap gap-2 mt-3 d-print-none">
-    <a class="btn btn-outline-secondary" th:href="@{/reports(siteId=${siteId})}" th:text="#{sitestats_report_back}">Back to reports</a>
-    <th:block th:if="${preview}"><a class="btn btn-outline-secondary" th:href="@{/reports/preview/{id}/export/xls(id=${previewId},siteId=${siteId})}" th:text="#{sitestats_export_excel}">Export Excel</a><a class="btn btn-outline-secondary" th:href="@{/reports/preview/{id}/export/csv(id=${previewId},siteId=${siteId})}" th:text="#{sitestats_export_csv}">Export CSV</a><a class="btn btn-outline-secondary" th:href="@{/reports/preview/{id}/export/pdf(id=${previewId},siteId=${siteId})}" th:text="#{sitestats_export_pdf}">Export PDF</a></th:block>
-    <th:block th:unless="${preview}"><a class="btn btn-outline-secondary" th:href="@{/reports/{id}/export/xls(id=${report.id},siteId=${siteId})}" th:text="#{sitestats_export_excel}">Export Excel</a><a class="btn btn-outline-secondary" th:href="@{/reports/{id}/export/csv(id=${report.id},siteId=${siteId})}" th:text="#{sitestats_export_csv}">Export CSV</a><a class="btn btn-outline-secondary" th:href="@{/reports/{id}/export/pdf(id=${report.id},siteId=${siteId})}" th:text="#{sitestats_export_pdf}">Export PDF</a></th:block>
+    <a class="btn btn-outline-secondary" th:href="@{/reports(siteId=${siteId})}"
+       th:text="#{sitestats_report_back}">Back to reports</a>
+    <th:block th:if="${preview}">
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/preview/{id}/export/xls(id=${previewId},siteId=${siteId})}"
+         th:text="#{sitestats_export_excel}">Export Excel</a>
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/preview/{id}/export/csv(id=${previewId},siteId=${siteId})}"
+         th:text="#{sitestats_export_csv}">Export CSV</a>
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/preview/{id}/export/pdf(id=${previewId},siteId=${siteId})}"
+         th:text="#{sitestats_export_pdf}">Export PDF</a>
+    </th:block>
+    <th:block th:unless="${preview}">
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/{id}/export/xls(id=${report.id},siteId=${siteId})}"
+         th:text="#{sitestats_export_excel}">Export Excel</a>
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/{id}/export/csv(id=${report.id},siteId=${siteId})}"
+         th:text="#{sitestats_export_csv}">Export CSV</a>
+      <a class="btn btn-outline-secondary"
+         th:href="@{/reports/{id}/export/pdf(id=${report.id},siteId=${siteId})}"
+         th:text="#{sitestats_export_pdf}">Export PDF</a>
+    </th:block>
   </div>
 </main>
 </body>

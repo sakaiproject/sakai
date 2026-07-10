@@ -6,11 +6,75 @@
   <div th:replace="~{fragments/common :: menu('admin')}"></div>
   <h1 class="h3 mt-3" th:text="#{menu_sitelist}">Sites</h1>
   <p class="instruction" th:text="#{instructions_sitelist}"></p>
-  <p class="text-body-secondary" th:if="${lastJobRun != null}"><span th:text="#{last_job_run_date}">Last updated on:</span> <time th:datetime="${lastJobRun.timestamp}" th:text="${lastJobRun.displayTimestamp}"></time></p>
-  <search><form method="get" th:action="@{/admin}" class="row g-3 align-items-end mb-4"><div class="col-12 col-md-4"><label class="form-label" for="site-search" th:text="#{sitestats_search_sites}">Search sites</label><input id="site-search" class="form-control" type="search" name="search" th:value="${search}"/></div><div class="col-12 col-md-4"><label class="form-label" for="site-type" th:text="#{site_type}">Site type</label><select id="site-type" class="form-select" name="type"><option value="all" th:selected="${type == null or type == 'all'}" th:text="#{all}">All</option><option th:each="siteType : ${siteTypes}" th:value="${siteType}" th:text="${siteType}" th:selected="${siteType == type}"></option></select></div><div class="col-12 col-md-4"><button class="btn btn-primary" type="submit" th:text="#{sitestats_search_sites_action}">Search sites</button></div></form></search>
-  <div th:if="${#lists.isEmpty(sites)}" class="sak-banner-info" role="status" th:text="#{sitestats_no_sites}">No sites matched the current filters.</div>
-  <div class="table-responsive" th:if="${!#lists.isEmpty(sites)}"><table class="table table-striped align-middle"><caption class="visually-hidden" th:text="#{sitestats_sites_caption}">Sites with statistics</caption><thead><tr><th scope="col" th:text="#{th_title}">Title</th><th scope="col" th:text="#{th_type}">Type</th><th scope="col" th:text="#{th_status}">Status</th></tr></thead><tbody><tr th:each="site : ${sites}"><td><a th:href="@{/serverwide(siteId=${site.id})}" th:text="${site.title}"></a></td><td th:text="${site.type}"></td><td th:text="${site.published} ? #{site_published} : #{site_unpublished}"></td></tr></tbody></table></div>
-  <nav th:attr="aria-label=#{sitestats_site_pages}"><ul class="pagination"><li class="page-item" th:classappend="${page <= 1} ? ' disabled'"><a class="page-link" th:href="@{/admin(search=${search},type=${type},page=${page - 1})}" th:text="#{sitestats_previous}">Previous</a></li><li class="page-item"><span class="page-link" th:text="${page}"></span></li><li class="page-item" th:classappend="${#lists.size(sites) < 50} ? ' disabled'"><a class="page-link" th:href="@{/admin(search=${search},type=${type},page=${page + 1})}" th:text="#{sitestats_next}">Next</a></li></ul></nav>
+  <p class="text-body-secondary" th:if="${lastJobRun != null}">
+    <span th:text="#{last_job_run_date}">Last updated on:</span>
+    <time th:datetime="${lastJobRun.timestamp}" th:text="${lastJobRun.displayTimestamp}"></time>
+  </p>
+  <search>
+    <form method="get" class="row g-3 align-items-end mb-4" th:action="@{/admin}">
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="site-search" th:text="#{sitestats_search_sites}">
+          Search sites
+        </label>
+        <input id="site-search" class="form-control" type="search" name="search" th:value="${search}"/>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="site-type" th:text="#{site_type}">Site type</label>
+        <select id="site-type" class="form-select" name="type">
+          <option value="all" th:selected="${type == null or type == 'all'}" th:text="#{all}">All</option>
+          <option th:each="siteType : ${siteTypes}" th:value="${siteType}"
+                  th:text="${siteType}" th:selected="${siteType == type}"></option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <button class="btn btn-primary" type="submit" th:text="#{sitestats_search_sites_action}">
+          Search sites
+        </button>
+      </div>
+    </form>
+  </search>
+  <div class="sak-banner-info" role="status"
+       th:if="${#lists.isEmpty(sites)}" th:text="#{sitestats_no_sites}">
+    No sites matched the current filters.
+  </div>
+  <div class="table-responsive" th:if="${!#lists.isEmpty(sites)}">
+    <table class="table table-striped align-middle">
+      <caption class="visually-hidden" th:text="#{sitestats_sites_caption}">Sites with statistics</caption>
+      <thead>
+        <tr>
+          <th scope="col" th:text="#{th_title}">Title</th>
+          <th scope="col" th:text="#{th_type}">Type</th>
+          <th scope="col" th:text="#{th_status}">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="site : ${sites}">
+          <td>
+            <a th:href="@{/serverwide(siteId=${site.id})}" th:text="${site.title}"></a>
+          </td>
+          <td th:text="${site.type}"></td>
+          <td th:text="${site.published} ? #{site_published} : #{site_unpublished}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <nav th:attr="aria-label=#{sitestats_site_pages}">
+    <ul class="pagination">
+      <li class="page-item" th:classappend="${page <= 1} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/admin(search=${search},type=${type},page=${page - 1})}"
+           th:text="#{sitestats_previous}">Previous</a>
+      </li>
+      <li class="page-item">
+        <span class="page-link" th:text="${page}"></span>
+      </li>
+      <li class="page-item" th:classappend="${#lists.size(sites) < 50} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/admin(search=${search},type=${type},page=${page + 1})}"
+           th:text="#{sitestats_next}">Next</a>
+      </li>
+    </ul>
+  </nav>
 </main>
 </body>
 </html>

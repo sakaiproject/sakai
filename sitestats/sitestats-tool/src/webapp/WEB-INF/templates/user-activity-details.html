@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
 <head th:replace="~{fragments/common :: head(#{menu_useractivity})}"></head>
-<body><main class="portletBody container-fluid">
+<body>
+<main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('useractivity')}"></div>
   <h1 class="h3 mt-3" th:text="#{sitestats_event_details}">Event details</h1>
-  <dl class="row"><th:block th:each="detail : ${eventDetails.details}"><dt class="col-sm-4" th:text="${detail.key}"></dt><dd class="col-sm-8"><a th:if="${detail.type.name() == 'LINK'}" th:href="${detail.url}" target="_blank" rel="noreferrer" th:text="${detail.displayValue}"></a><span th:unless="${detail.type.name() == 'LINK'}" th:text="${detail.displayValue}"></span></dd></th:block></dl>
-  <a class="btn btn-link" th:href="@{/useractivity(siteId=${siteId})}" th:text="#{sitestats_activity_back}">Back to User Activity</a>
-</main></body></html>
+  <dl class="row">
+    <th:block th:each="detail : ${eventDetails.details}">
+      <dt class="col-sm-4" th:text="${detail.key}"></dt>
+      <dd class="col-sm-8">
+        <a th:if="${detail.type.name() == 'LINK'}" th:href="${detail.url}"
+           target="_blank" rel="noreferrer" th:text="${detail.displayValue}"></a>
+        <span th:unless="${detail.type.name() == 'LINK'}" th:text="${detail.displayValue}"></span>
+      </dd>
+    </th:block>
+  </dl>
+  <a class="btn btn-link" th:href="@{/useractivity(siteId=${siteId})}"
+     th:text="#{sitestats_activity_back}">Back to User Activity</a>
+</main>
+</body>
+</html>
