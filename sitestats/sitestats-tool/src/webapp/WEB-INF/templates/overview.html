@@ -5,12 +5,38 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('overview')}"></div>
   <h1 class="h3 mt-3" th:text="#{menu_overview}">Overview</h1>
-  <div th:if="${#lists.isEmpty(overview.widgets)}" class="sak-banner-info" role="status" th:text="#{sitestats_no_statistics}">No statistics are available for this site.</div>
+  <div class="sak-banner-info" role="status"
+       th:if="${#lists.isEmpty(overview.widgets)}"
+       th:text="#{sitestats_no_statistics}">
+    No statistics are available for this site.
+  </div>
   <div class="row g-4" th:if="${!#lists.isEmpty(overview.widgets)}">
     <section class="col-12" th:each="widget : ${overview.widgets}" th:if="${widget.visible}">
       <h2 class="h4" th:text="${widget.title}">Report</h2>
-      <div class="row g-3 mb-3" th:if="${!#lists.isEmpty(widget.metrics)}"><div class="col-12 col-sm-6 col-lg-4" th:each="metric : ${widget.metrics}"><div class="card h-100"><div class="card-body"><h3 class="h6 card-title" th:text="${metric.label}"></h3><p class="display-6 mb-1" th:text="${metric.snapshot != null ? metric.snapshot.primary : '—'}"></p><p class="text-body-secondary mb-0" th:if="${metric.snapshot != null}" th:text="${metric.snapshot.detail}"></p></div></div></div></div>
-      <details class="border rounded p-3 mb-2" th:each="tab, tabStatus : ${widget.tabs}" th:open="${tabStatus.first}"><summary class="fw-semibold" th:text="${tab.title}">Report</summary><div class="mt-3"><sakai-sitestats-report-panel th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)}"></sakai-sitestats-report-panel></div></details>
+      <div class="row g-3 mb-3" th:if="${!#lists.isEmpty(widget.metrics)}">
+        <div class="col-12 col-sm-6 col-lg-4" th:each="metric : ${widget.metrics}">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="h6 card-title" th:text="${metric.label}"></h3>
+              <p class="display-6 mb-1"
+                 th:text="${metric.snapshot != null ? metric.snapshot.primary : '—'}"></p>
+              <p class="text-body-secondary mb-0"
+                 th:if="${metric.snapshot != null}"
+                 th:text="${metric.snapshot.detail}"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <details class="border rounded p-3 mb-2"
+               th:each="tab, tabStatus : ${widget.tabs}"
+               th:open="${tabStatus.first}">
+        <summary class="fw-semibold" th:text="${tab.title}">Report</summary>
+        <div class="mt-3">
+          <sakai-sitestats-report-panel
+              th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)}">
+          </sakai-sitestats-report-panel>
+        </div>
+      </details>
     </section>
   </div>
 </main>

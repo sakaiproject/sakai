@@ -6,16 +6,92 @@
   <div th:replace="~{fragments/common :: menu('useractivity')}"></div>
   <h1 class="h3 mt-3" th:text="#{menu_useractivity}">User Activity</h1>
   <p class="instruction" th:text="#{de_introBlurb}"></p>
-  <search><form method="get" th:action="@{/useractivity}" th:object="${userActivityForm}" class="row g-3 align-items-end"><input type="hidden" name="siteId" th:value="${siteId}"/>
-    <div class="col-12 col-md-6"><label class="form-label" for="activity-user" th:text="#{de_userFilter}">User</label><select id="activity-user" class="form-select" th:field="*{userId}" required><option value="who-none" th:text="#{de_select_user}">Select user</option><option th:each="user : ${activity.users}" th:value="${user.id}" th:text="${user.displayName}"></option></select></div>
-    <div class="col-12 col-md-6"><label class="form-label" for="activity-tool" th:text="#{de_eventFilter}">Tool</label><select id="activity-tool" class="form-select" th:field="*{toolId}"><option th:each="tool : ${activity.tools}" th:value="${tool.id}" th:text="${tool.label}"></option></select></div>
-    <div class="col-12 col-md-4"><label class="form-label" for="start-date" th:text="#{de_dateRangeFrom}">From</label><input id="start-date" class="form-control" type="date" th:field="*{startDate}" required/></div>
-    <div class="col-12 col-md-4"><label class="form-label" for="end-date" th:text="#{de_dateRangeTo}">To</label><input id="end-date" class="form-control" type="date" th:field="*{endDate}" required/></div>
-    <div class="col-12 col-md-4"><button class="btn btn-primary" type="submit" th:text="#{de_search}">Search activity</button></div>
-  </form></search>
-  <div class="sak-banner-info mt-4" role="status" th:if="${userActivityForm.userId != 'who-none' and #lists.isEmpty(activity.events)}" th:text="#{sitestats_no_activity}">No activity matched these filters.</div>
-  <div class="table-responsive mt-4" th:if="${!#lists.isEmpty(activity.events)}"><table class="table table-striped"><caption class="visually-hidden" th:text="#{sitestats_activity_caption}">User activity events</caption><thead><tr><th scope="col" th:text="#{th_date}">Date</th><th scope="col" th:text="#{th_event}">Event</th><th scope="col" th:text="#{sitestats_reference}">Reference</th><th scope="col"><span class="visually-hidden" th:text="#{sitestats_actions}">Actions</span></th></tr></thead><tbody><tr th:each="event : ${activity.events}"><td><time th:datetime="${event.timestamp}" th:text="${event.displayTimestamp}"></time></td><td th:text="${event.label}"></td><td class="text-break" th:text="${event.reference}"></td><td><a th:href="@{/useractivity/events/{id}(id=${event.id},siteId=${siteId})}" th:text="#{de_resultsTable_detailsLink}">View details</a></td></tr></tbody></table></div>
-  <nav th:attr="aria-label=#{sitestats_activity_pages}" th:if="${activity.total > activity.pageSize}"><ul class="pagination"><li class="page-item" th:classappend="${userActivityForm.page <= 1} ? ' disabled'"><a class="page-link" th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page - 1})}" th:text="#{sitestats_previous}">Previous</a></li><li class="page-item"><span class="page-link" th:text="${userActivityForm.page}"></span></li><li class="page-item" th:classappend="${userActivityForm.page * activity.pageSize >= activity.total} ? ' disabled'"><a class="page-link" th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page + 1})}" th:text="#{sitestats_next}">Next</a></li></ul></nav>
+  <search>
+    <form method="get" class="row g-3 align-items-end"
+          th:action="@{/useractivity}" th:object="${userActivityForm}">
+      <input type="hidden" name="siteId" th:value="${siteId}"/>
+      <div class="col-12 col-md-6">
+        <label class="form-label" for="activity-user" th:text="#{de_userFilter}">User</label>
+        <select id="activity-user" class="form-select" th:field="*{userId}" required>
+          <option value="who-none" th:text="#{de_select_user}">Select user</option>
+          <option th:each="user : ${activity.users}"
+                  th:value="${user.id}" th:text="${user.displayName}"></option>
+        </select>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label" for="activity-tool" th:text="#{de_eventFilter}">Tool</label>
+        <select id="activity-tool" class="form-select" th:field="*{toolId}">
+          <option th:each="tool : ${activity.tools}"
+                  th:value="${tool.id}" th:text="${tool.label}"></option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="start-date" th:text="#{de_dateRangeFrom}">From</label>
+        <input id="start-date" class="form-control" type="date" th:field="*{startDate}" required/>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="end-date" th:text="#{de_dateRangeTo}">To</label>
+        <input id="end-date" class="form-control" type="date" th:field="*{endDate}" required/>
+      </div>
+      <div class="col-12 col-md-4">
+        <button class="btn btn-primary" type="submit" th:text="#{de_search}">Search activity</button>
+      </div>
+    </form>
+  </search>
+  <div class="sak-banner-info mt-4" role="status"
+       th:if="${userActivityForm.userId != 'who-none' and #lists.isEmpty(activity.events)}"
+       th:text="#{sitestats_no_activity}">
+    No activity matched these filters.
+  </div>
+  <div class="table-responsive mt-4" th:if="${!#lists.isEmpty(activity.events)}">
+    <table class="table table-striped">
+      <caption class="visually-hidden" th:text="#{sitestats_activity_caption}">
+        User activity events
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col" th:text="#{th_date}">Date</th>
+          <th scope="col" th:text="#{th_event}">Event</th>
+          <th scope="col" th:text="#{sitestats_reference}">Reference</th>
+          <th scope="col">
+            <span class="visually-hidden" th:text="#{sitestats_actions}">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="event : ${activity.events}">
+          <td>
+            <time th:datetime="${event.timestamp}" th:text="${event.displayTimestamp}"></time>
+          </td>
+          <td th:text="${event.label}"></td>
+          <td class="text-break" th:text="${event.reference}"></td>
+          <td>
+            <a th:href="@{/useractivity/events/{id}(id=${event.id},siteId=${siteId})}"
+               th:text="#{de_resultsTable_detailsLink}">View details</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <nav th:attr="aria-label=#{sitestats_activity_pages}"
+       th:if="${activity.total > activity.pageSize}">
+    <ul class="pagination">
+      <li class="page-item" th:classappend="${userActivityForm.page <= 1} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page - 1})}"
+           th:text="#{sitestats_previous}">Previous</a>
+      </li>
+      <li class="page-item">
+        <span class="page-link" th:text="${userActivityForm.page}"></span>
+      </li>
+      <li class="page-item"
+          th:classappend="${userActivityForm.page * activity.pageSize >= activity.total} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page + 1})}"
+           th:text="#{sitestats_next}">Next</a>
+      </li>
+    </ul>
+  </nav>
 </main>
 </body>
 </html>
