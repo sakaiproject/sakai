@@ -468,8 +468,17 @@ public class SiteStatsToolService {
         }
     }
 
-    public PrefsData preferences(String requestedSiteId) {
-        return statsManager.getPreferences(viewSite(requestedSiteId), true);
+    public PreferencesResult preferences(String requestedSiteId) {
+        String siteId = viewSite(requestedSiteId);
+        PrefsData preferences = statsManager.getPreferences(siteId, true);
+        PreferencesForm form = new PreferencesForm();
+        form.setListToolEventsOnlyAvailableInSite(preferences.isListToolEventsOnlyAvailableInSite());
+        form.setShowOwnStatisticsToStudents(preferences.isShowOwnStatisticsToStudents());
+        form.setUseAllTools(preferences.isUseAllTools());
+        form.setItemLabelsVisible(preferences.isItemLabelsVisible());
+        form.setChartTransparency(preferences.getChartTransparency());
+        form.setSelectedEventIds(new ArrayList<String>(preferences.getToolEventsStringList()));
+        return new PreferencesResult(siteId, form, activityDefinitionTools(preferences));
     }
 
     public List<ActivityDefinitionTool> activityDefinitionTools(PrefsData preferences) {
@@ -731,6 +740,14 @@ public class SiteStatsToolService {
         private final String siteId;
         private final DetailedEvent event;
         private final List<EventDetail> details;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class PreferencesResult {
+        private final String siteId;
+        private final PreferencesForm form;
+        private final List<ActivityDefinitionTool> tools;
     }
 
     @Getter

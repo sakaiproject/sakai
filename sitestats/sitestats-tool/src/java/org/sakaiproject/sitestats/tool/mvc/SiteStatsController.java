@@ -1,14 +1,12 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
@@ -17,6 +15,7 @@ import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResu
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.CopiedReport;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesForm;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.springframework.http.ContentDisposition;
@@ -164,18 +163,10 @@ public class SiteStatsController {
 
     @GetMapping("/preferences")
     public String preferences(@RequestParam(required = false) String siteId, Model model) {
-        String authorizedSiteId = toolService.viewSite(siteId);
-        PrefsData preferences = toolService.preferences(authorizedSiteId);
-        PreferencesForm form = new PreferencesForm();
-        form.setListToolEventsOnlyAvailableInSite(preferences.isListToolEventsOnlyAvailableInSite());
-        form.setShowOwnStatisticsToStudents(preferences.isShowOwnStatisticsToStudents());
-        form.setUseAllTools(preferences.isUseAllTools());
-        form.setItemLabelsVisible(preferences.isItemLabelsVisible());
-        form.setChartTransparency(preferences.getChartTransparency());
-        form.setSelectedEventIds(new ArrayList<String>(preferences.getToolEventsStringList()));
-        commonModel(model, authorizedSiteId, "preferences");
-        model.addAttribute("preferencesForm", form);
-        model.addAttribute("tools", toolService.activityDefinitionTools(preferences));
+        PreferencesResult result = toolService.preferences(siteId);
+        commonModel(model, result.getSiteId(), "preferences");
+        model.addAttribute("preferencesForm", result.getForm());
+        model.addAttribute("tools", result.getTools());
         model.addAttribute("chartTransparencyChoices", Arrays.asList(
                 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f));
         return "preferences";

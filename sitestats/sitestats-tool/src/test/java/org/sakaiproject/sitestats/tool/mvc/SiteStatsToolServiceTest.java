@@ -1,8 +1,10 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -46,6 +48,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityDefinitionTool;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityEvent;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityResult;
@@ -169,6 +172,33 @@ public class SiteStatsToolServiceTest {
         assertEquals("Assignments", result.getLabel());
         assertEquals("asn.submit.submission", result.getEvents().get(0).getId());
         assertEquals("Assignment submitted", result.getEvents().get(0).getLabel());
+    }
+
+    @Test
+    public void preferencesBuildsFormFromPersistedSettings() {
+        Placement placement = mock(Placement.class);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(placement.getContext()).thenReturn("site-1");
+        PrefsData preferences = mock(PrefsData.class);
+        when(preferences.isListToolEventsOnlyAvailableInSite()).thenReturn(true);
+        when(preferences.isShowOwnStatisticsToStudents()).thenReturn(true);
+        when(preferences.isUseAllTools()).thenReturn(false);
+        when(preferences.isItemLabelsVisible()).thenReturn(true);
+        when(preferences.getChartTransparency()).thenReturn(0.7f);
+        when(preferences.getToolEventsStringList()).thenReturn(Arrays.asList("event.one", "event.two"));
+        when(preferences.getToolEventsDef()).thenReturn(Collections.emptyList());
+        when(statsManager.getPreferences("site-1", true)).thenReturn(preferences);
+
+        PreferencesResult result = service.preferences("site-1");
+
+        assertEquals("site-1", result.getSiteId());
+        assertTrue(result.getForm().isListToolEventsOnlyAvailableInSite());
+        assertTrue(result.getForm().isShowOwnStatisticsToStudents());
+        assertFalse(result.getForm().isUseAllTools());
+        assertTrue(result.getForm().isItemLabelsVisible());
+        assertEquals(0.7f, result.getForm().getChartTransparency(), 0.0f);
+        assertEquals(Arrays.asList("event.one", "event.two"), result.getForm().getSelectedEventIds());
+        assertEquals(Collections.emptyList(), result.getTools());
     }
 
     @Test
