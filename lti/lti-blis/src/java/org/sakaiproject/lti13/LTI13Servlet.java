@@ -915,12 +915,8 @@ public class LTI13Servlet extends HttpServlet {
 		LTI13TokenRequestValidator.ClientAssertionReplayResult replayResult =
 				LTI13TokenRequestValidator.validateClientAssertionReplay(clientAssertionReplayCache, claims.getBody(), tool.lti13ClientId);
 		if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE) {
-			LTI13Util.return4XX(response, "temporarily_unavailable", "Token request temporarily unavailable",
-					HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			log.warn("Client assertion replay cache unavailable for tool {} client {}", tool_id, tool.lti13ClientId);
-			return;
-		}
-		if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED) {
+			log.warn("Client assertion replay cache unavailable for tool {} client {}; continuing without replay cache", tool_id, tool.lti13ClientId);
+		} else if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED) {
 			LTI13Util.return400(response, "invalid_client", replayResult.getClientMessage());
 			log.error("Invalid client_assertion replay state for tool {}: {}", tool_id, replayResult.getClientMessage());
 			return;
