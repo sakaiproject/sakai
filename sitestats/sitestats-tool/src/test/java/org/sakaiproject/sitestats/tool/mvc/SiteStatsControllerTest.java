@@ -95,7 +95,8 @@ public class SiteStatsControllerTest {
                 .andExpect(model().attribute("locale", Locale.US))
                 .andExpect(model().attribute("timeZone", ZoneId.of("America/New_York")))
                 .andExpect(model().attribute("cdnQuery", "?version=test"))
-                .andExpect(model().attribute("siteId", "site1"));
+                .andExpect(model().attribute("siteId", "site1"))
+                .andExpect(model().attributeExists("widgetEndpoints"));
     }
 
     @Test

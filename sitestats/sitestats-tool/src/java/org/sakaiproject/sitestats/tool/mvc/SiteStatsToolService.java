@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,12 +47,16 @@ import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.transformers.ResolvedRefTransformer;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -126,11 +132,28 @@ public class SiteStatsToolService {
         return StatsManager.SITESTATS_ADMIN_TOOLID.equals(toolManager.getCurrentTool().getId());
     }
 
-    public SiteStatsOverview overview(String requestedSiteId) {
+    private SiteStatsOverview overview(String requestedSiteId) {
         String siteId = viewSite(requestedSiteId);
         SiteStatsOverview overview = siteStatsViewService.getOverview(siteId);
         statsManager.logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
         return overview;
+    }
+
+    public OverviewResult overviewWithEndpoints(String requestedSiteId) {
+        SiteStatsOverview overview = overview(requestedSiteId);
+        Map<String, String> widgetEndpoints = new LinkedHashMap<String, String>();
+        SiteStatsReportRequest reportRequest = new SiteStatsReportRequest();
+        reportRequest.setIncludeTable(true);
+        reportRequest.setIncludeChart(true);
+        for (SiteStatsWidget widget : overview.getWidgets()) {
+            if (widget.isVisible()) {
+                for (SiteStatsWidgetTab tab : widget.getTabs()) {
+                    widgetEndpoints.put(widget.getId() + ":" + tab.getId(), SiteStatsApiUrls.widgetReport(
+                            overview.getSiteId(), widget.getId(), tab.getId(), reportRequest));
+                }
+            }
+        }
+        return new OverviewResult(overview, widgetEndpoints);
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
@@ -628,6 +651,13 @@ public class SiteStatsToolService {
     public static class NamedOption {
         private final String id;
         private final String label;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class OverviewResult {
+        private final SiteStatsOverview overview;
+        private final Map<String, String> widgetEndpoints;
     }
 
     @Getter

@@ -3,9 +3,7 @@ package org.sakaiproject.sitestats.tool.mvc;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,13 +11,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
-import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
-import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
-import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.CopiedReport;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
@@ -55,19 +51,10 @@ public class SiteStatsController {
 
     @GetMapping("/home")
     public String overview(@RequestParam(required = false) String siteId, Model model) {
-        SiteStatsOverview overview = toolService.overview(siteId);
-        Map<String, String> endpoints = new LinkedHashMap<String, String>();
-        for (SiteStatsWidget widget : overview.getWidgets()) {
-            if (widget.isVisible()) {
-                for (SiteStatsWidgetTab tab : widget.getTabs()) {
-                    endpoints.put(widget.getId() + ":" + tab.getId(), SiteStatsApiUrls.widgetReport(
-                            overview.getSiteId(), widget.getId(), tab.getId(), reportRequest()));
-                }
-            }
-        }
-        commonModel(model, overview.getSiteId(), "overview");
-        model.addAttribute("overview", overview);
-        model.addAttribute("widgetEndpoints", endpoints);
+        OverviewResult result = toolService.overviewWithEndpoints(siteId);
+        commonModel(model, result.getOverview().getSiteId(), "overview");
+        model.addAttribute("overview", result.getOverview());
+        model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
         return "overview";
     }
 

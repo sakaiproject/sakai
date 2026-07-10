@@ -36,9 +36,16 @@ import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.event.detailed.PagingParams;
 import org.sakaiproject.sitestats.api.event.detailed.SortingParams;
 import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
+import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityDefinitionTool;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityEvent;
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityResult;
@@ -66,6 +73,7 @@ public class SiteStatsToolServiceTest {
     @Autowired private EventRegistryService eventRegistryService;
     @Autowired private LocaleService localeService;
     @Autowired private SiteStatsReportAccessService reportAccessService;
+    @Autowired private SiteStatsViewService siteStatsViewService;
     @Autowired private SiteService siteService;
     @Autowired private SiteStatsToolEventsService siteStatsToolEventsService;
     @Autowired private StatsManager statsManager;
@@ -75,7 +83,7 @@ public class SiteStatsToolServiceTest {
 
     @Before
     public void setup() {
-        reset(detailedEventsManager, eventRegistryService, localeService, reportAccessService,
+        reset(detailedEventsManager, eventRegistryService, localeService, reportAccessService, siteStatsViewService,
                 siteService, siteStatsToolEventsService, statsManager, toolManager, userDirectoryService,
                 userTimeService);
     }
@@ -232,6 +240,39 @@ public class SiteStatsToolServiceTest {
         verify(userDirectoryService).getUserByEid("ali");
         verify(userDirectoryService).searchUsers("ali", 1, 50);
         verify(site, never()).getUsers();
+    }
+
+    @Test
+    public void overviewBuildsEndpointsForVisibleWidgetTabs() {
+        Placement placement = mock(Placement.class);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        when(placement.getContext()).thenReturn("site-1");
+        SiteStatsWidgetTab visibleTab = new SiteStatsWidgetTab();
+        visibleTab.setId("bydate");
+        SiteStatsWidget visibleWidget = new SiteStatsWidget();
+        visibleWidget.setId("visits");
+        visibleWidget.setTabs(Collections.singletonList(visibleTab));
+        SiteStatsWidgetTab hiddenTab = new SiteStatsWidgetTab();
+        hiddenTab.setId("bytool");
+        SiteStatsWidget hiddenWidget = new SiteStatsWidget();
+        hiddenWidget.setId("activity");
+        hiddenWidget.setVisible(false);
+        hiddenWidget.setTabs(Collections.singletonList(hiddenTab));
+        SiteStatsOverview overview = new SiteStatsOverview();
+        overview.setSiteId("site-1");
+        overview.setWidgets(Arrays.asList(visibleWidget, hiddenWidget));
+        when(siteStatsViewService.getOverview("site-1")).thenReturn(overview);
+        SiteStatsReportRequest reportRequest = new SiteStatsReportRequest();
+        reportRequest.setIncludeTable(true);
+        reportRequest.setIncludeChart(true);
+
+        OverviewResult result = service.overviewWithEndpoints("site-1");
+
+        assertEquals(overview, result.getOverview());
+        assertEquals(1, result.getWidgetEndpoints().size());
+        assertEquals(SiteStatsApiUrls.widgetReport("site-1", "visits", "bydate", reportRequest),
+                result.getWidgetEndpoints().get("visits:bydate"));
+        assertNull(result.getWidgetEndpoints().get("activity:bytool"));
     }
 
     private ReportForm validForm() {
