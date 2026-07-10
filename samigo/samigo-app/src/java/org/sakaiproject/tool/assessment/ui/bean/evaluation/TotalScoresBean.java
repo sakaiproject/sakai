@@ -22,8 +22,10 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +71,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -88,6 +91,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.time.api.UserTimeService;
 
 /* For evaluation: Total Scores backing bean. */
 @Slf4j
@@ -116,6 +120,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
   private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+  private static final UserTimeService userTimeService = (UserTimeService) ComponentManager.get(UserTimeService.class);
 
   private static final String SAK_PROP_DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
   private static final boolean SAK_PROP_DELETE_RESTRICTED_DEFAULT = false;
@@ -398,6 +403,56 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 		init();
 	}
 	
+  // "email student: grading updated" — session-side cooldown and
+  // last-sent display; resets with the session (no schema change)
+  private static final long NOTIFY_COOLDOWN_MILLIS = 60L * 1000L;
+  private final Map<String, Date> gradingNotifiedDates = new HashMap<>();
+
+  /** true when the assessment's feedback settings let students see grading now */
+  public boolean getGradingNotifyAvailable() {
+    if (publishedAssessment == null || publishedAssessment.getAssessmentFeedback() == null) {
+      return false;
+    }
+    Integer delivery = publishedAssessment.getAssessmentFeedback().getFeedbackDelivery();
+    if (AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(delivery)
+        || AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION.equals(delivery)) {
+      return true;
+    }
+    if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(delivery)
+        && publishedAssessment.getAssessmentAccessControl() != null) {
+      Date feedbackDate = publishedAssessment.getAssessmentAccessControl().getFeedbackDate();
+      return feedbackDate != null && !feedbackDate.after(new Date());
+    }
+    return false;
+  }
+
+  public void markGradingNotified(String assessmentGradingId) {
+    gradingNotifiedDates.put(assessmentGradingId, new Date());
+  }
+
+  public boolean isNotifyCoolingDown(String assessmentGradingId) {
+    Date sent = gradingNotifiedDates.get(assessmentGradingId);
+    return sent != null && System.currentTimeMillis() - sent.getTime() < NOTIFY_COOLDOWN_MILLIS;
+  }
+
+  /** per-row cooldown state for the JSP, keyed by assessmentGradingId string */
+  public Map<String, Boolean> getNotifyCooldown() {
+    Map<String, Boolean> cooling = new HashMap<>();
+    gradingNotifiedDates.keySet().forEach(id -> cooling.put(id, isNotifyCoolingDown(id)));
+    return cooling;
+  }
+
+  /** per-row "Email last sent" text for the JSP, in the user's locale and zone */
+  public Map<String, String> getNotifyLastSent() {
+    Map<String, String> display = new HashMap<>();
+    if (gradingNotifiedDates.isEmpty()) {
+      return display;
+    }
+    gradingNotifiedDates.forEach((id, date) ->
+        display.put(id, userTimeService.dateTimeFormat(date, null, DateFormat.SHORT)));
+    return display;
+  }
+
   /**
    * get assessment name
    *

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>[${siteName}] Grading updated on "${assessmentTitle}"</subject>
+		<message>Your instructor has added comments or updated the grading on "${assessmentTitle}" in the "${siteName}" site.
+
+View the details in Tests &amp; Quizzes: ${toolUrl}
+
+This is an automated message from ${localSakaiName} (${localSakaiUrl}).
+		</message>
+		<messagehtml>&lt;p&gt;Your instructor has added comments or updated the grading on "${assessmentTitleHtml}" in the "${siteNameHtml}" site.&lt;/p&gt;
+&lt;p&gt;&lt;a href="${toolUrl}"&gt;View the details in Tests &amp;amp; Quizzes&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This is an automated message from &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;.&lt;/p&gt;
+		</messagehtml>
+		<version>1</version>
+		<owner>admin</owner>
+		<key>sam.gradingUpdated</key>
+		<locale></locale>
+		<localeLangTag></localeLangTag>
+	</emailTemplate>
+</emailTemplates>

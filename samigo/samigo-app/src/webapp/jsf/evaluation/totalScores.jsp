@@ -910,6 +910,39 @@ function showLoadingMessage() {
     </h:column>
 
 
+
+    <!-- NOTIFY STUDENT: GRADING UPDATED -->
+    <h:column rendered="#{totalScores.gradingNotifyAvailable && totalScores.allSubmissions!='4'}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.notify_grading_updated_column}"/>
+      </f:facet>
+      <h:panelGroup layout="block" rendered="#{description.assessmentGradingId ne '-1' && description.attemptDate != null}">
+        <h:commandLink id="notifyRow" action="totalScores" styleClass="sam-notify-grading-updated"
+            title="#{evaluationMessages.notify_grading_updated_tooltip}"
+            rendered="#{!totalScores.notifyCooldown[description.assessmentGradingIdString]}">
+          <span class="fa fa-paper-plane" aria-hidden="true"></span>
+          <h:outputText value=" #{evaluationMessages.notify_grading_updated}" styleClass="sr-only"/>
+          <%-- save pending comment/score edits first so the email is truthful --%>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.NotifyGradingUpdatedListener" />
+          <f:param name="studentid" value="#{description.idString}" />
+          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+        </h:commandLink>
+        <h:panelGroup rendered="#{totalScores.notifyCooldown[description.assessmentGradingIdString]}">
+          <span class="fa fa-check" aria-hidden="true"></span>
+          <h:outputText value=" #{evaluationMessages.notify_grading_updated_sent}"
+              title="#{evaluationMessages.notify_grading_updated_cooldown}"/>
+        </h:panelGroup>
+        <h:panelGroup layout="block" styleClass="small"
+            rendered="#{totalScores.notifyLastSent[description.assessmentGradingIdString] != null}">
+          <h:outputFormat value="#{evaluationMessages.notify_grading_updated_last_sent}">
+            <f:param value="#{totalScores.notifyLastSent[description.assessmentGradingIdString]}"/>
+          </h:outputFormat>
+        </h:panelGroup>
+      </h:panelGroup>
+    </h:column>
+
     <!-- COMMENT -->
     <h:column rendered="#{totalScores.sortType!='comments' && totalScores.allSubmissions!='4'}">
      <f:facet name="header">

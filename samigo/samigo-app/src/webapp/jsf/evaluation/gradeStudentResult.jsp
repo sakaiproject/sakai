@@ -165,6 +165,22 @@ function toPoint(id)
    <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
    <div class="col-md-6">
      <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30" styleClass="awesomplete"/>
+     <%-- save, then email the student that grading/comments changed --%>
+     <h:panelGroup layout="block" rendered="#{totalScores.gradingNotifyAvailable}">
+       <h:commandButton id="notifyStudent" value="#{evaluationMessages.notify_grading_updated}" action="gradeStudentResult" type="submit"
+           title="#{evaluationMessages.notify_grading_updated_tooltip}"
+           disabled="#{totalScores.notifyCooldown[studentScores.assessmentGradingId]}">
+         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
+         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.NotifyGradingUpdatedListener" />
+         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+       </h:commandButton>
+       <h:panelGroup layout="block" styleClass="text-muted small"
+           rendered="#{totalScores.notifyLastSent[studentScores.assessmentGradingId] != null}">
+         <h:outputFormat value="#{evaluationMessages.notify_grading_updated_last_sent}">
+           <f:param value="#{totalScores.notifyLastSent[studentScores.assessmentGradingId]}"/>
+         </h:outputFormat>
+       </h:panelGroup>
+     </h:panelGroup>
    </div>
 </div>
 
@@ -431,6 +447,17 @@ function toPoint(id)
    <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="gradeStudentResult" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+   </h:commandButton>
+   <%-- identical to Save, then emails the student that grading changed --%>
+   <h:commandButton id="saveAndNotify" value="#{evaluationMessages.notify_grading_updated_save}" action="gradeStudentResult" type="submit"
+       rendered="#{totalScores.gradingNotifyAvailable}"
+       disabled="#{totalScores.notifyCooldown[studentScores.assessmentGradingId]}">
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.NotifyGradingUpdatedListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
    </h:commandButton>

@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.api;
 import org.sakaiproject.event.api.Event;
 
 
+import java.util.List;
 import java.util.Map;
 
 public interface SamigoETSProvider {
@@ -32,4 +33,25 @@ public interface SamigoETSProvider {
      * @param count the number of errors
      */
     void notifyAutoSubmitFailures(int count);
+
+    /**
+     * emails students that their instructor has added comments or
+     * updated the grading on an assessment, with a link into the site's
+     * Tests &amp; Quizzes tool. Delivery honors each student's Tests &amp;
+     * Quizzes notification preference (immediate or digest; ignore is
+     * skipped), and students without an email address are skipped.
+     *
+     * @param studentUserIds  the user ids to notify
+     * @param siteId          the site holding the assessment
+     * @param assessmentTitle the assessment title for the message
+     * @return how many notifications were actually delivered
+     */
+    /**
+     * Emails the given students that grading/comments changed on an assessment.
+     *
+     * @return the userIds that were actually delivered to (sent or digested);
+     *         callers must not treat skipped users (no email, unknown, opted
+     *         out) as notified.
+     */
+    List<String> notifyGradingUpdated(List<String> studentUserIds, String siteId, String assessmentTitle);
 }

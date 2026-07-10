@@ -233,6 +233,11 @@ public class AgentResults
   public void setIsLate(Boolean isLate) {
     this.isLate = isLate;
   }
+  /** string form for EL map lookups on the notify column */
+  public String getAssessmentGradingIdString() {
+    return assessmentGradingId == null ? "" : assessmentGradingId.toString();
+  }
+
   public Boolean getForGrade() {
     return Validator.bcheck(forGrade, true);
   }

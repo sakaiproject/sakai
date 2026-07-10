@@ -52,13 +52,16 @@ import org.sakaiproject.samigo.api.SamigoETSProvider;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -71,9 +74,11 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     private         final   String              MIME_ADVISORY                       = "This message is for MIME-compliant mail readers.";
     private static  final   String              ADMIN                               = "admin";
     private                 String              fromAddress                         = "";
-    private static  final   ResourceLoader      RB                                  = new ResourceLoader("EmailNotificationMessages");
-    private static  final   String              CHANGE_SETTINGS_HOW_TO_INSTRUCTOR   = RB.getString("changeSetting_instructor");
-    private static  final   String              CHANGE_SETTINGS_HOW_TO_STUDENT      = RB.getString("changeSetting_student");
+    // resolved lazily: ResourceLoader needs a running component manager, which
+    // unit tests instantiating this class do not have
+    private static String changeSettingInstructions(String key) {
+        return new ResourceLoader("EmailNotificationMessages").getString(key);
+    }
 
     public      void                init                                () {
         log.info("init()");
@@ -90,6 +95,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_GRADING_UPDATED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_GRADING_UPDATED);
     }
 
     public      void                notify                              (String eventKey, Map<String, Object> notificationValues, Event event) {
@@ -129,6 +135,62 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         catch (Exception e) {
             log.error("Unable to send email notification for AutoSubmit failures.", e);
         }
+    }
+
+    /**
+     * emails students that grading/comments changed on an assessment.
+     * One template render per student (user locale), delivered per the
+     * student's Tests &amp; Quizzes notification preference like the
+     * submission confirmations; ignore preference and blank addresses skip.
+     */
+    public      List<String>        notifyGradingUpdated                (List<String> studentUserIds, String siteId, String assessmentTitle) {
+        if (studentUserIds == null || studentUserIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Map<String, Object> replacementValues = new HashMap<>(constantValues);
+        replacementValues.put("assessmentTitle", StringUtils.defaultString(assessmentTitle));
+        // messagehtml interpolates these raw, so provide escaped variants for it
+        replacementValues.put("assessmentTitleHtml", formattedText.escapeHtml(StringUtils.defaultString(assessmentTitle)));
+        try {
+            Site site = siteService.getSite(siteId);
+            replacementValues.put("siteName", site.getTitle());
+            replacementValues.put("siteNameHtml", formattedText.escapeHtml(site.getTitle()));
+            ToolConfiguration samigoTool = site.getToolForCommonId(SamigoConstants.TOOL_ID);
+            replacementValues.put("toolUrl", samigoTool != null ? site.getUrl() + "/tool/" + samigoTool.getId() : site.getUrl());
+        } catch (IdUnusedException e) {
+            log.warn("Cannot notify grading updated, no site {}", siteId);
+            return new ArrayList<>();
+        }
+
+        String priStr = Integer.toString(NotificationService.NOTI_OPTIONAL);
+        List<String> delivered = new ArrayList<>();
+        // fetch the recipients in one query; unknown ids are simply omitted
+        for (User user : userDirectoryService.getUsers(studentUserIds)) {
+            try {
+                if (StringUtils.isBlank(user.getEmail())) {
+                    log.debug("Skipping grading-updated notification for {}: no email address", user.getId());
+                    continue;
+                }
+
+                RenderedTemplate template = getRenderedTemplate(SamigoConstants.EMAIL_TEMPLATE_GRADING_UPDATED, user, replacementValues);
+                if (template == null) {
+                    continue;
+                }
+
+                int emailPreference = getUserPreferences(user, priStr);
+                if (emailPreference == NotificationService.PREF_IMMEDIATE) {
+                    emailService.sendToUser(user, getHeaders(template, List.of(user), constantValues.get("localSakaiName"), fromAddress), getBody(template));
+                    delivered.add(user.getId());
+                } else if (emailPreference == NotificationService.PREF_DIGEST) {
+                    digestService.digest(user.getId(), template.getRenderedSubject(), template.getRenderedMessage());
+                    delivered.add(user.getId());
+                }
+            } catch (Exception e) {
+                log.warn("Cannot notify grading updated for user {}", user.getId(), e);
+            }
+        }
+        return delivered;
     }
 
     private     void                handleAssessmentSubmitted           (Map<String, Object> notificationValues, Event event) {
@@ -221,7 +283,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     private     void                notifyInstructor                    (String siteID, Integer instructNoti, int assessmentSubmittedType,
                                                                             User submittingUser, Map<String, Object> replacementValues){
         log.debug("notifyInstructor");
-        replacementValues.put("changeSettingInstructions" , CHANGE_SETTINGS_HOW_TO_INSTRUCTOR);
+        replacementValues.put("changeSettingInstructions" , changeSettingInstructions("changeSetting_instructor"));
 
         List<User>  validUsers                      = new ArrayList<>();
         RenderedTemplate    rt                      = getRenderedTemplateBySubmissionType(assessmentSubmittedType, submittingUser, replacementValues);
@@ -301,7 +363,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     private     void                notifyStudent                       (User user, String priStr, int assessmentSubmittedType,
                                                                             Map<String, Object> replacementValues){
         log.debug("notifyStudent");
-        replacementValues.put( "changeSettingInstructions" , CHANGE_SETTINGS_HOW_TO_STUDENT );
+        replacementValues.put( "changeSettingInstructions" , changeSettingInstructions("changeSetting_student") );
 
         List<User>          users                   = new ArrayList<>();
         RenderedTemplate    rt                      = getRenderedTemplateBySubmissionType( assessmentSubmittedType, user, replacementValues );
@@ -410,7 +472,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
 
         headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
 
-        //SAK-21742 we need the rendered subject
+        // we need the rendered subject
         headers.add("Subject: " + rt.getRenderedSubject());
         headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
         headers.add("Mime-Version: 1.0");
@@ -443,4 +505,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
 
     @Setter
     private                         AuthzGroupService           authzGroupService;
+
+    @Setter
+    private                         FormattedText               formattedText;
 }
