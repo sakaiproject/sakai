@@ -95,6 +95,9 @@ public class ChatChannel implements org.sakaiproject.entity.api.Entity {
    @Temporal(TemporalType.TIMESTAMP)
    private Date creationDate;
 
+   @Column(name = "OWNER", length = 99)
+   private String owner;
+
    @Column(length = 64)
    private String title;
 

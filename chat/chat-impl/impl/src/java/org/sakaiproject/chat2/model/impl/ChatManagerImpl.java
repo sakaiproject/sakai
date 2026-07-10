@@ -184,8 +184,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                 functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, true);
                 functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, true);
                 functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL, true);
                 functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, true);
                 functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, true);
+                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL, true);
             }
 
             pollInterval = serverConfigurationService.getInt("chat.pollInterval", 5000);
@@ -277,6 +279,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         channel.setCreationDate(new Date());
         channel.setContext(context);
+        if (checkAuthz) {
+            channel.setOwner(sessionManager.getCurrentSessionUserId());
+        }
         channel.setTitle(title);
         channel.setPlacementDefaultChannel(placementDefaultChannel);
         if (placementDefaultChannel) {
@@ -295,8 +300,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (channel == null)
             return;
 
-        if (checkAuthz)
-            checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
+        if (checkAuthz && !getCanEdit(channel)) {
+            String function = isChannelOwner(channel)
+                    ? ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL
+                    : ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL;
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), function, channel.getContext());
+        }
 
         getHibernateTemplate().saveOrUpdate(channel);
     }
@@ -310,7 +319,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (channel == null)
             return;
 
-        checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
+        if (!getCanDelete(channel)) {
+            String function = isChannelOwner(channel)
+                    ? ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL
+                    : ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL;
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), function, channel.getContext());
+        }
+
         getHibernateTemplate().delete(getHibernateTemplate().merge(channel));
 
         sendDeleteChannel(channel);
@@ -587,7 +602,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public boolean getCanDelete(ChatChannel channel)
     {
-        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
+        if (channel == null) {
+            return false;
+        }
+        if (can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext())) {
+            return true;
+        }
+        return isChannelOwner(channel) && can(ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL, channel.getContext());
     }
 
     /**
@@ -595,7 +616,18 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public boolean getCanEdit(ChatChannel channel)
     {
-        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
+        if (channel == null) {
+            return false;
+        }
+        if (can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext())) {
+            return true;
+        }
+        return isChannelOwner(channel) && can(ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL, channel.getContext());
+    }
+
+    private boolean isChannelOwner(ChatChannel channel) {
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        return currentUserId != null && currentUserId.equals(channel.getOwner());
     }
 
     /**

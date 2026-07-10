@@ -124,6 +124,10 @@ public class DecoratedChatChannel {
    public boolean getCanRead() {
       return chatTool.getCanRead(chatChannel);
    }
+
+   public String getOwnerDisplayName() {
+      return chatTool.getChannelOwnerDisplayName(chatChannel);
+   }
    
    /**
     * Returns the bundle message with key "enter_the_chat_room", inserting the chat channel's title
