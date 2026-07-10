@@ -41,6 +41,11 @@ public class TextFormatTest {
     }
 
     @Test
+    public void testToGradebookPlaintextTitle() {
+        assertEquals("Cami\u00f3n", TextFormat.toGradebookPlaintextTitle("Cami&oacute;n"));
+    }
+
+    @Test
     public void testNullAndEmptyInputs() {
         assertEquals("", TextFormat.convertPlaintextToFormattedTextNoHighUnicode(null));
         assertEquals("", TextFormat.convertPlaintextToFormattedTextNoHighUnicode(""));

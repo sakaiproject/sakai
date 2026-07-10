@@ -52,4 +52,12 @@ public class TextFormat {
         return StringEscapeUtils.unescapeHtml4(withNewlines);
     }
 
+    /**
+     * Convert a Samigo assessment title stored as formatted text into the plain
+     * text form used for Gradebook item names.
+     */
+    public static String toGradebookPlaintextTitle(String formattedTitle) {
+        return convertFormattedTextToPlaintext(formattedTitle);
+    }
+
 }

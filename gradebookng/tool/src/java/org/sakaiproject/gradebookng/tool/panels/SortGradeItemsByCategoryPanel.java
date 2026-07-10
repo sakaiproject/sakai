@@ -82,7 +82,7 @@ public class SortGradeItemsByCategoryPanel extends BasePanel {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
-						assignmentItem.add(new Label("name", assignment.getName()).setEscapeModelStrings(false));
+						assignmentItem.add(new Label("name", assignment.getName()));
 						assignmentItem.add(new HiddenField<>("id",
 								Model.of(assignment.getId())).add(
 										new AttributeModifier("name",

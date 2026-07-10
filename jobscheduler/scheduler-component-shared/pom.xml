@@ -37,8 +37,8 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.grading</groupId>
-            <artifactId>sakai-grading-api</artifactId>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>

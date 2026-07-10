@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
@@ -35,6 +34,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.site.api.SitePage;
@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -148,7 +149,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
       return false;
     }
 
-    String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
+    String title = TextFormat.toGradebookPlaintextTitle(publishedAssessment.getTitle());
     if (!g.isAssignmentDefined(gradebookUId, siteId, title)) {
       g.addExternalAssessment(gradebookUId, siteId,
               publishedAssessment.getPublishedAssessmentId().toString(),
@@ -206,20 +207,22 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   {
     log.debug("updateGradebook start");
 
-    String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
+    String title = TextFormat.toGradebookPlaintextTitle(publishedAssessment.getTitle());
+    String externalId = publishedAssessment.getPublishedAssessmentId().toString();
     for (String gradebookUid : gradebookList) {
       String category = gradebookCategoryMap != null ? gradebookCategoryMap.get(gradebookUid) : null;
+      Assignment existing = g.getExternalAssignment(gradebookUid, externalId);
 
       log.debug("before g.updateExternalAssessment()");
       g.updateExternalAssessment(gradebookUid,
-                publishedAssessment.getPublishedAssessmentId().toString(),
+                externalId,
                 null,
-                null,
+                existing.getExternalData(),
                 title,
                 category != null ? Long.parseLong(category) : null,
                 publishedAssessment.getTotalScore(),
                 publishedAssessment.getAssessmentAccessControl().getDueDate(),
-                null);
+                false);
     }
 
     return true;

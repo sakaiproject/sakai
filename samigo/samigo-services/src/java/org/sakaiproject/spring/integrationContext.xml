@@ -50,6 +50,12 @@
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookServiceHelperImpl">
 </bean>
 
+<bean id="org.sakaiproject.samigo.api.SamigoGradebookTitleRepairService"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.SamigoGradebookTitleRepairServiceImpl">
+    <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+    <property name="gradingService"><ref bean="org.sakaiproject.grading.api.GradingService"/></property>
+</bean>
+
 <!-- context-sensitive sectionAware service helper -->
 <bean name="sectionAwareServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl">
