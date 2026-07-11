@@ -86,7 +86,7 @@ public class ParticipantAddController {
         }
         if (handler.submitRoles(form.getCsrfToken(), ParticipantRoleMode.fromFormValue(form.getRoleChoice()), form.getSameRoleChoice(),
                 form.getIndividualRoles())) {
-            return "redirect:/notifications";
+            return "redirect:/confirm";
         }
         model.addAttribute("roleForm", form);
         return renderRoles(model);
@@ -98,37 +98,6 @@ public class ParticipantAddController {
         return "redirect:/add";
     }
 
-    @GetMapping("/notifications")
-    public String notifications(Model model) {
-        if (!handler.hasParticipants()) {
-            return "redirect:/add";
-        }
-        EmailNotificationForm form = new EmailNotificationForm();
-        form.setCsrfToken(handler.getCsrfToken());
-        form.setEmailNotiChoice(handler.getEmailNotiChoice());
-        model.addAttribute("emailNotificationForm", form);
-        return render(model, "notifications", 3);
-    }
-
-    @PostMapping("/notifications")
-    public String submitNotifications(@ModelAttribute EmailNotificationForm form, Model model) {
-        if (!handler.hasParticipants()) {
-            return "redirect:/add";
-        }
-        if (handler.submitNotifications(form.getCsrfToken(),
-                ParticipantNotificationOption.fromFormValue(form.getEmailNotiChoice()))) {
-            return "redirect:/confirm";
-        }
-        model.addAttribute("emailNotificationForm", form);
-        return render(model, "notifications", 3);
-    }
-
-    @PostMapping("/notifications/back")
-    public String backFromNotifications() {
-        handler.backToRoles();
-        return "redirect:/roles";
-    }
-
     @GetMapping("/confirm")
     public String confirm(Model model) {
         if (!handler.hasParticipants()) {
@@ -136,13 +105,14 @@ public class ParticipantAddController {
         }
         ConfirmForm form = new ConfirmForm();
         form.setCsrfToken(handler.getCsrfToken());
+        form.setEmailNotiChoice(handler.getEmailNotiChoice());
         model.addAttribute("confirmForm", form);
         return renderConfirm(model);
     }
 
     @PostMapping("/confirm")
     public Object submitConfirm(@ModelAttribute ConfirmForm form, Model model) {
-        if (handler.finish(form.getCsrfToken())) {
+        if (handler.finish(form.getCsrfToken(), ParticipantNotificationOption.fromFormValue(form.getEmailNotiChoice()))) {
             return doneRedirect(handler.getDoneUrl());
         }
         model.addAttribute("confirmForm", form);
@@ -150,9 +120,11 @@ public class ParticipantAddController {
     }
 
     @PostMapping("/confirm/back")
-    public String backFromConfirm() {
-        handler.backToNotifications();
-        return "redirect:/notifications";
+    public String backFromConfirm(@ModelAttribute ConfirmForm form) {
+        handler.saveNotificationChoice(form.getCsrfToken(),
+                ParticipantNotificationOption.fromFormValue(form.getEmailNotiChoice()));
+        handler.backToRoles();
+        return "redirect:/roles";
     }
 
     @PostMapping("/cancel")
@@ -177,8 +149,7 @@ public class ParticipantAddController {
     private String renderConfirm(Model model) {
         model.addAttribute("participants", handler.getParticipants());
         model.addAttribute("active", handler.isActive());
-        model.addAttribute("emailNotification", handler.sendsNotification());
-        return render(model, "confirm", 4);
+        return render(model, "confirm", 3);
     }
 
     private String render(Model model, String view, int step) {
@@ -222,14 +193,8 @@ public class ParticipantAddController {
 
     @Getter
     @Setter
-    public static class EmailNotificationForm {
-        private String csrfToken;
-        private String emailNotiChoice = Boolean.FALSE.toString();
-    }
-
-    @Getter
-    @Setter
     public static class ConfirmForm {
         private String csrfToken;
+        private String emailNotiChoice = Boolean.FALSE.toString();
     }
 }

@@ -92,12 +92,20 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 
-        Locator dontSend = page.locator("#dont-send-email");
-        assertThat(dontSend).isVisible();
-        dontSend.check(new Locator.CheckOptions().setForce(true));
-        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        Locator sendEmail = page.locator("#send-email");
+        assertThat(sendEmail).isVisible();
+        sendEmail.check(new Locator.CheckOptions().setForce(true));
+        page.locator("#participant-helper form button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE)))
+            .click();
         page.waitForLoadState();
 
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+        assertThat(page.locator("#send-email")).isChecked();
+
+        Locator dontSend = page.locator("#dont-send-email");
+        dontSend.check(new Locator.CheckOptions().setForce(true));
         assertThat(page.locator("#participant-helper")).containsText("student0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();

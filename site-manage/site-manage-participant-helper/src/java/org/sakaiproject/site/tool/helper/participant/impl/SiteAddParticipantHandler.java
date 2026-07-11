@@ -254,35 +254,12 @@ public class SiteAddParticipantHandler {
         return valid;
     }
 
-    public boolean submitNotifications(String csrfToken, ParticipantNotificationOption selectedNotificationOption) {
-        csrfToken(csrfToken);
-        if (selectedNotificationOption == null) {
-            resetMessages();
-            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
-            saveState();
-            return false;
-        }
-        notificationOption = selectedNotificationOption;
-        if (invalidCsrfToken()) {
-            saveState();
-            return false;
-        }
-        resetMessages();
-        saveState();
-        return true;
-    }
-
     public void backToAdd() {
         resetMessages();
         saveState();
     }
 
     public void backToRoles() {
-        resetMessages();
-        saveState();
-    }
-
-    public void backToNotifications() {
         resetMessages();
         saveState();
     }
@@ -379,12 +356,19 @@ public class SiteAddParticipantHandler {
 	}
 	
     /** Creates required guest accounts and adds all selected participants. */
-    public boolean finish(String csrfToken) {
+    public boolean finish(String csrfToken, ParticipantNotificationOption selectedNotificationOption) {
         csrfToken(csrfToken);
-	if (invalidCsrfToken()) {
+        if (selectedNotificationOption == null) {
+            resetMessages();
+            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
             saveState();
             return false;
         }
+        if (invalidCsrfToken()) {
+            saveState();
+            return false;
+        }
+        notificationOption = selectedNotificationOption;
 
     	List<String> validationUsers = new ArrayList<>();
 		resetMessages();
@@ -526,6 +510,15 @@ public class SiteAddParticipantHandler {
         return StringUtils.defaultIfBlank(doneUrl, "/");
 	}
 
+    /** Saves the selected notification option when returning from the final review step. */
+    public void saveNotificationChoice(String csrfToken, ParticipantNotificationOption selectedNotificationOption) {
+        if (!StringUtils.equals(csrfToken, getCsrfToken()) || selectedNotificationOption == null) {
+            return;
+        }
+        notificationOption = selectedNotificationOption;
+        saveState();
+    }
+
     public boolean hasParticipants() {
         return !userRoleEntries.isEmpty();
     }
@@ -560,10 +553,6 @@ public class SiteAddParticipantHandler {
 
     public String getEmailNotiChoice() {
         return notificationOption.getFormValue();
-    }
-
-    public boolean sendsNotification() {
-        return notificationOption.sendsNotification();
     }
 
 	private void reset() {
