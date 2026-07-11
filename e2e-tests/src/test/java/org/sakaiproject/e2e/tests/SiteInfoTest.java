@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,51 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertThat(page.locator("#creategroup-form")).isVisible();
         assertThat(page.locator("#groupTitle")).isVisible();
         assertThat(page.locator("#groupMembers")).isVisible();
+    }
+
+    @Test
+    void canAddParticipantWithThymeleafWizard() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+
+        Locator addParticipants = page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(addParticipants).isVisible();
+        addParticipants.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        assertNoTemplateRenderingError();
+        assertThat(page.locator("#participant-helper")).isVisible();
+        page.locator("#officialAccountParticipant").fill("student0011");
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+
+        Locator sameRole = page.locator("#sameRoleChoice");
+        assertThat(sameRole).isVisible();
+        sameRole.selectOption(new SelectOption().setIndex(1));
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+
+        Locator dontSend = page.locator("#dont-send-email");
+        assertThat(dontSend).isVisible();
+        dontSend.check(new Locator.CheckOptions().setForce(true));
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+
+        assertThat(page.locator("#participant-helper")).containsText("student0011");
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+
+        assertNoTemplateRenderingError();
+        Locator manageParticipants = page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Participants$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        assertThat(manageParticipants).isVisible();
+        manageParticipants.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        assertThat(page.locator("body")).containsText("student0011");
     }
 
     private String ensureCourseUrl() {

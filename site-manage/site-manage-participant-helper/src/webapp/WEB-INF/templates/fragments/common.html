@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title}">Add Participants</title>
+  <link href="/library/skin/tool_base.css" rel="stylesheet" media="all">
+  <link href="/library/skin/default-skin/tool.css" rel="stylesheet" media="all">
+  <script src="/library/js/headscripts.js"></script>
+  <link th:href="@{/content/css/participant-helper.css}" rel="stylesheet">
+  <script th:src="@{/content/js/participant-helper.js}" defer></script>
+</head>
+<body>
+  <div th:fragment="header">
+    <h1 th:text="#{java.addp}">Add Participants</h1>
+    <p class="participant-helper-site-title" th:text="${siteTitle}">Site title</p>
+  </div>
+
+  <nav th:fragment="steps(current)" aria-label="Add participants progress">
+    <ol class="nav nav-pills participant-helper-steps">
+      <li class="nav-item"><span class="nav-link" th:classappend="${current == 1} ? ' active'" th:attr="aria-current=${current == 1} ? 'step'" th:text="#{java.addp}">Add participants</span></li>
+      <li class="nav-item"><span class="nav-link" th:classappend="${current == 2} ? ' active'" th:attr="aria-current=${current == 2} ? 'step'" th:text="#{adddif.choose}">Choose roles</span></li>
+      <li class="nav-item"><span class="nav-link" th:classappend="${current == 3} ? ' active'" th:attr="aria-current=${current == 3} ? 'step'" th:text="#{addnoti.anemail}">Notifications</span></li>
+      <li class="nav-item"><span class="nav-link" th:classappend="${current == 4} ? ' active'" th:attr="aria-current=${current == 4} ? 'step'" th:text="#{addconf.confirming(${siteTitle})}">Confirm</span></li>
+    </ol>
+  </nav>
+
+  <div th:fragment="messages" aria-live="polite">
+    <div th:each="message : ${messages}"
+         th:class="${message.severity.name() == 'ERROR'} ? 'sak-banner-error' : 'sak-banner-info'"
+         th:text="${#messages.msg(message.code, message.args)}">Message</div>
+  </div>
+
+  <button th:fragment="cancel" type="submit" class="btn btn-link" th:formaction="@{/cancel}" formmethod="post" th:text="#{gen.cancel}">Cancel</button>
+</body>
+</html>

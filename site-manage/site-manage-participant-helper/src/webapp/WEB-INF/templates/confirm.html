@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
+<head th:replace="~{fragments/common :: head(#{addconf.confirming(${siteTitle})})}"></head>
+<body>
+  <main class="portletBody participant-helper" id="participant-helper">
+    <div th:replace="~{fragments/common :: header}"></div>
+    <div th:replace="~{fragments/common :: steps(4)}"></div>
+    <div th:replace="~{fragments/common :: messages}"></div>
+    <h2 class="h4" th:text="#{addconf.confirming(${siteTitle})}">Confirm participants</h2>
+    <p th:text="#{addconf.finish}">The following people will be added.</p>
+    <p th:if="${emailNotification}" th:text="#{addconf.theywill}">They will be notified.</p>
+    <p th:unless="${emailNotification}" th:text="#{addconf.theywillnot}">They will not be notified.</p>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead><tr><th scope="col" th:text="#{addconf.username}">Username</th><th scope="col" th:text="#{addconf.role}">Role</th><th scope="col" th:text="#{participant.status}">Status</th></tr></thead>
+        <tbody>
+          <tr th:each="participant : ${participants}">
+            <td th:text="${participant.eid}">Username</td>
+            <td th:text="${participant.role}">Role</td>
+            <td th:text="${active} ? #{sitegen.siteinfolist.active} : #{sitegen.siteinfolist.inactive}">Active</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <form th:action="@{/confirm}" th:object="${confirmForm}" method="post" class="participant-helper-actions">
+      <input type="hidden" th:field="*{csrfToken}">
+      <button type="submit" class="btn btn-primary" th:text="#{gen.finish}">Finish</button>
+      <button type="submit" class="btn btn-outline-secondary" th:formaction="@{/confirm/back}" formmethod="post" th:text="#{gen.back}">Back</button>
+      <div th:replace="~{fragments/common :: cancel}"></div>
+    </form>
+  </main>
+</body>
+</html>

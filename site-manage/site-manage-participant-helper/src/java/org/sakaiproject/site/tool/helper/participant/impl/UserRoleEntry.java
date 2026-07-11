@@ -15,12 +15,16 @@
  */
 package org.sakaiproject.site.tool.helper.participant.impl;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserRoleEntry {
+public class UserRoleEntry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private String firstName;
     private String lastName;
     private String role;
@@ -31,4 +35,3 @@ public class UserRoleEntry {
         this.eid = eid;
     }
 }
-

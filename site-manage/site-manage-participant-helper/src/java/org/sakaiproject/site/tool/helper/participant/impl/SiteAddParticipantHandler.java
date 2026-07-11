@@ -16,8 +16,6 @@
 package org.sakaiproject.site.tool.helper.participant.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,25 +24,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteTypeUtil;
-import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -59,14 +52,10 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
-import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.api.PasswordFactory;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
 
 @Slf4j
 public class SiteAddParticipantHandler {
@@ -75,24 +64,25 @@ public class SiteAddParticipantHandler {
     public static final String HELPER_ID = "sakai.tool.helper.id";
     public static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
+    private static final String STATE_ATTRIBUTE = SiteAddParticipantHandler.class.getName() + ".STATE";
 
     @Setter private AuthzGroupService authzGroupService;
     @Setter private EventTrackingService eventTrackingService;
-    @Setter private MessageLocator messageLocator;
     @Setter private PasswordFactory passwordFactory;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
     @Setter private SiteService siteService;
     @Setter private ToolManager toolManager;
-    @Getter @Setter private TargettedMessageList targettedMessageList;
+    @Getter private final List<ParticipantMessage> messages = new ArrayList<>();
     @Setter private UserAuditRegistration userAuditRegistration;
     @Setter private UserAuditService userAuditService;
     @Setter private UserDirectoryService userDirectoryService;
+    @Setter private CourseManagementService courseManagementService;
+    @Setter private ParticipantAccountParser participantAccountParser;
+    @Setter private ParticipantRealmUpdater participantRealmUpdater;
 
-    @Setter public String csrfToken = null;
-    // the email notification setting
-    @Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
-    private List<String> invalidDomains;
+    private String csrfToken;
+    private ParticipantNotificationOption notificationOption = ParticipantNotificationOption.DO_NOT_SEND;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
     @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
@@ -101,27 +91,27 @@ public class SiteAddParticipantHandler {
     public AuthzGroup realm = null;
     // the role set for the site
     @Setter public List<Role> roles = new ArrayList<>();
-    // whether the role choice is for same role or different role
-    @Getter @Setter public String roleChoice = "sameRole";
+    private ParticipantRoleMode roleMode = ParticipantRoleMode.SAME_ROLE;
     // whether the same role used for all users
     @Setter @Getter public String sameRoleChoice = null;
     public Site site = null;
     public String siteId = null;
-    // status choice
-    @Setter @Getter public String statusChoice = "active";
+    private ParticipantStatus status = ParticipantStatus.ACTIVE;
     // the user selected
-    public List<UserRoleEntry> userRoleEntries = new ArrayList<>();
+    @Getter @Setter private List<UserRoleEntry> userRoleEntries = new ArrayList<>();
     @Setter public AccountValidationService accountValidationService;
     private SiteTypeUtil siteTypeUtil;
+    /** The tool session owns this serializable operation state for the current request. */
+    private ParticipantWizardState wizardState;
 
 	public boolean canAddParticipant() {
 		if (site == null) init();
 		if (siteService.allowUpdateSiteMembership(site.getId())) return true;
 
-		targettedMessageList.addMessage(new TargettedMessage(
+		messages.add(new ParticipantMessage(
 				"java.permeditsite",
 				new Object[] {site.getTitle()},
-				TargettedMessage.SEVERITY_ERROR));
+				ParticipantMessage.Severity.ERROR));
 		log.warn("User doesn't have permission to update members in site {}", site.getId());
 		return false;
 	}
@@ -172,7 +162,6 @@ public class SiteAddParticipantHandler {
 				log.warn("could not find site [{}], {}", siteId, e);
             }
         }
-		invalidDomains = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings(SAK_PROP_INVALID_EMAIL_DOMAINS)));
 	}
 
 	public String getSiteTitle() {
@@ -193,25 +182,123 @@ public class SiteAddParticipantHandler {
 		return serverConfigurationService.getString(param, defaultValue);
 	}
 
-	/**
-     * Allows the Cancel button to return control to the tool calling this helper
-     */
-    public String processCancel() {
-        ToolSession session = sessionManager.getCurrentToolSession();
-        session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-
-        // Go to Site Info landing page on 'Cancel'
-        setNextPage(SiteConstants.SITE_INFO_TEMPLATE_INDEX);
-
-        resetTargettedMessageList();
-        reset();
-
-        return "done";
+    /** Restores the current tool-session operation into this request-scoped handler. */
+    public void beginStep() {
+        wizardState = readState();
+        officialAccountParticipant = wizardState.getOfficialAccountParticipant();
+        officialAccountEidOnly = wizardState.getOfficialAccountEidOnly();
+        nonOfficialAccountParticipant = wizardState.getNonOfficialAccountParticipant();
+        roleMode = Optional.ofNullable(wizardState.getRoleMode()).orElse(ParticipantRoleMode.SAME_ROLE);
+        sameRoleChoice = wizardState.getSameRoleChoice();
+        status = Optional.ofNullable(wizardState.getStatus()).orElse(ParticipantStatus.ACTIVE);
+        notificationOption = Optional.ofNullable(wizardState.getNotificationOption())
+                .orElse(ParticipantNotificationOption.DO_NOT_SEND);
+        userRoleEntries = wizardState.getUserRoleEntries();
+        init();
     }
 
-	/**
-	 * Utility method; sets the template index (in the tool session) of the desired page to transfer the user to.
-	 */
+    /** Starts a new operation when Site Info launches this helper at its root URL. */
+    public void startNewOperation() {
+        resetMessages();
+        reset();
+        wizardState = null;
+        clearState();
+    }
+
+    public boolean submitAdd(String csrfToken, String officialAccounts, String nonOfficialAccounts,
+            ParticipantStatus selectedStatus) {
+        csrfToken(csrfToken);
+        officialAccountParticipant = officialAccounts;
+        nonOfficialAccountParticipant = nonOfficialAccounts;
+        if (selectedStatus == null) {
+            resetMessages();
+            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
+            saveState();
+            return false;
+        }
+        status = selectedStatus;
+        if (invalidCsrfToken()) {
+            saveState();
+            return false;
+        }
+
+        resetMessages();
+        ParticipantAccountParser.Result result = participantAccountParser.parse(site, officialAccountParticipant,
+                officialAccountEidOnly, nonOfficialAccountParticipant);
+        officialAccountParticipant = result.officialAccounts();
+        officialAccountEidOnly = result.officialAccountEidOnly();
+        nonOfficialAccountParticipant = result.nonOfficialAccounts();
+        userRoleEntries = result.entries();
+        messages.addAll(result.messages());
+        saveState();
+        return messages.isEmpty();
+    }
+
+    public boolean submitRoles(String csrfToken, ParticipantRoleMode selectedRoleMode, String selectedSameRole,
+            List<String> individualRoles) {
+        csrfToken(csrfToken);
+        if (selectedRoleMode == null) {
+            resetMessages();
+            messages.add(new ParticipantMessage("java.roletype", null, ParticipantMessage.Severity.ERROR));
+            saveState();
+            return false;
+        }
+
+        roleMode = selectedRoleMode;
+        sameRoleChoice = selectedSameRole;
+        boolean valid = ParticipantRoleMode.DIFFERENT_ROLE.equals(roleMode)
+                ? applyIndividualRoles(individualRoles)
+                : applySameRole();
+        saveState();
+        return valid;
+    }
+
+    public boolean submitNotifications(String csrfToken, ParticipantNotificationOption selectedNotificationOption) {
+        csrfToken(csrfToken);
+        if (selectedNotificationOption == null) {
+            resetMessages();
+            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
+            saveState();
+            return false;
+        }
+        notificationOption = selectedNotificationOption;
+        if (invalidCsrfToken()) {
+            saveState();
+            return false;
+        }
+        resetMessages();
+        saveState();
+        return true;
+    }
+
+    public void backToAdd() {
+        resetMessages();
+        saveState();
+    }
+
+    public void backToRoles() {
+        resetMessages();
+        saveState();
+    }
+
+    public void backToNotifications() {
+        resetMessages();
+        saveState();
+    }
+
+    /** Cancels the operation and returns the helper's caller-provided exit URL. */
+    public String cancel() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+        setNextPage(SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+        String doneUrl = getDoneUrl();
+        resetMessages();
+        reset();
+        clearState();
+        return doneUrl;
+    }
+
+	/** Utility method; sets the template index of the desired helper page. */
 	private void setNextPage(String nextPageTemplateIndex) {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, nextPageTemplateIndex);
@@ -220,143 +307,65 @@ public class SiteAddParticipantHandler {
     private boolean invalidCsrfToken() {
 		boolean invalid = !StringUtils.equals(csrfToken, getCsrfToken());
 		if (invalid) {
-			targettedMessageList.addMessage(new TargettedMessage(
-					"java.badcsrftoken",
-					null,
-					TargettedMessage.SEVERITY_ERROR));
+		messages.add(new ParticipantMessage(
+				"java.badcsrftoken",
+				null,
+				ParticipantMessage.Severity.ERROR));
 		}
 		return invalid;
     }
-    
-    /**
-     * get role choice and go to difference html page based on that
-     */
-    public String processGetParticipant() {
-    	if (invalidCsrfToken()) return "";
 
-    	// reset errors
-    	resetTargettedMessageList();
-    	// reset user list
-    	resetUserRolesEntries();
-    	checkAddParticipant();
-    	if (targettedMessageList != null && targettedMessageList.size() > 0) {
-    		// there is error, remain on the same page
-    		return "";
-    	} else {
-    		// go to next step
-    		return roleChoice;
-    	}
+    private void resetMessages() {
+		messages.clear();
     }
     
-    private void resetTargettedMessageList() {
-    	targettedMessageList.clear();
-    }
-    
-    private void resetUserRolesEntries() {
-    	userRoleEntries = new ArrayList<>(); 
-    }
-    
-    /**
-     * get the same role choice and continue
-     */
-    public String processSameRoleContinue() {
-    	if (invalidCsrfToken()) return null;
+    private boolean applySameRole() {
+        if (invalidCsrfToken()) return false;
 
-    	targettedMessageList.clear();
-		if (sameRoleChoice == null) {
-			targettedMessageList.addMessage(new TargettedMessage("java.pleasechoose", null, TargettedMessage.SEVERITY_ERROR));
-			return null;
-		} else {
-			resetTargettedMessageList();
+        resetMessages();
+        if (StringUtils.isBlank(sameRoleChoice)) {
+            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
+            return false;
+        }
+        if (!authzGroupService.allowUpdate("/site/" + siteId)) {
+            if (realm == null) init();
+            Role role = realm.getRole(sameRoleChoice);
+            if (role != null && role.isAllowed("site.upd")) {
+                messages.add(new ParticipantMessage("java.roleperm", new Object[] {sameRoleChoice},
+                        ParticipantMessage.Severity.ERROR));
+                return false;
+            }
+        }
 
-			// if user doesn't have full rights, don't let him add one with site update
-			if (!authzGroupService.allowUpdate("/site/" + siteId)) {
-				if (realm == null) init();
-				Role r = realm.getRole(sameRoleChoice);
-				if (r != null && r.isAllowed("site.upd")) {
-					targettedMessageList.addMessage(new TargettedMessage(
-							"java.roleperm",
-							new Object[] {sameRoleChoice},
-							TargettedMessage.SEVERITY_ERROR));
-					return null;
-				}
-			}
-
-			if (userRoleEntries != null) {
-				for (UserRoleEntry entry : userRoleEntries) {
-					entry.setRole(sameRoleChoice);
-				}
-			}
-
-			return "continue";
-    	}
-    }
-    
-    /**
-     * back to the first add participant page
-     */
-    public String processSameRoleBack() {
-    	resetTargettedMessageList();
-        return "back";
-    }
-    
-    /**
-     * get the different role choice and continue
-     */
-    public String processDifferentRoleContinue() {
-    	if (invalidCsrfToken()) return null;
-
-		resetTargettedMessageList();
-		if (!authzGroupService.allowUpdate("/site/" + siteId)) {
-		    Set<String> roles = new HashSet<>();
-		    for (UserRoleEntry entry : userRoleEntries)
-		    	roles.add(entry.getRole());
-		    for (String rolename: roles) {
-				Role r = realm.getRole(rolename);
-				if (r != null && r.isAllowed("site.upd")) {
-					targettedMessageList.addMessage(new TargettedMessage(
-							"java.roleperm",
-							new Object[] {rolename},
-							TargettedMessage.SEVERITY_ERROR));
-					return null;
-				}
-		    }
-		}
-
-        return "continue";
+        for (UserRoleEntry entry : userRoleEntries) {
+            entry.setRole(sameRoleChoice);
+        }
+        return true;
     }
 
+    private boolean applyIndividualRoles(List<String> individualRoles) {
+        if (invalidCsrfToken()) return false;
 
-    /**
-     * back to the first add participant page
-     */
-    public String processDifferentRoleBack() {
-    	resetTargettedMessageList();
-        return "back";
-    }
-    
-    /**
-     * get the email noti choice and continue
-     */
-    public String processEmailNotiContinue() {
-    	if (invalidCsrfToken()) return "";
-    	resetTargettedMessageList();
-        return "continue";
-    }
-    
-    /**
-     * back to the previous role choice page
-     */
-    public String processEmailNotiBack() {
-    	resetTargettedMessageList();
-    	if ("sameRole".equals(roleChoice))
-    	{
-    		return "backSameRole";
-    	}
-    	else
-    	{
-    		return "backDifferentRole";
-    	}
+        resetMessages();
+        if (individualRoles == null || individualRoles.size() != userRoleEntries.size()) {
+            messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
+            return false;
+        }
+        for (int i = 0; i < individualRoles.size(); i++) {
+            userRoleEntries.get(i).setRole(individualRoles.get(i));
+        }
+
+        if (!authzGroupService.allowUpdate("/site/" + siteId)) {
+            for (String roleName : new HashSet<>(individualRoles)) {
+                Role role = realm.getRole(roleName);
+                if (role != null && role.isAllowed("site.upd")) {
+                    messages.add(new ParticipantMessage("java.roleperm", new Object[] {roleName},
+                            ParticipantMessage.Severity.ERROR));
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     
 	/**
@@ -368,145 +377,16 @@ public class SiteAddParticipantHandler {
 		return !id.contains(EMAIL_CHAR);
 	}
 	
-	/*
-	 * Given a list of user eids, add users to realm If the user account does
-	 * not exist yet inside the user directory, assign role to it @return A list
-	 * of eids for successfully added users
-	 */
-	private List<String> addUsersRealm( boolean notify) {
-		// return the list of user eids for successfully added user
-		List<String> addedUserEIds = new ArrayList<>();
-		// this list contains all added user, their roles, and active status
-		List<String> addedUserReferences = new ArrayList<>();
-
-		if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
-			if (site == null) init();
-			if (site != null) {
-				// get realm object
-				String realmId = site.getReference();
-				try {
-					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
-					boolean allowUpdate = authzGroupService.allowUpdate(realmId);
-					Set<String>okRoles = new HashSet<>();
-					
-					// List used for user auditing
-					List<UserAuditEntry> userAuditList = new ArrayList<>();
-					String auditorId = sessionManager.getCurrentSessionUserId();
-
-					for (UserRoleEntry entry: userRoleEntries) {
-						String eId = entry.getEid();
-						String role = entry.getRole();
-						// this check should never trigger, as we check it earlier
-						// however I'm worried about users manually calling this page directly
-						if (!allowUpdate && !okRoles.contains(role)) {
-						    Role r = realmEdit.getRole(role);
-						    if (r != null && r.isAllowed("site.upd")) {
-								targettedMessageList.addMessage(new TargettedMessage(
-										"java.roleperm",
-										new Object[] {role},
-										TargettedMessage.SEVERITY_ERROR));
-								continue;
-						    }
-						    okRoles.add(role);
-						}
-						
-						// SAK-23257 - display an error message if the new role is in the restricted role list
-						String siteType = site.getType();
-						Role r = realmEdit.getRole( role );
-						if (!SiteParticipantHelper.getAllowedRoles(siteType, realm.getRoles()).contains(r)) {
-							targettedMessageList.addMessage(new TargettedMessage(
-									"java.roleperm",
-									new Object[] {role},
-									TargettedMessage.SEVERITY_ERROR));
-							continue;
-						}
-
-						try {
-							User user = userDirectoryService.getUserByEid(eId);
-							if (authzGroupService.allowUpdate(realmId)
-									|| siteService.allowUpdateSiteMembership(site.getId())) 
-							{
-								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"), false);
-								addedUserEIds.add(eId);
-								addedUserReferences.add(userDirectoryService.userReference(user.getId()));
-								
-								// Add the user to the list for the User Auditing Event Logger
-								if (auditorId != null) {
-									userAuditList.add(UserAuditEntry.of(site.getId(), user.getId(), role,
-											UserAuditService.USER_AUDIT_ACTION_ADD,
-											userAuditRegistration.getDatabaseSourceKey(), auditorId));
-								}
-
-								// send notification
-								if (notify) {
-									// send notification email 
-									notiProvider.notifyAddedParticipant(!isOfficialAccount(eId), user, site);
-									
-								}
-							}
-						} catch (UserNotDefinedException e) {
-							targettedMessageList.addMessage(new TargettedMessage(
-									"java.account",
-									new Object[] {eId},
-									TargettedMessage.SEVERITY_INFO));
-							log.debug("cannot find user with eid={}", eId, e);
-						}
-					}
-
-					try {
-						authzGroupService.save(realmEdit);
-						
-						// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
-						// but seems to be a better solution than call this multiple time for every update
-						if (!userAuditList.isEmpty()) {
-							userAuditService.addToUserAuditing(userAuditList);
-						}
-						
-						// post event about adding participant
-						eventTrackingService.post(eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-						
-						// check the configuration setting, whether logging membership change at individual level is allowed
-						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, true)) {
-							for (String userRef : addedUserReferences) {
-								eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD, userRef, true));
-							}
-						}
-					} catch (GroupNotDefinedException ee) {
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.realm",
-								new Object[] {realmId},
-								TargettedMessage.SEVERITY_INFO));
-						log.warn("cannot find realm for {}", realmId, ee);
-					} catch (AuthzPermissionException ee) {
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.permeditsite",
-								new Object[] {realmId},
-								TargettedMessage.SEVERITY_INFO));
-						log.warn("don't have permission to edit realm {}", realmId, ee);
-					}
-				} catch (GroupNotDefinedException eee) {
-					targettedMessageList.addMessage(new TargettedMessage(
-							"java.realm",
-							new Object[] {realmId},
-							TargettedMessage.SEVERITY_INFO));
-					log.warn("cannot find realm for {}", realmId, eee);
-				} catch (Exception eee) {
-					log.warn("realmId={}", realmId, eee);
-				}
-			}
-		}
-
-		return addedUserEIds;
-	}
-	
-    /**
-     * get the confirm choice and continue
-     */
-    public String processConfirmContinue() {
-    	if (invalidCsrfToken()) return null;
+    /** Creates required guest accounts and adds all selected participants. */
+    public boolean finish(String csrfToken) {
+        csrfToken(csrfToken);
+	if (invalidCsrfToken()) {
+            saveState();
+            return false;
+        }
 
     	List<String> validationUsers = new ArrayList<>();
-    	resetTargettedMessageList();
+		resetMessages();
     	if (site == null) init();
     	for (UserRoleEntry entry:userRoleEntries) {
 			String eId = entry.getEid();
@@ -547,22 +427,22 @@ public class SiteAddParticipantHandler {
 							validationUsers.add(uEdit.getId());
 						}
 					} catch (UserIdInvalidException ee) {
-						targettedMessageList.addMessage(new TargettedMessage(
+						messages.add(new ParticipantMessage(
 								"java.isinval",
 								new Object[] {eId},
-								TargettedMessage.SEVERITY_INFO));
+								ParticipantMessage.Severity.INFO));
 						log.warn("id [{}] is invalid", eId, ee);
 					} catch (UserAlreadyDefinedException ee) {
-						targettedMessageList.addMessage(new TargettedMessage(
+						messages.add(new ParticipantMessage(
 								"java.beenused",
 								new Object[] {eId},
-								TargettedMessage.SEVERITY_INFO));
+								ParticipantMessage.Severity.INFO));
 						log.warn("id [{}] has been used", eId, ee);
 					} catch (UserPermissionException ee) {
-						targettedMessageList.addMessage(new TargettedMessage(
+						messages.add(new ParticipantMessage(
 								"java.haveadd",
 								new Object[] {eId},
-								TargettedMessage.SEVERITY_INFO));
+								ParticipantMessage.Severity.INFO));
 						log.warn("You don't have permission to add [{}]", eId, ee);
 					}
 				}
@@ -570,7 +450,8 @@ public class SiteAddParticipantHandler {
 		}
 
 		// batch add and updates the successful added list
-		List<String> addedParticipantEIds = addUsersRealm(Boolean.parseBoolean(emailNotiChoice));
+		List<String> addedParticipantEIds = participantRealmUpdater.addParticipants(site, realm, userRoleEntries,
+                status, notificationOption, messages);
 
 		// update the not added user list
 		String notAddedOfficialAccounts = "";
@@ -598,34 +479,27 @@ public class SiteAddParticipantHandler {
 				&& (!notAddedOfficialAccounts.isEmpty() || !notAddedNonOfficialAccounts.isEmpty())) {
 			// at lease one officialAccount account or an nonOfficialAccount
 			// account added, and there are also failures
-			targettedMessageList.addMessage(new TargettedMessage(
+			messages.add(new ParticipantMessage(
 					"java.allusers",
 					null,
-					TargettedMessage.SEVERITY_INFO));
+					ParticipantMessage.Severity.INFO));
 		}
     		
-		if (targettedMessageList.size() == 0) {
+		if (messages.isEmpty()) {
 			// time to reset user inputs
 			reset();
 
 			// After succesfully adding participants, return to the 'Manage Participants' UI rather than whatever the previously selected tab was
 			setNextPage(SiteConstants.MANAGE_PARTICIPANTS_TEMPLATE_INDEX);
 
-	        return "done";
+			clearState();
+			return true;
 		} else {
-			// there is error
-			return "errorWithAddingParticipants";
+			saveState();
+			return false;
 		}
     }
-    
-    /**
-     * back to the email notification page
-     */
-    public String processConfirmBack() {
-    	resetTargettedMessageList();
-        return "back";
-    }
-    
+
     /**
      * Gets the current tool
      * @return Tool
@@ -633,396 +507,61 @@ public class SiteAddParticipantHandler {
     public Tool getCurrentTool() {
         return toolManager.getCurrentTool();
     }
-    
-    /** check the participant input **/
-    private void checkAddParticipant() {
-		// get the participants to be added
-		int i;
-		if (site == null) init();
-		List<Participant> pList = new ArrayList<>();
-		HashSet<String> existingUsers = new HashSet<>();
 
-		// accept officialAccounts and/or nonOfficialAccount account names
-		String officialAccounts;
-		String nonOfficialAccounts;
+    /** Return the caller-provided URL for leaving this Site Info helper. */
+	public String getDoneUrl() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        Tool tool = getCurrentTool();
+        if (session == null || tool == null) {
+            return "/";
+        }
 
-		// check that there is something with which to work
-		officialAccounts = StringUtils.trimToNull(officialAccountParticipant);
-		nonOfficialAccounts = StringUtils.trimToNull(nonOfficialAccountParticipant);
-		StringBuilder updatedOfficialAccountParticipant = new StringBuilder();
-		StringBuilder updatedNonOfficialAccountParticipant = new StringBuilder();
-
-		// if there is no eid or nonOfficialAccount entered
-		if (officialAccounts == null && nonOfficialAccounts == null) {
-			targettedMessageList.addMessage(new TargettedMessage(
-					"java.guest",
-					null,
-					TargettedMessage.SEVERITY_ERROR));
-		}
-
-		if (officialAccounts != null) {
-			// adding officialAccounts
-			String[] officialAccountArray = officialAccounts.split("\r\n");
-
-			for (i = 0; i < officialAccountArray.length; i++) {
-				String currentOfficialAccount = officialAccountArray[i];
-				String officialAccount = StringUtils.trimToNull(currentOfficialAccount.replaceAll("[\t\r\n]", ""));
-				// if there is some text, try to use it
-				if (officialAccount != null) {
-					// automatically add nonOfficialAccount account
-					Participant participant = new Participant();
-					User u = null;
-					StringBuilder eidsForAllMatches = new StringBuilder();
-					StringBuilder eidsForAllMatchesAlertBuffer = new StringBuilder();
-					
-					if (!officialAccount.contains(EMAIL_CHAR)) {
-						// is not of email format, then look up by eid only
-						try {
-							// look for user based on eid first
-							u = userDirectoryService.getUserByEid(officialAccount);
-						} catch (UserNotDefinedException e) {
-							log.debug(messageLocator.getMessage("java.username", officialAccount), e);
-						}
-					} else {
-						// is email. Need to lookup by both eid and email address
-						try {
-							// look for user based on eid first
-							u = userDirectoryService.getUserByEid(officialAccount);
-						} catch (UserNotDefinedException e) {
-							log.debug(messageLocator.getMessage("java.username", officialAccount), e);
-						}
-						
-						//Changed user lookup to satisfy BSP-1010 (jholtzman)
-						// continue to look for the user by their email address
-						// if the email address is not marked as eid only
-						if (!officialAccountEidOnly.contains(officialAccount)) {
-							Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(officialAccount);
-							
-							if(usersWithEmail != null) {
-								if (usersWithEmail.isEmpty()) {
-									// if the collection is empty, we didn't find any users with this email address
-									log.debug("Unable to find users with email {}", officialAccount);
-								} else if (usersWithEmail.size() == 1) {
-									if (u == null) {
-										// found one user with this email address
-										u = usersWithEmail.iterator().next();
-									}
-								} else {
-									// If we have multiple users with this email address
-									// expand the list with all matching user's eids and let the instructor choose from them
-									log.debug("Found multiple user with email {}", officialAccount);
-									
-									// multiple matches
-									for (User user : usersWithEmail) {
-										String displayId = user.getDisplayId();
-										eidsForAllMatches.append(displayId).append("\n");
-										eidsForAllMatchesAlertBuffer.append(displayId).append(", ");
-										
-										// this is to mark the eid so that it won't be used again for email lookup in the future
-										officialAccountEidOnly.add(user.getEid());
-									}
-									// trim the alert message
-									String eidsForAllMatchesAlert = eidsForAllMatchesAlertBuffer.toString();
-									if (eidsForAllMatchesAlert.endsWith(", ")) {
-										eidsForAllMatchesAlert = eidsForAllMatchesAlert.substring(0, eidsForAllMatchesAlert.length()-2);
-									}
-									
-									// update ui input
-									updateOfficialAccountParticipant(officialAccount, u, eidsForAllMatches.toString());
-									
-									// show alert message
-									targettedMessageList.addMessage(new TargettedMessage(
-											"java.username.multiple",
-											new Object[] {officialAccount, eidsForAllMatchesAlert},
-											TargettedMessage.SEVERITY_INFO));
-								}
-							}
-						}
-					}
-						
-					if (u != null) {
-						log.debug("found user with eid {}", u.getEid());
-						if (site != null && site.getUserRole(u.getId()) != null) {
-							// user already exists in the site, cannot be added
-							// again
-							existingUsers.add(officialAccount);
-						} else {
-							participant.name = u.getDisplayName();
-							participant.uniqname = u.getEid();
-							participant.active = true;
-							pList.add(participant);
-						}
-						
-						// update the userRoleTable
-						if (!getUsers().contains(officialAccount) && !existingUsers.contains(officialAccount)) {
-							userRoleEntries.add(new UserRoleEntry(u.getEid(), ""));
-
-							// not existed user, update account
-							updatedOfficialAccountParticipant.append(currentOfficialAccount).append("\n");
-						}
-					} else if (eidsForAllMatches.isEmpty()) {
-						// not valid user
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.username",
-								new Object[] {officialAccount},
-								TargettedMessage.SEVERITY_ERROR));
-					}
-				}
-			}
-		}
-
-		if (nonOfficialAccounts != null) {
-			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
-			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String currentNonOfficialAccount = nonOfficialAccountArray[i];
-				String nonOfficialAccountAll = StringUtils.trimToNull(currentNonOfficialAccount.replaceAll("[\t\r\n]", ""));
-				//there could be an empty line SAK-22497
-				if (nonOfficialAccountAll == null) continue;
-				
-				// the format of per user entry is: email address,first name,last name
-				// comma separated
-				String[] nonOfficialAccountParts  = parseAccountIntoParts(nonOfficialAccountAll);
-				if (nonOfficialAccountParts == null) continue;
-				String userEid = nonOfficialAccountParts[0];
-				String userLastName = nonOfficialAccountParts[1];
-				String userFirstName = nonOfficialAccountParts[2];
-
-				if (!userEid.isEmpty()) {
-					final String[] parts = userEid.split(EMAIL_CHAR);
-
-					if (!userEid.contains(EMAIL_CHAR)) {
-						// must be a valid email address
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.emailaddress",
-								new Object[] {userEid},
-								TargettedMessage.SEVERITY_ERROR));
-					} else if ((parts.length != 2) || (parts[0].isEmpty())) {
-						// must have both id and address part
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.notemailid",
-								new Object[] {userEid},
-								TargettedMessage.SEVERITY_ERROR));
-					} else if (!EmailValidator.getInstance().isValid(userEid)) {
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.emailaddress",
-								new Object[] {userEid},
-								TargettedMessage.SEVERITY_ERROR));
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.theemail",
-								"no text"));
-					}
-
-					// SAK-29711
-					else if( !isValidDomain( parts[1] ) )
-					{
-						String offendingDomain = invalidDomains.stream()
-								.filter(domain -> parts[1].endsWith(domain))
-								.findAny()
-								.orElse(null);
-						targettedMessageList.addMessage( new TargettedMessage(
-								"nonOfficialAccount.invalidEmailDomain",
-								new Object[] {offendingDomain},
-								TargettedMessage.SEVERITY_ERROR ) );
-					}
-
-					else if (!isValidMail(userEid)) {
-						// must be a valid email address
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.emailaddress",
-								new Object[] {userEid},
-								TargettedMessage.SEVERITY_ERROR));
-					} else {
-						Participant participant = new Participant();
-						try {
-							// if the nonOfficialAccount user already exists
-							User u = userDirectoryService
-									.getUserByEid(userEid);
-							if (site != null && site.getUserRole(u.getId()) != null) {
-								// user already exists in the site, cannot be
-								// added again
-								existingUsers.add(userEid);
-							} else {
-								participant.name = u.getDisplayName();
-								participant.uniqname = userEid;
-								participant.active = true;
-								pList.add(participant);
-							}
-						} catch (UserNotDefinedException e) {
-							log.debug("no user with eid: {}", userEid);
-							
-							/*
-							 * The account may exist with a different eid
-							 */
-							User u = null;
-							Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(userEid);
-							if(usersWithEmail != null) {
-								log.debug("found a collection of matching email users: {}", usersWithEmail.size());
-								if(usersWithEmail.isEmpty()) {
-									// If the collection is empty, we didn't find any users with this email address
-									log.info("Unable to find users with email {}", userEid);
-								} else if (usersWithEmail.size() == 1) {
-									// We found one user with this email address.  Use it.
-									u = usersWithEmail.iterator().next();
-								} else {
-									// If we have multiple users with this email address, pick one and log this error condition
-									// TODO Should we not pick a user?  Throw an exception?
-									log.warn("Found multiple user with email {}", userEid);
-									u = usersWithEmail.iterator().next();
-								}
-							}
-							
-							if (u == null) {
-								// if the nonOfficialAccount user is not in the system
-								participant.name = userEid;
-								participant.uniqname = userEid;
-								participant.active = true;
-								
-								if (!userDirectoryService.allowAddUser()) {
-									targettedMessageList.addMessage(new TargettedMessage(
-											"java.haveadd",
-											new Object[] {userEid},
-											TargettedMessage.SEVERITY_ERROR));
-									log.warn("User [{}] don't have permission to add [{}]",
-											Optional.ofNullable(userDirectoryService.getCurrentUser())
-													.map(User::getEid)
-													.orElse(""),
-											userEid);
-								}
-							} else  {
-								if (site != null && site.getUserRole(u.getId()) != null) {
-									// user already exists in the site, cannot be added
-									existingUsers.add(userEid);
-								} else {
-									log.debug("adding: {}, {}",  u.getDisplayName(), u.getEid());
-									participant.name = u.getDisplayName();
-									participant.uniqname = u.getEid();
-									participant.active = true;
-									userEid = u.getEid();
-								}
-							}
-							pList.add(participant);
-						}
-						
-						// update the userRoleTable
-						if (!getUsers().contains(userEid) && !existingUsers.contains(userEid)) {
-							userRoleEntries.add(new UserRoleEntry(userFirstName, userLastName, "", userEid));
-							// not existed user, update account
-							updatedNonOfficialAccountParticipant.append(currentNonOfficialAccount).append("\n");
-						}
-					}
-				}
-			}
-		}
-		
-		// update participant attributes
-		officialAccountParticipant = updatedOfficialAccountParticipant.toString();
-		nonOfficialAccountParticipant = updatedNonOfficialAccountParticipant.toString();
-		
-
-		if ("same_role".equals(roleChoice)) {
-			targettedMessageList.addMessage(new TargettedMessage(
-					"java.roletype",
-					null,
-					TargettedMessage.SEVERITY_ERROR));
-		}
-
-		// remove duplicate or existing user from participant list
-		pList = removeDuplicateParticipants(pList);
-
-		// if the add participant list is empty after above removal, stay in the
-		// current page and add an alert for attempting to add existing site user(s)
-		if (!existingUsers.isEmpty()) {
-			String accounts = String.join(", ", existingUsers);
-
-			targettedMessageList.addMessage(new TargettedMessage(
-					"add.existingpart.1",
-					new Object[] {accounts},
-					TargettedMessage.SEVERITY_INFO));
-			if (!pList.isEmpty()) {
-				// continue add
-				targettedMessageList.addMessage(new TargettedMessage(
-						"add.existingpart.2",
-						null,
-						TargettedMessage.SEVERITY_INFO));
-			} else {
-				// no valid user input left, prompt for more
-				targettedMessageList.addMessage(new TargettedMessage(
-						"java.guest",
-						null,
-						TargettedMessage.SEVERITY_ERROR));
-			}
-		}
+        return Optional.ofNullable(session.getAttribute(tool.getId() + Tool.HELPER_DONE_URL))
+                .map(Object::toString)
+                .filter(StringUtils::isNotBlank)
+                .orElse("/");
 	}
 
-	private String[] parseAccountIntoParts(String account) {
-		if (StringUtils.isBlank(account)) {
-			return null;
-		}
+    public boolean hasParticipants() {
+        return !userRoleEntries.isEmpty();
+    }
 
-		String[] accountParts = account.split(",", 3);
-		String[] result = new String[3];
+    public List<UserRoleEntry> getParticipants() {
+        return Collections.unmodifiableList(userRoleEntries);
+    }
 
-		// Parse email (required)
-		result[0] = accountParts[0].trim();
-		while (result[0].endsWith(".")) {
-			result[0] = result[0].substring(0, result[0].length() - 1);
-		}
+    public boolean allowsNonOfficialAccounts() {
+        return "true".equalsIgnoreCase(getAllowNonOfficialAccount());
+    }
 
-		// Parse lastName (optional)
-		result[1] = accountParts.length > 1 ? accountParts[1].trim() : "";
+    public boolean showsStatusChoice() {
+        return "true".equalsIgnoreCase(getServerConfigurationString("activeInactiveUser", Boolean.FALSE.toString()));
+    }
 
-		// Parse firstName (optional)
-		result[2] = accountParts.length > 2 ? accountParts[2].trim() : "";
+    public boolean showsCourseInstructions() {
+        return isCourseSite() && !courseManagementService.getCurrentAcademicSessions().isEmpty();
+    }
 
-		return result;
-	}
+    public String getRoleChoice() {
+        return roleMode.getFormValue();
+    }
 
-	/**
-	 * Checks if the given domain ends with any of the invalid domains listed in sakai.properties
-	 * @param domain the domain suffix to be checked
-	 * @return true if the domain is valid; false otherwise
-	 */
-	private boolean isValidDomain( String domain ) {
-		return !StringUtils.endsWithAny( domain, invalidDomains.toArray(new String[0]) );
-	}
+    public String getStatusChoice() {
+        return status.getFormValue();
+    }
 
-	private boolean isValidMail(String email) {
-		if (email == null || email.isEmpty()) return false;
-		
-		email = email.trim();
-		
-		EmailValidator ev = EmailValidator.getInstance();
-		return ev.isValid(email);
-	}
-	
-	private List<Participant> removeDuplicateParticipants(List<Participant> pList) {
-		// check the uniqueness of list member
-		Set<String> s = new HashSet<>();
-		Set<String> uniqnameSet = new HashSet<>();
-		List<Participant> rv = new ArrayList<>();
-		for (Participant p : pList) {
-			if (!uniqnameSet.contains(p.getUniqname())) {
-				// no entry for the account yet
-				rv.add(p);
-				uniqnameSet.add(p.getUniqname());
-			} else {
-				// found duplicates
-				s.add(p.getUniqname());
-			}
-		}
+    public boolean isActive() {
+        return status.isActive();
+    }
 
-		if (!s.isEmpty()) {
-			String accounts = String.join(", ", s);
+    public String getEmailNotiChoice() {
+        return notificationOption.getFormValue();
+    }
 
-			targettedMessageList.addMessage(new TargettedMessage(
-					s.size() == 1 ? "add.duplicatedpart.single" : "add.duplicatedpart",
-					new Object[] {accounts},
-					TargettedMessage.SEVERITY_INFO));
-		}
+    public boolean sendsNotification() {
+        return notificationOption.sendsNotification();
+    }
 
-		return rv;
-	}
-	
 	private void reset() {
 		site = null;
 		siteId = null;
@@ -1031,27 +570,46 @@ public class SiteAddParticipantHandler {
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new ArrayList<>();
 		nonOfficialAccountParticipant = null;
-		roleChoice = "sameRole";
-		statusChoice = "active";
+		roleMode = ParticipantRoleMode.SAME_ROLE;
+		status = ParticipantStatus.ACTIVE;
 		sameRoleChoice = null;
-		emailNotiChoice = Boolean.FALSE.toString();
+		notificationOption = ParticipantNotificationOption.DO_NOT_SEND;
 		userRoleEntries = new ArrayList<>();
 	}
 
-    /**
-	 * This is to update the handler's officialAccountParticipant attribute when encountering multiple users with same email address.
-	 * The visual result is that the official account list will be expanded to include eids from all matches
-	 */
-	protected void updateOfficialAccountParticipant(String officialAccount, User user, String eidsForAllMatches) {
-		
-		if (user != null && !eidsForAllMatches.contains(user.getEid())) {
-			eidsForAllMatches = user.getEid() + "\n" + eidsForAllMatches;
-		}
-		
-		// replace the original official account entry with eids from all matches.
-		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
-	}
-	
+    private void csrfToken(String value) {
+        csrfToken = value;
+    }
+
+    private ParticipantWizardState readState() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        Object state = session == null ? null : session.getAttribute(STATE_ATTRIBUTE);
+        return state instanceof ParticipantWizardState ? (ParticipantWizardState) state : new ParticipantWizardState();
+    }
+
+    private void saveState() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        if (session == null) return;
+
+        if (wizardState == null) wizardState = new ParticipantWizardState();
+        wizardState.setOfficialAccountParticipant(officialAccountParticipant);
+        wizardState.setOfficialAccountEidOnly(officialAccountEidOnly);
+        wizardState.setNonOfficialAccountParticipant(nonOfficialAccountParticipant);
+        wizardState.setRoleMode(roleMode);
+        wizardState.setSameRoleChoice(sameRoleChoice);
+        wizardState.setStatus(status);
+        wizardState.setNotificationOption(notificationOption);
+        wizardState.setUserRoleEntries(userRoleEntries);
+        session.setAttribute(STATE_ATTRIBUTE, wizardState);
+    }
+
+    private void clearState() {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        if (session != null) {
+            session.removeAttribute(STATE_ATTRIBUTE);
+        }
+    }
+
 	/**
 	 * get the settings whether non official account users are allowed or not
 	 * site-wide settings can override the system-wide settings
