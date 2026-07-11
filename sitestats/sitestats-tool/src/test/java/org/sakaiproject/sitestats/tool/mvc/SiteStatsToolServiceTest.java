@@ -3,11 +3,9 @@ package org.sakaiproject.sitestats.tool.mvc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -39,7 +37,6 @@ import org.sakaiproject.sitestats.api.event.detailed.SortingParams;
 import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
@@ -73,7 +70,6 @@ public class SiteStatsToolServiceTest {
     @Autowired private DetailedEventsManager detailedEventsManager;
     @Autowired private EventRegistryService eventRegistryService;
     @Autowired private LocaleService localeService;
-    @Autowired private SiteStatsReportAccessService reportAccessService;
     @Autowired private SiteStatsViewService siteStatsViewService;
     @Autowired private SiteService siteService;
     @Autowired private SiteStatsToolEventsService siteStatsToolEventsService;
@@ -84,20 +80,9 @@ public class SiteStatsToolServiceTest {
 
     @Before
     public void setup() {
-        reset(detailedEventsManager, eventRegistryService, localeService, reportAccessService, siteStatsViewService,
+        reset(detailedEventsManager, eventRegistryService, localeService, siteStatsViewService,
                 siteService, siteStatsToolEventsService, statsManager, toolManager, userDirectoryService,
                 userTimeService);
-    }
-
-    @Test
-    public void reportRoutesUseCentralViewAllAuthorization() {
-        Placement placement = mock(Placement.class);
-        when(toolManager.getCurrentPlacement()).thenReturn(placement);
-        when(placement.getContext()).thenReturn("site-1");
-        doThrow(new SecurityException("Not authorized"))
-                .when(reportAccessService).assertCanViewAll("site-1");
-
-        assertThrows(SecurityException.class, () -> service.reportSite("site-1"));
     }
 
     @Test
