@@ -28,7 +28,7 @@
   <div th:fragment="messages" aria-live="polite">
     <div th:each="message : ${messages}"
          th:class="${message.severity.name() == 'ERROR'} ? 'sak-banner-error' : 'sak-banner-info'"
-         th:text="${#messages.msg(message.code, message.args)}">Message</div>
+         th:text="${message.text}">Message</div>
   </div>
 
   <button th:fragment="cancel" type="submit" class="btn btn-link" th:formaction="@{/cancel}" formmethod="post" th:text="#{gen.cancel}">Cancel</button>

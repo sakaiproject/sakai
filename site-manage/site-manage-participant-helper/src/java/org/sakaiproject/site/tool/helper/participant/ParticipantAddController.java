@@ -9,10 +9,13 @@ package org.sakaiproject.site.tool.helper.participant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.site.tool.helper.participant.impl.ParticipantMessage;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantNotificationOption;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantRoleMode;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantStatus;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +30,11 @@ import lombok.Setter;
 public class ParticipantAddController {
 
     private final SiteAddParticipantHandler handler;
+    private final MessageSource messageSource;
 
-    public ParticipantAddController(SiteAddParticipantHandler handler) {
+    public ParticipantAddController(SiteAddParticipantHandler handler, MessageSource messageSource) {
         this.handler = handler;
+        this.messageSource = messageSource;
     }
 
     /** Restores the request-scoped operation before every wizard endpoint. */
@@ -178,8 +183,16 @@ public class ParticipantAddController {
     private String render(Model model, String view, int step) {
         model.addAttribute("siteTitle", handler.getSiteTitle());
         model.addAttribute("step", step);
-        model.addAttribute("messages", handler.getMessages());
+        List<ParticipantMessageView> messages = handler.getMessages().stream()
+                .map(message -> new ParticipantMessageView(
+                        messageSource.getMessage(message.getCode(), message.getArgs(), LocaleContextHolder.getLocale()),
+                        message.getSeverity()))
+                .toList();
+        model.addAttribute("messages", messages);
         return view;
+    }
+
+    public record ParticipantMessageView(String text, ParticipantMessage.Severity severity) {
     }
 
     @Getter
