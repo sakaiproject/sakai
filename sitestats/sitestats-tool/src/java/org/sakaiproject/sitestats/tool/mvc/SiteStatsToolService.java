@@ -59,7 +59,6 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.transformers.ResolvedRefTransformer;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -84,12 +83,13 @@ public class SiteStatsToolService {
     private final SiteStatsReportAccessService reportAccessService;
     private final SiteStatsReportExportService reportExportService;
     private final SiteStatsReportPreviewService reportPreviewService;
+    private final SiteStatsToolAuthorizationService authorizationService;
+    private final SiteStatsReportFormValidator reportFormValidator;
     private final SiteService siteService;
     private final AuthzGroupService authzGroupService;
     private final UserDirectoryService userDirectoryService;
     private final LocaleService localeService;
     private final UserTimeService userTimeService;
-    private final ToolManager toolManager;
     private final ResolvedRefTransformer resolvedRefTransformer;
 
     public SiteStatsToolService(StatsManager statsManager, StatsUpdateManager statsUpdateManager,
@@ -97,10 +97,11 @@ public class SiteStatsToolService {
             DetailedEventsManager detailedEventsManager, ReportManager reportManager,
             SiteStatsViewService siteStatsViewService, SiteStatsReportAccessService reportAccessService,
             SiteStatsReportExportService reportExportService, SiteStatsReportPreviewService reportPreviewService,
+            SiteStatsToolAuthorizationService authorizationService, SiteStatsReportFormValidator reportFormValidator,
             SiteService siteService, AuthzGroupService authzGroupService, UserDirectoryService userDirectoryService,
             LocaleService localeService,
             @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
-            ToolManager toolManager, ResolvedRefTransformer resolvedRefTransformer) {
+            ResolvedRefTransformer resolvedRefTransformer) {
         this.statsManager = statsManager;
         this.statsUpdateManager = statsUpdateManager;
         this.eventRegistryService = eventRegistryService;
@@ -111,25 +112,26 @@ public class SiteStatsToolService {
         this.reportAccessService = reportAccessService;
         this.reportExportService = reportExportService;
         this.reportPreviewService = reportPreviewService;
+        this.authorizationService = authorizationService;
+        this.reportFormValidator = reportFormValidator;
         this.siteService = siteService;
         this.authzGroupService = authzGroupService;
         this.userDirectoryService = userDirectoryService;
         this.localeService = localeService;
         this.userTimeService = userTimeService;
-        this.toolManager = toolManager;
         this.resolvedRefTransformer = resolvedRefTransformer;
     }
 
     public String currentSiteId() {
-        return toolManager.getCurrentPlacement().getContext();
+        return authorizationService.currentSiteId();
     }
 
     public String currentUserId() {
-        return reportAccessService.currentUserId();
+        return authorizationService.currentUserId();
     }
 
     public boolean isAdminTool() {
-        return StatsManager.SITESTATS_ADMIN_TOOLID.equals(toolManager.getCurrentTool().getId());
+        return authorizationService.isAdminTool();
     }
 
     private SiteStatsOverview overview(String requestedSiteId) {
@@ -357,50 +359,7 @@ public class SiteStatsToolService {
     }
 
     public String validateReport(ReportForm form) {
-        if (StringUtils.isBlank(form.getTitle())) {
-            return "sitestats_report_title_required";
-        }
-        if (ReportManager.WHAT_EVENTS.equals(form.getWhat())) {
-            if (ReportManager.WHAT_EVENTS_BYTOOL.equals(form.getWhatEventSelType())
-                    && form.getWhatToolIds().isEmpty()) {
-                return "report_err_notools";
-            }
-            if (ReportManager.WHAT_EVENTS_BYEVENTS.equals(form.getWhatEventSelType())
-                    && form.getWhatEventIds().isEmpty()) {
-                return "report_err_noevents";
-            }
-        }
-        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat()) && form.isWhatLimitedResourceIds()
-                && Arrays.stream(StringUtils.defaultString(form.getWhatResourceIds()).split("[\\r\\n]+"))
-                        .noneMatch(StringUtils::isNotBlank)) {
-            return "report_err_noresources";
-        }
-        if (ReportManager.WHEN_CUSTOM.equals(form.getWhen())
-                && (form.getWhenFrom() == null || form.getWhenTo() == null || form.getWhenFrom().isAfter(form.getWhenTo()))) {
-            return "report_err_nocustomdates";
-        }
-        if (ReportManager.WHO_GROUPS.equals(form.getWho()) && StringUtils.isBlank(form.getWhoGroupId())) {
-            return "report_err_nogroup";
-        }
-        if (ReportManager.WHO_CUSTOM.equals(form.getWho()) && form.getWhoUserIds().isEmpty()) {
-            return "report_err_nousers";
-        }
-        if (form.getHowTotalsBy().isEmpty()) {
-            return "reportParams.howTotalsBy.Required";
-        }
-        if (ReportManager.WHAT_EVENTS.equals(form.getWhat())
-                && (form.getHowTotalsBy().contains(StatsManager.T_RESOURCE)
-                        || form.getHowTotalsBy().contains(StatsManager.T_RESOURCE_ACTION))) {
-            return "report_err_totalsbyevent";
-        }
-        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat())
-                && form.getHowTotalsBy().contains(StatsManager.T_EVENT)) {
-            return "report_err_totalsbyresource";
-        }
-        if (form.isHowLimitedMaxResults() && form.getHowMaxResults() <= 0) {
-            return "reportParams.howMaxResults.IConverter.int";
-        }
-        return null;
+        return reportFormValidator.validate(form);
     }
 
     private void applyReportParameters(ReportParams params, ReportForm form) {
@@ -590,37 +549,15 @@ public class SiteStatsToolService {
     }
 
     public String viewSite(String requestedSiteId) {
-        return authorizedSite(requestedSiteId, AccessLevel.VIEW);
+        return authorizationService.viewSite(requestedSiteId);
     }
 
     public String reportSite(String requestedSiteId) {
-        return authorizedSite(requestedSiteId, AccessLevel.ALL);
+        return authorizationService.reportSite(requestedSiteId);
     }
 
     public String adminSite(String requestedSiteId) {
-        return authorizedSite(requestedSiteId, AccessLevel.ADMIN);
-    }
-
-    private String authorizedSite(String requestedSiteId, AccessLevel accessLevel) {
-        String siteId = StringUtils.defaultIfBlank(requestedSiteId, currentSiteId());
-        String currentSiteId = currentSiteId();
-        if (!siteId.equals(currentSiteId)) {
-            reportAccessService.assertCanViewAdmin(currentSiteId);
-        }
-        if (AccessLevel.ADMIN == accessLevel) {
-            reportAccessService.assertCanViewAdmin(siteId);
-        } else if (AccessLevel.ALL == accessLevel) {
-            reportAccessService.assertCanViewAll(siteId);
-        } else {
-            reportAccessService.assertCanView(siteId);
-        }
-        return siteId;
-    }
-
-    private enum AccessLevel {
-        VIEW,
-        ALL,
-        ADMIN
+        return authorizationService.adminSite(requestedSiteId);
     }
 
     private String displayName(String userId) {
