@@ -68,7 +68,7 @@ public class SiteStatsReportFormValidator {
         return availableReportTypes;
     }
 
-    public String validateForm(SiteStatsReportForm form) {
+    public static String validateForm(SiteStatsReportForm form) {
         if (StringUtils.isBlank(form.getTitle())) {
             return "sitestats_report_title_required";
         }
