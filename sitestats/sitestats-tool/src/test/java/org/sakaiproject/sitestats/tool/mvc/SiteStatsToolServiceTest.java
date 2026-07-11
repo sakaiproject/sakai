@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -49,7 +48,6 @@ import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityDefiniti
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ActivityEvent;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesResult;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityResult;
 import org.sakaiproject.time.api.UserTimeService;
@@ -92,53 +90,6 @@ public class SiteStatsToolServiceTest {
     }
 
     @Test
-    public void reportValidationRequiresTitle() {
-        assertEquals("sitestats_report_title_required", service.validateReport(new ReportForm()));
-    }
-
-    @Test
-    public void reportValidationRequiresToolsForToolEventReport() {
-        ReportForm form = validForm();
-        form.setWhat(ReportManager.WHAT_EVENTS);
-        form.setWhatToolIds(Collections.emptyList());
-        assertEquals("report_err_notools", service.validateReport(form));
-    }
-
-    @Test
-    public void reportValidationRejectsReversedCustomDates() {
-        ReportForm form = validForm();
-        form.setWhen(ReportManager.WHEN_CUSTOM);
-        form.setWhenFrom(LocalDate.of(2026, 7, 11));
-        form.setWhenTo(LocalDate.of(2026, 7, 10));
-        assertEquals("report_err_nocustomdates", service.validateReport(form));
-    }
-
-    @Test
-    public void reportValidationRequiresResourcesWhenLimited() {
-        ReportForm form = validForm();
-        form.setWhat(ReportManager.WHAT_RESOURCES);
-        form.setWhatLimitedResourceIds(true);
-        form.setWhatResourceIds("  \n");
-        assertEquals("report_err_noresources", service.validateReport(form));
-    }
-
-    @Test
-    public void reportValidationRejectsResourceTotalsForActivity() {
-        ReportForm form = validForm();
-        form.setWhat(ReportManager.WHAT_EVENTS);
-        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_RESOURCE));
-        assertEquals("report_err_totalsbyevent", service.validateReport(form));
-    }
-
-    @Test
-    public void reportValidationRejectsEventTotalsForResources() {
-        ReportForm form = validForm();
-        form.setWhat(ReportManager.WHAT_RESOURCES);
-        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_EVENT));
-        assertEquals("report_err_totalsbyresource", service.validateReport(form));
-    }
-
-    @Test
     public void reportRoutesUseCentralViewAllAuthorization() {
         Placement placement = mock(Placement.class);
         when(toolManager.getCurrentPlacement()).thenReturn(placement);
@@ -147,11 +98,6 @@ public class SiteStatsToolServiceTest {
                 .when(reportAccessService).assertCanViewAll("site-1");
 
         assertThrows(SecurityException.class, () -> service.reportSite("site-1"));
-    }
-
-    @Test
-    public void reportValidationAcceptsDefaultReport() {
-        assertNull(service.validateReport(validForm()));
     }
 
     @Test
@@ -305,9 +251,4 @@ public class SiteStatsToolServiceTest {
         assertNull(result.getWidgetEndpoints().get("activity:bytool"));
     }
 
-    private ReportForm validForm() {
-        ReportForm form = new ReportForm();
-        form.setTitle("Report");
-        return form;
-    }
 }

@@ -30,6 +30,42 @@ public class SiteStatsReportFormValidatorTest {
     }
 
     @Test
+    public void requiresToolsForAToolEventReport() {
+        ReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_EVENTS);
+        form.setWhatToolIds(Collections.emptyList());
+
+        assertEquals("report_err_notools", validator.validate(form));
+    }
+
+    @Test
+    public void rejectsReversedCustomDates() {
+        ReportForm form = validForm();
+        form.setWhenTo(LocalDate.of(2026, 7, 9));
+
+        assertEquals("report_err_nocustomdates", validator.validate(form));
+    }
+
+    @Test
+    public void requiresResourceIdentifiersForALimitedResourceReport() {
+        ReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_RESOURCES);
+        form.setWhatLimitedResourceIds(true);
+        form.setWhatResourceIds("  \n");
+
+        assertEquals("report_err_noresources", validator.validate(form));
+    }
+
+    @Test
+    public void rejectsAnInvalidResourceTotal() {
+        ReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_RESOURCES);
+        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_EVENT));
+
+        assertEquals("report_err_totalsbyresource", validator.validate(form));
+    }
+
+    @Test
     public void acceptsAValidForm() {
         assertNull(validator.validate(validForm()));
     }
