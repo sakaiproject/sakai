@@ -222,7 +222,10 @@
 
 	<!-- SiteStatsReportPreviewService _____________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"/>
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"
+		  init-method="init">
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+	</bean>
 
 	<!-- SiteStatsChartMapper ______________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper"
