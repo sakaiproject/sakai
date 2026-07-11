@@ -19,7 +19,6 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -86,9 +85,10 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 
-        Locator sameRole = page.locator("#sameRoleChoice");
+        Locator sameRole = page.locator("input[name=\"sameRoleChoice\"][value=\"Instructor\"]");
         assertThat(sameRole).isVisible();
-        sameRole.selectOption(new SelectOption().setIndex(1));
+        sameRole.check(new Locator.CheckOptions().setForce(true));
+        assertThat(page.locator("#same-role-participants")).not().isVisible();
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 

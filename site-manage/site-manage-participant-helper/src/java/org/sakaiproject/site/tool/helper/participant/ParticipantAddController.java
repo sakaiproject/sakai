@@ -143,6 +143,7 @@ public class ParticipantAddController {
     private String renderRoles(Model model) {
         model.addAttribute("roles", handler.getRoles());
         model.addAttribute("participants", handler.getParticipants());
+        model.addAttribute("participantDisplays", handler.getParticipantDisplays());
         return render(model, "roles", 2);
     }
 

@@ -527,6 +527,37 @@ public class SiteAddParticipantHandler {
         return Collections.unmodifiableList(userRoleEntries);
     }
 
+    /** Returns display identities for reviewing a shared role assignment. */
+    public List<ParticipantDisplay> getParticipantDisplays() {
+        if (userRoleEntries.size() < 2) {
+            return Collections.emptyList();
+        }
+        return userRoleEntries.stream().map(this::participantDisplay).collect(Collectors.toList());
+    }
+
+    private ParticipantDisplay participantDisplay(UserRoleEntry entry) {
+        String displayId = entry.getEid();
+        String displayName = participantName(entry);
+        try {
+            User user = userDirectoryService.getUserByEid(entry.getEid());
+            displayId = user.getDisplayId();
+            displayName = user.getSortName();
+        } catch (UserNotDefinedException e) {
+            log.debug("Cannot find user with eid {} while preparing role assignment", entry.getEid(), e);
+        }
+        return new ParticipantDisplay(displayId + " (" + displayName + ")");
+    }
+
+    private String participantName(UserRoleEntry entry) {
+        if (StringUtils.isBlank(entry.getLastName()) && StringUtils.isBlank(entry.getFirstName())) {
+            return entry.getEid();
+        }
+        return StringUtils.defaultString(entry.getLastName()) + ", " + StringUtils.defaultString(entry.getFirstName());
+    }
+
+    public record ParticipantDisplay(String displayName) {
+    }
+
     public boolean allowsNonOfficialAccounts() {
         return "true".equalsIgnoreCase(getAllowNonOfficialAccount());
     }
