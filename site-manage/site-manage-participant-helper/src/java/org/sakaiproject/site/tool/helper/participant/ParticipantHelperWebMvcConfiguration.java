@@ -96,7 +96,7 @@ public class ParticipantHelperWebMvcConfiguration implements WebMvcConfigurer, A
     @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public SiteAddParticipantHandler siteAddParticipantHandler(AccountValidationService accountValidationService,
             AuthzGroupService authzGroupService, EventTrackingService eventTrackingService,
-            CourseManagementService courseManagementService,
+            @Qualifier("org.sakaiproject.coursemanagement.api.CourseManagementService") CourseManagementService courseManagementService,
             PasswordFactory passwordFactory, ServerConfigurationService serverConfigurationService,
             SessionManager sessionManager, SiteService siteService, ToolManager toolManager,
             @Qualifier("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage") UserAuditRegistration userAuditRegistration,
