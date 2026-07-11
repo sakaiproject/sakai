@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -173,14 +172,14 @@ public class SiteStatsToolService {
         return new ReportDef(report, siteId);
     }
 
-    public ReportForm editReportForm(String requestedSiteId, long reportId) {
+    public SiteStatsReportForm editReportForm(String requestedSiteId, long reportId) {
         ReportDef report = editableReportDefinition(requestedSiteId, reportId);
-        return ReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
+        return SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
     }
 
     public CopiedReport copyReport(String requestedSiteId, long reportId) {
         ReportDef report = reportDefinition(requestedSiteId, reportId);
-        ReportForm form = ReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
+        SiteStatsReportForm form = SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
         form.setId(0);
         form.setTemplateId(report.getId());
         return new CopiedReport(saveReport(report.getSiteId(), form), report.getSiteId());
@@ -195,7 +194,7 @@ public class SiteStatsToolService {
         return reportManager.getReportDefinitions(null, true, false);
     }
 
-    public ReportDef buildReport(String requestedSiteId, ReportForm form) {
+    public ReportDef buildReport(String requestedSiteId, SiteStatsReportForm form) {
         String siteId = reportSite(requestedSiteId);
         assertReportTypeAvailable(siteId, form);
         ReportDef report;
@@ -308,18 +307,18 @@ public class SiteStatsToolService {
                 .collect(Collectors.toList());
     }
 
-    public void prepareReportForm(ReportForm form, ReportEditorOptions options) {
+    public void prepareReportForm(SiteStatsReportForm form, ReportEditorOptions options) {
         if (!options.getAvailableReportTypes().contains(form.getWhat())
                 && !options.getAvailableReportTypes().isEmpty()) {
             form.setWhat(options.getAvailableReportTypes().get(0));
         }
     }
 
-    public String validateReport(String requestedSiteId, ReportForm form) {
+    public String validateReport(String requestedSiteId, SiteStatsReportForm form) {
         return reportFormValidator.validateForSite(reportSite(requestedSiteId), form);
     }
 
-    private void applyReportParameters(ReportParams params, ReportForm form) {
+    private void applyReportParameters(ReportParams params, SiteStatsReportForm form) {
         params.setWhat(form.getWhat());
         params.setWhatEventSelType(form.getWhatEventSelType());
         params.setWhatToolIds(new ArrayList<String>(form.getWhatToolIds()));
@@ -358,11 +357,11 @@ public class SiteStatsToolService {
         params.setHowChartSeriesPeriod(form.getHowChartSeriesPeriod());
     }
 
-    private void assertReportTypeAvailable(String siteId, ReportForm form) {
+    private void assertReportTypeAvailable(String siteId, SiteStatsReportForm form) {
         reportFormValidator.assertReportTypeAvailable(siteId, form.getWhat());
     }
 
-    public long saveReport(String requestedSiteId, ReportForm form) {
+    public long saveReport(String requestedSiteId, SiteStatsReportForm form) {
         ReportDef report = buildReport(requestedSiteId, form);
         if (!reportManager.saveReportDefinition(report)) {
             throw new IllegalStateException("The report could not be saved");
@@ -370,7 +369,7 @@ public class SiteStatsToolService {
         return report.getId();
     }
 
-    public String previewReport(String requestedSiteId, ReportForm form) {
+    public String previewReport(String requestedSiteId, SiteStatsReportForm form) {
         ReportDef report = buildReport(requestedSiteId, form);
         return reportPreviewService.register(report.getSiteId(), currentUserId(), report);
     }
@@ -640,82 +639,6 @@ public class SiteStatsToolService {
         private final String siteId;
         private final PreferencesForm form;
         private final List<ActivityDefinitionTool> tools;
-    }
-
-    @Getter
-    @Setter
-    public static class ReportForm {
-        private long id;
-        private long templateId;
-        private String title;
-        private String description;
-        private boolean hidden;
-        private String what = ReportManager.WHAT_VISITS;
-        private String whatEventSelType = ReportManager.WHAT_EVENTS_BYTOOL;
-        private List<String> whatToolIds = new ArrayList<String>(Collections.singletonList(ReportManager.WHAT_EVENTS_ALLTOOLS));
-        private List<String> whatEventIds = new ArrayList<String>();
-        private boolean whatLimitedAction;
-        private boolean whatLimitedResourceIds;
-        private String whatResourceAction = ReportManager.WHAT_RESOURCES_ACTION_NEW;
-        private String whatResourceIds;
-        private String when = ReportManager.WHEN_LAST7DAYS;
-        private LocalDate whenFrom = LocalDate.now().minusDays(7);
-        private LocalDate whenTo = LocalDate.now();
-        private String who = ReportManager.WHO_ALL;
-        private String whoRoleId;
-        private String whoGroupId;
-        private List<String> whoUserIds = new ArrayList<String>();
-        private List<String> howTotalsBy = new ArrayList<String>(StatsManager.TOTALSBY_EVENT_DEFAULT);
-        private boolean howSort;
-        private String howSortBy = ReportManager.HOW_SORT_DEFAULT;
-        private boolean howSortAscending = true;
-        private boolean howLimitedMaxResults;
-        private int howMaxResults;
-        private String howPresentationMode = ReportManager.HOW_PRESENTATION_TABLE;
-        private String howChartType = StatsManager.CHARTTYPE_BAR;
-        private String howChartSource = StatsManager.T_EVENT;
-        private String howChartCategorySource = StatsManager.T_NONE;
-        private String howChartSeriesSource = StatsManager.T_TOTAL;
-        private String howChartSeriesPeriod = StatsManager.CHARTTIMESERIES_DAY;
-
-        public static ReportForm from(ReportDef report, ZoneId zoneId) {
-            ReportForm form = new ReportForm();
-            form.id = report.getId();
-            form.title = report.getTitle();
-            form.description = report.getDescription();
-            form.hidden = report.isHidden();
-            ReportParams params = report.getReportParams();
-            form.what = params.getWhat();
-            form.whatEventSelType = params.getWhatEventSelType();
-            form.whatToolIds = new ArrayList<String>(params.getWhatToolIds());
-            form.whatEventIds = new ArrayList<String>(params.getWhatEventIds());
-            form.whatLimitedAction = params.isWhatLimitedAction();
-            form.whatLimitedResourceIds = params.isWhatLimitedResourceIds();
-            form.whatResourceAction = params.getWhatResourceAction();
-            form.whatResourceIds = String.join("\n", params.getWhatResourceIds());
-            form.when = params.getWhen();
-            form.whenFrom = params.getWhenFrom() == null ? null
-                    : params.getWhenFrom().toInstant().atZone(zoneId).toLocalDate();
-            form.whenTo = params.getWhenTo() == null ? null
-                    : params.getWhenTo().toInstant().atZone(zoneId).toLocalDate();
-            form.who = params.getWho();
-            form.whoRoleId = params.getWhoRoleId();
-            form.whoGroupId = params.getWhoGroupId();
-            form.whoUserIds = new ArrayList<String>(params.getWhoUserIds());
-            form.howTotalsBy = new ArrayList<String>(params.getHowTotalsBy());
-            form.howSort = params.isHowSort();
-            form.howSortBy = params.getHowSortBy();
-            form.howSortAscending = params.getHowSortAscending();
-            form.howLimitedMaxResults = params.isHowLimitedMaxResults();
-            form.howMaxResults = params.getHowMaxResults();
-            form.howPresentationMode = params.getHowPresentationMode();
-            form.howChartType = params.getHowChartType();
-            form.howChartSource = params.getHowChartSource();
-            form.howChartCategorySource = params.getHowChartCategorySource();
-            form.howChartSeriesSource = params.getHowChartSeriesSource();
-            form.howChartSeriesPeriod = params.getHowChartSeriesPeriod();
-            return form;
-        }
     }
 
     @Getter

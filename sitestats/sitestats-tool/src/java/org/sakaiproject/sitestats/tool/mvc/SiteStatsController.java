@@ -16,7 +16,6 @@ import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.CopiedReport;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.OverviewResult;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.PreferencesResult;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.UserActivityForm;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -68,7 +67,7 @@ public class SiteStatsController {
     @GetMapping("/reports/new")
     public String newReport(@RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        ReportForm form = new ReportForm();
+        SiteStatsReportForm form = new SiteStatsReportForm();
         commonReportForm(model, authorizedSiteId, form);
         return "reports/edit";
     }
@@ -83,13 +82,13 @@ public class SiteStatsController {
     @GetMapping("/reports/{reportId}/edit")
     public String editReport(@PathVariable long reportId, @RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        ReportForm form = toolService.editReportForm(authorizedSiteId, reportId);
+        SiteStatsReportForm form = toolService.editReportForm(authorizedSiteId, reportId);
         commonReportForm(model, authorizedSiteId, form);
         return "reports/edit";
     }
 
     @PostMapping("/reports/save")
-    public String saveReport(@RequestParam(required = false) String siteId, @ModelAttribute ReportForm reportForm,
+    public String saveReport(@RequestParam(required = false) String siteId, @ModelAttribute SiteStatsReportForm reportForm,
             @RequestParam String action, Model model, RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.reportSite(siteId);
         String validationCode = toolService.validateReport(authorizedSiteId, reportForm);
@@ -237,7 +236,7 @@ public class SiteStatsController {
         return ResponseEntity.notFound().build();
     }
 
-    private void commonReportForm(Model model, String siteId, ReportForm form) {
+    private void commonReportForm(Model model, String siteId, SiteStatsReportForm form) {
         commonModel(model, siteId, "reports");
         SiteStatsToolService.ReportEditorOptions editorOptions = toolService.reportEditorOptions(
                 siteId, form.getWhoUserIds());

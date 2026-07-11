@@ -13,7 +13,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 
 public class SiteStatsReportFormValidatorTest {
 
@@ -22,12 +21,12 @@ public class SiteStatsReportFormValidatorTest {
 
     @Test
     public void requiresATitle() {
-        assertEquals("sitestats_report_title_required", validator.validateForm(new ReportForm()));
+        assertEquals("sitestats_report_title_required", validator.validateForm(new SiteStatsReportForm()));
     }
 
     @Test
     public void rejectsAnInvalidActivityTotal() {
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWhat(ReportManager.WHAT_EVENTS);
         form.setHowTotalsBy(Collections.singletonList(StatsManager.T_RESOURCE));
 
@@ -36,7 +35,7 @@ public class SiteStatsReportFormValidatorTest {
 
     @Test
     public void requiresToolsForAToolEventReport() {
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWhat(ReportManager.WHAT_EVENTS);
         form.setWhatToolIds(Collections.emptyList());
 
@@ -45,7 +44,7 @@ public class SiteStatsReportFormValidatorTest {
 
     @Test
     public void rejectsReversedCustomDates() {
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWhenTo(LocalDate.of(2026, 7, 9));
 
         assertEquals("report_err_nocustomdates", validator.validateForm(form));
@@ -53,7 +52,7 @@ public class SiteStatsReportFormValidatorTest {
 
     @Test
     public void requiresResourceIdentifiersForALimitedResourceReport() {
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWhat(ReportManager.WHAT_RESOURCES);
         form.setWhatLimitedResourceIds(true);
         form.setWhatResourceIds("  \n");
@@ -63,7 +62,7 @@ public class SiteStatsReportFormValidatorTest {
 
     @Test
     public void rejectsAnInvalidResourceTotal() {
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWhat(ReportManager.WHAT_RESOURCES);
         form.setHowTotalsBy(Collections.singletonList(StatsManager.T_EVENT));
 
@@ -84,7 +83,7 @@ public class SiteStatsReportFormValidatorTest {
         when(statsManager.getEnableSiteVisits()).thenReturn(true);
         when(statsManager.getVisitsInfoAvailable()).thenReturn(true);
 
-        ReportForm form = validForm();
+        SiteStatsReportForm form = validForm();
         form.setWho(ReportManager.WHO_GROUPS);
         form.setWhoGroupId("removed-group");
 
@@ -92,8 +91,8 @@ public class SiteStatsReportFormValidatorTest {
                 new SiteStatsReportFormValidator(statsManager, siteService).validateForSite("site-id", form));
     }
 
-    private ReportForm validForm() {
-        ReportForm form = new ReportForm();
+    private SiteStatsReportForm validForm() {
+        SiteStatsReportForm form = new SiteStatsReportForm();
         form.setTitle("Report");
         form.setWhen(ReportManager.WHEN_CUSTOM);
         form.setWhenFrom(LocalDate.of(2026, 7, 10));

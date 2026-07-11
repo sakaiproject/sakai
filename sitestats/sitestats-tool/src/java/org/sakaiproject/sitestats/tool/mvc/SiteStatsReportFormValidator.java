@@ -13,7 +13,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolService.ReportForm;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +22,7 @@ public class SiteStatsReportFormValidator {
     private final StatsManager statsManager;
     private final SiteService siteService;
 
-    public String validateForSite(String siteId, ReportForm form) {
+    public String validateForSite(String siteId, SiteStatsReportForm form) {
         Site site = site(siteId);
         if (!availableReportTypes(site).contains(form.getWhat())) {
             return "sitestats_report_type_unavailable";
@@ -69,7 +68,7 @@ public class SiteStatsReportFormValidator {
         return availableReportTypes;
     }
 
-    public String validateForm(ReportForm form) {
+    public String validateForm(SiteStatsReportForm form) {
         if (StringUtils.isBlank(form.getTitle())) {
             return "sitestats_report_title_required";
         }
