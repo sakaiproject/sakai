@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
 <head th:replace="~{fragments/common :: head(#{java.addp})}"></head>
 <body>
-  <main class="portletBody participant-helper" id="participant-helper">
+  <main class="portletBody col-12 col-lg-9 col-xl-8" id="participant-helper">
     <div th:replace="~{fragments/common :: header}"></div>
     <div th:replace="~{fragments/common :: steps(1)}"></div>
     <div th:replace="~{fragments/common :: messages}"></div>
@@ -12,7 +12,7 @@
       <p class="mb-0" th:text="#{add.official.instruction}">Course roster instructions.</p>
     </div>
 
-    <form th:if="${allowAddParticipant}" th:action="@{/add}" th:object="${addForm}" method="post" class="participant-helper-form" novalidate>
+    <form th:if="${allowAddParticipant}" th:action="@{/add}" th:object="${addForm}" method="post" novalidate>
       <input type="hidden" th:field="*{csrfToken}">
       <section aria-labelledby="official-participants-heading">
         <h2 id="official-participants-heading" class="h4" th:text="#{officialAccountSectionTitle}">Official Participants</h2>
@@ -21,7 +21,7 @@
         <div id="official-account-help" class="form-text" th:text="#{add.multiple}">Enter multiple usernames, one per line.</div>
       </section>
 
-      <section th:if="${allowNonOfficialAccount}" class="mt-4" aria-labelledby="non-official-participants-heading">
+      <section th:if="${allowNonOfficialAccount}" class="mt-4 border-top pt-4" aria-labelledby="non-official-participants-heading">
         <h2 id="non-official-participants-heading" class="h4" th:text="#{nonOfficialAccountSectionTitle}">Non-official Participants</h2>
         <label class="form-label" for="nonOfficialAccountParticipant" th:text="#{nonOfficialAccountLabel}">Email Address of Non-official Participant</label>
         <textarea class="form-control" id="nonOfficialAccountParticipant" th:field="*{nonOfficialAccountParticipant}" rows="5" aria-describedby="non-official-account-help"></textarea>
@@ -40,7 +40,7 @@
         </div>
       </fieldset>
 
-      <div class="participant-helper-actions mt-4">
+      <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center mt-4">
         <button type="submit" class="btn btn-primary" th:text="#{gen.continue}">Continue</button>
         <div th:replace="~{fragments/common :: cancel}"></div>
       </div>

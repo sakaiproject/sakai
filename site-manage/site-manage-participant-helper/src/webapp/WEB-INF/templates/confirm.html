@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
 <head th:replace="~{fragments/common :: head(#{addconf.confirming(${siteTitle})})}"></head>
 <body>
-  <main class="portletBody participant-helper" id="participant-helper">
+  <main class="portletBody col-12 col-lg-9 col-xl-8" id="participant-helper">
     <div th:replace="~{fragments/common :: header}"></div>
     <div th:replace="~{fragments/common :: steps(3)}"></div>
     <div th:replace="~{fragments/common :: messages}"></div>
@@ -33,7 +33,7 @@
           </tbody>
         </table>
       </div>
-      <div class="participant-helper-actions">
+      <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center">
         <button type="submit" class="btn btn-primary" th:text="#{gen.finish}">Finish</button>
         <button type="submit" class="btn btn-outline-secondary" th:formaction="@{/confirm/back}" formmethod="post" th:text="#{gen.back}">Back</button>
         <div th:replace="~{fragments/common :: cancel}"></div>
