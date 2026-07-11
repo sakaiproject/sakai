@@ -112,6 +112,26 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText("student0011");
     }
 
+    @Test
+    void canCancelParticipantWizard() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+
+        Locator addParticipants = page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        addParticipants.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        page.locator("#participant-helper button")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Cancel$", Pattern.CASE_INSENSITIVE)))
+            .click();
+        page.waitForLoadState();
+
+        assertThat(page.locator("body")).containsText(Pattern.compile("Site Information|Site Info", Pattern.CASE_INSENSITIVE));
+    }
+
     private String ensureCourseUrl() {
         if (sakaiUrl == null || sakaiUrl.isBlank()) {
             sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.announcements"));

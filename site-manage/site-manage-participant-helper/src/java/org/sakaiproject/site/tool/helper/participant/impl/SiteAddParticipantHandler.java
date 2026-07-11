@@ -62,6 +62,7 @@ public class SiteAddParticipantHandler {
 
     public static final String EMAIL_CHAR = "@";
     public static final String HELPER_ID = "sakai.tool.helper.id";
+    private static final String HELPER_TOOL_ID = "sakai-site-manage-participant-helper";
     public static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
     private static final String STATE_ATTRIBUTE = SiteAddParticipantHandler.class.getName() + ".STATE";
@@ -511,15 +512,18 @@ public class SiteAddParticipantHandler {
     /** Return the caller-provided URL for leaving this Site Info helper. */
 	public String getDoneUrl() {
         ToolSession session = sessionManager.getCurrentToolSession();
-        Tool tool = getCurrentTool();
-        if (session == null || tool == null) {
+        if (session == null) {
             return "/";
         }
 
-        return Optional.ofNullable(session.getAttribute(tool.getId() + Tool.HELPER_DONE_URL))
-                .map(Object::toString)
-                .filter(StringUtils::isNotBlank)
-                .orElse("/");
+        String doneUrl = (String) session.getAttribute(HELPER_TOOL_ID + Tool.HELPER_DONE_URL);
+        if (StringUtils.isNotBlank(doneUrl)) {
+            return doneUrl;
+        }
+
+        Tool tool = getCurrentTool();
+        doneUrl = tool == null ? null : (String) session.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+        return StringUtils.defaultIfBlank(doneUrl, "/");
 	}
 
     public boolean hasParticipants() {

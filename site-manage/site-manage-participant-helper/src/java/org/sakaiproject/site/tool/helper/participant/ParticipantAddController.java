@@ -21,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.view.RedirectView;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -140,9 +141,9 @@ public class ParticipantAddController {
     }
 
     @PostMapping("/confirm")
-    public String submitConfirm(@ModelAttribute ConfirmForm form, Model model) {
+    public Object submitConfirm(@ModelAttribute ConfirmForm form, Model model) {
         if (handler.finish(form.getCsrfToken())) {
-            return "redirect:" + handler.getDoneUrl();
+            return doneRedirect(handler.getDoneUrl());
         }
         model.addAttribute("confirmForm", form);
         return renderConfirm(model);
@@ -155,8 +156,8 @@ public class ParticipantAddController {
     }
 
     @PostMapping("/cancel")
-    public String cancel() {
-        return "redirect:" + handler.cancel();
+    public RedirectView cancel() {
+        return doneRedirect(handler.cancel());
     }
 
     private String renderAdd(Model model) {
@@ -190,6 +191,12 @@ public class ParticipantAddController {
                 .toList();
         model.addAttribute("messages", messages);
         return view;
+    }
+
+    private RedirectView doneRedirect(String doneUrl) {
+        RedirectView redirectView = new RedirectView(doneUrl, false);
+        redirectView.setExposeModelAttributes(false);
+        return redirectView;
     }
 
     public record ParticipantMessageView(String text, ParticipantMessage.Severity severity) {
