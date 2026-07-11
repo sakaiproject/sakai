@@ -75,17 +75,19 @@ class SiteInfoTest extends SakaiUiTestBase {
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("#participant-helper")).isVisible();
-        assertThat(page.locator(".participant-helper-steps .nav-link").last()).hasText("Finish");
+        assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .nav-link").last()).hasText("Finish");
         page.locator("#officialAccountParticipant").fill("instructor1");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
-        assertThat(page.locator(".sak-banner-info")).containsText("instructor1");
-        assertThat(page.locator(".sak-banner-info")).not().containsText("[Ljava.lang.Object;");
+        Locator existingParticipantMessage = page.locator("#participant-helper .sak-banner-info")
+                .filter(new Locator.FilterOptions().setHasText("instructor1"));
+        assertThat(existingParticipantMessage).containsText("instructor1");
+        assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
         page.locator("#officialAccountParticipant").fill("student0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 
-        Locator sameRole = page.locator("input[name=\"sameRoleChoice\"][value=\"Instructor\"]");
+        Locator sameRole = page.locator("input[name=\"sameRoleChoice\"][value=\"maintain\"]");
         assertThat(sameRole).isVisible();
         sameRole.check(new Locator.CheckOptions().setForce(true));
         assertThat(page.locator("#same-role-participants")).not().isVisible();
@@ -111,12 +113,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.waitForLoadState();
 
         assertNoTemplateRenderingError();
-        Locator manageParticipants = page.locator(".navIntraTool a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Participants$", Pattern.CASE_INSENSITIVE)))
-            .first();
-        assertThat(manageParticipants).isVisible();
-        manageParticipants.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        assertThat(page.locator("body")).containsText("Manage Participants");
         assertThat(page.locator("body")).containsText("student0011");
     }
 
@@ -142,7 +139,7 @@ class SiteInfoTest extends SakaiUiTestBase {
 
     private String ensureCourseUrl() {
         if (sakaiUrl == null || sakaiUrl.isBlank()) {
-            sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.announcements"));
+            sakaiUrl = sakai.createProject("instructor1", List.of("sakai\\.announcements"));
         }
         return sakaiUrl;
     }
