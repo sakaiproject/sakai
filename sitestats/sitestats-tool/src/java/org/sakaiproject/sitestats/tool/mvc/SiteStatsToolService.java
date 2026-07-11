@@ -26,7 +26,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -233,25 +232,11 @@ public class SiteStatsToolService {
             throw new IllegalArgumentException("Unknown site", e);
         }
 
-        boolean visitsAvailable = statsManager.getEnableSiteVisits()
-                && statsManager.getVisitsInfoAvailable();
-        boolean activityAvailable = statsManager.isEnableSiteActivity();
-        boolean resourcesAvailable = statsManager.isEnableResourceStats()
-                && site.getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null;
-        boolean presencesAvailable = statsManager.getEnableSitePresences();
-        List<String> availableReportTypes = new ArrayList<String>();
-        if (visitsAvailable) {
-            availableReportTypes.add(ReportManager.WHAT_VISITS);
-        }
-        if (activityAvailable) {
-            availableReportTypes.add(ReportManager.WHAT_EVENTS);
-        }
-        if (resourcesAvailable) {
-            availableReportTypes.add(ReportManager.WHAT_RESOURCES);
-        }
-        if (presencesAvailable) {
-            availableReportTypes.add(ReportManager.WHAT_PRESENCES);
-        }
+        List<String> availableReportTypes = reportFormValidator.availableReportTypes(site);
+        boolean visitsAvailable = availableReportTypes.contains(ReportManager.WHAT_VISITS);
+        boolean activityAvailable = availableReportTypes.contains(ReportManager.WHAT_EVENTS);
+        boolean resourcesAvailable = availableReportTypes.contains(ReportManager.WHAT_RESOURCES);
+        boolean presencesAvailable = availableReportTypes.contains(ReportManager.WHAT_PRESENCES);
 
         PrefsData preferences = statsManager.getPreferences(siteId, true);
         List<NamedOption> tools = new ArrayList<NamedOption>();
@@ -331,35 +316,7 @@ public class SiteStatsToolService {
     }
 
     public String validateReport(String requestedSiteId, ReportForm form) {
-        String siteId = reportSite(requestedSiteId);
-        if (!reportEditorOptions(siteId).getAvailableReportTypes().contains(form.getWhat())) {
-            return "sitestats_report_type_unavailable";
-        }
-        Site site;
-        try {
-            site = siteService.getSite(siteId);
-        } catch (IdUnusedException e) {
-            throw new IllegalArgumentException("Unknown site", e);
-        }
-        if (ReportManager.WHO_ROLE.equals(form.getWho())
-                && (StringUtils.isBlank(form.getWhoRoleId())
-                        || site.getUsersHasRole(form.getWhoRoleId()).isEmpty())) {
-            return "report_err_emptyrole";
-        }
-        if (ReportManager.WHO_GROUPS.equals(form.getWho()) && StringUtils.isNotBlank(form.getWhoGroupId())) {
-            Group group = site.getGroup(form.getWhoGroupId());
-            if (group == null) {
-                return "report_err_nogroup";
-            }
-            if (group.getUsers().isEmpty()) {
-                return "report_err_emptygroup";
-            }
-        }
-        return validateReport(form);
-    }
-
-    public String validateReport(ReportForm form) {
-        return reportFormValidator.validate(form);
+        return reportFormValidator.validateForSite(reportSite(requestedSiteId), form);
     }
 
     private void applyReportParameters(ReportParams params, ReportForm form) {
@@ -402,9 +359,7 @@ public class SiteStatsToolService {
     }
 
     private void assertReportTypeAvailable(String siteId, ReportForm form) {
-        if (!reportEditorOptions(siteId).getAvailableReportTypes().contains(form.getWhat())) {
-            throw new IllegalArgumentException("The selected report type is unavailable for this site");
-        }
+        reportFormValidator.assertReportTypeAvailable(siteId, form.getWhat());
     }
 
     public long saveReport(String requestedSiteId, ReportForm form) {
