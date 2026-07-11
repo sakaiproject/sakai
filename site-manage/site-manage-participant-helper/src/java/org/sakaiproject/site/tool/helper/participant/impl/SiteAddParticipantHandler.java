@@ -67,25 +67,26 @@ public class SiteAddParticipantHandler {
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
     private static final String STATE_ATTRIBUTE = SiteAddParticipantHandler.class.getName() + ".STATE";
 
-    @Setter private AuthzGroupService authzGroupService;
-    @Setter private EventTrackingService eventTrackingService;
-    @Setter private PasswordFactory passwordFactory;
-    @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private SessionManager sessionManager;
-    @Setter private SiteService siteService;
-    @Setter private ToolManager toolManager;
+    private final AccountValidationService accountValidationService;
+    private final AuthzGroupService authzGroupService;
+    private final EventTrackingService eventTrackingService;
+    private final CourseManagementService courseManagementService;
+    private final PasswordFactory passwordFactory;
+    private final ServerConfigurationService serverConfigurationService;
+    private final SessionManager sessionManager;
+    private final SiteService siteService;
+    private final ToolManager toolManager;
     @Getter private final List<ParticipantMessage> messages = new ArrayList<>();
-    @Setter private UserAuditRegistration userAuditRegistration;
-    @Setter private UserAuditService userAuditService;
-    @Setter private UserDirectoryService userDirectoryService;
-    @Setter private CourseManagementService courseManagementService;
-    @Setter private ParticipantAccountParser participantAccountParser;
-    @Setter private ParticipantRealmUpdater participantRealmUpdater;
+    private final UserAuditRegistration userAuditRegistration;
+    private final UserAuditService userAuditService;
+    private final UserDirectoryService userDirectoryService;
+    private final UserNotificationProvider notiProvider;
+    private final ParticipantRealmUpdater participantRealmUpdater;
+    private final ParticipantAccountParser participantAccountParser;
 
     private String csrfToken;
     private ParticipantNotificationOption notificationOption = ParticipantNotificationOption.DO_NOT_SEND;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
-    @Setter private UserNotificationProvider notiProvider;
     @Getter @Setter public String officialAccountParticipant = null;
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
     // realm for the site
@@ -100,10 +101,33 @@ public class SiteAddParticipantHandler {
     private ParticipantStatus status = ParticipantStatus.ACTIVE;
     // the user selected
     @Getter @Setter private List<UserRoleEntry> userRoleEntries = new ArrayList<>();
-    @Setter public AccountValidationService accountValidationService;
     private SiteTypeUtil siteTypeUtil;
     /** The tool session owns this serializable operation state for the current request. */
     private ParticipantWizardState wizardState;
+
+    public SiteAddParticipantHandler(AccountValidationService accountValidationService,
+            AuthzGroupService authzGroupService, EventTrackingService eventTrackingService,
+            CourseManagementService courseManagementService, PasswordFactory passwordFactory,
+            ServerConfigurationService serverConfigurationService, SessionManager sessionManager, SiteService siteService,
+            ToolManager toolManager, UserAuditRegistration userAuditRegistration, UserAuditService userAuditService,
+            UserDirectoryService userDirectoryService, UserNotificationProvider notiProvider,
+            ParticipantRealmUpdater participantRealmUpdater, ParticipantAccountParser participantAccountParser) {
+        this.accountValidationService = accountValidationService;
+        this.authzGroupService = authzGroupService;
+        this.eventTrackingService = eventTrackingService;
+        this.courseManagementService = courseManagementService;
+        this.passwordFactory = passwordFactory;
+        this.serverConfigurationService = serverConfigurationService;
+        this.sessionManager = sessionManager;
+        this.siteService = siteService;
+        this.toolManager = toolManager;
+        this.userAuditRegistration = userAuditRegistration;
+        this.userAuditService = userAuditService;
+        this.userDirectoryService = userDirectoryService;
+        this.notiProvider = notiProvider;
+        this.participantRealmUpdater = participantRealmUpdater;
+        this.participantAccountParser = participantAccountParser;
+    }
 
 	public boolean canAddParticipant() {
 		if (site == null) init();

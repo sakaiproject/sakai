@@ -103,23 +103,10 @@ public class ParticipantHelperWebMvcConfiguration implements WebMvcConfigurer, A
             UserAuditService userAuditService, UserDirectoryService userDirectoryService,
             UserNotificationProvider userNotificationProvider, ParticipantRealmUpdater participantRealmUpdater,
             ParticipantAccountParser participantAccountParser) {
-        SiteAddParticipantHandler handler = new SiteAddParticipantHandler();
-        handler.setAccountValidationService(accountValidationService);
-        handler.setAuthzGroupService(authzGroupService);
-        handler.setCourseManagementService(courseManagementService);
-        handler.setEventTrackingService(eventTrackingService);
-        handler.setPasswordFactory(passwordFactory);
-        handler.setParticipantAccountParser(participantAccountParser);
-        handler.setParticipantRealmUpdater(participantRealmUpdater);
-        handler.setServerConfigurationService(serverConfigurationService);
-        handler.setSessionManager(sessionManager);
-        handler.setSiteService(siteService);
-        handler.setToolManager(toolManager);
-        handler.setUserAuditRegistration(userAuditRegistration);
-        handler.setUserAuditService(userAuditService);
-        handler.setUserDirectoryService(userDirectoryService);
-        handler.setNotiProvider(userNotificationProvider);
-        return handler;
+        return new SiteAddParticipantHandler(accountValidationService, authzGroupService, eventTrackingService,
+                courseManagementService, passwordFactory, serverConfigurationService, sessionManager, siteService,
+                toolManager, userAuditRegistration, userAuditService, userDirectoryService, userNotificationProvider,
+                participantRealmUpdater, participantAccountParser);
     }
 
     @Bean
