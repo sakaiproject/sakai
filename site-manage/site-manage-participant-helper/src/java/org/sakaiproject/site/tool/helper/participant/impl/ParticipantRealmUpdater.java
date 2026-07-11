@@ -71,6 +71,7 @@ public class ParticipantRealmUpdater {
         try {
             AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
             boolean mayUpdateRealm = authzGroupService.allowUpdate(realmId);
+            List<Role> allowedRoles = SiteParticipantHelper.getAllowedRoles(site.getType(), realm.getRoles());
             Set<String> checkedRoles = new HashSet<>();
             List<UserAuditEntry> auditEntries = new ArrayList<>();
             List<String> addedUserReferences = new ArrayList<>();
@@ -89,7 +90,7 @@ public class ParticipantRealmUpdater {
                 }
 
                 Role role = realmEdit.getRole(roleName);
-                if (!SiteParticipantHelper.getAllowedRoles(site.getType(), realm.getRoles()).contains(role)) {
+                if (!allowedRoles.contains(role)) {
                     messages.add(new ParticipantMessage("java.roleperm", new Object[] {roleName},
                             ParticipantMessage.Severity.ERROR));
                     continue;

@@ -82,6 +82,20 @@ public class ParticipantAccountParserTest {
     }
 
     @Test
+    public void doesNotAddDuplicateOfficialEmailResolvedToOneUser() {
+        User user = user("student0011", "user-1");
+        Site site = mock(Site.class);
+        when(userDirectoryService.findUsersByEmail("student@example.edu")).thenReturn(List.of(user));
+
+        ParticipantAccountParser.Result result = parser.parse(site, "student@example.edu\r\nstudent@example.edu",
+                new ArrayList<>(), null);
+
+        assertEquals(1, result.entries().size());
+        assertEquals("student0011", result.entries().get(0).getEid());
+        assertTrue(messageCodes(result).contains("add.duplicatedpart.single"));
+    }
+
+    @Test
     public void rejectsNonOfficialAccountFromBlockedDomain() {
         when(serverConfigurationService.getStrings(SiteAddParticipantHandler.SAK_PROP_INVALID_EMAIL_DOMAINS))
                 .thenReturn(new String[] {"blocked.example.org"});

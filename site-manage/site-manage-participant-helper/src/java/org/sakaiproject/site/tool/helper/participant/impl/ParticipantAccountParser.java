@@ -89,7 +89,7 @@ public class ParticipantAccountParser {
                 continue;
             }
             candidateEids.add(user.getEid());
-            if (!containsEid(entries, officialAccount)) {
+            if (!containsEid(entries, user.getEid())) {
                 entries.add(new UserRoleEntry(user.getEid(), ""));
                 updatedOfficialAccounts.append(currentOfficialAccount).append("\n");
             }
@@ -106,10 +106,8 @@ public class ParticipantAccountParser {
         if (usersWithEmail == null || usersWithEmail.isEmpty()) return user;
         if (usersWithEmail.size() == 1) return user == null ? usersWithEmail.iterator().next() : user;
 
-        StringBuilder eids = new StringBuilder();
         StringBuilder alertEids = new StringBuilder();
         for (User matchedUser : usersWithEmail) {
-            eids.append(matchedUser.getDisplayId()).append("\n");
             alertEids.append(matchedUser.getDisplayId()).append(", ");
             eidOnly.add(matchedUser.getEid());
         }
