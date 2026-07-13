@@ -20,12 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import java.io.OutputStream;
@@ -33,21 +34,24 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SakaiAccessTokenException;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.lti.api.model.LtiTool;
 import org.sakaiproject.lti.beans.LtiToolBean;
-import org.sakaiproject.lti.impl.testutil.MapBackedCacheManager;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.site.api.SiteService;
 import org.tsugi.lti13.LTI13AccessTokenUtil;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -60,35 +64,40 @@ import com.sun.net.httpserver.HttpServer;
 /**
  * Unit tests for {@link SakaiAccessTokenServiceImpl}.
  */
-public class SakaiAccessTokenServiceImplTest {
+@ContextConfiguration(classes = { LtiTestConfiguration.class })
+public class SakaiAccessTokenServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private static final long TOOL_ID = 42L;
 
-    @Mock private LTIService ltiService;
-    @Mock private ServerConfigurationService serverConfigurationService;
+    @Autowired
+    private FunctionManager functionManager;
 
-    private AutoCloseable mocks;
+    @Autowired
+    private LTIService ltiService;
+
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
+
+    @Autowired
     private SakaiAccessTokenServiceImpl service;
-    private MapBackedCacheManager cacheManager;
+
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private CacheManager cacheManager;
+
     private KeyPair toolKeyPair;
     private HttpServer keysetServer;
     private String keysetUrl;
 
     @Before
     public void setUp() throws Exception {
-        mocks = MockitoAnnotations.openMocks(this);
-        cacheManager = new MapBackedCacheManager();
-        service = new SakaiAccessTokenServiceImpl();
-        service.setLtiService(ltiService);
-        service.setServerConfigurationService(serverConfigurationService);
-        service.setCacheManager(cacheManager);
 
         when(serverConfigurationService.getString(SakaiAccessTokenService.PROPERTY_PUBLIC, null)).thenReturn(null);
         when(serverConfigurationService.getString(SakaiAccessTokenService.PROPERTY_PRIVATE, null)).thenReturn(null);
 
-        when(ltiService.isApiEnabled()).thenReturn(true);
-
-        service.init();
+        //service.init();
         assertTrue(service.isSigningKeyAvailable());
 
         toolKeyPair = LTI13Util.generateKeyPair();
@@ -103,19 +112,6 @@ public class SakaiAccessTokenServiceImplTest {
         });
         keysetServer.start();
         keysetUrl = "http://localhost:" + keysetServer.getAddress().getPort() + "/keyset";
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (keysetServer != null) {
-            keysetServer.stop(0);
-        }
-        if (service != null) {
-            service.destroy();
-        }
-        if (mocks != null) {
-            mocks.close();
-        }
     }
 
     @Test
@@ -189,8 +185,7 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenGrantsLineitemReadonlyScope() throws Exception {
-        LtiToolBean tool = toolWithServices(true, true, true);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
+        LtiTool result = insertTool(true, true, true);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -198,19 +193,18 @@ public class SakaiAccessTokenServiceImplTest {
         String assertion = (String) clientParams.get(ClientAssertion.CLIENT_ASSERTION);
         String scope = (String) clientParams.get(ClientAssertion.SCOPE);
 
-        AccessToken at = service.issueAccessToken(TOOL_ID, assertion, scope);
+        AccessToken at = service.issueAccessToken(result.getId(), assertion, scope);
         assertNotNull(at.access_token);
         assertTrue(at.scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY));
 
         SakaiAccessToken sat = service.validateToken(at.access_token);
-        assertEquals(Long.valueOf(TOOL_ID), sat.tool_id);
+        assertEquals(Long.valueOf(result.getId()), sat.tool_id);
         assertTrue(sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY));
     }
 
     @Test
     public void issueAccessTokenLineitemReadonlyDoesNotGrantLineitemScope() throws Exception {
-        LtiToolBean tool = toolWithServices(true, true, true);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
+        LtiTool result = insertTool(true, true, true);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -218,7 +212,7 @@ public class SakaiAccessTokenServiceImplTest {
         String assertion = (String) clientParams.get(ClientAssertion.CLIENT_ASSERTION);
         String scope = (String) clientParams.get(ClientAssertion.SCOPE);
 
-        AccessToken at = service.issueAccessToken(TOOL_ID, assertion, scope);
+        AccessToken at = service.issueAccessToken(result.getId(), assertion, scope);
         assertNotNull(at.access_token);
         Set<String> grantedScopes = new HashSet<>(Arrays.asList(at.scope.split("\\s+")));
         assertTrue(grantedScopes.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY));
@@ -231,8 +225,7 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenRejectsNoGrantedScopes() throws Exception {
-        LtiToolBean tool = toolWithServices(true, true, true);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
+        LtiTool result = insertTool(true, true, true);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -240,7 +233,7 @@ public class SakaiAccessTokenServiceImplTest {
         String assertion = (String) clientParams.get(ClientAssertion.CLIENT_ASSERTION);
 
         try {
-            service.issueAccessToken(TOOL_ID, assertion, "https://example.org/unknown/scope");
+            service.issueAccessToken(result.getId(), assertion, "https://example.org/unknown/scope");
             fail("Expected invalid_scope");
         } catch (SakaiAccessTokenException e) {
             assertEquals("invalid_scope", e.getErrorKey());
@@ -249,8 +242,7 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenRejectsDisallowedScope() throws Exception {
-        LtiToolBean tool = toolWithServices(false, true, true);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
+        LtiTool result = insertTool(false, true, true);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -259,7 +251,7 @@ public class SakaiAccessTokenServiceImplTest {
         String scope = (String) clientParams.get(ClientAssertion.SCOPE);
 
         try {
-            service.issueAccessToken(TOOL_ID, assertion, scope);
+            service.issueAccessToken(result.getId(), assertion, scope);
             fail("Expected invalid_scope");
         } catch (SakaiAccessTokenException e) {
             assertEquals("invalid_scope", e.getErrorKey());
@@ -268,7 +260,6 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenRejectsMissingTool() throws Exception {
-        when(ltiService.getToolDaoAsBean(eq(99L), eq(null), eq(true))).thenReturn(null);
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
                 toolKeyPair, "client-1", "deployment-1", null, null);
@@ -284,9 +275,18 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenGrantsLtiApiScopeWhenFunctionGranted() throws Exception {
-        LtiToolBean tool = toolWithServices(false, false, false);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
-        when(ltiService.getGrantedToolFunctionNames(TOOL_ID)).thenReturn(Arrays.asList("content.read"));
+        LtiTool result = insertTool(false, false, false);
+
+		    when(siteService.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
+        when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read"));
+
+        Object functionResult = ltiService.setToolFunctionNames(result.getId(), Set.of("content.read"), LTIService.ADMIN_SITE);
+        if (!functionResult.equals(result.getId())) {
+          fail(functionResult.toString());
+        }
+
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT))
+          .thenReturn(true);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -294,7 +294,7 @@ public class SakaiAccessTokenServiceImplTest {
         String assertion = (String) clientParams.get(ClientAssertion.CLIENT_ASSERTION);
         String scope = SakaiAccessToken.functionToLtiApiScope("content.read");
 
-        AccessToken at = service.issueAccessToken(TOOL_ID, assertion, scope);
+        AccessToken at = service.issueAccessToken(result.getId(), assertion, scope);
         assertNotNull(at.access_token);
         assertTrue(at.scope.contains(scope));
 
@@ -304,9 +304,7 @@ public class SakaiAccessTokenServiceImplTest {
 
     @Test
     public void issueAccessTokenRejectsLtiApiScopeWhenFunctionNotGranted() throws Exception {
-        LtiToolBean tool = toolWithServices(false, false, false);
-        when(ltiService.getToolDaoAsBean(TOOL_ID, null, true)).thenReturn(tool);
-        when(ltiService.getGrantedToolFunctionNames(TOOL_ID)).thenReturn(Collections.emptyList());
+        LtiTool result = insertTool(false, false, false);
 
         Map clientParams = LTI13AccessTokenUtil.getClientAssertion(
                 new String[] { LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY },
@@ -315,7 +313,7 @@ public class SakaiAccessTokenServiceImplTest {
         String scope = SakaiAccessToken.functionToLtiApiScope("content.read");
 
         try {
-            service.issueAccessToken(TOOL_ID, assertion, scope);
+            service.issueAccessToken(result.getId(), assertion, scope);
             fail("Expected invalid_scope");
         } catch (SakaiAccessTokenException e) {
             assertEquals("invalid_scope", e.getErrorKey());
@@ -372,13 +370,15 @@ public class SakaiAccessTokenServiceImplTest {
         return sat;
     }
 
-    private LtiToolBean toolWithServices(boolean lineItems, boolean outcomes, boolean roster) {
-        LtiToolBean tool = new LtiToolBean();
-        tool.id = TOOL_ID;
-        tool.lti13ToolKeyset = keysetUrl;
-        tool.allowlineitems = lineItems;
-        tool.allowoutcomes = outcomes;
-        tool.allowroster = roster;
-        return tool;
+    private LtiTool insertTool(boolean lineItems, boolean outcomes, boolean roster) {
+        Map<String, Object> props = new HashMap<>();
+        props.put("title", "Nova");
+        props.put("description", "A Nova thing");
+        props.put(LTIService.LTI13_TOOL_KEYSET, keysetUrl);
+        props.put(LTIService.LTI_ALLOWLINEITEMS, lineItems ? 1 : 0);
+        props.put(LTIService.LTI_ALLOWOUTCOMES, outcomes ? 1 : 0);
+        props.put(LTIService.LTI_ALLOWROSTER, roster ? 1 : 0);
+
+        return (LtiTool) ltiService.insertTool(props, "site1");
     }
 }

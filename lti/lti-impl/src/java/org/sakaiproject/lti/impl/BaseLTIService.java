@@ -23,15 +23,16 @@ package org.sakaiproject.lti.impl;
 
 import java.util.LinkedHashSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import java.lang.StringBuffer;
+import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,9 +42,8 @@ import org.w3c.dom.Node;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -52,6 +52,10 @@ import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTISubstitutionsFilter;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
+import org.sakaiproject.lti.beans.LtiToolSiteBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -59,7 +63,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.util.foorm.Foorm;
 import org.tsugi.lti.LTIUtil;
@@ -67,116 +71,39 @@ import org.sakaiproject.util.MergeConfig;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
-/**
- * <p>
- * Implements the LTIService, all but a Storage model.
- * </p>
- */
+
 @Slf4j
 public abstract class BaseLTIService implements LTIService {
 
 	/** Resource bundle using current language locale */
-	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
-	/**
-	 * 
-	 */
-	protected static SakaiFoorm foorm = new SakaiFoorm();
+	@Setter
+	protected ResourceLoader rb;
 
-	/** Dependency: SessionManager */
-	protected SessionManager m_sessionManager = null;
+	@Setter
+	private EventTrackingService eventTrackingService;
+
+	@Setter
+	private FunctionManager functionManager;
+
+	@Setter
+	private SessionManager sessionManager;
+
+	@Setter
+	protected ServerConfigurationService serverConfigurationService;
+
+	@Setter
+	protected SiteService siteService;
+
+	@Setter
+	private UsageSessionService usageSessionService;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
+
+	protected Foorm foorm = new Foorm();
 
 	// The filters that are applied to custom properties.
 	protected List<LTISubstitutionsFilter> filters = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Dependency: SessionManager.
-	 * 
-	 * @param service
-	 *          The SessionManager.
-	 */
-	public void setSessionManager(SessionManager service) {
-		m_sessionManager = service;
-	}
-
-	/** Dependency: UsageSessionService */
-	protected UsageSessionService m_usageSessionService = null;
-
-	/**
-	 * Dependency: UsageSessionService.
-	 * 
-	 * @param service
-	 *          The UsageSessionService.
-	 */
-	public void setUsageSessionService(UsageSessionService service) {
-		m_usageSessionService = service;
-	}
-
-	/** Dependency: UserDirectoryService */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *          The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService service) {
-		m_userDirectoryService = service;
-	}
-
-	/** Dependency: EventTrackingService */
-	protected EventTrackingService m_eventTrackingService = null;
-
-	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *          The EventTrackingService.
-	 */
-	public void setEventTrackingService(EventTrackingService service) {
-		m_eventTrackingService = service;
-	}
-
-	@Setter protected SecurityService securityService = null;
-
-	@Setter protected SiteService siteService = null;
-
-	@Setter protected ServerConfigurationService serverConfigurationService;
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
-	public void init() {
-		try {
-			log.info("init()");
-
-		} catch (Exception t) {
-			log.warn("init(): ", t);
-		}
-
-		// Check to see if all out properties are defined
-		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.TOOL_MODEL, rb);
-		for (String str : strings) {
-			log.warn("{}=Missing LTIService Translation", str);
-		}
-
-		strings = foorm.checkI18NStrings(LTIService.CONTENT_MODEL, rb);
-		for (String str : strings) {
-			log.warn("{}=Missing LTIService Translation", str);
-		}
-
-	}
-
-	/**
-	 * Returns to uninitialized state.
-	 */
-	public void destroy() {
-		log.info("destroy()");
-	}
 
 	protected String[] getContentModelDaoIfConfigurable(Map<String, Object> tool, boolean isAdminRole) {
 		if (tool == null) {
@@ -311,7 +238,7 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
 	public boolean isAdmin(String siteId) {
 		if ( siteId == null ) {
-			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
+			throw new RuntimeException("isAdmin() requires non-null siteId");
 		}
 		if (!ADMIN_SITE.equals(siteId) ) return false;
 		return isMaintain(siteId);
@@ -609,7 +536,6 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolDao(key, siteId, isAdmin(siteId));
 	}
 
-
 	@Override
 	public Map<String, Object> getToolDao(Long key, String siteId)
 	{
@@ -621,19 +547,15 @@ public abstract class BaseLTIService implements LTIService {
 		return getTools(search, order, first, last, siteId, false);
 	}
 
-
 	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed);
 	}
 
-
 	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
 	}
-
-
 
 	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId) {
@@ -1155,9 +1077,7 @@ public abstract class BaseLTIService implements LTIService {
 			return "Tool not found";
 		}
 
-		org.sakaiproject.authz.api.FunctionManager functionManager =
-				(org.sakaiproject.authz.api.FunctionManager) ComponentManager.get(org.sakaiproject.authz.api.FunctionManager.class);
-		Set<String> registered = new java.util.HashSet<>(functionManager.getRegisteredFunctions());
+		Set<String> registered = new HashSet<>(functionManager.getRegisteredFunctions());
 
 		Set<String> toInsert = new LinkedHashSet<>();
 		if (functionNames != null) {
@@ -1484,6 +1404,195 @@ public abstract class BaseLTIService implements LTIService {
 		return text;
 	}
 
+	@Override
+	public LtiToolBean getToolAsBean(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public LtiToolBean getToolBean(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public LtiToolBean getToolDaoAsBean(Long key, String siteId, boolean isAdminRole) {
+		Map<String, Object> toolMap = getToolDao(key, siteId, isAdminRole);
+		return toolMap != null ? LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		return toolMaps.stream()
+				.map(LtiToolBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
+	public List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		return toolMaps.stream()
+				.map(LtiToolBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
+	public List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed, includeLaunchable);
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
+	public List<LtiToolBean> getToolsLaunchAsBeans(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsLaunch(siteId);
+		return toolMaps.stream()
+				.map(LtiToolBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<LtiToolBean> getToolsImportItemBeans(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsImportItem(siteId);
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
+	public LtiContentBean getContentBean(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? LtiContentBean.of(contentMap) : null;
+	}
+
+	@Override
+	public List<LtiContentBean> getContentsAsBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		return contentMaps.stream()
+				.map(LtiContentBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		List<LtiContentBean> contentBeans = new ArrayList<>();
+		for (Map<String, Object> contentMap : contentMaps) {
+			contentBeans.add(LtiContentBean.of(contentMap));
+		}
+		return contentBeans;
+	}
+
+	@Override
+	public LtiToolSiteBean getToolSiteAsBean(Long key, String siteId) {
+		Map<String, Object> toolSiteMap = getToolSiteById(key, siteId);
+		return toolSiteMap != null ? LtiToolSiteBean.of(toolSiteMap) : null;
+	}
+
+	@Override
+	public List<LtiToolSiteBean> getToolSitesByToolIdAsBeans(String toolId, String siteId) {
+		List<Map<String, Object>> toolSiteMaps = getToolSitesByToolId(toolId, siteId);
+		return toolSiteMaps.stream()
+				.map(LtiToolSiteBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public String getDeploymentGroupForLaunch(Long toolKey, String launchSiteId) {
+		if (toolKey == null || launchSiteId == null) {
+			return null;
+		}
+		String trimmedSite = launchSiteId.trim();
+		if (trimmedSite.isEmpty()) {
+			return null;
+		}
+		List<Map<String, Object>> rows = getToolSitesByToolId(String.valueOf(toolKey), trimmedSite);
+		if (rows == null) {
+			return null;
+		}
+		Map<String, Object> bestRow = null;
+		Date bestUpdated = null;
+		for (Map<String, Object> row : rows) {
+			Object siteObj = row.get(LTI_SITE_ID);
+			if (siteObj == null) {
+				continue;
+			}
+			if (!trimmedSite.equals(siteObj.toString().trim())) {
+				continue;
+			}
+			Date updated = toolSiteRowUpdatedAt(row.get(LTI_UPDATED_AT));
+			if (bestRow == null || isNewerToolSiteRow(updated, bestUpdated)) {
+				bestRow = row;
+				bestUpdated = updated;
+			}
+		}
+		if (bestRow == null) {
+			return null;
+		}
+		Object dg = bestRow.get(LTI_DEPLOYMENT_GROUP);
+		if (dg == null) {
+			return null;
+		}
+		String s = dg.toString().trim();
+		return s.isEmpty() ? null : s;
+	}
+
+	@Override
+	public LtiMembershipsJobBean getMembershipsJobAsBean(String siteId) {
+		Map<String, Object> jobMap = getMembershipsJob(siteId);
+		return jobMap != null ? LtiMembershipsJobBean.of(jobMap) : null;
+	}
+
+	@Override
+	public List<LtiMembershipsJobBean> getMembershipsJobsAsBeans() {
+		List<Map<String, Object>> jobMaps = getMembershipsJobs();
+		return jobMaps.stream()
+				.map(LtiMembershipsJobBean::of)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Object insertTool(LtiToolBean toolBean, String siteId) {
+		return insertTool(toolBean != null ? toolBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object insertContent(LtiContentBean contentBean, String siteId) {
+		return insertContent(contentBean != null ? contentBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object updateTool(Long key, LtiToolBean toolBean, String siteId) {
+		return updateTool(key, toolBean != null ? toolBean.asMap() : null, siteId);
+	}
+
 	/**
 	 * Helper method to find or create a tool for a content item
 	 * @param content Content item which we are about to insert, at minimum need LTI_LAUNCH and LTI_TITLE
@@ -1588,6 +1697,128 @@ public abstract class BaseLTIService implements LTIService {
 		return null;
 	}
 
+	// ====================================================================================
+	// BEAN METHOD IMPLEMENTATIONS MOVED FROM INTERFACE
+	// ====================================================================================
+	// These methods were previously default methods in the LTIService interface.
+	// They have been moved here to keep the interface clean and provide type-safe Bean support.
 
+	@Override
+	public LtiContentBean getContentAsBean(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? LtiContentBean.of(contentMap) : null;
+	}
 
+	@Override
+	public Object updateToolDao(Long key, LtiToolBean tool, String siteId) {
+		return updateToolDao(key, tool != null ? tool.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object updateContent(Long key, LtiContentBean contentBean, String siteId) {
+		return updateContent(key, contentBean != null ? contentBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public String getContentLaunch(LtiContentBean contentBean) {
+		return getContentLaunch(contentBean != null ? contentBean.asMap() : null);
+	}
+
+	@Override
+	public String formOutput(LtiToolBean toolBean, String fieldinfo) {
+		Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+		return formOutput(toolMap, fieldinfo);
+	}
+
+	@Override
+	public String formOutput(LtiToolBean toolBean, String[] formDefinition) {
+		Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+		return formOutput(toolMap, formDefinition);
+	}
+
+	@Override
+	public String formOutput(LtiContentBean contentBean, String fieldinfo) {
+		Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+		return formOutput(contentMap, fieldinfo);
+	}
+
+	@Override
+	public String formOutput(LtiContentBean contentBean, String[] formDefinition) {
+		Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+		return formOutput(contentMap, formDefinition);
+	}
+
+	@Override
+	public String formOutput(LtiToolSiteBean toolSiteBean, String fieldinfo) {
+		Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+		return formOutput(toolSiteMap, fieldinfo);
+	}
+
+	@Override
+	public String formOutput(LtiToolSiteBean toolSiteBean, String[] formDefinition) {
+		Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+		return formOutput(toolSiteMap, formDefinition);
+	}
+
+	@Override
+	public String formInput(LtiToolBean toolBean, String fieldinfo) {
+		Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+		return formInput(toolMap, fieldinfo);
+	}
+
+	@Override
+	public String formInput(LtiToolBean toolBean, String[] formDefinition) {
+		Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+		return formInput(toolMap, formDefinition);
+	}
+
+	@Override
+	public String formInput(LtiContentBean contentBean, String fieldinfo) {
+		Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+		return formInput(contentMap, fieldinfo);
+	}
+
+	@Override
+	public String formInput(LtiContentBean contentBean, String[] formDefinition) {
+		Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+		return formInput(contentMap, formDefinition);
+	}
+
+	@Override
+	public String formInput(LtiToolSiteBean toolSiteBean, String fieldinfo) {
+		Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+		return formInput(toolSiteMap, fieldinfo);
+	}
+
+	@Override
+	public String formInput(LtiToolSiteBean toolSiteBean, String[] formDefinition) {
+		Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+		return formInput(toolSiteMap, formDefinition);
+	}
+
+	/**
+	 * Normalizes {@link LTIService#LTI_UPDATED_AT} values from JDBC/Foorm maps for duplicate-row resolution.
+	 */
+	private Date toolSiteRowUpdatedAt(Object updatedAt) {
+		if (updatedAt == null) {
+			return null;
+		}
+		if (updatedAt instanceof Date) {
+			return (Date) updatedAt;
+		}
+		if (updatedAt instanceof Number) {
+			return new Date(((Number) updatedAt).longValue());
+		}
+		return null;
+	}
+
+	/**
+	 * @return true if {@code candidate} should replace {@code best} as the newer tool-site row
+	 */
+	private boolean isNewerToolSiteRow(Date candidateTs, Date bestTs) {
+		if (candidateTs != null) {
+			return bestTs == null || candidateTs.after(bestTs);
+		}
+		return false;
+	}
 }

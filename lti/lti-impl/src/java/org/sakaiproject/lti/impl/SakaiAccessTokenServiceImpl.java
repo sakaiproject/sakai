@@ -306,6 +306,7 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
         if (cacheManager == null) {
             return null;
         }
+
         try {
             cache = cacheManager.getCache(SAT_CACHE_NAME);
             return cache;

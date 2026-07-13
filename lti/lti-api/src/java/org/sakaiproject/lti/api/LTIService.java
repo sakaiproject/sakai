@@ -24,11 +24,16 @@ package org.sakaiproject.lti.api;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
+import org.sakaiproject.lti.beans.LtiToolSiteBean;
 import org.sakaiproject.util.MergeConfig;
 
 /**
@@ -60,6 +65,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String SECRET_HIDDEN = "***************";
 
     String WEB_PORTLET = "sakai.web.168";
+
     /**
      * Model Descriptions for Foorm You should probably retrieve these through getters in
      * case there is some filtering in the service based on role/permission
@@ -95,9 +101,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "URL:text:table=lti_tools:realname=launch",
             "searchURL:text:table=NULL" //no realname and table is NULL for this, it just exists in the select
     };
-    /**
-     *
-     */
+
     String[] TOOL_MODEL = {
             "id:key:archive=true",
             "SITE_ID:text:maxlength=99:role=admin",
@@ -288,6 +292,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     Long LTI13_BOTH = 2L;
     String LTI_DEPLOYMENT_ID = "deployment_id";
     String LTI13_CLIENT_ID = "lti13_client_id";
+    String LTI13_LMS_DEPLOYMENT_ID = "lti13_lms_deployment_id";
 
     String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
     String LTI13_TOOL_ENDPOINT = "lti13_oidc_endpoint";
@@ -515,7 +520,6 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Map<String, Object> getContent(Long key, String siteId);
 
-
     Map<String, Object> getContentDao(Long key);
 
     Map<String, Object> getContentDao(Long key, String siteId);
@@ -525,8 +529,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     boolean deleteContent(Long key, String siteId);
 
     boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-
 
     Object updateContent(Long key, Map<String, Object> newProps, String siteId);
 
@@ -539,7 +541,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     List<Map<String, Object>> getContents(String search, String order, int first, int last, String siteId);
-
 
     /**
      * This finds a set of LTI Contents objects.
@@ -628,7 +629,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     List<String> getGrantedToolFunctionNames(long toolId);
 
-    Object setToolFunctionNames(Long toolId, java.util.Set<String> functionNames, String siteId);
+    Object setToolFunctionNames(Long toolId, Set<String> functionNames, String siteId);
 
     List<Map<String, Object>> getToolFunctionsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
@@ -740,10 +741,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiToolBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiToolBean getToolAsBean(Long key, String siteId) {
-        Map<String, Object> toolMap = getTool(key, siteId);
-        return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
-    }
+    LtiToolBean getToolAsBean(Long key, String siteId);
 
     /**
      * Get a single LTI tool as a Bean (alias for getToolAsBean)
@@ -751,10 +749,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiToolBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiToolBean getToolBean(Long key, String siteId) {
-        Map<String, Object> toolMap = getTool(key, siteId);
-        return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
-    }
+    LtiToolBean getToolBean(Long key, String siteId);
 
     /**
      * Get a tool as a Bean, bypassing security checks (DAO method)
@@ -763,10 +758,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param isAdminRole Whether to bypass security checks
      * @return LtiToolBean instance or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiToolBean getToolDaoAsBean(Long key, String siteId, boolean isAdminRole) {
-        Map<String, Object> toolMap = getToolDao(key, siteId, isAdminRole);
-        return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
-    }
+    LtiToolBean getToolDaoAsBean(Long key, String siteId, boolean isAdminRole);
 
     // ------------------------------------------------------------------------------------
     // TOOL BEAN METHODS - Multiple Tool Retrieval
@@ -783,12 +775,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId) {
-        List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
-        return toolMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiToolBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
+    List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId);
 
     /**
      * Get a list of LTI tools as Beans (alias for getToolsAsBeans)
@@ -799,14 +786,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId) {
-        List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
-        List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new java.util.ArrayList<>();
-        for (Map<String, Object> toolMap : toolMaps) {
-            toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
-        }
-        return toolBeans;
-    }
+    List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId);
 
     /**
      * Get a list of LTI tools as Beans with stealthed option
@@ -818,12 +798,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param includeStealthed Whether to include stealthed tools
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
-        List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
-        return toolMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiToolBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
+    List<LtiToolBean> getToolsAsBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed);
 
     /**
      * Get a list of LTI tools as Beans with stealthed option (alias for getToolsAsBeans)
@@ -835,14 +810,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param includeStealthed Whether to include stealthed tools
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
-        List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
-        List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new java.util.ArrayList<>();
-        for (Map<String, Object> toolMap : toolMaps) {
-            toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
-        }
-        return toolBeans;
-    }
+    List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed);
 
     /**
      * Get a list of LTI tools as Beans with stealthed and launchable options
@@ -855,40 +823,21 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param includeLaunchable Whether to include only launchable tools
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
-        List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed, includeLaunchable);
-        List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new java.util.ArrayList<>();
-        for (Map<String, Object> toolMap : toolMaps) {
-            toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
-        }
-        return toolBeans;
-    }
+    List<LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
 
     /**
      * Get a list of launchable LTI tools as Beans
      * @param siteId The site ID
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolsLaunchAsBeans(String siteId) {
-        List<Map<String, Object>> toolMaps = getToolsLaunch(siteId);
-        return toolMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiToolBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
+    List<LtiToolBean> getToolsLaunchAsBeans(String siteId);
 
     /**
      * Get a list of tools that can return an imported Common Cartridge as Beans
      * @param siteId The site ID
      * @return List of LtiToolBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolBean> getToolsImportItemBeans(String siteId) {
-        List<Map<String, Object>> toolMaps = getToolsImportItem(siteId);
-        List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new java.util.ArrayList<>();
-        for (Map<String, Object> toolMap : toolMaps) {
-            toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
-        }
-        return toolBeans;
-    }
+    List<LtiToolBean> getToolsImportItemBeans(String siteId);
 
     // ------------------------------------------------------------------------------------
     // CONTENT BEAN METHODS - Single Content Retrieval
@@ -902,10 +851,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiContentBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiContentBean getContentAsBean(Long key, String siteId) {
-        Map<String, Object> contentMap = getContent(key, siteId);
-        return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
-    }
+    LtiContentBean getContentAsBean(Long key, String siteId);
 
     /**
      * Get a single LTI content item as a Bean (alias for getContentAsBean)
@@ -913,10 +859,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiContentBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiContentBean getContentBean(Long key, String siteId) {
-        Map<String, Object> contentMap = getContent(key, siteId);
-        return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
-    }
+    LtiContentBean getContentBean(Long key, String siteId);
 
     // ------------------------------------------------------------------------------------
     // CONTENT BEAN METHODS - Multiple Content Retrieval
@@ -933,12 +876,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiContentBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentsAsBeans(String search, String order, int first, int last, String siteId) {
-        List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
-        return contentMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiContentBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
+    List<LtiContentBean> getContentsAsBeans(String search, String order, int first, int last, String siteId);
 
     /**
      * Get a list of LTI content items as Beans (alias for getContentsAsBeans)
@@ -949,14 +887,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiContentBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId) {
-        List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
-        List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
-        for (Map<String, Object> contentMap : contentMaps) {
-            contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
-        }
-        return contentBeans;
-    }
+    List<LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId);
 
     // ------------------------------------------------------------------------------------
     // TOOL SITE BEAN METHODS
@@ -970,10 +901,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiToolSiteBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiToolSiteBean getToolSiteAsBean(Long key, String siteId) {
-        Map<String, Object> toolSiteMap = getToolSiteById(key, siteId);
-        return toolSiteMap != null ? org.sakaiproject.lti.beans.LtiToolSiteBean.of(toolSiteMap) : null;
-    }
+    LtiToolSiteBean getToolSiteAsBean(Long key, String siteId);
 
     /**
      * Get a list of LTI tool sites as Beans
@@ -981,38 +909,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return List of LtiToolSiteBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiToolSiteBean> getToolSitesByToolIdAsBeans(String toolId, String siteId) {
-        List<Map<String, Object>> toolSiteMaps = getToolSitesByToolId(toolId, siteId);
-        return toolSiteMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiToolSiteBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    /**
-     * Normalizes {@link #LTI_UPDATED_AT} values from JDBC/Foorm maps for duplicate-row resolution.
-     */
-    private static java.util.Date toolSiteRowUpdatedAt(Object updatedAt) {
-        if (updatedAt == null) {
-            return null;
-        }
-        if (updatedAt instanceof java.util.Date) {
-            return (java.util.Date) updatedAt;
-        }
-        if (updatedAt instanceof Number) {
-            return new java.util.Date(((Number) updatedAt).longValue());
-        }
-        return null;
-    }
-
-    /**
-     * @return true if {@code candidate} should replace {@code best} as the newer tool-site row
-     */
-    private static boolean isNewerToolSiteRow(java.util.Date candidateTs, java.util.Date bestTs) {
-        if (candidateTs != null) {
-            return bestTs == null || candidateTs.after(bestTs);
-        }
-        return false;
-    }
+    List<LtiToolSiteBean> getToolSitesByToolIdAsBeans(String toolId, String siteId);
 
     /**
      * Returns the optional {@link #LTI_DEPLOYMENT_GROUP} for a tool deployed to the given site,
@@ -1026,44 +923,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param toolKey primary key of the LTI tool
      * @param launchSiteId site id where the launch occurs (must match the tool-site row {@link #LTI_SITE_ID})
      */
-    default String getDeploymentGroupForLaunch(Long toolKey, String launchSiteId) {
-        if (toolKey == null || launchSiteId == null) {
-            return null;
-        }
-        String trimmedSite = launchSiteId.trim();
-        if (trimmedSite.isEmpty()) {
-            return null;
-        }
-        List<Map<String, Object>> rows = getToolSitesByToolId(String.valueOf(toolKey), trimmedSite);
-        if (rows == null) {
-            return null;
-        }
-        Map<String, Object> bestRow = null;
-        java.util.Date bestUpdated = null;
-        for (Map<String, Object> row : rows) {
-            Object siteObj = row.get(LTI_SITE_ID);
-            if (siteObj == null) {
-                continue;
-            }
-            if (!trimmedSite.equals(siteObj.toString().trim())) {
-                continue;
-            }
-            java.util.Date updated = toolSiteRowUpdatedAt(row.get(LTI_UPDATED_AT));
-            if (bestRow == null || isNewerToolSiteRow(updated, bestUpdated)) {
-                bestRow = row;
-                bestUpdated = updated;
-            }
-        }
-        if (bestRow == null) {
-            return null;
-        }
-        Object dg = bestRow.get(LTI_DEPLOYMENT_GROUP);
-        if (dg == null) {
-            return null;
-        }
-        String s = dg.toString().trim();
-        return s.isEmpty() ? null : s;
-    }
+    String getDeploymentGroupForLaunch(Long toolKey, String launchSiteId);
 
     // ------------------------------------------------------------------------------------
     // MEMBERSHIPS JOB BEAN METHODS
@@ -1076,21 +936,13 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return LtiMembershipsJobBean or null if not found
      */
-    default org.sakaiproject.lti.beans.LtiMembershipsJobBean getMembershipsJobAsBean(String siteId) {
-        Map<String, Object> jobMap = getMembershipsJob(siteId);
-        return jobMap != null ? org.sakaiproject.lti.beans.LtiMembershipsJobBean.of(jobMap) : null;
-    }
+    LtiMembershipsJobBean getMembershipsJobAsBean(String siteId);
 
     /**
      * Get all LTI memberships jobs as Beans
      * @return List of LtiMembershipsJobBean objects
      */
-    default List<org.sakaiproject.lti.beans.LtiMembershipsJobBean> getMembershipsJobsAsBeans() {
-        List<Map<String, Object>> jobMaps = getMembershipsJobs();
-        return jobMaps.stream()
-                .map(org.sakaiproject.lti.beans.LtiMembershipsJobBean::of)
-                .collect(java.util.stream.Collectors.toList());
-    }
+    List<LtiMembershipsJobBean> getMembershipsJobsAsBeans();
 
     // ------------------------------------------------------------------------------------
     // BEAN INSERT/UPDATE METHODS
@@ -1104,9 +956,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return The ID of the inserted tool
      */
-    default Object insertTool(org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
-        return insertTool(toolBean != null ? toolBean.asMap() : null, siteId);
-    }
+    Object insertTool(LtiToolBean toolBean, String siteId);
 
     /**
      * Insert a new LTI content using Bean
@@ -1114,9 +964,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return The ID of the inserted content
      */
-    default Object insertContent(org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
-        return insertContent(contentBean != null ? contentBean.asMap() : null, siteId);
-    }
+    Object insertContent(LtiContentBean contentBean, String siteId);
 
     /**
      * Update an existing LTI tool using Bean
@@ -1125,9 +973,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return The result of the update operation
      */
-    default Object updateTool(Long key, org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
-        return updateTool(key, toolBean != null ? toolBean.asMap() : null, siteId);
-    }
+    Object updateTool(Long key, LtiToolBean toolBean, String siteId);
 
     /**
      * Update a tool with a tool bean (DAO method)
@@ -1136,9 +982,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId the site id
      * @return the result
      */
-    default Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId) {
-        return updateToolDao(key, tool != null ? tool.asMap() : null, siteId);
-    }
+    Object updateToolDao(Long key, LtiToolBean tool, String siteId);
 
     /**
      * Update an existing LTI content using Bean
@@ -1147,9 +991,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId The site ID
      * @return The result of the update operation
      */
-    default Object updateContent(Long key, org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
-        return updateContent(key, contentBean != null ? contentBean.asMap() : null, siteId);
-    }
+    Object updateContent(Long key, LtiContentBean contentBean, String siteId);
 
     // ------------------------------------------------------------------------------------
     // BEAN UTILITY METHODS
@@ -1161,9 +1003,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param contentBean The content data as Bean
      * @return The launch URL
      */
-    default String getContentLaunch(org.sakaiproject.lti.beans.LtiContentBean contentBean) {
-        return getContentLaunch(contentBean != null ? contentBean.asMap() : null);
-    }
+    String getContentLaunch(LtiContentBean contentBean);
 
     // ------------------------------------------------------------------------------------
     // BEAN FORM OUTPUT METHODS
@@ -1178,10 +1018,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String fieldinfo) {
-        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
-        return formOutput(toolMap, fieldinfo);
-    }
+    String formOutput(LtiToolBean toolBean, String fieldinfo);
 
     /**
      * Generate form output for a tool Bean
@@ -1189,10 +1026,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String[] formDefinition) {
-        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
-        return formOutput(toolMap, formDefinition);
-    }
+    String formOutput(LtiToolBean toolBean, String[] formDefinition);
 
     /**
      * Generate form output for a content Bean
@@ -1200,10 +1034,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String fieldinfo) {
-        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
-        return formOutput(contentMap, fieldinfo);
-    }
+    String formOutput(LtiContentBean contentBean, String fieldinfo);
 
     /**
      * Generate form output for a content Bean
@@ -1211,10 +1042,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String[] formDefinition) {
-        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
-        return formOutput(contentMap, formDefinition);
-    }
+    String formOutput(LtiContentBean contentBean, String[] formDefinition);
 
     /**
      * Generate form output for a tool site Bean
@@ -1222,10 +1050,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String fieldinfo) {
-        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
-        return formOutput(toolSiteMap, fieldinfo);
-    }
+    String formOutput(LtiToolSiteBean toolSiteBean, String fieldinfo);
 
     /**
      * Generate form output for a tool site Bean
@@ -1233,10 +1058,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted output
      */
-    default String formOutput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String[] formDefinition) {
-        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
-        return formOutput(toolSiteMap, formDefinition);
-    }
+    String formOutput(LtiToolSiteBean toolSiteBean, String[] formDefinition);
 
     // ------------------------------------------------------------------------------------
     // BEAN FORM INPUT METHODS
@@ -1251,10 +1073,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String fieldinfo) {
-        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
-        return formInput(toolMap, fieldinfo);
-    }
+    String formInput(LtiToolBean toolBean, String fieldinfo);
 
     /**
      * Generate form input for a tool Bean
@@ -1262,10 +1081,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String[] formDefinition) {
-        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
-        return formInput(toolMap, formDefinition);
-    }
+    String formInput(LtiToolBean toolBean, String[] formDefinition);
 
     /**
      * Generate form input for a content Bean
@@ -1273,10 +1089,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String fieldinfo) {
-        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
-        return formInput(contentMap, fieldinfo);
-    }
+    String formInput(LtiContentBean contentBean, String fieldinfo);
 
     /**
      * Generate form input for a content Bean
@@ -1284,10 +1097,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String[] formDefinition) {
-        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
-        return formInput(contentMap, formDefinition);
-    }
+    String formInput(LtiContentBean contentBean, String[] formDefinition);
 
     /**
      * Generate form input for a tool site Bean
@@ -1295,10 +1105,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param fieldinfo The field information
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String fieldinfo) {
-        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
-        return formInput(toolSiteMap, fieldinfo);
-    }
+    String formInput(LtiToolSiteBean toolSiteBean, String fieldinfo);
 
     /**
      * Generate form input for a tool site Bean
@@ -1306,8 +1113,5 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param formDefinition The form definition array
      * @return The formatted input
      */
-    default String formInput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String[] formDefinition) {
-        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
-        return formInput(toolSiteMap, formDefinition);
-    }
+    String formInput(LtiToolSiteBean toolSiteBean, String[] formDefinition);
 }

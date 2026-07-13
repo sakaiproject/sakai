@@ -79,6 +79,7 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.lti.api.model.LtiTool;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -92,7 +93,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.time.api.UserTimeService;
 
 // We need to interact with the RequestFilter
@@ -172,7 +173,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	protected static ServerConfigurationService serverConfigurationService = null;
 	protected static UserTimeService userTimeService = null;
 
-	protected static SakaiFoorm foorm = new SakaiFoorm();
+	protected static Foorm foorm = new Foorm();
 
 	// Should be RequestFilter.SAKAI_SERVERID
 	public final static String SAKAI_SERVERID = "sakai.serverId";
@@ -1682,20 +1683,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		tool.put(LTIService.LTI_LAUNCH, "https://example.com/draft-tool-in-progress");
 
-		Object retval = ltiService.insertTool(tool, getSiteId(state));
-		if (retval instanceof String) {
-			addAlert(state, rb.getString("tool.new.insert.start.fail") + " retval=" + retval);
+		LtiTool retval = (LtiTool) ltiService.insertTool(tool, getSiteId(state));
+		if (retval == null) {
+			addAlert(state, rb.getString("tool.new.insert.start.fail"));
 			switchPanel(state, "Error");
 			return;
 		}
 
-		long key = Long.parseLong(retval.toString());
+		long key = Long.parseLong(retval.getId().toString());
 		switchPanel(state, "ToolEdit&id=" + key);
 	}
 
 	public String buildToolEditPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
 
 		context.put("tlang", rb);
+
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if (!ltiService.isMaintain(getSiteId(state))) {
 			addAlert(state, rb.getString("error.maintain.edit"));
@@ -1861,7 +1863,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// only list the tools available in the system
-		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> systemTools = new ArrayList<>();
 		for (LtiToolBean toolBean : toolBeans) {
 			Map<String, Object> tool = toolBean.asMap();
 			String siteId = StringUtils.trimToNull(toolBean.getSiteId());

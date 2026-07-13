@@ -16,64 +16,65 @@
 package org.sakaiproject.lti.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
-import org.sakaiproject.lti.impl.testutil.LtiToolFunctionTestDatabase;
+import org.sakaiproject.lti.api.model.LtiTool;
+import org.sakaiproject.site.api.SiteService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /**
  * Integration-style tests for {@link BaseLTIService} tool API function persistence.
  */
-public class BaseLTIServiceToolFunctionTest {
+@ContextConfiguration(classes = { LtiTestConfiguration.class })
+public class BaseLTIServiceToolFunctionTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private static final String ADMIN_SITE = LTIService.ADMIN_SITE;
     private static final String REGULAR_SITE = "site.example.com";
 
-    private LtiToolFunctionTestDatabase database;
+    @Autowired
+    private FunctionManager functionManager;
+
+    @Autowired
     private LTIService ltiService;
 
-    @Before
-    public void setUp() throws SQLException {
-        database = new LtiToolFunctionTestDatabase();
-        ltiService = database.getLtiService();
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
-        ServerConfigurationService scs = mock(ServerConfigurationService.class);
-        when(scs.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT)).thenReturn(true);
-        ((BaseLTIService) ltiService).setServerConfigurationService(scs);
-    }
-
-    @After
-    public void tearDown() {
-        if (database != null) {
-            database.shutdown();
-        }
-    }
+    @Autowired
+    private SiteService siteService;
 
     @Test
     public void setAndGetToolFunctionNames_roundTrip() {
         Long toolId = insertTestTool();
-        Set<String> requested = new HashSet<>(Arrays.asList("content.read", "gradebook.write"));
+        Set<String> requested = Set.of("content.read", "gradebook.write");
+
+		    when(siteService.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
+        when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read", "gradebook.write"));
 
         Object result = ltiService.setToolFunctionNames(toolId, requested, ADMIN_SITE);
         assertEquals(toolId, result);
+
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT))
+          .thenReturn(true);
 
         List<String> stored = ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
         assertEquals(2, stored.size());
@@ -85,8 +86,14 @@ public class BaseLTIServiceToolFunctionTest {
     public void setToolFunctionNames_replacesExisting() {
         Long toolId = insertTestTool();
 
+		    when(siteService.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
+        when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read", "gradebook.read"));
+
         ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("content.read")), ADMIN_SITE);
         ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("gradebook.read")), ADMIN_SITE);
+
+        when(serverConfigurationService.getBoolean(SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED, SakaiAccessTokenService.PROPERTY_WEBAPI_ENABLED_DEFAULT))
+          .thenReturn(true);
 
         List<String> stored = ltiService.getGrantedToolFunctionNames(String.valueOf(toolId), ADMIN_SITE);
         assertEquals(1, stored.size());
@@ -142,7 +149,11 @@ public class BaseLTIServiceToolFunctionTest {
     @Test
     public void deleteToolFunctionsForToolId_removesAllRows() {
         Long toolId = insertTestTool();
-        ltiService.setToolFunctionNames(toolId, new HashSet<>(Arrays.asList("content.read", "gradebook.read")), ADMIN_SITE);
+
+		    when(siteService.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
+        when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read", "gradebook.read"));
+
+        ltiService.setToolFunctionNames(toolId, Set.of("content.read", "gradebook.read"), ADMIN_SITE);
 
         int deleted = ltiService.deleteToolFunctionsForToolIdDao(String.valueOf(toolId));
 
@@ -161,9 +172,9 @@ public class BaseLTIServiceToolFunctionTest {
         Properties toolProps = new Properties();
         toolProps.setProperty(LTIService.LTI_TITLE, "API Function Test Tool");
         toolProps.setProperty(LTIService.LTI_LAUNCH, "https://example.com/lti/launch");
-        Object key = ltiService.insertTool(toolProps, ADMIN_SITE);
-        assertNotNull(key);
-        assertTrue(key instanceof Long);
-        return (Long) key;
+        LtiTool tool = (LtiTool) ltiService.insertTool(toolProps, ADMIN_SITE);
+        assertNotNull(tool);
+        assertTrue(tool.getId() instanceof Long);
+        return tool.getId();
     }
 }

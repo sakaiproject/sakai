@@ -3,6 +3,44 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+        <bean id="ltiHibernateMappings"
+            class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+            <property name="annotatedClasses">
+                <list>
+                    <value>org.sakaiproject.lti.api.model.LtiContent</value>
+                    <value>org.sakaiproject.lti.api.model.LtiMembershipsJob</value>
+                    <value>org.sakaiproject.lti.api.model.LtiTool</value>
+                    <value>org.sakaiproject.lti.api.model.LtiToolFunction</value>
+                    <value>org.sakaiproject.lti.api.model.LtiToolSite</value>
+                </list>
+            </property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.repository.LtiContentRepository"
+                class="org.sakaiproject.lti.impl.repository.LtiContentRepositoryImpl">
+            <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.repository.LtiMembershipsJobRepository"
+                class="org.sakaiproject.lti.impl.repository.LtiMembershipsJobRepositoryImpl">
+            <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.repository.LtiToolRepository"
+                class="org.sakaiproject.lti.impl.repository.LtiToolRepositoryImpl">
+            <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.repository.LtiToolFunctionRepository"
+                class="org.sakaiproject.lti.impl.repository.LtiToolFunctionRepositoryImpl">
+            <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.repository.LtiToolSiteRepository"
+                class="org.sakaiproject.lti.impl.repository.LtiToolSiteRepositoryImpl">
+            <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </bean>
+
         <bean id="org.sakaiproject.lti.service.LTISecurityService"
                 class="org.sakaiproject.lti.impl.LTISecurityServiceImpl"
                 init-method="init"
@@ -24,19 +62,21 @@
             <property name="cacheManager"><ref bean="org.sakaiproject.ignite.SakaiCacheManager"/></property>
         </bean>
 
+        <bean id="org.sakaiproject.util.ResourceLoader.ltiservice"
+            class="org.sakaiproject.util.ResourceLoader">
+            <constructor-arg value="ltiservice"/>
+        </bean>
+
         <bean id="org.sakaiproject.lti.api.LTIService"
-                class="org.sakaiproject.lti.impl.DBLTIService"
-                init-method="init"
-                destroy-method="destroy">
-            <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+			class="org.sakaiproject.lti.impl.DBLTIService">
             <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+            <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
             <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
             <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
             <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
             <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
             <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-            <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-            <property name="autoDdl"><value>${auto.ddl}</value></property>
+            <property name="rb" ref="org.sakaiproject.util.ResourceLoader.ltiservice"/>
         </bean>
 
         <bean id="org.sakaiproject.lti.api.UserFinderOrCreator"

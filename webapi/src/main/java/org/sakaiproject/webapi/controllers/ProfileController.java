@@ -192,7 +192,6 @@ public class ProfileController extends AbstractSakaiApiController {
         return ResponseEntity.badRequest().build();
     }
 
-
     @PostMapping(value = "/users/{userId}/profile/image")
     public ResponseEntity<String> putProfileImage(@PathVariable String userId, @RequestParam String base64) {
 
