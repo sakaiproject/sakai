@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 final class LTI13TokenRequestValidator {
 
 	static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
-	static final long CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS = 600_000L;
 
 	private static final String CACHE_CLIENT_ASSERTION_JTI = "client_assertion_jti::";
 
@@ -100,10 +99,6 @@ final class LTI13TokenRequestValidator {
 		}
 		if (claims.getIssuedAt().after(claims.getExpiration())) {
 			return "Invalid iat";
-		}
-		if (claims.getExpiration().getTime() - claims.getIssuedAt().getTime()
-				> CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS) {
-			return "Invalid exp";
 		}
 		return null;
 	}

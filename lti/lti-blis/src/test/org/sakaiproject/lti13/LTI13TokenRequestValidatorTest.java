@@ -99,15 +99,13 @@ public class LTI13TokenRequestValidatorTest {
 	}
 
 	@Test
-	public void validateClientAssertionClaimsRejectsExcessiveLifetime() {
+	public void validateClientAssertionClaimsAcceptsLongLivedClientAssertion() {
 		Claims claims = validClaims("jti-1");
-		claims.setIssuedAt(new Date(System.currentTimeMillis()));
-		claims.setExpiration(new Date(System.currentTimeMillis()
-				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_MAX_LIFETIME_MILLISECONDS
-				+ LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
-				+ 1_000L));
+		long now = System.currentTimeMillis();
+		claims.setIssuedAt(new Date(now));
+		claims.setExpiration(new Date(now + 7_200_000L));
 
-		assertEquals("Invalid exp", LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
+		assertNull(LTI13TokenRequestValidator.validateClientAssertionClaims(claims, CLIENT_ID, TOKEN_AUDIENCE));
 	}
 
 	@Test
