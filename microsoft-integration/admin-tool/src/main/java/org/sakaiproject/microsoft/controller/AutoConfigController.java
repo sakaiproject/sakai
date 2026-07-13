@@ -339,7 +339,7 @@ public class AutoConfigController {
 				.build());
 
 		boolean limitExceeded = site.getGroups().size() > MAX_CHANNELS;
-		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
+		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !microsoftCommonService.isExcludedGroup(g)).toList());
 
 		if (limitExceeded) {
 			ss.setCreationStatus(CreationStatus.PARTIAL_OK);
@@ -416,7 +416,7 @@ public class AutoConfigController {
 		microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
 
 		Map<String, MicrosoftChannel> channelsMap = microsoftCommonService.getTeamPrivateChannels(ss.getTeamId(), true);
-		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
+		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !microsoftCommonService.isExcludedGroup(g)).toList());
 
 		List<Group> nonExistingGroups = groupsToProcess.stream()
 				.filter(g -> channelsMap.values().stream().noneMatch(c -> c.getName().equalsIgnoreCase(microsoftCommonService.processMicrosoftChannelName(g.getTitle()))))

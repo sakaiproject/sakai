@@ -1201,8 +1201,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 					if(site != null) {
 						Group group = site.getGroup(groupId);
 						if(group != null) {
-							//exclude automatic lesson groups
-							if(group.getTitle().startsWith("Access:")) {
+							if(microsoftCommonService.isExcludedGroup(group)) {
 								return;
 							}
 							

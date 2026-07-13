@@ -55,6 +55,7 @@ public interface MicrosoftCommonService {
 	public static final String PERM_UPLOAD_FILES = "microsoft.documents.upload.files";
 	public static final int MAX_CHANNELS = 30;
 	public static final int MAX_ADD_CHANNELS = 20;
+	public static final List<String> EXCLUDED_GROUP_PREFIXES = List.of("Access:", "SIGNUP_");
 
 	Map<String, Set<User>> errorUsers = new HashMap<>();
 	Map<String, Set<User>> groupErrors = new HashMap<>();
@@ -110,6 +111,7 @@ public interface MicrosoftCommonService {
 	String createTeam(String name, String ownerEmail) throws MicrosoftCredentialsException;
 	void processGroupsAndCreateChannels(SiteSynchronization ss, Site site, String teamId, MicrosoftCredentials credentials) throws MicrosoftCredentialsException;
 	List<Group> limitGroups(Collection<Group> groups);
+	boolean isExcludedGroup(Group group);
 	void createTeamFromGroup(String groupId) throws MicrosoftCredentialsException;
 	void createTeamFromGroupAsync(String groupId) throws MicrosoftCredentialsException;
 	

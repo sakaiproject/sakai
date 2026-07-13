@@ -950,7 +950,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 	public void processGroupsAndCreateChannels(SiteSynchronization ss, org.sakaiproject.site.api.Site site, String teamId, MicrosoftCredentials credentials) throws MicrosoftCredentialsException {
 		boolean limitExceeded = site.getGroups().size() > MAX_CHANNELS;
-		List<org.sakaiproject.site.api.Group> groupsToProcess = this.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
+		List<org.sakaiproject.site.api.Group> groupsToProcess = this.limitGroups(site.getGroups().stream().filter(g -> !this.isExcludedGroup(g)).toList());
 		if (limitExceeded) {
 			ss.setCreationStatus(CreationStatus.PARTIAL_OK);
 		}
@@ -975,6 +975,10 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return groups.size() > MAX_CHANNELS ?
 				groups.stream().limit(MAX_ADD_CHANNELS).toList() :
 				new ArrayList<>(groups);
+	}
+
+	public boolean isExcludedGroup(org.sakaiproject.site.api.Group group) {
+		return group != null && group.getTitle() != null  && EXCLUDED_GROUP_PREFIXES.stream().anyMatch(group.getTitle()::startsWith);
 	}
 
 	@Override
