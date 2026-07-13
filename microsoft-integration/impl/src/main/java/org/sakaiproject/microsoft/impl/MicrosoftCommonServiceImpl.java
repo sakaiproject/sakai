@@ -28,6 +28,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,9 +55,11 @@ import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
+import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.data.AttendanceInterval;
 import org.sakaiproject.microsoft.api.data.AttendanceRecord;
+import org.sakaiproject.microsoft.api.data.CreationStatus;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
@@ -183,6 +186,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Setter private MicrosoftConfigRepository microsoftConfigRepository;
 	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
 	@Setter private MicrosoftMessagingService microsoftMessagingService;
+	@Setter private MicrosoftSynchronizationService microsoftSynchronizationService;
 	@Setter private SakaiProxy sakaiProxy;
 	@Setter private FormattedText formattedText;
 
@@ -943,7 +947,36 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		}
 		return null;
 	}
-	
+
+	public void processGroupsAndCreateChannels(SiteSynchronization ss, org.sakaiproject.site.api.Site site, String teamId, MicrosoftCredentials credentials) throws MicrosoftCredentialsException {
+		boolean limitExceeded = site.getGroups().size() > MAX_CHANNELS;
+		List<org.sakaiproject.site.api.Group> groupsToProcess = this.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
+		if (limitExceeded) {
+			ss.setCreationStatus(CreationStatus.PARTIAL_OK);
+		}
+		microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+		List<MicrosoftChannel> channels = this.createChannels(groupsToProcess, teamId, credentials.getEmail());
+		for (org.sakaiproject.site.api.Group g : groupsToProcess) {
+			Optional<MicrosoftChannel> channelOpt = channels.stream()
+					.filter(c -> c.getName().replace(" ", "").equalsIgnoreCase(this.processMicrosoftChannelName(g.getTitle()).replace(" ", ""))).findFirst();
+			channelOpt.ifPresent(channel -> {
+				GroupSynchronization gs = GroupSynchronization.builder()
+						.siteSynchronization(ss)
+						.groupId(g.getId())
+						.channelId(channel.getId())
+						.build();
+				microsoftSynchronizationService.saveOrUpdateGroupSynchronization(gs);
+			});
+		}
+		log.info("Created {} channels for siteId={} (teamId={})", channels.size(), site.getId(), teamId);
+	}
+
+	public List<org.sakaiproject.site.api.Group> limitGroups(Collection<org.sakaiproject.site.api.Group> groups) {
+		return groups.size() > MAX_CHANNELS ?
+				groups.stream().limit(MAX_ADD_CHANNELS).toList() :
+				new ArrayList<>(groups);
+	}
+
 	@Override
 	public String createGroup(String name, String ownerEmail) throws MicrosoftCredentialsException {
 		try {

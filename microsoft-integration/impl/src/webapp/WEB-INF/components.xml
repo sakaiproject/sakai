@@ -79,6 +79,7 @@
         <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
         <property name="sakaiProxy" ref="org.sakaiproject.microsoft.api.SakaiProxy" />
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+        <property name="microsoftSynchronizationService" ref="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" />
     </bean>
 
     <!-- Microsoft Authorization Service -->

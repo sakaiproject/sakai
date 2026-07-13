@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.sakaiproject.microsoft.api.data.AttendanceRecord;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
+import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
 import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
 import org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
@@ -32,11 +33,13 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.GroupSynchronization;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,6 +108,8 @@ public interface MicrosoftCommonService {
 	
 	String createGroup(String name, String ownerEmail) throws MicrosoftCredentialsException;
 	String createTeam(String name, String ownerEmail) throws MicrosoftCredentialsException;
+	void processGroupsAndCreateChannels(SiteSynchronization ss, Site site, String teamId, MicrosoftCredentials credentials) throws MicrosoftCredentialsException;
+	List<Group> limitGroups(Collection<Group> groups);
 	void createTeamFromGroup(String groupId) throws MicrosoftCredentialsException;
 	void createTeamFromGroupAsync(String groupId) throws MicrosoftCredentialsException;
 	

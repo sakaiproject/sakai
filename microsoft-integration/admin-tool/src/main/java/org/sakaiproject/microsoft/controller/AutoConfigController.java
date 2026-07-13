@@ -339,7 +339,7 @@ public class AutoConfigController {
 				.build());
 
 		boolean limitExceeded = site.getGroups().size() > MAX_CHANNELS;
-		List<Group> groupsToProcess = limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).collect(Collectors.toList()));
+		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
 
 		if (limitExceeded) {
 			ss.setCreationStatus(CreationStatus.PARTIAL_OK);
@@ -416,7 +416,7 @@ public class AutoConfigController {
 		microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
 
 		Map<String, MicrosoftChannel> channelsMap = microsoftCommonService.getTeamPrivateChannels(ss.getTeamId(), true);
-		List<Group> groupsToProcess = limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).collect(Collectors.toList()));
+		List<Group> groupsToProcess = microsoftCommonService.limitGroups(site.getGroups().stream().filter(g -> !g.getTitle().startsWith("Access:")).toList());
 
 		List<Group> nonExistingGroups = groupsToProcess.stream()
 				.filter(g -> channelsMap.values().stream().noneMatch(c -> c.getName().equalsIgnoreCase(microsoftCommonService.processMicrosoftChannelName(g.getTitle()))))
@@ -483,13 +483,6 @@ public class AutoConfigController {
 				.addData("createChannelsName", channelNames)
 				.build());
 	}
-
-	private List<Group> limitGroups(Collection<Group> groups) {
-		return groups.size() > MAX_CHANNELS ?
-				groups.stream().limit(MAX_ADD_CHANNELS).collect(Collectors.toList()) :
-				new ArrayList<>(groups);
-	}
-
 
 	@GetMapping(value = {"/autoConfig-status"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

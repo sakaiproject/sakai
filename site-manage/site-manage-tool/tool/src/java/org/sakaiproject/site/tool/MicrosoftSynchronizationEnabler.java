@@ -307,7 +307,7 @@ public class MicrosoftSynchronizationEnabler {
                     return false;
                 }
 
-                final SiteSynchronization ss = SiteSynchronization.builder()
+                SiteSynchronization ss = SiteSynchronization.builder()
                         .siteId(site.getId())
                         .teamId(teamId)
                         .forced(true)
@@ -316,6 +316,11 @@ public class MicrosoftSynchronizationEnabler {
                         .build();
 
                 microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+                try {
+                    microsoftCommonService.processGroupsAndCreateChannels(ss, site, teamId, credentials);
+                } catch (Exception e) {
+                    log.error("Error while processing groups and creating channels for site: {}, teamId: {}, {}", site.getId(), teamId, e.toString());
+                }
                 log.info("Microsoft Team created and SiteSynchronization saved: teamId={}, siteId={}", teamId, site.getId());
             }
         } catch (Exception e) {
