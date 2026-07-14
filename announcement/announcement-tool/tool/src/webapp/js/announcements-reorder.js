@@ -1,3 +1,5 @@
+(() => {
+
 const initialise = () => {
 
   const reorderer = document.getElementById("announcements-reorderer");
@@ -100,3 +102,5 @@ const initialise = () => {
 };
 
 customElements.whenDefined("sakai-reorderer").then(initialise);
+
+})();

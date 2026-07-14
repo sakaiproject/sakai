@@ -35,7 +35,7 @@ describe("sakai-reorderer tests", () => {
     expect(events[1].reorderedIds).to.deep.equal([ "item-1", "item-2" ]);
   });
 
-  it ("only starts native dragging from the drag handle", async () => {
+  it ("only starts native dragging while the drag handle is pressed", async () => {
 
     const el = await fixture(html`
       <sakai-reorderer apply-dom>
@@ -49,13 +49,26 @@ describe("sakai-reorderer tests", () => {
     await el.updateComplete;
 
     const item = el.querySelector("[data-reorderable-id='item-1']");
+    const handle = item.querySelector(".drag-handle");
     const dragStart = new DragEvent("dragstart", { bubbles: true, cancelable: true });
     item.dispatchEvent(dragStart);
     expect(dragStart.defaultPrevented).to.be.true;
 
+    handle.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    handle.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+    const pointerUpDragStart = new DragEvent("dragstart", { bubbles: true, cancelable: true });
+    item.dispatchEvent(pointerUpDragStart);
+    expect(pointerUpDragStart.defaultPrevented).to.be.true;
+
+    handle.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    handle.dispatchEvent(new PointerEvent("pointercancel", { bubbles: true }));
+    const pointerCancelDragStart = new DragEvent("dragstart", { bubbles: true, cancelable: true });
+    item.dispatchEvent(pointerCancelDragStart);
+    expect(pointerCancelDragStart.defaultPrevented).to.be.true;
+
     const events = [];
     el.addEventListener("reordered", event => events.push(event.detail));
-    item.querySelector(".drag-handle").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    handle.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
     item.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true }));
     el.querySelector("div").dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, clientY: 1000 }));
 

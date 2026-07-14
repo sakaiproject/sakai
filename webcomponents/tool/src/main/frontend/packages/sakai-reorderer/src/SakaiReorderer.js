@@ -85,6 +85,8 @@ export class SakaiReorderer extends SakaiShadowElement {
       e.currentTarget.classList.remove("dragging");
     };
 
+    this._pointerEndListener = () => this._dragSource = undefined;
+
     this._dropListener = e => {
 
       e.stopPropagation();
@@ -208,6 +210,8 @@ export class SakaiReorderer extends SakaiShadowElement {
 
     const dragHandle = reorderable.querySelector(".drag-handle");
     dragHandle?.addEventListener("pointerdown", () => this._dragSource = reorderable);
+    dragHandle?.addEventListener("pointerup", this._pointerEndListener);
+    dragHandle?.addEventListener("pointercancel", this._pointerEndListener);
     dragHandle?.addEventListener("keyup", this._keyupListener);
   }
 
