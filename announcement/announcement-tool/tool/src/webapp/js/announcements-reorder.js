@@ -1,14 +1,19 @@
 (function ($) {
 
-  $(function () {
-
-    const list = $("#reorder-list");
-    if (!list.length || !$.fn.sortable) {
+  const initialise = () => {
+    const list = document.getElementById("reorder-list");
+    if (!list || !$.fn.sortable) {
       return;
     }
 
-    const items = () => list.children(".reorder-element");
-    const order = () => items().map((_, item) => item.id).get();
+    const undoLast = document.getElementById("undo-last");
+    const undoLastInactive = document.getElementById("undo-last-inact");
+    const undoAll = document.getElementById("undo-all");
+    const undoAllInactive = document.getElementById("undo-all-inact");
+    const lastMoveArray = document.getElementById("lastMoveArray");
+
+    const items = () => Array.from(list.querySelectorAll(":scope > .reorder-element"));
+    const order = () => items().map(item => item.id);
     const restore = itemOrder => {
       itemOrder.forEach(id => list.append(document.getElementById(id)));
     };
@@ -17,85 +22,107 @@
     let previousOrder = initialOrder;
 
     const updateOrder = movedItem => {
-      items().each((index, item) => {
-        $(item).find("input[id^='index'], input[id^='holder']").val(index + 1).attr("value", index + 1);
+      items().forEach((item, index) => {
+        const position = index + 1;
+        item.querySelectorAll("input[id^='index'], input[id^='holder']").forEach(input => {
+          input.value = position;
+          input.setAttribute("value", position);
+        });
       });
 
-      $("#lastItemMoved").text(movedItem.attr("id"));
-      $("#undo-last").show();
-      $("#undo-last-inact").hide();
-      $("#undo-all").show();
-      $("#undo-all-inact").hide();
+      document.getElementById("lastItemMoved").textContent = movedItem.id;
+      undoLast.style.display = "";
+      undoLastInactive.style.display = "none";
+      undoAll.style.display = "";
+      undoAllInactive.style.display = "none";
     };
 
     const savePreviousOrder = () => {
       previousOrder = order();
-      $("#lastMoveArray").text(previousOrder.join(" "));
+      lastMoveArray.textContent = previousOrder.join(" ");
     };
 
-    $("#lastMoveArrayInit").text(initialOrder.join(" "));
-    $("#lastMoveArray").text(initialOrder.join(" "));
+    document.getElementById("lastMoveArrayInit").textContent = initialOrder.join(" ");
+    lastMoveArray.textContent = initialOrder.join(" ");
 
-    list.sortable({
+    $(list).sortable({
       axis: "y",
       items: "> .reorder-element",
       handle: ".grabHandle",
       cancel: "input,textarea,select,option",
       start: savePreviousOrder,
-      update: (_, ui) => updateOrder(ui.item),
+      update: (_, ui) => updateOrder(ui.item[0]),
     });
 
-    list.on("change", "input[id^='index']", function () {
-      const newPosition = Number.parseInt(this.value, 10);
+    list.addEventListener("change", event => {
+      const input = event.target.closest("input[id^='index']");
+      if (!input || !list.contains(input)) {
+        return;
+      }
+
+      const newPosition = Number.parseInt(input.value, 10);
       const reorderItems = items();
 
       if (!Number.isInteger(newPosition) || newPosition < 1 || newPosition > reorderItems.length) {
-        this.value = $(this).closest(".reorder-element").index() + 1;
+        input.value = reorderItems.indexOf(input.closest(".reorder-element")) + 1;
         return;
       }
 
       savePreviousOrder();
-      const movedItem = $(this).closest(".reorder-element");
-      const currentPosition = movedItem.index() + 1;
+      const movedItem = input.closest(".reorder-element");
+      const currentPosition = reorderItems.indexOf(movedItem) + 1;
       if (newPosition > currentPosition) {
-        movedItem.insertAfter(reorderItems.eq(newPosition - 1));
+        reorderItems[newPosition - 1].after(movedItem);
       } else {
-        movedItem.insertBefore(reorderItems.eq(newPosition - 1));
+        reorderItems[newPosition - 1].before(movedItem);
       }
       updateOrder(movedItem);
     });
 
-    list.on("keydown", ".reorder-element", function (event) {
-      if ($(event.target).is(":input")) {
+    list.addEventListener("keydown", event => {
+      if (event.target.matches("input,textarea,select,option")) {
         return;
       }
 
-      const movedItem = $(this);
-      if (event.key.toLowerCase() === "u" && movedItem.prev(".reorder-element").length) {
+      const movedItem = event.target.closest(".reorder-element");
+      if (!movedItem) {
+        return;
+      }
+
+      const previousItem = movedItem.previousElementSibling;
+      const nextItem = movedItem.nextElementSibling;
+      if (event.key.toLowerCase() === "u" && previousItem && previousItem.classList.contains("reorder-element")) {
         savePreviousOrder();
-        movedItem.insertBefore(movedItem.prev(".reorder-element"));
-      } else if (event.key.toLowerCase() === "d" && movedItem.next(".reorder-element").length) {
+        previousItem.before(movedItem);
+      } else if (event.key.toLowerCase() === "d" && nextItem && nextItem.classList.contains("reorder-element")) {
         savePreviousOrder();
-        movedItem.insertAfter(movedItem.next(".reorder-element"));
+        nextItem.after(movedItem);
       } else {
         return;
       }
 
       event.preventDefault();
       updateOrder(movedItem);
-      movedItem.trigger("focus");
+      movedItem.focus();
     });
 
-    $("#undo-last").on("click", event => {
+    undoLast.addEventListener("click", event => {
       event.preventDefault();
       restore(previousOrder);
-      updateOrder(items().first());
+      updateOrder(items()[0]);
     });
 
-    $("#undo-all").on("click", event => {
+    undoAll.addEventListener("click", event => {
       event.preventDefault();
       restore(initialOrder);
-      updateOrder(items().first());
+      updateOrder(items()[0]);
     });
-  });
+
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialise);
+  } else {
+    initialise();
+  }
 }(jQuery));
