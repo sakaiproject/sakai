@@ -100,15 +100,6 @@ public class EntityActionsManager {
         // now process the return into the request or response as needed
         if (actionReturn != null) {
             if (actionReturn.output != null || actionReturn.outputString != null) {
-                if (actionReturn.output == null) {
-                    // write the string into the response outputstream
-                    try {
-                        outputStream.write( actionReturn.outputString.getBytes() );
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed encoding for outputstring: " + actionReturn.outputString);
-                    }
-                    actionReturn.output = outputStream;
-                }
                 // now set the encoding, mimetype into the response
                 actionReturn.format = entityView.getExtension();
                 if (actionReturn.encoding == null || actionReturn.mimeType == null) {
@@ -121,7 +112,18 @@ public class EntityActionsManager {
                     response.setCharacterEncoding(actionReturn.encoding);
                     response.setContentType(actionReturn.mimeType);
                 }
+
+                if (actionReturn.output == null) {
+                    // write the string into the response outputstream
+                    try {
+                        outputStream.write(actionReturn.outputString.getBytes());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed encoding for outputstring: " + actionReturn.outputString);
+                    }
+                    actionReturn.output = outputStream;
+                }
             }
+
             // also sets the response code when handling the action
             if (actionReturn.responseCode > 0) {
                 response.setStatus(actionReturn.responseCode);
