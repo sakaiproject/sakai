@@ -148,9 +148,10 @@ class AnnouncementTest extends SakaiUiTestBase {
             submitAnnouncementForm();
         }
 
-        returnToAnnouncementsList();
         ensureViewAll();
-        page.locator("#selectPageSize").first().selectOption("10");
+        Locator pageSizeSelect = page.locator("select[id^=\"selectPageSize\"]").first();
+        assertThat(pageSizeSelect).isVisible();
+        pageSizeSelect.selectOption("10");
         page.waitForLoadState();
 
         Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
@@ -173,7 +174,7 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         assertAnnouncementOrder(titlePrefix, 1, 10);
 
-        page.locator("form[name=\"nextpageForm\"] input[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
+        page.locator("input[name=\"eventSubmit_doList_next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
         assertAnnouncementOrder(titlePrefix, 11, 20);
     }
@@ -221,12 +222,6 @@ class AnnouncementTest extends SakaiUiTestBase {
         if (firstTitlePosition >= secondTitlePosition) {
             fail("Expected announcement " + firstTitle + " to precede " + secondTitle + ".");
         }
-    }
-
-    private void returnToAnnouncementsList() {
-        String separator = page.url().contains("?") ? "&" : "?";
-        page.navigate(page.url() + separator + "sakai_action=doCancel");
-        page.waitForLoadState();
     }
 
     private void fillAnnouncementBody(String html) {
