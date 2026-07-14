@@ -3586,14 +3586,31 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			context.put("contentTitle", (String) job.get("title"));
 			context.put("toolTitle", (String) job.get("tool_title"));
 			// CI / DL use "text" for the description; sanitize before returning to Assignments
-			String contentDescription = sanitizeLtiDescription(getString(job, ContentItem.TEXT));
+			String contentDescription = applySanitizedDescriptionToJob(job,
+					sanitizeLtiDescription(getString(job, ContentItem.TEXT)));
 			if ( contentDescription != null ) {
-				job.put(ContentItem.TEXT, contentDescription);
 				context.put("contentDescription", contentDescription);
 			}
 		}
 
 		return "lti_assignment_return";
+	}
+
+	/**
+	 * Replace ContentItem.TEXT on a content-item job with a sanitized description.
+	 * Always removes any prior text first so unsafe HTML cannot remain on the serialized job
+	 * (which is passed to the assignment UI via returnContentItem). Puts the sanitized value
+	 * back only when non-null.
+	 *
+	 * @return the sanitized description when applied, otherwise null
+	 */
+	static String applySanitizedDescriptionToJob(JSONObject job, String sanitizedDescription) {
+		job.remove(ContentItem.TEXT);
+		if ( sanitizedDescription == null ) {
+			return null;
+		}
+		job.put(ContentItem.TEXT, sanitizedDescription);
+		return sanitizedDescription;
 	}
 
 	/**

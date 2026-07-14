@@ -585,7 +585,7 @@
                                 var $title = $("#new_assignment_title");
                                 var current = ($title.val() || "").trim();
                                 // Only prompt when replacing an existing title
-                                if ( ! current || confirm('$tlang.getString("launchContentTitle")'+" "+newTitle) ) {
+                                if ( ! current || confirm('$formattedText.escapeJsQuoted($tlang.getString("launchContentTitle"))'+" "+newTitle) ) {
                                     $title.val(newTitle);
                                 }
                             }, 500);
@@ -605,7 +605,7 @@
                                     }
                                 };
                                 // Only prompt when replacing existing instructions
-                                if ( ! currentText || confirm('$tlang.getString("launchContentDescription")') ) {
+                                if ( ! currentText || confirm('$formattedText.escapeJsQuoted($tlang.getString("launchContentDescription"))') ) {
                                     applyDescription();
                                 }
                             }, 1000);
