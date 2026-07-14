@@ -1023,9 +1023,19 @@ public class AnnouncementAction extends PagedResourceActionII
 		// Reorder must operate on every message in the list, regardless of the
 		// current page size. The submitted ordering is otherwise limited to the
 		// visible page and leaves later pages in their previous order.
-		List<AnnouncementWrapper> messages = REORDER_STATUS.equals(state.getStatus())
-				? (List<AnnouncementWrapper>) sstate.getAttribute("messages")
-				: prepPage(sstate);
+		List<AnnouncementWrapper> messages;
+		if (REORDER_STATUS.equals(state.getStatus()))
+		{
+			messages = (List<AnnouncementWrapper>) sstate.getAttribute("messages");
+			if (messages == null)
+			{
+				messages = Collections.emptyList();
+			}
+		}
+		else
+		{
+			messages = prepPage(sstate);
+		}
 		List<AnnouncementWrapper> messageList = new ArrayList<>(messages);
 		List<AnnouncementMessage> showMessagesList = new ArrayList<>();
 

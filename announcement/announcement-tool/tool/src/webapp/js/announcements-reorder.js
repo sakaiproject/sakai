@@ -11,6 +11,7 @@
     const undoAll = document.getElementById("undo-all");
     const undoAllInactive = document.getElementById("undo-all-inact");
     const lastMoveArray = document.getElementById("lastMoveArray");
+    const lastItemMoved = document.getElementById("lastItemMoved");
 
     const items = () => Array.from(list.querySelectorAll(":scope > .reorder-element"));
     const order = () => items().map(item => item.id);
@@ -22,7 +23,8 @@
     let previousOrder = initialOrder;
 
     const updateOrder = movedItem => {
-      items().forEach((item, index) => {
+      const reorderedItems = items();
+      reorderedItems.forEach((item, index) => {
         const position = index + 1;
         item.querySelectorAll("input[id^='index'], input[id^='holder']").forEach(input => {
           input.value = position;
@@ -30,7 +32,9 @@
         });
       });
 
-      document.getElementById("lastItemMoved").textContent = movedItem.id;
+      lastItemMoved.textContent = lastItemMoved.dataset.movedMessage
+        .replace("{0}", reorderedItems.indexOf(movedItem) + 1)
+        .replace("{1}", reorderedItems.length);
       undoLast.style.display = "";
       undoLastInactive.style.display = "none";
       undoAll.style.display = "";

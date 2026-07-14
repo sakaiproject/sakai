@@ -39,7 +39,7 @@
 		<span id="messageHolder" class="sak-banner-error" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
 		<span id="lastMoveArray" style="display:none"></span >
 		<span id="lastMoveArrayInit" style="display:none"></span>
-		<span id="lastItemMoved"  style="display:none"></span>
+		<span id="lastItemMoved" class="visually-hidden" aria-live="polite" aria-atomic="true" data-moved-message="$tlang.getString('reorder.moved')"></span>
 		<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 			<div id="reorder-list-sortingToolBar" class="row itemAction">
 				<div class="col-md-4 col-sm-4 col-xs-12">

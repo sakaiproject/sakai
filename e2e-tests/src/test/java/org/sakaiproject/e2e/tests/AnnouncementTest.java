@@ -179,7 +179,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     }
 
     private void assertAnnouncementOrder(String titlePrefix, int first, int last) {
-        String pageText = page.locator("table").innerText();
+        String pageText = page.locator("#announcements-list").innerText();
         int previousPosition = -1;
         for (int i = first; i <= last; i++) {
             String title = titlePrefix + String.format("%02d", i);
@@ -213,7 +213,12 @@ class AnnouncementTest extends SakaiUiTestBase {
 
     private void assertAnnouncementPrecedes(String selector, String firstTitle, String secondTitle) {
         String listText = page.locator(selector).innerText();
-        if (listText.indexOf(firstTitle) >= listText.indexOf(secondTitle)) {
+        int firstTitlePosition = listText.indexOf(firstTitle);
+        int secondTitlePosition = listText.indexOf(secondTitle);
+        if (firstTitlePosition < 0 || secondTitlePosition < 0) {
+            fail("Expected reorder list to contain " + firstTitle + " and " + secondTitle + ".");
+        }
+        if (firstTitlePosition >= secondTitlePosition) {
             fail("Expected announcement " + firstTitle + " to precede " + secondTitle + ".");
         }
     }
