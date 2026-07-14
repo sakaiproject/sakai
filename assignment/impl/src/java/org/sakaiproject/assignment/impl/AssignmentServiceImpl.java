@@ -5304,7 +5304,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
 
                     // duplicate tags
-                    if (serverConfigurationService.getBoolean("tagservice.enable.integrations", false)) {
+                    if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
                         List<Tag> associatedTags = tagService.getAssociatedTagsForItem(oAssignment.getContext(), oAssignmentId);
 
                         List<String> newTagIds = new ArrayList<>();
