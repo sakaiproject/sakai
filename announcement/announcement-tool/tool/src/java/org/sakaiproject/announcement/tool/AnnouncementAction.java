@@ -1020,15 +1020,19 @@ public class AnnouncementAction extends PagedResourceActionII
 		//SAK-21532: making one list of messages in order to allow uniform sorting
 		Vector<AnnouncementWrapper> messageList = new Vector<>();
 		Vector showMessagesList = new Vector();
+		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
-		List<AnnouncementWrapper> messages = prepPage(sstate);
+		// Reorder must operate on every message in the list, regardless of the
+		// current page size. The submitted ordering is otherwise limited to the
+		// visible page and leaves later pages in their previous order.
+		List<AnnouncementWrapper> messages = REORDER_STATUS.equals(state.getStatus())
+				? (List<AnnouncementWrapper>) sstate.getAttribute("messages")
+				: prepPage(sstate);
 		for (int i = 0; i < messages.size(); i++)
 		{
 			final AnnouncementWrapper m = messages.get(i);
 			messageList.addElement(m);
 		}
-
-		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
 		SortedIterator<AnnouncementWrapper> sortedMessageIterator;
 		//For Announcement in User's MyWorkspace, the sort order for announcement is by date SAK-22667

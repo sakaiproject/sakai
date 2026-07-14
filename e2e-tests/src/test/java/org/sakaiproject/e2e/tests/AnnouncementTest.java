@@ -16,7 +16,9 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
@@ -129,6 +131,99 @@ class AnnouncementTest extends SakaiUiTestBase {
             new LocatorAssertions.HasCountOptions().setTimeout(20_000));
     }
 
+    @Test
+    @Order(6)
+    void reorderSortsAnnouncementsBeyondTheFirstPage() {
+        String titlePrefix = "A SAK-52721 Reorder " + System.currentTimeMillis() + " ";
+
+        sakai.login("instructor1");
+        sakai.gotoPath(sakaiUrl);
+        sakai.toolClick("Announcements");
+        ensureViewAll();
+
+        for (int i = 1; i <= 20; i++) {
+            page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
+            page.locator("#subject").fill(titlePrefix + String.format("%02d", i));
+            fillAnnouncementBody("<p>SAK-52721 reorder regression announcement.</p>");
+            submitAnnouncementForm();
+        }
+
+        returnToAnnouncementsList();
+        ensureViewAll();
+        page.locator("#selectPageSize").first().selectOption("10");
+        page.waitForLoadState();
+
+        Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
+        assertThat(reorderLink).isVisible();
+        reorderLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        Locator reorderedAnnouncements = page.locator("#reorder-list li").filter(new Locator.FilterOptions().setHasText(titlePrefix));
+        assertThat(reorderedAnnouncements).hasCount(20);
+        dragAnnouncementBefore(
+            reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).locator(".grabHandle"),
+            reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "01")).first());
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
+
+        page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        assertAnnouncementOrder(titlePrefix, 1, 10);
+
+        page.locator("form[name=\"nextpageForm\"] input[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        assertAnnouncementOrder(titlePrefix, 11, 20);
+    }
+
+    private void assertAnnouncementOrder(String titlePrefix, int first, int last) {
+        String pageText = page.locator("table").innerText();
+        int previousPosition = -1;
+        for (int i = first; i <= last; i++) {
+            String title = titlePrefix + String.format("%02d", i);
+            int titlePosition = pageText.indexOf(title);
+            if (titlePosition <= previousPosition) {
+                fail("Expected announcement " + title + " to be ordered after the preceding announcement.");
+            }
+            previousPosition = titlePosition;
+        }
+    }
+
+    private void dragAnnouncementBefore(Locator source, Locator target) {
+        BoundingBox sourceBox = source.boundingBox();
+        BoundingBox targetBox = target.boundingBox();
+        if (sourceBox == null || targetBox == null) {
+            fail("Expected announcement reorder items to have bounding boxes.");
+            return;
+        }
+
+        double sourceX = sourceBox.x + sourceBox.width / 2;
+        double sourceY = sourceBox.y + sourceBox.height / 2;
+        double targetY = targetBox.y + targetBox.height / 4;
+
+        page.mouse().move(sourceX, sourceY);
+        page.mouse().down();
+        for (int step = 1; step <= 10; step++) {
+            page.mouse().move(sourceX, sourceY + (targetY - sourceY) * step / 10);
+        }
+        page.mouse().up();
+    }
+
+    private void assertAnnouncementPrecedes(String selector, String firstTitle, String secondTitle) {
+        String listText = page.locator(selector).innerText();
+        if (listText.indexOf(firstTitle) >= listText.indexOf(secondTitle)) {
+            fail("Expected announcement " + firstTitle + " to precede " + secondTitle + ".");
+        }
+    }
+
+    private void returnToAnnouncementsList() {
+        String separator = page.url().contains("?") ? "&" : "?";
+        page.navigate(page.url() + separator + "sakai_action=doCancel");
+        page.waitForLoadState();
+    }
+
     private void fillAnnouncementBody(String html) {
         String plainText = html.replaceAll("<[^>]+>", "").trim();
 
@@ -153,7 +248,12 @@ class AnnouncementTest extends SakaiUiTestBase {
     private void submitAnnouncementForm() {
         page.evaluate("() => {"
             + "const editor = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body;"
-            + "if (editor) { editor.updateElement(); }"
+            + "const textarea = document.querySelector('#body');"
+            + "if (editor) {"
+            + "const editorText = editor.getData().replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();"
+            + "if (!editorText && textarea && textarea.value.trim()) { editor.setData(textarea.value); }"
+            + "editor.updateElement();"
+            + "}"
             + "}");
         assertBodyPopulated();
 
@@ -188,11 +288,10 @@ class AnnouncementTest extends SakaiUiTestBase {
             + "if (editor) {"
             + "const text = editor.getData().replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();"
             + "if (text.length > 0) { return true; }"
-            + "editor.updateElement();"
             + "}"
             + "const textarea = document.querySelector('#body');"
             + "if (!textarea) { return false; }"
-            + "return textarea.value && textarea.value.trim().length > 0;"
+            + "return Boolean(textarea.value && textarea.value.trim().length > 0);"
             + "}");
 
         if (!Boolean.TRUE.equals(hasBody)) {

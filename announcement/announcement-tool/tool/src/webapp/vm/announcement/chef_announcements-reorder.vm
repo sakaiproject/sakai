@@ -1,3 +1,4 @@
+<script>includeLatestJQuery('announcements reorder');</script>
 <div class="portletBody container-fluid">
 	#if($menu && $EnabledMenuItemExists)
 			#toolbar($menu)
@@ -104,10 +105,9 @@
 					#set($ann_item_props=$ann_item.getProperties())
 					<li class="row reorder-element grab_cursor" id="listitem.orderable$count" tabindex="0" onmouseup="grab(this)" onmousedown="grabbing(this);">
 						<span class="title col-md-4 col-sm-4 col-xs-12">
-							<span class="grabHandle">
-								<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
-								<input type="hidden" size="3" id="holder$count"  value="$count"/>
-							</span>	
+							<span class="grabHandle" aria-hidden="true"><span class="si si-drag-handle"></span></span>
+							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
+							<input type="hidden" size="3" id="holder$count"  value="$count"/>
 							<span>$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))</span>
 						</span>
 						<span class="author col-md-2 col-sm-2 col-xs-12">
@@ -172,3 +172,4 @@
 	}
 
 </script>
+<script src="/sakai-announcement-tool/js/announcements-reorder.js$!{portalCdnQuery}"></script>
