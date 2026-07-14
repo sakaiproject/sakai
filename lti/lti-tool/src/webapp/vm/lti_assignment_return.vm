@@ -18,6 +18,9 @@ window.parent.$("#returnContentLaunchNewWindow").val($contentLaunchNewWindow);
 window.parent.$("#returnContentToolNewpage").val($contentToolNewpage);
 #end
 window.parent.returnContentTitle("$formattedText.escapeHtml($contentTitle)");
+#if ( $contentDescription )
+window.parent.returnContentDescription("$formattedText.escapeJsQuoted($contentDescription)");
+#end
 // This is a tweaked SakaiLineItem that compensated for the CI / DL differences
 #if ($new_content)
 window.parent.returnContentItem($new_content);

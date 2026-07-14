@@ -580,11 +580,35 @@
                             }
                         };
                         window.returnContentTitle = function (newTitle) {
+                            if ( ! newTitle ) return;
                             setTimeout(function(){
-                                if ( confirm('$tlang.getString("launchContentTitle")'+" "+newTitle) ) {
-                                    $("#new_assignment_title").val(newTitle);
+                                var $title = $("#new_assignment_title");
+                                var current = ($title.val() || "").trim();
+                                // Only prompt when replacing an existing title
+                                if ( ! current || confirm('$formattedText.escapeJsQuoted($tlang.getString("launchContentTitle"))'+" "+newTitle) ) {
+                                    $title.val(newTitle);
                                 }
                             }, 500);
+                        };
+                        window.returnContentDescription = function (newDescription) {
+                            if ( ! newDescription ) return;
+                            // Run after the title prompt so confirms are not simultaneous
+                            setTimeout(function(){
+                                var editor = (typeof CKEDITOR !== 'undefined') ? CKEDITOR.instances['$name_Description'] : null;
+                                var currentHtml = editor ? editor.getData() : ($("#$name_Description").val() || "");
+                                var currentText = currentHtml.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim();
+                                var applyDescription = function () {
+                                    if ( editor ) {
+                                        editor.setData(newDescription);
+                                    } else {
+                                        $("#$name_Description").val(newDescription);
+                                    }
+                                };
+                                // Only prompt when replacing existing instructions
+                                if ( ! currentText || confirm('$formattedText.escapeJsQuoted($tlang.getString("launchContentDescription"))') ) {
+                                    applyDescription();
+                                }
+                            }, 1000);
                         };
                     </script>
 			</div>
