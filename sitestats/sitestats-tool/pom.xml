@@ -163,6 +163,7 @@
             <exclude>**/**/*.min.js</exclude>
             <exclude>**/**/*.pack.js</exclude>
             <exclude>**/sitestats-tool.js</exclude>
+            <exclude>**/sitestats-report-editor.js</exclude>
           </excludes>
         </configuration>
       </plugin>

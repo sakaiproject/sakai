@@ -1,4 +1,58 @@
 .#{$namespace}sakai-sitestats{
+  .sitestats-widgets {
+    display: grid;
+    gap: $standard-spacing;
+  }
+
+  .sitestats-widget {
+    border: 1px solid var(--sakai-border-color);
+    border-radius: $button-radius;
+    overflow: hidden;
+  }
+
+  .sitestats-widget-title {
+    margin: 0;
+    padding: $standard-space-3x $standard-spacing;
+  }
+
+  .sitestats-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    margin: 0;
+    background: var(--sakai-background-color-2);
+    border-block: 1px solid var(--sakai-border-color);
+  }
+
+  .sitestats-metric {
+    min-width: 0;
+    padding: $standard-space-2x $standard-spacing;
+
+    dt {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+
+  .sitestats-metric-primary {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .sitestats-metric-percentage {
+    margin-inline-start: $standard-space;
+    color: var(--sakai-text-color-dimmed);
+  }
+
+  .sitestats-widget-tab {
+    + .sitestats-widget-tab {
+      border-block-start: 1px solid var(--sakai-border-color);
+    }
+  }
+
+  .sitestats-activity-definition:has(#all-tools:checked) #activity-event-options {
+    display: none;
+  }
+
   /* Pagination navigation styling */
   .sakai-navigator {
     a.first,

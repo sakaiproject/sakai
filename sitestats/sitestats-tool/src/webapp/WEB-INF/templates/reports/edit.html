@@ -5,7 +5,7 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('reports')}"></div>
   <div th:replace="~{fragments/common :: messages}"></div>
-  <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? #{sitestats_report_edit} : #{sitestats_report_add}">Edit report</h1>
+  <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? #{report_edit} : #{report_new}">Edit report</h1>
 
   <div class="sak-banner-error mb-3" role="alert" th:if="${#lists.isEmpty(editorOptions.availableReportTypes)}">
     <span th:text="#{sitestats_report_types_empty}">No report types are available for this site.</span>
@@ -321,7 +321,7 @@
       </div>
       <div class="form-check">
         <input id="report-hidden" class="form-check-input" type="checkbox" th:field="*{hidden}"/>
-        <label class="form-check-label" for="report-hidden" th:text="#{sitestats_report_hide}">
+        <label class="form-check-label" for="report-hidden" th:text="#{report_hide}">
           Hide this report from the normal report list
         </label>
       </div>

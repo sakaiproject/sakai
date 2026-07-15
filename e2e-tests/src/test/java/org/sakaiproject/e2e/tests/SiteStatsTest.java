@@ -53,10 +53,27 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Statistics");
 
-        Locator reportPanel = page.locator("sakai-sitestats-report-panel:visible").first();
+        Locator percentages = page.locator(".sitestats-metric-percentage");
+        assertTrue(percentages.count() > 0);
+        assertThat(percentages.first()).containsText("%");
+
+        Locator widgetTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/bydate']");
+        assertThat(widgetTab).hasCount(1);
+        assertTrue(widgetTab.getAttribute("open") != null);
+        widgetTab.getByLabel("Period:").selectOption("when-all");
+
+        Locator reportPanel = widgetTab.locator("sakai-sitestats-report-panel");
         assertThat(reportPanel).isVisible();
-        assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/widgets/.*/tabs/.*"));
-        assertThat(page.locator("sakai-sitestats-report-panel:visible sakai-sitestats-table table").first()).isVisible();
+        String reportEndpoint = (String) reportPanel.evaluate("panel => panel.endpoint");
+        assertTrue(Pattern.compile("/api/sites/.*/sitestats/widgets/.*/tabs/.*date=when-all")
+            .matcher(reportEndpoint).find());
+        Locator table = reportPanel.locator("sakai-sitestats-table table");
+        assertThat(table).isVisible();
+        assertTrue(table.locator("tbody tr").count() > 0);
+        assertThat(reportPanel.locator("sakai-sitestats-chart canvas")).isVisible();
+        page.waitForFunction(siteStatsCanvasHasPixelsScript());
+        assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
         assertNoLegacyReportChartImages();
     }
 
@@ -72,7 +89,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             .click(new Locator.ClickOptions().setForce(true));
 
         Locator addReportLink = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Add report$", Pattern.CASE_INSENSITIVE))).first();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).first();
         addReportLink.click(new Locator.ClickOptions().setForce(true));
 
         Locator activity = page.getByLabel("Activity:");
@@ -137,13 +154,14 @@ class SiteStatsTest extends SakaiUiTestBase {
     void savesEditsCopiesExportsAndDeletesReport() {
         openReportsAsInstructor();
         page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Add report$", Pattern.CASE_INSENSITIVE))).click();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
         page.getByLabel("Title").fill(SAVED_REPORT_TITLE);
         page.getByLabel("Description").fill(REPORT_DESC);
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
 
-        assertThat(page.getByText("The report was saved.")).isVisible();
+        assertThat(page.getByText(Pattern.compile(
+            "Report '" + Pattern.quote(SAVED_REPORT_TITLE) + "' saved successfully"))).isVisible();
         assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(SAVED_REPORT_TITLE))).isVisible();
         Download csv = page.waitForDownload(() -> page.getByRole(AriaRole.LINK,
@@ -151,31 +169,31 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertTrue(csv.suggestedFilename().endsWith(".csv"));
 
         page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Back to reports", Pattern.CASE_INSENSITIVE))).click();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
         Locator savedRow = page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(SAVED_REPORT_TITLE));
         savedRow.getByRole(AriaRole.LINK,
-            new Locator.GetByRoleOptions().setName(Pattern.compile("Edit report", Pattern.CASE_INSENSITIVE))).click();
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^Edit$", Pattern.CASE_INSENSITIVE))).click();
         page.getByLabel("Title").fill(SAVED_REPORT_TITLE + " Edited");
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
         page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Back to reports", Pattern.CASE_INSENSITIVE))).click();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
 
         Locator editedRow = page.getByRole(AriaRole.ROW)
             .filter(new Locator.FilterOptions().setHasText(SAVED_REPORT_TITLE + " Edited"));
         editedRow.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName(Pattern.compile("Copy report", Pattern.CASE_INSENSITIVE))).click();
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^Duplicate$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.getByText("The report was copied.")).isVisible();
         page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Back to reports", Pattern.CASE_INSENSITIVE))).click();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
 
         Locator deleteButtons = page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Delete report", Pattern.CASE_INSENSITIVE)));
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Delete$", Pattern.CASE_INSENSITIVE)));
         assertThat(deleteButtons).hasCount(2);
         deleteButtons.first().click();
         page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Delete report", Pattern.CASE_INSENSITIVE))).click();
-        assertThat(page.getByText("No reports are available.")).isVisible();
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Delete$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByText("No reports defined.")).isVisible();
     }
 
     @Test
@@ -193,9 +211,17 @@ class SiteStatsTest extends SakaiUiTestBase {
         for (int index = 0; index < preferenceTools.count(); index++) {
             assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));
         }
+        Locator allTools = page.locator("#all-tools");
+        Locator activityEventOptions = page.locator("#activity-event-options");
+        allTools.check();
+        assertThat(activityEventOptions).isHidden();
+        allTools.uncheck();
+        assertThat(activityEventOptions).isVisible();
+        allTools.check();
+        assertThat(activityEventOptions).isHidden();
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
-        assertThat(page.getByText("The preferences were saved.")).isVisible();
+        assertThat(page.getByText("Preferences updated successfully.")).isVisible();
 
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^User Activity$", Pattern.CASE_INSENSITIVE))).click();

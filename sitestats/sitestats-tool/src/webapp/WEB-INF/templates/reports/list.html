@@ -7,21 +7,21 @@
   <div th:replace="~{fragments/common :: messages}"></div>
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
     <h1 class="h3 mb-0" th:text="#{menu_reports}">Reports</h1>
-    <a class="btn btn-primary" th:href="@{/reports/new(siteId=${siteId})}" th:text="#{sitestats_report_add}">Add report</a>
+    <a class="btn btn-primary" th:href="@{/reports/new(siteId=${siteId})}" th:text="#{report_new}">Add report</a>
   </div>
-  <div th:if="${#lists.isEmpty(reports)}" class="sak-banner-info" role="status" th:text="#{sitestats_report_empty}">No reports are available.</div>
+  <div th:if="${#lists.isEmpty(reports)}" class="sak-banner-info" role="status" th:text="#{report_noreports}">No reports are available.</div>
   <div class="table-responsive" th:if="${!#lists.isEmpty(reports)}">
     <table class="table table-striped align-middle">
       <caption class="visually-hidden" th:text="#{sitestats_reports_caption}">Saved and predefined SiteStats reports</caption>
-      <thead><tr><th scope="col" th:text="#{th_title}">Title</th><th scope="col" th:text="#{report_reportdescription}">Description</th><th scope="col" th:text="#{sitestats_actions}">Actions</th></tr></thead>
+      <thead><tr><th scope="col" th:text="#{th_title}">Title</th><th scope="col" th:text="#{report_reportdescription}">Description</th><th scope="col" th:text="#{th_action}">Actions</th></tr></thead>
       <tbody>
       <tr th:each="report : ${reports}">
         <td><a th:href="@{/reports/{id}(id=${report.id},siteId=${siteId})}" th:text="${report.title}">Report</a></td>
         <td th:text="${report.description}"></td>
         <td><div class="d-flex flex-wrap gap-2">
-          <a class="btn btn-outline-secondary btn-sm" th:if="${report.siteId != null}" th:href="@{/reports/{id}/edit(id=${report.id},siteId=${siteId})}" th:text="#{sitestats_report_edit}">Edit report</a>
-          <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-secondary btn-sm" type="submit" th:text="#{sitestats_report_copy}">Copy report</button></form>
-          <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-danger btn-sm" type="submit" th:text="#{sitestats_report_delete}">Delete report</button></form>
+          <a class="btn btn-outline-secondary btn-sm" th:if="${report.siteId != null}" th:href="@{/reports/{id}/edit(id=${report.id},siteId=${siteId})}" th:text="#{report_edit}">Edit report</a>
+          <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-secondary btn-sm" type="submit" th:text="#{report_duplicate}">Copy report</button></form>
+          <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-danger btn-sm" type="submit" th:text="#{report_delete}">Delete report</button></form>
         </div></td>
       </tr>
       </tbody>

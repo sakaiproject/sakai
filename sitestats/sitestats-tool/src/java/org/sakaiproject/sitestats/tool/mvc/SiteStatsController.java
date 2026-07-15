@@ -102,7 +102,7 @@ public class SiteStatsController {
             return "redirect:/reports/preview/" + previewId + "?siteId=" + authorizedSiteId;
         }
         long reportId = toolService.saveReport(authorizedSiteId, reportForm);
-        redirectAttributes.addFlashAttribute("success", message("sitestats_report_saved"));
+        redirectAttributes.addFlashAttribute("success", message("report_save_success", reportForm.getTitle()));
         return "redirect:/reports/" + reportId + "?siteId=" + authorizedSiteId;
     }
 
@@ -110,7 +110,7 @@ public class SiteStatsController {
     public String copyReport(@PathVariable long reportId, @RequestParam(required = false) String siteId,
             RedirectAttributes redirectAttributes) {
         CopiedReport copiedReport = toolService.copyReport(siteId, reportId);
-        redirectAttributes.addFlashAttribute("success", message("sitestats_report_copied"));
+        redirectAttributes.addFlashAttribute("success", message("report_copy_success"));
         return "redirect:/reports/" + copiedReport.getReportId() + "?siteId=" + copiedReport.getSiteId();
     }
 
@@ -119,7 +119,7 @@ public class SiteStatsController {
             RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.reportSite(siteId);
         toolService.deleteReport(authorizedSiteId, reportId);
-        redirectAttributes.addFlashAttribute("success", message("sitestats_report_deleted"));
+        redirectAttributes.addFlashAttribute("success", message("report_delete_success"));
         return "redirect:/reports?siteId=" + authorizedSiteId;
     }
 
@@ -176,7 +176,7 @@ public class SiteStatsController {
             @ModelAttribute PreferencesForm preferencesForm, RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.viewSite(siteId);
         toolService.savePreferences(authorizedSiteId, preferencesForm);
-        redirectAttributes.addFlashAttribute("success", message("sitestats_preferences_saved"));
+        redirectAttributes.addFlashAttribute("success", message("prefs_updated"));
         return "redirect:/preferences?siteId=" + authorizedSiteId;
     }
 
@@ -268,7 +268,7 @@ public class SiteStatsController {
         return new ResponseEntity<byte[]>(exportResult.getBody(), headers, HttpStatus.OK);
     }
 
-    private String message(String code) {
-        return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
+    private String message(String code, Object... arguments) {
+        return messageSource.getMessage(code, arguments, code, LocaleContextHolder.getLocale());
     }
 }
