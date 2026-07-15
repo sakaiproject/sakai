@@ -72,6 +72,7 @@ import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -412,7 +413,7 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
 
     @Test
     public void testTransferCopyEntitiesWithTagIntegration() throws Exception {
-        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", false)).thenReturn(true);
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
 
         String fromContext = UUID.randomUUID().toString();
         String toContext = UUID.randomUUID().toString();
