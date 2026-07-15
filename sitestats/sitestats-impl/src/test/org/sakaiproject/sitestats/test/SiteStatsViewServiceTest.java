@@ -136,6 +136,9 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertNotNull(view.getChart());
 		assertEquals(WIDGET_VISITS, view.getWidgetId());
 		assertEquals(TAB_BY_DATE, view.getTabId());
+		assertEquals("overview_title_visits", view.getTitle());
+		assertEquals(view.getTitle(), view.getChart().getTitle());
+		assertEquals(view.getTitle(), view.getTable().getCaption());
 	}
 
 	@Test
