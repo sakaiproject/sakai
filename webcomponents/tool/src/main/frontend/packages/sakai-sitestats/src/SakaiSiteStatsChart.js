@@ -27,6 +27,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     css`
       :host {
         display: block;
+        min-inline-size: 0;
         --sakai-sitestats-chart-text-color: var(--sakai-text-color-1, #1f2937);
         --sakai-sitestats-chart-muted-text-color: var(--sakai-text-color-dimmed, var(--sakai-text-color-2, #5f6773));
         --sakai-sitestats-chart-border-color: var(--sakai-border-color, #d8dde6);

@@ -17,6 +17,7 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
     css`
       :host {
         display: block;
+        min-inline-size: 0;
       }
 
       .table-wrap {
