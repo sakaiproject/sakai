@@ -160,8 +160,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
 
-        assertThat(page.getByText(Pattern.compile(
-            "Report '" + Pattern.quote(SAVED_REPORT_TITLE) + "' saved successfully"))).isVisible();
+        assertThat(page.getByRole(AriaRole.STATUS)).containsText(
+            "Report '" + SAVED_REPORT_TITLE + "' saved successfully");
         assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(SAVED_REPORT_TITLE))).isVisible();
         Download csv = page.waitForDownload(() -> page.getByRole(AriaRole.LINK,
@@ -286,7 +286,14 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     private String siteStatsCanvasHasPixelsScript() {
         return "() => {"
-            + " const panels = Array.from(document.querySelectorAll('sakai-sitestats-report-panel'));"
+            + " const panels = [];"
+            + " const collectPanels = root => {"
+            + "   panels.push(...root.querySelectorAll('sakai-sitestats-report-panel'));"
+            + "   for (const element of root.querySelectorAll('*')) {"
+            + "     if (element.shadowRoot) { collectPanels(element.shadowRoot); }"
+            + "   }"
+            + " };"
+            + " collectPanels(document);"
             + " for (const panel of panels) {"
             + "   const chart = panel.shadowRoot && panel.shadowRoot.querySelector('sakai-sitestats-chart');"
             + "   const canvas = chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');"
