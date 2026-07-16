@@ -43,6 +43,10 @@
         <span th:text="#{success.message}">The dates were updated successfully.</span>
       </div>
 
+      <div class="sak-banner-info d-none" id="dm-cancel-banner" aria-live="polite">
+        <span th:text="#{cancel.reverted}">All unsaved changes were discarded — dates are back to their last saved values.</span>
+      </div>
+
       <div class="sak-banner-info d-none" id="export-success">
         <span th:text="#{success.export}">The dates were exported successfully. Please note the following considerations:</span>
         <ul class="m-0">
@@ -581,6 +585,8 @@
           };
 
           DTMN.initDatePicker(updates, notModified);
+          DTMN.initUnsavedGuard();
+          DTMN.initCancelRevert();
           DTMN.initBulkModeRadios();
           DTMN.initScopePicker();
           DTMN.initShifter(updates, notModified);
@@ -615,6 +621,7 @@
             $('#form-success').removeClass('d-none').css('display', '');
             $('#export-success').addClass('d-none').css('display', '');
             $('#form-errors').addClass('d-none');
+            $('#dm-apply-feedback').addClass('d-none');
             $('.ajax-error').removeClass('ajax-error');
             $('.errors').each(function(idx, elt) {
               $(elt).text('');
@@ -707,10 +714,6 @@
             });
           }
 
-          $('#datemanager-cancel').click(function(e) {
-            e.preventDefault;
-            window.location = window.location.href.replace('/sakai.datemanager.helper', '');
-          });
 
           
           $('#exportDates').click(function(e) {

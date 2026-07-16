@@ -169,6 +169,56 @@ DTMN.showApplyFeedback = function(kind, stats) {
   banner.classList.remove("d-none");
 };
 
+// ----- Unsaved-changes guard: staged edits live only in the page until Save Changes -----
+
+// The save button is enabled exactly while edits are staged and disabled again once they
+// are saved, so it doubles as the pending-changes flag.
+DTMN.hasUnsavedChanges = function() {
+  const saveButton = document.getElementById("submit-form-button");
+  return saveButton !== null && !saveButton.disabled;
+};
+
+// Prompts the browser-native "leave site?" dialog on any navigation away while changes are
+// staged. The Cancel flow is exempt (it sets the suppress flag): clicking Cancel is already
+// an explicit discard, so it should not be second-guessed.
+DTMN.initUnsavedGuard = function() {
+  window.addEventListener("beforeunload", function(e) {
+    if (!DTMN.suppressUnsavedGuard && DTMN.hasUnsavedChanges()) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+};
+
+// Cancel discards staged edits by reloading the tool from saved state — the page stays in
+// Date Manager rather than bouncing back to Site Info. A sessionStorage flag survives the
+// reload so the fresh page can briefly confirm that the changes were discarded.
+DTMN.initCancelRevert = function() {
+  const cancelButton = document.getElementById("datemanager-cancel");
+  cancelButton && cancelButton.addEventListener("click", function(e) {
+    e.preventDefault();
+    DTMN.suppressUnsavedGuard = true;
+    if (DTMN.hasUnsavedChanges()) {
+      try { window.sessionStorage.setItem("dm-cancel-reverted", "1"); } catch (err) { /* storage unavailable */ }
+    }
+    window.location.reload();
+  }, false);
+
+  let reverted = false;
+  try {
+    reverted = window.sessionStorage.getItem("dm-cancel-reverted") === "1";
+    window.sessionStorage.removeItem("dm-cancel-reverted");
+  } catch (err) { /* storage unavailable */ }
+
+  if (reverted) {
+    const banner = document.getElementById("dm-cancel-banner");
+    if (banner) {
+      banner.classList.remove("d-none");
+      window.setTimeout(function() { $(banner).fadeOut(400); }, 4000);
+    }
+  }
+};
+
 // Section elements for the tools ticked in the scope row. Falls back to every section when the
 // scope row is absent so the apply paths keep working without it.
 DTMN.getScopedSections = function() {

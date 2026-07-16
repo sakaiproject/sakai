@@ -72,6 +72,14 @@
 			}
 		}
 
+		// The calendar preview: point FullCalendar's own theming variables at the theme
+		// tokens so its sticky day-name header and neutral surfaces follow light/dark.
+		#datemanager-calendar {
+			--fc-page-bg-color: var(--sakai-background-color-1);
+			--fc-neutral-bg-color: var(--sakai-background-color-2);
+			--fc-border-color: var(--sakai-border-color);
+		}
+
 		.table-datemanager {
 			margin-bottom: 0;
 			table-layout: fixed;
