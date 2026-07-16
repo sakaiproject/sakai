@@ -130,14 +130,16 @@
       </div>
       <div class="row g-2 align-items-end">
         <div class="col-auto">
-          <label class="form-label mb-1 d-block" for="date-fit-first" th:text="#{datefit.first.label}">New first date</label>
+          <label class="form-label mb-1 d-block" for="date-fit-first" th:text="#{datefit.first.label}">Move earliest dated item to</label>
           <input type="text" class="form-control form-control-sm" id="date-fit-first" th:attr="aria-label=#{datefit.first.label}" />
           <input type="hidden" id="date-fit-first-hidden" />
+          <div><small id="dm-fit-anchor-first" aria-live="polite" th:attr="data-template=#{datefit.anchor.current},data-none=#{datefit.anchor.none}"></small></div>
         </div>
         <div class="col-auto">
-          <label class="form-label mb-1 d-block" for="date-fit-last" th:text="#{datefit.last.label}">New last date</label>
+          <label class="form-label mb-1 d-block" for="date-fit-last" th:text="#{datefit.last.label}">Move latest dated item to</label>
           <input type="text" class="form-control form-control-sm" id="date-fit-last" th:attr="aria-label=#{datefit.last.label}" />
           <input type="hidden" id="date-fit-last-hidden" />
+          <div><small id="dm-fit-anchor-last" aria-live="polite" th:attr="data-template=#{datefit.anchor.current},data-none=#{datefit.anchor.none}"></small></div>
         </div>
         <div class="col-auto">
           <label class="mb-1">
@@ -267,44 +269,44 @@
     <!-- Which tool sections the active method's Apply acts on: explicit, visible scoping in
          place of the old "tools expanded below" behaviour. Only tools present on the page render. -->
     <div class="dm-scope mt-3 mb-2">
-      <span class="fw-bold me-2" th:text="#{bulk.scope.label}">Apply to:</span>
-      <label class="me-3">
+      <span class="fw-bold d-block mb-1" th:text="#{bulk.scope.label}">Apply to:</span>
+      <label class="d-block">
         <input type="checkbox" id="dm-scope-all" checked />
         <span th:text="#{bulk.scope.all}" th:remove="tag">All tools</span>
       </label>
-      <label class="me-3" th:if="${assignments != null}">
+      <label class="d-block ms-3" th:if="${assignments != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-assignments" checked />
         <span th:text="${assignmentsToolTitle + ' (' + #lists.size(assignments) + ')'}" th:remove="tag">Assignments</span>
       </label>
-      <label class="me-3" th:if="${assessments != null}">
+      <label class="d-block ms-3" th:if="${assessments != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-assessments" checked />
         <span th:text="${assessmentsToolTitle + ' (' + #lists.size(assessments) + ')'}" th:remove="tag">Tests &amp; Quizzes</span>
       </label>
-      <label class="me-3" th:if="${signupMeetings != null}">
+      <label class="d-block ms-3" th:if="${signupMeetings != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-signup" checked />
         <span th:text="${signupMeetingsToolTitle + ' (' + #lists.size(signupMeetings) + ')'}" th:remove="tag">Sign up</span>
       </label>
-      <label class="me-3" th:if="${gradebookItems != null}">
+      <label class="d-block ms-3" th:if="${gradebookItems != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-gradebook" checked />
         <span th:text="${gradebookItemsToolTitle + ' (' + #lists.size(gradebookItems) + ')'}" th:remove="tag">Gradebook</span>
       </label>
-      <label class="me-3" th:if="${resources != null}">
+      <label class="d-block ms-3" th:if="${resources != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-resources" checked />
         <span th:text="${resourcesToolTitle + ' (' + #lists.size(resources) + ')'}" th:remove="tag">Resources</span>
       </label>
-      <label class="me-3" th:if="${calendarEvents != null}">
+      <label class="d-block ms-3" th:if="${calendarEvents != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-calendar" checked />
         <span th:text="${calendarEventsToolTitle + ' (' + #lists.size(calendarEvents) + ')'}" th:remove="tag">Calendar</span>
       </label>
-      <label class="me-3" th:if="${forums != null}">
+      <label class="d-block ms-3" th:if="${forums != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-forums" checked />
         <span th:text="${forumsToolTitle + ' (' + #lists.size(forums) + ')'}" th:remove="tag">Forums</span>
       </label>
-      <label class="me-3" th:if="${announcements != null}">
+      <label class="d-block ms-3" th:if="${announcements != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-announcements" checked />
         <span th:text="${announcementsToolTitle + ' (' + #lists.size(announcements) + ')'}" th:remove="tag">Announcements</span>
       </label>
-      <label class="me-3" th:if="${lessons != null}">
+      <label class="d-block ms-3" th:if="${lessons != null}">
         <input type="checkbox" class="dm-scope-tool" data-root="collapse-lessons" checked />
         <span th:text="${lessonsToolTitle + ' (' + #lists.size(lessons) + ')'}" th:remove="tag">Lessons</span>
       </label>

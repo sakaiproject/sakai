@@ -86,6 +86,7 @@ DTMN.initScopePicker = function() {
     DTMN.validateShiftInput();
     DTMN.validateFitInputs();
     DTMN.validateTermInputs();
+    DTMN.updateFitAnchorHints();
   };
 
   DTMN.scopeChecks.forEach(function(check) {
@@ -167,6 +168,9 @@ DTMN.showApplyFeedback = function(kind, stats) {
   }
 
   banner.classList.remove("d-none");
+
+  // Every apply changes dates, which can change which items are the fit anchors.
+  DTMN.updateFitAnchorHints();
 };
 
 // ----- Unsaved-changes guard: staged edits live only in the page until Save Changes -----
@@ -383,6 +387,48 @@ DTMN.initFitter = function(updates, notModified) {
   }, false);
 
   DTMN.validateFitInputs();
+  DTMN.updateFitAnchorHints();
+};
+
+// Show the current earliest/latest date under the two destination fields ("currently:
+// Thu, Apr 9, 2026") so the range being re-fitted — and the weekday the anchors hold today —
+// is visible before applying. Dates only: several items routinely tie for earliest/latest, so
+// naming one of them would be arbitrary. Recomputed when the scope changes and after every
+// apply, since both change the range.
+DTMN.updateFitAnchorHints = function() {
+  const firstHint = document.getElementById("dm-fit-anchor-first");
+  const lastHint = document.getElementById("dm-fit-anchor-last");
+  if (!firstHint || !lastHint) {
+    return;
+  }
+
+  let earliest = null;
+  let latest = null;
+  DTMN.getScopedSections().forEach(function(section) {
+    section.querySelectorAll("tbody input[type=hidden][data-tool][data-field]").forEach(function(hidden) {
+      if (!hidden.value) {
+        return;
+      }
+      const useTime = hidden.dataset.tool !== "gradebookItems";
+      const parsed = DTMN.parseInputDateValue(hidden.value, useTime);
+      if (!parsed.isValid()) {
+        return;
+      }
+      if (earliest === null || parsed.valueOf() < earliest.valueOf()) { earliest = parsed; }
+      if (latest === null || parsed.valueOf() > latest.valueOf()) { latest = parsed; }
+    });
+  });
+
+  [[firstHint, earliest], [lastHint, latest]].forEach(function(pair) {
+    const hint = pair[0];
+    const anchor = pair[1];
+    if (anchor === null) {
+      hint.textContent = hint.dataset.none || "";
+    } else {
+      const when = anchor.locale(sakai.locale.userLocale).format("ddd, ll");
+      hint.textContent = DTMN.formatTemplate(hint.dataset.template || "{0}", [when]);
+    }
+  });
 };
 
 DTMN.getFitAnchors = function() {
