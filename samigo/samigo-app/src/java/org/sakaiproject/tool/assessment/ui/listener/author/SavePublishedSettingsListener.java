@@ -968,12 +968,10 @@ implements ActionListener
 					THIS IS BECAUSE ITEMS CAN BE CREATED IN EXAMS, BUT ONLY IF WE ARE IN CASE 2, SO
 					THESE ITEMS FROM CASE 2 WILL BE DELETED */
 				try {
-					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
-					// This variable is only true then the assessment has been removed!
-					existingItemHasBeenRemoved = true;
+					// This variable is only true when the assessment has actually been removed!
+					existingItemHasBeenRemoved = gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
 				} catch (Exception e1) {
-					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-					log.info("Exception thrown in updateGB():" + e1.getMessage());
+					log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e1);
 				}
 
 				if (existingItemHasBeenRemoved) {
@@ -1101,7 +1099,7 @@ implements ActionListener
             try {
                 gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
             } catch(Exception e){
-                log.warn("No external assessment to remove: {}", e.getMessage());
+                log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e);
             }
         }
 
