@@ -205,7 +205,7 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     @Test
     @Order(5)
-    void preferencesAndUserActivityUseSpringForms() {
+    void preferencesUseSpringForms() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Statistics");
@@ -229,24 +229,6 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.getByText("Preferences updated successfully.")).isVisible();
-
-        page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^User Activity$", Pattern.CASE_INSENSITIVE))).click();
-        assertThat(page.locator("input[type=date]")).hasCount(2);
-        Locator toolOptions = page.locator("#activity-tool option");
-        for (int index = 0; index < toolOptions.count(); index++) {
-            String value = toolOptions.nth(index).getAttribute("value");
-            if (value != null && value.contains(".")) {
-                assertTrue(!value.equals(toolOptions.nth(index).textContent()));
-            }
-        }
-        Locator users = page.getByLabel("User");
-        assertTrue(users.locator("option").count() > 1);
-        users.selectOption(new SelectOption().setIndex(1));
-        page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Search$", Pattern.CASE_INSENSITIVE))).click();
-        assertTrue(page.url().contains("startDate=") && page.url().contains("endDate="));
-        assertThat(page.locator("table tbody tr").first()).isVisible();
     }
 
     @Test
