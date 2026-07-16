@@ -17,6 +17,9 @@ package org.sakaiproject.contentreview.turnitin;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +43,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -87,8 +91,31 @@ import org.w3c.dom.NodeList;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public class TurnitinReviewServiceImpl extends BaseContentReviewService {
+
+	/**
+	 * Strategy used when spoilEmailAddresses is enabled.
+	 *
+	 * RANDOM
+	 *     Existing behaviour. A new randomized email is generated on every request.
+	 *
+	 * DETERMINISTIC
+	 *     Generates a stable pseudonymized email derived from the Sakai user id.
+	 *
+	 * ORIGINAL
+	 *     Leaves the email unchanged.
+	 */
+	private enum SpoilEmailStrategy {
+		RANDOM,
+		DETERMINISTIC,
+		ORIGINAL
+	}
+
+	private static final int DETERMINISTIC_EMAIL_HASH_LENGTH = 10;
+
+	private String spoilEmailStrategy = null;
 
 	public static final String TURNITIN_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
@@ -255,6 +282,13 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		defaultClassPassword = turnitinConn.getDefaultClassPassword();
 
 		spoilEmailAddresses = serverConfigurationService.getBoolean("turnitin.spoilEmailAddresses", false);
+		spoilEmailStrategy = serverConfigurationService.getString(
+				"turnitin.spoilEmailStrategy", null);
+
+		if (spoilEmailStrategy != null) {
+			spoilEmailStrategy = spoilEmailStrategy.trim().toUpperCase(Locale.ROOT);
+		}
+
 		preferSystemProfileEmail = serverConfigurationService.getBoolean("turnitin.preferSystemProfileEmail", true);
 		preferGuestEidEmail = serverConfigurationService.getBoolean("turnitin.preferGuestEidEmail", true);
 		enrollAssistantsAsInstructors = serverConfigurationService.getBoolean("turnitin.enroll_assistants_as_instructors", false);
@@ -1866,6 +1900,24 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		log.info("Finished fetching reports from Turnitin");
 	}
 
+	private SpoilEmailStrategy getSpoilEmailStrategy() {
+		if (StringUtils.isBlank(spoilEmailStrategy)) {
+			return spoilEmailAddresses
+					? SpoilEmailStrategy.RANDOM
+					: SpoilEmailStrategy.ORIGINAL;
+		}
+
+		try {
+			return SpoilEmailStrategy.valueOf(spoilEmailStrategy.toUpperCase(Locale.ROOT));
+		}
+		catch (IllegalArgumentException e) {
+			log.warn("Unknown Turnitin spoil email strategy '{}', falling back to default", spoilEmailStrategy);
+			return spoilEmailAddresses
+					? SpoilEmailStrategy.RANDOM
+					: SpoilEmailStrategy.ORIGINAL;
+		}
+	}
+
 	// returns null if no valid email exists
 	public String getEmail(User user) {
 
@@ -1900,28 +1952,82 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			uem = account_email;
 		}
 
-		// Randomize the email address if preferred
-		if (spoilEmailAddresses && uem != null) {
-			// Scramble it
-			String[] parts = uem.split("@");
+		// Apply configured email obfuscation strategy
+		if (uem != null) {
+			SpoilEmailStrategy strategy = getSpoilEmailStrategy();
 
-			String emailName = parts[0];
+			switch (strategy) {
+			case RANDOM:
+				uem = randomizeEmail(uem);
+				break;
 
-			Random random = new Random();
-			int int1 = random.nextInt();
-			int int2 = random.nextInt();
-			int int3 = random.nextInt();
+			case DETERMINISTIC:
+				uem = deterministicEmail(user, uem);
+				break;
 
-			emailName += (int1 + int2 + int3);
-
-			uem = emailName + "@" + parts[1];
-
-			if (log.isDebugEnabled())
-				log.debug("SCRAMBLED EMAIL:" + uem);
+			case ORIGINAL:
+			default:
+				break;
+			}
 		}
 
 		log.debug("Using email " + uem + " for user eid " + user.getEid() + " id " + user.getId());
 		return uem;
+	}
+
+	private String randomizeEmail(String uem) {
+		// Scramble it
+		String[] parts = uem.split("@");
+
+		String emailName = parts[0];
+
+		Random random = new Random();
+		int int1 = random.nextInt();
+		int int2 = random.nextInt();
+		int int3 = random.nextInt();
+
+		emailName += (int1 + int2 + int3);
+
+		uem = emailName + "@" + parts[1];
+
+		if (log.isDebugEnabled())
+			log.debug("SCRAMBLED EMAIL:" + uem);
+		return uem;
+	}
+
+	private String deterministicEmail(User user, String email) {
+		if (user == null || StringUtils.isBlank(user.getId()) || StringUtils.isBlank(email)) {
+			return email;
+		}
+
+		String[] parts = email.split("@", 2);
+
+		if (parts.length != 2) {
+			log.warn("Unable to generate deterministic email for invalid address: {}", email);
+			return email;
+		}
+
+		String localPart = parts[0];
+		String domainPart = parts[1];
+
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(user.getId().getBytes(StandardCharsets.UTF_8));
+
+			String hashString = Hex.encodeHexString(hash).substring(0, DETERMINISTIC_EMAIL_HASH_LENGTH );
+
+			String deterministicEmail = localPart + "-" + hashString + "@" + domainPart;
+
+			if (log.isDebugEnabled()) {
+				log.debug("DETERMINISTIC EMAIL: {}", deterministicEmail);
+			}
+
+			return deterministicEmail;
+
+		} catch (NoSuchAlgorithmException e) {
+			// SHA-256 is required by every Java implementation
+			throw new IllegalStateException("SHA-256 algorithm not available", e);
+		}
 	}
 
 	/**
