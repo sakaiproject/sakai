@@ -218,7 +218,13 @@ DTMN.initCancelRevert = function() {
     const banner = document.getElementById("dm-cancel-banner");
     if (banner) {
       banner.classList.remove("d-none");
-      window.setTimeout(function() { $(banner).fadeOut(400); }, 4000);
+      window.setTimeout(function() {
+        const animation = banner.animate({ opacity: [1, 0] }, { duration: 400, easing: "ease" });
+        animation.finished.then(function() {
+          banner.classList.add("d-none");
+          animation.cancel();
+        });
+      }, 4000);
     }
   }
 };
