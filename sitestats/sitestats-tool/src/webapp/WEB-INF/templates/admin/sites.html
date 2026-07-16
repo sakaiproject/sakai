@@ -60,17 +60,21 @@
   <nav th:attr="aria-label=#{sitestats_site_pages}">
     <ul class="pagination">
       <li class="page-item" th:classappend="${page <= 1} ? ' disabled'">
-        <a class="page-link"
+        <a class="page-link" th:if="${page > 1}"
            th:href="@{/admin(search=${search},type=${type},page=${page - 1})}"
            th:text="#{sitestats_previous}">Previous</a>
+        <span class="page-link" th:unless="${page > 1}"
+              th:text="#{sitestats_previous}">Previous</span>
       </li>
       <li class="page-item">
         <span class="page-link" th:text="${page}"></span>
       </li>
       <li class="page-item" th:classappend="${#lists.size(sites) < 50} ? ' disabled'">
-        <a class="page-link"
+        <a class="page-link" th:if="${#lists.size(sites) == 50}"
            th:href="@{/admin(search=${search},type=${type},page=${page + 1})}"
            th:text="#{sitestats_next}">Next</a>
+        <span class="page-link" th:unless="${#lists.size(sites) == 50}"
+              th:text="#{sitestats_next}">Next</span>
       </li>
     </ul>
   </nav>

@@ -67,7 +67,7 @@ public class SiteStatsController {
     @GetMapping("/reports/new")
     public String newReport(@RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        SiteStatsReportForm form = new SiteStatsReportForm();
+        SiteStatsReportForm form = toolService.newReportForm();
         commonReportForm(model, authorizedSiteId, form);
         return "reports/edit";
     }
@@ -95,6 +95,7 @@ public class SiteStatsController {
         if (validationCode != null) {
             commonReportForm(model, authorizedSiteId, reportForm);
             model.addAttribute("error", message(validationCode));
+            model.addAttribute("errorCode", validationCode);
             return "reports/edit";
         }
         if ("preview".equals(action)) {
@@ -174,7 +175,7 @@ public class SiteStatsController {
     @PostMapping("/preferences")
     public String savePreferences(@RequestParam(required = false) String siteId,
             @ModelAttribute PreferencesForm preferencesForm, RedirectAttributes redirectAttributes) {
-        String authorizedSiteId = toolService.viewSite(siteId);
+        String authorizedSiteId = toolService.reportSite(siteId);
         toolService.savePreferences(authorizedSiteId, preferencesForm);
         redirectAttributes.addFlashAttribute("success", message("prefs_updated"));
         return "redirect:/preferences?siteId=" + authorizedSiteId;

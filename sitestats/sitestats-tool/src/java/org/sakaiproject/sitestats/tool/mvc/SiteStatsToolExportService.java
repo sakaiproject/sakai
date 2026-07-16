@@ -44,9 +44,18 @@ public class SiteStatsToolExportService {
             return new ExportResult(body, CSV_MEDIA_TYPE, filename + ".csv");
         }
         if ("pdf".equals(format)) {
-            return new ExportResult(reportManager.getReportAsPDF(report), MediaType.APPLICATION_PDF, filename + ".pdf");
+            byte[] body = requireExportData(reportManager.getReportAsPDF(report));
+            return new ExportResult(body, MediaType.APPLICATION_PDF, filename + ".pdf");
         }
-        return new ExportResult(reportManager.getReportAsExcel(report, title), EXCEL_MEDIA_TYPE, filename + ".xls");
+        byte[] body = requireExportData(reportManager.getReportAsExcel(report, title));
+        return new ExportResult(body, EXCEL_MEDIA_TYPE, filename + ".xls");
+    }
+
+    private byte[] requireExportData(byte[] body) {
+        if (body == null || body.length == 0) {
+            throw new IllegalStateException("The report export could not be generated");
+        }
+        return body;
     }
 
     @Getter

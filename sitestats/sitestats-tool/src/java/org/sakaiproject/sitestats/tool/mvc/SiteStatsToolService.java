@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -65,6 +66,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class SiteStatsToolService {
 
     private static final int PAGE_SIZE = 50;
@@ -158,6 +160,10 @@ public class SiteStatsToolService {
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
         return siteStatsViewService.getReports(reportSite(requestedSiteId));
+    }
+
+    public SiteStatsReportForm newReportForm() {
+        return SiteStatsReportForm.create(userTimeService.getLocalTimeZone().toZoneId());
     }
 
     public ReportDef reportDefinition(String requestedSiteId, long reportId) {
@@ -404,7 +410,7 @@ public class SiteStatsToolService {
     }
 
     public void savePreferences(String requestedSiteId, PreferencesForm form) {
-        String siteId = viewSite(requestedSiteId);
+        String siteId = reportSite(requestedSiteId);
         PrefsData preferences = statsManager.getPreferences(siteId, true);
         preferences.setListToolEventsOnlyAvailableInSite(form.isListToolEventsOnlyAvailableInSite());
         preferences.setShowOwnStatisticsToStudents(form.isShowOwnStatisticsToStudents());
@@ -429,6 +435,17 @@ public class SiteStatsToolService {
     public UserActivityResult userActivity(String requestedSiteId, UserActivityForm form) {
         String siteId = viewSite(requestedSiteId);
         assertCanViewUserActivity(siteId);
+        ZoneId zoneId = userTimeService.getLocalTimeZone().toZoneId();
+        LocalDate today = LocalDate.now(zoneId);
+        if (form.getStartDate() == null) {
+            form.setStartDate(today);
+        }
+        if (form.getEndDate() == null) {
+            form.setEndDate(today);
+        }
+        if (StringUtils.isBlank(form.getUserId())) {
+            form.setUserId(ReportManager.WHO_NONE);
+        }
         List<UserOption> users = detailedEventsManager.getUsersForTracking(siteId).stream()
                 .map(userId -> new UserOption(userId, displayName(userId)))
                 .sorted(Comparator.comparing(UserOption::getDisplayName, String.CASE_INSENSITIVE_ORDER))
@@ -443,7 +460,6 @@ public class SiteStatsToolService {
         List<ActivityEvent> events = Collections.emptyList();
         long total = 0;
         if (StringUtils.isNotBlank(form.getUserId()) && !ReportManager.WHO_NONE.equals(form.getUserId())) {
-            ZoneId zoneId = userTimeService.getLocalTimeZone().toZoneId();
             Instant start = form.getStartDate().atStartOfDay(zoneId).toInstant();
             Instant end = form.getEndDate().plusDays(1).atStartOfDay(zoneId).toInstant();
             TrackingParams tracking = new TrackingParams(siteId,
@@ -510,6 +526,7 @@ public class SiteStatsToolService {
             return new LastJobRunResult(jobRun.getJobEndDate().toInstant().toString(),
                     formatTimestamp(jobRun.getJobEndDate()));
         } catch (Exception e) {
+            log.warn("Unable to retrieve the latest SiteStats job run", e);
             return null;
         }
     }
@@ -530,7 +547,11 @@ public class SiteStatsToolService {
         try {
             User user = userDirectoryService.getUser(userId);
             return displayName(user);
+        } catch (UserNotDefinedException e) {
+            log.debug("User {} was not found while resolving a SiteStats display name", userId);
+            return userId;
         } catch (Exception e) {
+            log.warn("Unable to resolve the SiteStats display name for user {}", userId, e);
             return userId;
         }
     }
@@ -676,8 +697,8 @@ public class SiteStatsToolService {
     public static class UserActivityForm {
         private String userId = ReportManager.WHO_NONE;
         private String toolId = ReportManager.WHAT_EVENTS_ALLTOOLS;
-        private LocalDate startDate = LocalDate.now();
-        private LocalDate endDate = LocalDate.now();
+        private LocalDate startDate;
+        private LocalDate endDate;
         private int page = 1;
 
         public void setUserId(String userId) { this.userId = userId; }

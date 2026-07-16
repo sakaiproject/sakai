@@ -64,7 +64,7 @@ attribute other than timestamp, as this sort follows closely to the natural orde
 To narrow down the search, filtering by tool is also provided.
 * The SiteStats user-activity service uses database-level paging so the UI never needs to load the full result set.
 The legacy table implementation required knowledge of the full size of the dataset, which could be
-extremely expensive with large amounts of data, even when well indexed. This table only queries for a number of
+extremely expensive with large amounts of data, even when well indexed. The current implementation only queries for a number of
 results matching the page size, allowing it to return quickly and always feel responsive to the user.
 * Event detail lookups are performed on demand instead of as part of the search. In most cases the user does not know
 what they need more detail about ahead of time, so a button is provided that they can click for more detail about a

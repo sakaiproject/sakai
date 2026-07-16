@@ -121,6 +121,12 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator("#sorting-options")).isVisible();
         page.getByLabel("Limit to:").check();
         assertThat(page.locator("#max-results-options")).isVisible();
+        Locator maxResults = page.locator("#max-results");
+        maxResults.fill("25");
+        page.getByLabel("Limit to:").uncheck();
+        assertThat(page.locator("#max-results-options")).isHidden();
+        page.getByLabel("Limit to:").check();
+        assertThat(maxResults).hasValue("25");
         page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
         assertThat(page.locator("#chart-options")).isVisible();
         page.getByLabel("Chart type:").selectOption("timeseries");
@@ -235,12 +241,12 @@ class SiteStatsTest extends SakaiUiTestBase {
             }
         }
         Locator users = page.getByLabel("User");
-        if (users.locator("option").count() > 1) {
-            users.selectOption(new SelectOption().setIndex(1));
-        }
+        assertTrue(users.locator("option").count() > 1);
+        users.selectOption(new SelectOption().setIndex(1));
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Search$", Pattern.CASE_INSENSITIVE))).click();
         assertTrue(page.url().contains("startDate=") && page.url().contains("endDate="));
+        assertThat(page.locator("table tbody tr").first()).isVisible();
     }
 
     @Test
@@ -254,6 +260,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator siteLinks = page.locator("table tbody a[href*='serverwide']");
         assertTrue(siteLinks.count() > 0);
         siteLinks.first().click();
+        assertThat(page.locator("nav.mb-3 a[aria-current='page']")).hasCount(1);
         assertThat(page.locator("sakai-sitestats-report-panel")).isVisible();
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-table table")).isVisible();
         assertNoLegacyReportChartImages();

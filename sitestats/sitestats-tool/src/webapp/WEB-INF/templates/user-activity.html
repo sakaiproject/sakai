@@ -13,7 +13,7 @@
       <div class="col-12 col-md-6">
         <label class="form-label" for="activity-user" th:text="#{de_userFilter}">User</label>
         <select id="activity-user" class="form-select" th:field="*{userId}" required>
-          <option value="who-none" th:text="#{de_select_user}">Select user</option>
+          <option value="" th:text="#{de_select_user}">Select user</option>
           <option th:each="user : ${activity.users}"
                   th:value="${user.id}" th:text="${user.displayName}"></option>
         </select>
@@ -77,18 +77,22 @@
        th:if="${activity.total > activity.pageSize}">
     <ul class="pagination">
       <li class="page-item" th:classappend="${userActivityForm.page <= 1} ? ' disabled'">
-        <a class="page-link"
+        <a class="page-link" th:if="${userActivityForm.page > 1}"
            th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page - 1})}"
            th:text="#{sitestats_previous}">Previous</a>
+        <span class="page-link" th:unless="${userActivityForm.page > 1}"
+              th:text="#{sitestats_previous}">Previous</span>
       </li>
       <li class="page-item">
         <span class="page-link" th:text="${userActivityForm.page}"></span>
       </li>
       <li class="page-item"
           th:classappend="${userActivityForm.page * activity.pageSize >= activity.total} ? ' disabled'">
-        <a class="page-link"
+        <a class="page-link" th:if="${userActivityForm.page * activity.pageSize < activity.total}"
            th:href="@{/useractivity(siteId=${siteId},userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},page=${userActivityForm.page + 1})}"
            th:text="#{sitestats_next}">Next</a>
+        <span class="page-link" th:unless="${userActivityForm.page * activity.pageSize < activity.total}"
+              th:text="#{sitestats_next}">Next</span>
       </li>
     </ul>
   </nav>

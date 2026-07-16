@@ -31,8 +31,8 @@ public class SiteStatsReportForm {
     private String whatResourceAction = ReportManager.WHAT_RESOURCES_ACTION_NEW;
     private String whatResourceIds;
     private String when = ReportManager.WHEN_LAST7DAYS;
-    private LocalDate whenFrom = LocalDate.now().minusDays(7);
-    private LocalDate whenTo = LocalDate.now();
+    private LocalDate whenFrom;
+    private LocalDate whenTo;
     private String who = ReportManager.WHO_ALL;
     private String whoRoleId;
     private String whoGroupId;
@@ -49,6 +49,14 @@ public class SiteStatsReportForm {
     private String howChartCategorySource = StatsManager.T_NONE;
     private String howChartSeriesSource = StatsManager.T_TOTAL;
     private String howChartSeriesPeriod = StatsManager.CHARTTIMESERIES_DAY;
+
+    public static SiteStatsReportForm create(ZoneId zoneId) {
+        SiteStatsReportForm form = new SiteStatsReportForm();
+        LocalDate today = LocalDate.now(zoneId);
+        form.whenFrom = today.minusDays(7);
+        form.whenTo = today;
+        return form;
+    }
 
     public static SiteStatsReportForm from(ReportDef report, ZoneId zoneId) {
         SiteStatsReportForm form = new SiteStatsReportForm();

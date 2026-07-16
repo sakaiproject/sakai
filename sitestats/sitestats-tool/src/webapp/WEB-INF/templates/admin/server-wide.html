@@ -7,13 +7,13 @@
   <h1 class="h3 mt-3" th:text="#{menu_serverwide}">Server-wide statistics</h1>
   <nav class="mb-3" th:attr="aria-label=#{sitestats_serverwide_report_type}">
     <ul class="nav nav-pills flex-wrap gap-1">
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'monthlyLogin'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='monthlyLogin')}" th:text="#{submenu_monthly_login_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'weeklyLogin'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='weeklyLogin')}" th:text="#{submenu_weekly_login_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'dailyLogin'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='dailyLogin')}" th:text="#{submenu_daily_login_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'regularUsers'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='regularUsers')}" th:text="#{submenu_regular_users_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'hourlyUsage'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='hourlyUsage')}" th:text="#{submenu_hourly_usage_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'topActivities'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='topActivities')}" th:text="#{submenu_top_activities_report}"></a></li>
-      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'toolReport'} ? ' active'" th:href="@{/serverwide(siteId=${siteId},reportType='toolReport')}" th:text="#{submenu_tool_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'monthlyLogin'} ? ' active'" th:attr="aria-current=${reportType == 'monthlyLogin'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='monthlyLogin')}" th:text="#{submenu_monthly_login_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'weeklyLogin'} ? ' active'" th:attr="aria-current=${reportType == 'weeklyLogin'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='weeklyLogin')}" th:text="#{submenu_weekly_login_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'dailyLogin'} ? ' active'" th:attr="aria-current=${reportType == 'dailyLogin'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='dailyLogin')}" th:text="#{submenu_daily_login_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'regularUsers'} ? ' active'" th:attr="aria-current=${reportType == 'regularUsers'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='regularUsers')}" th:text="#{submenu_regular_users_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'hourlyUsage'} ? ' active'" th:attr="aria-current=${reportType == 'hourlyUsage'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='hourlyUsage')}" th:text="#{submenu_hourly_usage_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'topActivities'} ? ' active'" th:attr="aria-current=${reportType == 'topActivities'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='topActivities')}" th:text="#{submenu_top_activities_report}"></a></li>
+      <li class="nav-item"><a class="nav-link" th:classappend="${reportType == 'toolReport'} ? ' active'" th:attr="aria-current=${reportType == 'toolReport'} ? 'page' : null" th:href="@{/serverwide(siteId=${siteId},reportType='toolReport')}" th:text="#{submenu_tool_report}"></a></li>
     </ul>
   </nav>
   <sakai-sitestats-report-panel th:attr="endpoint=${reportEndpoint}"></sakai-sitestats-report-panel>

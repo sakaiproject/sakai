@@ -158,9 +158,6 @@ if (reportEditor) {
     const limited = control("limit-results")?.checked;
     setVisible("max-results-options", limited);
     setEnabled(control("max-results"), limited);
-    if (!limited && control("max-results")) {
-      control("max-results").value = "0";
-    }
   };
 
   const updateChart = () => {

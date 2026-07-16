@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.assignments.AssignmentData;
 import org.sakaiproject.sitestats.api.event.detailed.assignments.AssignmentsData;
@@ -110,13 +111,17 @@ public class AsnResolvedRefTransformer
 
 	private static Optional<User> getUser(String userId, UserDirectoryService userDirectoryService)
 	{
+		if (StringUtils.isBlank(userId))
+		{
+			return Optional.empty();
+		}
 		try
 		{
 			return Optional.of(userDirectoryService.getUser(userId));
 		}
 		catch (UserNotDefinedException e)
 		{
-			log.warn("User not found", e);
+			log.debug("User {} was not found while resolving assignment details", userId);
 			return Optional.empty();
 		}
 	}

@@ -176,7 +176,7 @@
     <fieldset class="border rounded p-3 mb-4">
       <legend class="float-none w-auto px-2 h4" th:text="#{report_how}">How?</legend>
       <p th:text="#{report_how_instructions}"></p>
-      <div class="row g-3">
+      <div class="row g-4">
         <div class="col-12 col-md-6">
           <label class="form-label" for="totals-by" th:text="#{report_howtotalsby}">Totals by</label>
           <select id="totals-by" class="form-select" th:field="*{howTotalsBy}" multiple size="7" required>
@@ -188,6 +188,19 @@
             <option value="date" th:text="#{report_option_date}"></option>
             <option value="last-date" th:text="#{report_option_lastdate}"></option>
           </select>
+          <div class="mt-3">
+            <div class="form-check">
+              <input id="limit-results" class="form-check-input" type="checkbox"
+                     th:field="*{howLimitedMaxResults}"
+                     aria-controls="max-results-options"/>
+              <label class="form-check-label" for="limit-results" th:text="#{report_howmaxresults}"></label>
+            </div>
+            <div id="max-results-options" class="mt-2">
+              <label class="form-label" for="max-results"
+                     th:text="#{report_howmaxresults_sel}">Number of results</label>
+              <input id="max-results" class="form-control" type="number" min="1" th:field="*{howMaxResults}"/>
+            </div>
+          </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="form-check mb-2">
@@ -211,93 +224,85 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="form-check">
-            <input id="limit-results" class="form-check-input" type="checkbox"
-                   th:field="*{howLimitedMaxResults}"
-                   aria-controls="max-results-options"/>
-            <label class="form-check-label" for="limit-results" th:text="#{report_howmaxresults}"></label>
-          </div>
-          <div id="max-results-options">
-            <label class="form-label mt-2" for="max-results"
-                   th:text="#{report_howmaxresults_sel}">Number of results</label>
-            <input id="max-results" class="form-control" type="number" min="1" th:field="*{howMaxResults}"/>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <label class="form-label" for="presentation"
-                 th:text="#{report_howpresentation}">Presentation</label>
-          <select id="presentation" class="form-select" th:field="*{howPresentationMode}" aria-controls="chart-options">
-            <option value="how-presentation-table" th:text="#{report_howpresentation_table}"></option>
-            <option value="how-presentation-chart" th:text="#{report_howpresentation_chart}"></option>
-            <option value="how-presentation-both" th:text="#{report_howpresentation_both}"></option>
-          </select>
-        </div>
       </div>
 
-      <div id="chart-options" class="row g-3 mt-1">
-        <div class="col-12 col-md-4">
-          <label class="form-label" for="chart-type" th:text="#{report_howcharttype}">Chart type</label>
-          <select id="chart-type" class="form-select" th:field="*{howChartType}"
-                  aria-controls="chart-source-options chart-series-options">
-            <option value="bar" th:text="#{report_howchart_bar}"></option>
-            <option value="pie" th:text="#{report_howchart_pie}"></option>
-            <option value="timeseries" th:text="#{report_howchart_timeseries}"></option>
-            <option value="timeseriesbar" th:text="#{report_howchart_timeseries_bar}"></option>
-          </select>
-        </div>
-        <div id="chart-source-options" class="col-12 col-md-8">
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label" for="chart-source"
-                     th:text="#{report_howdatasource}">Chart data source</label>
-              <select id="chart-source" class="form-select" th:field="*{howChartSource}">
-                <option value="user" th:text="#{report_option_user}"></option>
-                <option value="tool" th:text="#{report_option_tool}"></option>
-                <option value="event" th:text="#{report_option_event}"></option>
-                <option value="resource" th:text="#{report_option_resource}"></option>
-                <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
-                <option value="date" th:text="#{report_option_date}"></option>
-              </select>
-            </div>
-            <div id="chart-category-options" class="col-12 col-md-6">
-              <label class="form-label" for="chart-category"
-                     th:text="#{report_howdatasource_grouped}">Grouped by</label>
-              <select id="chart-category" class="form-select" th:field="*{howChartCategorySource}">
-                <option value="none" th:text="#{none}"></option>
-                <option value="user" th:text="#{report_option_user}"></option>
-                <option value="tool" th:text="#{report_option_tool}"></option>
-                <option value="event" th:text="#{report_option_event}"></option>
-                <option value="resource" th:text="#{report_option_resource}"></option>
-                <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
-                <option value="date" th:text="#{report_option_date}"></option>
-              </select>
-            </div>
+      <div class="border-top mt-4 pt-3">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="presentation"
+                   th:text="#{report_howpresentation}">Presentation</label>
+            <select id="presentation" class="form-select" th:field="*{howPresentationMode}" aria-controls="chart-options">
+              <option value="how-presentation-table" th:text="#{report_howpresentation_table}"></option>
+              <option value="how-presentation-chart" th:text="#{report_howpresentation_chart}"></option>
+              <option value="how-presentation-both" th:text="#{report_howpresentation_both}"></option>
+            </select>
           </div>
         </div>
-        <div id="chart-series-options" class="col-12 col-md-8">
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label" for="chart-series"
-                     th:text="#{report_howdatasource_series}">Chart series source</label>
-              <select id="chart-series" class="form-select" th:field="*{howChartSeriesSource}">
-                <option value="total" th:text="#{report_option_total}"></option>
-                <option value="user" th:text="#{report_option_user}"></option>
-                <option value="tool" th:text="#{report_option_tool}"></option>
-                <option value="event" th:text="#{report_option_event}"></option>
-                <option value="resource" th:text="#{report_option_resource}"></option>
-                <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
-              </select>
+
+        <div id="chart-options" class="row g-3 mt-0">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="chart-type" th:text="#{report_howcharttype}">Chart type</label>
+            <select id="chart-type" class="form-select" th:field="*{howChartType}"
+                    aria-controls="chart-source-options chart-series-options">
+              <option value="bar" th:text="#{report_howchart_bar}"></option>
+              <option value="pie" th:text="#{report_howchart_pie}"></option>
+              <option value="timeseries" th:text="#{report_howchart_timeseries}"></option>
+              <option value="timeseriesbar" th:text="#{report_howchart_timeseries_bar}"></option>
+            </select>
+          </div>
+          <div id="chart-source-options" class="col-12 col-md-8">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="chart-source"
+                       th:text="#{report_howdatasource}">Chart data source</label>
+                <select id="chart-source" class="form-select" th:field="*{howChartSource}">
+                  <option value="user" th:text="#{report_option_user}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"></option>
+                  <option value="event" th:text="#{report_option_event}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
+                  <option value="date" th:text="#{report_option_date}"></option>
+                </select>
+              </div>
+              <div id="chart-category-options" class="col-12 col-md-6">
+                <label class="form-label" for="chart-category"
+                       th:text="#{report_howdatasource_grouped}">Grouped by</label>
+                <select id="chart-category" class="form-select" th:field="*{howChartCategorySource}">
+                  <option value="none" th:text="#{none}"></option>
+                  <option value="user" th:text="#{report_option_user}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"></option>
+                  <option value="event" th:text="#{report_option_event}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
+                  <option value="date" th:text="#{report_option_date}"></option>
+                </select>
+              </div>
             </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label" for="series-period"
-                     th:text="#{sitestats_timeseries_period}">Time-series period</label>
-              <select id="series-period" class="form-select" th:field="*{howChartSeriesPeriod}">
-                <option value="byday" th:text="#{sitestats_period_day}">Day</option>
-                <option value="byweekday" th:text="#{sitestats_period_weekday}">Weekday</option>
-                <option value="bymonth" th:text="#{sitestats_period_month}">Month</option>
-                <option value="byyear" th:text="#{sitestats_period_year}">Year</option>
-              </select>
+          </div>
+          <div id="chart-series-options" class="col-12 col-md-8">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="chart-series"
+                       th:text="#{report_howdatasource_series}">Chart series source</label>
+                <select id="chart-series" class="form-select" th:field="*{howChartSeriesSource}">
+                  <option value="total" th:text="#{report_option_total}"></option>
+                  <option value="user" th:text="#{report_option_user}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"></option>
+                  <option value="event" th:text="#{report_option_event}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"></option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="series-period"
+                       th:text="#{sitestats_timeseries_period}">Time-series period</label>
+                <select id="series-period" class="form-select" th:field="*{howChartSeriesPeriod}">
+                  <option value="byday" th:text="#{sitestats_period_day}">Day</option>
+                  <option value="byweekday" th:text="#{sitestats_period_weekday}">Weekday</option>
+                  <option value="bymonth" th:text="#{sitestats_period_month}">Month</option>
+                  <option value="byyear" th:text="#{sitestats_period_year}">Year</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -313,7 +318,8 @@
           <span aria-hidden="true">*</span>
         </label>
         <input id="report-title" class="form-control" th:field="*{title}" required maxlength="255"
-               th:attr="aria-invalid=${error != null},aria-describedby=${error != null ? 'report-error' : null}"/>
+               th:attr="aria-invalid=${errorCode == 'sitestats_report_title_required'} ? 'true' : null,
+                        aria-describedby=${errorCode == 'sitestats_report_title_required'} ? 'report-error' : null"/>
       </div>
       <div class="mb-3">
         <label class="form-label" for="report-description" th:text="#{report_reportdescription}">Description</label>
