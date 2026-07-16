@@ -311,6 +311,14 @@
       <button type="button" class="btn btn-primary dm-bulk-apply d-none" id="dm-apply-fit" data-dm-panel="dm-bulk-panel-fit" th:text="#{bulk.apply.fit}" disabled>Apply fit</button>
       <button type="button" class="btn btn-primary dm-bulk-apply d-none" id="dm-apply-term" data-dm-panel="dm-bulk-panel-set" th:text="#{bulk.apply.term}" disabled>Apply term dates</button>
     </div>
+
+    <!-- Summarises what the last apply actually did (counts, tools, skipped blanks, narrowed scope)
+         since the affected grid lives on the other tab. -->
+    <div class="sak-banner-info d-none" id="dm-apply-feedback" aria-live="polite">
+      <span id="dm-apply-feedback-msg"></span>
+      <span id="dm-apply-feedback-scope" class="d-none fw-bold"></span>
+      <span th:text="#{bulk.applied.review}">Review the changes on the Edit Individual Items tab or with the Visual Preview below, then click Save Changes.</span>
+    </div>
     </div>
     </div>
 
@@ -559,6 +567,18 @@
           };
 
           DTMN.previewSpanButtonText = /*[[#{calendar.preview.span.button}]]*/ 'Overview';
+
+          // Localized templates for the post-apply feedback banner and the scope-narrowed
+          // suffix on the apply buttons. {n} placeholders are substituted client-side.
+          DTMN.bulkFeedbackText = {
+            shift: /*[[#{bulk.applied.shift}]]*/ 'Shifted {0} date(s) in {1} tool(s).',
+            fit: /*[[#{bulk.applied.fit}]]*/ 'Re-fitted {0} date(s) in {1} tool(s).',
+            term: /*[[#{bulk.applied.term}]]*/ 'Set {0} date(s) in {1} tool(s).',
+            termBlanks: /*[[#{bulk.applied.term.blanks}]]*/ '{0} blank date cell(s) were left blank.',
+            scope: /*[[#{bulk.applied.scope}]]*/ 'Applied only to: {0}.',
+            none: /*[[#{bulk.applied.none}]]*/ 'No dates were changed.',
+            applySuffix: /*[[#{bulk.apply.scope.suffix}]]*/ '({0} of {1} tools)'
+          };
 
           DTMN.initDatePicker(updates, notModified);
           DTMN.initBulkModeRadios();

@@ -343,3 +343,14 @@ test("computePreviewRange clamps very long spans to a year", () => {
 test("computePreviewRange returns null with no events", () => {
   assert.equal(DTMN.computePreviewRange([]), null);
 });
+
+// ---------------------------------------------------------------------------
+// formatTemplate - placeholder substitution for banner/button templates.
+// ---------------------------------------------------------------------------
+
+test("formatTemplate substitutes indexed placeholders, including repeats", () => {
+  assert.equal(DTMN.formatTemplate("Shifted {0} date(s) in {1} tool(s).", [39, 7]),
+    "Shifted 39 date(s) in 7 tool(s).");
+  assert.equal(DTMN.formatTemplate("{0} and {0} again, then {1}", ["a", "b"]),
+    "a and a again, then b");
+});

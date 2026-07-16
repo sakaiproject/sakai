@@ -78,9 +78,11 @@ DTMN.initScopePicker = function() {
     return;
   }
 
-  // A scope change can enable or disable any method's Apply button, so re-run all three validators.
+  // A scope change can enable or disable any method's Apply button, so re-run all three
+  // validators, and re-label the buttons so a narrowed scope stays visible before the click.
   const revalidate = function() {
     DTMN.updateScopeAllState();
+    DTMN.updateApplyButtonLabels();
     DTMN.validateShiftInput();
     DTMN.validateFitInputs();
     DTMN.validateTermInputs();
@@ -98,6 +100,7 @@ DTMN.initScopePicker = function() {
   }
 
   DTMN.updateScopeAllState();
+  DTMN.updateApplyButtonLabels();
 };
 
 DTMN.updateScopeAllState = function() {
@@ -107,6 +110,63 @@ DTMN.updateScopeAllState = function() {
   const checkedCount = DTMN.scopeChecks.filter(function(check) { return check.checked; }).length;
   DTMN.scopeAllCheck.checked = checkedCount === DTMN.scopeChecks.length;
   DTMN.scopeAllCheck.indeterminate = checkedCount > 0 && checkedCount < DTMN.scopeChecks.length;
+};
+
+// {0}/{1}-style placeholder substitution for the localized banner/button templates.
+DTMN.formatTemplate = function(template, args) {
+  return args.reduce(function(acc, val, i) {
+    return acc.split("{" + i + "}").join(String(val));
+  }, template);
+};
+
+// Reflect a narrowed scope right on the apply buttons ("Apply shift (2 of 7 tools)") so a
+// selection left over from an earlier apply is visible before the next click.
+DTMN.updateApplyButtonLabels = function() {
+  if (!DTMN.scopeChecks || !DTMN.scopeChecks.length || !DTMN.bulkFeedbackText) {
+    return;
+  }
+  const checked = DTMN.scopeChecks.filter(function(check) { return check.checked; }).length;
+  const total = DTMN.scopeChecks.length;
+  document.querySelectorAll(".dm-bulk-apply").forEach(function(button) {
+    if (!button.dataset.baseLabel) {
+      button.dataset.baseLabel = button.textContent.trim();
+    }
+    button.textContent = button.dataset.baseLabel + (checked < total
+        ? " " + DTMN.formatTemplate(DTMN.bulkFeedbackText.applySuffix, [checked, total]) : "");
+  });
+};
+
+// Post-apply summary banner: says what the apply just changed (and what it skipped), since the
+// affected grid lives on the other tab. Names the ticked tools whenever the scope was narrowed.
+DTMN.showApplyFeedback = function(kind, stats) {
+  const banner = document.getElementById("dm-apply-feedback");
+  const msgSpan = document.getElementById("dm-apply-feedback-msg");
+  const scopeSpan = document.getElementById("dm-apply-feedback-scope");
+  if (!banner || !msgSpan || !DTMN.bulkFeedbackText) {
+    return;
+  }
+
+  let msg = stats.changed === 0
+      ? DTMN.bulkFeedbackText.none
+      : DTMN.formatTemplate(DTMN.bulkFeedbackText[kind], [stats.changed, stats.tools]);
+  if (kind === "term" && stats.blanksSkipped > 0) {
+    msg += " " + DTMN.formatTemplate(DTMN.bulkFeedbackText.termBlanks, [stats.blanksSkipped]);
+  }
+  msgSpan.textContent = msg + " ";
+
+  if (scopeSpan) {
+    const narrowed = DTMN.scopeChecks && DTMN.scopeChecks.some(function(check) { return !check.checked; });
+    if (narrowed) {
+      const names = DTMN.scopeChecks.filter(function(check) { return check.checked; })
+          .map(function(check) { return check.closest("label").textContent.trim(); });
+      scopeSpan.textContent = DTMN.formatTemplate(DTMN.bulkFeedbackText.scope, [names.join(", ")]) + " ";
+      scopeSpan.classList.remove("d-none");
+    } else {
+      scopeSpan.classList.add("d-none");
+    }
+  }
+
+  banner.classList.remove("d-none");
 };
 
 // Section elements for the tools ticked in the scope row. Falls back to every section when the
@@ -335,9 +395,10 @@ DTMN.handleFitButtonClick = function(button, sections, updates, notModified) {
   DTMN.fitApplyBtn.disabled = true;
 
   window.setTimeout(function() {
-    DTMN.fitDates(anchors, sections, updates, notModified);
+    const stats = DTMN.fitDates(anchors, sections, updates, notModified) || { changed: 0, tools: 0 };
     button.classList.remove("spinButton");
     DTMN.validateFitInputs();
+    DTMN.showApplyFeedback("fit", stats);
   }, 25);
 };
 
@@ -420,7 +481,7 @@ DTMN.computeRowFittedDates = function(rowCells, oldStartMs, oldSpan, anchors, sn
 DTMN.fitDates = function(anchors, sections, updates, notModified) {
 
   if (sections.length === 0) {
-    return;
+    return { changed: 0, tools: 0 };
   }
 
   // Pass 1: initialise every in-scope datepicker, then collect the editable, populated cells together
@@ -444,12 +505,12 @@ DTMN.fitDates = function(anchors, sections, updates, notModified) {
       if (!current.isValid()) {
         return;
       }
-      cells.push({ datepicker, useTime, current, currentMs: current.valueOf(), row: datepicker.closest("tr") });
+      cells.push({ datepicker, useTime, current, currentMs: current.valueOf(), row: datepicker.closest("tr"), sectionId: section.id });
     });
   });
 
   if (cells.length === 0) {
-    return;
+    return { changed: 0, tools: 0 };
   }
 
   let oldStartMs = cells[0].currentMs;
@@ -480,6 +541,9 @@ DTMN.fitDates = function(anchors, sections, updates, notModified) {
       DTMN.setDatePickerValue(cell.datepicker, newDates[i], cell.useTime);
     });
   });
+
+  const toolsTouched = new Set(cells.map(function(cell) { return cell.sectionId; }));
+  return { changed: cells.length, tools: toolsTouched.size };
 };
 
 // Returns true when blank cells should also be filled. When false, only cells that already have a
@@ -505,6 +569,8 @@ DTMN.fillColumn = function(rootElementId, field, date, updates, notModified, fil
     fillEmpty = DTMN.shouldFillEmptyCells();
   }
   const hiddenFields = document.querySelectorAll(rootElement + ' tbody input[type=hidden][data-field="' + field + '"]');
+  let changed = 0;
+  let blanksSkipped = 0;
 
   hiddenFields.forEach(function(hiddenField) {
     const td = hiddenField.closest('td');
@@ -516,12 +582,16 @@ DTMN.fillColumn = function(rootElementId, field, date, updates, notModified, fil
 
     // "Only update items that already have a date" mode: leave blanks alone.
     if (!fillEmpty && hiddenField.value === "") {
+      blanksSkipped++;
       return;
     }
 
     const useTime = hiddenField.dataset.tool !== 'gradebookItems';
     DTMN.setDatePickerValue(datepicker, date, useTime);
+    changed++;
   });
+
+  return { changed: changed, blanksSkipped: blanksSkipped };
 };
 
 // ----- Per-column bulk setters (one small date input inside each editable column header) -----
@@ -708,15 +778,19 @@ DTMN.handleTermButtonClick = function(button, updates, notModified) {
   DTMN.termApplyBtn.disabled = true;
 
   window.setTimeout(function() {
-    DTMN.applyTermDates(DTMN.getScopedSections(), updates, notModified);
+    const stats = DTMN.applyTermDates(DTMN.getScopedSections(), updates, notModified);
     button.classList.remove("spinButton");
     DTMN.validateTermInputs();
+    DTMN.showApplyFeedback("term", stats);
   }, 25);
 };
 
 DTMN.applyTermDates = function(sections, updates, notModified) {
 
   const scopedIds = new Set(sections.map(function(section) { return section.id; }));
+  const toolsTouched = new Set();
+  let changed = 0;
+  let blanksSkipped = 0;
 
   // Process term dates top-to-bottom so that when two term dates target the same column,
   // the lower one in the panel wins (applied last).
@@ -740,9 +814,16 @@ DTMN.applyTermDates = function(sections, updates, notModified) {
         return;
       }
 
-      DTMN.fillColumn(root, field, date, updates, notModified);
+      const result = DTMN.fillColumn(root, field, date, updates, notModified);
+      changed += result.changed;
+      blanksSkipped += result.blanksSkipped;
+      if (result.changed > 0) {
+        toolsTouched.add(root);
+      }
     });
   });
+
+  return { changed: changed, tools: toolsTouched.size, blanksSkipped: blanksSkipped };
 };
 
 // These helpers deliberately do NO timezone conversion. Sakai treats picker values as wall-clock and
@@ -942,11 +1023,20 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
   DTMN.disableShiftControls(button);
   window.setTimeout(function()
   {
+    let changed = 0;
+    let tools = 0;
     for (let i = 0; i < collapseElements.length; i++)
     {
       // use setTimeout() to space out the function calls so the browser doesn't report the page as unresponsive
-      // the last function will remove the spinner and re-enable the button
-      window.setTimeout(function() { DTMN.shiftDates(updates, notModified, collapseElements[i].id, button, i === collapseElements.length - 1); }, 10);
+      // the last function will remove the spinner, re-enable the button, and report the totals
+      window.setTimeout(function() {
+        const sectionChanged = DTMN.shiftDates(updates, notModified, collapseElements[i].id, button, i === collapseElements.length - 1) || 0;
+        changed += sectionChanged;
+        if (sectionChanged > 0) { tools++; }
+        if (i === collapseElements.length - 1) {
+          DTMN.showApplyFeedback("shift", { changed: changed, tools: tools });
+        }
+      }, 10);
     }
   }, 25);
 };
@@ -1020,7 +1110,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   if (!DTMN.shiftInput.value.match(DTMN.validShiftRegex)) {
     DTMN.showShiftError();
     DTMN.disableShiftButtons();
-    return;
+    return 0;
   }
 
   const days = parseInt(DTMN.shiftInput.value, 10);
@@ -1029,6 +1119,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
 
   const datepickers = document.querySelectorAll(rootElement + " .datepicker.hasDatepicker");
+  let changed = 0;
 
   datepickers.forEach(function (datepicker) {
     const dateValue = datepicker.value;
@@ -1063,6 +1154,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
       const newDate = currentDate.clone().add(days, 'days');
 
       DTMN.setDatePickerValue(datepicker, newDate, useTime);
+      changed++;
 
     } catch (error) {
       console.error('Error processing date:', dateValue, error);
@@ -1073,6 +1165,8 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   {
     DTMN.enableShiftControls(button);
   }
+
+  return changed;
 };
 
 // ---------------------------------------------------------------------------
