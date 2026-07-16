@@ -313,9 +313,9 @@
     </div>
 
     <div class="mb-2">
-      <button type="button" class="btn btn-primary dm-bulk-apply" id="dm-apply-shift" data-dm-panel="dm-bulk-panel-shift" th:text="#{bulk.apply.shift}" disabled>Apply shift</button>
-      <button type="button" class="btn btn-primary dm-bulk-apply d-none" id="dm-apply-fit" data-dm-panel="dm-bulk-panel-fit" th:text="#{bulk.apply.fit}" disabled>Apply fit</button>
-      <button type="button" class="btn btn-primary dm-bulk-apply d-none" id="dm-apply-term" data-dm-panel="dm-bulk-panel-set" th:text="#{bulk.apply.term}" disabled>Apply term dates</button>
+      <button type="button" class="btn dm-bulk-apply" id="dm-apply-shift" data-dm-panel="dm-bulk-panel-shift" th:text="#{bulk.apply.shift}" disabled>Apply shift</button>
+      <button type="button" class="btn dm-bulk-apply d-none" id="dm-apply-fit" data-dm-panel="dm-bulk-panel-fit" th:text="#{bulk.apply.fit}" disabled>Apply fit</button>
+      <button type="button" class="btn dm-bulk-apply d-none" id="dm-apply-term" data-dm-panel="dm-bulk-panel-set" th:text="#{bulk.apply.term}" disabled>Apply term dates</button>
     </div>
 
     <!-- Summarises what the last apply actually did (counts, tools, skipped blanks, narrowed scope)
@@ -413,11 +413,11 @@
             th:text="#{button.save}"
             disabled>
         </button>
-        <button type="button" class="btn btn-secondary"
+        <button type="button" class="btn"
             id="datemanager-preview"
             aria-controls="modal-calendar-preview"
             th:text="#{button.calendar.preview}">Visual Preview</button>
-        <button type="button" class="btn btn-secondary" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
+        <button type="button" class="btn" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
       <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>

@@ -72,6 +72,30 @@
 			}
 		}
 
+		// Three action weights: Save Changes keeps the primary style, the bulk-method apply
+		// buttons and Visual Preview take the standard secondary treatment (they act on the
+		// page but never save), and Cancel drops to a text button as the lowest-commitment
+		// action, so all three bottom buttons read differently.
+		.dm-bulk-apply,
+		#datemanager-preview,
+		#datemanager-cancel {
+			@include sakai_secondary_button();
+		}
+
+		#datemanager-cancel {
+			background: transparent;
+			border-color: transparent;
+			color: var(--sakai-text-color-1);
+			text-decoration: underline;
+
+			&:hover,
+			&:focus {
+				background: var(--sakai-background-color-2);
+				border-color: transparent;
+				color: var(--sakai-text-color-1);
+			}
+		}
+
 		// The calendar preview: point FullCalendar's own theming variables at the theme
 		// tokens so its sticky day-name header and neutral surfaces follow light/dark.
 		#datemanager-calendar {
