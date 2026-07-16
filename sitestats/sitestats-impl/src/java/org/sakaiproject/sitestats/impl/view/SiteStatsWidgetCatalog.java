@@ -132,7 +132,8 @@ public class SiteStatsWidgetCatalog {
 	}
 
 	private boolean isAudienceAllowed(String audience, boolean allAllowed, boolean ownAllowed) {
-		return (AUDIENCE_ALL.equals(audience) && allAllowed) || (AUDIENCE_OWN.equals(audience) && ownAllowed);
+		return (AUDIENCE_ALL.equals(audience) && allAllowed)
+				|| (AUDIENCE_OWN.equals(audience) && ownAllowed && !allAllowed);
 	}
 
 	private boolean widgetAvailable(String widgetId) {

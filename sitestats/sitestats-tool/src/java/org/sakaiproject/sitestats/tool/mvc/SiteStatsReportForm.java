@@ -22,7 +22,6 @@ public class SiteStatsReportForm {
     private long templateId;
     private String title;
     private String description;
-    private boolean hidden;
     private String what = ReportManager.WHAT_VISITS;
     private String whatEventSelType = ReportManager.WHAT_EVENTS_BYTOOL;
     private List<String> whatToolIds = new ArrayList<String>(Collections.singletonList(ReportManager.WHAT_EVENTS_ALLTOOLS));
@@ -56,7 +55,6 @@ public class SiteStatsReportForm {
         form.id = report.getId();
         form.title = report.getTitle();
         form.description = report.getDescription();
-        form.hidden = report.isHidden();
         ReportParams params = report.getReportParams();
         form.what = params.getWhat();
         form.whatEventSelType = params.getWhatEventSelType();

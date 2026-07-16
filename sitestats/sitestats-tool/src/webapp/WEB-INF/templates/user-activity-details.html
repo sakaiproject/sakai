@@ -4,7 +4,7 @@
 <body>
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('useractivity')}"></div>
-  <h1 class="h3 mt-3" th:text="#{sitestats_event_details}">Event details</h1>
+  <h1 class="h3 mt-3" th:text="#{de_resultsTable_details}">Details</h1>
   <dl class="row">
     <th:block th:each="detail : ${eventDetails.details}">
       <dt class="col-sm-4" th:text="${detail.key}"></dt>
@@ -16,7 +16,7 @@
     </th:block>
   </dl>
   <a class="btn btn-link" th:href="@{/useractivity(siteId=${siteId})}"
-     th:text="#{sitestats_activity_back}">Back to User Activity</a>
+     th:text="#{back}">Back</a>
 </main>
 </body>
 </html>

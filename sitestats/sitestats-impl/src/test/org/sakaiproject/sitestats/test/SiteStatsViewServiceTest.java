@@ -8,23 +8,27 @@ package org.sakaiproject.sitestats.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.site;
-import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.tool;
-import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.visitReport;
-import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.visitStat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
+import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.eventStat;
+import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.site;
+import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.tool;
+import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.visitReport;
+import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.visitStat;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -118,11 +122,33 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	}
 
 	@Test
-	public void getOverviewIncludesMetricSnapshotsForAllAndOwnWidgets() {
+	public void getOverviewPrefersAllWidgetsWhenAllAndOwnPermissionsAreGranted() {
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
 
 		assertEquals("3", metric(overview, WIDGET_VISITS, METRIC_VISITS_TOTAL).getSnapshot().getPrimary());
+		assertFalse(hasWidget(overview, WIDGET_STUDENT_VISITS));
+	}
+
+	@Test
+	public void getOverviewIncludesOwnWidgetsWhenAllPermissionIsNotGranted() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+
+		assertFalse(hasWidget(overview, WIDGET_VISITS));
 		assertNotNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL).getSnapshot());
+	}
+
+	@Test
+	public void getOverviewDoesNotDuplicatePrimaryMetricValuesAsDetails() {
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT, FakeData.EVENT_CHATNEW,
+				Date.valueOf("2026-06-17"), 4));
+
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+		SiteStatsWidgetMetric metric = metric(overview, WIDGET_ACTIVITY, METRIC_ACTIVITY_MOST_ACTIVE_TOOL);
+
+		assertNotNull(metric.getSnapshot().getPercentage());
+		assertNull(metric.getSnapshot().getDetail());
 	}
 
 	@Test
@@ -291,6 +317,10 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 			}
 		}
 		throw new AssertionError("Missing metric " + widgetId + "/" + metricId);
+	}
+
+	private boolean hasWidget(SiteStatsOverview overview, String widgetId) {
+		return overview.getWidgets().stream().anyMatch(widget -> widgetId.equals(widget.getId()));
 	}
 
 }

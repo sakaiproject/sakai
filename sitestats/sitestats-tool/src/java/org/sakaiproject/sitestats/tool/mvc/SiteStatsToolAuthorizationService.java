@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.tool.mvc;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 public class SiteStatsToolAuthorizationService {
 
     private final SiteStatsReportAccessService reportAccessService;
+    private final StatsAuthz statsAuthz;
+    private final StatsManager statsManager;
     private final ToolManager toolManager;
 
     public String currentSiteId() {
@@ -37,6 +40,10 @@ public class SiteStatsToolAuthorizationService {
 
     public String adminSite(String requestedSiteId) {
         return authorizedSite(requestedSiteId, AccessLevel.ADMIN);
+    }
+
+    public boolean canViewUserActivity(String siteId) {
+        return statsManager.isDisplayDetailedEvents() && statsAuthz.canCurrentUserTrackInSite(siteId);
     }
 
     private String authorizedSite(String requestedSiteId, AccessLevel accessLevel) {

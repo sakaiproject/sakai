@@ -319,12 +319,6 @@
         <label class="form-label" for="report-description" th:text="#{report_reportdescription}">Description</label>
         <textarea id="report-description" class="form-control" th:field="*{description}" rows="4"></textarea>
       </div>
-      <div class="form-check">
-        <input id="report-hidden" class="form-check-input" type="checkbox" th:field="*{hidden}"/>
-        <label class="form-check-label" for="report-hidden" th:text="#{report_hide}">
-          Hide this report from the normal report list
-        </label>
-      </div>
     </fieldset>
 
     <div class="d-flex flex-wrap gap-2 act">

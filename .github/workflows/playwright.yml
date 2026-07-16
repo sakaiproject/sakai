@@ -61,6 +61,10 @@ jobs:
           git clone https://github.com/sakaiproject/nightly-config.git sakai
           cp sakai/setenv.sh bin/setenv.sh
           cp sakai/cypress.properties sakai/sakai.properties
+          printf '%s\n' \
+            'collectDetailedEvents@org.sakaiproject.sitestats.api.StatsUpdateManager.target=true' \
+            'displayDetailedEvents@org.sakaiproject.sitestats.api.StatsManager.target=true' \
+            >> sakai/sakai.properties
           cp -f sakai/context.xml conf/context.xml
           cp -f sakai/catalina.properties conf/catalina.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml

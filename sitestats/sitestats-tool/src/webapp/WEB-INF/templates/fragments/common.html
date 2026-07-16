@@ -13,7 +13,7 @@
     <ul>
       <li th:if="${!adminTool}"><a th:classappend="${active == 'overview'} ? ' current'" th:attr="aria-current=${active == 'overview'} ? 'page' : null" th:href="@{/home(siteId=${siteId})}" th:text="#{menu_overview}">Overview</a></li>
       <li th:if="${!adminTool}"><a th:classappend="${active == 'reports'} ? ' current'" th:attr="aria-current=${active == 'reports'} ? 'page' : null" th:href="@{/reports(siteId=${siteId})}" th:text="#{menu_reports}">Reports</a></li>
-      <li th:if="${!adminTool}"><a th:classappend="${active == 'useractivity'} ? ' current'" th:attr="aria-current=${active == 'useractivity'} ? 'page' : null" th:href="@{/useractivity(siteId=${siteId})}" th:text="#{menu_useractivity}">User Activity</a></li>
+      <li th:if="${!adminTool and userActivityAvailable}"><a th:classappend="${active == 'useractivity'} ? ' current'" th:attr="aria-current=${active == 'useractivity'} ? 'page' : null" th:href="@{/useractivity(siteId=${siteId})}" th:text="#{menu_useractivity}">User Activity</a></li>
       <li th:if="${!adminTool}"><a th:classappend="${active == 'preferences'} ? ' current'" th:attr="aria-current=${active == 'preferences'} ? 'page' : null" th:href="@{/preferences(siteId=${siteId})}" th:text="#{menu_prefs}">Preferences</a></li>
       <li th:if="${adminTool}"><a th:classappend="${active == 'admin'} ? ' current'" th:attr="aria-current=${active == 'admin'} ? 'page' : null" th:href="@{/admin}" th:text="#{menu_sitelist}">Sites</a></li>
       <li th:if="${adminTool and active == 'serverwide'}"><a class="current" aria-current="page" th:href="@{/serverwide(siteId=${siteId})}" th:text="#{menu_serverwide}">Server-wide</a></li>

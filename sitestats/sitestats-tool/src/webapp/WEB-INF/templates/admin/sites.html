@@ -5,7 +5,6 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('admin')}"></div>
   <h1 class="h3 mt-3" th:text="#{menu_sitelist}">Sites</h1>
-  <p class="instruction" th:text="#{instructions_sitelist}"></p>
   <p class="text-body-secondary" th:if="${lastJobRun != null}">
     <span th:text="#{last_job_run_date}">Last updated on:</span>
     <time th:datetime="${lastJobRun.timestamp}" th:text="${lastJobRun.displayTimestamp}"></time>
@@ -13,8 +12,8 @@
   <search>
     <form method="get" class="row g-3 align-items-end mb-4" th:action="@{/admin}">
       <div class="col-12 col-md-4">
-        <label class="form-label" for="site-search" th:text="#{sitestats_search_sites}">
-          Search sites
+        <label class="form-label" for="site-search" th:text="#{instructions_sitelist}">
+          Search sites by title to access site-specific statistics
         </label>
         <input id="site-search" class="form-control" type="search" name="search" th:value="${search}"/>
       </div>

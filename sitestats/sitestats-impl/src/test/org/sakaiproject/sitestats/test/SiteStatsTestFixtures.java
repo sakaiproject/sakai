@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -21,6 +22,7 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 
 final class SiteStatsTestFixtures {
@@ -65,6 +67,12 @@ final class SiteStatsTestFixtures {
 		stat.setTotalVisits(totalVisits);
 		stat.setTotalUnique(totalUnique);
 		stat.setCount(totalVisits);
+		return stat;
+	}
+
+	static EventStat eventStat(String siteId, String userId, String toolId, String eventId, Date date, long count) {
+		EventStat stat = new EventStatImpl(0, siteId, userId, eventId, count, date);
+		stat.setToolId(toolId);
 		return stat;
 	}
 

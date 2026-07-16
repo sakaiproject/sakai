@@ -249,7 +249,9 @@ public class SiteStatsController {
     private void commonModel(Model model, String siteId, String activeMenu) {
         model.addAttribute("siteId", siteId);
         model.addAttribute("activeMenu", activeMenu);
-        model.addAttribute("adminTool", toolService.isAdminTool());
+        boolean adminTool = toolService.isAdminTool();
+        model.addAttribute("adminTool", adminTool);
+        model.addAttribute("userActivityAvailable", !adminTool && toolService.canViewUserActivity(siteId));
     }
 
     private SiteStatsReportRequest reportRequest() {

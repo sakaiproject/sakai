@@ -155,6 +155,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         openReportsAsInstructor();
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#report-hidden")).hasCount(0);
         page.getByLabel("Title").fill(SAVED_REPORT_TITLE);
         page.getByLabel("Description").fill(REPORT_DESC);
         page.getByRole(AriaRole.BUTTON,
@@ -206,7 +207,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).click();
         Locator preferenceTools = page.locator("fieldset").filter(
-            new Locator.FilterOptions().setHasText("Activity definition")).locator("h2");
+            new Locator.FilterOptions().setHas(page.locator("#all-tools"))).locator("h2");
         assertTrue(preferenceTools.count() > 0);
         for (int index = 0; index < preferenceTools.count(); index++) {
             assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));

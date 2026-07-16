@@ -18,10 +18,30 @@
       <tr th:each="report : ${reports}">
         <td><a th:href="@{/reports/{id}(id=${report.id},siteId=${siteId})}" th:text="${report.title}">Report</a></td>
         <td th:text="${report.description}"></td>
-        <td><div class="d-flex flex-wrap gap-2">
-          <a class="btn btn-outline-secondary btn-sm" th:if="${report.siteId != null}" th:href="@{/reports/{id}/edit(id=${report.id},siteId=${siteId})}" th:text="#{report_edit}">Edit report</a>
-          <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-secondary btn-sm" type="submit" th:text="#{report_duplicate}">Copy report</button></form>
-          <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}"><input type="hidden" name="siteId" th:value="${siteId}"/><input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/><button class="btn btn-outline-danger btn-sm" type="submit" th:text="#{report_delete}">Delete report</button></form>
+        <td><div class="d-flex flex-wrap gap-1 btn-group-sm">
+          <a class="btn btn-outline-secondary btn-sm"
+             th:if="${report.siteId != null}"
+             th:href="@{/reports/{id}/edit(id=${report.id},siteId=${siteId})}"
+             th:title="#{report_edit}">
+            <span class="bi bi-pencil" aria-hidden="true"></span>
+            <span class="visually-hidden" th:text="#{report_edit}">Edit report</span>
+          </a>
+          <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}">
+            <input type="hidden" name="siteId" th:value="${siteId}"/>
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button class="btn btn-outline-secondary btn-sm" type="submit" th:title="#{report_duplicate}">
+              <span class="bi bi-copy" aria-hidden="true"></span>
+              <span class="visually-hidden" th:text="#{report_duplicate}">Copy report</span>
+            </button>
+          </form>
+          <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}">
+            <input type="hidden" name="siteId" th:value="${siteId}"/>
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button class="btn btn-outline-danger btn-sm" type="submit" th:title="#{report_delete}">
+              <span class="bi bi-trash" aria-hidden="true"></span>
+              <span class="visually-hidden" th:text="#{report_delete}">Delete report</span>
+            </button>
+          </form>
         </div></td>
       </tr>
       </tbody>

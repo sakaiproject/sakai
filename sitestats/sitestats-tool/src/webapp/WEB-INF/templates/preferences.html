@@ -11,8 +11,7 @@
     <input type="hidden" th:if="${_csrf != null}"
            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     <fieldset class="mb-4">
-      <legend class="h4" th:text="#{prefs_sep_general}">General</legend>
-      <p class="instruction" th:text="#{instructions_prefs_general}"></p>
+      <legend class="h4" th:text="#{instructions_prefs_general}">General options</legend>
       <div class="form-check mb-2">
         <input id="site-tools-only" class="form-check-input" type="checkbox"
                th:field="*{listToolEventsOnlyAvailableInSite}"/>
@@ -27,7 +26,7 @@
       </div>
     </fieldset>
     <fieldset class="mb-4">
-      <legend class="h4" th:text="#{prefs_sep_chart}">Charts</legend>
+      <legend class="h4" th:text="#{instructions_prefs_sep_chart}">Chart presentation options</legend>
       <div class="form-check mb-3">
         <input id="item-labels" class="form-check-input" type="checkbox" th:field="*{itemLabelsVisible}"/>
         <label class="form-check-label" for="item-labels" th:text="#{prefs_itemLabelsVisible}"></label>
@@ -41,7 +40,7 @@
       </select>
     </fieldset>
     <fieldset class="mb-4 sitestats-activity-definition">
-      <legend class="h4" th:text="#{prefs_sep_activity_definition}">Activity definition</legend>
+      <legend class="h4" th:text="#{instructions_prefs_activity_tools}">Tools/events included as activity</legend>
       <div class="form-check">
         <input id="all-tools" class="form-check-input" type="checkbox" th:field="*{useAllTools}"
                aria-controls="activity-event-options"/>

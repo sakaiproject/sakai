@@ -213,7 +213,7 @@ public class SiteStatsToolService {
         report.setSiteId(siteId);
         report.setTitle(StringUtils.trim(form.getTitle()));
         report.setDescription(StringUtils.trimToEmpty(form.getDescription()));
-        report.setHidden(form.isHidden());
+        report.setHidden(false);
         applyReportParameters(report.getReportParams(), form);
         return report;
     }
@@ -428,6 +428,7 @@ public class SiteStatsToolService {
 
     public UserActivityResult userActivity(String requestedSiteId, UserActivityForm form) {
         String siteId = viewSite(requestedSiteId);
+        assertCanViewUserActivity(siteId);
         List<UserOption> users = detailedEventsManager.getUsersForTracking(siteId).stream()
                 .map(userId -> new UserOption(userId, displayName(userId)))
                 .sorted(Comparator.comparing(UserOption::getDisplayName, String.CASE_INSENSITIVE_ORDER))
@@ -463,6 +464,7 @@ public class SiteStatsToolService {
 
     public EventDetailsResult eventDetails(String requestedSiteId, long eventId) {
         String siteId = viewSite(requestedSiteId);
+        assertCanViewUserActivity(siteId);
         DetailedEvent event = detailedEventsManager.getDetailedEventById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown event"));
         if (!siteId.equals(event.getSiteId())) {
@@ -472,6 +474,16 @@ public class SiteStatsToolService {
                 detailedEventsManager.resolveEventReference(
                         event.getEventId(), event.getEventRef(), event.getSiteId()), siteId);
         return new EventDetailsResult(siteId, event, details);
+    }
+
+    public boolean canViewUserActivity(String siteId) {
+        return authorizationService.canViewUserActivity(siteId);
+    }
+
+    private void assertCanViewUserActivity(String siteId) {
+        if (!canViewUserActivity(siteId)) {
+            throw new SecurityException("User Activity is not available");
+        }
     }
 
     public List<Site> adminSites(String search, String type, int page) {
