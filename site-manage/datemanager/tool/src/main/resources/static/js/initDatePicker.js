@@ -53,14 +53,80 @@ DTMN.initDatePicker = function(updates, notModified) {
   });
 };
 
+// ----- Bulk method radios: show one bulk-edit panel (and its Apply button) at a time -----
+
+DTMN.initBulkModeRadios = function() {
+  document.querySelectorAll("input[name='dm-bulk-mode']").forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      document.querySelectorAll(".dm-bulk-panel").forEach(function(panel) {
+        panel.classList.toggle("d-none", panel.id !== radio.value);
+      });
+      document.querySelectorAll(".dm-bulk-apply").forEach(function(button) {
+        button.classList.toggle("d-none", button.dataset.dmPanel !== radio.value);
+      });
+    }, false);
+  });
+};
+
+// ----- Tool scope row: which tool sections the bulk applies act on -----
+
+DTMN.initScopePicker = function() {
+  DTMN.scopeChecks = Array.from(document.querySelectorAll(".dm-scope-tool"));
+  DTMN.scopeAllCheck = document.getElementById("dm-scope-all");
+
+  if (!DTMN.scopeChecks.length) {
+    return;
+  }
+
+  // A scope change can enable or disable any method's Apply button, so re-run all three validators.
+  const revalidate = function() {
+    DTMN.updateScopeAllState();
+    DTMN.validateShiftInput();
+    DTMN.validateFitInputs();
+    DTMN.validateTermInputs();
+  };
+
+  DTMN.scopeChecks.forEach(function(check) {
+    check.addEventListener("change", revalidate, false);
+  });
+
+  if (DTMN.scopeAllCheck) {
+    DTMN.scopeAllCheck.addEventListener("change", function() {
+      DTMN.scopeChecks.forEach(function(check) { check.checked = DTMN.scopeAllCheck.checked; });
+      revalidate();
+    }, false);
+  }
+
+  DTMN.updateScopeAllState();
+};
+
+DTMN.updateScopeAllState = function() {
+  if (!DTMN.scopeAllCheck) {
+    return;
+  }
+  const checkedCount = DTMN.scopeChecks.filter(function(check) { return check.checked; }).length;
+  DTMN.scopeAllCheck.checked = checkedCount === DTMN.scopeChecks.length;
+  DTMN.scopeAllCheck.indeterminate = checkedCount > 0 && checkedCount < DTMN.scopeChecks.length;
+};
+
+// Section elements for the tools ticked in the scope row. Falls back to every section when the
+// scope row is absent so the apply paths keep working without it.
+DTMN.getScopedSections = function() {
+  if (!DTMN.scopeChecks || !DTMN.scopeChecks.length) {
+    return DTMN.collapseElements;
+  }
+  const roots = new Set(DTMN.scopeChecks.filter(function(check) { return check.checked; })
+      .map(function(check) { return check.dataset.root; }));
+  return DTMN.collapseElements.filter(function(section) { return roots.has(section.id); });
+};
+
 DTMN.initShifter = function(updates, notModified) {
 
   DTMN.validShiftRegex = /^-{0,1}\d{1,4}$/;
 
   DTMN.shiftErrorBanner = document.getElementById("dateShifterError");
   DTMN.shiftInput = document.getElementById("dateShifterDays");
-  DTMN.shiftAllBtn = document.getElementById("shiftAllDates");
-  DTMN.shiftVisibleBtn = document.getElementById("shiftVisibleDates");
+  DTMN.shiftApplyBtn = document.getElementById("dm-apply-shift");
 
   // Add event listener to the submit button to clear visual indication
   $('#modal-btn-confirm').on('click', function() {
@@ -69,16 +135,21 @@ DTMN.initShifter = function(updates, notModified) {
 
   DTMN.shiftInput.addEventListener("input", () => DTMN.validateShiftInput(), false);
 
-  DTMN.shiftAllBtn.addEventListener("click", function() {
-    DTMN.handleShiftButtonClick(this, DTMN.collapseElements, updates, notModified);
+  // The whole page is one form; Enter in the day-count field must not trigger a save.
+  DTMN.shiftInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
   }, false);
 
-  DTMN.shiftVisibleBtn.addEventListener("click", function() {
-    DTMN.handleShiftButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
+  DTMN.shiftApplyBtn.addEventListener("click", function() {
+    DTMN.handleShiftButtonClick(this, DTMN.getScopedSections(), updates, notModified);
   }, false);
+
+  DTMN.initDateDiff();
 };
 
-// ----- Date difference helper: whole days between two dates, loaded into the shift field -----
+// ----- Term start pickers: whole days between the old and new term start, driving the shift field -----
 
 // Pure: signed whole days from `from` to `to` (to - from), counting calendar days, ignoring time of day.
 DTMN.computeDayDiff = function(from, to) {
@@ -91,10 +162,9 @@ DTMN.initDateDiff = function() {
   DTMN.diffFromHidden = document.getElementById("date-diff-from-hidden");
   DTMN.diffToInput = document.getElementById("date-diff-to");
   DTMN.diffToHidden = document.getElementById("date-diff-to-hidden");
-  DTMN.diffApplyBtn = document.getElementById("date-diff-apply");
   DTMN.diffResult = document.getElementById("date-diff-result");
 
-  if (!DTMN.diffApplyBtn || !DTMN.diffFromHidden || !DTMN.diffToHidden) {
+  if (!DTMN.diffFromHidden || !DTMN.diffToHidden) {
     return;
   }
 
@@ -113,12 +183,8 @@ DTMN.initDateDiff = function() {
         iso8601: hidden.id,
       }
     });
-    hidden.addEventListener("change", () => DTMN.validateDateDiff(), false);
+    hidden.addEventListener("change", () => DTMN.applyDateDiff(), false);
   });
-
-  DTMN.diffApplyBtn.addEventListener("click", () => DTMN.applyDateDiff(), false);
-
-  DTMN.validateDateDiff();
 };
 
 // Returns the whole-day difference when both dates are present and valid, else null.
@@ -137,16 +203,12 @@ DTMN.getDateDiffDays = function() {
   return DTMN.computeDayDiff(from, to);
 };
 
-// Show the count live as soon as both dates are valid, and enable the "use as shift" button.
-// The button stays disabled for a zero-day difference (nothing to shift) and for spans beyond
-// what the shifter accepts (+/-9999 days), so it can never load a value the shifter dead-ends on.
-DTMN.validateDateDiff = function() {
-  if (!DTMN.diffApplyBtn) {
-    return;
-  }
-
+// Show the count as soon as both term start dates are valid and load it straight into the shift
+// field, where it stays editable for fine-tuning. The shifter's own validation then enables its
+// buttons (a zero-day count leaves them disabled). Spans beyond what the shifter accepts
+// (+/-9999 days) are shown but not loaded, so the field can never dead-end.
+DTMN.applyDateDiff = function() {
   const days = DTMN.getDateDiffDays();
-  DTMN.diffApplyBtn.disabled = days === null || days === 0 || days < -9999 || days > 9999;
 
   if (DTMN.diffResult) {
     if (days === null) {
@@ -156,20 +218,13 @@ DTMN.validateDateDiff = function() {
       DTMN.diffResult.textContent = template.replace("{0}", days);
     }
   }
-};
 
-DTMN.applyDateDiff = function() {
-  const days = DTMN.getDateDiffDays();
-  if (days === null) {
+  if (days === null || days < -9999 || days > 9999) {
     return;
   }
 
-  // Load the day count into the shift field and let the shifter's own validation enable its buttons.
-  const shiftInput = document.getElementById("dateShifterDays");
-  if (shiftInput) {
-    shiftInput.value = days;
-    DTMN.validateShiftInput();
-  }
+  DTMN.shiftInput.value = days;
+  DTMN.validateShiftInput();
 };
 
 // ----- Re-anchor / fit dates between a new first and last date -----
@@ -189,10 +244,9 @@ DTMN.initFitter = function(updates, notModified) {
   DTMN.fitLastInput = document.getElementById("date-fit-last");
   DTMN.fitLastHidden = document.getElementById("date-fit-last-hidden");
   DTMN.fitSnapCheckbox = document.getElementById("date-fit-snap");
-  DTMN.fitAllBtn = document.getElementById("fit-all-dates");
-  DTMN.fitVisibleBtn = document.getElementById("fit-visible-dates");
+  DTMN.fitApplyBtn = document.getElementById("dm-apply-fit");
 
-  if (!DTMN.fitAllBtn || !DTMN.fitVisibleBtn || !DTMN.fitFirstHidden || !DTMN.fitLastHidden) {
+  if (!DTMN.fitApplyBtn || !DTMN.fitFirstHidden || !DTMN.fitLastHidden) {
     return;
   }
 
@@ -214,12 +268,8 @@ DTMN.initFitter = function(updates, notModified) {
     hidden.addEventListener("change", () => DTMN.validateFitInputs(), false);
   });
 
-  DTMN.fitAllBtn.addEventListener("click", function() {
-    DTMN.handleFitButtonClick(this, false, updates, notModified);
-  }, false);
-
-  DTMN.fitVisibleBtn.addEventListener("click", function() {
-    DTMN.handleFitButtonClick(this, true, updates, notModified);
+  DTMN.fitApplyBtn.addEventListener("click", function() {
+    DTMN.handleFitButtonClick(this, DTMN.getScopedSections(), updates, notModified);
   }, false);
 
   DTMN.validateFitInputs();
@@ -241,7 +291,7 @@ DTMN.getFitAnchors = function() {
 };
 
 DTMN.validateFitInputs = function() {
-  if (!DTMN.fitAllBtn || !DTMN.fitVisibleBtn) {
+  if (!DTMN.fitApplyBtn) {
     return;
   }
 
@@ -255,8 +305,7 @@ DTMN.validateFitInputs = function() {
     DTMN.hideFitError();
   }
 
-  DTMN.fitAllBtn.disabled = !rangeOk;
-  DTMN.fitVisibleBtn.disabled = !rangeOk || DTMN.findExpandedSections().length === 0;
+  DTMN.fitApplyBtn.disabled = !rangeOk || DTMN.getScopedSections().length === 0;
 };
 
 DTMN.showFitError = function() {
@@ -275,19 +324,18 @@ DTMN.hideFitError = function() {
   DTMN.fitErrorBanner.removeAttribute("role");
 };
 
-DTMN.handleFitButtonClick = function(button, restrictToExpanded, updates, notModified) {
+DTMN.handleFitButtonClick = function(button, sections, updates, notModified) {
 
   const anchors = DTMN.getFitAnchors();
-  if (!anchors || anchors.last.valueOf() <= anchors.first.valueOf()) {
+  if (!anchors || anchors.last.valueOf() <= anchors.first.valueOf() || sections.length === 0) {
     return;
   }
 
   button.classList.add("spinButton");
-  DTMN.fitAllBtn.disabled = true;
-  DTMN.fitVisibleBtn.disabled = true;
+  DTMN.fitApplyBtn.disabled = true;
 
   window.setTimeout(function() {
-    DTMN.fitDates(anchors, restrictToExpanded, updates, notModified);
+    DTMN.fitDates(anchors, sections, updates, notModified);
     button.classList.remove("spinButton");
     DTMN.validateFitInputs();
   }, 25);
@@ -369,9 +417,8 @@ DTMN.computeRowFittedDates = function(rowCells, oldStartMs, oldSpan, anchors, sn
   return snapped;
 };
 
-DTMN.fitDates = function(anchors, restrictToExpanded, updates, notModified) {
+DTMN.fitDates = function(anchors, sections, updates, notModified) {
 
-  const sections = restrictToExpanded ? DTMN.findExpandedSections() : DTMN.collapseElements;
   if (sections.length === 0) {
     return;
   }
@@ -576,10 +623,9 @@ DTMN.applyDefaultTermTargets = function() {
 
 DTMN.initTermDates = function(updates, notModified) {
 
-  DTMN.termAllBtn = document.getElementById("apply-term-dates-all");
-  DTMN.termVisibleBtn = document.getElementById("apply-term-dates-visible");
+  DTMN.termApplyBtn = document.getElementById("dm-apply-term");
 
-  if (!DTMN.termAllBtn || !DTMN.termVisibleBtn) {
+  if (!DTMN.termApplyBtn) {
     return;
   }
 
@@ -608,12 +654,8 @@ DTMN.initTermDates = function(updates, notModified) {
     check.addEventListener("change", () => DTMN.validateTermInputs(), false);
   });
 
-  DTMN.termAllBtn.addEventListener("click", function() {
-    DTMN.handleTermButtonClick(this, false, updates, notModified);
-  }, false);
-
-  DTMN.termVisibleBtn.addEventListener("click", function() {
-    DTMN.handleTermButtonClick(this, true, updates, notModified);
+  DTMN.termApplyBtn.addEventListener("click", function() {
+    DTMN.handleTermButtonClick(this, updates, notModified);
   }, false);
 
   DTMN.applyDefaultTermTargets();
@@ -631,10 +673,11 @@ DTMN.termHasActionableInput = function() {
   });
 };
 
-// Like termHasActionableInput, but only counts a checked target whose section is currently expanded.
-// The "apply only to tools expanded below" path skips collapsed sections, so without this the button could
-// be enabled while every checked column lives in a collapsed section, making the click a no-op.
-DTMN.termHasActionableInputInExpandedSections = function() {
+// Like termHasActionableInput, but only counts a checked target whose section is ticked in the
+// scope row. Without this the button could be enabled while every checked column lives in an
+// unscoped section, making the click a no-op.
+DTMN.termHasActionableInputInScopedSections = function() {
+  const scopedIds = new Set(DTMN.getScopedSections().map(function(section) { return section.id; }));
   return DTMN.termFields.some(function(term) {
     const hidden = document.getElementById(DTMN.getTermHiddenId(term));
     if (!hidden || hidden.value === "") {
@@ -642,39 +685,38 @@ DTMN.termHasActionableInputInExpandedSections = function() {
     }
     const checks = document.querySelectorAll('.term-target[data-term="' + term + '"]:checked');
     return Array.prototype.some.call(checks, function(check) {
-      const section = document.getElementById(check.dataset.root);
-      return section !== null && section.classList.contains("show");
+      return scopedIds.has(check.dataset.root);
     });
   });
 };
 
 DTMN.validateTermInputs = function() {
-  if (!DTMN.termAllBtn || !DTMN.termVisibleBtn) {
+  if (!DTMN.termApplyBtn) {
     return;
   }
 
-  DTMN.termAllBtn.disabled = !DTMN.termHasActionableInput();
-  DTMN.termVisibleBtn.disabled = !DTMN.termHasActionableInputInExpandedSections();
+  DTMN.termApplyBtn.disabled = !DTMN.termHasActionableInputInScopedSections();
 };
 
-DTMN.handleTermButtonClick = function(button, restrictToExpanded, updates, notModified) {
+DTMN.handleTermButtonClick = function(button, updates, notModified) {
 
-  if (!DTMN.termHasActionableInput()) {
+  if (!DTMN.termHasActionableInputInScopedSections()) {
     return;
   }
 
   button.classList.add("spinButton");
-  DTMN.termAllBtn.disabled = true;
-  DTMN.termVisibleBtn.disabled = true;
+  DTMN.termApplyBtn.disabled = true;
 
   window.setTimeout(function() {
-    DTMN.applyTermDates(restrictToExpanded, updates, notModified);
+    DTMN.applyTermDates(DTMN.getScopedSections(), updates, notModified);
     button.classList.remove("spinButton");
     DTMN.validateTermInputs();
   }, 25);
 };
 
-DTMN.applyTermDates = function(restrictToExpanded, updates, notModified) {
+DTMN.applyTermDates = function(sections, updates, notModified) {
+
+  const scopedIds = new Set(sections.map(function(section) { return section.id; }));
 
   // Process term dates top-to-bottom so that when two term dates target the same column,
   // the lower one in the panel wins (applied last).
@@ -693,12 +735,8 @@ DTMN.applyTermDates = function(restrictToExpanded, updates, notModified) {
     checks.forEach(function(check) {
       const root = check.dataset.root;
       const field = check.dataset.field;
-      const sectionEl = document.getElementById(root);
 
-      if (!sectionEl) {
-        return;
-      }
-      if (restrictToExpanded && !sectionEl.classList.contains("show")) {
+      if (!scopedIds.has(root) || !document.getElementById(root)) {
         return;
       }
 
@@ -896,6 +934,11 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
 
 DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notModified)
 {
+  if (collapseElements.length === 0)
+  {
+    return;
+  }
+
   DTMN.disableShiftControls(button);
   window.setTimeout(function()
   {
@@ -910,6 +953,11 @@ DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notMod
 
 DTMN.validateShiftInput = function()
 {
+  if (!DTMN.shiftInput || !DTMN.shiftApplyBtn)
+  {
+    return;
+  }
+
   const val = DTMN.shiftInput.value;
   if (val === "" || val === "-")
   {
@@ -928,13 +976,7 @@ DTMN.validateShiftInput = function()
 
   DTMN.hideShiftError();
 
-  DTMN.shiftAllBtn.disabled = days === 0;
-  DTMN.shiftVisibleBtn.disabled = days === 0 || DTMN.findExpandedSections().length === 0;
-};
-
-DTMN.findExpandedSections = function()
-{
-  return DTMN.collapseElements.filter(function (e) { return e.classList.contains("show") === true; });
+  DTMN.shiftApplyBtn.disabled = days === 0 || DTMN.getScopedSections().length === 0;
 };
 
 DTMN.hideShiftError = function()
@@ -958,8 +1000,7 @@ DTMN.disableShiftControls = function(button)
 
 DTMN.disableShiftButtons = function()
 {
-  DTMN.shiftAllBtn.disabled = true;
-  DTMN.shiftVisibleBtn.disabled = true;
+  DTMN.shiftApplyBtn.disabled = true;
 };
 
 DTMN.enableShiftControls = function(button)
@@ -1089,6 +1130,32 @@ DTMN.collectPreviewEvents = function() {
   return events;
 };
 
+// Whole-month grid range covering every event, so the default "Overview" view shows the full
+// span from the first date to the last in one continuous scrollable grid. Very long spans are
+// clamped to a year past the first date to keep the grid a sane size.
+DTMN.computePreviewRange = function(events) {
+  let earliest = null;
+  let latest = null;
+  events.forEach(function(ev) {
+    if (earliest === null || ev.start < earliest) earliest = ev.start;
+    if (latest === null || ev.start > latest) latest = ev.start;
+  });
+  if (earliest === null) {
+    return null;
+  }
+  const start = moment(earliest, 'YYYY-MM-DD').startOf('month');
+  let end = moment(latest, 'YYYY-MM-DD').endOf('month').add(1, 'day').startOf('day');
+  const cap = start.clone().add(12, 'months');
+  if (end.isAfter(cap)) {
+    end = cap;
+  }
+  return {
+    earliest,
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+  };
+};
+
 DTMN.renderCalendarPreview = function() {
   const events = DTMN.collectPreviewEvents();
   const emptyMsg = document.getElementById('datemanager-calendar-empty');
@@ -1106,10 +1173,25 @@ DTMN.renderCalendarPreview = function() {
   calendarEl.classList.remove('d-none');
 
   const locale = (sakai && sakai.locale && sakai.locale.userLanguage) || 'en';
+  const range = DTMN.computePreviewRange(events);
+  // Held on DTMN so the custom view's visibleRange callback always sees the current span,
+  // including after events are replaced on a later open of the modal.
+  DTMN.previewRange = { start: range.start, end: range.end };
 
   if (!DTMN.previewCalendar) {
     DTMN.previewCalendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
+      // The "Overview" view: a duration-less dayGrid driven by visibleRange, one continuous
+      // grid from the month of the first date through the month of the last.
+      initialView: 'dmSpan',
+      views: {
+        dmSpan: {
+          type: 'dayGrid',
+          buttonText: DTMN.previewSpanButtonText || 'Overview',
+        }
+      },
+      visibleRange: function() {
+        return DTMN.previewRange;
+      },
       themeSystem: 'bootstrap5',
       locale: locale,
       displayEventTime: false,
@@ -1117,7 +1199,7 @@ DTMN.renderCalendarPreview = function() {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: ''
+        right: 'dmSpan,dayGridMonth,dayGridWeek'
       },
       buttonIcons: {
         prev: 'chevron-left',
@@ -1132,13 +1214,9 @@ DTMN.renderCalendarPreview = function() {
     DTMN.previewCalendar.updateSize();
   }
 
-  // Open on the earliest date so the first populated month is visible immediately.
-  const earliest = events.reduce(function(min, ev) {
-    return (min === null || ev.start < min) ? ev.start : min;
-  }, null);
-  if (earliest) {
-    DTMN.previewCalendar.gotoDate(earliest);
-  }
+  // Anchor on the earliest date: the overview starts there, and switching to the Month or
+  // Week views lands on the first populated month/week rather than today.
+  DTMN.previewCalendar.gotoDate(range.earliest);
 };
 
 DTMN.initCalendarPreview = function() {

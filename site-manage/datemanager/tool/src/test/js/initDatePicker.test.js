@@ -268,3 +268,78 @@ test("computeDayDiff counts calendar days, ignoring time of day", () => {
 test("computeDayDiff counts whole days across a month boundary", () => {
   assert.equal(DTMN.computeDayDiff(mom("2026-01-25"), mom("2026-02-05")), 11);
 });
+
+// ---------------------------------------------------------------------------
+// applyDateDiff - the term start pickers feeding the shift field live.
+// ---------------------------------------------------------------------------
+
+// applyDateDiff only reads/writes DTMN-held element handles, so a fresh DTMN with plain object
+// stand-ins exercises the wiring without a DOM.
+function diffFixture(fromValue, toValue, shiftValue) {
+  const { DTMN: dtmn } = loadDtmn();
+  dtmn.diffFromHidden = { value: fromValue };
+  dtmn.diffToHidden = { value: toValue };
+  dtmn.diffResult = { textContent: "", dataset: { template: "{0} day(s)" } };
+  dtmn.shiftInput = { value: shiftValue };
+  dtmn.validateCalls = 0;
+  dtmn.validateShiftInput = () => { dtmn.validateCalls++; };
+  return dtmn;
+}
+
+test("applyDateDiff loads the day count into the shift field and shows the result", () => {
+  const dtmn = diffFixture("2026-01-06", "2026-03-31", "");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, 84);
+  assert.equal(dtmn.diffResult.textContent, "84 day(s)");
+  assert.equal(dtmn.validateCalls, 1);
+});
+
+test("applyDateDiff leaves the shift field alone while a date is missing", () => {
+  const dtmn = diffFixture("2026-01-06", "", "12");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, "12");
+  assert.equal(dtmn.diffResult.textContent, "");
+  assert.equal(dtmn.validateCalls, 0);
+});
+
+test("applyDateDiff shows but does not load a span beyond the shifter's +/-9999 day limit", () => {
+  const dtmn = diffFixture("1990-01-01", "2026-01-01", "12");
+  dtmn.applyDateDiff();
+  assert.equal(dtmn.shiftInput.value, "12");
+  assert.ok(dtmn.diffResult.textContent.length > 0);
+  assert.equal(dtmn.validateCalls, 0);
+});
+
+// ---------------------------------------------------------------------------
+// computePreviewRange - the whole-month span behind the calendar preview's Overview view.
+// ---------------------------------------------------------------------------
+
+test("computePreviewRange covers first to last event in whole months", () => {
+  const range = DTMN.computePreviewRange([
+    { start: "2026-01-15" },
+    { start: "2026-03-02" },
+    { start: "2026-02-10" },
+  ]);
+  assert.equal(range.earliest, "2026-01-15");
+  assert.equal(range.start, "2026-01-01");
+  assert.equal(range.end, "2026-04-01");
+});
+
+test("computePreviewRange of a single date spans exactly that month", () => {
+  const range = DTMN.computePreviewRange([{ start: "2026-06-20" }]);
+  assert.equal(range.start, "2026-06-01");
+  assert.equal(range.end, "2026-07-01");
+});
+
+test("computePreviewRange clamps very long spans to a year", () => {
+  const range = DTMN.computePreviewRange([
+    { start: "2026-01-15" },
+    { start: "2029-05-01" },
+  ]);
+  assert.equal(range.start, "2026-01-01");
+  assert.equal(range.end, "2027-01-01");
+});
+
+test("computePreviewRange returns null with no events", () => {
+  assert.equal(DTMN.computePreviewRange([]), null);
+});
