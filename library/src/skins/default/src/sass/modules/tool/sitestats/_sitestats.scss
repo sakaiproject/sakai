@@ -53,6 +53,31 @@
     display: none;
   }
 
+  .masonry-columns {
+    column-count: 1;
+    column-gap: 1.5rem;
+  }
+
+  @include media-breakpoint-up(md) {
+    .masonry-columns {
+      column-count: 2;
+    }
+  }
+
+  @include media-breakpoint-up(xl) {
+    .masonry-columns {
+      column-count: 3;
+    }
+  }
+
+  .masonry-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    width: 100%;
+  }
+
   /* Pagination navigation styling */
   .sakai-navigator {
     a.first,
