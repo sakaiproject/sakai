@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -50,9 +51,9 @@ public class SiteStatsReportForm {
     private String howChartSeriesSource = StatsManager.T_TOTAL;
     private String howChartSeriesPeriod = StatsManager.CHARTTIMESERIES_DAY;
 
-    public static SiteStatsReportForm create(ZoneId zoneId) {
+    public static SiteStatsReportForm create(Clock clock) {
         SiteStatsReportForm form = new SiteStatsReportForm();
-        LocalDate today = LocalDate.now(zoneId);
+        LocalDate today = LocalDate.now(clock);
         form.whenFrom = today.minusDays(7);
         form.whenTo = today;
         return form;

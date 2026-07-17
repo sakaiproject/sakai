@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -163,7 +164,7 @@ public class SiteStatsToolService {
     }
 
     public SiteStatsReportForm newReportForm() {
-        return SiteStatsReportForm.create(userTimeService.getLocalTimeZone().toZoneId());
+        return SiteStatsReportForm.create(Clock.system(userTimeService.getLocalTimeZone().toZoneId()));
     }
 
     public ReportDef reportDefinition(String requestedSiteId, long reportId) {
