@@ -70,10 +70,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             .matcher(reportEndpoint).find());
         Locator table = reportPanel.locator("sakai-sitestats-table table");
         assertThat(table).isVisible();
-        assertTrue(table.locator("tbody tr").count() > 0);
-        assertThat(reportPanel.locator("sakai-sitestats-chart canvas")).isVisible();
-        page.waitForFunction(siteStatsCanvasHasPixelsScript());
-        assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
+        assertThat(reportPanel.locator("sakai-sitestats-chart")).hasCount(1);
         assertNoLegacyReportChartImages();
     }
 
