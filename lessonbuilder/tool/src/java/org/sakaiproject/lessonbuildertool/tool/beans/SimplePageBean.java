@@ -3659,12 +3659,11 @@ public class SimplePageBean {
 				selectedObjects.add(selectedObject);
 			}
 
-			SimplePageItem i;
 			// editing existing item?
 			if (editing) {
 				String selected = selectedBlti[0];
 				LessonEntity selectedObject = selectedObjects.get(0);
-				i = findItem(itemId);
+				SimplePageItem i = findItem(itemId);
 
 				// if no change, don't worry
 				LessonEntity existing = bltiEntity.getEntity(i.getSakaiId());
@@ -3688,50 +3687,11 @@ public class SimplePageBean {
 					update(i);
 				}
 			} else {
-				simplePageToolDao.setRefreshMode();
-				itemsCache.remove(getCurrentPageId());
-				List<SimplePageItem> pageItems = getItemsOnPage(getCurrentPageId());
-				int insertionSequence = resolveInsertionSequence(pageItems, addBefore);
 				shiftedItems = new ArrayList<>();
-				for (SimplePageItem pageItem : pageItems) {
-					if (pageItem.getPageId() >= 0 && pageItem.getSequence() >= insertionSequence) {
-						pageItem.setSequence(pageItem.getSequence() + selectedBlti.length);
-						shiftedItems.add(pageItem);
-					}
+				String insertResult = insertBltiItems(selectedBlti, selectedObjects, shiftedItems);
+				if (!"success".equals(insertResult)) {
+					return insertResult;
 				}
-
-				List<SimplePageItem> newItems = new ArrayList<>();
-				for (int index = 0; index < selectedBlti.length; index++) {
-					String selected = selectedBlti[index];
-					LessonEntity selectedObject = selectedObjects.get(index);
-					i = simplePageToolDao.makeItem(getCurrentPageId(), insertionSequence + index,
-							SimplePageItem.BLTI, selected, selectedObject.getTitle());
-					clearImageSize(i);
-
-					String itemDescription = StringUtils.defaultIfBlank(selectedObject.getDescription(), description);
-					if (StringUtils.isNotBlank(itemDescription)) {
-						i.setDescription(itemDescription);
-					}
-
-					if (selectedObject instanceof BltiInterface) {
-						BltiInterface blti = (BltiInterface) selectedObject;
-						int frameHeight = blti.frameSize();
-						i.setHeight(frameHeight > 0 ? Integer.toString(frameHeight) : "");
-						i.setFormat(StringUtils.trimToEmpty(format));
-					}
-					newItems.add(i);
-				}
-
-				List<String> errors = new ArrayList<>();
-				if (!simplePageToolDao.saveItemBatch(newItems, shiftedItems, errors,
-						messageLocator.getMessage("simplepage.nowrite"))) {
-					setErrMessage(messageLocator.getMessage("simplepage.savefailed"));
-					discardBltiBatchCaches(shiftedItems);
-					return "failure";
-				}
-				itemsCache.remove(getCurrentPageId());
-				ToolSession toolSession = sessionManager.getCurrentToolSession();
-				toolSession.setAttribute("lessonbuilder.newitem", Long.toString(newItems.get(newItems.size() - 1).getId()));
 			}
 			return "success";
 		} catch (Exception ex) {
@@ -3741,6 +3701,58 @@ public class SimplePageBean {
 		} finally {
 			selectedBlti = new String[] {};
 		}
+	}
+
+	/**
+	 * Insert new BLTI items in provider order at {@link #addBefore}.
+	 * Populates {@code shiftedItems} with page items whose sequences were bumped for failure cleanup.
+	 */
+	private String insertBltiItems(String[] selectedBlti, List<LessonEntity> selectedObjects,
+			List<SimplePageItem> shiftedItems) {
+		simplePageToolDao.setRefreshMode();
+		itemsCache.remove(getCurrentPageId());
+		List<SimplePageItem> pageItems = getItemsOnPage(getCurrentPageId());
+		int insertionSequence = resolveInsertionSequence(pageItems, addBefore);
+		for (SimplePageItem pageItem : pageItems) {
+			if (pageItem.getPageId() >= 0 && pageItem.getSequence() >= insertionSequence) {
+				pageItem.setSequence(pageItem.getSequence() + selectedBlti.length);
+				shiftedItems.add(pageItem);
+			}
+		}
+
+		List<SimplePageItem> newItems = new ArrayList<>();
+		for (int index = 0; index < selectedBlti.length; index++) {
+			String selected = selectedBlti[index];
+			LessonEntity selectedObject = selectedObjects.get(index);
+			SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), insertionSequence + index,
+					SimplePageItem.BLTI, selected, selectedObject.getTitle());
+			clearImageSize(i);
+
+			String itemDescription = StringUtils.defaultIfBlank(selectedObject.getDescription(), description);
+			if (StringUtils.isNotBlank(itemDescription)) {
+				i.setDescription(itemDescription);
+			}
+
+			if (selectedObject instanceof BltiInterface) {
+				BltiInterface blti = (BltiInterface) selectedObject;
+				int frameHeight = blti.frameSize();
+				i.setHeight(frameHeight > 0 ? Integer.toString(frameHeight) : "");
+				i.setFormat(StringUtils.trimToEmpty(format));
+			}
+			newItems.add(i);
+		}
+
+		List<String> errors = new ArrayList<>();
+		if (!simplePageToolDao.saveItemBatch(newItems, shiftedItems, errors,
+				messageLocator.getMessage("simplepage.nowrite"))) {
+			setErrMessage(messageLocator.getMessage("simplepage.savefailed"));
+			discardBltiBatchCaches(shiftedItems);
+			return "failure";
+		}
+		itemsCache.remove(getCurrentPageId());
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute("lessonbuilder.newitem", Long.toString(newItems.get(newItems.size() - 1).getId()));
+		return "success";
 	}
 
 	private void discardBltiBatchCaches(List<SimplePageItem> shiftedItems) {
