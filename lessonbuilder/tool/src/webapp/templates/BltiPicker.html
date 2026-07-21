@@ -26,7 +26,9 @@
 		<form action="#" rsf:id="blti-autosubmit" id="blti-autosubmit">
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="item-id" id="item-id" />
-			<input type="hidden" rsf:id="select"/>
+			<span rsf:id="select-span" style="display:none">
+				<span rsf:id="select-row:"><input type="checkbox" rsf:id="select" /></span>
+			</span>
 			<input type="hidden" rsf:id="add-before" id="add-before" />
 			<input type="hidden" rsf:id="item-description" id="item-description" />
 			<input type="hidden" class="bold" rsf:id="submit" />

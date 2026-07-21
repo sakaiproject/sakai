@@ -1,5 +1,14 @@
 <div class="portletBody">
-#if ( $returnUrl ) 
+#if ( $postReturnUrl && $lessonsContentItems )
+<form id="lessons-deep-link-return" method="post" action="$postReturnUrl" target="_parent">
+#foreach($contentItem in $lessonsContentItems)
+<input type="hidden" name="ltiItemId" value="$contentItem" />
+#end
+</form>
+<script type="text/javascript">
+document.getElementById("lessons-deep-link-return").submit();
+</script>
+#elseif ( $returnUrl )
 <script type="text/javascript"><!--
 parent.location = "$returnUrl";
 // -->

@@ -117,6 +117,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
+	private static String STATE_LESSONS_CONTENT_ITEMS = "lti:state_lessons_content_items";
 	private static String STATE_CONTENT_ITEM = "lti:state_content_item";
 	private static String STATE_CONTENT_ITEM_FAILURES = "lti:state_content_item_failures";
 	private static String STATE_CONTENT_ITEM_SUCCESSES = "lti:state_content_item_successes";
@@ -257,6 +258,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		state.removeAttribute(STATE_REDIRECT_URL);
+		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		return "lti_error";
 	}
 
@@ -272,6 +274,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		state.removeAttribute(STATE_REDIRECT_URL);
+		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		return "lti_finished";
 	}
 
@@ -999,6 +1002,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		forwardUrl += "&registration_token=" + URLEncoder.encode(registration_token);
 
 		state.setAttribute(STATE_REDIRECT_URL, forwardUrl);
+		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		switchPanel(state, "Forward");
 	}
 
@@ -2062,6 +2066,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			log.debug("flow={} newPanelState={} to returnUrl={}", flow, newPanelState, returnUrl);
 			switchPanel(state, newPanelState);
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
+			state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 			return;
 		}
 
@@ -2456,6 +2461,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		JSONArray new_content = new JSONArray();
 		int goodcount = 0;
 		List<String> failures = new ArrayList<String>();
+		List<String> lessonsContentItems = new ArrayList<String>();
 
 		// doMultipleContentItemResponse
 		// Check if this is Deep Link 1.0 or 2.0
@@ -2577,6 +2583,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
+				lessonsContentItems.add("/blti/" + contentKey);
 			}
 
 		} else {
@@ -2677,22 +2684,28 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
+				lessonsContentItems.add("/blti/" + contentKey);
 			}
 		}
 
 		String forward;
 		if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
-			if  (contentKey == null ) {
-				log.warn("Returning content item to Lessons, but contentKey={}", contentKey);
+			if (StringUtils.isBlank(returnUrl)) {
+				addAlert(state, rb.getString("error.contentitem.missing.returnurl"));
+				switchPanel(state, errorPanel);
+				return;
 			}
-			if (returnUrl.indexOf("?") > 0) {
-			   returnUrl += "&ltiItemId=/blti/" + contentKey;
-			} else {
-				returnUrl += "?ltiItemId=/blti/" + contentKey;
+			if (lessonsContentItems.isEmpty()) {
+				log.warn("Deep Link response did not contain any usable LTI resource links for Lessons");
+				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
+				switchPanel(state, errorPanel);
+				return;
 			}
 
-			log.debug("Lessons flow, redirecting to returnUrl {}", returnUrl);
+			log.debug("Lessons flow, posting {} content item(s) to returnUrl {}",
+					lessonsContentItems.size(), returnUrl);
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
+			state.setAttribute(STATE_LESSONS_CONTENT_ITEMS, lessonsContentItems);
 			forward = "Redirect";
 		} else if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
 			forward = "AssignmentDone";
@@ -2937,8 +2950,15 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
+		List<String> lessonsContentItems = (List<String>) state.getAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		state.removeAttribute(STATE_REDIRECT_URL);
+		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		if (returnUrl == null) {
+			return "lti_content_redirect";
+		}
+		if (lessonsContentItems != null && !lessonsContentItems.isEmpty()) {
+			context.put("postReturnUrl", StringEscapeUtils.escapeHtml4(returnUrl));
+			context.put("lessonsContentItems", lessonsContentItems);
 			return "lti_content_redirect";
 		}
 		log.debug("Redirecting parent frame back to={}", returnUrl);
@@ -3259,10 +3279,15 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			String previousFlow = previousPost.getProperty(FLOW_PARAMETER);
 			if ( previousFlow != null ) flow = previousFlow;
 		}
+		String acceptMultipleParam = data.getParameters().getString("acceptMultiple");
+		if (acceptMultipleParam == null && previousPost != null) {
+			acceptMultipleParam = previousPost.getProperty("acceptMultiple");
+		}
+		boolean acceptMultiple = isMultipleLessonsDeepLink(flow, acceptMultipleParam);
 
 		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 
-		log.debug("flow={} toolKey={} returnUrl={}", flow, toolKey, returnUrl);
+		log.debug("flow={} toolKey={} returnUrl={} acceptMultiple={}", flow, toolKey, returnUrl, acceptMultiple);
 
 		Placement placement = toolManager.getCurrentPlacement();
 
@@ -3347,6 +3372,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			context.put("allTools", allTools);
 			context.put("returnUrl", Base64DoubleUrlEncodeSafe.encode(returnUrl));
 			context.put("flow", flow);
+			context.put("acceptMultiple", acceptMultiple);
 			return "lti_editor_select";
 		}
 
@@ -3412,8 +3438,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		// to the access servlet.
 		Properties contentData = new Properties();
 
-		// Lessons and Assignments only want one returned value
-		if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) || flow.equals(FLOW_PARAMETER_LESSONS) ) {
+		// Assignments and edits of existing Lessons items only accept one returned value.
+		if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) || (flow.equals(FLOW_PARAMETER_LESSONS) && !acceptMultiple) ) {
 			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "false");
 		} else {
@@ -3434,6 +3460,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		context.put("forwardUrl", contentLaunch);
 		context.put("forceLight", Boolean.TRUE);
 		return "lti_content_redirect";
+	}
+
+	static boolean isMultipleLessonsDeepLink(String flow, String acceptMultiple) {
+		return FLOW_PARAMETER_LESSONS.equals(flow) && Boolean.parseBoolean(acceptMultiple);
 	}
 
 	// This is called in the non CI/DL flow when we are done configuring a Sakai content item
@@ -3858,7 +3888,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			ContentPutInternal goes back to the returnUrl (PostContentConfig)
 			buildCKEditorDonePanelContext
 		For DL/CI - launch to the tool with response sent to doMultipleContentItemResponse
-			Mark the CI/DL launch as only allowing a single response
+			Allow multiple items to be selected in the CI/DL launch
 			doMultipleContentItemResponse - loops through graph and makes Sakai content items
 			with flow editor send to CKEditorDone
 			CKEditorDone sends data to its parent frame and closes itself
@@ -3877,7 +3907,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		For DL/CI- launch to the tool with response sent to doMultipleContentItemResponse
 			Only allow a single item to be selected in the CI/DL launch
 			doMultipleContentItemResponse - loops through graph and makes Sakai content items
-			with flow editor send to AssignmentDone
+			with flow assignment send to AssignmentDone
 			AssignmentDone sends data to its parent frame and closes itself
 
 	Lessons:
@@ -3893,10 +3923,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			ContentPutInternal goes back to the returnUrl (PostContentConfig)
 			buildAssignmentDonePanelContext
 		For DL/CI - launch to the tool with response sent to doMultipleContentItemResponse
-			Mark the CI/DL launch as only allowing a single response
-			doMultipleContentItemResponse - loops through graph and makes the Sakai content item
-			Then augments the returnUrl with the bltiItem and redirects the frame to the
-			returnUrl (inside the modal / popup iframe creates by Lessons)
+			Allow multiple selections when adding new Lessons items; edits remain single-item
+			doMultipleContentItemResponse - loops through the graph and makes Sakai content items
+			POST resulting bltiItem references to the returnUrl in provider order
+			(inside the modal / popup iframe created by Lessons)
 
 */
 }

@@ -40,6 +40,8 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UISelect;
+import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -54,10 +56,9 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;   
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -140,8 +141,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 
-		// Reach down and grab a GET parameter from ThreadLocal
-		String ltiItemId = ToolUtils.getRequestParameter("ltiItemId");
+		String[] ltiItemIds = ToolUtils.getRequestFromThreadLocal().getParameterValues("ltiItemId");
 
 		simplePageBean.setItemId(itemId);
 
@@ -157,8 +157,10 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 		String toolId = getCurrentTool("sakai.siteinfo");
 
+		boolean acceptMultiple = itemId == null || itemId == -1;
         String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=LessonsMain&flow=lessons"
-            + "&returnUrl=" + URLEncoder.encode(comeBack);
+            + "&returnUrl=" + URLEncoder.encode(comeBack)
+            + "&acceptMultiple=" + acceptMultiple;
 
 		UILink launchlink = UILink.make(tofill, "blti-launch-link", url);
 		UIOutput.make(tofill, "blti-select-text", messageLocator.getMessage("simplepage.blti.chooser"));
@@ -178,13 +180,19 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    currentItem = i.getSakaiId();
 			}
 
-			// If this is an autosubmit situation, we do not need to list the links
+			// If this is an autosubmit situation, carry all selected links into the RSF action.
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
-			if ( ltiItemId != null ) {
+			if ( ltiItemIds != null && ltiItemIds.length > 0 ) {
 				UIForm fb = UIForm.make(tofill, "blti-autosubmit");
-				if (sessionToken != null)
+				if (sessionToken != null) {
 					UIInput.make(fb, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
-				UIInput.make(fb, "select", "simplePageBean.selectedBlti", ltiItemId);
+				}
+				UISelect select = UISelect.makeMultiple(fb, "select-span", ltiItemIds,
+						"#{simplePageBean.selectedBlti}", ltiItemIds);
+				for (int index = 0; index < ltiItemIds.length; index++) {
+					UIBranchContainer row = UIBranchContainer.make(fb, "select-row:");
+					UISelectChoice.make(row, "select", select.getFullID(), index);
+				}
 				UIInput.make(fb, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 				UIInput.make(fb, "item-id", "#{simplePageBean.itemId}");
 				UIInput.make(fb, "item-description", "simplePageBean.description", ltiItemDescription);
@@ -195,9 +203,9 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
 			UIForm cancelform = UIForm.make(tofill, "blti-cancel");
-			if (sessionToken != null)
+			if (sessionToken != null) {
 				UIInput.make(cancelform, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
-			UIInput.make(cancelform, "select", "simplePageBean.selectedBlti", ltiItemId);
+			}
 			UICommand.make(cancelform, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			UICommand.make(cancelform, "cancel2", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 

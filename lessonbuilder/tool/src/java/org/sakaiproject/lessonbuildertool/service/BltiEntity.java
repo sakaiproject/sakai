@@ -298,10 +298,13 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
 
     public String getDescription() {
-        if(tool != null){
-            return (String) tool.get(LTIService.LTI_DESCRIPTION);
-        }
         loadContent();
+        if (content != null) {
+            String contentDescription = (String) content.get(LTIService.LTI_DESCRIPTION);
+            if (StringUtils.isNotBlank(contentDescription)) {
+                return contentDescription;
+            }
+        }
         return tool == null ? null : (String) tool.get(LTIService.LTI_DESCRIPTION);
     }
 

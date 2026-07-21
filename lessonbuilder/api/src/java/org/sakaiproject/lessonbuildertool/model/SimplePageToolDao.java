@@ -177,6 +177,12 @@ public interface SimplePageToolDao {
     //   to use this convoluted approach to getting back errors
 	public boolean saveItem(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 
+	/**
+	 * Saves a group of new page items and their sequence updates in one transaction.
+	 */
+	public boolean saveItemBatch(List<SimplePageItem> newItems, List<SimplePageItem> updatedItems,
+			List<String> elist, String nowriteerr);
+
     // like saveItem but uses saveOrUpdate
 	public boolean saveOrUpdate(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 

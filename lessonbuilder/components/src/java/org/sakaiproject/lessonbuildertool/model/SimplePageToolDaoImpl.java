@@ -42,6 +42,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -755,6 +758,48 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			getCause(e, elist);
 			return false;
 		} catch (DataAccessException e) {
+			getCause(e, elist);
+			return false;
+		}
+	}
+
+	@Override
+	public boolean saveItemBatch(List<SimplePageItem> newItems, List<SimplePageItem> updatedItems,
+			List<String> elist, String nowriteerr) {
+		for (SimplePageItem item : newItems) {
+			if (!canEditPage(item.getPageId())) {
+				elist.add(nowriteerr);
+				return false;
+			}
+		}
+		for (SimplePageItem item : updatedItems) {
+			if (!canEditPage(item.getPageId())) {
+				elist.add(nowriteerr);
+				return false;
+			}
+		}
+
+		try {
+			for (SimplePageItem item : updatedItems) {
+				getHibernateTemplate().merge(item);
+			}
+			for (SimplePageItem item : newItems) {
+				getHibernateTemplate().save(item);
+				updateStudentPage(item);
+			}
+			getHibernateTemplate().flush();
+			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+				@Override
+				public void afterCommit() {
+					for (SimplePageItem item : newItems) {
+						eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE,
+								"/lessonbuilder/item/" + item.getId(), true));
+					}
+				}
+			});
+			return true;
+		} catch (RuntimeException e) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			getCause(e, elist);
 			return false;
 		}

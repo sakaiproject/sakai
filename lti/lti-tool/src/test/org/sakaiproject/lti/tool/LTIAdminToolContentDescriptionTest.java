@@ -59,4 +59,15 @@ public class LTIAdminToolContentDescriptionTest {
 		assertTrue(job.toJSONString().contains("ok"));
 		assertFalse(job.toJSONString().contains("script"));
 	}
+
+	@Test
+	public void multipleDeepLinking_isOnlyEnabledForExplicitLessonsAdds() {
+		assertTrue(LTIAdminTool.isMultipleLessonsDeepLink("lessons", "true"));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink("lessons", "false"));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink("lessons", null));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink("lessons", "1"));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink("assignment", "true"));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink("editor", "true"));
+		assertFalse(LTIAdminTool.isMultipleLessonsDeepLink(null, "true"));
+	}
 }

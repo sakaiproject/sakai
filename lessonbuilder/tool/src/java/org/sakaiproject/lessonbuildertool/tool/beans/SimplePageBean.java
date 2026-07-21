@@ -232,7 +232,7 @@ public class SimplePageBean {
 	private String filterHtml = ServerConfigurationService.getString(FILTERHTML);
 
 	public String selectedAssignment = null;
-	public String selectedBlti = null;
+	public String[] selectedBlti = new String[] {};
 
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
@@ -1983,63 +1983,12 @@ public class SimplePageBean {
 	        // we're going to update directly from the database
 		simplePageToolDao.setRefreshMode();
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
-		// ideally the following should be the same, but there can be odd cases. So be safe
-		long before = 0;
-		String beforeStr = addBefore;
-		boolean addAfter = false;
-		if (beforeStr != null && beforeStr.startsWith("-")) {
-		    addAfter = true;
-		    beforeStr = beforeStr.substring(1);
-		}
-		if (StringUtils.isNotBlank(beforeStr)) {
-		    try {
-			before = Long.parseLong(beforeStr);
-		    } catch (Exception e) {
-			// nothing. ignore bad arg
-		    }
-		}
-
-		// we have an item id. insert before it
-		int nseq = 0;  // sequence number of new item
-		boolean after = false; // we found the item to insert before
-		if (before > 0) {
-		    // have an item number specified, look for the item to insert before
-		    for (SimplePageItem item: items) {
-			if (item.getId() == before) {
-				//if Comments Section item, find the biggest sequence
-				//and assign nseq to be after it for the new item
-				if(isCommentsItem(item)) {
-					nseq = findNextSequence(items);
-				}
-				//for all the other regular items
-				else {
-					// found item to insert before
-					// use its sequence and bump up it and all after
-					nseq = item.getSequence();
-					after = true;
-					if (addAfter) {
-						nseq++;
-						continue;
-					}
-				}
-			}
-			if (after && item.getPageId() >= 0) {
+		int nseq = resolveInsertionSequence(items, addBefore);
+		for (SimplePageItem item: items) {
+			if (item.getPageId() >= 0 && item.getSequence() >= nseq) {
 			    item.setSequence(item.getSequence() + 1);
 			    simplePageToolDao.quickUpdate(item);
 			}
-		    }			    
-		}
-
-		// if after not set, we didn't find the item; either no item specified or it
-		// isn't on the page
-		if (!after) {
-		    nseq = items.size();
-		    if (nseq > 0) {
-			int seq = items.get(nseq-1).getSequence();
-			if (seq > nseq)
-			    nseq = seq;
-		    }
-		    nseq++;
 		}
 		    
 		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), nseq, type, id, name);
@@ -3533,7 +3482,7 @@ public class SimplePageBean {
 		this.selectedScorm = selectedScorm;
 	}
 
-	public void setSelectedBlti(String selectedBlti) {
+	public void setSelectedBlti(String[] selectedBlti) {
 		this.selectedBlti = selectedBlti;
 	}
 
@@ -3679,87 +3628,194 @@ public class SimplePageBean {
 		}
 	}
 
-    // called by add blti picker. Create a new item that points to an assigment
-    // or update an existing item, depending upon whether itemid is set
+    // Called by the BLTI picker. Deep Linking can add several new items, but editing
+    // an existing Lessons item intentionally remains a single-item operation.
 	public String addBlti() {
-		if (!itemOk(itemId))
-		    return "permission-failed";
-		if (!canEditPage())
-		    return "permission-failed";
-		if (!checkCsrf())
-		    return "permission-failed";
+		if (!itemOk(itemId)) {
+			return "permission-failed";
+		}
+		if (!canEditPage()) {
+			return "permission-failed";
+		}
+		if (!checkCsrf()) {
+			return "permission-failed";
+		}
 
-		if (selectedBlti == null || bltiEntity == null) {
+		if (selectedBlti == null || selectedBlti.length == 0 || bltiEntity == null) {
 			return "failure";
-		} else {
-			try {
-			    LessonEntity selectedObject = bltiEntity.getEntity(selectedBlti);
-			    if (selectedObject == null)
-				return "failure";
+		}
 
-			    SimplePageItem i;
-			    // editing existing item?
-			    if (itemId != null && itemId != -1) {
+		// Hoisted so exception cleanup can discard bumped in-memory sequences.
+		List<SimplePageItem> shiftedItems = Collections.emptyList();
+		try {
+			boolean editing = itemId != null && itemId != -1;
+			if (editing && selectedBlti.length != 1) {
+				return "failure";
+			}
+
+			List<LessonEntity> selectedObjects = new ArrayList<>();
+			for (String selected : selectedBlti) {
+				if (StringUtils.isBlank(selected)) {
+					return "failure";
+				}
+				LessonEntity selectedObject = bltiEntity.getEntity(selected);
+				if (selectedObject == null) {
+					return "failure";
+				}
+				selectedObjects.add(selectedObject);
+			}
+
+			SimplePageItem i;
+			// editing existing item?
+			if (editing) {
+				String selected = selectedBlti[0];
+				LessonEntity selectedObject = selectedObjects.get(0);
 				i = findItem(itemId);
 
 				// if no change, don't worry
 				LessonEntity existing = bltiEntity.getEntity(i.getSakaiId());
 				String ref = null;
-				if (existing != null)
-				    ref = existing.getReference();
+				if (existing != null) {
+					ref = existing.getReference();
+				}
 				// if same item, nothing to do
-				if ((existing == null) || !ref.equals(selectedBlti)) {
-				    // if access controlled, clear restriction from old assignment and add to new
-				    // group access not used for BLTI items, so don't need the setcontrolgroup
-				    // logic from other item types
-				    i.setSakaiId(selectedBlti);
-				    i.setName(selectedObject.getTitle());
-				    if (StringUtils.isBlank(format))
-					i.setFormat("");
-				    else
-					i.setFormat(format);
+				if ((existing == null) || !ref.equals(selected)) {
+					// if access controlled, clear restriction from old assignment and add to new
+					// group access not used for BLTI items, so don't need the setcontrolgroup
+					// logic from other item types
+					i.setSakaiId(selected);
+					i.setName(selectedObject.getTitle());
+					if (StringUtils.isBlank(format)) {
+						i.setFormat("");
+					} else {
+						i.setFormat(format);
+					}
 
-				    // this is redundant, but the display code uses it
-				    if ("window".equals(format))
-					i.setSameWindow(false);
-				    else
-					i.setSameWindow(true);
+					// this is redundant, but the display code uses it
+					if ("window".equals(format)) {
+						i.setSameWindow(false);
+					} else {
+						i.setSameWindow(true);
+					}
 
-				    i.setHeight(height);
-				    setItemGroups(i, selectedGroups);
-				    update(i);
+					i.setHeight(height);
+					setItemGroups(i, selectedGroups);
+					update(i);
 				}
-			    } else {
-				// no, add new item
-				i = appendItem(selectedBlti, selectedObject.getTitle(), SimplePageItem.BLTI);
-
-				//Copy the LTI tool description to the item description.
-				if(StringUtils.isNotBlank(description)){
-					i.setDescription(description);
+			} else {
+				simplePageToolDao.setRefreshMode();
+				itemsCache.remove(getCurrentPageId());
+				List<SimplePageItem> pageItems = getItemsOnPage(getCurrentPageId());
+				int insertionSequence = resolveInsertionSequence(pageItems, addBefore);
+				shiftedItems = new ArrayList<>();
+				for (SimplePageItem pageItem : pageItems) {
+					if (pageItem.getPageId() >= 0 && pageItem.getSequence() >= insertionSequence) {
+						pageItem.setSequence(pageItem.getSequence() + selectedBlti.length);
+						shiftedItems.add(pageItem);
+					}
 				}
 
-				BltiInterface blti = (BltiInterface)bltiEntity.getEntity(selectedBlti);
-				if (blti != null) {
-				    int height = blti.frameSize();
-				    if (height > 0)
-					i.setHeight(Integer.toString(height));
-				    else
-					i.setHeight("");
-				    if (StringUtils.isBlank(format))
-					i.setFormat("");
-				    else
-					i.setFormat(format);
+				List<SimplePageItem> newItems = new ArrayList<>();
+				for (int index = 0; index < selectedBlti.length; index++) {
+					String selected = selectedBlti[index];
+					LessonEntity selectedObject = selectedObjects.get(index);
+					i = simplePageToolDao.makeItem(getCurrentPageId(), insertionSequence + index,
+							SimplePageItem.BLTI, selected, selectedObject.getTitle());
+					clearImageSize(i);
+
+					String itemDescription = selectedObject.getDescription();
+					if (StringUtils.isBlank(itemDescription)) {
+						itemDescription = description;
+					}
+					if (StringUtils.isNotBlank(itemDescription)) {
+						i.setDescription(itemDescription);
+					}
+
+					if (selectedObject instanceof BltiInterface) {
+						BltiInterface blti = (BltiInterface) selectedObject;
+						int frameHeight = blti.frameSize();
+						if (frameHeight > 0) {
+							i.setHeight(Integer.toString(frameHeight));
+						} else {
+							i.setHeight("");
+						}
+						if (StringUtils.isBlank(format)) {
+							i.setFormat("");
+						} else {
+							i.setFormat(format);
+						}
+					}
+					newItems.add(i);
 				}
-				saveItem(i);
-			    }
-			    return "success";
-			} catch (Exception ex) {
-			    log.error(ex.getMessage(), ex);
-			    return "failure";
-			} finally {
-			    selectedBlti = null;
+
+				List<String> errors = new ArrayList<>();
+				if (!simplePageToolDao.saveItemBatch(newItems, shiftedItems, errors,
+						messageLocator.getMessage("simplepage.nowrite"))) {
+					setErrMessage(messageLocator.getMessage("simplepage.savefailed"));
+					discardBltiBatchCaches(shiftedItems);
+					return "failure";
+				}
+				itemsCache.remove(getCurrentPageId());
+				ToolSession toolSession = sessionManager.getCurrentToolSession();
+				toolSession.setAttribute("lessonbuilder.newitem", Long.toString(newItems.get(newItems.size() - 1).getId()));
+			}
+			return "success";
+		} catch (Exception ex) {
+			log.error("Unable to add LTI content items to Lessons", ex);
+			discardBltiBatchCaches(shiftedItems);
+			return "failure";
+		} finally {
+			selectedBlti = new String[] {};
+		}
+	}
+
+	private void discardBltiBatchCaches(List<SimplePageItem> shiftedItems) {
+		itemsCache.remove(getCurrentPageId());
+		if (shiftedItems == null) {
+			return;
+		}
+		for (SimplePageItem shiftedItem : shiftedItems) {
+			itemCache.remove(shiftedItem.getId());
+		}
+	}
+
+	/**
+	 * Shared placement for {@link #appendItem} and multi-item {@link #addBlti}.
+	 * Comments-section anchors fall through to end-of-page (same effective behavior as appendItem).
+	 */
+	private int resolveInsertionSequence(List<SimplePageItem> items, String placement) {
+		String beforeStr = placement;
+		boolean addAfter = false;
+		if (beforeStr != null && beforeStr.startsWith("-")) {
+			addAfter = true;
+			beforeStr = beforeStr.substring(1);
+		}
+
+		long before = 0;
+		if (StringUtils.isNotBlank(beforeStr)) {
+			try {
+				before = Long.parseLong(beforeStr);
+			} catch (NumberFormatException e) {
+				log.debug("Ignoring invalid Lessons insertion anchor {}", beforeStr);
 			}
 		}
+
+		if (before > 0) {
+			for (SimplePageItem item : items) {
+				if (item.getId() == before) {
+					if (isCommentsItem(item)) {
+						break;
+					}
+					return item.getSequence() + (addAfter ? 1 : 0);
+				}
+			}
+		}
+
+		int insertionSequence = items.size();
+		if (!items.isEmpty()) {
+			insertionSequence = Math.max(insertionSequence, items.get(items.size() - 1).getSequence());
+		}
+		return insertionSequence + 1;
 	}
 
     /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
@@ -6260,16 +6316,6 @@ public class SimplePageBean {
 
 	private boolean isCommentsItem(SimplePageItem item) {
 		return item.getType() == SimplePageItem.COMMENTS;
-	}
-
-	private int findNextSequence(List<SimplePageItem> items) {
-		int nseq = 0;
-		for (SimplePageItem item : items) {
-			if( item.getSequence() > nseq) {
-				nseq = item.getSequence();
-			}
-		}
-		return nseq++;
 	}
 
 	public boolean isItemAvailable(SimplePageItem item) {
