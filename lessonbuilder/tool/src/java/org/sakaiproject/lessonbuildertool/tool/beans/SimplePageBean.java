@@ -3272,15 +3272,9 @@ public class SimplePageBean {
 			    i.setSameWindow(false);
 
 			if (i.getType() == SimplePageItem.BLTI) {
-			    if (StringUtils.isBlank(format))
-				i.setFormat("");
-			    else
-				i.setFormat(format);
+			    i.setFormat(StringUtils.trimToEmpty(format));
 			    // this is redundant, but the display code uses it
-			    if ("window".equals(format))
-				i.setSameWindow(false);
-			    else
-				i.setSameWindow(true);
+			    i.setSameWindow(!"window".equals(format));
 			    i.setHeight(height);
 			} else if (i.getType() == SimplePageItem.SCORM) {
 			    String scormHeight = StringUtils.isBlank(height) ? "" : height.replace("px", "").trim();
@@ -3685,18 +3679,9 @@ public class SimplePageBean {
 					// logic from other item types
 					i.setSakaiId(selected);
 					i.setName(selectedObject.getTitle());
-					if (StringUtils.isBlank(format)) {
-						i.setFormat("");
-					} else {
-						i.setFormat(format);
-					}
-
+					i.setFormat(StringUtils.trimToEmpty(format));
 					// this is redundant, but the display code uses it
-					if ("window".equals(format)) {
-						i.setSameWindow(false);
-					} else {
-						i.setSameWindow(true);
-					}
+					i.setSameWindow(!"window".equals(format));
 
 					i.setHeight(height);
 					setItemGroups(i, selectedGroups);
@@ -3723,10 +3708,7 @@ public class SimplePageBean {
 							SimplePageItem.BLTI, selected, selectedObject.getTitle());
 					clearImageSize(i);
 
-					String itemDescription = selectedObject.getDescription();
-					if (StringUtils.isBlank(itemDescription)) {
-						itemDescription = description;
-					}
+					String itemDescription = StringUtils.defaultIfBlank(selectedObject.getDescription(), description);
 					if (StringUtils.isNotBlank(itemDescription)) {
 						i.setDescription(itemDescription);
 					}
@@ -3734,16 +3716,8 @@ public class SimplePageBean {
 					if (selectedObject instanceof BltiInterface) {
 						BltiInterface blti = (BltiInterface) selectedObject;
 						int frameHeight = blti.frameSize();
-						if (frameHeight > 0) {
-							i.setHeight(Integer.toString(frameHeight));
-						} else {
-							i.setHeight("");
-						}
-						if (StringUtils.isBlank(format)) {
-							i.setFormat("");
-						} else {
-							i.setFormat(format);
-						}
+						i.setHeight(frameHeight > 0 ? Integer.toString(frameHeight) : "");
+						i.setFormat(StringUtils.trimToEmpty(format));
 					}
 					newItems.add(i);
 				}
@@ -3785,11 +3759,8 @@ public class SimplePageBean {
 	 */
 	private int resolveInsertionSequence(List<SimplePageItem> items, String placement) {
 		String beforeStr = placement;
-		boolean addAfter = false;
-		if (beforeStr != null && beforeStr.startsWith("-")) {
-			addAfter = true;
-			beforeStr = beforeStr.substring(1);
-		}
+		boolean addAfter = StringUtils.startsWith(beforeStr, "-");
+		beforeStr = StringUtils.removeStart(beforeStr, "-");
 
 		long before = 0;
 		if (StringUtils.isNotBlank(beforeStr)) {
