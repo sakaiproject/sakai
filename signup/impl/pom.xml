@@ -19,8 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.signup</groupId>
@@ -86,6 +86,21 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
+  <dependency>
+   <groupId>jakarta.activation</groupId>
+   <artifactId>jakarta.activation-api</artifactId>
+   <version>2.0.1</version>
+  </dependency>
+  <dependency>
+   <groupId>jakarta.mail</groupId>
+   <artifactId>jakarta.mail-api</artifactId>
+   <version>2.0.2</version>
+  </dependency>
+  <dependency>
+   <groupId>jakarta.persistence</groupId>
+   <artifactId>jakarta.persistence-api</artifactId>
+   <version>3.0.0</version>
+  </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>

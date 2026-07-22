@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf; 
 
-import javax.faces.component.html.HtmlCommandLink;
+import jakarta.faces.component.html.HtmlCommandLink;
 
 /**
  * @author Chen Wen

@@ -66,13 +66,18 @@
 		<!-- other resources for the jar - the message bundles -->
 	</build>
 	<dependencies>
+  <dependency>
+   <groupId>jakarta.persistence</groupId>
+   <artifactId>jakarta.persistence-api</artifactId>
+   <version>3.0.0</version>
+  </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>

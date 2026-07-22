@@ -25,8 +25,8 @@
 package org.sakaiproject.pasystem.tool.handlers;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A base handler for record types that support CRUD-style updates.

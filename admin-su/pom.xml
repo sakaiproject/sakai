@@ -10,6 +10,10 @@
   <artifactId>admin-tool-su</artifactId>
   <packaging>war</packaging>
   <dependencies>
+  <dependency>
+   <groupId>jakarta.servlet</groupId>
+   <artifactId>jakarta.servlet-api</artifactId>
+  </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>

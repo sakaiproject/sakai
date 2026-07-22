@@ -68,6 +68,10 @@
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
           </exclusion>
+    <exclusion>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+    </exclusion>
         </exclusions>
     </dependency>
 
@@ -81,6 +85,10 @@
           <groupId>commons-fileupload</groupId>
           <artifactId>commons-fileupload</artifactId>
         </exclusion>
+    <exclusion>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+    </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -91,6 +99,10 @@
           <groupId>commons-fileupload</groupId>
           <artifactId>commons-fileupload</artifactId>
         </exclusion>
+    <exclusion>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+    </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -105,6 +117,10 @@
           <groupId>commons-fileupload</groupId>
           <artifactId>commons-fileupload</artifactId>
         </exclusion>
+    <exclusion>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+    </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -115,6 +131,10 @@
           <groupId>commons-fileupload</groupId>
           <artifactId>commons-fileupload</artifactId>
         </exclusion>
+    <exclusion>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+    </exclusion>
       </exclusions>
     </dependency>
 
@@ -126,12 +146,12 @@
     
     <!-- Servlet -->  
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
     </dependency>
     
   </dependencies>

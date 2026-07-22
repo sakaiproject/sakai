@@ -24,7 +24,7 @@ package org.sakaiproject.jsf.model;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import javax.faces.model.*;
+import jakarta.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 

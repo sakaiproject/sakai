@@ -54,9 +54,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>test</scope>
+   <version>5.0.0</version>
         </dependency>
         <dependency>
            <groupId>com.google.guava</groupId>

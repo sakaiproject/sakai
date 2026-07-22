@@ -16,6 +16,7 @@
 		<dependency>
 			<groupId>jakarta.xml.soap</groupId>
 			<artifactId>jakarta.xml.soap-api</artifactId>
+   <version>2.0.1</version>
 		</dependency>
 		<!-- Content Review dependencies -->
 		<dependency>
@@ -53,8 +54,8 @@
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>javax.servlet</groupId>
-	        <artifactId>javax.servlet-api</artifactId>
+	        <groupId>jakarta.servlet</groupId>
+	        <artifactId>jakarta.servlet-api</artifactId>
 	    </dependency>
 		<!-- Apache commons dependencies -->
 		<dependency>

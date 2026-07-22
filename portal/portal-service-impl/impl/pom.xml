@@ -42,6 +42,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
+  <dependency>
+   <groupId>jakarta.persistence</groupId>
+   <artifactId>jakarta.persistence-api</artifactId>
+   <version>3.0.0</version>
+  </dependency>
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-api</artifactId>
@@ -51,8 +56,8 @@
             <artifactId>portlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -80,6 +85,12 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <scope>test</scope>
         </dependency>
+  <dependency>
+   <groupId>jakarta.annotation</groupId>
+   <artifactId>jakarta.annotation-api</artifactId>
+   <scope>test</scope>
+   <version>2.0.0</version>
+  </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>

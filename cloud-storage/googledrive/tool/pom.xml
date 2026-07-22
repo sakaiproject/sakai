@@ -34,9 +34,14 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
         </dependency>
+  <dependency>
+   <groupId>jakarta.inject</groupId>
+   <artifactId>jakarta.inject-api</artifactId>
+   <version>2.0.1</version>
+  </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -53,8 +58,8 @@
         </dependency>
         <!-- we are running a webapp in a servlet container so we need the servlet API -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <!-- Sakai dependencies -->
         <dependency>

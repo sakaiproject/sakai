@@ -30,8 +30,8 @@ import java.util.Stack;
 import java.util.Properties;
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

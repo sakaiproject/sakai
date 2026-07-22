@@ -46,10 +46,10 @@ package org.sakaiproject.tool.section.jsf;
 
 import java.io.IOException;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlGraphicImage;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.html.HtmlGraphicImage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.component.UserRoleUtils;

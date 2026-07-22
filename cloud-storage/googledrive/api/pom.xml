@@ -17,6 +17,11 @@
     </properties>
 
     <dependencies>
+  <dependency>
+   <groupId>jakarta.persistence</groupId>
+   <artifactId>jakarta.persistence-api</artifactId>
+   <version>3.0.0</version>
+  </dependency>
         <!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

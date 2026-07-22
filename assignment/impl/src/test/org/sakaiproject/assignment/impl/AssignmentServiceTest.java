@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
