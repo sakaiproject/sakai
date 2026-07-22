@@ -13283,7 +13283,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // set extension date to default to close date
         state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, month);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, year);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, hour);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, minute);
 
@@ -15887,14 +15887,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
         String allowExtensionTimeString = null;
-        if (s != null) {    // if submission is present, get the resubmission values from submission object first
+        if (s != null) {    // if submission is present, get the extension values from submission object first
             Map<String, String> sProperties = s.getProperties();
             allowExtensionTimeString = sProperties.get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
         }
         Instant allowExtensionTime = null;
-        if (allowExtensionTimeString != null) {
+        if (allowExtensionTimeString != null && !allowExtensionTimeString.trim().isEmpty()) {
             state.setAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, allowExtensionTimeString);
             allowExtensionTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+        } else if (a != null) { // if no student specific extension granted, use the asn's Accept Until date as a default; don't set ALLOW_EXTENSION_CLOSETIME in state
+            allowExtensionTime = a.getCloseDate();
         } else {
             state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
         }
