@@ -14,10 +14,12 @@ import { html } from "lit";
  *
  * A tag which is used to wrap a sequence of elements which you would like to be reorderable. The
  * tag expecs a sequence of reorderable elements contained in a "container" element. Each child of
- * the container needs a unique reorderableId as a data attribute. When this code reorders the
- * elements, all it does is fire an event with the new sequence in the event payload. It is up to
- * the user of this tag to do something with that new sequence. Typically, the caller would be a lit
- * component, and it would reorder its data and trigger a re-render.
+ * the container needs a unique reorderableId as a data attribute. By default, when this code
+ * reorders the elements, it fires an event with the new sequence in the event payload. It is up to
+ * the user of this tag to do something with that new sequence. Typically, the caller would be a Lit
+ * component, and it would reorder its data and trigger a re-render. Set `apply-dom` for
+ * server-rendered pages that need the component to reorder light-DOM children before firing the
+ * event.
  *
  * let reorderedEvent = new CustomEvent("reordered"
  *          , { detail: {reorderedIds: [ "item2", "item1", .. ], data: draggedElement.dataset } });
@@ -26,30 +28,43 @@ import { html } from "lit";
  * part of its payload. This lets the caller attach data to help it make sense of the reordered
  * elements.
  *
- * This tag also takes care of keyboard navigation, using the 'e' and 'd' keys to move up/down or
- * left/right.
+ * This tag also takes care of keyboard navigation, using the 'e' and 'd' keys to move
+ * up/down or left/right.
  *
  * @element sakai-reorderer
  * @property {boolean} horizontal - Indicates that ordering goes from left to right, not top to
  *                                  bottom
+ * @property {boolean} applyDom - Indicates that the component should reorder the light-DOM
+ *                                 children before firing the event
  *
  * @extends SakaiShadowElement
  * @see {@link https://lit.dev/docs/v1/api/lit-element/LitElement/}
  */
 export class SakaiReorderer extends SakaiShadowElement {
 
-  static properties = { horizontal: { type: Boolean } };
+  static properties = {
+    applyDom: { attribute: "apply-dom", type: Boolean },
+    horizontal: { type: Boolean }
+  };
 
   constructor() {
 
     super();
 
+    this._configuredContainers = new WeakSet();
+    this._configuredReorderables = new WeakSet();
+
     this._dragStartListener = e => {
 
       e.stopPropagation();
 
-      this.draggingElement = e.target;
-      e.target.classList.add("dragging");
+      if (this._dragSource !== e.currentTarget) {
+        e.preventDefault();
+        return;
+      }
+
+      this.draggingElement = e.currentTarget;
+      this.draggingElement.classList.add("dragging");
     };
 
     this._dragOverListener = e => {
@@ -66,8 +81,11 @@ export class SakaiReorderer extends SakaiShadowElement {
       e.preventDefault();
       e.stopPropagation();
       this.draggingElement = undefined;
-      e.target.classList.remove("dragging");
+      this._dragSource = undefined;
+      e.currentTarget.classList.remove("dragging");
     };
+
+    this._pointerEndListener = () => this._dragSource = undefined;
 
     this._dropListener = e => {
 
@@ -79,26 +97,27 @@ export class SakaiReorderer extends SakaiShadowElement {
 
       const afterElement = this._getDragAfterElement(this.container, this.horizontal ? e.clientX : e.clientY);
 
-      const total = this._reorderableIds.length;
-
       const draggingIndex = this._reorderableIds.findIndex(id => id === this.draggingElement.dataset.reorderableId);
 
       if (draggingIndex === -1) {
         return;
       }
 
-      const afterIndex = afterElement ? this._reorderableIds.findIndex(id => id === afterElement.dataset.reorderableId) : this._reorderableIds.length - 1;
+      const previousReorderedIds = [ ...this._reorderableIds ];
       this._reorderableIds.splice(draggingIndex, 1);
 
-      if (afterIndex === 0) {
-        this._reorderableIds.unshift(this.draggingElement.dataset.reorderableId);
-      } else if (afterIndex === total - 1) {
+      if (!afterElement) {
         this._reorderableIds.push(this.draggingElement.dataset.reorderableId);
       } else {
-        this._reorderableIds.splice(afterIndex, 0, this.draggingElement.dataset.reorderableId);
+        const afterIndex = this._reorderableIds.findIndex(id => id === afterElement.dataset.reorderableId);
+        if (afterIndex === -1) {
+          this._reorderableIds.push(this.draggingElement.dataset.reorderableId);
+        } else {
+          this._reorderableIds.splice(afterIndex, 0, this.draggingElement.dataset.reorderableId);
+        }
       }
 
-      this.dispatchEvent(new CustomEvent("reordered", { detail: { reorderedIds: this._reorderableIds, data: this.draggingElement.dataset } }));
+      this._dispatchReordered(this.draggingElement.dataset, previousReorderedIds);
     };
 
     this._dragEnterListener = e => e.stopPropagation();
@@ -116,6 +135,7 @@ export class SakaiReorderer extends SakaiShadowElement {
 
       if ([ "e", "d" ].includes(e.key.toLowerCase())) {
         const index = this._reorderableIds.indexOf(reorderableId);
+        const previousReorderedIds = [ ...this._reorderableIds ];
 
         let changed = false;
 
@@ -134,7 +154,7 @@ export class SakaiReorderer extends SakaiShadowElement {
         }
 
         if (changed) {
-          this.dispatchEvent(new CustomEvent("reordered", { detail: { reorderedIds: this._reorderableIds, data: reorderable.dataset } }));
+          this._dispatchReordered(reorderable.dataset, previousReorderedIds);
         }
       }
     };
@@ -160,8 +180,89 @@ export class SakaiReorderer extends SakaiShadowElement {
   /**
    * @private
    */
+  _dispatchReordered(data, previousReorderedIds) {
+
+    if (this.applyDom) {
+      const reorderablesById = new Map([ ...this.container.children ].map(reorderable => [ reorderable.dataset.reorderableId, reorderable ]));
+      this._reorderableIds.forEach(id => {
+        const reorderable = reorderablesById.get(id);
+        if (reorderable) {
+          this.container.append(reorderable);
+        }
+      });
+    }
+
+    this.dispatchEvent(new CustomEvent("reordered", {
+      bubbles: true,
+      composed: true,
+      detail: {
+        data,
+        previousReorderedIds,
+        reorderedIds: [ ...this._reorderableIds ]
+      }
+    }));
+  }
+
+  /**
+   * @private
+   */
   _setupKeyboard(reorderable) {
-    reorderable.querySelector(".drag-handle")?.addEventListener("keyup", this._keyupListener);
+
+    const dragHandle = reorderable.querySelector(".drag-handle");
+    dragHandle?.addEventListener("pointerdown", () => this._dragSource = reorderable);
+    dragHandle?.addEventListener("pointerup", this._pointerEndListener);
+    dragHandle?.addEventListener("pointercancel", this._pointerEndListener);
+    dragHandle?.addEventListener("keyup", this._keyupListener);
+  }
+
+  /**
+   * Synchronise the component with changes made outside the component to its light-DOM children.
+   *
+   * Call this after externally reordering, adding, removing, or changing the reorderable ID of a
+   * child. The component maintains its own order for keyboard and drag-and-drop operations, so
+   * callers using `apply-dom` only need this for separate actions such as undo or a number input.
+   */
+  refresh() {
+
+    this._syncReorderables();
+  }
+
+  /**
+   * @private
+   */
+  _syncReorderables() {
+
+    if (!this.container) {
+      return;
+    }
+
+    this._reorderableIds = [];
+
+    [ ...this.container.children ].filter(n => n.nodeType === Node.ELEMENT_NODE).forEach(reorderable => {
+
+      this._reorderableIds.push(reorderable.dataset.reorderableId);
+
+      if (!reorderable.hasAttribute("draggable")) {
+        reorderable.setAttribute("draggable", "true");
+      }
+
+      let dragHandle = reorderable.querySelector(".drag-handle");
+
+      if (!dragHandle && reorderable.getAttribute("draggable") === "true") {
+        dragHandle = document.createElement("span");
+        dragHandle.classList.add("si", "si-drag-handle", "drag-handle");
+        dragHandle.style.cursor = "grab";
+        reorderable.insertBefore(dragHandle, reorderable.firstChild);
+      }
+
+      if (!this._configuredReorderables.has(reorderable)) {
+        this._setupKeyboard(reorderable);
+        reorderable.addEventListener("dragstart", this._dragStartListener);
+        reorderable.addEventListener("drag", this._dragListener);
+        reorderable.addEventListener("dragend", this._dragEndListener);
+        this._configuredReorderables.add(reorderable);
+      }
+    });
   }
 
   /**
@@ -172,34 +273,15 @@ export class SakaiReorderer extends SakaiShadowElement {
 
     this.container = this.shadowRoot.querySelector("slot").assignedNodes().find(n => n.nodeType === Node.ELEMENT_NODE);
 
-    this._reorderableIds = [];
+    this._syncReorderables();
 
-    [ ...this.container.children ].filter(n => n.nodeType === Node.ELEMENT_NODE).forEach(reorderable => {
-
-      this._setupKeyboard(reorderable);
-
-      this._reorderableIds.push(reorderable.dataset.reorderableId);
-
-      !reorderable.hasAttribute("draggable") && reorderable.setAttribute("draggable", "true");
-
-      let dragHandle = reorderable.querySelector(".drag-handle");
-
-      if (!dragHandle && reorderable.getAttribute("draggable") === "true") {
-        dragHandle = document.createElement("span");
-        dragHandle.classList.add("si", "si-drag-handle", "drag-handle");
-        dragHandle.style.cursor = "grab;";
-        reorderable.insertBefore(dragHandle, reorderable.firstChild);
-      }
-
-      reorderable.addEventListener("dragstart", this._dragStartListener);
-      reorderable.addEventListener("drag", this._dragListener);
-      reorderable.addEventListener("dragend", this._dragEndListener);
-    });
-
-    this.container.addEventListener("dragenter", this._dragEnterListener);
-    this.container.addEventListener("dragover", this._dragOverListener);
-    this.container.addEventListener("dragleave", this._dragLeaveListener);
-    this.container.addEventListener("drop", this._dropListener);
+    if (this.container && !this._configuredContainers.has(this.container)) {
+      this.container.addEventListener("dragenter", this._dragEnterListener);
+      this.container.addEventListener("dragover", this._dragOverListener);
+      this.container.addEventListener("dragleave", this._dragLeaveListener);
+      this.container.addEventListener("drop", this._dropListener);
+      this._configuredContainers.add(this.container);
+    }
   }
 
   /**
