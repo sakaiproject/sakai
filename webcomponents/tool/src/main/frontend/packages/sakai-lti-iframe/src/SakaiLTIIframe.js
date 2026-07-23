@@ -101,7 +101,7 @@ export class SakaiLTIIframe extends SakaiElement {
           }
           console.debug(`Received lti.frameResize height=${height} frame=${idval}`);
         } else if ( message.subject == "lti.pageRefresh" ) {
-          window.location.reload(true);
+          window.location.reload();
           console.debug(`Received lti.pageRefresh frame=${idval}`);
         }
       } catch (error) {
