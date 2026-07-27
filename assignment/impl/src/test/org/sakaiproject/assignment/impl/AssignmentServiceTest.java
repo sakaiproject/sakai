@@ -2127,6 +2127,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void getGroupsAllowAddAssignmentWithoutCurrentUserReturnsNoGroups() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteReference = "/site/" + context;
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+
+        Collection<Group> groups = assignmentService.getGroupsAllowAddAssignment(context, null);
+
+        Assert.assertTrue(groups.isEmpty());
+        Mockito.verify(securityService, Mockito.never()).unlock(Mockito.isNull(String.class),
+                eq(AssignmentServiceConstants.SECURE_ALL_GROUPS), eq(siteReference));
+    }
+
+    @Test
     public void countSubmissions() {
         String context = UUID.randomUUID().toString();
         List<String> submitterIds = Collections.nCopies(10,1).stream().map(i -> UUID.randomUUID().toString()).collect(Collectors.toList());
