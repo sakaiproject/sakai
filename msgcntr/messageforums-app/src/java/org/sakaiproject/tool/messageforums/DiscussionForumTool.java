@@ -854,57 +854,14 @@ public class DiscussionForumTool {
     return TEMPLATE_ORGANIZE;
   }
 
-  /**
-   * @return
-   */
-  public List getPermissions()
-  {
-    if (permissions == null)
-    {
-      siteMembers=null;
+  public List<PermissionBean> getPermissions() {
+    if (permissions == null) {
+      siteMembers = null;
       getSiteRoles();
     }
     return permissions;
   }
 
-//  /**
-//   * @return Returns the templateMessagePermissions.
-//   */
-//  public List getTemplateMessagePermissions()
-//  {
-//    if (templateMessagePermissions == null)
-//    {
-//      templateMessagePermissions = forumManager.getAreaMessagePermissions();
-//    }
-//    return templateMessagePermissions;
-//  }
-//
-//  /**
-//   * @param templateMessagePermissions
-//   *          The templateMessagePermissions to set.
-//   */
-//  public void setTemplateMessagePermissions(List templateMessagePermissions)
-//  {
-//    this.templateMessagePermissions = templateMessagePermissions;
-//  }
-  
-  /*/**
-   * @return
-   */
-  /*public String processActionReviseTemplateSettings()
-  {
-  	if (log.isDebugEnabled()){
-      log.debug("processActionReviseTemplateSettings()");
-  	}
-    
-  	setEditMode(true); 
-  	setPermissionMode(PERMISSION_MODE_TEMPLATE);
-    return TEMPLATE_SETTING;
-  }*/
-
-  /**
-   * @return
-   */
   public String processActionSaveTemplateSettings()
   {
     log.debug("processActionSaveTemplateSettings()");
@@ -8640,13 +8597,13 @@ public class DiscussionForumTool {
                 }
 
                 // Permissions
-                for (PermissionBean permBean : permissions) {
+                for (PermissionBean permBean : getPermissions()) {
                     if (rolesNone.contains(permBean.getName())) {
                         permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
                     }
                     // Permissions will be remembered across forum loops, so we must reset marked groups to none in every loop
                     if (groupsNone.contains(permBean.getName())) {
-                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE); 
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
                     }
                     if (permBean.getName().equals(currentGroup.getGroup().getTitle())) {
                         permBean.setSelectedLevel(groupLevel);
@@ -8741,7 +8698,7 @@ public class DiscussionForumTool {
                 }
 
                 // Permissions
-                for (PermissionBean permBean : permissions) {
+                for (PermissionBean permBean : getPermissions()) {
                     if (rolesNone.contains(permBean.getName())) {
                         permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
                     }
