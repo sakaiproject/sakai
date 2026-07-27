@@ -131,7 +131,7 @@ public class GradebookNgTestConfiguration {
 	@Bean
 	public LocaleService localeService() {
 		final LocaleService localeService = mock(LocaleService.class);
-		when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.getDefault());
+		when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
 		return localeService;
 	}
 }

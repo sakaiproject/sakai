@@ -69,6 +69,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -85,6 +86,7 @@ public class TestImportGradesHelper {
 	private static final byte[] UTF_8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
 
 	@Autowired private GradebookNgBusinessService service;
+	@Autowired private LocaleService localeService;
 	@Mock private ResourceLoader resourceLoader;
 
 	@Rule
@@ -108,7 +110,7 @@ public class TestImportGradesHelper {
 		setMockResourceLoader(ImportGradesHelper.class, "RL");
 
 
-		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
+		useLocaleForDecimalSeparator(".");
 	}
 
 	private void setMockResourceLoader(Class clazz, String fieldName) throws NoSuchFieldException, IllegalAccessException {
@@ -189,6 +191,7 @@ public class TestImportGradesHelper {
 
 	@Test
 	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
+		useLocaleForDecimalSeparator(",");
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv")) {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",", "gUid", "siteId");
@@ -205,6 +208,7 @@ public class TestImportGradesHelper {
 
 	private void assertUtf8ExportRoundTrip(final String decimalSeparator, final char fieldSeparator, final String fileName)
 			throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
 		final File exportFile = temporaryFolder.newFile(fileName);
 		try (CSVWriter writer = GradebookCsvIO.openWriter(exportFile, decimalSeparator)) {
 			writer.writeNext(new String[] {"Student ID", "Student Name", "Rédaction [100]", "* Rédaction"});
@@ -254,6 +258,7 @@ public class TestImportGradesHelper {
 	}
 
 	private void assertUtf8Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
 		final byte[] csvBytes = utf8CsvBytes(fieldSeparator);
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
@@ -264,6 +269,7 @@ public class TestImportGradesHelper {
 	}
 
 	private void assertWindows1252Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
 		final byte[] csvBytes = utf8CsvText(fieldSeparator).getBytes(WINDOWS_1252);
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
@@ -271,6 +277,12 @@ public class TestImportGradesHelper {
 					inputStream, "text/csv", "gradebook.csv", service, decimalSeparator, "gUid", "siteId");
 		}
 		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	private void useLocaleForDecimalSeparator(final String decimalSeparator) {
+		final Locale locale = ",".equals(decimalSeparator) ? Locale.GERMANY : Locale.US;
+		when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(locale);
+		when(resourceLoader.getLocale()).thenReturn(locale);
 	}
 
 	private static byte[] utf8CsvBytes(final char fieldSeparator) {
