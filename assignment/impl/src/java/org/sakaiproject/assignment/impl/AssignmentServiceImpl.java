@@ -3891,6 +3891,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 userId = sessionManager.getCurrentSessionUserId();
             }
 
+            if (StringUtils.isBlank(userId)) {
+                return rv;
+            }
+
             Collection<Group> groups = site.getGroups();
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(context))
