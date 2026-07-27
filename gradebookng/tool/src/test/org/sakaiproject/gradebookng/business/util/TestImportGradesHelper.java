@@ -39,17 +39,22 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 
 import org.junit.Assert;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.GradebookNgTestConfiguration;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -65,19 +70,36 @@ import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 /**
  * Tests for the ImportGradesHelper class.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = GradebookNgTestConfiguration.class)
 public class TestImportGradesHelper {
 
 	private static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
 	private static final byte[] UTF_8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
 
-	@Mock private GradebookNgBusinessService service;
+	@Autowired private GradebookNgBusinessService service;
 	@Mock private ResourceLoader resourceLoader;
 
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	@BeforeClass
+	public static void enableTestComponentManager() {
+		ComponentManager.testingMode = true;
+	}
+
+	@AfterClass
+	public static void shutdownTestComponentManager() {
+		ComponentManager.shutdown();
+		ComponentManager.testingMode = false;
+	}
 
 	@Before
 	public void openMocks() throws NoSuchFieldException, IllegalAccessException {
@@ -87,8 +109,6 @@ public class TestImportGradesHelper {
 
 
 		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
-		Map<String, GbUser> mockStudents = mockUserMap();
-		when(service.getUserEidMap(Mockito.anyObject())).thenReturn(mockStudents);
 	}
 
 	private void setMockResourceLoader(Class clazz, String fieldName) throws NoSuchFieldException, IllegalAccessException {
@@ -572,7 +592,8 @@ public class TestImportGradesHelper {
 		row3.setCellMap(cellMap3);
 		rows.add(row3);
 
-		importedSpreadsheetWrapper.setRows(rows, service.getUserEidMap(Mockito.anyObject()));
+		importedSpreadsheetWrapper.setRows(rows,
+				service.getUserEidMap(new ArrayList<>(mockUserMap().values())));
 
 		return importedSpreadsheetWrapper;
 	}
