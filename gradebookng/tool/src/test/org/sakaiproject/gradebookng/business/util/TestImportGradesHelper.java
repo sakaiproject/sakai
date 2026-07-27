@@ -17,8 +17,11 @@ package org.sakaiproject.gradebookng.business.util;
 
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -60,6 +65,9 @@ public class TestImportGradesHelper {
 
 	@Mock private GradebookNgBusinessService service;
 	@Mock private ResourceLoader resourceLoader;
+
+	@Rule
+	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	@Before
 	public void openMocks() throws NoSuchFieldException, IllegalAccessException {
@@ -156,6 +164,34 @@ public class TestImportGradesHelper {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_utf8ExportIsReimported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		final File exportFile = temporaryFolder.newFile("gradebook.csv");
+		try (GradebookCsvWriter writer = new GradebookCsvWriter(exportFile, ".")) {
+			writer.writeRow(List.of("Student ID", "Student Name", "Rédaction [100]", "* Rédaction"));
+			writer.writeRow(List.of("student1", "Joséphine Élève", "95", "Très bien"));
+		}
+
+		final byte[] exportedBytes = Files.readAllBytes(exportFile.toPath());
+		Assert.assertArrayEquals("UTF-8 BOM is missing", new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF},
+				new byte[] {exportedBytes[0], exportedBytes[1], exportedBytes[2]});
+
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new FileInputStream(exportFile)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", exportFile.getName(), service, ".", "gUid", "siteId");
+		}
+
+		Assert.assertTrue("UTF-8 round trip reported duplicate columns",
+				importedSpreadsheetWrapper.getHeadingReport().getDuplicateHeadings().isEmpty());
+		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(2).getColumnTitle());
+		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(3).getColumnTitle());
+		Assert.assertEquals("Joséphine Élève", importedSpreadsheetWrapper.getRows().get(0).getStudentName());
+		final ImportedCell importedCell = importedSpreadsheetWrapper.getRows().get(0).getCellMap().get("Rédaction");
+		Assert.assertEquals("95", importedCell.getScore());
+		Assert.assertEquals("Très bien", importedCell.getComment());
 	}
 
 	@Test

@@ -15,16 +15,11 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import com.opencsv.CSVWriter;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -52,6 +47,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.business.util.GradebookCsvWriter;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.Assignment;
@@ -70,8 +66,6 @@ public class ExportPanel extends BasePanel {
 
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
-	private static final char CSV_SEMICOLON_SEPARATOR = ';';
-	private static final String BOM = "\uFEFF";
 	private static final String TXT_EXTENSION = ".txt";
 
 	enum ExportFormat {
@@ -336,10 +330,7 @@ public class ExportPanel extends BasePanel {
 		try {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
-			//CSV separator is comma unless the comma is the decimal separator, then is ;
-			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
-				fstream.write(BOM);
-				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(localeService.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
+			try (GradebookCsvWriter csvWriter = new GradebookCsvWriter(tempFile, localeService.getDecimalSeparator())) {
 				
 				// Create csv header
 				final List<String> header = new ArrayList<>();
@@ -435,7 +426,7 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 				}
 
-				csvWriter.writeNext(header.toArray(new String[] {}));
+				csvWriter.writeRow(header);
 
 				// apply section/group filter
 				final GradebookUiSettings settings = new GradebookUiSettings();
@@ -551,9 +542,8 @@ public class ExportPanel extends BasePanel {
 						line.add(null); // for the ignore column
 					}
 					
-					csvWriter.writeNext(line.toArray(new String[] {}));
+					csvWriter.writeRow(line);
 				});
-				csvWriter.close();
 			}
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
