@@ -15,12 +15,8 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -75,10 +71,7 @@ import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import java.util.Collections;
 import java.util.Set;
@@ -106,8 +99,6 @@ public class ImportGradesHelper {
 	public static final String[] XLS_FILE_EXTS = { ".xls", ".xlsx" };
 	public static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 	public static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
-
-	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	private static ResourceLoader RL = new ResourceLoader();
 
@@ -154,30 +145,7 @@ public class ImportGradesHelper {
 	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws IOException {
 
-		// manually parse method so we can support arbitrary columns
-		final BufferedInputStream bufferedInputStream = new BufferedInputStream(is);
-		bufferedInputStream.mark(3);
-		final boolean hasUtf8Bom = bufferedInputStream.read() == 0xEF
-				&& bufferedInputStream.read() == 0xBB
-				&& bufferedInputStream.read() == 0xBF;
-		if (!hasUtf8Bom) {
-			bufferedInputStream.reset();
-		}
-		final Charset charset = hasUtf8Bom ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1;
-		final InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream, charset);
-		CSVReader reader;
-		if(StringUtils.isEmpty(userDecimalSeparator)){
-			reader = new CSVReader(inputStreamReader);
-		}else{
-			CSVParser parser = new CSVParserBuilder()
-					//new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
-					.withSeparator(".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)
-					.build();
-					
-			reader = new CSVReaderBuilder(inputStreamReader)
-					.withCSVParser(parser)
-					.build();
-		}
+		final CSVReader reader = GradebookCsvIO.openReader(is, userDecimalSeparator);
 		String[] nextLine;
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();

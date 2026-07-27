@@ -17,10 +17,17 @@ package org.sakaiproject.gradebookng.business.util;
 
 import static org.mockito.Mockito.when;
 
+import com.opencsv.CSVWriter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +69,9 @@ import org.sakaiproject.util.ResourceLoader;
  * Tests for the ImportGradesHelper class.
  */
 public class TestImportGradesHelper {
+
+	private static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
+	private static final byte[] UTF_8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
 
 	@Mock private GradebookNgBusinessService service;
 	@Mock private ResourceLoader resourceLoader;
@@ -168,23 +178,99 @@ public class TestImportGradesHelper {
 
 	@Test
 	public void when_utf8ExportIsReimported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
-		final File exportFile = temporaryFolder.newFile("gradebook.csv");
-		try (GradebookCsvWriter writer = new GradebookCsvWriter(exportFile, ".")) {
-			writer.writeRow(List.of("Student ID", "Student Name", "Rédaction [100]", "* Rédaction"));
-			writer.writeRow(List.of("student1", "Joséphine Élève", "95", "Très bien"));
+		assertUtf8ExportRoundTrip(".", ',', "gradebook-point.csv");
+		assertUtf8ExportRoundTrip(",", ';', "gradebook-comma.csv");
+		assertUtf8ExportRoundTrip("", ',', "gradebook-default.csv");
+	}
+
+	private void assertUtf8ExportRoundTrip(final String decimalSeparator, final char fieldSeparator, final String fileName)
+			throws Exception {
+		final File exportFile = temporaryFolder.newFile(fileName);
+		try (CSVWriter writer = GradebookCsvIO.openWriter(exportFile, decimalSeparator)) {
+			writer.writeNext(new String[] {"Student ID", "Student Name", "Rédaction [100]", "* Rédaction"});
+			writer.writeNext(new String[] {"student1", "Joséphine Élève", "95", "Très bien"});
 		}
 
 		final byte[] exportedBytes = Files.readAllBytes(exportFile.toPath());
-		Assert.assertArrayEquals("UTF-8 BOM is missing", new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF},
+		Assert.assertArrayEquals("UTF-8 BOM is missing", UTF_8_BOM,
 				new byte[] {exportedBytes[0], exportedBytes[1], exportedBytes[2]});
+		Assert.assertEquals("Unexpected CSV field delimiter", "\uFEFF" + utf8CsvText(fieldSeparator),
+				new String(exportedBytes, StandardCharsets.UTF_8));
 
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream inputStream = new FileInputStream(exportFile)) {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
-					inputStream, "text/csv", exportFile.getName(), service, ".", "gUid", "siteId");
+					inputStream, "text/csv", exportFile.getName(), service, decimalSeparator, "gUid", "siteId");
 		}
 
-		Assert.assertTrue("UTF-8 round trip reported duplicate columns",
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_utf8BomCsvIsImported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		assertUtf8Import(".", ',');
+		assertUtf8Import(",", ';');
+	}
+
+	@Test
+	public void when_windows1252CsvIsImported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		assertWindows1252Import(".", ',');
+		assertWindows1252Import(",", ';');
+	}
+
+	@Test
+	public void when_utf8BomPrefixesInvalidUtf8_thenImportFails() throws Exception {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		outputStream.writeBytes(UTF_8_BOM);
+		outputStream.writeBytes(utf8CsvText(',').getBytes(WINDOWS_1252));
+
+		try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+			ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, ".", "gUid", "siteId");
+			Assert.fail("A UTF-8 BOM must not silently fall back to Windows-1252");
+		} catch (final MalformedInputException expected) {
+			// The BOM is authoritative, so malformed UTF-8 is rejected instead of decoded with a fallback charset.
+		}
+	}
+
+	private void assertUtf8Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		final byte[] csvBytes = utf8CsvBytes(fieldSeparator);
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, decimalSeparator, "gUid", "siteId");
+		}
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	private void assertWindows1252Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		final byte[] csvBytes = utf8CsvText(fieldSeparator).getBytes(WINDOWS_1252);
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, decimalSeparator, "gUid", "siteId");
+		}
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	private static byte[] utf8CsvBytes(final char fieldSeparator) {
+		final byte[] csvBytes = utf8CsvText(fieldSeparator).getBytes(StandardCharsets.UTF_8);
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		outputStream.writeBytes(UTF_8_BOM);
+		outputStream.writeBytes(csvBytes);
+		return outputStream.toByteArray();
+	}
+
+	private static String utf8CsvText(final char fieldSeparator) {
+		final String separator = String.valueOf(fieldSeparator);
+		return String.join(separator, "\"Student ID\"", "\"Student Name\"", "\"Rédaction [100]\"", "\"* Rédaction\"")
+				+ "\r\n"
+				+ String.join(separator, "\"student1\"", "\"Joséphine Élève\"", "\"95\"", "\"Très bien\"")
+				+ "\r\n";
+	}
+
+	private static void assertUtf8ImportPreservesAccents(final ImportedSpreadsheetWrapper importedSpreadsheetWrapper) {
+		Assert.assertTrue("UTF-8 import reported duplicate columns",
 				importedSpreadsheetWrapper.getHeadingReport().getDuplicateHeadings().isEmpty());
 		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(2).getColumnTitle());
 		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(3).getColumnTitle());

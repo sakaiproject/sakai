@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import com.opencsv.CSVWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,7 +49,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.business.util.GradebookCsvWriter;
+import org.sakaiproject.gradebookng.business.util.GradebookCsvIO;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.Assignment;
@@ -330,8 +332,8 @@ public class ExportPanel extends BasePanel {
 		try {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
-			try (GradebookCsvWriter csvWriter = new GradebookCsvWriter(tempFile, localeService.getDecimalSeparator())) {
-				
+			try (CSVWriter csvWriter = GradebookCsvIO.openWriter(tempFile, localeService.getDecimalSeparator())) {
+
 				// Create csv header
 				final List<String> header = new ArrayList<>();
 				if (!isCustomExport || this.includeStudentId) {
@@ -426,7 +428,7 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 				}
 
-				csvWriter.writeRow(header);
+				csvWriter.writeNext(header.toArray(new String[] {}));
 
 				// apply section/group filter
 				final GradebookUiSettings settings = new GradebookUiSettings();
@@ -542,7 +544,7 @@ public class ExportPanel extends BasePanel {
 						line.add(null); // for the ignore column
 					}
 					
-					csvWriter.writeRow(line);
+					csvWriter.writeNext(line.toArray(new String[] {}));
 				});
 			}
 		} catch (final IOException e) {
