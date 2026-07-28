@@ -20,7 +20,6 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 public class SiteStatsReportForm {
 
     private long id;
-    private long templateId;
     private String title;
     private String description;
     private String what = ReportManager.WHAT_VISITS;

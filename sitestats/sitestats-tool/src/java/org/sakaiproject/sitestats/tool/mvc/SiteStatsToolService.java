@@ -188,7 +188,6 @@ public class SiteStatsToolService {
         ReportDef report = reportDefinition(requestedSiteId, reportId);
         SiteStatsReportForm form = SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
         form.setId(0);
-        form.setTemplateId(report.getId());
         return new CopiedReport(saveReport(report.getSiteId(), form), report.getSiteId());
     }
 
@@ -196,25 +195,17 @@ public class SiteStatsToolService {
         return reportExportService.canExportPreviewReport(reportSite(requestedSiteId), previewId);
     }
 
-    public List<ReportDef> reportTemplates(String requestedSiteId) {
-        reportSite(requestedSiteId);
-        return reportManager.getReportDefinitions(null, true, false);
-    }
-
     public ReportDef buildReport(String requestedSiteId, SiteStatsReportForm form) {
         String siteId = reportSite(requestedSiteId);
-        assertReportTypeAvailable(siteId, form);
+        String validationCode = reportFormValidator.validateForSite(siteId, form);
+        if (validationCode != null) {
+            throw new InvalidReportConfigurationException(validationCode);
+        }
         ReportDef report;
         if (form.getId() > 0) {
             report = editableReportDefinition(siteId, form.getId());
-        } else if (form.getTemplateId() > 0) {
-            report = reportDefinition(siteId, form.getTemplateId());
-            report.setId(0);
-            report.setCreatedBy(null);
-            report.setCreatedOn(null);
         } else {
-            List<ReportDef> templates = reportTemplates(siteId);
-            report = templates.isEmpty() ? new ReportDef(null, siteId) : new ReportDef(templates.get(0), siteId);
+            report = new ReportDef(null, siteId);
             report.setId(0);
         }
         report.setSiteId(siteId);
@@ -278,6 +269,7 @@ public class SiteStatsToolService {
         List<NamedOption> roles = roleIds.stream().map(role -> new NamedOption(role, role))
                 .sorted(byLabel).collect(Collectors.toList());
         return new ReportEditorOptions(tools, events, roles, groups, users, availableReportTypes,
+                new ReportEditorRulesView(),
                 visitsAvailable, activityAvailable, resourcesAvailable, presencesAvailable);
     }
 
@@ -348,11 +340,8 @@ public class SiteStatsToolService {
         params.setWhoGroupId(form.getWhoGroupId());
         params.setWhoUserIds(new ArrayList<String>(form.getWhoUserIds()));
         params.setHowTotalsBy(new ArrayList<String>(form.getHowTotalsBy()));
-        boolean validSort = !form.isHowSort() || ReportManager.HOW_SORT_DEFAULT.equals(form.getHowSortBy())
-                || StatsManager.T_TOTAL.equals(form.getHowSortBy())
-                || form.getHowTotalsBy().contains(form.getHowSortBy());
-        params.setHowSort(form.isHowSort() && validSort);
-        params.setHowSortBy(validSort ? form.getHowSortBy() : ReportManager.HOW_SORT_DEFAULT);
+        params.setHowSort(form.isHowSort());
+        params.setHowSortBy(form.getHowSortBy());
         params.setHowSortAscending(form.isHowSortAscending());
         params.setHowLimitedMaxResults(form.isHowLimitedMaxResults());
         params.setHowMaxResults(form.getHowMaxResults());
@@ -364,14 +353,12 @@ public class SiteStatsToolService {
         params.setHowChartSeriesPeriod(form.getHowChartSeriesPeriod());
     }
 
-    private void assertReportTypeAvailable(String siteId, SiteStatsReportForm form) {
-        reportFormValidator.assertReportTypeAvailable(siteId, form.getWhat());
-    }
-
     public long saveReport(String requestedSiteId, SiteStatsReportForm form) {
         ReportDef report = buildReport(requestedSiteId, form);
         if (!reportManager.saveReportDefinition(report)) {
-            throw new IllegalStateException("The report could not be saved");
+            throw new SiteStatsOperationException(
+                    "sitestats_error_report_save",
+                    "Report " + report.getId() + " could not be saved for site " + report.getSiteId());
         }
         return report.getId();
     }
@@ -384,7 +371,9 @@ public class SiteStatsToolService {
     public void deleteReport(String requestedSiteId, long reportId) {
         ReportDef report = editableReportDefinition(requestedSiteId, reportId);
         if (!reportManager.removeReportDefinition(report)) {
-            throw new IllegalStateException("The report could not be deleted");
+            throw new SiteStatsOperationException(
+                    "sitestats_error_report_delete",
+                    "Report " + reportId + " could not be deleted for site " + report.getSiteId());
         }
     }
 
@@ -429,7 +418,9 @@ public class SiteStatsToolService {
             tool.setSelected(toolSelected);
         }
         if (!statsManager.setPreferences(siteId, preferences)) {
-            throw new IllegalStateException("The preferences could not be saved");
+            throw new SiteStatsOperationException(
+                    "sitestats_error_preferences_save",
+                    "Preferences could not be saved for site " + siteId);
         }
     }
 
@@ -611,6 +602,7 @@ public class SiteStatsToolService {
         private final List<NamedOption> groups;
         private final List<NamedOption> users;
         private final List<String> availableReportTypes;
+        private final ReportEditorRulesView rules;
         private final boolean visitsAvailable;
         private final boolean activityAvailable;
         private final boolean resourcesAvailable;

@@ -600,16 +600,21 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#removeReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
-		ReportDef persistedReportDef = getHibernateTemplate().get(ReportDef.class, reportDef.getId());
-		if (persistedReportDef != null) {
-			getHibernateTemplate().delete(persistedReportDef);
-			cacheReportDef.clear();
-			String siteId = persistedReportDef.getSiteId();
-			if (siteId == null) {
-				siteId = persistedReportDef.getReportParams().getSiteId();
+		try {
+			ReportDef persistedReportDef = getHibernateTemplate().get(ReportDef.class, reportDef.getId());
+			if (persistedReportDef != null) {
+				getHibernateTemplate().delete(persistedReportDef);
+				cacheReportDef.clear();
+				String siteId = persistedReportDef.getSiteId();
+				if (siteId == null) {
+					siteId = persistedReportDef.getReportParams().getSiteId();
+				}
+				statsManager.logEvent(persistedReportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
+				return true;
 			}
-			statsManager.logEvent(persistedReportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
-			return true;
+		} catch (DataAccessException e) {
+			log.error("Could not delete report definition {} for site {}",
+					reportDef.getId(), reportDef.getSiteId(), e);
 		}
 		return false;
 	}

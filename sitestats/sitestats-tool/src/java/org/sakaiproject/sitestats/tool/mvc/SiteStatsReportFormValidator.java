@@ -12,6 +12,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.report.ReportConfigurationRules;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +45,6 @@ public class SiteStatsReportFormValidator {
         return validateForm(form);
     }
 
-    public void assertReportTypeAvailable(String siteId, String reportType) {
-        if (!availableReportTypes(site(siteId)).contains(reportType)) {
-            throw new IllegalArgumentException("The selected report type is unavailable for this site");
-        }
-    }
-
     public List<String> availableReportTypes(Site site) {
         List<String> availableReportTypes = new ArrayList<String>();
         if (statsManager.getEnableSiteVisits() && statsManager.getVisitsInfoAvailable()) {
@@ -73,6 +68,9 @@ public class SiteStatsReportFormValidator {
             return "sitestats_report_title_required";
         }
         if (ReportManager.WHAT_EVENTS.equals(form.getWhat())) {
+            if (!ReportConfigurationRules.isEventSelectionTypeAllowed(form.getWhatEventSelType())) {
+                return "sitestats_report_configuration_invalid";
+            }
             if (ReportManager.WHAT_EVENTS_BYTOOL.equals(form.getWhatEventSelType())
                     && form.getWhatToolIds().isEmpty()) {
                 return "report_err_notools";
@@ -82,14 +80,25 @@ public class SiteStatsReportFormValidator {
                 return "report_err_noevents";
             }
         }
+        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat())
+                && form.isWhatLimitedAction()
+                && !ReportConfigurationRules.isResourceActionAllowed(form.getWhatResourceAction())) {
+            return "sitestats_report_configuration_invalid";
+        }
         if (ReportManager.WHAT_RESOURCES.equals(form.getWhat()) && form.isWhatLimitedResourceIds()
                 && Arrays.stream(StringUtils.defaultString(form.getWhatResourceIds()).split("[\\r\\n]+"))
                         .noneMatch(StringUtils::isNotBlank)) {
             return "report_err_noresources";
         }
+        if (!ReportConfigurationRules.isWhenTypeAllowed(form.getWhen())) {
+            return "sitestats_report_configuration_invalid";
+        }
         if (ReportManager.WHEN_CUSTOM.equals(form.getWhen())
                 && (form.getWhenFrom() == null || form.getWhenTo() == null || form.getWhenFrom().isAfter(form.getWhenTo()))) {
             return "report_err_nocustomdates";
+        }
+        if (!ReportConfigurationRules.isWhoTypeAllowed(form.getWho())) {
+            return "sitestats_report_configuration_invalid";
         }
         if (ReportManager.WHO_GROUPS.equals(form.getWho()) && StringUtils.isBlank(form.getWhoGroupId())) {
             return "report_err_nogroup";
@@ -100,19 +109,37 @@ public class SiteStatsReportFormValidator {
         if (form.getHowTotalsBy().isEmpty()) {
             return "reportParams.howTotalsBy.Required";
         }
-        if (ReportManager.WHAT_EVENTS.equals(form.getWhat())
-                && (form.getHowTotalsBy().contains(StatsManager.T_RESOURCE)
-                        || form.getHowTotalsBy().contains(StatsManager.T_RESOURCE_ACTION))) {
-            return "report_err_totalsbyevent";
+        if (form.getHowTotalsBy().stream()
+                .anyMatch(total -> !ReportConfigurationRules.isTotalAllowed(form.getWhat(), total))) {
+            return "sitestats_report_totals_unavailable";
         }
-        if (ReportManager.WHAT_RESOURCES.equals(form.getWhat())
-                && form.getHowTotalsBy().contains(StatsManager.T_EVENT)) {
-            return "report_err_totalsbyresource";
+        if (form.isHowSort()
+                && !ReportConfigurationRules.isSortSourceAllowed(
+                        form.getHowTotalsBy(), form.getHowSortBy())) {
+            return "sitestats_report_configuration_invalid";
         }
         if (form.isHowLimitedMaxResults() && form.getHowMaxResults() <= 0) {
             return "reportParams.howMaxResults.IConverter.int";
         }
+        if (!ReportConfigurationRules.isPresentationModeAllowed(form.getHowPresentationMode())) {
+            return "sitestats_report_configuration_invalid";
+        }
+        if (hasChart(form) && !isValidChart(form)) {
+            return "sitestats_report_configuration_invalid";
+        }
         return null;
+    }
+
+    private static boolean hasChart(SiteStatsReportForm form) {
+        return ReportManager.HOW_PRESENTATION_CHART.equals(form.getHowPresentationMode())
+                || ReportManager.HOW_PRESENTATION_BOTH.equals(form.getHowPresentationMode());
+    }
+
+    private static boolean isValidChart(SiteStatsReportForm form) {
+        return ReportConfigurationRules.isChartConfigurationAllowed(
+                form.getHowChartType(), form.getHowChartSource(),
+                form.getHowChartCategorySource(), form.getHowChartSeriesSource(),
+                form.getHowChartSeriesPeriod(), form.getHowTotalsBy());
     }
 
     private Site site(String siteId) {

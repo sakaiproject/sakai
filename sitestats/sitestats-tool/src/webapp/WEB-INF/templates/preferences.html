@@ -8,8 +8,7 @@
   <h1 class="h3 mt-3" th:text="#{menu_prefs}">Preferences</h1>
   <form method="post" th:action="@{/preferences}" th:object="${preferencesForm}">
     <input type="hidden" name="siteId" th:value="${siteId}"/>
-    <input type="hidden" th:if="${_csrf != null}"
-           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
     <fieldset class="mb-4">
       <legend class="h4" th:text="#{instructions_prefs_general}">General options</legend>
       <div class="form-check mb-2">

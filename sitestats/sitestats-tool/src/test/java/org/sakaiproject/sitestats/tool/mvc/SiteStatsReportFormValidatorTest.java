@@ -24,7 +24,7 @@ public class SiteStatsReportFormValidatorTest {
         form.setWhat(ReportManager.WHAT_EVENTS);
         form.setHowTotalsBy(Collections.singletonList(StatsManager.T_RESOURCE));
 
-        assertEquals("report_err_totalsbyevent", SiteStatsReportFormValidator.validateForm(form));
+        assertEquals("sitestats_report_totals_unavailable", SiteStatsReportFormValidator.validateForm(form));
     }
 
     @Test
@@ -60,7 +60,116 @@ public class SiteStatsReportFormValidatorTest {
         form.setWhat(ReportManager.WHAT_RESOURCES);
         form.setHowTotalsBy(Collections.singletonList(StatsManager.T_EVENT));
 
-        assertEquals("report_err_totalsbyresource", SiteStatsReportFormValidator.validateForm(form));
+        assertEquals("sitestats_report_totals_unavailable", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnInvalidVisitTotal() {
+        SiteStatsReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_VISITS);
+        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_RESOURCE));
+
+        assertEquals("sitestats_report_totals_unavailable", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnInvalidPresenceTotal() {
+        SiteStatsReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_PRESENCES);
+        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_TOOL));
+
+        assertEquals("sitestats_report_totals_unavailable", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownTotal() {
+        SiteStatsReportForm form = validForm();
+        form.setHowTotalsBy(Collections.singletonList("unknown"));
+
+        assertEquals("sitestats_report_totals_unavailable", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownEventSelectionType() {
+        SiteStatsReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_EVENTS);
+        form.setWhatEventSelType("unknown");
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownDateRangeType() {
+        SiteStatsReportForm form = validForm();
+        form.setWhen("unknown");
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownAudienceType() {
+        SiteStatsReportForm form = validForm();
+        form.setWho("unknown");
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownLimitedResourceAction() {
+        SiteStatsReportForm form = validForm();
+        form.setWhat(ReportManager.WHAT_RESOURCES);
+        form.setWhatLimitedAction(true);
+        form.setWhatResourceAction("unknown");
+        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_RESOURCE));
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAnUnknownChartType() {
+        SiteStatsReportForm form = validForm();
+        form.setHowPresentationMode(ReportManager.HOW_PRESENTATION_CHART);
+        form.setHowChartType("unknown");
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAMissingPresentationMode() {
+        SiteStatsReportForm form = validForm();
+        form.setHowPresentationMode(null);
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsAChartSourceThatIsNotATotal() {
+        SiteStatsReportForm form = validForm();
+        form.setHowPresentationMode(ReportManager.HOW_PRESENTATION_CHART);
+        form.setHowChartSource(StatsManager.T_TOOL);
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void rejectsATimeSeriesWithoutADateTotal() {
+        SiteStatsReportForm form = validForm();
+        form.setHowTotalsBy(Collections.singletonList(StatsManager.T_USER));
+        form.setHowPresentationMode(ReportManager.HOW_PRESENTATION_CHART);
+        form.setHowChartType(StatsManager.CHARTTYPE_TIMESERIES);
+        form.setHowChartSource(StatsManager.T_USER);
+
+        assertEquals("sitestats_report_configuration_invalid", SiteStatsReportFormValidator.validateForm(form));
+    }
+
+    @Test
+    public void acceptsAValidTimeSeries() {
+        SiteStatsReportForm form = validForm();
+        form.setHowPresentationMode(ReportManager.HOW_PRESENTATION_CHART);
+        form.setHowChartType(StatsManager.CHARTTYPE_TIMESERIES);
+        form.setHowChartSource(StatsManager.T_DATE);
+
+        assertNull(SiteStatsReportFormValidator.validateForm(form));
     }
 
     @Test

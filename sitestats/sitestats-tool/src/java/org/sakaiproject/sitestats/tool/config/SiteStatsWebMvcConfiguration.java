@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.config;
 
+import org.sakaiproject.sitestats.tool.mvc.SiteStatsCsrfInterceptor;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -12,6 +13,7 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -28,7 +30,12 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class SiteStatsWebMvcConfiguration implements ApplicationContextAware, WebMvcConfigurer {
 
     private static final String UTF8 = "UTF-8";
+    private final SiteStatsCsrfInterceptor csrfInterceptor;
     private ApplicationContext applicationContext;
+
+    public SiteStatsWebMvcConfiguration(SiteStatsCsrfInterceptor csrfInterceptor) {
+        this.csrfInterceptor = csrfInterceptor;
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -80,6 +87,11 @@ public class SiteStatsWebMvcConfiguration implements ApplicationContextAware, We
         DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
         registrar.setUseIsoFormat(true);
         registrar.registerFormatters(registry);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(csrfInterceptor);
     }
 
     @Override

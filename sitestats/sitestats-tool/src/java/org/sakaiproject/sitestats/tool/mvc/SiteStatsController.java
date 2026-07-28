@@ -232,7 +232,7 @@ public class SiteStatsController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Void> notFound() {
         return ResponseEntity.notFound().build();
     }
@@ -243,7 +243,6 @@ public class SiteStatsController {
                 siteId, form.getWhoUserIds());
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
-        model.addAttribute("templates", toolService.reportTemplates(siteId));
         model.addAttribute("editorOptions", editorOptions);
     }
 

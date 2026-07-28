@@ -28,7 +28,7 @@
           </a>
           <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}">
             <input type="hidden" name="siteId" th:value="${siteId}"/>
-            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
             <button class="btn btn-outline-secondary btn-sm" type="submit" th:title="#{report_duplicate}">
               <span class="bi bi-copy" aria-hidden="true"></span>
               <span class="visually-hidden" th:text="#{report_duplicate}">Copy report</span>
@@ -36,7 +36,7 @@
           </form>
           <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}">
             <input type="hidden" name="siteId" th:value="${siteId}"/>
-            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
             <button class="btn btn-outline-danger btn-sm" type="submit" th:title="#{report_delete}">
               <span class="bi bi-trash" aria-hidden="true"></span>
               <span class="visually-hidden" th:text="#{report_delete}">Delete report</span>

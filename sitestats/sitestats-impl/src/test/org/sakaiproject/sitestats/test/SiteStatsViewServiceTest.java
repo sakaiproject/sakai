@@ -33,6 +33,7 @@ import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.visitStat;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Before;
@@ -60,6 +61,8 @@ import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -83,17 +86,24 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	@Autowired private SiteStatsTableMapperImpl tableMapper;
 	@Autowired private SiteStatsViewService service;
 	@Autowired private SessionManager sessionManager;
+	@Autowired private UserDirectoryService userDirectoryService;
 
 	@Before
 	public void setUp() throws Exception {
 		db.deleteAll();
-		reset(securityService, siteService, sessionManager);
+		reset(securityService, siteService, sessionManager, userDirectoryService);
 
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn(USER_ID);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
+		User user = mock(User.class);
+		when(user.getDisplayId()).thenReturn(USER_ID);
+		when(user.getDisplayName()).thenReturn("User A");
+		when(user.getSortName()).thenReturn("User A");
+		when(userDirectoryService.getUser(USER_ID)).thenReturn(user);
 
 		Site site = site(SITE_ID, "Site A", "Instructor");
+		when(site.getUsers()).thenReturn(new HashSet<String>(Arrays.asList(USER_ID, OTHER_USER_ID)));
 		when(siteService.siteReference(SITE_ID)).thenReturn(SITE_REF);
 		when(siteService.getSite(SITE_ID)).thenReturn(site);
 		when(siteService.isUserSite(SITE_ID)).thenReturn(false);
@@ -105,6 +115,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		PrefsData prefsData = new PrefsData();
 		prefsData.setShowOwnStatisticsToStudents(true);
+		prefsData.setListToolEventsOnlyAvailableInSite(false);
 		prefsData.setToolEventsDef(Arrays.asList(tool(FakeData.TOOL_CHAT, FakeData.EVENT_CHATNEW)));
 		assertTrue(statsManager.setPreferences(SITE_ID, prefsData));
 		db.insertObject(visitStat(SITE_ID, Date.valueOf("2026-06-17"), 3, 2));
@@ -178,6 +189,31 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertEquals(1, view.getTable().getRows().size());
 		assertEquals(Long.valueOf(3), view.getTable().getRows().get(0).getCells().get(StatsManager.T_VISITS).getRaw());
 		assertEquals(Long.valueOf(2), view.getTable().getRows().get(0).getCells().get(StatsManager.T_UNIQUEVISITS).getRaw());
+	}
+
+	@Test
+	public void pieChartLabelsDescribeTheMeasuredValue() {
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT,
+				FakeData.EVENT_CHATNEW, Date.valueOf("2026-06-17"), 4));
+		SiteStatsReportView view = service.getWidgetMetricReport(SITE_ID, WIDGET_ACTIVITY,
+				METRIC_ACTIVITY_MOST_ACTIVE_TOOL, new SiteStatsReportRequest());
+
+		assertFalse(view.getChart().getDatasets().isEmpty());
+		assertEquals("Total", view.getChart().getDatasets().get(0).getLabel());
+	}
+
+	@Test
+	public void visitPieChartLabelsDescribeVisitCounts() {
+		ReportDef reportDef = visitReport(SITE_ID, USER_ID);
+		ReportParams params = reportDef.getReportParams();
+		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_CHART);
+		params.setHowChartType(StatsManager.CHARTTYPE_PIE);
+		params.setHowChartSource(StatsManager.T_DATE);
+		assertTrue(reportManager.saveReportDefinition(reportDef));
+
+		SiteStatsReportView view = service.getReport(SITE_ID, reportDef.getId(), new SiteStatsReportRequest());
+
+		assertEquals("Visits", view.getChart().getDatasets().get(0).getLabel());
 	}
 
 	@Test

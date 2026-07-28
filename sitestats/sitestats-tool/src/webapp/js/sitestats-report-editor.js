@@ -13,6 +13,7 @@ if (reportEditor) {
       element.disabled = !enabled;
     }
   };
+  const csvValues = value => new Set((value ?? "").split(",").filter(Boolean));
   const selectedValues = select => new Set(Array.from(select?.selectedOptions ?? [], option => option.value));
   const selectFirstEnabled = select => {
     if (!select || select.selectedOptions.length > 0 && !select.selectedOptions[0].disabled) {
@@ -27,6 +28,7 @@ if (reportEditor) {
   const what = control("report-what");
   const eventSelection = control("event-selection");
   const totalsBy = control("totals-by");
+  const sortBy = control("sort-by");
   const presentation = control("presentation");
   const chartType = control("chart-type");
   const chartSource = control("chart-source");
@@ -98,15 +100,9 @@ if (reportEditor) {
   });
 
   const updateTotals = () => {
-    const invalidByReportType = {
-      "what-resources": new Set(["tool", "event"]),
-      "what-visits": new Set(["tool", "resource", "resource-action"]),
-      "what-events": new Set(["resource", "resource-action"]),
-      "what-presences": new Set(["tool", "event", "resource", "resource-action"]),
-    };
-    const invalid = invalidByReportType[what?.value] ?? new Set();
     Array.from(totalsBy?.options ?? []).forEach(option => {
-      option.disabled = invalid.has(option.value);
+      const allowedReportTypes = csvValues(option.dataset.allowedFor);
+      option.disabled = !allowedReportTypes.has(what?.value);
       if (option.disabled) {
         option.selected = false;
       }
@@ -115,9 +111,18 @@ if (reportEditor) {
 
   const updateChartSources = () => {
     const totals = selectedValues(totalsBy);
+    Array.from(sortBy?.options ?? []).forEach(option => {
+      option.disabled = option.dataset.requiresSelectedTotal === "true" && !totals.has(option.value);
+      if (option.disabled) {
+        option.selected = false;
+      }
+    });
+    selectFirstEnabled(sortBy);
     [chartSource, chartCategory, chartSeries].forEach(select => {
       Array.from(select?.options ?? []).forEach(option => {
-        option.disabled = option.value !== "none" && option.value !== "total" && !totals.has(option.value);
+        const allowedChartTypes = csvValues(option.dataset.allowedChartTypes);
+        const missingTotal = option.dataset.requiresSelectedTotal === "true" && !totals.has(option.value);
+        option.disabled = !allowedChartTypes.has(chartType?.value) || missingTotal;
         if (option.disabled) {
           option.selected = false;
         }
@@ -162,18 +167,21 @@ if (reportEditor) {
 
   const updateChart = () => {
     const chartVisible = presentation?.value !== "how-presentation-table";
-    const timeSeries = chartType?.value === "timeseries" || chartType?.value === "timeseriesbar";
+    const selectedChartType = chartType?.selectedOptions[0];
+    const usesCategory = selectedChartType?.dataset.usesCategory === "true";
+    const usesSeries = selectedChartType?.dataset.usesSeries === "true";
     setVisible("chart-options", chartVisible);
-    setVisible("chart-source-options", chartVisible && !timeSeries);
-    setVisible("chart-category-options", chartVisible && chartType?.value === "bar");
-    setVisible("chart-series-options", chartVisible && timeSeries);
-    if (chartVisible && timeSeries) {
-      const dateOption = Array.from(totalsBy?.options ?? []).find(option => option.value === "date");
-      if (dateOption) {
-        dateOption.selected = true;
-      }
-      if (chartSource) {
-        chartSource.value = "date";
+    setVisible("chart-source-options", chartVisible && !usesSeries);
+    setVisible("chart-category-options", chartVisible && usesCategory);
+    setVisible("chart-series-options", chartVisible && usesSeries);
+    if (chartVisible) {
+      const requiredTotal = selectedChartType?.dataset.requiredTotal;
+      if (requiredTotal) {
+        const requiredOption = Array.from(totalsBy?.options ?? [])
+          .find(option => option.value === requiredTotal && !option.disabled);
+        if (requiredOption) {
+          requiredOption.selected = true;
+        }
       }
     }
     updateChartSources();
