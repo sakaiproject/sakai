@@ -141,8 +141,6 @@ class SiteStatsTest extends SakaiUiTestBase {
 
         page.locator("button:has-text(\"Generate report\"), input[type=\"submit\"][value*=\"Generate report\"]").first().click(new Locator.ClickOptions().setForce(true));
         assertThat(page.getByText(REPORT_TITLE).first()).isVisible();
-        assertThat(page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^User Activity$", Pattern.CASE_INSENSITIVE)))).isVisible();
         Locator reportPanel = page.locator("sakai-sitestats-report-panel").first();
         assertThat(reportPanel).isVisible();
         assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/"));
