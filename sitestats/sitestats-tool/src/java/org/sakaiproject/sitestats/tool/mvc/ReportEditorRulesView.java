@@ -6,14 +6,12 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportConfigurationRules;
 
 /**
@@ -21,16 +19,8 @@ import org.sakaiproject.sitestats.api.report.ReportConfigurationRules;
  */
 public final class ReportEditorRulesView {
 
-    private static final Map<String, String> TOTAL_LABELS = Map.of(
-            StatsManager.T_USER, "report_option_user",
-            StatsManager.T_TOOL, "report_option_tool",
-            StatsManager.T_EVENT, "report_option_event",
-            StatsManager.T_RESOURCE, "report_option_resource",
-            StatsManager.T_RESOURCE_ACTION, "report_option_resourceaction",
-            StatsManager.T_DATE, "report_option_date",
-            StatsManager.T_LASTDATE, "report_option_lastdate");
     private static final List<TotalOption> TOTAL_OPTIONS = ReportConfigurationRules.supportedTotals().stream()
-            .map(value -> new TotalOption(value, TOTAL_LABELS.get(value),
+            .map(value -> new TotalOption(value, labelKey(value),
                     csv(ReportConfigurationRules.allowedReportTypesForTotal(value))))
             .collect(Collectors.toUnmodifiableList());
 
@@ -76,6 +66,10 @@ public final class ReportEditorRulesView {
 
     public boolean chartTypeUsesSeries(String value) {
         return ReportConfigurationRules.chartTypeUsesSeries(value);
+    }
+
+    private static String labelKey(String value) {
+        return "report_option_" + value.replace("-", "");
     }
 
     private static String csv(Set<String> values) {
