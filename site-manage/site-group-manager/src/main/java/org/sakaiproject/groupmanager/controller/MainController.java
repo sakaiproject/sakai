@@ -264,37 +264,25 @@ public class MainController {
         // Control if any group has been deleted
         boolean anyGroupDeleted = false;
 
-        List<String> blockedGroups = new ArrayList<>();
-
+        // Check if any groups to delete are being used as restrictions in joinable sets
+        List<Group> groupsUsedInJoinableSets = new ArrayList<>();
         for (String deletedGroupId : deleteGroupsForm.getDeletedGroupList()) {
-            Optional<Group> groupOptional = sakaiService.findGroupById(deletedGroupId);
-            if (!groupOptional.isPresent()) {
-                continue;
-            }
-
-            Group group = groupOptional.get();
-            boolean isBlocked = false;
-
-            if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.DELETE.equals(group.getRealmLock())) {
-                isBlocked = true;
-            }
-
+            // Check if this group is referenced in any joinable set's allowed groups property
             boolean isUsedInJoinableSet = site.getGroups().stream()
-                .anyMatch(siteGroup -> {
-                    String allowedGroups = siteGroup.getProperties().getProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
+                .anyMatch(group -> {
+                    String allowedGroups = group.getProperties().getProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
                     return allowedGroups != null && Arrays.asList(allowedGroups.split(",")).contains(deletedGroupId);
                 });
-            if (isUsedInJoinableSet) {
-                isBlocked = true;
-            }
 
-            if (isBlocked) {
-                blockedGroups.add(group.getTitle());
+            if (isUsedInJoinableSet) {
+                sakaiService.findGroupById(deletedGroupId).ifPresent(groupsUsedInJoinableSets::add);
             }
         }
 
-        if (!blockedGroups.isEmpty()) {
-            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteLockedGroup", new Object[] {String.join(", ", blockedGroups)}, sakaiService.getLocaleForCurrentSiteAndUser()));
+        // If groups are being used in joinable sets, show error and return
+        if (!groupsUsedInJoinableSets.isEmpty()) {
+            String groups = String.join(", ", groupsUsedInJoinableSets.stream().map(g -> g.getTitle()).collect(Collectors.toList()));
+            model.addAttribute("errorMessage", messageSource.getMessage("index.error.cantDeleteGroupsUsedInJoinableSets", new Object[] {groups}, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showIndex(model, request, response);
         }
 
