@@ -66,18 +66,16 @@
       <artifactId>search-api</artifactId>
       <scope>provided</scope>
     </dependency>
-  <dependency>
-   <groupId>jakarta.annotation</groupId>
-   <artifactId>jakarta.annotation-api</artifactId>
-   <scope>test</scope>
-   <version>2.0.0</version>
-  </dependency>
-  <dependency>
-   <groupId>jakarta.persistence</groupId>
-   <artifactId>jakarta.persistence-api</artifactId>
-   <version>3.0.0</version>
-   <scope>test</scope>
-  </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>

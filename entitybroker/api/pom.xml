@@ -28,11 +28,6 @@
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
-  <dependency>
-   <groupId>jakarta.persistence</groupId>
-   <artifactId>jakarta.persistence-api</artifactId>
-   <version>3.0.0</version>
-  </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

@@ -62,11 +62,10 @@
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
-  <dependency>
-   <groupId>jakarta.persistence</groupId>
-   <artifactId>jakarta.persistence-api</artifactId>
-   <version>3.0.0</version>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

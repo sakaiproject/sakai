@@ -99,12 +99,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <scope>test</scope>
         </dependency>
-  <dependency>
-   <groupId>jakarta.annotation</groupId>
-   <artifactId>jakarta.annotation-api</artifactId>
-   <scope>test</scope>
-   <version>2.0.0</version>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Google Drive related -->
         <dependency>
             <groupId>com.google.api-client</groupId>

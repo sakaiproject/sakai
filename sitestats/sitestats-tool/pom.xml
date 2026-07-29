@@ -61,18 +61,18 @@
 
     <!-- Sakai Wicket library -->
     <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-9</artifactId>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-          </exclusion>
-    <exclusion>
-     <groupId>org.apache.commons</groupId>
-     <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
-    </exclusion>
-        </exclusions>
+      <groupId>org.sakaiproject.wicket</groupId>
+      <artifactId>wicket-tool-9</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-fileupload</groupId>
+          <artifactId>commons-fileupload</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Apache Wicket -->
@@ -143,7 +143,7 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
     </dependency>
-    
+
     <!-- Servlet -->  
     <dependency>
       <groupId>jakarta.servlet</groupId>

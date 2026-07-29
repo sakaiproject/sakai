@@ -46,16 +46,10 @@
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
-  <dependency>
-   <groupId>jakarta.mail</groupId>
-   <artifactId>jakarta.mail-api</artifactId>
-   <version>2.0.2</version>
-  </dependency>
-  <dependency>
-   <groupId>jakarta.persistence</groupId>
-   <artifactId>jakarta.persistence-api</artifactId>
-   <version>3.0.0</version>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
@@ -114,14 +108,14 @@
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
         </dependency>
-  <dependency>
-   <groupId>jakarta.activation</groupId>
-   <artifactId>jakarta.activation-api</artifactId>
-  </dependency>
-  <dependency>
-   <groupId>jakarta.annotation</groupId>
-   <artifactId>jakarta.annotation-api</artifactId>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>

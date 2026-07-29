@@ -45,11 +45,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-  <dependency>
-   <groupId>jakarta.activation</groupId>
-   <artifactId>jakarta.activation-api</artifactId>
-   <version>2.0.1</version>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>

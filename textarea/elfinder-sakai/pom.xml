@@ -39,10 +39,6 @@
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>javax.mail</groupId>
-                    <artifactId>mail</artifactId>
-                </exclusion>
     <exclusion>
      <groupId>jakarta.mail</groupId>
      <artifactId>jakarta.mail-api</artifactId>

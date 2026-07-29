@@ -16,11 +16,10 @@
     <description>This project creates the content implementation used by the Sakai Scorm Tool</description>
 
     <dependencies>
-  <dependency>
-   <groupId>jakarta.activation</groupId>
-   <artifactId>jakarta.activation-api</artifactId>
-   <version>2.0.1</version>
-  </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.scorm</groupId>
             <artifactId>scorm-api</artifactId>

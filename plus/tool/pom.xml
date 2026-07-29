@@ -13,11 +13,10 @@
 	<name>sakai-plus-tool</name>
 
 	<dependencies>
-  <dependency>
-   <groupId>jakarta.annotation</groupId>
-   <artifactId>jakarta.annotation-api</artifactId>
-   <version>2.0.0</version>
-  </dependency>
+		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.plus</groupId>
 			<artifactId>sakai-plus-api</artifactId>

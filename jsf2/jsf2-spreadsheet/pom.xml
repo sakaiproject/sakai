@@ -73,7 +73,6 @@
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
             <scope>test</scope>
-   <version>9.1.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
