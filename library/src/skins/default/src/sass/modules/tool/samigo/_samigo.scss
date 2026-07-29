@@ -485,7 +485,7 @@
 		font-family: var(--sakai-font-family);
 	}
 
-	//SAK-52716 disabled comment boxes need a visible state in both themes
+	// disabled comment boxes need a visible state in both themes
 	.disabled.awesomplete,
 	textarea:disabled {
 		background-color: transparent;
