@@ -420,16 +420,6 @@ public interface PollsService {
     Collection<Group> getSiteGroups(String siteId);
 
     /**
-     * Get the group ids referenced by GROUP-access polls in the given site.
-     */
-    Set<String> getGroupIdsUsedByPolls(String siteId);
-
-    /**
-     * Get poll titles grouped by group id for the given site.
-     */
-    Map<String, List<String>> getPollTitlesByGroupId(String siteId);
-
-    /**
      * Check whether a user belongs to at least one of the groups assigned to a poll.
      * This method answers strict membership only and does not apply visibility defaults.
      *

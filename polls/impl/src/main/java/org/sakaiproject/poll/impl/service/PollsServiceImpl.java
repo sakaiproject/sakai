@@ -1583,34 +1583,4 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (polls == null) return new ArrayList<>();
         return polls.stream().filter(p -> userCanViewPoll(p, userId)).collect(Collectors.toList());
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Set<String> getGroupIdsUsedByPolls(String siteId) {
-        if (siteId == null) {
-            return new HashSet<>();
-        }
-        return findAllPolls(siteId).stream()
-                .filter(poll -> Poll.Access.GROUP.equals(poll.getTypeOfAccess()))
-                .filter(poll -> poll.getGroupIds() != null && !poll.getGroupIds().isEmpty())
-                .flatMap(poll -> poll.getGroupIds().stream())
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, List<String>> getPollTitlesByGroupId(String siteId) {
-        Map<String, List<String>> pollTitlesByGroupId = new HashMap<>();
-        if (siteId == null) {
-            return pollTitlesByGroupId;
-        }
-
-        findAllPolls(siteId).stream()
-                .filter(poll -> Poll.Access.GROUP.equals(poll.getTypeOfAccess()))
-                .filter(poll -> poll.getGroupIds() != null && !poll.getGroupIds().isEmpty())
-                .forEach(poll -> poll.getGroupIds().forEach(groupId ->
-                        pollTitlesByGroupId.computeIfAbsent(groupId, key -> new ArrayList<>()).add(poll.getText())));
-
-        return pollTitlesByGroupId;
-    }
 }

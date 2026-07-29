@@ -128,6 +128,7 @@ public class PollController {
             boolean canViewResults = pollsService.isAllowedViewResults(poll, sessionManager.getCurrentSessionUserId());
 
             String visibilityDisplay;
+            boolean groupSelectionMissing = false;
             Set<String> pollGroupIds = poll.getGroupIds();
             if (poll.isPublic()) {
                 visibilityDisplay = messageSource.getMessage("poll_visibility_public", null, effectiveLocale);
@@ -140,6 +141,7 @@ public class PollController {
                     }
                 }
                 if (titles.isEmpty()) {
+                    groupSelectionMissing = true;
                     visibilityDisplay = messageSource.getMessage("poll_visibility_groups", null, effectiveLocale);
                 } else {
                     visibilityDisplay = String.join(", ", titles);
@@ -160,7 +162,8 @@ public class PollController {
                     voteCloseDisplay,
                     voteCloseSortKey,
                     optionCount,
-                    visibilityDisplay
+                    visibilityDisplay,
+                    groupSelectionMissing
             ));
         }
 
@@ -226,5 +229,6 @@ public class PollController {
         String voteCloseSortKey;
         int optionCount;
         String visibilityDisplay;
+        boolean groupSelectionMissing;
     }
 }

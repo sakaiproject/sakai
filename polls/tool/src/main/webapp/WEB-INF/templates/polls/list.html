@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/common :: head}"></head>
 <body>
   <div class="portletBody container-fluid">
@@ -74,7 +74,10 @@
                 <span th:if="${poll.voteCloseDisplay}" th:text="${poll.voteCloseDisplay}" th:attr="data-sort=${poll.voteCloseSortKey}">Closing</span>
                 <span th:if="${poll.voteCloseDisplay == null}">&nbsp;</span>
               </td>
-              <td th:text="${poll.visibilityDisplay}">Site-wide</td>
+              <td>
+                <div th:if="${poll.groupSelectionMissing}" class="sak-banner-error" role="alert" th:text="#{poll_visibility_groups_none_selected}">No groups selected</div>
+                <span th:unless="${poll.groupSelectionMissing}" th:text="${poll.visibilityDisplay}">Site-wide</span>
+              </td>
               <td>
                 <a th:if="${poll.resultsVisible}" th:href="@{'/voteResults'(pollId=${poll.id})}" th:text="#{action_view_results}">Results</a>
               </td>
