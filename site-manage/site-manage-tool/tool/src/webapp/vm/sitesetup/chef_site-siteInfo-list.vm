@@ -407,12 +407,12 @@
 							</td>
 							#if ($!viewRoster || !$viewMembershipGroups.isEmpty())
 							<td>
-								#if ($viewMembershipGroups.contains($g.Id))
+								#if ($!viewRoster || $viewMembershipGroups.contains($g.Id))
 								<input type="button"
 										class="group-membership-button"
 										data-group-id="$g.Id"
 										value="$tlang.getString("sinfo.list.groups.memb.view")"
-										title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" />
+										title="$tlang.getString("sinfo.list.groups.memb.view") $formattedText.escapeHtml($g.Title)" />
 								#end
 							</td>
 							#end
