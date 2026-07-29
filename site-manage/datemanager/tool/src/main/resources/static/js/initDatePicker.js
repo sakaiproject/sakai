@@ -1290,6 +1290,21 @@ DTMN.previewToolColors = {
   lessons:        "#6c757d"
 };
 
+// FullCalendar defaults every event to white text, which fails WCAG AA on the lighter
+// accents above (cyan, teal, orange). Pick black or white per fill by relative
+// luminance — whichever contrasts more; the crossover is where the two ratios are equal.
+DTMN.previewEventTextColor = function(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const toLinear = function(c) {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const luminance = 0.2126 * toLinear((n >> 16) & 255)
+    + 0.7152 * toLinear((n >> 8) & 255)
+    + 0.0722 * toLinear(n & 255);
+  return luminance > 0.1791 ? '#000000' : '#ffffff';
+};
+
 // Read the live hidden-input values and build one FullCalendar event per non-empty
 // date. Events are all-day and keyed on the calendar day so they land squarely in the
 // day cell regardless of time zone; the time (when present) is shown in the marker text.
@@ -1316,11 +1331,13 @@ DTMN.collectPreviewEvents = function() {
     const fieldLabel = (DTMN.fieldLabels && DTMN.fieldLabels[field]) || field;
     const timeSuffix = (useTime && DTMN.hasTime(parsed)) ? ' ' + parsed.locale(sakai.locale.userLocale).format('LT') : '';
 
+    const fill = DTMN.previewToolColors[tool] || '#6c757d';
     events.push({
       title: (itemTitle ? itemTitle + ' — ' : '') + fieldLabel + timeSuffix,
       start: parsed.format('YYYY-MM-DD'),
       allDay: true,
-      color: DTMN.previewToolColors[tool] || '#6c757d'
+      color: fill,
+      textColor: DTMN.previewEventTextColor(fill)
     });
   });
   return events;

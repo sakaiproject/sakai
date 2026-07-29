@@ -354,3 +354,35 @@ test("formatTemplate substitutes indexed placeholders, including repeats", () =>
   assert.equal(DTMN.formatTemplate("{0} and {0} again, then {1}", ["a", "b"]),
     "a and a again, then b");
 });
+
+// ---------------------------------------------------------------------------
+// previewEventTextColor - accessible text on the calendar preview markers.
+// ---------------------------------------------------------------------------
+
+// WCAG relative-luminance contrast ratio, computed independently of the implementation.
+const contrast = (hexA, hexB) => {
+  const lum = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const lin = (c) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  };
+  const [hi, lo] = [lum(hexA), lum(hexB)].sort((a, b) => b - a);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+test("previewEventTextColor keeps white text on dark fills and switches to black on light ones", () => {
+  assert.equal(DTMN.previewEventTextColor("#6f42c1"), "#ffffff");
+  assert.equal(DTMN.previewEventTextColor("#0dcaf0"), "#000000");
+  assert.equal(DTMN.previewEventTextColor("#20c997"), "#000000");
+  assert.equal(DTMN.previewEventTextColor("#fd7e14"), "#000000");
+});
+
+test("every preview tool color meets WCAG AA (4.5:1) with its chosen text color", () => {
+  for (const [tool, fill] of Object.entries(DTMN.previewToolColors)) {
+    const text = DTMN.previewEventTextColor(fill);
+    assert.ok(contrast(fill, text) >= 4.5, `${tool} ${fill} with ${text} text is below 4.5:1`);
+  }
+});
