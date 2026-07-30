@@ -746,7 +746,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
-        <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+        <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
         <version>${sakai.commons.fileupload.version}</version>
         <scope>provided</scope>
       </dependency>
