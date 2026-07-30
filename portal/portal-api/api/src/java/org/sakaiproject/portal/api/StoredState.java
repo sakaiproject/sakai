@@ -21,7 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.tool.api.Placement;
 

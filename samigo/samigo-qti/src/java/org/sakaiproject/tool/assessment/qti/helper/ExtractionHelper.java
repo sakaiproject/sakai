@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringEscapeUtils;
 

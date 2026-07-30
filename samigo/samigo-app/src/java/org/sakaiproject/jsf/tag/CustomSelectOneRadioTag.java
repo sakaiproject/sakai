@@ -1,11 +1,11 @@
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.FactoryFinder;
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.component.UIComponent;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.ValueExpression;
+import jakarta.faces.FactoryFinder;
+import jakarta.faces.application.Application;
+import jakarta.faces.application.ApplicationFactory;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 
 import org.sakaiproject.jsf.component.CustomSelectOneRadio;
 
@@ -335,7 +335,7 @@ public class CustomSelectOneRadioTag extends UIComponentTag {
 			}
 		}		
 	}
-	public ValueBinding getValueBinding(String valueRef) {
+	public ValueExpression getValueBinding(String valueRef) {
 		ApplicationFactory af =
 			(ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
 		Application a = af.getApplication();

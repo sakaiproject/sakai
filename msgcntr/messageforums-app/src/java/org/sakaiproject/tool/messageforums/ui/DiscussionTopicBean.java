@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.Getter;
 import lombok.Setter;

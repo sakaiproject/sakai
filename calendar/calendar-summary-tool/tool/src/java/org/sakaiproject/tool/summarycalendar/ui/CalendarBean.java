@@ -34,9 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 
 import lombok.Getter;
 import lombok.Setter;

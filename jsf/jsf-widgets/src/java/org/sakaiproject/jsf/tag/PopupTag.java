@@ -22,9 +22,9 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 import org.sakaiproject.jsf.util.TagUtil;
 
@@ -94,7 +94,7 @@ public class PopupTag extends UIComponentTag
 
 
   public String getComponentType() {
-    return ("javax.faces.Output");
+    return ("jakarta.faces.Output");
   }
   public String getTitle() {
     return title;

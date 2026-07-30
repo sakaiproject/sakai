@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.help;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.TableOfContents;

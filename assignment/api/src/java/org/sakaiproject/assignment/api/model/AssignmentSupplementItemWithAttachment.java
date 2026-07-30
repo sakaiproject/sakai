@@ -23,7 +23,7 @@ package org.sakaiproject.assignment.api.model;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -27,7 +27,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 

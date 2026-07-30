@@ -28,8 +28,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

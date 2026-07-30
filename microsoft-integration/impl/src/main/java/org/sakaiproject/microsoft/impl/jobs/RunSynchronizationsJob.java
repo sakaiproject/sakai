@@ -43,7 +43,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.RollbackException;
+import jakarta.persistence.RollbackException;
 
 @Slf4j
 public class RunSynchronizationsJob implements Job {

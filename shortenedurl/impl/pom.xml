@@ -19,13 +19,17 @@
 	</parent>
 
    	<dependencies>
-      	<!-- internal dependencies -->
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
+        <!-- internal dependencies -->
       	<dependency>
          	<groupId>org.sakaiproject.shortenedurl</groupId>
          	<artifactId>shortenedurl-api</artifactId>
       	</dependency>
 
-      	<!-- shared external dependencies -->
+        <!-- shared external dependencies -->
 		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -47,10 +51,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
-        
+
         <!-- kernel dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -64,21 +68,21 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
-        
+
         <!-- entity broker dependency -->
         <dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
       		<artifactId>entitybroker-api</artifactId>
       		<scope>provided</scope>
    		</dependency>
-        
+
         <!-- bundled dependencies -->
         <dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-		
-		<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
+
+        <!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
 		<dependency>
 			<groupId>net.jcip</groupId>
 			<artifactId>jcip-annotations</artifactId>

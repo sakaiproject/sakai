@@ -28,14 +28,15 @@ package com.corejsf.util;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.ValueBinding;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.webapp.UIComponentTag;
+
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.webapp.UIComponentTag;
 
 public class Tags {
    public static void setString(UIComponent component, String attributeName,
@@ -91,7 +92,7 @@ public class Tags {
          String attributeValue) {
       FacesContext context = FacesContext.getCurrentInstance();
       Application app = context.getApplication();
-      ValueBinding vb = app.createValueBinding(attributeValue);
+      ValueExpression vb = app.createValueBinding(attributeValue);
       component.setValueBinding(attributeName, vb);
    }
 
@@ -120,7 +121,7 @@ public class Tags {
       else {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         MethodBinding mb = new ActionMethodBinding(attributeValue);
+         MethodExpression mb = new ActionMethodBinding(attributeValue);
          component.getAttributes().put("action", mb);
       }
    }
@@ -132,7 +133,7 @@ public class Tags {
       if (UIComponentTag.isValueReference(attributeValue)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         MethodBinding mb = app.createMethodBinding(attributeValue, paramTypes);
+         MethodExpression mb = app.createMethodBinding(attributeValue, paramTypes);
          component.getAttributes().put(attributeName, mb);
       }
    }
@@ -187,7 +188,7 @@ public class Tags {
    }
 
    private static class ActionMethodBinding
-         extends MethodBinding implements Serializable {
+         extends MethodExpression implements Serializable {
       private String result;
 
       public ActionMethodBinding(String result) { this.result = result; }

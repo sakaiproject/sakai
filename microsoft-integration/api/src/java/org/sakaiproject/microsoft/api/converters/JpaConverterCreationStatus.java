@@ -18,8 +18,8 @@ package org.sakaiproject.microsoft.api.converters;
 import org.sakaiproject.microsoft.api.data.CreationStatus;
 import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
 public class JpaConverterCreationStatus implements AttributeConverter<CreationStatus, Integer> {

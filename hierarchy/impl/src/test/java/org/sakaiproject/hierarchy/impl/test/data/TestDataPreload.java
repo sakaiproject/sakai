@@ -11,7 +11,7 @@
 
 package org.sakaiproject.hierarchy.impl.test.data;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.hierarchy.model.HierarchyNodePermission;

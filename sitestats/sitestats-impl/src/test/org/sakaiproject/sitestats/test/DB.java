@@ -21,8 +21,8 @@ package org.sakaiproject.sitestats.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.sitestats.impl.DetailedEventImpl;
 import org.sakaiproject.sitestats.impl.EventStatImpl;

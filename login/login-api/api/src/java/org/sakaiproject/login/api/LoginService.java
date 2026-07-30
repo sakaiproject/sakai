@@ -21,7 +21,7 @@
 package org.sakaiproject.login.api;
 
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 public interface LoginService {

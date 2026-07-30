@@ -20,7 +20,7 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import lombok.extern.slf4j.Slf4j;

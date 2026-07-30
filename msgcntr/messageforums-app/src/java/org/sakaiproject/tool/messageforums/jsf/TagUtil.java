@@ -22,14 +22,15 @@ package org.sakaiproject.tool.messageforums.jsf;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.ValueBinding;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.webapp.UIComponentTag;
+
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * Common static utility methods that help in implementing JSF tags.
@@ -144,7 +145,7 @@ public class TagUtil
     {
         FacesContext context = FacesContext.getCurrentInstance();
         Application app = context.getApplication();
-        ValueBinding vb = app.createValueBinding(value);
+        ValueExpression vb = app.createValueBinding(value);
         component.setValueBinding(name, vb);
     }
 
@@ -193,7 +194,7 @@ public class TagUtil
         } else
         {
            
-            MethodBinding mb = new ActionMethodBinding(value);
+            MethodExpression mb = new ActionMethodBinding(value);
             component.getAttributes().put("action", mb);
         }
     }
@@ -212,7 +213,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            MethodBinding mb = app.createMethodBinding(value, paramTypes);
+            MethodExpression mb = app.createMethodBinding(value, paramTypes);
             component.getAttributes().put(name, mb);
         }
     }
@@ -320,7 +321,7 @@ public class TagUtil
      * useful when an action should just return a certain result, not call a
      * method.
      */
-    private static class ActionMethodBinding extends MethodBinding implements Serializable
+    private static class ActionMethodBinding extends MethodExpression implements Serializable
     {
         private String result;
 

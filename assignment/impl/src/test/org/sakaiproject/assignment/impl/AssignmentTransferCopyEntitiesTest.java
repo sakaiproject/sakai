@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.junit.Assert;
 import org.junit.Before;

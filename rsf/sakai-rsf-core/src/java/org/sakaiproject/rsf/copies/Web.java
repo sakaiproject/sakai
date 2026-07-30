@@ -31,7 +31,7 @@
  */
 package org.sakaiproject.rsf.copies;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.math.NumberUtils;
 
 /**

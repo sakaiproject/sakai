@@ -17,7 +17,7 @@ package org.sakaiproject.jsf2.spreadsheet;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A simple utility class for downloading generic spreadsheet-style data

@@ -27,13 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.faces.component.UIColumn;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIColumn;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 import com.sun.faces.renderkit.Attribute;
 import com.sun.faces.renderkit.html_basic.HtmlBasicRenderer;
@@ -227,7 +226,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 
 		int currRowClass = 0;
 		boolean noArrows = "true".equals(data.getAttributes().get("noarrows"));
-		ValueBinding expandedBinding = component.getValueBinding("expanded");
+		ValueExpression expandedBinding = component.getValueBinding("expanded");
 		boolean expanded = (expandedBinding != null && "true".equalsIgnoreCase((String) expandedBinding.getValue(context)));
 		// these variables will be used to track progress in the loops
 		Message currentThread = null;
