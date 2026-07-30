@@ -49,6 +49,12 @@
         <dependency>
             <groupId>jakarta.faces</groupId>
             <artifactId>jakarta.faces-api</artifactId>
+            <version>${sakai.jakarta.faces-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>${sakai.jakarta.el-api.version}</version>
         </dependency>
     </dependencies>
 
