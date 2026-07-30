@@ -238,9 +238,6 @@ public class RequestFilter implements Filter
 
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
-	
-	/** Is this a Terracotta clustered environment? */
-	protected boolean TERRACOTTA_CLUSTER = false;
 
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
@@ -486,39 +483,25 @@ public class RequestFilter implements Filter
 						threadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
 					}
 
-					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
-					if (TERRACOTTA_CLUSTER) {
-						synchronized(s) {
-							try {
-								// Pass control on to the next filter or the servlet
-								chain.doFilter(req, resp);
-
-								// post-process response
-								postProcessResponse(s, req, resp);
-							} finally {
-								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req);
-							}
-						}
-					} else {
-						// Pass control on to the next filter or the servlet
+					// Pass control on to the next filter or the servlet
+					try {
 						try {
-							try {
-								chain.doFilter(req, resp);
+							chain.doFilter(req, resp);
 
-								// post-process response
-								postProcessResponse(s, req, resp);
-							} finally {
-								// Tomcat may only set these attributes once form parameters are parsed downstream.
-								surfaceTomcatParameterParseFailure(req);
-							}
-						} catch (Exception e) {
-							log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
-									log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
-							log.debug("Unhandled exception request diagnostics: hasQuery={}",
-									req.getQueryString() != null && !req.getQueryString().isEmpty());
-							if (log.isDebugEnabled()) throw e;
+							// post-process response
+							postProcessResponse(s, req, resp);
+						} finally {
+							// Tomcat may only set these attributes once form parameters are parsed downstream.
+							surfaceTomcatParameterParseFailure(req);
 						}
+					} catch (Exception e) {
+						log.error("Unhandled exception while processing request (debug={}): method={}, uri={}",
+								log.isDebugEnabled(), req.getMethod(), req.getRequestURI(), e);
+						if (log.isDebugEnabled()) {
+							log.debug("Unhandled exception request diagnostics: hasQuery={}",
+								req.getQueryString() != null && !req.getQueryString().isEmpty());
+						}
+						throw e;
 					}
 
 					// Output client cookie if requested to do so
@@ -873,9 +856,6 @@ public class RequestFilter implements Filter
 			log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
 			m_uploadMaxPerFile = true;
 		}
-
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 
 		// retrieve the configured cookie name, if any
 		if (System.getProperty(SAKAI_COOKIE_PROP) != null)
@@ -1410,13 +1390,13 @@ public class RequestFilter implements Filter
 
 	/**
 	 * isSessionClusteringEnabled() checks if session information is clustered.
-	 * Clustering can be either through Terracotta clustering or through
+	 * Clustering through
 	 * RebuildBreakdownService session clustering
 	 * @return true if sessionClustering is enabled
 	 */
 	private boolean isSessionClusteringEnabled()
 	{
-	    return TERRACOTTA_CLUSTER || rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
+	    return rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
 	}
 
 	/**
@@ -1439,8 +1419,7 @@ public class RequestFilter implements Filter
 			{
 				if (cookies[i].getName().equals(name))
 				{
-					// If this is NOT a terracotta cluster environment
-					// and the suffix passed in to this method is not null
+					// If the suffix passed in to this method is not null
 					// then only match the cookie if the end of the cookie
 					// value is equal to the suffix passed in.
 					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))

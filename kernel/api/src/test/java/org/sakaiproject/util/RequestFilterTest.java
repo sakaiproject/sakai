@@ -212,27 +212,6 @@ public class RequestFilterTest {
         Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
         Mockito.doThrow(new ServletException("boom")).when(chain).doFilter(request, response);
 
-        testFilter.doFilter(request, response, chain);
-
-        Mockito.verify(testFilter, Mockito.times(2)).surfaceTomcatParameterParseFailure(request);
-    }
-
-    @Test
-    public void testDoFilterSurfacesTomcatParameterParseFailureWhenTerracottaChainThrows() throws Exception {
-        RequestFilter testFilter = Mockito.spy(new RequestFilter());
-        FilterChain chain = Mockito.mock(FilterChain.class);
-        testFilter.TERRACOTTA_CLUSTER = true;
-
-        setupDoFilterRequest();
-        Mockito.doNothing().when(testFilter).handleCharacterEncoding(request, response);
-        Mockito.doReturn(request).when(testFilter).handleFileUpload(Mockito.eq(request), Mockito.eq(response), Mockito.anyList());
-        Mockito.doReturn(session).when(testFilter).assureSession(request, response);
-        Mockito.doNothing().when(testFilter).surfaceTomcatParameterParseFailure(request);
-        Mockito.doReturn(request).when(testFilter).preProcessRequest(session, request);
-        Mockito.doReturn(null).when(testFilter).detectToolPlacement(session, request);
-        Mockito.doReturn(response).when(testFilter).preProcessResponse(session, request, response);
-        Mockito.doThrow(new ServletException("boom")).when(chain).doFilter(request, response);
-
         try {
             testFilter.doFilter(request, response, chain);
         } catch (ServletException e) {
