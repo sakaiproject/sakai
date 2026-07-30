@@ -24,6 +24,7 @@ package org.sakaiproject.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -45,11 +46,12 @@ import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.cluster.api.ClusterNode;
@@ -388,7 +390,7 @@ public class RequestFilter implements Filter
 		boolean cleared = false;
 
 		// keep track of temp files with this request that need to be deleted on the way out
-		List<FileItem> tempFiles = new ArrayList<FileItem>();
+		List<DiskFileItem> tempFiles = new ArrayList<DiskFileItem>();
 
 		try
 		{
@@ -724,11 +726,15 @@ public class RequestFilter implements Filter
 	 * @param tempFiles
 	 *        The file items to delete.
 	 */
-	protected void deleteTempFiles(List<FileItem> tempFiles)
+	protected void deleteTempFiles(List<DiskFileItem> tempFiles)
 	{
-		for (FileItem item : tempFiles)
+		for (DiskFileItem item : tempFiles)
 		{
-			item.delete();
+			try {
+				item.delete();
+			} catch (IOException e) {
+				log.warn("Unable to delete temp upload file: " + item.getName(), e.toString());
+			}
 		}
 	}
 
@@ -952,10 +958,10 @@ public class RequestFilter implements Filter
 	 *         file upload. Parses the files using Apache commons-fileuplaod. Exposes the results through a wrapped request. Files
 	 *         are available like: fileItem = (FileItem) request.getAttribute("myHtmlFileUploadId");
 	 */
-	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp, List<FileItem> tempFiles)
+	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp, List<DiskFileItem> tempFiles)
 			throws ServletException, UnsupportedEncodingException
 	{
-		if (!m_uploadEnabled || !ServletFileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
+		if (!m_uploadEnabled || !JakartaServletFileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
 		{
 			return req;
 		}
@@ -970,18 +976,18 @@ public class RequestFilter implements Filter
 		// parse using commons-fileupload
 
 		// Create a factory for disk-based file items
-		DiskFileItemFactory factory = new DiskFileItemFactory();
+		DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
 
 		// set the factory parameters: the temp dir and the keep-in-memory-if-smaller threshold
-		if (m_uploadTempDir != null) factory.setRepository(new File(m_uploadTempDir));
-		if (m_uploadThreshold > 0) factory.setSizeThreshold(m_uploadThreshold);
+		if (m_uploadTempDir != null) factory = DiskFileItemFactory.builder().setPath(m_uploadTempDir).get();
+		if (m_uploadThreshold > 0) factory = DiskFileItemFactory.builder().setBufferSize(m_uploadThreshold).get();
 
 		// Create a new file upload handler
-		ServletFileUpload upload = new ServletFileUpload(factory);
+		JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> upload = new JakartaServletFileUpload<>(factory);
 
 		// set the encoding
 		String encoding = req.getCharacterEncoding();
-		if (encoding != null && encoding.length() > 0) upload.setHeaderEncoding(encoding);
+		if (encoding != null && encoding.length() > 0) upload.setHeaderCharset(Charset.forName(encoding));
 
 		// set the max upload size
 		long uploadMax = -1;
@@ -1009,8 +1015,8 @@ public class RequestFilter implements Filter
 			// - Total typical overhead: ~1KB, but use 64KB margin for safety with large files
 			long margin = 64L * 1024L; // 64KB margin for multipart overhead
 
-			upload.setSizeMax(uploadMax + margin);
-			upload.setFileSizeMax(uploadMax + margin);
+			upload.setMaxSize(uploadMax + margin);
+			upload.setMaxFileSize(uploadMax + margin);
 		}
 
 		try
@@ -1020,11 +1026,16 @@ public class RequestFilter implements Filter
 			List list = upload.parseRequest(req);
 			for (int i = 0; i < list.size(); i++)
 			{
-				FileItem item = (FileItem) list.get(i);
+				DiskFileItem item = (DiskFileItem) list.get(i);
 
 				if (item.isFormField())
 				{
-					String str = item.getString(encoding);
+					String str = "";
+					try {
+						str = item.getString(Charset.forName(encoding));
+					} catch (IOException e) {
+						log.info("Unable to read form field value: " + item.getFieldName(), e.toString());
+					}
 
 					Object obj = map.get(item.getFieldName());
 					if (obj == null)
@@ -1068,8 +1079,7 @@ public class RequestFilter implements Filter
 
 						req.setAttribute("upload.status", "size_limit_exceeded");
 						// TODO: for 1.2 commons-fileupload, switch this to a FileSizeLimitExceededException
-						req.setAttribute("upload.exception", new FileUploadBase.SizeLimitExceededException("", item.getSize(),
-								uploadMax));
+						req.setAttribute("upload.exception", new FileUploadSizeException("", uploadMax, item.getSize()));
 						req.setAttribute("upload.limit", Long.valueOf((uploadMax / 1024L) / 1024L));
 					}
 					else
@@ -1085,15 +1095,15 @@ public class RequestFilter implements Filter
 				req.setAttribute("upload.status", "ok");
 			}
 		}
-		catch (FileUploadBase.SizeLimitExceededException ex)
+		catch (FileUploadSizeException ex)
 		{
-			log.info("Upload size limit exceeded: " + ((upload.getSizeMax() / 1024L) / 1024L));
+			log.info("Upload size limit exceeded: " + ((upload.getMaxSize() / 1024L) / 1024L));
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", Long.valueOf((upload.getSizeMax() / 1024L) / 1024L));
+			req.setAttribute("upload.limit", Long.valueOf((upload.getMaxSize() / 1024L) / 1024L));
 		}
 		// TODO: put in for commons-fileupload 1.2
 		// catch (FileUploadBase.FileSizeLimitExceededException ex)
