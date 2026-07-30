@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.business.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -72,10 +71,7 @@ import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import java.util.Collections;
 import java.util.Set;
@@ -103,8 +99,6 @@ public class ImportGradesHelper {
 	public static final String[] XLS_FILE_EXTS = { ".xls", ".xlsx" };
 	public static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 	public static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
-
-	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	private static ResourceLoader RL = new ResourceLoader();
 
@@ -151,20 +145,7 @@ public class ImportGradesHelper {
 	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws IOException {
 
-		// manually parse method so we can support arbitrary columns
-		CSVReader reader;
-		if(StringUtils.isEmpty(userDecimalSeparator)){
-			reader = new CSVReader(new InputStreamReader(is, "ISO-8859-1"));
-		}else{
-			CSVParser parser = new CSVParserBuilder()
-					//new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
-					.withSeparator(".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)
-					.build();
-					
-			reader = new CSVReaderBuilder(new InputStreamReader(is, "ISO-8859-1"))
-					.withCSVParser(parser)
-					.build();
-		}
+		final CSVReader reader = GradebookCsvIO.openReader(is, userDecimalSeparator);
 		String[] nextLine;
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
