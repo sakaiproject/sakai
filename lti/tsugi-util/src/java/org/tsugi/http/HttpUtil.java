@@ -24,8 +24,8 @@ import java.time.Instant;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;

@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.help;
 
-import javax.faces.context.FacesContext;
-import javax.faces.el.VariableResolver;
+import jakarta.el.ELResolver;
+import jakarta.faces.context.FacesContext;
 
 import org.sakaiproject.api.app.help.TableOfContents;
 
@@ -43,7 +43,7 @@ public class TOCDisplayTool
     if (tableOfContents == null)
     {
       FacesContext facesContext = FacesContext.getCurrentInstance();
-      VariableResolver resolver = facesContext.getApplication()
+      ELResolver resolver = facesContext.getApplication()
           .getVariableResolver();
       tableOfContents = ((TableOfContentsTool) resolver.resolveVariable(
           facesContext, "TableOfContentsTool")).getTableOfContents();

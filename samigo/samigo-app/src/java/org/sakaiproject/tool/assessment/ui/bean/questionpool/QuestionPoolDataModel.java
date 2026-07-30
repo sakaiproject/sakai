@@ -23,8 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
-import javax.faces.model.DataModel;
-import javax.faces.model.DataModelListener;
+import jakarta.faces.model.DataModel;
+import jakarta.faces.model.DataModelListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.model.Tree;

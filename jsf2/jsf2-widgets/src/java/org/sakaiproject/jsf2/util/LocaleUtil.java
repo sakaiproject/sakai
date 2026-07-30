@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 

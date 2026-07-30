@@ -32,10 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ComponentManager;
@@ -290,7 +290,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":startTime";
 
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+							"jakarta.faces.convert.DateTimeConverter.CONVERSION"), componentId);
 					validationFailure = true;
 					invalidTimeEntered = true;
 				}
@@ -299,7 +299,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting end time " + meeting.getEndTimeString() + " is invalid");
 					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+							"jakarta.faces.convert.DateTimeConverter.CONVERSION"), componentId);
 					validationFailure = true;
 					invalidTimeEntered = true;
 				}
@@ -317,7 +317,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 					if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
 					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":maxEnrollmentInput";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-							"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
+							"jakarta.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
 					validationFailure = true;
 				}
 				

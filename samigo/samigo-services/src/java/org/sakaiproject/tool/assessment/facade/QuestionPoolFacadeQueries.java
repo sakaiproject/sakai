@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;

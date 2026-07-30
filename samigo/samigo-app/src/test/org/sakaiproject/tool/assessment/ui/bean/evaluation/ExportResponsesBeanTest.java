@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.servlet.ServletContext;
+import jakarta.annotation.Resource;
+import jakarta.servlet.ServletContext;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Assert;
