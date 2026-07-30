@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head th:replace="~{fragments/common :: head(#{menu_overview})}"></head>
+<body>
+<main class="portletBody container-fluid">
+  <div th:replace="~{fragments/common :: menu('overview')}"></div>
+  <h1 class="h3 mt-3" th:text="#{menu_overview}">Overview</h1>
+  <div class="sak-banner-info" role="status"
+       th:if="${#lists.isEmpty(overview.widgets)}"
+       th:text="#{sitestats_no_statistics}">
+    No statistics are available for this site.
+  </div>
+  <div class="sitestats-widgets" th:if="${!#lists.isEmpty(overview.widgets)}">
+    <section class="sitestats-widget" th:each="widget : ${overview.widgets}" th:if="${widget.visible}">
+      <h2 class="h4 sitestats-widget-title" th:text="${widget.title}">Report</h2>
+      <dl class="sitestats-metrics" th:if="${!#lists.isEmpty(widget.metrics)}">
+        <div class="sitestats-metric" th:each="metric : ${widget.metrics}"
+             th:title="${metric.snapshot.detail != metric.snapshot.primary ? metric.snapshot.detail : null}">
+          <dt th:text="${metric.label}"></dt>
+          <dd class="mb-0">
+            <span class="sitestats-metric-primary" th:text="${metric.snapshot.primary}"></span>
+            <span class="sitestats-metric-percentage"
+                  th:if="${metric.snapshot.percentage != null}"
+                  th:text="${#numbers.formatPercent(metric.snapshot.percentage / 100.0, 0, 0)}"></span>
+            <span class="visually-hidden"
+                  th:if="${metric.snapshot.detail != null and metric.snapshot.detail != metric.snapshot.primary}"
+                  th:text="${metric.snapshot.detail}"></span>
+          </dd>
+        </div>
+      </dl>
+      <sakai-sitestats-widget-tab class="sitestats-widget-tab"
+                                  th:each="tab : ${widget.tabs}"
+                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)},
+                                           open=${widget.id == 'visits' and tab.id == 'bydate' ? 'open' : null}">
+        <span slot="title" th:text="${tab.title}">Report</span>
+        <div slot="filter" class="sitestats-widget-filter" th:each="filter : ${tab.filters}">
+          <label class="form-label"
+                 th:for="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:text="${filter.label}"></label>
+          <select class="form-select form-select-sm"
+                  th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                  th:attr="data-report-filter=${filter.id}">
+            <option th:each="option : ${filter.options}"
+                    th:value="${option.value}" th:text="${option.label}"></option>
+          </select>
+        </div>
+      </sakai-sitestats-widget-tab>
+    </section>
+  </div>
+</main>
+</body>
+</html>

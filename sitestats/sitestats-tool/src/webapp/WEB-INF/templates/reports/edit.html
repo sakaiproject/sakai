@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head th:replace="~{fragments/common :: head(#{menu_reports})}"></head>
+<body>
+<main class="portletBody container-fluid">
+  <div th:replace="~{fragments/common :: menu('reports')}"></div>
+  <div th:replace="~{fragments/common :: messages}"></div>
+  <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? #{report_edit} : #{report_new}">Edit report</h1>
+
+  <div class="sak-banner-error mb-3" role="alert" th:if="${#lists.isEmpty(editorOptions.availableReportTypes)}">
+    <span th:text="#{sitestats_report_types_empty}">No report types are available for this site.</span>
+  </div>
+
+  <form id="report-editor" method="post" th:action="@{/reports/save}" th:object="${reportForm}"
+        class="mw-100" style="max-width: 60rem">
+    <input type="hidden" name="siteId" th:value="${siteId}"/>
+    <input type="hidden" th:field="*{id}"/>
+    <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
+    <div id="report-error" class="sak-banner-error mb-3" role="alert" th:if="${error}" th:text="${error}"></div>
+
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 h4" th:text="#{report_what}">What?</legend>
+      <p th:text="#{report_what_instructions}"></p>
+      <div class="mb-3">
+        <label class="form-label" for="report-what" th:text="#{report_what_activity}">Activity</label>
+        <select id="report-what" class="form-select" th:field="*{what}"
+                aria-controls="event-options resource-options">
+          <option value="what-visits" th:if="${editorOptions.visitsAvailable}" th:text="#{report_what_visits}"></option>
+          <option value="what-events" th:if="${editorOptions.activityAvailable}" th:text="#{report_what_events}"></option>
+          <option value="what-resources" th:if="${editorOptions.resourcesAvailable}" th:text="#{report_what_resources}"></option>
+          <option value="what-presences" th:if="${editorOptions.presencesAvailable}" th:text="#{report_what_presences}"></option>
+        </select>
+      </div>
+
+      <div id="event-options">
+        <div class="mb-3">
+          <label class="form-label" for="event-selection" th:text="#{report_what_selection}">Selection</label>
+          <select id="event-selection" class="form-select" th:field="*{whatEventSelType}"
+                  aria-controls="tool-selection event-selection-list">
+            <option value="what-events-bytool" th:text="#{report_what_events_bytool}"></option>
+            <option value="what-events-byevent" th:text="#{report_what_events_byevent}"></option>
+          </select>
+        </div>
+        <div id="tool-selection" class="mb-3">
+          <label class="form-label" for="tool-ids" th:text="#{report_what_events_bytool}">Tools</label>
+          <select id="tool-ids" class="form-select" th:field="*{whatToolIds}" multiple size="7"
+                  th:title="#{report_multiple_sel_instruction}">
+            <option value="all" th:text="#{report_what_all}"></option>
+            <option th:each="tool : ${editorOptions.tools}" th:value="${tool.id}" th:text="${tool.label}"></option>
+          </select>
+        </div>
+        <div id="event-selection-list" class="mb-3">
+          <label class="form-label" for="event-ids" th:text="#{report_what_events_byevent}">Events</label>
+          <select id="event-ids" class="form-select" th:field="*{whatEventIds}" multiple size="9"
+                  th:title="#{report_multiple_sel_instruction}">
+            <option th:each="event : ${editorOptions.events}" th:value="${event.id}" th:text="${event.label}"></option>
+          </select>
+        </div>
+      </div>
+
+      <div id="resource-options" class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="form-check">
+            <input id="limit-resource-action" class="form-check-input" type="checkbox"
+                   th:field="*{whatLimitedAction}" aria-controls="resource-action"/>
+            <label class="form-check-label" for="limit-resource-action" th:text="#{report_what_resource_action}"></label>
+          </div>
+          <label class="visually-hidden" for="resource-action"
+                 th:text="#{report_what_resource_action}">Resource action</label>
+          <select id="resource-action" class="form-select mt-2" th:field="*{whatResourceAction}">
+            <option value="new" th:text="#{action_new}"></option>
+            <option value="read" th:text="#{action_read}"></option>
+            <option value="revise" th:text="#{action_revise}"></option>
+            <option value="delete" th:text="#{action_delete}"></option>
+            <option value="zipdownload" th:text="#{action_zipdownload}"></option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="form-check">
+            <input id="limit-resources" class="form-check-input" type="checkbox"
+                   th:field="*{whatLimitedResourceIds}" aria-controls="resource-ids"/>
+            <label class="form-check-label" for="limit-resources" th:text="#{report_what_sel_resources}"></label>
+          </div>
+          <label class="visually-hidden" for="resource-ids"
+                 th:text="#{sitestats_resource_ids}">Resource IDs</label>
+          <textarea id="resource-ids" class="form-control mt-2" th:field="*{whatResourceIds}" rows="3"
+                    th:placeholder="#{sitestats_resource_ids_hint}"></textarea>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 h4" th:text="#{report_when}">When?</legend>
+      <p th:text="#{report_when_instructions}"></p>
+      <label class="form-label" for="report-when" th:text="#{report_when_period}">Period</label>
+      <select id="report-when" class="form-select mb-3" th:field="*{when}" aria-controls="custom-dates">
+        <option value="when-all" th:text="#{report_when_all}"></option>
+        <option value="when-last7days" th:text="#{report_when_last7days}"></option>
+        <option value="when-last30days" th:text="#{report_when_last30days}"></option>
+        <option value="when-last365days" th:text="#{report_when_last365days}"></option>
+        <option value="when-custom" th:text="#{report_when_custom}"></option>
+      </select>
+      <div id="custom-dates" class="row g-3">
+        <div class="col-12 col-sm-6">
+          <label class="form-label" for="when-from" th:text="#{report_when_from_date}">From</label>
+          <input id="when-from" class="form-control" type="date" th:field="*{whenFrom}"/>
+        </div>
+        <div class="col-12 col-sm-6">
+          <label class="form-label" for="when-to" th:text="#{report_when_to_date}">To</label>
+          <input id="when-to" class="form-control" type="date" th:field="*{whenTo}"/>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 h4" th:text="#{report_who}">Who?</legend>
+      <p th:text="#{report_who_instructions}"></p>
+      <label class="form-label" for="report-who" th:text="#{report_who_users}">Users</label>
+      <select id="report-who" class="form-select mb-3" th:field="*{who}"
+              aria-controls="who-role-options who-group-options who-custom-options">
+        <option value="who-all" th:text="#{report_who_all}"></option>
+        <option value="who-role" th:text="#{report_who_role}"></option>
+        <option value="who-groups" th:if="${!#lists.isEmpty(editorOptions.groups)}"
+                th:text="#{report_who_group}"></option>
+        <option value="who-custom" th:text="#{report_who_custom}"></option>
+        <option value="who-none" th:text="#{report_who_none}"></option>
+      </select>
+      <div id="who-role-options" class="mb-3">
+        <label class="form-label" for="who-role" th:text="#{report_who_role_sel}">Role</label>
+        <select id="who-role" class="form-select" th:field="*{whoRoleId}">
+          <option value=""></option>
+          <option th:each="role : ${editorOptions.roles}" th:value="${role.id}" th:text="${role.label}"></option>
+        </select>
+      </div>
+      <div id="who-group-options" class="mb-3">
+        <label class="form-label" for="who-group" th:text="#{report_who_group_sel}">Group</label>
+        <select id="who-group" class="form-select" th:field="*{whoGroupId}">
+          <option value=""></option>
+          <option th:each="group : ${editorOptions.groups}" th:value="${group.id}" th:text="${group.label}"></option>
+        </select>
+      </div>
+      <div id="who-custom-options" class="mb-3">
+        <label class="form-label" for="who-user-search"
+               th:text="#{sitestats_user_search}">Search site users</label>
+        <input id="who-user-search" class="form-control" type="search" minlength="2"
+               aria-describedby="who-user-search-help who-user-search-status"
+               th:attr="data-endpoint=@{/reports/users(siteId=${siteId})},
+                        data-searching=#{sitestats_user_searching},
+                        data-empty=#{sitestats_user_search_empty},
+                        data-error=#{sitestats_user_search_error},
+                        data-result-one=#{sitestats_user_search_result_one},
+                        data-result-many=#{sitestats_user_search_result_many},
+                        data-add=#{sitestats_user_add},
+                        data-added=#{sitestats_user_added}"/>
+        <p id="who-user-search-help" class="form-text" th:text="#{sitestats_user_search_help}">
+          Enter at least two characters.
+        </p>
+        <div id="who-user-search-status" class="form-text" aria-live="polite"></div>
+        <ul id="who-user-search-results" class="list-group mb-3"></ul>
+        <label class="form-label" for="who-users"
+               th:text="#{sitestats_selected_users}">Selected users</label>
+        <select id="who-users" class="form-select" th:field="*{whoUserIds}" multiple size="7"
+                th:title="#{report_multiple_sel_instruction}">
+          <option th:each="user : ${editorOptions.users}" th:value="${user.id}" th:text="${user.label}"></option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 h4" th:text="#{report_how}">How?</legend>
+      <p th:text="#{report_how_instructions}"></p>
+      <div class="row g-4">
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="totals-by" th:text="#{report_howtotalsby}">Totals by</label>
+          <select id="totals-by" class="form-select" th:field="*{howTotalsBy}" multiple size="7" required>
+            <option th:each="option : ${editorOptions.rules.totalOptions}"
+                    th:value="${option.value}"
+                    th:text="${#messages.msg(option.labelKey)}"
+                    th:attr="data-allowed-for=${option.allowedReportTypes}"></option>
+          </select>
+          <div class="mt-3">
+            <div class="form-check">
+              <input id="limit-results" class="form-check-input" type="checkbox"
+                     th:field="*{howLimitedMaxResults}"
+                     aria-controls="max-results-options"/>
+              <label class="form-check-label" for="limit-results" th:text="#{report_howmaxresults}"></label>
+            </div>
+            <div id="max-results-options" class="mt-2">
+              <label class="form-label" for="max-results"
+                     th:text="#{report_howmaxresults_sel}">Number of results</label>
+              <input id="max-results" class="form-control" type="number" min="1" th:field="*{howMaxResults}"/>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="form-check mb-2">
+            <input id="sort-results" class="form-check-input" type="checkbox" th:field="*{howSort}"
+                   aria-controls="sorting-options"/>
+            <label class="form-check-label" for="sort-results" th:text="#{report_howsorting_enable}"></label>
+          </div>
+          <div id="sorting-options">
+            <label class="form-label" for="sort-by" th:text="#{report_howsorting}">Sort by</label>
+            <select id="sort-by" class="form-select" th:field="*{howSortBy}">
+              <option value="default" th:text="#{default}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('default')}"></option>
+              <option value="event" th:text="#{report_option_event}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('event')}"></option>
+              <option value="resource" th:text="#{report_option_resource}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('resource')}"></option>
+              <option value="resource-action" th:text="#{report_option_resourceaction}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('resource-action')}"></option>
+              <option value="date" th:text="#{report_option_date}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('date')}"></option>
+              <option value="total" th:text="#{report_option_total}"
+                      th:attr="data-requires-selected-total=${editorOptions.rules.sortRequiresSelectedTotal('total')}"></option>
+            </select>
+            <div class="form-check mt-2">
+              <input id="sort-ascending" class="form-check-input" type="checkbox" th:field="*{howSortAscending}"/>
+              <label class="form-check-label" for="sort-ascending" th:text="#{report_howsorting_asc}"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-top mt-4 pt-3">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="presentation"
+                   th:text="#{report_howpresentation}">Presentation</label>
+            <select id="presentation" class="form-select" th:field="*{howPresentationMode}" aria-controls="chart-options">
+              <option value="how-presentation-table" th:text="#{report_howpresentation_table}"></option>
+              <option value="how-presentation-chart" th:text="#{report_howpresentation_chart}"></option>
+              <option value="how-presentation-both" th:text="#{report_howpresentation_both}"></option>
+            </select>
+          </div>
+        </div>
+
+        <div id="chart-options" class="row g-3 mt-0">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="chart-type" th:text="#{report_howcharttype}">Chart type</label>
+            <select id="chart-type" class="form-select" th:field="*{howChartType}"
+                    aria-controls="chart-source-options chart-series-options">
+              <option value="bar" th:text="#{report_howchart_bar}"
+                      th:attr="data-required-total=${editorOptions.rules.requiredTotalForChartType('bar')},data-uses-category=${editorOptions.rules.chartTypeUsesCategory('bar')},data-uses-series=${editorOptions.rules.chartTypeUsesSeries('bar')}"></option>
+              <option value="pie" th:text="#{report_howchart_pie}"
+                      th:attr="data-required-total=${editorOptions.rules.requiredTotalForChartType('pie')},data-uses-category=${editorOptions.rules.chartTypeUsesCategory('pie')},data-uses-series=${editorOptions.rules.chartTypeUsesSeries('pie')}"></option>
+              <option value="timeseries" th:text="#{report_howchart_timeseries}"
+                      th:attr="data-required-total=${editorOptions.rules.requiredTotalForChartType('timeseries')},data-uses-category=${editorOptions.rules.chartTypeUsesCategory('timeseries')},data-uses-series=${editorOptions.rules.chartTypeUsesSeries('timeseries')}"></option>
+              <option value="timeseriesbar" th:text="#{report_howchart_timeseries_bar}"
+                      th:attr="data-required-total=${editorOptions.rules.requiredTotalForChartType('timeseriesbar')},data-uses-category=${editorOptions.rules.chartTypeUsesCategory('timeseriesbar')},data-uses-series=${editorOptions.rules.chartTypeUsesSeries('timeseriesbar')}"></option>
+            </select>
+          </div>
+          <div id="chart-source-options" class="col-12 col-md-8">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="chart-source"
+                       th:text="#{report_howdatasource}">Chart data source</label>
+                <select id="chart-source" class="form-select" th:field="*{howChartSource}">
+                  <option value="user" th:text="#{report_option_user}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('user')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('user')}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('tool')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('tool')}"></option>
+                  <option value="event" th:text="#{report_option_event}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('event')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('event')}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('resource')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('resource')}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('resource-action')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('resource-action')}"></option>
+                  <option value="date" th:text="#{report_option_date}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSource('date')},data-requires-selected-total=${editorOptions.rules.chartSourceRequiresSelectedTotal('date')}"></option>
+                </select>
+              </div>
+              <div id="chart-category-options" class="col-12 col-md-6">
+                <label class="form-label" for="chart-category"
+                       th:text="#{report_howdatasource_grouped}">Grouped by</label>
+                <select id="chart-category" class="form-select" th:field="*{howChartCategorySource}">
+                  <option value="none" th:text="#{none}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('none')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('none')}"></option>
+                  <option value="user" th:text="#{report_option_user}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('user')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('user')}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('tool')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('tool')}"></option>
+                  <option value="event" th:text="#{report_option_event}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('event')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('event')}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('resource')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('resource')}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('resource-action')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('resource-action')}"></option>
+                  <option value="date" th:text="#{report_option_date}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForCategory('date')},data-requires-selected-total=${editorOptions.rules.chartCategoryRequiresSelectedTotal('date')}"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="chart-series-options" class="col-12 col-md-8">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="chart-series"
+                       th:text="#{report_howdatasource_series}">Chart series source</label>
+                <select id="chart-series" class="form-select" th:field="*{howChartSeriesSource}">
+                  <option value="total" th:text="#{report_option_total}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('total')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('total')}"></option>
+                  <option value="user" th:text="#{report_option_user}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('user')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('user')}"></option>
+                  <option value="tool" th:text="#{report_option_tool}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('tool')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('tool')}"></option>
+                  <option value="event" th:text="#{report_option_event}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('event')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('event')}"></option>
+                  <option value="resource" th:text="#{report_option_resource}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('resource')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('resource')}"></option>
+                  <option value="resource-action" th:text="#{report_option_resourceaction}"
+                          th:attr="data-allowed-chart-types=${editorOptions.rules.chartTypesForSeries('resource-action')},data-requires-selected-total=${editorOptions.rules.chartSeriesRequiresSelectedTotal('resource-action')}"></option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="series-period"
+                       th:text="#{sitestats_timeseries_period}">Time-series period</label>
+                <select id="series-period" class="form-select" th:field="*{howChartSeriesPeriod}">
+                  <option value="byday" th:text="#{sitestats_period_day}">Day</option>
+                  <option value="byweekday" th:text="#{sitestats_period_weekday}">Weekday</option>
+                  <option value="bymonth" th:text="#{sitestats_period_month}">Month</option>
+                  <option value="byyear" th:text="#{sitestats_period_year}">Year</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 h4" th:text="#{report_details}">Report</legend>
+      <p th:text="#{report_details_instructions}"></p>
+      <div class="mb-3">
+        <label class="form-label" for="report-title">
+          <span th:text="#{report_reporttitle}">Title</span>
+          <span aria-hidden="true">*</span>
+        </label>
+        <input id="report-title" class="form-control" th:field="*{title}" required maxlength="255"
+               th:attr="aria-invalid=${errorCode == 'sitestats_report_title_required'} ? 'true' : null,
+                        aria-describedby=${errorCode == 'sitestats_report_title_required'} ? 'report-error' : null"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="report-description" th:text="#{report_reportdescription}">Description</label>
+        <textarea id="report-description" class="form-control" th:field="*{description}" rows="4"></textarea>
+      </div>
+    </fieldset>
+
+    <div class="d-flex flex-wrap gap-2 act">
+      <button class="btn btn-primary" type="submit" name="action" value="save"
+              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}"
+              th:text="#{report_save}">Save report</button>
+      <button class="btn btn-outline-secondary" type="submit" name="action" value="preview"
+              th:disabled="${#lists.isEmpty(editorOptions.availableReportTypes)}"
+              th:text="#{report_generate}">Generate report</button>
+      <a class="btn btn-link" th:href="@{/reports(siteId=${siteId})}"
+         th:text="#{report_cancelsave}">Cancel</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

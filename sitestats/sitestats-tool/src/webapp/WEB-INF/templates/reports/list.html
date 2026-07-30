@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head th:replace="~{fragments/common :: head(#{menu_reports})}"></head>
+<body>
+<main class="portletBody container-fluid">
+  <div th:replace="~{fragments/common :: menu('reports')}"></div>
+  <div th:replace="~{fragments/common :: messages}"></div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+    <h1 class="h3 mb-0" th:text="#{menu_reports}">Reports</h1>
+    <a class="btn btn-primary" th:href="@{/reports/new(siteId=${siteId})}" th:text="#{report_new}">Add report</a>
+  </div>
+  <div th:if="${#lists.isEmpty(reports)}" class="sak-banner-info" role="status" th:text="#{report_noreports}">No reports are available.</div>
+  <div class="table-responsive" th:if="${!#lists.isEmpty(reports)}">
+    <table class="table table-striped align-middle">
+      <caption class="visually-hidden" th:text="#{sitestats_reports_caption}">Saved and predefined SiteStats reports</caption>
+      <thead><tr><th scope="col" th:text="#{th_title}">Title</th><th scope="col" th:text="#{report_reportdescription}">Description</th><th scope="col" th:text="#{th_action}">Actions</th></tr></thead>
+      <tbody>
+      <tr th:each="report : ${reports}">
+        <td><a th:href="@{/reports/{id}(id=${report.id},siteId=${siteId})}" th:text="${report.title}">Report</a></td>
+        <td th:text="${report.description}"></td>
+        <td><div class="d-flex flex-wrap gap-1 btn-group-sm">
+          <a class="btn btn-outline-secondary btn-sm"
+             th:if="${report.siteId != null}"
+             th:href="@{/reports/{id}/edit(id=${report.id},siteId=${siteId})}"
+             th:title="#{report_edit}">
+            <span class="bi bi-pencil" aria-hidden="true"></span>
+            <span class="visually-hidden" th:text="#{report_edit}">Edit report</span>
+          </a>
+          <form method="post" th:action="@{/reports/{id}/copy(id=${report.id})}">
+            <input type="hidden" name="siteId" th:value="${siteId}"/>
+            <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
+            <button class="btn btn-outline-secondary btn-sm" type="submit" th:title="#{report_duplicate}">
+              <span class="bi bi-copy" aria-hidden="true"></span>
+              <span class="visually-hidden" th:text="#{report_duplicate}">Copy report</span>
+            </button>
+          </form>
+          <form method="post" th:if="${report.siteId != null}" th:action="@{/reports/{id}/delete(id=${report.id})}">
+            <input type="hidden" name="siteId" th:value="${siteId}"/>
+            <input type="hidden" name="sakai_csrf_token" th:value="${sakaiCsrfToken}"/>
+            <button class="btn btn-outline-danger btn-sm" type="submit" th:title="#{report_delete}">
+              <span class="bi bi-trash" aria-hidden="true"></span>
+              <span class="visually-hidden" th:text="#{report_delete}">Delete report</span>
+            </button>
+          </form>
+        </div></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

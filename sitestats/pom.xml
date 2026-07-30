@@ -18,7 +18,6 @@
   <!-- Project versions -->
   <properties>
     <fop.version>2.11</fop.version>
-    <sst.wicket.version>9.22.0</sst.wicket.version>
   </properties>
 
   <!-- Project modules -->
@@ -79,38 +78,6 @@
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
         <version>${sakai.poi.version}</version>
-      </dependency>
-      <!-- Apache Wicket -->
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket</artifactId>
-        <version>${sst.wicket.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-extensions</artifactId>
-        <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-ioc</artifactId>
-        <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-spring</artifactId>
-        <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-spring-annot</artifactId>
-        <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-datetime</artifactId>
-        <version>${sst.wicket.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

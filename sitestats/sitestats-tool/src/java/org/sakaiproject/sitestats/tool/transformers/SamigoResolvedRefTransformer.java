@@ -23,7 +23,6 @@ import org.sakaiproject.sitestats.api.event.detailed.samigo.AssessmentData;
 import org.sakaiproject.sitestats.api.event.detailed.samigo.ItemData;
 import org.sakaiproject.sitestats.api.event.detailed.samigo.SamigoData;
 import org.sakaiproject.sitestats.api.event.detailed.samigo.SectionData;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -37,10 +36,10 @@ public class SamigoResolvedRefTransformer
 	/**
 	 * Transforms SamigoData for presentation to the user
 	 * @param data the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(SamigoData data, ResourceLoader rl)
+	public static List<EventDetail> transform(SamigoData data, LocalizedMessages rl)
 	{
 		if (data instanceof AssessmentData.AnonymousAssessment)
 		{
@@ -67,13 +66,13 @@ public class SamigoResolvedRefTransformer
 		return Collections.singletonList(getAssessmentDetails((AssessmentData) data, rl));
 	}
 
-	private static EventDetail getAssessmentDetails(AssessmentData ad, ResourceLoader rl)
+	private static EventDetail getAssessmentDetails(AssessmentData ad, LocalizedMessages rl)
 	{
 		String title = ad.published ? ad.title : rl.getFormattedMessage("de_sam_assessment_draft", ad.title);
 		return EventDetail.newText(rl.getString(ASSESSMENT), title);
 	}
 
-	private static EventDetail getSectionDetails(SectionData section, ResourceLoader rl)
+	private static EventDetail getSectionDetails(SectionData section, LocalizedMessages rl)
 	{
 		return EventDetail.newText(rl.getString("de_sam_part"), section.title);
 	}

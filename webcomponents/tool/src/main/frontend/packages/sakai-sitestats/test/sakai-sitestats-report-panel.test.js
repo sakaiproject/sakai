@@ -75,6 +75,8 @@ describe("sakai-sitestats-report-panel tests", () => {
     const tableEl = el.shadowRoot.querySelector("sakai-sitestats-table");
     expect(chartEl).to.exist;
     expect(tableEl).to.exist;
+    expect(getComputedStyle(chartEl).minInlineSize).to.equal("0px");
+    expect(getComputedStyle(tableEl).minInlineSize).to.equal("0px");
     await waitUntil(() => chartEl._i18n);
     await elementUpdated(chartEl);
     expect(chartEl.renderTableFallback).to.be.false;

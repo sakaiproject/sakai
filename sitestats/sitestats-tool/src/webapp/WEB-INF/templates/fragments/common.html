@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${title}">SiteStats</title>
+  <th:block th:utext="${sakaiHtmlHead}"></th:block>
+  <script type="module" th:src="@{~/webcomponents/bundles/sitestats.js} + ${cdnQuery}"></script>
+  <script type="module" th:src="@{/js/sitestats-tool.js}"></script>
+</head>
+<body>
+  <nav th:fragment="menu(active)" class="navIntraTool actionToolBar navIntraToolMobile" aria-label="SiteStats">
+    <div class="dropdown-toggle dropdown-navIntraTool" th:text="#{menu_tooloptions}">Tool Options</div>
+    <ul>
+      <li th:if="${!adminTool}"><a th:classappend="${active == 'overview'} ? ' current'" th:attr="aria-current=${active == 'overview'} ? 'page' : null" th:href="@{/home(siteId=${siteId})}" th:text="#{menu_overview}">Overview</a></li>
+      <li th:if="${!adminTool}"><a th:classappend="${active == 'reports'} ? ' current'" th:attr="aria-current=${active == 'reports'} ? 'page' : null" th:href="@{/reports(siteId=${siteId})}" th:text="#{menu_reports}">Reports</a></li>
+      <li th:if="${!adminTool and userActivityAvailable}"><a th:classappend="${active == 'useractivity'} ? ' current'" th:attr="aria-current=${active == 'useractivity'} ? 'page' : null" th:href="@{/useractivity(siteId=${siteId})}" th:text="#{menu_useractivity}">User Activity</a></li>
+      <li th:if="${!adminTool}"><a th:classappend="${active == 'preferences'} ? ' current'" th:attr="aria-current=${active == 'preferences'} ? 'page' : null" th:href="@{/preferences(siteId=${siteId})}" th:text="#{menu_prefs}">Preferences</a></li>
+      <li th:if="${adminTool}"><a th:classappend="${active == 'admin'} ? ' current'" th:attr="aria-current=${active == 'admin'} ? 'page' : null" th:href="@{/admin}" th:text="#{menu_sitelist}">Sites</a></li>
+      <li th:if="${adminTool and active == 'serverwide'}"><a class="current" aria-current="page" th:href="@{/serverwide(siteId=${siteId})}" th:text="#{menu_serverwide}">Server-wide</a></li>
+    </ul>
+  </nav>
+
+  <div th:fragment="messages" aria-live="polite">
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}"></div>
+    <div th:if="${error}" class="sak-banner-error" role="alert" th:text="${error}"></div>
+  </div>
+</body>
+</html>

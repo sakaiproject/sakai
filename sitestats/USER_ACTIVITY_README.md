@@ -62,9 +62,9 @@ the data needed by User Activity. This avoids a join when querying this data and
 the user to make a query that takes advantage of the underlying table indexing. The UI also prevents sorting on any
 attribute other than timestamp, as this sort follows closely to the natural order of the data and is very quick.
 To narrow down the search, filtering by tool is also provided.
-* A custom Wicket component, SakaiInfinitePagingDataTable, was created to take advantage of true paging at the database
-level. Standard Wicket DataTable components require knowledge of the full size of the dataset, which can be
-extremely expensive with large amounts of data, even when well indexed. This table only queries for a number of
+* The SiteStats user-activity service uses database-level paging so the UI never needs to load the full result set.
+The legacy table implementation required knowledge of the full size of the dataset, which could be
+extremely expensive with large amounts of data, even when well indexed. The current implementation only queries for a number of
 results matching the page size, allowing it to return quickly and always feel responsive to the user.
 * Event detail lookups are performed on demand instead of as part of the search. In most cases the user does not know
 what they need more detail about ahead of time, so a button is provided that they can click for more detail about a
@@ -187,7 +187,7 @@ example, if the assignment has been deleted since the submission occurred, the T
 "deleted" properties of the AssignmentEventData and present the value as "Assignment 1 \[deleted\]" (if the user language
 was English of course).
 
-The current implementation uses a one-size-fits-all Wicket panel to present the list of EventDetail objects
+The current implementation uses a server-rendered event details view to present the list of EventDetail objects
 in the same way no matter which event they are for.
 
 #### Responsive Design
@@ -197,4 +197,3 @@ User Activity has a content-specific CSS breakpoint set at 640px that makes the 
 - the search form switches to a column orientation
 - the table switches to a "CardTable" layout that presents each table row as a separate "card", allowing the user
 to see all the data in the row at once even on a narrow device
-
