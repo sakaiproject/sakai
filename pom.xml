@@ -74,7 +74,6 @@
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>jsf2</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>

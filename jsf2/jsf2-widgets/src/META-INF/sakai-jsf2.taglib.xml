@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<facelet-taglib version="3.0"
+<facelet-taglib version="4.0"
     xmlns="https://jakarta.ee/xml/ns/jakartaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facelettaglibrary_3_0.xsd">
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facelettaglibrary_4_0.xsd">
 
 	<namespace>http://sakaiproject.org/jsf2/sakai</namespace>
 	<tag>
@@ -103,13 +103,6 @@
 		<component> 
 			<component-type>org.sakaiproject.InputRichText</component-type>
 			<renderer-type>org.sakaiproject.InputRichText</renderer-type> 
-		</component> 
-	</tag>
-
-	<tag>
-		<tag-name>flowState</tag-name>
-		<component> 
-			<component-type>org.sakaiproject.FlowState</component-type> 
 		</component> 
 	</tag>
 

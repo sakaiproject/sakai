@@ -34,31 +34,8 @@ import org.sakaiproject.component.cover.ComponentManager;
  */
 @Deprecated
 @Slf4j
-public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache.EhCacheManagerFactoryBean {
-	private ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-
-	@Override
-	public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-		//Now look for any custom configuration.
-    	CacheManager cm = (CacheManager) this.getObject();
-    	if (cm != null) {
-    		String cacheNames[]= cm.getCacheNames();
-
-    		//Check for old configuration properties.
-    		for (String cacheName:cacheNames) {
-    			if(serverConfigurationService.getString(cacheName) == null) {
-                    log.warn("Old cache configuration {} must be changed to memory.{}", cacheName, cacheName);
-    			}
-    			String config = serverConfigurationService.getString("memory."+ cacheName);
-    			if (config != null && !config.isEmpty()) {
-                    log.info("Found configuration override for cache: {} of: {}", cacheName, config);
-    				Cache cache = cm.getCache(cacheName);
-    				if (cache != null) {
-    					new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());
-    				}
-    			}
-    		}
-    	}
+public class EhCacheManagerFactoryBean {
+    public void afterPropertiesSet() {
+        log.warn("EhCacheManagerFactoryBean is deprecated and has no effect.");
     }
 }
