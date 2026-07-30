@@ -78,7 +78,7 @@
     <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
+      <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
