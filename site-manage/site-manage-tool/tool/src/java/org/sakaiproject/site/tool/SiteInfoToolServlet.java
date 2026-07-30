@@ -30,10 +30,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -106,7 +106,7 @@ public class SiteInfoToolServlet extends HttpServlet
 
 	/**
 	 * Initialize this servlet.
-	 * @throws javax.servlet.ServletException
+	 * @throws jakarta.servlet.ServletException
 	 */
 	public void init() throws ServletException
 	{

@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.util.UriUtils;
 
 import javax.crypto.Mac;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;

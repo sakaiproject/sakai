@@ -25,9 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * <p>

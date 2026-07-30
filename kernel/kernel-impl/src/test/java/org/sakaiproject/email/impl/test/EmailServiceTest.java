@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 

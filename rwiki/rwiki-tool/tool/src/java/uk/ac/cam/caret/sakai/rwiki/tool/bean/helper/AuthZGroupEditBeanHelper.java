@@ -21,8 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupEditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;

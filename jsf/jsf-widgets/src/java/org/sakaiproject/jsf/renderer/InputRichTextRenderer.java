@@ -26,13 +26,13 @@ import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.*;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.ValueHolder;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.model.SelectItem;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.ValueHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.render.Renderer;
 
 import lombok.extern.slf4j.Slf4j;
 
