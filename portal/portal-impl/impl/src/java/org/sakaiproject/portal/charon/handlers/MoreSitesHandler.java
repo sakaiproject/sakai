@@ -23,8 +23,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalHandlerException;

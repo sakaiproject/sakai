@@ -23,7 +23,7 @@ package org.sakaiproject.entitybroker.impl.external;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

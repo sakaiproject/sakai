@@ -24,7 +24,7 @@
 
 package org.sakaiproject.pasystem.tool.forms;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.Errors;

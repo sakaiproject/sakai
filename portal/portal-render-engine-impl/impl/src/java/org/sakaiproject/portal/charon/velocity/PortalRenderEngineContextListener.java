@@ -29,8 +29,8 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 /**
  * Context Listener for the render engine.

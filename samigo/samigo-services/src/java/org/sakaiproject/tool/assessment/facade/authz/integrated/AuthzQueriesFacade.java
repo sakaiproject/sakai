@@ -43,8 +43,8 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import javax.persistence.PersistenceException;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.PersistenceException;
 /**
  * <p>Description: Facade for AuthZ queries, standalone version.
  * <p>Sakai Project Copyright (c) 2005</p>

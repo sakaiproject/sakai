@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.jsf.syllabus;
 
-import javax.faces.component.html.HtmlDataTable;
+import jakarta.faces.component.html.HtmlDataTable;
 
 public class SyllabusTableComponent extends HtmlDataTable
 {

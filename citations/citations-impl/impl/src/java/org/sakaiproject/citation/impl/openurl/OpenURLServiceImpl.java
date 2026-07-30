@@ -17,7 +17,7 @@ package org.sakaiproject.citation.impl.openurl;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.impl.openurl.ContextObject.Entity;

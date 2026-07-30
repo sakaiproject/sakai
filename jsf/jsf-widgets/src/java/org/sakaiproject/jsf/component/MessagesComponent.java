@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.html.HtmlMessages;
+import jakarta.faces.component.html.HtmlMessages;
 
 public class MessagesComponent extends HtmlMessages
 {

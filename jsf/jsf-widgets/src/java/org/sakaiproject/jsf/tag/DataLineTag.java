@@ -24,9 +24,9 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
+import jakarta.faces.context.FacesContext;
 import org.sakaiproject.jsf.util.TagUtil;
 
 public class DataLineTag extends UIComponentTag
@@ -56,7 +56,7 @@ public class DataLineTag extends UIComponentTag
    */
   public String getComponentType()
   {
-    return ("javax.faces.Data");
+    return ("jakarta.faces.Data");
   }
 
   /**

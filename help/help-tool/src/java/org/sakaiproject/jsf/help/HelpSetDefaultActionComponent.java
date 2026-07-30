@@ -23,11 +23,11 @@ package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIForm;
-import javax.faces.component.UIOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIForm;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 /**
  * help set default action component
@@ -37,7 +37,7 @@ public class HelpSetDefaultActionComponent extends UIOutput
 {
 
   /** 
-   * @see javax.faces.component.UIComponent#encodeBegin(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponent#encodeBegin(jakarta.faces.context.FacesContext)
    */
   public void encodeBegin(FacesContext context) throws IOException
   {
@@ -50,7 +50,7 @@ public class HelpSetDefaultActionComponent extends UIOutput
   }
 
   /** 
-   * @see javax.faces.component.UIComponent#encodeEnd(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponent#encodeEnd(jakarta.faces.context.FacesContext)
    */
   public void encodeEnd(FacesContext context) throws IOException
   {

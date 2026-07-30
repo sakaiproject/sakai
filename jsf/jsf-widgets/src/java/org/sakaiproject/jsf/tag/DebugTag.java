@@ -23,8 +23,8 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * <p>This tag is strictly for debugging purposes.  It outputs information
@@ -42,7 +42,7 @@ public class DebugTag extends UIComponentTag
 
 	public String getComponentType()
 	{
-	    return ("javax.faces.Output");
+	    return ("jakarta.faces.Output");
 	}
 
 	protected void setProperties(UIComponent component)

@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.component;
 
-import javax.faces.component.html.HtmlPanelGrid;
+import jakarta.faces.component.html.HtmlPanelGrid;
 
 public class PanelEditComponent extends HtmlPanelGrid
 {

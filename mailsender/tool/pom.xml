@@ -99,8 +99,8 @@
 		</dependency>
 		<!-- we are running a webapp in a servlet container so we need the servlet API -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<!-- third party dependencies -->
 		<dependency>
@@ -112,8 +112,8 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

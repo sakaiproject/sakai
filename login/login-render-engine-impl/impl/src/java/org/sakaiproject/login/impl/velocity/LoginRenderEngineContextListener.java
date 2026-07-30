@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.login.impl.velocity;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import lombok.extern.slf4j.Slf4j;
 

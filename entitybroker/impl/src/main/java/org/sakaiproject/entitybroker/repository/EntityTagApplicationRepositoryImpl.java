@@ -21,10 +21,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.entitybroker.model.EntityTagApplication;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -131,7 +131,7 @@ public class EntityTagApplicationRepositoryImpl extends SpringCrudRepositoryImpl
         Root<EntityTagApplication> root = query.from(EntityTagApplication.class);
 
         // Build predicates
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
         predicates.add(root.get("tag").in(Arrays.asList(tags)));
 
         if (prefixes != null && prefixes.length > 0) {
@@ -139,10 +139,10 @@ public class EntityTagApplicationRepositoryImpl extends SpringCrudRepositoryImpl
         }
 
         query.select(root)
-             .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+             .where(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]))
              .orderBy(cb.asc(root.get("entityRef")));
 
-        javax.persistence.Query jpaQuery = sessionFactory.getCurrentSession().createQuery(query);
+        jakarta.persistence.Query jpaQuery = sessionFactory.getCurrentSession().createQuery(query);
 
         if (start > 0) {
             jpaQuery.setFirstResult(start);

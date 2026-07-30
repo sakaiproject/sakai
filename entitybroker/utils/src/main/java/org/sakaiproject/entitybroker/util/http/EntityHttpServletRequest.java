@@ -49,19 +49,19 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import javax.servlet.http.HttpSessionContext;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionContext;
 
 
 /**
@@ -993,23 +993,23 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         }
     }
 
-    public <T extends javax.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
+    public <T extends jakarta.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
         throw new UnsupportedOperationException("upgrade not supported");
     }
 
-    public javax.servlet.http.Part getPart(String name) { return null; }
-    public java.util.Collection<javax.servlet.http.Part> getParts() { return java.util.Collections.emptyList(); }
-    public void login(String username, String password) throws javax.servlet.ServletException {}
-    public void logout() throws javax.servlet.ServletException {}
+    public jakarta.servlet.http.Part getPart(String name) { return null; }
+    public java.util.Collection<jakarta.servlet.http.Part> getParts() { return java.util.Collections.emptyList(); }
+    public void login(String username, String password) throws jakarta.servlet.ServletException {}
+    public void logout() throws jakarta.servlet.ServletException {}
     public String changeSessionId() { return getRequestedSessionId(); }
-    public javax.servlet.DispatcherType getDispatcherType() { return javax.servlet.DispatcherType.REQUEST; }
-    public javax.servlet.AsyncContext startAsync() { throw new UnsupportedOperationException("async not supported"); }
-    public javax.servlet.AsyncContext startAsync(javax.servlet.ServletRequest req, javax.servlet.ServletResponse res) { throw new UnsupportedOperationException("async not supported"); }
+    public jakarta.servlet.DispatcherType getDispatcherType() { return jakarta.servlet.DispatcherType.REQUEST; }
+    public jakarta.servlet.AsyncContext startAsync() { throw new UnsupportedOperationException("async not supported"); }
+    public jakarta.servlet.AsyncContext startAsync(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res) { throw new UnsupportedOperationException("async not supported"); }
     public boolean isAsyncStarted() { return false; }
     public boolean isAsyncSupported() { return false; }
-    public javax.servlet.AsyncContext getAsyncContext() { throw new UnsupportedOperationException("async not supported"); }
-    public javax.servlet.ServletContext getServletContext() { return new EntityServletContext(""); }
-    public boolean authenticate(javax.servlet.http.HttpServletResponse response) throws java.io.IOException, javax.servlet.ServletException { return false; }
+    public jakarta.servlet.AsyncContext getAsyncContext() { throw new UnsupportedOperationException("async not supported"); }
+    public jakarta.servlet.ServletContext getServletContext() { return new EntityServletContext(""); }
+    public boolean authenticate(jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException, jakarta.servlet.ServletException { return false; }
 
     /**
      * A non-functional request dispatcher, based on the spring mock version
@@ -1302,31 +1302,31 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         public void setResponseCharacterEncoding(String encoding) {}
         public int getSessionTimeout() { return 0; }
         public void setSessionTimeout(int sessionTimeout) {}
-        public javax.servlet.ServletRegistration.Dynamic addJspFile(String servletName, String jspFile) { return null; }
+        public jakarta.servlet.ServletRegistration.Dynamic addJspFile(String servletName, String jspFile) { return null; }
         public String getVirtualServerName() { return "localhost"; }
         public void declareRoles(String... roleNames) {}
         public ClassLoader getClassLoader() { return EntityServletContext.class.getClassLoader(); }
-        public javax.servlet.descriptor.JspConfigDescriptor getJspConfigDescriptor() { return null; }
-        public <T extends java.util.EventListener> T createListener(Class<T> clazz) throws javax.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new javax.servlet.ServletException(e); } }
-        public <T extends javax.servlet.Filter> T createFilter(Class<T> clazz) throws javax.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new javax.servlet.ServletException(e); } }
-        public <T extends javax.servlet.Servlet> T createServlet(Class<T> clazz) throws javax.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new javax.servlet.ServletException(e); } }
-        public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, Class<? extends javax.servlet.Filter> filterClass) { return null; }
-        public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, javax.servlet.Filter filter) { return null; }
-        public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, String className) { return null; }
-        public javax.servlet.ServletRegistration.Dynamic addServlet(String servletName, Class<? extends javax.servlet.Servlet> servletClass) { return null; }
-        public javax.servlet.ServletRegistration.Dynamic addServlet(String servletName, javax.servlet.Servlet servlet) { return null; }
-        public javax.servlet.ServletRegistration.Dynamic addServlet(String servletName, String className) { return null; }
+        public jakarta.servlet.descriptor.JspConfigDescriptor getJspConfigDescriptor() { return null; }
+        public <T extends java.util.EventListener> T createListener(Class<T> clazz) throws jakarta.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new jakarta.servlet.ServletException(e); } }
+        public <T extends jakarta.servlet.Filter> T createFilter(Class<T> clazz) throws jakarta.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new jakarta.servlet.ServletException(e); } }
+        public <T extends jakarta.servlet.Servlet> T createServlet(Class<T> clazz) throws jakarta.servlet.ServletException { try { return clazz.newInstance(); } catch (Exception e) { throw new jakarta.servlet.ServletException(e); } }
+        public jakarta.servlet.FilterRegistration.Dynamic addFilter(String filterName, Class<? extends jakarta.servlet.Filter> filterClass) { return null; }
+        public jakarta.servlet.FilterRegistration.Dynamic addFilter(String filterName, jakarta.servlet.Filter filter) { return null; }
+        public jakarta.servlet.FilterRegistration.Dynamic addFilter(String filterName, String className) { return null; }
+        public jakarta.servlet.ServletRegistration.Dynamic addServlet(String servletName, Class<? extends jakarta.servlet.Servlet> servletClass) { return null; }
+        public jakarta.servlet.ServletRegistration.Dynamic addServlet(String servletName, jakarta.servlet.Servlet servlet) { return null; }
+        public jakarta.servlet.ServletRegistration.Dynamic addServlet(String servletName, String className) { return null; }
         public void addListener(String className) {}
         public <T extends java.util.EventListener> void addListener(T t) {}
         public void addListener(Class<? extends java.util.EventListener> listenerClass) {}
-        public java.util.Set<javax.servlet.SessionTrackingMode> getDefaultSessionTrackingModes() { return java.util.Collections.emptySet(); }
-        public java.util.Set<javax.servlet.SessionTrackingMode> getEffectiveSessionTrackingModes() { return java.util.Collections.emptySet(); }
-        public void setSessionTrackingModes(java.util.Set<javax.servlet.SessionTrackingMode> modes) {}
-        public javax.servlet.SessionCookieConfig getSessionCookieConfig() { return null; }
-        public javax.servlet.FilterRegistration getFilterRegistration(String filterName) { return null; }
-        public java.util.Map<String, ? extends javax.servlet.FilterRegistration> getFilterRegistrations() { return java.util.Collections.emptyMap(); }
-        public javax.servlet.ServletRegistration getServletRegistration(String servletName) { return null; }
-        public java.util.Map<String, ? extends javax.servlet.ServletRegistration> getServletRegistrations() { return java.util.Collections.emptyMap(); }
+        public java.util.Set<jakarta.servlet.SessionTrackingMode> getDefaultSessionTrackingModes() { return java.util.Collections.emptySet(); }
+        public java.util.Set<jakarta.servlet.SessionTrackingMode> getEffectiveSessionTrackingModes() { return java.util.Collections.emptySet(); }
+        public void setSessionTrackingModes(java.util.Set<jakarta.servlet.SessionTrackingMode> modes) {}
+        public jakarta.servlet.SessionCookieConfig getSessionCookieConfig() { return null; }
+        public jakarta.servlet.FilterRegistration getFilterRegistration(String filterName) { return null; }
+        public java.util.Map<String, ? extends jakarta.servlet.FilterRegistration> getFilterRegistrations() { return java.util.Collections.emptyMap(); }
+        public jakarta.servlet.ServletRegistration getServletRegistration(String servletName) { return null; }
+        public java.util.Map<String, ? extends jakarta.servlet.ServletRegistration> getServletRegistrations() { return java.util.Collections.emptyMap(); }
         public int getEffectiveMajorVersion() { return 3; }
         public int getEffectiveMinorVersion() { return 0; }
         public boolean setInitParameter(String name, String value) { return false; }

@@ -25,8 +25,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
 
 /* For author: Item Attachment backing bean. */
 @ManagedBean(name="attachmentBean")

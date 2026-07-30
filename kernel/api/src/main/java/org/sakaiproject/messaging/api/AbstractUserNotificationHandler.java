@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.messaging.api;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Arrays;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;

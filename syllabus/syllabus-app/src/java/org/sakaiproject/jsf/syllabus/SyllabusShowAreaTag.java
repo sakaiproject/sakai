@@ -20,11 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.jsf.syllabus;
 
-import javax.faces.component.UIComponent;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
-import javax.faces.application.Application;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.context.FacesContext;
 
 public class SyllabusShowAreaTag extends UIComponentTag
 {
@@ -77,7 +77,7 @@ public class SyllabusShowAreaTag extends UIComponentTag
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
-    ValueBinding vb = app.createValueBinding(attributeValue);
+    ValueExpression vb = app.createValueBinding(attributeValue);
     component.setValueBinding(attributeName, vb);
   }
 }

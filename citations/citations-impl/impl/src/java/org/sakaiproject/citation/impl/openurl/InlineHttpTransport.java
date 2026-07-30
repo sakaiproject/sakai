@@ -28,7 +28,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Need some basic parsing of data.

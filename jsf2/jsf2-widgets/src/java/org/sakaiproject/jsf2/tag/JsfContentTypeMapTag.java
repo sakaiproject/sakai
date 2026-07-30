@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.jsf2.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 
 import lombok.Data;
 

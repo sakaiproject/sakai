@@ -28,14 +28,14 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
-import javax.faces.render.Renderer;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -68,7 +68,7 @@ public class HelpFrameSetRender extends Renderer
   }
 
   /** 
-   * @see javax.faces.render.Renderer#encodeBegin(javax.faces.context.FacesContext, javax.faces.component.UIComponent)
+   * @see jakarta.faces.render.Renderer#encodeBegin(jakarta.faces.context.FacesContext, jakarta.faces.component.UIComponent)
    */
   public void encodeBegin(FacesContext context, UIComponent component)
       throws IOException
@@ -107,7 +107,7 @@ public class HelpFrameSetRender extends Renderer
     writer.write("</FRAMESET>\n");
     
     Application app = context.getApplication();
-    ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
+    ValueExpression binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
     HelpManager manager  = (HelpManager) binding.getValue(context);    
                   
     if(manager.getWelcomePage() == null) {

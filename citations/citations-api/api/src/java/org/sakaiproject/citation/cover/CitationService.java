@@ -21,7 +21,7 @@
 
 package org.sakaiproject.citation.cover;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.component.cover.ComponentManager;

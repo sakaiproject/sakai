@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 
 import lombok.Getter;
 import lombok.Setter;

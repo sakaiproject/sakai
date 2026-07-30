@@ -17,7 +17,7 @@ package org.sakaiproject.poll.tool.mvc;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -21,9 +21,9 @@
 
 package org.sakaiproject.tool.podcasts;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.util.ResourceLoader;

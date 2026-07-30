@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 
 import org.sakaiproject.jsf.util.JSFDepends;
 import org.sakaiproject.jsf.util.TagUtil;

@@ -25,12 +25,13 @@
 package org.sakaiproject.tool.assessment.jsf.renderer;
 
 import java.io.IOException;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
-import javax.faces.el.ValueBinding;
+
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 import java.util.Map;
 import java.util.Set;
 import java.util.Iterator;
@@ -166,7 +167,7 @@ public class NavigationMapRenderer extends Renderer
   private static Object get(FacesContext context, UIComponent component,
     String name)
   {
-    ValueBinding binding = component.getValueBinding(name);
+    ValueExpression binding = component.getValueBinding(name);
     if (binding != null)
     {
       return binding.getValue(context);

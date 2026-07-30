@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 

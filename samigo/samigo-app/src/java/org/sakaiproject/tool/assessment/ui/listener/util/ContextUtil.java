@@ -33,15 +33,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory; 
-import javax.faces.context.FacesContext;
-import javax.faces.context.FacesContextFactory;
-import javax.faces.FactoryFinder;
-import javax.faces.lifecycle.Lifecycle;
-import javax.faces.lifecycle.LifecycleFactory;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.faces.application.Application;
+import jakarta.faces.application.ApplicationFactory; 
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.FacesContextFactory;
+import jakarta.faces.FactoryFinder;
+import jakarta.faces.lifecycle.Lifecycle;
+import jakarta.faces.lifecycle.LifecycleFactory;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.*;
 
 import lombok.extern.slf4j.Slf4j;
 

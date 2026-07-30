@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Properties;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;

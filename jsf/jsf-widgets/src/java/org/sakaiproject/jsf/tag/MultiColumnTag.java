@@ -22,9 +22,9 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 //import org.sakaiproject.jsf.util.JSFDepends;
 import org.sakaiproject.jsf.util.TagUtil;
