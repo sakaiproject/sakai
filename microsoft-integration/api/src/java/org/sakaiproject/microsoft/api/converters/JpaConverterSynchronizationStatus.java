@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.microsoft.api.converters;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 

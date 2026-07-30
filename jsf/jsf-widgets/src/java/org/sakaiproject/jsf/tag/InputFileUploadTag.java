@@ -21,8 +21,8 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 import org.sakaiproject.jsf.util.TagUtil;
 
 public class InputFileUploadTag extends UIComponentTag
@@ -96,7 +96,7 @@ public class InputFileUploadTag extends UIComponentTag
 
     public String getComponentType()
     {
-        return "javax.faces.Input";
+        return "jakarta.faces.Input";
     }
 
     // getters and setters

@@ -137,7 +137,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 @Slf4j
 @Setter

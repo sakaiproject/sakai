@@ -20,10 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import javax.faces.application.NavigationHandler;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.application.NavigationHandler;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * <p>

@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 /**
  * *

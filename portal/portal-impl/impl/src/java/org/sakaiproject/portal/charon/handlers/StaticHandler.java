@@ -31,8 +31,8 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.util.URLUtils;
 import lombok.extern.slf4j.Slf4j;
