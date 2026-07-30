@@ -27,17 +27,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.ServletContext;
-import javax.faces.FacesException;
-import javax.faces.component.EditableValueHolder;
-import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
-import javax.faces.render.Renderer;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import jakarta.servlet.ServletContext;
+
+import jakarta.el.ValueExpression;
+import jakarta.faces.FacesException;
+import jakarta.faces.component.EditableValueHolder;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 
 import org.apache.commons.fileupload.FileItem;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,7 @@ public class UploadRenderer extends Renderer {
     }
 
     Object target;
-    ValueBinding binding = component.getValueBinding("target");
+    ValueExpression binding = component.getValueBinding("target");
     if (binding != null) target = binding.getValue(context);
     else target = component.getAttributes().get("target");
 

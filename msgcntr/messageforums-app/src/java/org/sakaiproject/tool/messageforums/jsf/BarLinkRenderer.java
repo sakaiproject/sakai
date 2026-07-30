@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 import com.sun.faces.renderkit.html_basic.CommandLinkRenderer;
 
 /**

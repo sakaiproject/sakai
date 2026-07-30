@@ -26,7 +26,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.html.HtmlCommandButton;
+import jakarta.faces.component.html.HtmlCommandButton;
 
 
 public class ButtonBarItemComponent extends HtmlCommandButton

@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import javax.persistence.RollbackException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.RollbackException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.alias.api.AliasService;

@@ -38,13 +38,13 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jsoup.nodes.Document;
 
@@ -1617,7 +1617,7 @@ public class DeliveryBean implements Serializable {
    *     valueChangeListener="#{delivery.addMediaToItemGrading}" />
      * @param e
    */
-  public void addMediaToItemGrading(javax.faces.event.ValueChangeEvent e) {
+  public void addMediaToItemGrading(jakarta.faces.event.ValueChangeEvent e) {
     if (isTimeRunning() && getTimeExpired())
       setOutcome("timeExpired");
 

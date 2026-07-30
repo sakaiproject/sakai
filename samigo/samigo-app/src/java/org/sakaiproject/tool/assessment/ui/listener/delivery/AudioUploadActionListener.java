@@ -23,12 +23,12 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.List;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIOutput;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.event.FacesEvent;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.event.FacesEvent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
