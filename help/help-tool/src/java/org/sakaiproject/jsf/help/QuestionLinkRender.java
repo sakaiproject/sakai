@@ -23,11 +23,11 @@ package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 
 /**
  * question link renderer
@@ -45,7 +45,7 @@ public class QuestionLinkRender extends Renderer
   }
 
   /** 
-   * @see javax.faces.render.Renderer#encodeBegin(javax.faces.context.FacesContext, javax.faces.component.UIComponent)
+   * @see jakarta.faces.render.Renderer#encodeBegin(jakarta.faces.context.FacesContext, jakarta.faces.component.UIComponent)
    */
   public void encodeBegin(FacesContext context, UIComponent component)
       throws IOException

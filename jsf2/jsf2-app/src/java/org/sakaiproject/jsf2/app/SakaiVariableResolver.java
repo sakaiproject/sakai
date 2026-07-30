@@ -15,10 +15,10 @@
  */
 package org.sakaiproject.jsf2.app;
 
-import javax.faces.context.FacesContext;
-import javax.faces.el.EvaluationException;
-import javax.faces.el.VariableResolver;
-import javax.servlet.ServletContext;
+import jakarta.el.ELException;
+import jakarta.el.ELResolver;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,10 +34,10 @@ import org.sakaiproject.component.cover.ComponentManager;
  * </p>
  */
 @Slf4j
-public class SakaiVariableResolver extends VariableResolver
+public class SakaiVariableResolver extends ELResolver
 {
 	/** The VariableResolver already in place that we add features to. */
-	protected VariableResolver m_resolver = null;
+	protected ELResolver m_resolver = null;
 
 	/**
 	 * Construct taking the VariableResolver alreay in place that we decorate.
@@ -45,7 +45,7 @@ public class SakaiVariableResolver extends VariableResolver
 	 * @param other
 	 *        The VariableResolver already in place.
 	 */
-	public SakaiVariableResolver(VariableResolver other)
+	public SakaiVariableResolver(ELResolver other)
 	{
 		m_resolver = other;
 		if (log.isDebugEnabled()) log.debug("constructed around: " + m_resolver);
@@ -54,7 +54,7 @@ public class SakaiVariableResolver extends VariableResolver
 	/**
 	 * @inheritDoc
 	 */
-	public Object resolveVariable(FacesContext context, String name) throws EvaluationException
+	public Object resolveVariable(FacesContext context, String name) throws ELException
 	{
 		if (log.isDebugEnabled()) log.debug("resolving: " + name);
 

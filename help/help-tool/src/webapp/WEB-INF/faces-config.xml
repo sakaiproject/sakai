@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 
-<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+<faces-config xmlns="https://jakarta.ee/xml/ns/jakartaee"
 			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
-			  version="2.3">
+			  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_3_0.xsd"
+			  version="3.0">
 
 	<application>
 		<message-bundle>
@@ -141,7 +140,7 @@
 	</component>
 	<render-kit>
 		<renderer>
-			<component-family>javax.faces.Data</component-family>
+			<component-family>jakarta.faces.Data</component-family>
 			<renderer-type>SakaiTocTree</renderer-type>
 			<renderer-class>
 				org.sakaiproject.jsf.help.TocTreeRender
@@ -149,7 +148,7 @@
 		</renderer>
 
 		<renderer>
-			<component-family>javax.faces.Data</component-family>
+			<component-family>jakarta.faces.Data</component-family>
 			<renderer-type>CSTree</renderer-type>
 			<renderer-class>
 				org.sakaiproject.jsf.help.ContextSensitiveTreeRender
@@ -157,7 +156,7 @@
 		</renderer>
 
 		<renderer>
-			<component-family>javax.faces.Data</component-family>
+			<component-family>jakarta.faces.Data</component-family>
 			<renderer-type>HelpFrameSet</renderer-type>
 			<renderer-class>
 				org.sakaiproject.jsf.help.HelpFrameSetRender
@@ -165,7 +164,7 @@
 		</renderer>
 
 		<renderer>
-			<component-family>javax.faces.Data</component-family>
+			<component-family>jakarta.faces.Data</component-family>
 			<renderer-type>QuestionLink</renderer-type>
 			<renderer-class>
 				org.sakaiproject.jsf.help.QuestionLinkRender

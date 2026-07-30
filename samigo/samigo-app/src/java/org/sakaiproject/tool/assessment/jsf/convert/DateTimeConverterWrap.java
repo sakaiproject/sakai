@@ -3,8 +3,8 @@ package org.sakaiproject.tool.assessment.jsf.convert;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.faces.convert.DateTimeConverter;
-import javax.faces.convert.FacesConverter;
+import jakarta.faces.convert.DateTimeConverter;
+import jakarta.faces.convert.FacesConverter;
 
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;

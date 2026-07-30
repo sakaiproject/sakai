@@ -23,9 +23,9 @@ package org.sakaiproject.jsf.renderer;
 
 import java.io.IOException;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.render.Renderer;
 
 public class ViewContentRenderer extends Renderer
 {

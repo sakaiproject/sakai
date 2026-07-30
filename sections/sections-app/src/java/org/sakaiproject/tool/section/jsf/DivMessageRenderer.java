@@ -23,10 +23,10 @@ package org.sakaiproject.tool.section.jsf;
 import java.io.IOException;
 import java.util.Iterator;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIMessage;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIMessage;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -18,8 +18,8 @@ package org.sakaiproject.site.tool.helper.order;
 import java.util.Locale;
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.web.servlet.LocaleResolver;

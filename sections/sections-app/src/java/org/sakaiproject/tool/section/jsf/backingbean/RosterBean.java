@@ -35,13 +35,13 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Set;
 
-import javax.faces.application.Application;
-import javax.faces.component.UIColumn;
-import javax.faces.component.html.HtmlDataTable;
-import javax.faces.component.html.HtmlOutputText;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.model.SelectItem;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIColumn;
+import jakarta.faces.component.html.HtmlDataTable;
+import jakarta.faces.component.html.HtmlOutputText;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;

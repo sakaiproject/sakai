@@ -25,7 +25,7 @@ import java.util.Properties;
 
 import java.net.URLEncoder;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;

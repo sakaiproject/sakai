@@ -24,8 +24,8 @@
 
 package org.sakaiproject.tool.assessment.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * <p> </p>
@@ -67,7 +67,7 @@ public class HideDivisionTag
 
   public String getComponentType()
   {
-    return ("javax.faces.Output");
+    return ("jakarta.faces.Output");
   }
 
   public String getRendererType()

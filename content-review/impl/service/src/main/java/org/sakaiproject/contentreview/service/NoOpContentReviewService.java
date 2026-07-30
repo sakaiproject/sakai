@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;

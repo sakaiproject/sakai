@@ -22,9 +22,9 @@ package org.sakaiproject.jsf.component;
 
 import java.io.IOException;
 
-import javax.faces.component.UIComponentBase;
-import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponentBase;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,7 +61,7 @@ public class FlowState extends UIComponentBase {
 
 	public PhaseAware getBean() {
 		PhaseAware bean = null;
-		ValueBinding vb = getValueBinding("bean");
+		ValueExpression vb = getValueBinding("bean");
 		if (vb != null) {
 			bean = (PhaseAware) vb.getValue(getFacesContext());
 		}
@@ -83,7 +83,7 @@ public class FlowState extends UIComponentBase {
 		Object values[] = (Object[])state;
 		super.restoreState(context, values[0]);
 		PhaseAware bean = (PhaseAware)values[1];
-		ValueBinding vb = getValueBinding("bean");
+		ValueExpression vb = getValueBinding("bean");
 		if (vb != null) {
 			vb.setValue(context, bean);
 		}
@@ -122,7 +122,7 @@ public class FlowState extends UIComponentBase {
 
 	public String getFamily() {
 		if (log.isDebugEnabled()) log.debug("getFamily " + getBean());
-		return "javax.faces.Data";
+		return "jakarta.faces.Data";
 	}
 
 }

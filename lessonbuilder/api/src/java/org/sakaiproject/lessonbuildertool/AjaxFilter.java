@@ -23,7 +23,7 @@
 
 package org.sakaiproject.lessonbuildertool;
  
-import javax.servlet.*;
+import jakarta.servlet.*;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration; 
 import org.sakaiproject.tool.api.Tool;
@@ -31,13 +31,13 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
-public class AjaxFilter implements javax.servlet.Filter
+public class AjaxFilter implements jakarta.servlet.Filter
 {
     private FilterConfig filterConfig;
  
     public void doFilter(ServletRequest request, ServletResponse response,
 			 FilterChain chain) 
-	throws java.io.IOException, javax.servlet.ServletException
+	throws java.io.IOException, jakarta.servlet.ServletException
     {
 	// rsf does this:
 	//Tool tool = (Tool) request.getAttribute("sakai.tool");

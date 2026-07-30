@@ -15,7 +15,7 @@ package org.sakaiproject.webapi.controllers;
 
 import java.util.Date;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Session;

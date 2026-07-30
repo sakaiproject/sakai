@@ -22,7 +22,7 @@
 
 package org.sakaiproject.tool.assessment.util;
 
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import java.io.File;
  
 public class MimeTypesLocator{

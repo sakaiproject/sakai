@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.junit.Assert;
 import org.junit.Before;

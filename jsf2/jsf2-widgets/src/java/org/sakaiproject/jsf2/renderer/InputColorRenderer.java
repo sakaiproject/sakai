@@ -18,12 +18,12 @@ package org.sakaiproject.jsf2.renderer;
 import org.sakaiproject.jsf2.util.ConfigurationResource;
 import org.sakaiproject.jsf2.util.RendererUtil;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.ValueHolder;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.ValueHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 import java.io.IOException;
 import java.util.Map;
 

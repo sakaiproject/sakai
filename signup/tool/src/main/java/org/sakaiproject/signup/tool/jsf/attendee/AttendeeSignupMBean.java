@@ -21,9 +21,9 @@ package org.sakaiproject.signup.tool.jsf.attendee;
 
 import java.util.List;
 
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 

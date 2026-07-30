@@ -71,7 +71,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 
 /**
  * @author chall

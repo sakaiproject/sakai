@@ -33,7 +33,7 @@ package org.sakaiproject.rsf.servlet;
 
 import java.util.TimeZone;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.rsf.bridge.SakaiNavConversion;
 import org.sakaiproject.rsf.copies.DefaultPortalMatter;

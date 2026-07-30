@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Map;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.hibernate.SessionFactory;
 

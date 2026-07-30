@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
 
 
 /**
@@ -187,6 +187,6 @@ public class EntityServletOutputStream extends ServletOutputStream {
     }
 
     @Override public boolean isReady() { return true; }
-    @Override public void setWriteListener(javax.servlet.WriteListener writeListener) {}
+    @Override public void setWriteListener(jakarta.servlet.WriteListener writeListener) {}
 
 }

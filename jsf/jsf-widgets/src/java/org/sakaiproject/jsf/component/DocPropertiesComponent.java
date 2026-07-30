@@ -23,7 +23,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.html.HtmlPanelGrid;
+import jakarta.faces.component.html.HtmlPanelGrid;
 
 
 public class DocPropertiesComponent extends HtmlPanelGrid

@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.UIOutput;
+import jakarta.faces.component.UIOutput;
 
 public class GroupBoxComponent extends UIOutput
 {

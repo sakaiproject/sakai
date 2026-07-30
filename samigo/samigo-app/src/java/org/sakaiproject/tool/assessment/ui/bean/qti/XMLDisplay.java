@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
 
 /**
  * <p>Bean for QTI XML or XML fragments and descriptive information. </p>

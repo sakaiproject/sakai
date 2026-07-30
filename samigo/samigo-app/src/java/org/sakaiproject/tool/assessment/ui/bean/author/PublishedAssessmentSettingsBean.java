@@ -40,11 +40,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
@@ -2000,7 +2000,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
       // get the alias to the pub assessment
       this.alias = paf.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
-      String server = ((javax.servlet.http.HttpServletRequest) extContext.getRequest()).getRequestURL().toString();
+      String server = ((jakarta.servlet.http.HttpServletRequest) extContext.getRequest()).getRequestURL().toString();
       int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
       server = server.substring(0, index);
       String url = server + extContext.getRequestContextPath();

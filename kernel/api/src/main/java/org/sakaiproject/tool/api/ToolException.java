@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tool.api;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * <p>

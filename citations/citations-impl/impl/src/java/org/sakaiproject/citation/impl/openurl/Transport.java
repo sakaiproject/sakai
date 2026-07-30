@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.citation.impl.openurl;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * All the transports are at the HTTP level at the moment.

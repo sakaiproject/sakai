@@ -22,7 +22,7 @@ package org.sakaiproject.login.api;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class LoginCredentials {
 

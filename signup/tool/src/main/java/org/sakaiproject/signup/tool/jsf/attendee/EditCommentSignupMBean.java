@@ -20,7 +20,7 @@ package org.sakaiproject.signup.tool.jsf.attendee;
 
 import java.util.List;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 

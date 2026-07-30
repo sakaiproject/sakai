@@ -123,8 +123,8 @@
         <!-- No longer need Avalon Framework dependencies due to simplified FOP initialization -->
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

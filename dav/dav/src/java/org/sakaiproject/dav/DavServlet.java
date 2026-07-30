@@ -111,10 +111,10 @@ import java.util.Vector;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -2431,7 +2431,7 @@ public class DavServlet extends HttpServlet
 	    // dump all the name spaces and their prefix
 	    for (String namespace: spaces.keySet())
 		writer.write(" xmlns:" + spaces.get(namespace) + "=\"" + namespace + "\"");
-	    writer.write("><D:response><D:href>" + javax.servlet.http.HttpUtils.getRequestURL(req) + "</D:href>");
+	    writer.write("><D:response><D:href>" + jakarta.servlet.http.HttpUtils.getRequestURL(req) + "</D:href>");
 	    // now output properties, claiming we did it
 	    for (String pname: props) {
 		writer.write("<D:propstat><D:prop><" + pname + "/></D:prop><D:status>HTTP/1.1 201 OK</D:status></D:propstat>");

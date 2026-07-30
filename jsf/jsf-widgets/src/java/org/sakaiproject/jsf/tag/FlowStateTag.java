@@ -20,10 +20,10 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +43,7 @@ public class FlowStateTag extends UIComponentTag {
 
 		if (bean != null) {
 			if (UIComponentTag.isValueReference(bean)) {
-				ValueBinding vb = context.getApplication().createValueBinding(bean);
+				ValueExpression vb = context.getApplication().createValueBinding(bean);
 				component.setValueBinding("bean", vb);
 			} else {
 				log.error("Invalid expression " + bean);

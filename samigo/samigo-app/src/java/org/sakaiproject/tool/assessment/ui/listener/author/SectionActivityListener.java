@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.event.ValueChangeListener;
-import javax.faces.model.SelectItem;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.event.ValueChangeListener;
+import jakarta.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 

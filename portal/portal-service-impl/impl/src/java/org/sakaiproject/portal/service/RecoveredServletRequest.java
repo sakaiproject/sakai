@@ -30,12 +30,12 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author ieb
@@ -184,7 +184,7 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 	@Override
 	public boolean isRequestedSessionIdFromUrl()
 	{
-		return super.isRequestedSessionIdFromUrl();
+		return super.isRequestedSessionIdFromURL();
 	}
 
 	@Override

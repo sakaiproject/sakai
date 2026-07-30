@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.UIComponentBase;
+import jakarta.faces.component.UIComponentBase;
 
 
 public class ToolBarComponent extends UIComponentBase

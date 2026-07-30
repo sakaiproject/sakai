@@ -16,7 +16,7 @@
 
 package org.sakaiproject.entitybroker.rest;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
@@ -77,7 +77,7 @@ public class EntityHandlerImplTest {
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.
+     * Test method for {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#handleEntityAccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, java.lang.String)}.
      */
     @Test
     public void testHandleEntityAccess() {

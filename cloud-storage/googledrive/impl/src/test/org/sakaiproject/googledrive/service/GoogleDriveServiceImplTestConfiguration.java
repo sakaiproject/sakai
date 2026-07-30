@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.mockito.Mockito;
 import org.sakaiproject.component.api.ServerConfigurationService;

@@ -28,7 +28,7 @@ import java.text.Normalizer;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections4.iterators.EnumerationIterator;
 

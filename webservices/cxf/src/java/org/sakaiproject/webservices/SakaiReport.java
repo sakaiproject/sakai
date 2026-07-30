@@ -32,13 +32,13 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -126,7 +126,7 @@ public class SakaiReport extends AbstractWebService {
             contentType = "text/csv";
         }
 
-        javax.ws.rs.core.Response.ResponseBuilder rBuild = Response.ok(responseData, contentType);
+        jakarta.ws.rs.core.Response.ResponseBuilder rBuild = Response.ok(responseData, contentType);
         return rBuild.build();
     }
 

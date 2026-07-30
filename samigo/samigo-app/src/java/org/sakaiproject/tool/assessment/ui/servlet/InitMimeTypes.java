@@ -24,10 +24,10 @@ package org.sakaiproject.tool.assessment.ui.servlet;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import javax.activation.MimetypesFileTypeMap;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.activation.MimetypesFileTypeMap;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -22,9 +22,9 @@
 package org.sakaiproject.util;
 
 import java.util.Enumeration;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

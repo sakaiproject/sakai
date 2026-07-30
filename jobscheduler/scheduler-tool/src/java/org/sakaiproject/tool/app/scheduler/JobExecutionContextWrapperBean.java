@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.tool.app.scheduler;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 
 import lombok.Getter;
 import lombok.Setter;

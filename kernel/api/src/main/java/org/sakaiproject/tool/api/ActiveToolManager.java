@@ -26,7 +26,7 @@ import java.util.List;
 import java.io.File;
 import java.io.InputStream;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.w3c.dom.Document;
 
