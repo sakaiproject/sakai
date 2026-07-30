@@ -16,7 +16,7 @@
 
 package org.sakaiproject.meetings.controller;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.exceptions.MeetingsException;

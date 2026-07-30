@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;

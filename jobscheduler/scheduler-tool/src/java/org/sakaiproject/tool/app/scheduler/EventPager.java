@@ -18,8 +18,8 @@ package org.sakaiproject.tool.app.scheduler;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
-import javax.faces.event.PhaseId;
-import javax.faces.event.ValueChangeEvent;
+import jakarta.faces.event.PhaseId;
+import jakarta.faces.event.ValueChangeEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;

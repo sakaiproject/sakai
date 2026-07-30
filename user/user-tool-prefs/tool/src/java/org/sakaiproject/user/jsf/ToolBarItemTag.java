@@ -26,7 +26,7 @@ import lombok.Setter;
 import org.sakaiproject.jsf2.util.JSFDepends;
 import org.sakaiproject.jsf2.util.TagUtil;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 
 @Getter
 @Setter

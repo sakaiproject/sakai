@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.eq;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import javax.ws.rs.core.Form;
+import jakarta.ws.rs.core.Form;
 
 import org.junit.Rule;
 import org.junit.Test;

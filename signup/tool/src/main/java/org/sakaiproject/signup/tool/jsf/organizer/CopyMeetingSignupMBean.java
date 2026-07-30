@@ -19,10 +19,10 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;

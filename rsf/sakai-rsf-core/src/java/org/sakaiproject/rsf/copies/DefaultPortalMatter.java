@@ -32,7 +32,7 @@
 package org.sakaiproject.rsf.copies;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;

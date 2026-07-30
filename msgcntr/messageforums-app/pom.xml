@@ -24,12 +24,12 @@
 			<artifactId>tags-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
@@ -66,8 +66,8 @@
 			<version>${sakai.jakarta.jstl-api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.msgcntr</groupId>
@@ -95,6 +95,14 @@
 		  <artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
+  </dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
@@ -116,8 +124,8 @@
 		  <scope>provided</scope>
 		</dependency>
 		<dependency>
-		  <groupId>javax.servlet.jsp</groupId>
-		  <artifactId>javax.servlet.jsp-api</artifactId>
+		  <groupId>jakarta.servlet.jsp</groupId>
+		  <artifactId>jakarta.servlet.jsp-api</artifactId>
 		</dependency>
 		<dependency>
 		  <groupId>net.sf.json-lib</groupId>

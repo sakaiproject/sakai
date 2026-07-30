@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
-         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-         version="3.1">
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
 
   <!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
@@ -265,7 +264,7 @@
   <!-- Faces Servlet -->
   <servlet>
       <servlet-name>Faces Servlet</servlet-name>
-      <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+      <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
       <load-on-startup> 1 </load-on-startup>
   </servlet>
 
