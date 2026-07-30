@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ServletInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,6 +158,6 @@ public class EntityServletInputStream extends ServletInputStream {
 
     @Override public boolean isFinished() { return false; }
     @Override public boolean isReady() { return true; }
-    @Override public void setReadListener(javax.servlet.ReadListener readListener) {}
+    @Override public void setReadListener(jakarta.servlet.ReadListener readListener) {}
 
 }

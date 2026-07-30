@@ -53,8 +53,8 @@
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>javax.servlet</groupId>
-	        <artifactId>javax.servlet-api</artifactId>
+	        <groupId>jakarta.servlet</groupId>
+	        <artifactId>jakarta.servlet-api</artifactId>
 	    </dependency>
 		<!-- Apache commons dependencies -->
 		<dependency>

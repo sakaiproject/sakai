@@ -23,7 +23,7 @@
 package org.sakaiproject.rubrics.api.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.EqualsAndHashCode;
 

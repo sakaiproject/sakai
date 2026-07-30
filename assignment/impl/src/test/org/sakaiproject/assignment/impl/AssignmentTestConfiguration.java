@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;

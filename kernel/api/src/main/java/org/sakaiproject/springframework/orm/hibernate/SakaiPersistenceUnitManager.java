@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.springframework.orm.hibernate;
 
-import javax.persistence.spi.PersistenceUnitInfo;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 
 import lombok.Setter;

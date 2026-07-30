@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.citation.impl.openurl;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This isn't part of the the OpenURL spec but it's the best way to think of the COinS spec.

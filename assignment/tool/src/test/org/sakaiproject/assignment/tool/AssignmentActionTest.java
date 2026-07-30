@@ -62,8 +62,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
