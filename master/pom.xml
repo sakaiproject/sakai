@@ -56,7 +56,7 @@
     <sakai.opencsv.version>5.12.0</sakai.opencsv.version>
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
-    <sakai.spring.version>5.3.39</sakai.spring.version>
+    <sakai.spring.version>6.2.19</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
@@ -76,6 +76,9 @@
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
+    <sakai.jakarta.faces.version>4.1.9</sakai.jakarta.faces.version>
+    <sakai.jakarta.faces-api.version>4.1.2</sakai.jakarta.faces-api.version>
+    <sakai.jakarta.el-api.version>6.0.1</sakai.jakarta.el-api.version>
     <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
     <handlebars4.version>4.4.0</handlebars4.version>
@@ -301,12 +304,6 @@
       <dependency>
         <groupId>jakarta.activation</groupId>
         <artifactId>jakarta.activation-api</artifactId>
-        <version>2.0.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.activation</groupId>
-        <artifactId>jakarta.activation</artifactId>
         <version>2.1.4</version>
         <scope>provided</scope>
       </dependency>
@@ -2246,12 +2243,6 @@
         <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
       <!--JSF 2 Dependencies-->
       <dependency>
         <groupId>org.sakaiproject.jsf2</groupId>
@@ -2289,6 +2280,16 @@
         <artifactId>jsf2-widgets-sun-depend</artifactId>
         <version>${sakai.version}</version>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.servlet.jsp.jstl</groupId>
+        <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <!-- Sakai Wicket -->
       <dependency>
