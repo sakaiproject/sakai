@@ -32,7 +32,7 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.api.ServerConfigurationService;

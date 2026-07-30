@@ -15,15 +15,15 @@
  */
 package org.sakaiproject.portal.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 
 import org.hibernate.annotations.Type;
@@ -54,7 +54,6 @@ public class RecentSite implements PersistableEntity<Long> {
     @Column(name = "SITE_ID", length = 99, nullable = false)
     private String siteId;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED", nullable = false)
     private Instant created;
 }

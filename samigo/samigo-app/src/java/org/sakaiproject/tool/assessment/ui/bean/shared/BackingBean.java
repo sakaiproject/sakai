@@ -24,18 +24,18 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 
 @Slf4j
-@ManagedBean(name="backingbean")
+@Named("backingbean")
 @SessionScoped
 public class BackingBean implements Serializable {
 

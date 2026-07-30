@@ -20,7 +20,7 @@
 
 package org.sakaiproject.entitybroker.exception;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This exception is used to indicate that a problem occurred attempting to get an entity,

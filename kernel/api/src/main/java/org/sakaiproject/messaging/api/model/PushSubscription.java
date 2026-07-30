@@ -17,14 +17,14 @@ package org.sakaiproject.messaging.api.model;
 
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -65,7 +65,6 @@ public class PushSubscription implements PersistableEntity<Long> {
     @Column(name = "FINGERPRINT", length = 255, nullable = false, unique = true)
     private String fingerprint;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED", nullable = false)
     private Instant created;
 }

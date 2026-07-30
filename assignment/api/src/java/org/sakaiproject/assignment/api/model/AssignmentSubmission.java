@@ -27,21 +27,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -94,19 +94,15 @@ public class AssignmentSubmission {
 
     //private List submissionLog;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "SUBMITTED_DATE")
     private Instant dateSubmitted;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "RETURNED_DATE")
     private Instant dateReturned;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE")
     private Instant dateCreated;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 

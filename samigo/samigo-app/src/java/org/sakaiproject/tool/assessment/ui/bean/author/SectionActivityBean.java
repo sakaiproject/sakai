@@ -18,17 +18,16 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.model.SelectItem;
-
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener.SectionActivityData;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 /* User Activity Report backing bean. */
 @Slf4j
-@ManagedBean(name="sectionActivity")
+@Named("sectionActivity")
 @SessionScoped
 public class SectionActivityBean implements Serializable {
 

@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -51,7 +51,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -22,7 +22,6 @@ package org.sakaiproject.component.app.messageforums;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.Query;
-import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -90,7 +89,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
     
     HibernateCallback<MessageForumsUser> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_BY_USER_ID);
-      q.setParameter("userId", userId, StringType.INSTANCE);
+      q.setParameter("userId", userId);
       return (MessageForumsUser) q.uniqueResult();
     };
   

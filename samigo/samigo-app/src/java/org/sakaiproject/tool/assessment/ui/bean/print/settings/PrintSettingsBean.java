@@ -17,11 +17,11 @@ package org.sakaiproject.tool.assessment.ui.bean.print.settings;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 
 /* Print settings bean. */
-@ManagedBean(name="printSettings")
+@Named("printSettings")
 @SessionScoped
 public class PrintSettingsBean implements Serializable {
 

@@ -56,8 +56,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

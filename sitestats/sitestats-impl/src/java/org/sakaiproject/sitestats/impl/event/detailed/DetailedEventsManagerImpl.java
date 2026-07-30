@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.sitestats.impl.event.detailed;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,12 +30,13 @@ import lombok.Setter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
@@ -144,46 +146,59 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 
 	/* End Spring methods */
 
-	private Optional<Criteria> basicCriteriaForTrackingParams(Session session, final TrackingParams params)
+	private static class CriteriaData {
+		final CriteriaBuilder cb;
+		final CriteriaQuery<DetailedEventImpl> cq;
+		final Root<DetailedEventImpl> root;
+		CriteriaData(CriteriaBuilder cb, CriteriaQuery<DetailedEventImpl> cq, Root<DetailedEventImpl> root) {
+			this.cb = cb; this.cq = cq; this.root = root;
+		}
+	}
+
+	private Optional<CriteriaData> basicCriteriaForTrackingParams(Session session, final TrackingParams params)
 	{
-		Criteria crit = session.createCriteria(DetailedEventImpl.class);
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<DetailedEventImpl> cq = cb.createQuery(DetailedEventImpl.class);
+		Root<DetailedEventImpl> root = cq.from(DetailedEventImpl.class);
+
+		List<Predicate> predicates = new ArrayList<>();
+
 		if (StringUtils.isNotBlank(params.siteId))
 		{
-			crit.add(Restrictions.eq(SITE_ID_COL, params.siteId));
+			predicates.add(cb.equal(root.get(SITE_ID_COL), params.siteId));
 		}
 		if (!params.events.isEmpty())
 		{
-			crit.add(Restrictions.in(EVENT_ID_COL, params.events));
+			predicates.add(root.get(EVENT_ID_COL).in(params.events));
 		}
 
 		// Filter out any users who do not have the can be tracked permission in the site
 		List<String> filtered = params.userIds.stream()
 				.filter(u -> statsAuthz.canUserBeTracked(params.siteId, u))
 				.collect(Collectors.toList());
-		// must have at least one user
 		if (filtered.isEmpty())
 		{
 			return Optional.empty();
 		}
-		crit.add(Restrictions.in(USER_ID_COL, filtered));
+		predicates.add(root.get(USER_ID_COL).in(filtered));
 
 		if (!TrackingParams.NO_DATE.equals(params.startDate))
 		{
-			crit.add(Restrictions.ge(EVENT_DATE_COL, Date.from(params.startDate)));
+			predicates.add(cb.greaterThanOrEqualTo(root.get(EVENT_DATE_COL), Date.from(params.startDate)));
 		}
 		if (!TrackingParams.NO_DATE.equals(params.endDate))
 		{
-			crit.add(Restrictions.lt(EVENT_DATE_COL, Date.from(params.endDate)));
+			predicates.add(cb.lessThan(root.get(EVENT_DATE_COL), Date.from(params.endDate)));
 		}
 
-		// filter out anonymous events
 		Set<String> anonEvents = regServ.getAnonymousEventIds();
 		if (!anonEvents.isEmpty())
 		{
-			crit.add(Restrictions.not(Restrictions.in(EVENT_ID_COL, anonEvents)));
+			predicates.add(cb.not(root.get(EVENT_ID_COL).in(anonEvents)));
 		}
 
-		return Optional.of(crit);
+		cq.where(predicates.toArray(new Predicate[0]));
+		return Optional.of(new CriteriaData(cb, cq, root));
 	}
 
 	@Override
@@ -196,28 +211,30 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 
 		HibernateCallback<List<DetailedEvent>> hcb = session ->
 		{
-			Optional<Criteria> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
+			Optional<CriteriaData> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
 			if (!critOpt.isPresent())
 			{
 				return Collections.emptyList();
 			}
-			Criteria crit = critOpt.get();
-
-			if (pagingParams.startInt >= 0 && pagingParams.pageSizeInt > 0)
-			{
-				crit.setFirstResult(pagingParams.startInt);
-				crit.setMaxResults(pagingParams.pageSizeInt);
-			}
+			CriteriaData cd = critOpt.get();
 
 			if (sortingParams != null && StringUtils.isNotBlank(sortingParams.sortProp))
 			{
 				String sortProp = sortingParams.sortProp;
-				crit.addOrder(sortingParams.asc ? Order.asc(sortProp) : Order.desc(sortProp));
+				cd.cq.orderBy(sortingParams.asc
+					? cd.cb.asc(cd.root.get(sortProp))
+					: cd.cb.desc(cd.root.get(sortProp)));
 			}
 
-			List<DetailedEvent> results = crit.list();
+			Query<DetailedEventImpl> query = session.createQuery(cd.cq);
 
-			return results;
+			if (pagingParams.startInt >= 0 && pagingParams.pageSizeInt > 0)
+			{
+				query.setFirstResult(pagingParams.startInt);
+				query.setMaxResults(pagingParams.pageSizeInt);
+			}
+
+			return (List<DetailedEvent>) (List<?>) query.list();
 		};
 
 		return (List<DetailedEvent>) getHibernateTemplate().execute(hcb);
@@ -234,7 +251,7 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 		HibernateCallback<Optional<DetailedEvent>> hcb = session ->
 		{
 			Query q = session.createQuery(HQL_BY_ID);
-			q.setLong("id", id);
+			q.setParameter("id", id);
 			if (log.isDebugEnabled())
 			{
 				log.debug("getDetailedEvents(): " + q.getQueryString());
@@ -392,17 +409,18 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 
 		HibernateCallback<Long> hcb = session ->
 		{
-			Optional<Criteria> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
+			Optional<CriteriaData> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
 			if (!critOpt.isPresent())
 			{
 				return 0L;
 			}
-			
-			Criteria crit = critOpt.get();
-			// Use the Hibernate rowCount projection to get the total count
-			crit.setProjection(Projections.rowCount());
-			
-			return (Long) crit.uniqueResult();
+
+			CriteriaData cd = critOpt.get();
+			CriteriaQuery<Long> cq = cd.cb.createQuery(Long.class);
+			Root<DetailedEventImpl> root = cq.from(DetailedEventImpl.class);
+			cq.select(cd.cb.count(root)).where(cd.cq.getRestriction());
+
+			return session.createQuery(cq).uniqueResult();
 		};
 
 		return (Long) getHibernateTemplate().execute(hcb);

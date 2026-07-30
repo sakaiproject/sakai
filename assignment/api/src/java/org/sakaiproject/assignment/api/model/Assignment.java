@@ -26,21 +26,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -126,35 +126,27 @@ public class Assignment {
     @Column(name = "SECTION")
     private String section;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
     private Instant dateCreated;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "VISIBLE_DATE")
     private Instant visibleDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "OPEN_DATE")
     private Instant openDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DUE_DATE")
     private Instant dueDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CLOSE_DATE")
     private Instant closeDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "SOFT_REMOVED_DATE")
     private Instant softRemovedDate;
 
@@ -238,7 +230,6 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
     private Instant peerAssessmentPeriodDate;
 

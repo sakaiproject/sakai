@@ -20,7 +20,7 @@
     <sakai.commons-io.version>2.22.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.21.0</sakai.commons.lang3.version>
-    <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
+    <sakai.commons.fileupload.version>2.0.0-M5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.15.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
@@ -30,12 +30,11 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.opensearch.version>2.19.5</sakai.opensearch.version>
-    <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
+    <sakai.hibernate.version>6.6.54.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
-    <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
-    <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.6.4</sakai.httpclient5.version>
+    <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpcore5.version>5.4.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.18.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
@@ -45,8 +44,8 @@
     <sakai.woodstox.version>7.1.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>4.5.1</sakai.java.jwt.version>
-    <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
-    <sakai.jstl.version>1.2</sakai.jstl.version>
+    <sakai.jaxb.version>3.0.2</sakai.jaxb.version>
+    <sakai.jstl.version>3.0.1</sakai.jstl.version>
     <sakai.lombok.version>1.18.48</sakai.lombok.version>
     <sakai.lucene.version>9.12.3</sakai.lucene.version>
     <sakai.netty.version>4.1.131.Final</sakai.netty.version>
@@ -57,15 +56,15 @@
     <sakai.opencsv.version>5.12.0</sakai.opencsv.version>
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
-    <sakai.spring.version>5.3.39</sakai.spring.version>
-    <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
-    <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
+    <sakai.spring.version>6.2.19</sakai.spring.version>
+    <sakai.spring.data.commons.version>3.5.13</sakai.spring.data.commons.version>
+    <sakai.spring.data.jpa.version>3.5.13</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.7.14</sakai.spring.security.version>
-    <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
-    <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
+    <sakai.spring.security.version>6.5.11</sakai.spring.security.version>
+    <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
+    <sakai.spring.plugin.version>3.0.0</sakai.spring.plugin.version>
     <sakai.tika.version>3.3.2</sakai.tika.version>
-    <sakai.tomcat.version>9.0.122</sakai.tomcat.version>
+    <sakai.tomcat.version>10.1.57</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.1.5.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.26.1</sakai.log4j.version>
@@ -74,9 +73,13 @@
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.14.4</joda.time.version>
-    <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
+    <sakai.weld.shaded.version>6.0.4.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
-    <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
+    <sakai.jakarta.faces.version>4.1.9</sakai.jakarta.faces.version>
+    <sakai.jakarta.faces-api.version>4.1.2</sakai.jakarta.faces-api.version>
+    <sakai.jakarta.el-api.version>6.0.1</sakai.jakarta.el-api.version>
+    <sakai.jakarta.jstl-api.version>3.0.2</sakai.jakarta.jstl-api.version>
+    <sakai.jakarta.servlet.jsp.jstl.version>3.0.1</sakai.jakarta.servlet.jsp.jstl.version>
     <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
     <handlebars4.version>4.4.0</handlebars4.version>
@@ -296,31 +299,25 @@
       <dependency>
         <groupId>jakarta.annotation</groupId>
         <artifactId>jakarta.annotation-api</artifactId>
-        <version>1.3.5</version>
+        <version>3.0.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.activation</groupId>
         <artifactId>jakarta.activation-api</artifactId>
-        <version>1.2.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.activation</groupId>
-        <artifactId>jakarta.activation</artifactId>
-        <version>1.2.2</version>
+        <version>2.1.4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.xml.soap</groupId>
         <artifactId>jakarta.xml.soap-api</artifactId>
-        <version>1.4.2</version>
+        <version>3.0.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>2.3.3</version>
+        <version>4.0.5</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -380,21 +377,21 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>javax.servlet.jsp</groupId>
-        <artifactId>javax.servlet.jsp-api</artifactId>
-        <version>2.3.3</version>
+        <groupId>jakarta.servlet.jsp</groupId>
+        <artifactId>jakarta.servlet.jsp-api</artifactId>
+        <version>4.0.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>4.0.1</version>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>6.1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax</groupId>
-        <artifactId>javaee-api</artifactId>
-        <version>8.0.1</version>
+        <groupId>jakarta.platform</groupId>
+        <artifactId>jakarta.jakartaee-api</artifactId>
+        <version>10.0.0</version>
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
@@ -670,8 +667,8 @@
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${sakai.jackson.version}</version>
+        <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+        <version>3.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -746,8 +743,8 @@
         <version>${sakai.tomcat.version}</version>
       </dependency>
       <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
         <version>${sakai.commons.fileupload.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -842,9 +839,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.inject</groupId>
-        <artifactId>javax.inject</artifactId>
-        <version>1</version>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>2.0.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -907,19 +904,13 @@
       <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
-        <version>2.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
-        <version>${sakai.hibernate.version}</version>
+        <version>3.1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>6.2.5.Final</version>
+        <version>8.0.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -939,18 +930,6 @@
         <artifactId>httpcore</artifactId>
         <version>${sakai.httpcore.version}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${sakai.httpclient.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -984,12 +963,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpmime</artifactId>
-        <version>${sakai.httpclient.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
         <version>3.4.3.Final</version>
@@ -1010,13 +983,13 @@
       <dependency>
         <groupId>org.hibernate.common</groupId>
         <artifactId>hibernate-commons-annotations</artifactId>
-        <version>5.1.2.Final</version>
+        <version>6.0.6.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.persistence</groupId>
-        <artifactId>javax.persistence-api</artifactId>
-        <version>2.2</version>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1061,9 +1034,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>jakarta.mail</artifactId>
-        <version>1.6.7</version>
+        <groupId>jakarta.mail</groupId>
+        <artifactId>jakarta.mail-api</artifactId>
+        <version>2.1.5</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2235,12 +2208,6 @@
         <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
       <!--JSF 2 Dependencies-->
       <dependency>
         <groupId>org.sakaiproject.jsf2</groupId>
@@ -2278,6 +2245,16 @@
         <artifactId>jsf2-widgets-sun-depend</artifactId>
         <version>${sakai.version}</version>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.servlet.jsp.jstl</groupId>
+        <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+        <version>${sakai.jakarta.jstl-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+        <version>${sakai.jakarta.servlet.jsp.jstl.version}</version>
       </dependency>
       <!-- Sakai Wicket -->
       <dependency>
@@ -2643,7 +2620,6 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>5.0.0</version>
             <configuration>
                 <licenseSets>
                     <licenseSet>
@@ -2671,7 +2647,6 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <version>5.0.0</version>
                 </dependency>
             </dependencies>
         </plugin>
@@ -2772,7 +2747,6 @@
                     <exclude>commons-httpclient:commons-httpclient</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
-                    <exclude>javax.mail:mail</exclude>
                     <exclude>org.azeckoski:reflectutils</exclude>
                   </excludes>
                 </bannedDependencies>

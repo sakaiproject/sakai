@@ -35,9 +35,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 
@@ -699,5 +699,11 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     public String getErrorMessage() {
         return this.errorMessage;
     }
+
+	@Override
+	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

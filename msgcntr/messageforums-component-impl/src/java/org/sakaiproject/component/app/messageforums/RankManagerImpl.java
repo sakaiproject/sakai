@@ -28,8 +28,6 @@ import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.Query;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -150,7 +148,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         }
         HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID);
-            q.setParameter("contextId", contextId, StringType.INSTANCE);
+            q.setParameter("contextId", contextId);
             return q.list();
         };
 
@@ -173,7 +171,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
         HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_ORDER_BY_MIN_POST_DESC);
-            q.setParameter("contextId", contextId, StringType.INSTANCE);
+            q.setParameter("contextId", contextId);
             return q.list();
         };
 
@@ -292,7 +290,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
         HibernateCallback<Rank> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_RANK_ID);
-            q.setParameter("rankId", rankId, LongType.INSTANCE);
+            q.setParameter("rankId", rankId);
             return (Rank) q.uniqueResult();
         };
 
@@ -386,8 +384,8 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
         HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_USERID);
-            q.setParameter("contextId", contextId, StringType.INSTANCE);
-            q.setParameter("userId", userid, StringType.INSTANCE);
+            q.setParameter("contextId", contextId);
+            q.setParameter("userId", userid);
             return q.list();
         };
 
@@ -410,7 +408,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
         HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED);
-            q.setParameter("contextId", contextId, StringType.INSTANCE);
+            q.setParameter("contextId", contextId);
             return q.list();
         };
 

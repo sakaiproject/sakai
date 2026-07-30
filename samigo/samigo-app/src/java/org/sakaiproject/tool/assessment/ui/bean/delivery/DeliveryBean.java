@@ -39,13 +39,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jsoup.nodes.Document;
 
@@ -119,7 +119,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For delivery: Delivery backing bean */
 @Slf4j
-@ManagedBean(name="delivery")
+@Named("delivery")
 @SessionScoped
 public class DeliveryBean implements Serializable {
 
@@ -1667,7 +1667,7 @@ public class DeliveryBean implements Serializable {
    *     valueChangeListener="#{delivery.addMediaToItemGrading}" />
      * @param e
    */
-  public void addMediaToItemGrading(javax.faces.event.ValueChangeEvent e) {
+  public void addMediaToItemGrading(jakarta.faces.event.ValueChangeEvent e) {
     if (isTimeRunning() && getTimeExpired())
       setOutcome("timeExpired");
 

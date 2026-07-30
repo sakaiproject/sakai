@@ -17,7 +17,7 @@ jobs:
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
-      TOMCAT_VERSION: "9.0.122"
+      TOMCAT_VERSION: "10.1.57"
     steps:
       - name: Git Checkout
         uses: actions/checkout@v7.0.1
@@ -64,7 +64,7 @@ jobs:
         run: |
           mkdir -p .cache/tomcat
           curl -fSL --retry 3 -o ".cache/tomcat/apache-tomcat-$TOMCAT_VERSION.tar.gz" \
-            "https://archive.apache.org/dist/tomcat/tomcat-9/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+            "https://archive.apache.org/dist/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
 
       - name: Save Tomcat distribution cache
         if: steps.cache-tomcat.outputs.cache-hit != 'true'

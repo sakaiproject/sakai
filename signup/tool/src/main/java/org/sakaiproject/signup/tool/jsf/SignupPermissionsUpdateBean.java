@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.component.UIData;
+import jakarta.faces.component.UIData;
 
 import lombok.Getter;
 import lombok.Setter;

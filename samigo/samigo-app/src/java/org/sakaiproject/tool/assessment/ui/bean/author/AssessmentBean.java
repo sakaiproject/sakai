@@ -28,10 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.model.SelectItem;
-
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /* For author: Assessment backing bean.*/
 @Slf4j
-@ManagedBean(name="assessmentBean")
+@Named("assessmentBean")
 @SessionScoped
 public class AssessmentBean  implements Serializable {
 

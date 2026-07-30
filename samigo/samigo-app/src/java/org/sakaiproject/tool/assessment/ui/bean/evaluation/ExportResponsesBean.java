@@ -34,11 +34,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -71,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Export Responses backing bean. */
 @Slf4j
-@ManagedBean(name="exportResponses")
+@Named("exportResponses")
 @SessionScoped
 public class ExportResponsesBean extends SpringBeanAutowiringSupport implements Serializable, PhaseAware {
 

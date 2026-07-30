@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.web.action;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 
 import lombok.extern.slf4j.Slf4j;
 

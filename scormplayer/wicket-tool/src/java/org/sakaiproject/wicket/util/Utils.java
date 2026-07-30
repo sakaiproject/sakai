@@ -17,7 +17,7 @@ package org.sakaiproject.wicket.util;
 
 import java.util.Comparator;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;

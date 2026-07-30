@@ -19,8 +19,8 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Member;

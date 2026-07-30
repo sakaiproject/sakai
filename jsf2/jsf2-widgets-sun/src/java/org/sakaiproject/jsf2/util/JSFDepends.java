@@ -25,15 +25,6 @@ package org.sakaiproject.jsf2.util;
  */
 public class JSFDepends
 {
-	  /** Sun JSF RI dependent classes */
-	  public static class CommandButtonTag extends com.sun.faces.taglib.html_basic.CommandButtonTag {}
-	  public static class InputTextTag extends com.sun.faces.taglib.html_basic.InputTextTag {}
-	  public static class OutputTextTag extends com.sun.faces.taglib.html_basic.OutputTextTag {}
-	  public static class PanelGridTag extends com.sun.faces.taglib.html_basic.PanelGridTag {}
-	  public static class DataTableTag extends com.sun.faces.taglib.html_basic.DataTableTag {}
-	  public static class MessagesTag extends com.sun.faces.taglib.html_basic.MessagesTag {}
-	  public static class ColumnTag extends com.sun.faces.taglib.html_basic.ColumnTag {}
-
 	  public static class ButtonRenderer extends com.sun.faces.renderkit.html_basic.ButtonRenderer {}
 	  public static class CommandLinkRenderer extends com.sun.faces.renderkit.html_basic.CommandLinkRenderer {}
 }

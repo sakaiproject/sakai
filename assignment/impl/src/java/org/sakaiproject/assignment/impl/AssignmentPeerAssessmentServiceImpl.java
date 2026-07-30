@@ -27,10 +27,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
@@ -488,11 +490,19 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     }
 
     public PeerAssessmentAttachment getPeerAssessmentAttachment(final String submissionId, final String assessorUserId, final String resourceId) {
-        DetachedCriteria d = DetachedCriteria.forClass(PeerAssessmentAttachment.class)
-                .add(Restrictions.eq("submissionId", submissionId))
-                .add(Restrictions.eq("assessorUserId", assessorUserId))
-                .add(Restrictions.eq("resourceId", resourceId));
-        List attachments = getHibernateTemplate().findByCriteria(d);
+    	HibernateCallback<List<PeerAssessmentAttachment>> hcb = session -> {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<PeerAssessmentAttachment> cq = cb.createQuery(PeerAssessmentAttachment.class);
+            Root<PeerAssessmentAttachment> root = cq.from(PeerAssessmentAttachment.class);
+            cq.where(
+                cb.equal(root.get("submissionId"), submissionId),
+                cb.equal(root.get("assessorUserId"), assessorUserId),
+                cb.equal(root.get("resourceId"), resourceId)
+            );
+            return session.createQuery(cq).list();
+        };
+
+        List<PeerAssessmentAttachment> attachments = getHibernateTemplate().execute(hcb);
         if (attachments == null || attachments.isEmpty()) {
             return null;
         } else {

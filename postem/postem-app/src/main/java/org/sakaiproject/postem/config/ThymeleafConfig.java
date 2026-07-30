@@ -29,11 +29,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import org.thymeleaf.spring5.ISpringTemplateEngine;
@@ -43,10 +43,12 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import jakarta.servlet.MultipartConfigElement;
+
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.postem")
-public class ThymeleafConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Autowired
     private ServerConfigurationService serverConfigurationService;
@@ -97,10 +99,13 @@ public class ThymeleafConfig extends WebMvcConfigurerAdapter implements Applicat
 
     @Bean
     public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+       return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    public MultipartConfigElement multipartConfigElement() {
         long uploadMax = Long.parseLong(serverConfigurationService.getString(ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE));
-        commonsMultipartResolver.setMaxUploadSize(uploadMax * 1024);
-        commonsMultipartResolver.setDefaultEncoding(StandardCharsets.UTF_8.name());
-        return commonsMultipartResolver;
+        long maxSize = uploadMax * 1024;
+        return new MultipartConfigElement("", maxSize, maxSize, 0);
     }
 }

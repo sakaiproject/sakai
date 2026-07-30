@@ -24,9 +24,9 @@ import java.util.Date;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.query.Query;
-import org.hibernate.collection.internal.PersistentSet;
-import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -296,8 +296,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         log.debug("getAreaByContextIdAndTypeId executing for current user: {}", getCurrentUser());
         HibernateCallback<Area> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
-            q.setParameter("contextId", contextId, StringType.INSTANCE);
-            q.setParameter("typeId", typeId, StringType.INSTANCE);
+            q.setParameter("contextId", contextId);
+            q.setParameter("typeId", typeId);
             return (Area) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);

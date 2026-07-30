@@ -25,17 +25,17 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -77,11 +77,9 @@ public class Task implements PersistableEntity<Long> {
     private Boolean system;
 
     @Column(name = "STARTS")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant starts = Instant.now();
 
     @Column(name = "DUE")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant due;
     
     @Column(name = "TASK_OWNER", length = 99)

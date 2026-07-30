@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tasks.api;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 

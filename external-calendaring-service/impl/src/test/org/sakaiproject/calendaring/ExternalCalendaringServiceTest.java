@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 

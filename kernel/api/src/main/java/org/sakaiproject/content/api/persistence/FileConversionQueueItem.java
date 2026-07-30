@@ -23,7 +23,7 @@ package org.sakaiproject.content.api.persistence;
 
 import java.time.Instant;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -62,7 +62,6 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
     private Integer attempts;
 
     @Column(name = "LAST_ATTEMPT_STARTED")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant lastAttemptStarted;
 
     /**

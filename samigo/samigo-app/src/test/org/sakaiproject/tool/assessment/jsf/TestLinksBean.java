@@ -23,10 +23,10 @@ package org.sakaiproject.tool.assessment.jsf;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 
-@ManagedBean(name="testlinks")
+@Named("testlinks")
 @SessionScoped
 public class TestLinksBean implements Serializable {
   public TestLinksBean()

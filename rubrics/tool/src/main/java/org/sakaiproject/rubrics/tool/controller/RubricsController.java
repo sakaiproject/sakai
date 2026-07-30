@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.rubrics.tool.controller;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
