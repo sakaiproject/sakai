@@ -33,10 +33,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.EntityType;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.ArrayList;

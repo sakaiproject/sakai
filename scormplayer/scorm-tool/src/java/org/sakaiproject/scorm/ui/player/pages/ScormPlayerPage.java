@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.scorm.ui.player.pages;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;

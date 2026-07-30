@@ -31,9 +31,9 @@
  */
 package org.sakaiproject.rsf.entitybroker;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;

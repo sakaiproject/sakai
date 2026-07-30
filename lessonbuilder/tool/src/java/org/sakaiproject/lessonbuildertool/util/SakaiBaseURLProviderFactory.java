@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.lessonbuildertool.util;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.util.RequestFilter;
 import org.springframework.beans.factory.FactoryBean;

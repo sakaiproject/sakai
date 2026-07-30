@@ -24,13 +24,13 @@ package org.sakaiproject.jsf.app;
 import java.io.IOException;
 import java.util.Locale;
 
-import javax.faces.FacesException;
-import javax.faces.application.ViewHandler;
-import javax.faces.application.ViewHandlerWrapper;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.faces.FacesException;
+import jakarta.faces.application.ViewHandler;
+import jakarta.faces.application.ViewHandlerWrapper;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

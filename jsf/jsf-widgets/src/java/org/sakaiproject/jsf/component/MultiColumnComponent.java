@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.UIData;
+import jakarta.faces.component.UIData;
 
 /**
  *

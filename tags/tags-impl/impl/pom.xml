@@ -74,6 +74,10 @@
       <version>${json.simple.version}</version>
     </dependency>
     <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
@@ -115,8 +119,8 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

@@ -19,8 +19,8 @@ import org.hibernate.SessionFactory;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.List;
 
 

@@ -18,13 +18,13 @@ package org.sakaiproject.plus.api.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Basic;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import static javax.persistence.FetchType.LAZY;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Basic;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import static jakarta.persistence.FetchType.LAZY;
 
 import java.time.Instant;
 

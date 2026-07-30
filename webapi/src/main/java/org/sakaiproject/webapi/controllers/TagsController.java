@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 

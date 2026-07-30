@@ -21,8 +21,8 @@
   <dependencies>
     <!-- we are running a webapp in a servlet container so we need the servlet API -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <!-- We need this special package to run the jsps in Sakai -->
     <dependency>
@@ -75,8 +75,8 @@
     </dependency>
     <!-- JSP and standard tag libraries -->
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

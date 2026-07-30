@@ -29,10 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.context.FacesContext;
 
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;

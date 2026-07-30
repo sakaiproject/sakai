@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.api;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * This supports the special case where session data rebuild cannot happen immediately

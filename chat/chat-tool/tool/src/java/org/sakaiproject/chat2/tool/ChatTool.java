@@ -33,16 +33,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.validator.ValidatorException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.chat2.model.ChatChannel;

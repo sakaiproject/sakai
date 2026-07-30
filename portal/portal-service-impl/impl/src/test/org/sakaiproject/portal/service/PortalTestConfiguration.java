@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.portal.service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.mockito.Mockito.*;
 

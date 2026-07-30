@@ -22,7 +22,7 @@ package org.sakaiproject.assignment.api.model;
 
 import java.util.Date;
 import java.util.Set;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

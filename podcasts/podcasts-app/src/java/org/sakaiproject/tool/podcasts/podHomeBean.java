@@ -34,16 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.PhaseId;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.PhaseId;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;

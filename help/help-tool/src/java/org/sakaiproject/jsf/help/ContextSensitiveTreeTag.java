@@ -21,11 +21,11 @@
 
 package org.sakaiproject.jsf.help;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 /**
  * context sensitive UI component tag
@@ -38,15 +38,15 @@ public class ContextSensitiveTreeTag extends UIComponentTag
   private String helpDocId = null;
 
   /**
-   * @see javax.faces.webapp.UIComponentTag#getComponentType()
+   * @see jakarta.faces.webapp.UIComponentTag#getComponentType()
    */
   public String getComponentType()
   {
-    return "javax.faces.Data";
+    return "jakarta.faces.Data";
   }
 
   /** 
-   * @see javax.faces.webapp.UIComponentTag#getRendererType()
+   * @see jakarta.faces.webapp.UIComponentTag#getRendererType()
    */
   public String getRendererType()
   {
@@ -54,7 +54,7 @@ public class ContextSensitiveTreeTag extends UIComponentTag
   }
 
   /** 
-   * @see javax.faces.webapp.UIComponentTag#setProperties(javax.faces.component.UIComponent)
+   * @see jakarta.faces.webapp.UIComponentTag#setProperties(jakarta.faces.component.UIComponent)
    */
   protected void setProperties(UIComponent component)
   {
@@ -62,7 +62,7 @@ public class ContextSensitiveTreeTag extends UIComponentTag
     FacesContext context = getFacesContext();
     if (value != null)
     {
-      ValueBinding vb = context.getApplication().createValueBinding(value);
+      ValueExpression vb = context.getApplication().createValueBinding(value);
       component.setValueBinding("value", vb);
     }
     if (var != null)

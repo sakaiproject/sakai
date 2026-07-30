@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.TemporalType;
+import jakarta.persistence.TemporalType;
 
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;

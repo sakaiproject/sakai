@@ -25,9 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.RequestScoped;
 
 import lombok.extern.slf4j.Slf4j;
 

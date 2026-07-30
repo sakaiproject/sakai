@@ -28,11 +28,11 @@ import java.time.Instant;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.UserTask;

@@ -23,8 +23,8 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.Collection;
 
 /**

@@ -21,7 +21,7 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.html.HtmlDataTable;
+import jakarta.faces.component.html.HtmlDataTable;
 
 public class FlatListComponent extends HtmlDataTable
 {

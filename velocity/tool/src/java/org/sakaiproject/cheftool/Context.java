@@ -21,7 +21,7 @@
 
 package org.sakaiproject.cheftool;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class Context
 {

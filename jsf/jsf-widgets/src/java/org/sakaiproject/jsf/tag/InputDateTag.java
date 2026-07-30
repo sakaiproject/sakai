@@ -22,8 +22,8 @@
 
 package org.sakaiproject.jsf.tag;
 
-import javax.faces.webapp.UIComponentTag;
-import javax.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
 import org.sakaiproject.jsf.util.TagUtil;
 
 public class InputDateTag extends UIComponentTag
@@ -57,7 +57,7 @@ public class InputDateTag extends UIComponentTag
    */
   public String getComponentType()
   {
-    return ("javax.faces.Input");
+    return ("jakarta.faces.Input");
   }
 
   public String getRendererType()

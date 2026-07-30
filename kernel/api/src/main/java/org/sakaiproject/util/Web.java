@@ -30,8 +30,8 @@ import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -544,7 +544,7 @@ public class Web
 			if ( agent != null && agent.contains("MSIE"))
 				fileName = java.net.URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 			else if ( agent != null && agent.contains("Mozilla") && !agent.contains("Safari"))
-				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
+				fileName = jakarta.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
 			else
 				fileName = java.net.URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 		}

@@ -18,8 +18,8 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.util.Date;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;

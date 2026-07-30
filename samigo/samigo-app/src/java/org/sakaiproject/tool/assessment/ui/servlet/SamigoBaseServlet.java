@@ -17,7 +17,7 @@ package org.sakaiproject.tool.assessment.ui.servlet;
 
 import java.util.Optional;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
