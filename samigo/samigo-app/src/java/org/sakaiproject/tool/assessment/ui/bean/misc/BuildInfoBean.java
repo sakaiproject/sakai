@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.misc;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
 
 /* Build Information. */
 @ManagedBean(name="buildinfo")

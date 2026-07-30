@@ -162,12 +162,12 @@ public class LTI13PKITest {
 		keyGen.initialize(512);
 		byte[] publicKey = keyGen.genKeyPair().getPublic().getEncoded();
 
-		String pemBase64 = javax.xml.bind.DatatypeConverter.printBase64Binary(publicKey);
+		String pemBase64 = jakarta.xml.bind.DatatypeConverter.printBase64Binary(publicKey);
 		assertEquals(128, pemBase64.length());
 		Matcher m = base64_pattern.matcher(pemBase64);
 		assertTrue(m.find());
 
-		String hex = javax.xml.bind.DatatypeConverter.printHexBinary(publicKey);
+		String hex = jakarta.xml.bind.DatatypeConverter.printHexBinary(publicKey);
 		assertEquals(188, hex.length());
 		m = upper_hex_pattern.matcher(hex);
 		assertTrue(m.find());

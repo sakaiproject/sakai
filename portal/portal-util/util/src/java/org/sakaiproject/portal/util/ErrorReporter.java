@@ -32,10 +32,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -78,7 +78,7 @@ public class ErrorReporter
 	{
 		censoredParameters.put("pw", "pw");
 		censoredParameters.put("eid", "eid");
-		censoredParameters.put("javax.faces.ViewState", "javax.faces.ViewState");
+		censoredParameters.put("jakarta.faces.ViewState", "jakarta.faces.ViewState");
 		censoredHeaders.put("cookie","cookie");
 		censoredHeaders.put("authorization","authorization");
 	}
@@ -481,7 +481,7 @@ public class ErrorReporter
 		try
 		{
 			// headers
-			res.setStatus(javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			res.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			res.setContentType("text/html; charset=UTF-8");
 			res.addHeader("Cache-Control", "no-store, max-age=0");
 

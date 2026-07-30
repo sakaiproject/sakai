@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.jsf2.app;
 
-import javax.faces.event.PhaseEvent;
-import javax.faces.event.PhaseId;
-import javax.faces.event.PhaseListener;
+import jakarta.faces.event.PhaseEvent;
+import jakarta.faces.event.PhaseId;
+import jakarta.faces.event.PhaseListener;
 
 import lombok.extern.slf4j.Slf4j;
 

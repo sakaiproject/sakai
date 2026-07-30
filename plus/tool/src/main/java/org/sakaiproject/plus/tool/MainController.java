@@ -46,7 +46,7 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.plus.api.model.Tenant;
@@ -58,7 +58,7 @@ import org.sakaiproject.plus.api.repository.ContextRepository;
 import org.sakaiproject.plus.api.repository.ContextLogRepository;
 import org.sakaiproject.plus.api.repository.MembershipRepository;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 

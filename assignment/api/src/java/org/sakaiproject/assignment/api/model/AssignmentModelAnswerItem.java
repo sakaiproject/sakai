@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

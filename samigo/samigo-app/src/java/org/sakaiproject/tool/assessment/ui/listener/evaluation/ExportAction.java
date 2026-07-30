@@ -23,12 +23,17 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.text.DecimalFormat;
+import java.util.Objects;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;

@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.component;
 
-import javax.faces.component.UIComponentBase;
+import jakarta.faces.component.UIComponentBase;
 
 public class ButtonBarComponent extends UIComponentBase
 {
