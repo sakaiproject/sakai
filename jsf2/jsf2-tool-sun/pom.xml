@@ -29,6 +29,7 @@
         <dependency>
             <groupId>jakarta.faces</groupId>
             <artifactId>jakarta.faces-api</artifactId>
+            <version>${sakai.jakarta.faces-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
