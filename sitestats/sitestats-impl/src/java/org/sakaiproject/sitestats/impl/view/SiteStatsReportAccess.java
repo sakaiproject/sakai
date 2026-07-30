@@ -13,12 +13,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 @Setter
-public class SiteStatsReportAccess {
+public class SiteStatsReportAccess implements SiteStatsReportAccessService {
 
 	private StatsAuthz statsAuthz;
 	private ReportManager reportManager;
@@ -26,14 +27,27 @@ public class SiteStatsReportAccess {
 	private SessionManager sessionManager;
 	private SiteStatsWidgetCatalog siteStatsWidgetCatalog;
 
-	ReportDef persistedReportDefinition(long reportId) {
+	@Override
+	public ReportDef persistedReportDefinition(String siteId, long reportId) {
+		assertCanViewAll(siteId);
+		return loadReportDefinition(siteId, reportId, true);
+	}
+
+	@Override
+	public ReportDef persistedSiteReportDefinition(String siteId, long reportId) {
+		assertCanViewAll(siteId);
+		return loadReportDefinition(siteId, reportId, false);
+	}
+
+	private ReportDef loadReportDefinition(String siteId, long reportId, boolean allowPredefined) {
 		if (reportId <= 0) {
 			throw new IllegalArgumentException("Unknown report id: " + reportId);
 		}
 
 		try {
 			ReportDef reportDef = reportManager.getReportDefinition(reportId);
-			if (reportDef != null) {
+			if (reportDef != null && (siteId.equals(reportDef.getSiteId())
+					|| (allowPredefined && StringUtils.isBlank(reportDef.getSiteId())))) {
 				return reportDef;
 			}
 		} catch (EntityNotFoundException e) {
@@ -42,7 +56,9 @@ public class SiteStatsReportAccess {
 		throw new IllegalArgumentException("Unknown report id: " + reportId);
 	}
 
-	ReportDef previewReportDefinition(String siteId, String previewId) {
+	@Override
+	public ReportDef previewReportDefinition(String siteId, String previewId) {
+		assertCanViewAll(siteId);
 		ReportDef reportDef = siteStatsReportPreviewService == null ? null : siteStatsReportPreviewService.get(siteId, currentUserId(), previewId);
 		if (reportDef == null) {
 			throw new IllegalArgumentException("Unknown report preview id: " + previewId);
@@ -50,7 +66,8 @@ public class SiteStatsReportAccess {
 		return reportDef;
 	}
 
-	String currentUserId() {
+	@Override
+	public String currentUserId() {
 		if (sessionManager == null) {
 			throw new SecurityException("Current Sakai session is required to access SiteStats reports");
 		}
@@ -61,7 +78,8 @@ public class SiteStatsReportAccess {
 		return session.getUserId();
 	}
 
-	void assertCanView(String siteId) {
+	@Override
+	public void assertCanView(String siteId) {
 		if (!statsAuthz.isUserAbleToViewSiteStats(siteId)) {
 			throw new SecurityException("Current user cannot view SiteStats for site " + siteId);
 		}
@@ -79,14 +97,16 @@ public class SiteStatsReportAccess {
 		return statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId);
 	}
 
-	void assertCanViewAdmin(String siteId) {
+	@Override
+	public void assertCanViewAdmin(String siteId) {
 		assertCanView(siteId);
 		if (!statsAuthz.isUserAbleToViewSiteStatsAdmin(siteId)) {
 			throw new SecurityException("Current user cannot view admin SiteStats data for site " + siteId);
 		}
 	}
 
-	void assertCanViewAll(String siteId) {
+	@Override
+	public void assertCanViewAll(String siteId) {
 		assertCanView(siteId);
 		assertCanViewAllStats(siteId);
 	}

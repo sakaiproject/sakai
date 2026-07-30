@@ -135,7 +135,7 @@ public class ActivityWidgetDefinition extends AbstractSiteStatsWidgetDefinition 
 			totalActivity += eventStat.getCount();
 		}
 		String toolName = toolId == null ? "-" : eventRegistryService().getToolName(toolId);
-		return WidgetMetricValue.withPercentageAndDetail(toolName, (int) metricSupport().percent(toolActivity, totalActivity), toolName);
+		return WidgetMetricValue.withPercentage(toolName, (int) metricSupport().percent(toolActivity, totalActivity));
 	}
 
 	private WidgetMetricValue activityMostActiveUserValue(String siteId, String userId) {

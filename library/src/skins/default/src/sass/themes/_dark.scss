@@ -279,11 +279,15 @@
       --bs-btn-color: white;
     }
 
-    input {
+    input,
+    select {
       color-scheme: dark;
     }
 
-    input.form-control, textarea.form-control, select.form-control {
+    input.form-control,
+    textarea.form-control,
+    select.form-control,
+    .form-select {
       background-color: var(--sakai-background-color-2);
       color: var(--sakai-text-color-1);
     
@@ -293,6 +297,15 @@
         background-color: var(--sakai-background-color-3);
         color: var(--sakai-text-color-2);
       }
+
+      &:disabled {
+        background-color: var(--sakai-background-color-4);
+        color: var(--sakai-text-color-disabled);
+      }
+    }
+
+    .form-select {
+      background-image: var(--select-background-image-url);
     }
     
     input.form-control:-webkit-autofill,

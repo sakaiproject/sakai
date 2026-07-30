@@ -64,13 +64,17 @@ public class SiteStatsReportViewMapper {
 	}
 
 	public SiteStatsTable mapTable(Report report, SiteStatsReportRequest request) {
+		return mapTable(report, request, localizedReportTitle(report.getReportDefinition()));
+	}
+
+	public SiteStatsTable mapTable(Report report, SiteStatsReportRequest request, String title) {
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		ReportParams params = report.getReportDefinition().getReportParams();
 		List<SiteStatsTableColumn> columns = siteStatsTableMapper.getColumns(params, false);
 		List<Stat> reportData = report.getReportData() == null ? Collections.<Stat>emptyList() : report.getReportData();
 
 		SiteStatsTable table = new SiteStatsTable();
-		table.setCaption(localizedReportTitle(report.getReportDefinition()));
+		table.setCaption(title);
 		table.setPage(safeRequest.getPage());
 		table.setPageSize(safeRequest.getPageSize());
 		table.setTotalRows(reportData.size());
@@ -95,7 +99,11 @@ public class SiteStatsReportViewMapper {
 	}
 
 	public SiteStatsChart mapChart(Report report, PrefsData prefsData) {
-		return siteStatsChartMapper.mapChart(report, prefsData, localizedReportTitle(report.getReportDefinition()));
+		return mapChart(report, prefsData, localizedReportTitle(report.getReportDefinition()));
+	}
+
+	public SiteStatsChart mapChart(Report report, PrefsData prefsData, String title) {
+		return siteStatsChartMapper.mapChart(report, prefsData, title);
 	}
 
 	public String localizedReportTitle(ReportDef reportDef) {

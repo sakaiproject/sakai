@@ -452,7 +452,7 @@ button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$n
 //.btn-group .btn,
 //.btn.btn-default,
 .button.link,
-a.btn-link,
+a[href].btn-link,
 button.ui-state-default, 
 //button:not(.fc-button), 
 //button:not(.fc-button):not(.btn):not(.btn-close), 

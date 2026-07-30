@@ -32,7 +32,7 @@ public class SiteStatsWidgetCatalog {
 	private Map<String, WidgetTabSpec> tabSpecs;
 	private Map<String, WidgetMetricSpec> metricSpecs;
 
-	public SiteStatsOverview getOverview(String siteId, boolean allAllowed, boolean ownAllowed, boolean adminAllowed) {
+	public SiteStatsOverview getOverview(String siteId, boolean allAllowed, boolean ownAllowed, boolean adminAllowed, String userId) {
 		SiteStatsOverview overview = new SiteStatsOverview();
 		overview.setSiteId(siteId);
 		overview.setViewAllowed(true);
@@ -44,7 +44,7 @@ public class SiteStatsWidgetCatalog {
 			if (!spec.isAvailable() || !isAudienceAllowed(spec.getAudience(), allAllowed, ownAllowed)) {
 				continue;
 			}
-			overview.getWidgets().add(toWidget(siteId, spec));
+			overview.getWidgets().add(toWidget(siteId, spec, userId));
 		}
 		return overview;
 	}
@@ -132,7 +132,8 @@ public class SiteStatsWidgetCatalog {
 	}
 
 	private boolean isAudienceAllowed(String audience, boolean allAllowed, boolean ownAllowed) {
-		return (AUDIENCE_ALL.equals(audience) && allAllowed) || (AUDIENCE_OWN.equals(audience) && ownAllowed);
+		return (AUDIENCE_ALL.equals(audience) && allAllowed)
+				|| (AUDIENCE_OWN.equals(audience) && ownAllowed && !allAllowed);
 	}
 
 	private boolean widgetAvailable(String widgetId) {
@@ -140,7 +141,7 @@ public class SiteStatsWidgetCatalog {
 		return spec != null && spec.isAvailable();
 	}
 
-	private SiteStatsWidget toWidget(String siteId, WidgetSpec spec) {
+	private SiteStatsWidget toWidget(String siteId, WidgetSpec spec, String userId) {
 		SiteStatsWidget widget = new SiteStatsWidget();
 		widget.setId(spec.getId());
 		widget.setTitle(support.message(spec.getTitleKey()));
@@ -151,7 +152,7 @@ public class SiteStatsWidgetCatalog {
 			tabs.add(toTab(siteId, tab));
 		}
 		widget.setTabs(tabs);
-		widget.setMetrics(toMetrics(siteId, spec, null, false));
+		widget.setMetrics(toMetrics(siteId, spec, userId, true));
 		return widget;
 	}
 

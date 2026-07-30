@@ -90,10 +90,10 @@ public class SiteStatsChartMapper {
 
 	private void mapPieChartDatasets(SiteStatsChart chart, Report report, List<Stat> reportData, String chartSource) {
 		SiteStatsChartDataset dataset = new SiteStatsChartDataset();
-		dataset.setKey(chartSource);
-		dataset.setLabel(siteStatsTableMapper.getColumn(chartSource, false).getLabel());
-		ChartDatasetAccumulator accumulator = new ChartDatasetAccumulator(dataset.getKey(), dataset.getLabel());
 		String valueKey = chartSingleValueKey(report);
+		dataset.setKey(chartSource);
+		dataset.setLabel(siteStatsTableMapper.getColumn(valueKey, false).getLabel());
+		ChartDatasetAccumulator accumulator = new ChartDatasetAccumulator(dataset.getKey(), dataset.getLabel());
 		for (Stat stat : reportData) {
 			addPoint(accumulator, siteStatsTableMapper.getCell(stat, chartSource), siteStatsTableMapper.getNumericValue(stat, valueKey));
 		}
