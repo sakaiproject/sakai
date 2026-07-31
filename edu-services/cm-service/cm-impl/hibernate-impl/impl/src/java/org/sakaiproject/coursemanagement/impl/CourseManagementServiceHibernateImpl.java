@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.TemporalType;
-
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -326,7 +324,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 		HibernateCallback<List<CourseOffering>> hc = session -> {
 			return session.getNamedQuery("findActiveCourseOfferingsInCanonicalCourse")
-					.setParameter("now", new Date(), TemporalType.TIMESTAMP)
+					.setParameter("now", new Date())
 					.setParameter("canonicalCourse", canonicalCourse)
 					.list();
 		};
