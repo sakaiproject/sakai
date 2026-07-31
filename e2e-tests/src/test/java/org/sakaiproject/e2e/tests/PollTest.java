@@ -22,10 +22,12 @@ import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -249,9 +251,9 @@ class PollTest extends SakaiUiTestBase {
         String openDate = now.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String closeDate = now.plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String csv = String.join("\n",
-            "Question,Description,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
-            BULK_POLL_TITLE_ONE + ",Bulk import details," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
-            BULK_POLL_TITLE_TWO + ",Bulk import details," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Yes,No"
+            "Question,Description,Access,Groups,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
+            BULK_POLL_TITLE_ONE + ",Bulk import details,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
+            BULK_POLL_TITLE_TWO + ",Bulk import details,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Yes,No"
         );
 
         page.locator("#poll-uploaded-text").fill(csv);

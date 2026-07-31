@@ -60,7 +60,7 @@
 
       <div class="mt-4" th:if="${!isNew}">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h2 class="h3 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
+          <h2 class="h5 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
         </div>
 
         <div class="sak-banner-warn" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
@@ -92,7 +92,7 @@
       </div>
 
       <div class="mt-4">
-        <h2 class="h3" th:text="#{new_poll_limits}">Limits</h2>
+        <h2 class="h5" th:text="#{new_poll_limits}">Limits</h2>
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label required" for="min-options" th:text="#{new_poll_min_limits}">Min options</label>
@@ -119,6 +119,36 @@
         </div>
       </div>
 
+      <div class="mt-4">
+        <h2 class="h5" th:text="#{new_poll_access_title}">Release to</h2>
+        <label class="form-label" for="type-of-access" th:text="#{new_poll_access_label}">Release to:</label>
+        <select class="form-select" id="type-of-access" th:field="*{typeOfAccess}">
+          <option th:each="choice : ${accessChoices}"
+                  th:value="${choice.value}"
+                  th:text="#{${choice.labelKey}}"></option>
+        </select>
+      </div>
+
+      <div id="poll-groups-wrapper"
+           class="mt-4"
+           th:classappend="${pollForm.typeOfAccess != null and pollForm.typeOfAccess.name() == 'GROUP'} ? '' : ' d-none'">
+        <h2 class="h5" th:text="#{new_poll_groups_title}">Groups</h2>
+        <label class="form-label" for="selected-group-ids" th:text="#{new_poll_groups_label}">Select groups allowed to vote</label>
+        <select class="form-select"
+                id="selected-group-ids"
+                multiple="multiple"
+                th:field="*{selectedGroupIds}">
+          <option th:each="g : ${groups}"
+                  th:value="${g.id}"
+                  th:text="${g.title}">
+          </option>
+        </select>
+        <small class="form-text text-muted" th:text="#{new_poll_groups_instruction}">
+          Select the groups used when the poll is released to Groups.
+        </small>
+        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('selectedGroupIds')}" th:errors="*{selectedGroupIds}">Select at least one group</div>
+      </div>
+
       <div class="form-check form-switch mt-4" th:if="${showPublicAccess}">
         <input type="checkbox" th:field="*{public}" />
         <label class="form-check-label" th:for="*{public}" th:text="#{new_poll_access_public}">Public poll</label>
@@ -141,5 +171,6 @@
     </form>
 
   </div>
+  <script th:src="@{/js/polls-edit-access.js}"></script>
 </body>
 </html>

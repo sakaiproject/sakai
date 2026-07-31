@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale.toLanguageTag()}">
 <head th:replace="~{fragments/common :: head}"></head>
 <body>
   <div class="portletBody container-fluid">
@@ -33,6 +33,7 @@
               <th scope="col">
                 <a href="#" class="link-body-emphasis text-decoration-none" th:text="#{poll_close_title}">Closing</a>
               </th>
+              <th scope="col" th:text="#{poll_visibility_title}">Visibility</th>
               <th scope="col" th:text="#{poll_result_title}">Results</th>
               <th scope="col" class="text-nowrap">
                 <div class="form-check m-0" th:if="${renderDelete}">
@@ -72,6 +73,10 @@
               <td>
                 <span th:if="${poll.voteCloseDisplay}" th:text="${poll.voteCloseDisplay}" th:attr="data-sort=${poll.voteCloseSortKey}">Closing</span>
                 <span th:if="${poll.voteCloseDisplay == null}">&nbsp;</span>
+              </td>
+              <td>
+                <div th:if="${poll.groupSelectionMissing}" class="sak-banner-error" role="alert" th:text="#{poll_visibility_groups_none_selected}">No available groups</div>
+                <span th:unless="${poll.groupSelectionMissing}" th:text="${poll.visibilityDisplay}">Site-wide</span>
               </td>
               <td>
                 <a th:if="${poll.resultsVisible}" th:href="@{'/voteResults'(pollId=${poll.id})}" th:text="#{action_view_results}">Results</a>
