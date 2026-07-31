@@ -50,9 +50,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.DiskFileUpload;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
@@ -406,7 +406,7 @@ public class FCKConnectorServlet extends HttpServlet {
                status = "203";
           }
           else {
-               DiskFileUpload upload = new DiskFileUpload();
+               JakartaServletFileUpload upload = new JakartaServletFileUpload(DiskFileItemFactory.builder().get());
                String mime="";
                InputStream requestStream = null;
                byte [] bytes=null;
@@ -434,7 +434,7 @@ public class FCKConnectorServlet extends HttpServlet {
                    }
                    else {
                 	   //If this is a multipart request
-                	   if (ServletFileUpload.isMultipartContent(request)) {
+                	   if (JakartaServletFileUpload.isMultipartContent(request)) {
 	                       List items = upload.parseRequest(request);
 	
 	                       Map fields = new HashMap();
