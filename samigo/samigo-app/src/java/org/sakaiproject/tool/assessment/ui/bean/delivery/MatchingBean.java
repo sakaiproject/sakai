@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
  * @author rgollub@stanford.edu
  * $Id$
  */
-public class MatchingBean
+public final class MatchingBean implements MatchingEntry
 {
 	private final String NONE_OF_THE_ABOVE = "-1";
 

@@ -125,9 +125,9 @@ public interface SectionDataIfc
 
    TypeIfc getType();
 
-   ArrayList getItemArray();
+   List<ItemDataIfc> getItemArray();
 
-   ArrayList getItemArraySortedForGrading();
+   List getItemArraySortedForGrading();
 
    Set getSectionMetaDataSet();
 

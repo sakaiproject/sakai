@@ -18,7 +18,16 @@
       </title>
 
       <script>
-        function refreshPrintPdfPreview() {
+        // Only resizes the frame. Never touches src: reassigning it navigates the frame,
+        // which tears down the pdf.js viewer and refetches the PDF on every resize event.
+        function sizePrintPdfPreview() {
+          const iframe = document.getElementById('print-pdf-preview');
+          if (iframe) {
+            iframe.style.height = Math.max(600, iframe.offsetWidth * 0.75) + 'px';
+          }
+        }
+
+        function loadPrintPdfPreview() {
           const iframe = document.getElementById('print-pdf-preview');
           const urlEl = document.getElementById('pdf-preview-url');
           const titleEl = document.getElementById('pdf-preview-title');
@@ -28,9 +37,7 @@
           if (iframe && titleEl) {
             iframe.title = titleEl.textContent.trim();
           }
-          if (iframe) {
-            iframe.style.height = Math.max(600, iframe.offsetWidth * 0.75) + 'px';
-          }
+          sizePrintPdfPreview();
         }
 
         function applyPrintSettingsFromControl(control) {
@@ -47,8 +54,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-          refreshPrintPdfPreview();
-          window.addEventListener('resize', refreshPrintPdfPreview);
+          loadPrintPdfPreview();
+          window.addEventListener('resize', sizePrintPdfPreview);
 
           document.querySelectorAll('form').forEach(form => {
             form.addEventListener('change', function(event) {

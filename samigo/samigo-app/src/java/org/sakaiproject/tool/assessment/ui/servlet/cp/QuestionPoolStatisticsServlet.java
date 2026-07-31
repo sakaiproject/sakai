@@ -15,18 +15,20 @@
  */
 package org.sakaiproject.tool.assessment.ui.servlet.cp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.business.entity.ItemStatistics;
 import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
@@ -34,8 +36,6 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.sakaiproject.util.ResourceLoader;
-
-import com.google.gson.Gson;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,9 +46,17 @@ public class QuestionPoolStatisticsServlet extends SamigoBaseServlet {
     public static final String PARAM_SITE_ID = "siteId";
     public static final String PARAM_QUESTION_POOL_ID = "qpId";
 
-    private static final ResourceLoader EVALUATION_BUNDLE = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
+    private final ResourceLoader resourceLoader;
+    private final ObjectMapper jsonMapper;
 
-    private String naMessage = null;
+    public QuestionPoolStatisticsServlet() {
+        this(new ResourceLoader(SamigoConstants.EVAL_BUNDLE));
+    }
+
+    public QuestionPoolStatisticsServlet(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+        jsonMapper = MapperFactory.createDefaultJsonMapper();
+    }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -121,21 +129,16 @@ public class QuestionPoolStatisticsServlet extends SamigoBaseServlet {
     }
 
     private String valueOrNa(Number number) {
-        if (number != null) {
-            return String.valueOf(number);
-        } else {
-            if (naMessage == null) {
-                naMessage = EVALUATION_BUNDLE.getFormattedMessage("na");
-            }
-
-            return naMessage;
-        }
+        return number != null ? String.valueOf(number) : resourceLoader.getString("na");
     }
 
     private void writeJson(PrintWriter out, Map<String, String> data) {
-        Gson gson = new Gson();
-        String json = gson.toJson(data);
-        out.write(json);
+        try {
+            out.write(jsonMapper.writeValueAsString(data));
+        } catch (JsonProcessingException e) {
+            log.warn("Could not serialize question pool statistics to json", e);
+            out.write("{}");
+        }
     }
 
     private boolean canGetStatistics(String siteId) {

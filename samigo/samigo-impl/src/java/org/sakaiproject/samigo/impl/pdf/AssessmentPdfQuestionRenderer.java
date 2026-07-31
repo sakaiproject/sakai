@@ -18,11 +18,10 @@ package org.sakaiproject.samigo.impl.pdf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfChoiceOptionModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfEmiPromptModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfImageMapRowModel;
@@ -38,6 +37,7 @@ import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.CircleCellEvent;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapQuestionCellEvent;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.BACKGROUND_GRAY;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.BODY_FONT;
@@ -54,6 +54,9 @@ import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_COLOR;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.fontWithColor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -63,10 +66,14 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
+import org.apache.commons.lang3.Strings;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Renders a single assessment question for printable handouts and graded student reports.
  */
+@Slf4j
 public class AssessmentPdfQuestionRenderer {
 
     private static final Set<Long> PRINT_FILL_IN_TYPES = Set.of(
@@ -98,9 +105,11 @@ public class AssessmentPdfQuestionRenderer {
             TypeIfc.IMAGEMAP_QUESTION);
 
     private final AssessmentPdfContentHelper contentHelper;
+    private final ObjectMapper jsonMapper;
 
     public AssessmentPdfQuestionRenderer(AssessmentPdfContentHelper contentHelper) {
         this.contentHelper = contentHelper;
+        this.jsonMapper = MapperFactory.createDefaultJsonMapper();
     }
 
     public void render(Document document, QuestionRenderContext context) throws Exception {
@@ -397,8 +406,12 @@ public class AssessmentPdfQuestionRenderer {
         if (StringUtils.isBlank(imsrc)) {
             return;
         }
-        imsrc = imsrc.replaceAll(" ", "%20");
-        Image image = Image.getInstance(ServerConfigurationService.getServerUrl() + imsrc);
+        Optional<Image> loadedImage = contentHelper.loadContentImage(AssessmentPdfContentHelper.resolveContentResourceId(imsrc));
+        if (loadedImage.isEmpty()) {
+            log.warn("Could not load image map image [{}] for the printable assessment", imsrc);
+            return;
+        }
+        Image image = loadedImage.get();
         contentHelper.scaleImageForPage(image);
         PdfPTable imageTable = new PdfPTable(1);
         imageTable.setWidthPercentage(100f);
@@ -652,9 +665,14 @@ public class AssessmentPdfQuestionRenderer {
         if (!Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION) || StringUtils.isBlank(question.getImageSrc())) {
             return;
         }
-        String imageSrc = ServerConfigurationService.getServerUrl() + question.getImageSrc();
-
-        Image image = Image.getInstance(imageSrc);
+        // Read the image straight out of content hosting rather than fetching our own server over
+        // HTTP: a self request has no session, so a non-public image would come back denied.
+        Optional<Image> loadedImage = contentHelper.loadContentImage(AssessmentPdfContentHelper.resolveContentResourceId(question.getImageSrc()));
+        if (loadedImage.isEmpty()) {
+            log.warn("Could not load image map image [{}] for the student report", question.getImageSrc());
+            return;
+        }
+        Image image = loadedImage.get();
         contentHelper.scaleImageForPage(image);
         PdfPTable tableImage = new PdfPTable(1);
         tableImage.setWidthPercentage(100f);
@@ -664,27 +682,39 @@ public class AssessmentPdfQuestionRenderer {
         cellImage.setPadding(0);
         cellImage.addElement(image);
 
-        ArrayList<Rectangle> answerRectangles = new ArrayList<>();
+        List<Rectangle> answerRectangles = new ArrayList<>();
         for (AssessmentPdfSelectionAnswerModel answer : question.getSelectionAnswers()) {
-            if (StringUtils.isBlank(answer.getPlainTextAnswer())) {
+            String plainTextAnswer = answer.getPlainTextAnswer();
+            if (StringUtils.isBlank(plainTextAnswer) || Strings.CI.equals(plainTextAnswer, "undefined")) {
                 continue;
             }
-            JSONObject jsonObject = new JSONObject(answer.getPlainTextAnswer());
-            answerRectangles.add(new Rectangle(jsonObject.getFloat("x1"), jsonObject.getFloat("y1"), jsonObject.getFloat("x2"), jsonObject.getFloat("y2")));
+            try {
+                JsonNode jsonNode = jsonMapper.readTree(plainTextAnswer);
+                // path() rather than get() so an absent coordinate is a MissingNode rather than a
+                // null that would abort the whole report, and asDouble so a numeric string coerces
+                // instead of silently collapsing the region to the origin
+                answerRectangles.add(new Rectangle((float) jsonNode.path("x1").asDouble(), (float) jsonNode.path("y1").asDouble(),
+                        (float) jsonNode.path("x2").asDouble(), (float) jsonNode.path("y2").asDouble()));
+            } catch (JsonProcessingException e) {
+                log.warn("Skipping unparseable image map answer rectangle [{}], {}", plainTextAnswer, e.toString());
+            }
         }
 
         List<AssessmentPdfItemGradingModel> itemsGrading = question.getItemGradingData();
-        ArrayList<ImageMapCircle> answerCircles = new ArrayList<>();
+        List<ImageMapCircle> answerCircles = new ArrayList<>();
         for (AssessmentPdfItemGradingModel itemGrading : itemsGrading) {
-            if (itemGrading.getAnswerText() != null && !StringUtils.equals(itemGrading.getAnswerText(), "")) {
-                JSONObject jsonObject = new JSONObject(itemGrading.getAnswerText());
-                boolean xDefined = !StringUtils.equals(jsonObject.optString("x"), "undefined");
-                boolean yDefined = !StringUtils.equals(jsonObject.optString("y"), "undefined");
-                float x = xDefined ? jsonObject.getFloat("x") : 0f;
-                float y = yDefined ? jsonObject.getFloat("y") : 0f;
-                Long publishedItemTextId = itemGrading.getPublishedItemTextId();
-                if (publishedItemTextId != null) {
+            String answerText = itemGrading.getAnswerText();
+            Long publishedItemTextId = itemGrading.getPublishedItemTextId();
+            if (publishedItemTextId != null && StringUtils.isNotBlank(itemGrading.getAnswerText())) {
+                try {
+                    JsonNode jsonNode = jsonMapper.readTree(answerText);
+                    // asDouble coerces a numeric string and yields 0 for anything absent or
+                    // non-numeric, which is the origin fallback these coordinates already wanted
+                    float x = (float) jsonNode.path("x").asDouble();
+                    float y = (float) jsonNode.path("y").asDouble();
                     answerCircles.add(new ImageMapCircle(x, y, publishedItemTextId.intValue()));
+                } catch (JsonProcessingException e) {
+                    log.warn("Skipping unparseable image map response for published item text {} [{}], {}", publishedItemTextId, answerText, e.toString());
                 }
             }
         }

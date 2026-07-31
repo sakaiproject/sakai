@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
+import org.sakaiproject.samigo.api.pdf.AssessmentPdfServiceException;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfContentHelper;
@@ -30,12 +31,10 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.pdf.PdfWriter;
 
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Samigo assessment PDF generation service (kernel component).
  */
-@Slf4j
 @Setter
 public class AssessmentPdfServiceImpl implements AssessmentPdfService {
 
@@ -61,21 +60,12 @@ public class AssessmentPdfServiceImpl implements AssessmentPdfService {
 
     private byte[] buildPdf(DocumentConsumer consumer, float marginLeft, float marginRight, float marginTop, float marginBottom) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4, marginLeft, marginRight, marginTop, marginBottom);
-        try {
+        try (Document document = new Document(PageSize.A4, marginLeft, marginRight, marginTop, marginBottom)) {
             PdfWriter.getInstance(document, output);
             document.open();
             consumer.accept(document);
-            document.close();
         } catch (Exception ex) {
-            log.error("Error generating Samigo assessment PDF", ex);
-            if (document.isOpen()) {
-                document.close();
-            }
-            if (ex instanceof RuntimeException) {
-                throw (RuntimeException) ex;
-            }
-            throw new RuntimeException(ex);
+            throw new AssessmentPdfServiceException("Error generating Samigo assessment PDF", ex);
         }
         return output.toByteArray();
     }

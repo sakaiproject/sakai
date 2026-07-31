@@ -189,14 +189,6 @@ public final class SamigoConstants {
      */
     public static final     String      DEFAULT_SECTION_TITLE                             = "Default";
 
-    /*
-     * Print preview session attributes
-     */
-    public static final     String      SESSION_ATTR_PRINT_PREVIEW_PDF_BYTES                = "samigo.print.preview.pdf.bytes";
-    public static final     String      SESSION_ATTR_PRINT_PREVIEW_PDF_FILENAME             = "samigo.print.preview.pdf.filename";
-    public static final     String      SESSION_ATTR_PRINT_PREVIEW_PDF_TIMESTAMP            = "samigo.print.preview.pdf.timestamp";
-
-    public static final     String      PARAM_PRINT_PREVIEW_PLACEMENT                       = "placement";
 
     /*
      * Author Outcomes

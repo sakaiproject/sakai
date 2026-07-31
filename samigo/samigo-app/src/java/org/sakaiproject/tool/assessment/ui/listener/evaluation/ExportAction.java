@@ -65,20 +65,19 @@ public class ExportAction implements ActionListener {
             byte[] pdfBytes = assessmentPdfService.buildStudentReport(model);
 
             response.setContentType("application/pdf");
-            String reportFilename = "Report_" + studentScoreBean.getFirstName() + "_" + deliveryBean.getAssessmentTitle() + ".pdf";
+            String reportFilename = "Report_" + studentScoreBean.getStudentName() + "_" + deliveryBean.getAssessmentTitle() + ".pdf";
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(reportFilename, StandardCharsets.UTF_8).build().toString());
             response.setContentLength(pdfBytes.length);
 
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 outputStream.write(pdfBytes);
-                outputStream.flush();
             }
             faces.responseComplete();
         } catch (IOException ex) {
-            log.error("Failed to write student assessment PDF response", ex);
+            log.error("Failed to write student assessment PDF response for student [{}]", studentScoreBean.getStudentId(), ex);
             notifyExportFailure(faces, response);
         } catch (Exception ex) {
-            log.error("Failed to export student assessment PDF", ex);
+            log.error("Failed to export student assessment PDF for student [{}]", studentScoreBean.getStudentId(), ex);
             notifyExportFailure(faces, response);
         }
     }

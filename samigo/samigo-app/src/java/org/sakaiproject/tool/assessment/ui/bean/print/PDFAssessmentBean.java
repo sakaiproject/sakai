@@ -35,8 +35,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -46,8 +44,6 @@ import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssess
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,10 +65,6 @@ public class PDFAssessmentBean implements Serializable {
 	private List<SectionContentsBean> deliveryParts = null;
 
 	private String actionString = "";
-
-	private transient byte[] cachedPreviewPdfBytes;
-
-	private long cachedPreviewPdfTimestamp;
 
 	@Autowired
 	private transient AssessmentPdfService assessmentPdfService;
@@ -150,14 +142,12 @@ public class PDFAssessmentBean implements Serializable {
 
 		setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
 		setTitle(deliveryBean.getAssessmentTitle());
-		updateCachedPreviewPdf();
 		cleanupPreviewPublishedAssessment(deliveryBean);
 
 		return "print";
 	}
 
 	public String applyPrintSettings() {
-		updateCachedPreviewPdf();
 		return "print";
 	}
 
@@ -173,50 +163,36 @@ public class PDFAssessmentBean implements Serializable {
 		thread.start();
 	}
 
-	public void updateCachedPreviewPdf() {
-		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-		PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
+	/**
+	 * Generates the printable assessment PDF from the current print settings, resolving the
+	 * delivery and print settings beans from the active faces context.
+	 *
+	 * @return the PDF bytes, or an empty array when there is nothing printable
+	 */
+	public byte[] generatePrintablePdf() {
+		return generatePrintablePdf((DeliveryBean) ContextUtil.lookupBean("delivery"),
+				(PrintSettingsBean) ContextUtil.lookupBean("printSettings"));
+	}
+
+	/**
+	 * Generates the printable assessment PDF for the supplied beans. Callers outside a JSF
+	 * request (such as {@code PrintAssessmentPdfServlet}) resolve the beans themselves and
+	 * pass them in.
+	 *
+	 * @return the PDF bytes, or an empty array when there is nothing printable
+	 */
+	public byte[] generatePrintablePdf(DeliveryBean deliveryBean, PrintSettingsBean printSettings) {
 		ensureDeliveryPartsLoaded(deliveryBean);
 		if (deliveryParts == null || deliveryParts.isEmpty()) {
-			cachedPreviewPdfBytes = null;
-			storePreviewPdfInSession(null);
-			return;
+			log.debug("No delivery parts loaded; nothing to print");
+			return new byte[0];
 		}
-		AssessmentPrintPdfModel model = buildPrintModel(deliveryBean, printSettings);
-		cachedPreviewPdfBytes = pdfService().buildPrintable(model);
-		cachedPreviewPdfTimestamp = System.currentTimeMillis();
-		storePreviewPdfInSession(cachedPreviewPdfBytes);
+		return pdfService().buildPrintable(buildPrintModel(deliveryBean, printSettings));
 	}
 
 	private AssessmentPrintPdfModel buildPrintModel(DeliveryBean deliveryBean, PrintSettingsBean printSettings) {
 		String introHtml = AssessmentPdfSnapshotBuilder.buildIntroHtml(deliveryBean, printSettings, formattedText);
 		return AssessmentPdfSnapshotBuilder.buildPrintModel(deliveryBean, deliveryParts, printSettings, introHtml, formattedText);
-	}
-
-	private void storePreviewPdfInSession(byte[] pdfBytes) {
-		Placement placement = ToolManager.getCurrentPlacement();
-		if (placement == null) {
-			log.warn("No current tool placement; cannot store print preview PDF");
-			return;
-		}
-		ToolSession toolSession = SessionManager.getCurrentSession().getToolSession(placement.getId());
-		if (pdfBytes == null || pdfBytes.length == 0) {
-			toolSession.removeAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_BYTES);
-			toolSession.removeAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_FILENAME);
-			toolSession.removeAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_TIMESTAMP);
-			return;
-		}
-		toolSession.setAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_BYTES, pdfBytes);
-		toolSession.setAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_FILENAME, genName());
-		toolSession.setAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_TIMESTAMP, cachedPreviewPdfTimestamp);
-	}
-
-	public byte[] getCachedPreviewPdfBytes() {
-		return cachedPreviewPdfBytes;
-	}
-
-	public long getCachedPreviewPdfTimestamp() {
-		return cachedPreviewPdfTimestamp;
 	}
 
 	public void ensureDeliveryPartsLoaded(DeliveryBean deliveryBean) {
@@ -238,20 +214,7 @@ public class PDFAssessmentBean implements Serializable {
 	}
 
 	public String getPdfPreviewUrl() {
-		StringBuilder url = new StringBuilder(SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF);
-		Placement placement = ToolManager.getCurrentPlacement();
-		if (placement != null) {
-			url.append('?')
-					.append(SamigoConstants.PARAM_PRINT_PREVIEW_PLACEMENT)
-					.append('=')
-					.append(placement.getId());
-			if (cachedPreviewPdfTimestamp > 0) {
-				url.append("&t=").append(cachedPreviewPdfTimestamp);
-			}
-		} else if (cachedPreviewPdfTimestamp > 0) {
-			url.append("?t=").append(cachedPreviewPdfTimestamp);
-		}
-		return url.toString();
+		return SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF;
 	}
 
 	public String getPdfJsViewerUrl() {
@@ -265,11 +228,7 @@ public class PDFAssessmentBean implements Serializable {
 	}
 
 	public void getPDFAttachment() {
-		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-		PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
-		updateCachedPreviewPdf();
-		byte[] pdf = cachedPreviewPdfBytes != null ? cachedPreviewPdfBytes
-				: pdfService().buildPrintable(buildPrintModel(deliveryBean, printSettings));
+		byte[] pdf = generatePrintablePdf();
 
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
@@ -281,7 +240,6 @@ public class PDFAssessmentBean implements Serializable {
 		response.setContentLength(pdf.length);
 		try (OutputStream out = response.getOutputStream()) {
 			out.write(pdf);
-			out.flush();
 		} catch (IOException e) {
 			log.warn("Error writing PDF bytes to response", e);
 		}

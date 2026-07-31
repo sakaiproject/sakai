@@ -77,131 +77,77 @@ public class ItemContentsBean implements Serializable {
 
 	private static final long serialVersionUID = 6270034338280029897L;
 
-	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+	private final ResourceLoader rb;
 
-	// private static ContextUtil cu;
-
-	private boolean review;
-
-	private boolean unanswered;
-
-	private ItemDataIfc itemData;
-
-	private String gradingComment;
-
-	private String feedback;
-
-	private String feedbackValue;
-
-	private String incorrectFeedbackValue;
-
+	@Getter @Setter private ItemDataIfc itemData;
+	@Getter @Setter private String calculatedQuestionAnswer;
+	@Getter @Setter private String feedback;
+	@Getter @Setter private String feedbackValue;
+	@Getter @Setter private String imageAltText = "";
+	@Getter @Setter private String incorrectFeedbackValue;
+	@Getter @Setter private String instruction;
+	@Getter @Setter private double maxPoints;
+	@Getter @Setter private double points;
+	@Getter @Setter private int relativeWidth;
+	@Getter private Set<ItemTagIfc> tagsList;
+	@Getter private int number;
+	@Setter @Getter private Integer attemptsRemaining;
+	@Setter @Getter private Integer duration;
+	@Setter @Getter private Integer triesAllowed;
+	// Holds SelectionBean (multiple choice/correct), SelectItem (true/false), or plain String
+	// (matching/EMI/image map) per answer, depending on the item's question type. JSF pages
+	// bind directly to this (e.g. <f:selectItems value="#{question.answers}"/> for true/false,
+	// which requires literal SelectItem instances), so it cannot be a wrapper type.
+	@Setter @Getter private List<Object> answers;
+	@Setter @Getter private List<FibBean> fibArray;
+	@Setter @Getter private List<MatchingEntry> matchingArray;
+	@Setter @Getter private List<AnswerIfc> shuffledAnswers;
+	@Setter @Getter private List<Integer> columnIndexList;
+	@Setter @Getter private List<ItemGradingAttachment> itemGradingAttachmentList;
+	@Setter @Getter private Long itemGradingIdForFilePicker;
+	@Setter @Getter private String associatedRubricType;
+	@Setter @Getter private String commentField;
+	@Setter @Getter private String imageSrc = "";
+	@Setter @Getter private String key;
+	@Setter @Getter private String rubricStateDetails;
+	@Setter @Getter private String saCharCount;
+	@Setter @Getter private String sequence;
+	@Setter @Getter private String tagsListToJson;
+	@Setter @Getter private String[] columnArray;
+	@Setter @Getter private boolean hasAssociatedRubric;
+	@Setter @Getter private boolean showStudentQuestionScore;
+	@Setter @Getter private boolean showStudentScore;
+	@Setter private Date attemptDate;
+	@Getter @Setter private List<FinBean> finArray;
+	@Getter @Setter private List<MatrixSurveyBean> matrixArray;
+	@Setter private List<ItemGradingData> itemGradingDataArray;
+	@Setter private String gradingComment;
+	@Setter private boolean addComment;
+	@Setter private boolean forceRanking;
+	@Setter private boolean unanswered;
+	@Setter private double discount;
+    private List<SelectionBean> selectionArray;
+	private String leadInText;
+    private String rationale;
 	private String responseId = "2";
-
 	private String responseText = "";
-
-	private String[] responseIds = null;
-
-	private double points;
-	
-	private double discount;
-
-	private double maxPoints;
-
-	private int number;
-
-	private List<ItemGradingData> itemGradingDataArray;
-
-	private List answers;
-
-	private String instruction;
-
-	private String rationale;
-
-	private List matchingArray;
-
-	private List fibArray;
-
-	private List finArray;
-
-	private List<SelectionBean> selectionArray;
-
-	private String key;
-
-	private String sequence;
-
-	private List shuffledAnswers;
-
-	private List mediaArray;
-
-	// for audio
-	private Integer duration;
-
-	private Integer triesAllowed;
-
-	private Integer attemptsRemaining;
-
-	// for display/hide score
-	private boolean showStudentScore; // this is to show student assessment
-										// score
-
-	private boolean showStudentQuestionScore;
-	
-	private boolean isInvalidFinInput;
-	
-	private boolean isInvalidSALengthInput;
-
-	private String saCharCount;
-	
-	private String pointsDisplayString;
-
-	private List<ItemGradingAttachment> itemGradingAttachmentList;
-	
-	private Long itemGradingIdForFilePicker;
-	
-	private boolean isMultipleItems = false;
-
-    private String themeText;
-    private String leadInText;
-	
-	/* sam-939*/
-	private boolean forceRanking;
-
-	private int relativeWidth;
-
-	private List matrixArray;
-
-	private List<Integer> columnIndexList;
-
-	private String[] columnArray;
-
-	private String commentField;
-	private boolean addComment;
 	private String studentComment;
-	
-	private String imageSrc = "";
-	@Getter @Setter
-	private String imageAltText = "";
-
-	private Set<ItemTagIfc> tagsList;
-	private String tagsListToJson;
-
-	private int answerCounter = 1;
-
-	// Rubrics
-	private String rubricStateDetails;
-	private boolean hasAssociatedRubric;
-	private String associatedRubricType;
-	
-	private Date attemptDate;
-
-	@Getter @Setter
-	private String calculatedQuestionAnswer;
+	private String themeText;
+    private boolean isInvalidFinInput;
+	private boolean isInvalidSALengthInput;
+	private boolean isMultipleItems = false;
+    private int answerCounter = 1;
 
 	public ItemContentsBean() {
+		 this(new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages"));
 	}
 
-	// added by daisyf on 11/22/04
+	public ItemContentsBean(ResourceLoader resourceLoader) {
+		rb = resourceLoader;
+	}
+
 	public ItemContentsBean(ItemDataIfc itemData) {
+		this();
 		this.itemData = itemData;
 		setInstruction(this.itemData.getInstruction());
 		Integer sequence = this.itemData.getSequence();
@@ -213,9 +159,6 @@ public class ItemContentsBean implements Serializable {
 		this.tagsList = itemData.getItemTagSet();
 		this.tagsListToJson = tagListToJsonString(this.tagsList);
 	}
-
-
-
 
 	private String tagListToJsonString(Set<ItemTagIfc> tagsListToConvert){
 
@@ -240,20 +183,7 @@ public class ItemContentsBean implements Serializable {
 	}
 
 
-	public String getTagsListToJson(){
-		return this.tagsListToJson;
-	}
-
-	public void setTagsListToJson(String tagsListToJson)
-	{
-		this.tagsListToJson = tagsListToJson;
-	}
-
-	public Set<ItemTagIfc> getTagsList() {
-		return tagsList;
-	}
-
-	public void setTagsList(Set tagsList){ this.tagsList = tagsList;}
+    public void setTagsList(Set tagsList){ this.tagsList = tagsList;}
 
 
 	public boolean getIsMultipleItems() {
@@ -332,16 +262,7 @@ public class ItemContentsBean implements Serializable {
 		return strip(getKey());
 	}
 
-	/**
-	 * String representation of the rounded points.
-	 * 
-	 * @return String representation of the points.
-	 */
-	public double getPoints() {
-		return points;
-	}
-
-	/**
+    /**
 	 * String representation of the exact points (unrounded points)
 	 * 
 	 * @return String representation of the points.
@@ -350,22 +271,6 @@ public class ItemContentsBean implements Serializable {
 		return points;
 	}
 
-	/**
-	 * String representation of the points.
-	 * 
-	 * @param points
-	 *            String representation of the points.
-	 */
-	public void setPoints(double points) {
-		this.points = points;
-	}
-
-	/**
-	 * Does this need review?
-	 * 
-	 * @return true if it is marked for review
-	 */
-	
 	/**
 	 * String representation of the rounded points.
 	 * 
@@ -404,16 +309,6 @@ public class ItemContentsBean implements Serializable {
      */
     public double getExactDiscount() {
     	return discount;
-    }
-
-    /**
-     * String representation of the Discount.
-     *
-     * @param discount
-     *            String representation of the Discount.
-     */
-    public void setDiscount(double discount) {
-    	this.discount = discount;
     }
 
     /**
@@ -539,29 +434,11 @@ public class ItemContentsBean implements Serializable {
 		return true;
 	}
 
-	/**
-	 * unanswered?
-	 * 
-	 * @param unanswered
-	 */
-	public void setUnanswered(boolean unanswered) {
-		this.unanswered = unanswered;
-	}
-	
-	public boolean getUnanswered() {
+    public boolean getUnanswered() {
 		return unanswered;
 	}
 
-	/**
-	 * String representation of the max points available for this question.
-	 * 
-	 * @return String representation of the max points.
-	 */
-	public double getMaxPoints() {
-		return maxPoints;
-	}
-
-	/**
+    /**
 	 * String representation of the max points available for this question.
 	 * 
 	 * @return String representation of the max points.
@@ -574,26 +451,7 @@ public class ItemContentsBean implements Serializable {
 		return Precision.round(maxPoints, 2);		
 	}
 
-	/**
-	 * String representation of the max points available for this question.
-	 * 
-	 * @param maxPoints
-	 *            String representation of the max points available
-	 */
-	public void setMaxPoints(double maxPoints) {
-		this.maxPoints = maxPoints;
-	}
-
-	/**
-	 * question number
-	 * 
-	 * @return
-	 */
-	public int getNumber() {
-		return number;
-	}
-
-	/**
+    /**
 	 * question number
 	 * 
 	 * @param number
@@ -603,25 +461,7 @@ public class ItemContentsBean implements Serializable {
 		this.itemData.setSequence( Integer.valueOf(number));
 	}
 
-	/**
-	 * the item data itself
-	 * 
-	 * @return
-	 */
-	public ItemDataIfc getItemData() {
-		return itemData;
-	}
-
-	/**
-	 * the item data itself
-	 * 
-	 * @param itemData
-	 */
-	public void setItemData(ItemDataIfc itemData) {
-		this.itemData = itemData;
-	}
-
-	/**
+    /**
 	 * grading comment
 	 * 
 	 * @return grading comment
@@ -633,74 +473,7 @@ public class ItemContentsBean implements Serializable {
 		return gradingComment;
 	}
 
-	/**
-	 * grading comment
-	 * 
-	 * @param gradingComment
-	 *            grading comment
-	 */
-	public void setGradingComment(String gradingComment) {
-		this.gradingComment = gradingComment;
-	}
-
-	/**
-	 * item level feedback
-	 * 
-	 * @return the item level feedback
-	 */
-	public String getFeedback() {
-		return feedback;
-	}
-
-	/**
-	 * item level feedback
-	 * 
-	 * @param feedback
-	 *            the item level feedback
-	 */
-	public void setFeedback(String feedback) {
-		this.feedback = feedback;
-	}
-
-	/**
-	 * item level feedback value
-	 *
-	 * @return the item level feedback value
-	 */
-	public String getFeedbackValue() {
-		return feedbackValue;
-	}
-
-	/**
-	 * item level feedback value
-	 *
-	 * @param feedbackValue
-	 *            the item level feedback value
-	 */
-	public void setFeedbackValue(String feedbackValue) {
-		this.feedbackValue = feedbackValue;
-	}
-
-	/**
-	 * item level incorrect feedback value
-	 *
-	 * @return the item level incorrect feedback value
-	 */
-	public String getIncorrectFeedbackValue() {
-		return incorrectFeedbackValue;
-	}
-
-	/**
-	 * item level incorrect feedback value
-	 *
-	 * @param incorrectFeedbackValue
-	 *            the item level incorrect feedback value
-	 */
-	public void setIncorrectFeedbackValue(String incorrectFeedbackValue) {
-		this.incorrectFeedbackValue = incorrectFeedbackValue;
-	}
-
-	/**
+    /**
 	 * If this is a true-false question return true if it is true, else false.
 	 * If it is not a true-false question return false.
 	 * 
@@ -720,11 +493,7 @@ public class ItemContentsBean implements Serializable {
 		return itemGradingDataArray;
 	}
 
-	public void setItemGradingDataArray(List<ItemGradingData> newArray) {
-		itemGradingDataArray = newArray;
-	}
-
-	/* These are helper methods to get data into the database */
+    /* These are helper methods to get data into the database */
 
   public String getResponseId()
   {
@@ -882,8 +651,7 @@ public class ItemContentsBean implements Serializable {
 	public void setResponseIds(String[] presponseIds) {
 		try {
 			List<ItemGradingData> newItems = new ArrayList<ItemGradingData>();
-			responseIds = presponseIds;
-			if (getItemGradingDataArray().isEmpty()
+            if (getItemGradingDataArray().isEmpty()
 					&& (presponseIds == null || presponseIds.length == 0)) {
 				return;
 			}
@@ -994,18 +762,13 @@ public class ItemContentsBean implements Serializable {
 		}
 	}
 
-	public List getMatchingArray() {
-		return matchingArray;
-	}
-
-	public void setMatchingArray(List newArray) {
-		matchingArray = newArray;
-	}
-
-	public String getSerializedImageMap() {
+    public String getSerializedImageMap() {
 		StringBuffer ret = new StringBuffer();
-		List<ImageMapQuestionBean> list = getMatchingArray();
-		for (ImageMapQuestionBean ib : list) {
+		List<MatchingEntry> list = getMatchingArray();
+		for (MatchingEntry entry : list) {
+			if (!(entry instanceof ImageMapQuestionBean ib)) {
+				continue;
+			}
 			if (ret.length() > 0)
 				ret.append("#-#");
 
@@ -1017,7 +780,7 @@ public class ItemContentsBean implements Serializable {
 	public void setSerializedImageMap(String serializedString) {
 		if (serializedString != null) {
 			HashMap<String, String> map = new HashMap<String, String>();
-			List<ImageMapQuestionBean> list = getMatchingArray();
+			List<MatchingEntry> list = getMatchingArray();
 
 			for (String str : serializedString.split("#-#")) {
 				String[] tokens = str.split("#:#");
@@ -1026,30 +789,17 @@ public class ItemContentsBean implements Serializable {
 				}
 			}
 
-			for (ImageMapQuestionBean ib : list) {
+			for (MatchingEntry entry : list) {
+				if (!(entry instanceof ImageMapQuestionBean ib)) {
+					continue;
+				}
 				if (map.get(ib.getItemText().getId().toString()) != null)
 					ib.setResponse(map.get(ib.getItemText().getId().toString()));
 			}
 		}
 	}
 
-	public List getFibArray() {
-		return fibArray;
-	}
-
-	public void setFibArray(List newArray) {
-		fibArray = newArray;
-	}
-
-	public List<FinBean> getFinArray() {
-		return finArray;
-	}
-
-	public void setFinArray(List newArray) {
-		finArray = newArray;
-	}
-
-	public List getSelectionArray() {
+    public List getSelectionArray() {
 		return selectionArray;
 	}
 
@@ -1057,64 +807,15 @@ public class ItemContentsBean implements Serializable {
 		selectionArray = newArray;
 	}
 
-	public List getMatrixArray() {
-		return matrixArray;
-	}
-
-	public void setMatrixArray(List newArray) {
-		matrixArray = newArray;
-	}
-
-
-	public List<Integer> getColumnIndexList(){
-		return columnIndexList;
-	}
-
-	public void setColumnIndexList(List<Integer> columnIndexList){
-		this.columnIndexList = columnIndexList;
-	}
-
-	public String[] getColumnArray(){
-		return columnArray;
-	}
-
-	public void setColumnArray(String[] columnArray){
-		this.columnArray = columnArray;
-	}
-
-	public boolean getForceRanking(){
+    public boolean getForceRanking(){
 		return this.forceRanking;
 	}
 
-	public void setForceRanking(boolean forceRanking){
-		this.forceRanking = forceRanking;
-	}
-
-	public int getRelativeWidth(){
-		return this.relativeWidth;
-	}
-
-	public void setRelativeWidth(int param) {
-		this.relativeWidth = param;
-	}
-
-	public boolean getAddComment(){
+    public boolean getAddComment(){
 		return this.addComment;
 	}
 
-	public void setAddComment(boolean param){
-		this.addComment = param;
-	}
-	
-	public String getCommentField(){
-		return this.commentField;
-	}
-
-	public void setCommentField(String param){
-		this.commentField = param;
-	}
-
-	public String getStudentComment() {
+    public String getStudentComment() {
 		try {
 			String comment = studentComment;
 			Iterator<ItemGradingData> iter = getItemGradingDataArray().iterator();
@@ -1165,26 +866,8 @@ public class ItemContentsBean implements Serializable {
 		
 		return selectItemParts;
 	}
- 
-	public List getAnswers()
-	{
-		return answers;
-	}
 
-	public void setAnswers(List list) {
-		answers = list;
-	}
-
-	// added by Daisy
-	public void setInstruction(String instruction) {
-		this.instruction = instruction;
-	}
-
-	public String getInstruction() {
-		return this.instruction;
-	}
-
-	public void setRationale(String newRationale) {
+    public void setRationale(String newRationale) {
 		int count = getItemGradingDataArray().size();
 		ItemGradingData data = null;
 		if (count <= 0) {
@@ -1258,57 +941,7 @@ public class ItemContentsBean implements Serializable {
 		return Validator.check(rationale, "");
 	}
 
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String newKey) {
-		key = newKey;
-	}
-
-	public String getSequence() {
-		return sequence;
-	}
-
-	public void setSequence(String newSequence) {
-		sequence = newSequence;
-	}
-
-	public List getShuffledAnswers() {
-		return shuffledAnswers;
-	}
-
-	public void setShuffledAnswers(List newAnswers) {
-		shuffledAnswers = newAnswers;
-	}
-
-	public Integer getTriesAllowed() {
-		return triesAllowed;
-	}
-
-	public void setTriesAllowed(Integer param) {
-		triesAllowed = param;
-	}
-
-  public Integer getAttemptsRemaining()
-  {
-    return attemptsRemaining;
-  }
-
-	public void setAttemptsRemaining(Integer param) {
-		attemptsRemaining = param;
-	}
-
-  public Integer getDuration()
-  {
-    return duration;
-  }
-
-	public void setDuration(Integer param) {
-		duration = param;
-	}
-
-	public List<MediaData> getMediaArray() {
+    public List<MediaData> getMediaArray() {
 		List<MediaData> mediaArray = new ArrayList<>();
 		ItemGradingData itemGradingData = null;
 		try {
@@ -1355,45 +988,8 @@ public class ItemContentsBean implements Serializable {
         m.setDurationIsOver(false);
     }
   }
-	/**
-	 * Show the student score currently earned?
-	 * 
-	 * @return the score
-	 */
-	public boolean isShowStudentScore() {
-		return showStudentScore;
-	}
 
-	/**
-	 * Set the student score currently earned.
-	 * 
-	 * @param showStudentScore
-	 *            true/false Show the student score currently earned?
-	 */
-	public void setShowStudentScore(boolean showStudentScore) {
-		this.showStudentScore = showStudentScore;
-	}
-
-	/**
-	 * Show the student question score currently earned?
-	 * 
-	 * @return the score
-	 */
-	public boolean isShowStudentQuestionScore() {
-		return showStudentQuestionScore;
-	}
-
-	/**
-	 * Set the student question score currently earned.
-	 * 
-	 * @param param
-	 *            true/false Show the student score currently earned?
-	 */
-	public void setShowStudentQuestionScore(boolean param) {
-		this.showStudentQuestionScore = param;
-	}
-
-	/**
+    /**
 	 * If we display the score, return it, followed by a slash.
 	 * 
 	 * @return either, a) the score followed by a slash, or, b) "" (empty
@@ -1597,32 +1193,14 @@ public class ItemContentsBean implements Serializable {
       }
   }
 
-  public List<ItemGradingAttachment> getItemGradingAttachmentList() {
-	  return itemGradingAttachmentList;
-  }
-
-  public void setItemGradingAttachmentList(List<ItemGradingAttachment> itemGradingAttachmentList)
-  {
-	  this.itemGradingAttachmentList = itemGradingAttachmentList;
-  }
-
-  private boolean hasItemGradingAttachment = false;
+    private boolean hasItemGradingAttachment = false;
   public boolean getHasItemGradingAttachment(){
 	  if (itemGradingAttachmentList!=null && itemGradingAttachmentList.size() >0)
 		  this.hasItemGradingAttachment = true;
 	  return this.hasItemGradingAttachment;
   }
 
-  public Long getItemGradingIdForFilePicker() {
-	  return itemGradingIdForFilePicker;
-  }
-
-  public void setItemGradingIdForFilePicker(Long itemGradingIdForFilePicker)
-  {
-	  this.itemGradingIdForFilePicker = itemGradingIdForFilePicker;
-  }
-  
-  public String getLeadInText() {
+    public String getLeadInText() {
 	if (leadInText == null) {
 		setThemeAndLeadInText();
 	}
@@ -1656,26 +1234,9 @@ public class ItemContentsBean implements Serializable {
 
   public boolean getIsInvalidSALengthInput() {
 	  return isInvalidSALengthInput;
-  }  
-  
-  public String getSaCharCount() {
-	  return saCharCount;
   }
 
-  public void setSaCharCount(String saCharCount)
-  {
-	  this.saCharCount = saCharCount;
-  }
-  
-  public String getImageSrc() {
-	  return imageSrc;
-  }
-
-  public void setImageSrc(String imageSrc) {
-	  this.imageSrc = imageSrc;
-  }
-  
-  // SAM-2368
+    // SAM-2368
   // This class allows jsp to call a method with the current EL expression version
   // #{itemContents.htmlStripped[question.text]} is using the Map Trick.
   // http://www.theserverside.com/news/1363683/JSF-Anti-Patterns-and-Pitfalls
@@ -1718,31 +1279,7 @@ public class ItemContentsBean implements Serializable {
     return answerCounter++;
   }
 
-	public String getRubricStateDetails() {
-		return rubricStateDetails;
-	}
-
-	public void setRubricStateDetails(String rubricStateDetails) {
-		this.rubricStateDetails = rubricStateDetails;
-	}
-
-	public boolean isHasAssociatedRubric() {
-		return hasAssociatedRubric;
-	}
-
-	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
-		this.hasAssociatedRubric = hasAssociatedRubric;
-	}
-
-	public String getAssociatedRubricType() {
-		return associatedRubricType;
-	}
-
-	public void setAssociatedRubricType(String associatedRubricType) {
-		this.associatedRubricType = associatedRubricType;
-	}
-	
-	public Long getEffectiveItemId() {
+    public Long getEffectiveItemId() {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		if (author.getIsEditPendingAssessmentFlow()) {
 			return itemData.getOriginalItemId();
@@ -1812,12 +1349,8 @@ public class ItemContentsBean implements Serializable {
 		}
 		return attemptDate;
 	}
-	
-	public void setAttemptDate(Date attemptDate) {
-		this.attemptDate = attemptDate;
-	}
-	
-	/**
+
+    /**
 	 * Check if current item is Enabled
 	 * -1: TimedQuestion or TrackingQuestion, NOT started
 	 * 0: TimedQuestion, Time expired

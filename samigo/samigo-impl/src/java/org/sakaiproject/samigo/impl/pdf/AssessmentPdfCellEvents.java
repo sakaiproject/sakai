@@ -16,7 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.lowagie.text.Element;
 import com.lowagie.text.Rectangle;
@@ -113,12 +113,12 @@ public final class AssessmentPdfCellEvents {
      * Overlays image-map answer regions and markers on a PDF cell.
      */
     public static class ImageMapQuestionCellEvent implements PdfPCellEvent {
-        private final ArrayList<Rectangle> answerRectangles;
-        private final ArrayList<ImageMapCircle> answerCircles;
+        private final List<Rectangle> answerRectangles;
+        private final List<ImageMapCircle> answerCircles;
         private final float originalWidth;
         private final float originalHeight;
 
-        public ImageMapQuestionCellEvent(ArrayList<ImageMapCircle> answerCircles, ArrayList<Rectangle> answerRectangles, float originalWidth, float originalHeight) {
+        public ImageMapQuestionCellEvent(List<ImageMapCircle> answerCircles, List<Rectangle> answerRectangles, float originalWidth, float originalHeight) {
             this.answerCircles = answerCircles;
             this.answerRectangles = answerRectangles;
             this.originalWidth = originalWidth;
