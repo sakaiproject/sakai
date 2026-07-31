@@ -24,7 +24,8 @@ package org.sakaiproject.tool.assessment.integration.context.spring;
 import java.io.File;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -57,7 +58,9 @@ public class FactoryUtil
     else // unit testing
     {
       Resource res = new ClassPathResource(CONFIGURATION);
-      BeanFactory factory = new XmlBeanFactory(res);
+      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+      XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+      reader.loadBeanDefinitions(res);
       return
         (IntegrationContextFactory) factory.getBean("integrationContextFactory");
     }
