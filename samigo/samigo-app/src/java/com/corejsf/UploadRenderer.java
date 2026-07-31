@@ -40,7 +40,7 @@ import jakarta.faces.render.Renderer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -162,12 +162,12 @@ public class UploadRenderer extends Renderer {
     private class WrappedUpload {
 
         private Part part;
-        private FileItem fileItem;
+        private FileItem<?> fileItem;
 
         private WrappedUpload(Object upload) {
 
             if (upload instanceof Part) this.part = (Part) upload;
-            if (upload instanceof FileItem) this.fileItem = (FileItem) upload;
+            if (upload instanceof FileItem) this.fileItem = (FileItem<?>) upload;
         }
 
         public long getSize() {
