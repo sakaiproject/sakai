@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;

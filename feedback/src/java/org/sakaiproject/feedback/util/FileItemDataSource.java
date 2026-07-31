@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.feedback.util;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FilenameUtils;
 
 import jakarta.activation.DataSource;
@@ -28,9 +28,9 @@ import java.io.OutputStream;
  */
 public class FileItemDataSource implements DataSource {
 
-    private FileItem fileItem;
+    private FileItem<?> fileItem;
 
-    public FileItemDataSource(FileItem fileItem) {
+    public FileItemDataSource(FileItem<?> fileItem) {
         this.fileItem = fileItem;
     }
 

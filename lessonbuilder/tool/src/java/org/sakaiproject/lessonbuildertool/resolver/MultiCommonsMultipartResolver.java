@@ -25,7 +25,7 @@ import jakarta.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;

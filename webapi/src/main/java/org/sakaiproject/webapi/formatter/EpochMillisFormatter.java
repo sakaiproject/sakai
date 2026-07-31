@@ -14,13 +14,10 @@
 package org.sakaiproject.webapi.formatter;
 
 import org.springframework.format.Formatter;
-import org.springframework.lang.UsesJava8;
-
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Locale;
 
-@UsesJava8
 public class EpochMillisFormatter implements Formatter<Instant> {
 
     @Override

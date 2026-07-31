@@ -32,8 +32,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUpload;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
@@ -134,7 +134,7 @@ public class WebServlet extends AccessServlet
 			doLogin(req, res, null);
 		}
 
-		else if (FileUpload.isMultipartContent(req))
+		else if (JakartaServletFileUpload.isMultipartContent(req))
 		{
 			setSession(req);
 			postUpload(req, res);
@@ -190,7 +190,7 @@ public class WebServlet extends AccessServlet
 			// sakai's parameterparser version
 			if (o != null && o instanceof FileItem)
 			{
-				FileItem fi = (FileItem) o;
+				FileItem<?> fi = (FileItem<?>) o;
 				try (InputStream inputStream = fi.getInputStream())
 				{
 					if (!writeFile(fi.getName(), fi.getContentType(), inputStream, path, req, res, true)) return;

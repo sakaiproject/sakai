@@ -32,7 +32,7 @@ import jakarta.faces.render.Renderer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.sakaiproject.jsf2.util.RendererUtil;
 
 public class InputFileUploadRenderer extends Renderer
