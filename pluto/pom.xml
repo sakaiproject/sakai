@@ -265,21 +265,6 @@
         <module>pluto-descriptor-impl</module>
         <module>pluto-container</module>
         <module>pluto-taglib</module>
-
-        <!-- Pluto Portal and Testsuite Modules -->
-        <module>pluto-portal-driver</module>
-        <module>pluto-portal-driver-impl</module>
-        <module>pluto-portal</module>
-        <module>pluto-testsuite</module>
-
-        <!-- Pluto Utilities, Maven Plugins and Ant Tasks -->
-        <module>pluto-util</module>
-        <module>maven-pluto-plugin</module>
-        <module>pluto-ant-tasks</module>
-
-        <!-- Pluto Documentations -->
-        <!--module>pluto-site</module-->
-        <module>pluto-site-skin</module>
     </modules>
 
     <distributionManagement>
@@ -405,41 +390,5 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <profiles>
-        <profile>
-            <id>assembly</id>
-            <modules>
-                <module>assembly</module>
-            </modules>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <configuration>
-                            <descriptors>
-                                <!-- binary libraries and webapps, no external dependencies -->
-                                <descriptor>assembly/src/main/assembly/bin.xml</descriptor>
-                                <!-- portal and testsuite, all bundled and configured with Tomcat -->
-                                <descriptor>assembly/src/main/assembly/bundled.xml</descriptor>
-                                <!-- Buildable source distribution (includes Maven 2 poms) -->
-                                <descriptor>assembly/src/main/assembly/src.xml</descriptor>
-                                <!-- Container binaries only, no external dependencies -->
-                                <descriptor>assembly/src/main/assembly/container-bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>pluto-${pom.version}</finalName>
-                            <outputDirectory>${project.build.directory}/assembly/out</outputDirectory>
-                            <workDirectory>${project.build.directory}/assembly/work</workDirectory>
-                        </configuration>                        
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                </plugins>                
-            </build>        
-        </profile>
-    </profiles>
 
 </project>
