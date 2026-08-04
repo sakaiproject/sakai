@@ -65,7 +65,6 @@ public class PushSubscription implements PersistableEntity<Long> {
     @Column(name = "FINGERPRINT", length = 255, nullable = false, unique = true)
     private String fingerprint;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED", nullable = false)
     private Instant created;
 }

@@ -38,7 +38,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
-import jakarta.servlet.http.HttpSessionContext;
 
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorEnumeration;
@@ -664,7 +663,7 @@ public class MySession implements Session, HttpSession, Serializable
 	/**
 	 * {@inheritDoc}
 	 */
-	public HttpSessionContext getSessionContext()
+	public Object getSessionContext()
 	{
 		throw new UnsupportedOperationException();
 	}

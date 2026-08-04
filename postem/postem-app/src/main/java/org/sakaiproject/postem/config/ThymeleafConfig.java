@@ -33,7 +33,7 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import org.thymeleaf.spring5.ISpringTemplateEngine;
@@ -48,7 +48,7 @@ import jakarta.servlet.MultipartConfigElement;
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.postem")
-public class ThymeleafConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Autowired
     private ServerConfigurationService serverConfigurationService;
