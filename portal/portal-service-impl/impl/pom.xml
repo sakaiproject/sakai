@@ -60,11 +60,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-container</artifactId>
+            <artifactId>sak-pluto-container</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-api</artifactId>
+            <artifactId>sak-pluto-descriptor-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

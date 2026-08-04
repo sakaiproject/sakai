@@ -5,12 +5,12 @@
 
     <parent>
         <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto</artifactId>
+        <artifactId>sak-pluto</artifactId>
         <version>1.1.7</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>pluto-container</artifactId>
+    <artifactId>sak-pluto-container</artifactId>
     <packaging>jar</packaging>
     <name>Pluto Portlet Container</name>
     <description>The pluto portlet container.</description>
@@ -18,12 +18,12 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-api</artifactId>
+            <artifactId>sak-pluto-descriptor-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-impl</artifactId>
+            <artifactId>sak-pluto-descriptor-impl</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

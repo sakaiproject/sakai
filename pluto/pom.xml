@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.apache.pluto</groupId>
-    <artifactId>pluto</artifactId>
+    <artifactId>sak-pluto</artifactId>
     <!-- Keep coordinates aligned with sakai.pluto.version in master -->
     <version>1.1.7</version>
     <packaging>pom</packaging>
@@ -27,7 +27,7 @@
         </license>
     </licenses>
 
-    <!-- Resource-filtering properties used by pluto-container (not dependency versions) -->
+    <!-- Resource-filtering properties used by sak-pluto-container (not dependency versions) -->
     <properties>
         <pluto.container.name>Pluto</pluto.container.name>
         <javax.portlet.version.major>1</javax.portlet.version.major>
@@ -35,10 +35,10 @@
     </properties>
 
     <modules>
-        <module>pluto-descriptor-api</module>
-        <module>pluto-descriptor-impl</module>
-        <module>pluto-container</module>
-        <module>pluto-taglib</module>
+        <module>sak-pluto-descriptor-api</module>
+        <module>sak-pluto-descriptor-impl</module>
+        <module>sak-pluto-container</module>
+        <module>sak-pluto-taglib</module>
     </modules>
 
     <!-- Pluto uses standard Maven source layout, not Sakai's src/java -->

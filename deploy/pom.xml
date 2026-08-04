@@ -622,22 +622,22 @@
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-container</artifactId>
+            <artifactId>sak-pluto-container</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-api</artifactId>
+            <artifactId>sak-pluto-descriptor-api</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-impl</artifactId>
+            <artifactId>sak-pluto-descriptor-impl</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-taglib</artifactId>
+            <artifactId>sak-pluto-taglib</artifactId>
             <scope>compile</scope>
         </dependency>
 

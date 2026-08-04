@@ -5,31 +5,28 @@
 
     <parent>
         <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto</artifactId>
+        <artifactId>sak-pluto</artifactId>
         <version>1.1.7</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>pluto-taglib</artifactId>
+    <artifactId>sak-pluto-descriptor-impl</artifactId>
     <packaging>jar</packaging>
-    <name>Pluto Portlet Tag Library</name>
-    <description>Pluto's Java Portlet Specification Tag Library implementation</description>
+    <name>Pluto Descriptor Service Implementation</name>
 
     <dependencies>
-        <!-- Same Portlet 1.0 constraint as pluto-container -->
         <dependency>
-            <groupId>javax.portlet</groupId>
-            <artifactId>portlet-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>sak-pluto-descriptor-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>org.codehaus.castor</groupId>
+            <artifactId>castor</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>javax.servlet.jsp-api</artifactId>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -38,6 +35,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Not managed by Sakai master; test-only -->
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <version>1.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

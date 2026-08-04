@@ -5,12 +5,12 @@
 
     <parent>
         <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto</artifactId>
+        <artifactId>sak-pluto</artifactId>
         <version>1.1.7</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>pluto-descriptor-api</artifactId>
+    <artifactId>sak-pluto-descriptor-api</artifactId>
     <packaging>jar</packaging>
     <name>Pluto Descriptor Service API</name>
 
