@@ -77,11 +77,9 @@ public class Task implements PersistableEntity<Long> {
     private Boolean system;
 
     @Column(name = "STARTS")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant starts = Instant.now();
 
     @Column(name = "DUE")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant due;
     
     @Column(name = "TASK_OWNER", length = 99)

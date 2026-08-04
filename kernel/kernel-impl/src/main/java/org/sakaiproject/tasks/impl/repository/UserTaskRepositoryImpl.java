@@ -26,7 +26,6 @@ import java.util.Set;
 import java.time.Instant;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
@@ -43,11 +42,11 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
 
     public List<UserTask> findByTaskIdAndUserIdIn(Long taskId, List<String> userIds) {
 
-        Session session = sessionFactory.getCurrentSession();
-
-        return (List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("task.id", taskId))
-            .add(Restrictions.in("userId", userIds)).list();
+        return sessionFactory.getCurrentSession()
+            .createQuery("from UserTask where task.id = :taskId and userId in :userIds", UserTask.class)
+            .setParameter("taskId", taskId)
+            .setParameter("userIds", userIds)
+            .list();
     }
 
     public List<UserTask> findByUserIdAndStartsAfter(String userId, Instant from) {
@@ -73,11 +72,11 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
 
     public List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant instant) {
 
-        Session session = sessionFactory.getCurrentSession();
-
-        return (List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("userId", userId))
-            .add(Restrictions.le("task.starts", instant)).list();
+        return sessionFactory.getCurrentSession()
+            .createQuery("from UserTask where userId = :userId and task.starts <= :instant", UserTask.class)
+            .setParameter("userId", userId)
+            .setParameter("instant", instant)
+            .list();
     }
 
     public List<UserTask> findByTask_SiteId(String siteId) {
