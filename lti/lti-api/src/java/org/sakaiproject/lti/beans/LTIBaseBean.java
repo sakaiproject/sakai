@@ -23,6 +23,9 @@ package org.sakaiproject.lti.beans;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -192,6 +195,12 @@ public abstract class LTIBaseBean {
         }
         if (value instanceof Calendar) {
             return ((Calendar) value).getTime();
+        }
+        if (value instanceof LocalDateTime) {
+            return Date.from(((LocalDateTime) value).atZone(ZoneOffset.UTC).toInstant());
+        }
+        if (value instanceof Instant) {
+            return Date.from((Instant) value);
         }
         if (value instanceof Long) {
             return new Date((Long) value);
