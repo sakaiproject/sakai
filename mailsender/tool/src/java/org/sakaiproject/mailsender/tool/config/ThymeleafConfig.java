@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.mailsender.tool.config;
 
-import java.nio.charset.StandardCharsets;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.email.api.EmailService;
@@ -28,13 +27,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.spring5.ISpringTemplateEngine;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -43,10 +42,12 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import jakarta.servlet.MultipartConfigElement;
+
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.mailsender.tool")
-public class ThymeleafConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAware {
     private static final String UTF8 = "UTF-8";
 
     private ApplicationContext applicationContext;
@@ -109,11 +110,13 @@ public class ThymeleafConfig extends WebMvcConfigurerAdapter implements Applicat
     
      @Bean
     public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
-        long uploadMax = (long) (serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE));
-        commonsMultipartResolver.setMaxUploadSize(uploadMax);
-        commonsMultipartResolver.setDefaultEncoding(StandardCharsets.UTF_8.name());
-        return commonsMultipartResolver;
+        return new StandardServletMultipartResolver();
     }
+
+    @Bean
+     public MultipartConfigElement multipartConfigElement() {
+        long uploadMax = (long) (serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE));
+        return new MultipartConfigElement("", uploadMax, uploadMax, 0);
+     }
 
 }
