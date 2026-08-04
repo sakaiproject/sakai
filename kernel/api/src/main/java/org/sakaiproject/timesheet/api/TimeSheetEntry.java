@@ -52,7 +52,6 @@ public class TimeSheetEntry implements PersistableEntity<Long> {
     @Column(name = "USER_ID", length = 99)
     private String userId;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "START_TIME", nullable = false)
     private Instant startTime;
 

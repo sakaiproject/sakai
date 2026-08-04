@@ -18,14 +18,9 @@ package org.sakaiproject.scorm.dao.hibernate;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.model.api.Attempt;
@@ -40,30 +35,13 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 	@Override
 	public int count(final long contentPackageId, final String learnerId)
 	{
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			@Override
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				Criteria criteria = session.createCriteria(Attempt.class)
-						.add(Restrictions.eq("contentPackageId", contentPackageId))
-						.add(Restrictions.eq("learnerId", learnerId))
-						.setProjection(Projections.count("id"));
-				return criteria.uniqueResult();
-			}
-		};
+		Long result = (Long) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("select count(a.id) from " + Attempt.class.getName() + " a where a.contentPackageId=:contentPackageId and a.learnerId=:learnerId")
+				.setParameter("contentPackageId", contentPackageId)
+				.setParameter("learnerId", learnerId)
+				.uniqueResult();
 
-		Object result = getHibernateTemplate().execute(hcb);
-		int r = 0;
-		if (result != null)
-		{
-			if (result instanceof Number)
-			{
-				r = ((Number) result).intValue();
-			}
-		}
-
-		return r;
+		return result != null ? result.intValue() : 0;
 	}
 
 	@Override
@@ -158,31 +136,14 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 	@Override
 	public Attempt lookupNewest(long contentPackageId, String learnerId)
 	{
-		// First figure out the highest attempt nr..
-		DetachedCriteria sub = DetachedCriteria.forClass(Attempt.class)
-				.add(Restrictions.eq("contentPackageId", contentPackageId))
-				.add(Restrictions.eq("learnerId", learnerId))
-				.setProjection(Projections.max("attemptNumber"));
+		List<Attempt> result = (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + Attempt.class.getName() + " a where a.contentPackageId=:contentPackageId and a.learnerId=:learnerId" +
+						" and a.attemptNumber = (select max(a2.attemptNumber) from " + Attempt.class.getName() + " a2" +
+						" where a2.contentPackageId=:contentPackageId and a2.learnerId=:learnerId)")
+				.setParameter("contentPackageId", contentPackageId)
+				.setParameter("learnerId", learnerId)
+				.getResultList();
 
-		// Than use it as restriction
-		DetachedCriteria criteria = DetachedCriteria.forClass(Attempt.class)
-				.add(Restrictions.eq("contentPackageId", contentPackageId))
-				.add(Restrictions.eq("learnerId", learnerId))
-				.add(Subqueries.propertyEq("attemptNumber", sub));
-
-		return uniqueResult(criteria);
-	}
-
-	protected Attempt uniqueResult(final DetachedCriteria criteria)
-	{
-		return (Attempt)getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
-		{
-			@Override
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				Criteria s = criteria.getExecutableCriteria(session);
-				return s.uniqueResult();
-			}
-		});
+		return result.isEmpty() ? null : result.get(0);
 	}
 }

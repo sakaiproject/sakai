@@ -24,6 +24,11 @@ package org.sakaiproject.chat2.model.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,12 +58,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
@@ -400,25 +401,33 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             localMax = messagesMax;
         }
 
-        Criteria c = this.getSessionFactory().getCurrentSession().createCriteria(ChatMessage.class);
-        c.add(Expression.eq("chatChannel", channel));      
+        Session session = this.getSessionFactory().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ChatMessage> c = cb.createQuery(ChatMessage.class);
+        Root<ChatMessage> root = c.from(ChatMessage.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("chatChannel"), channel));
         if (localDate != null) {
-            c.add(Expression.ge("messageDate", localDate));
+            predicates.add(cb.greaterThanOrEqualTo(root.get("messageDate"), localDate));
         }
+        c.where(predicates.toArray(new Predicate[0]));
 
         // Always sort desc so we get the newest messages, reorder after we get the final list
-        c.addOrder(Order.desc("messageDate"));
+        c.orderBy(cb.desc(root.get("messageDate")));
+
+        org.hibernate.query.Query<ChatMessage> query = session.createQuery(c);
 
         if (localStart > 0) {
-            c.setFirstResult(localStart);
+            query.setFirstResult(localStart);
         }
 
         // Date settings should always override the max message setting
         if (localMax > 0) {
-            c.setMaxResults(localMax);
+            query.setMaxResults(localMax);
         }
 
-        messages = c.list();
+        messages = query.getResultList();
 
         //Reorder the list
         if (sortAsc) {
@@ -450,13 +459,19 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         }
         int count = 0;
         if (channel != null) {
-            Criteria c = this.getSessionFactory().getCurrentSession().createCriteria(ChatMessage.class);
-            c.add(Expression.eq("chatChannel", channel));      
+            Session session = this.getSessionFactory().getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<ChatMessage> root = cq.from(ChatMessage.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("chatChannel"), channel));
             if (date != null) {
-                c.add(Expression.ge("messageDate", date));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("messageDate"), date));
             }
-            c.setProjection(Projections.rowCount());
-            count = ((Long) c.uniqueResult()).intValue();
+            cq.select(cb.count(root)).where(predicates.toArray(new Predicate[0]));
+
+            count = session.createQuery(cq).uniqueResult().intValue();
         }
         return count;
     }
@@ -933,11 +948,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         try {
             session = getSessionFactory().getCurrentSession();
-            Query query = session.createSQLQuery("update CHAT2_CHANNEL c set c.placementDefaultChannel = :channel, c.PLACEMENT_ID = NULL WHERE c.context = :context and c.PLACEMENT_ID = :placement");
-            query.setParameter("channel", false);
-            query.setParameter("context", context);
-            query.setParameter("placement", placement);
-            query.executeUpdate();
+            session.createMutationQuery("update CHAT2_CHANNEL c set c.placementDefaultChannel = :channel, c.PLACEMENT_ID = NULL WHERE c.context = :context and c.PLACEMENT_ID = :placement")
+                .setParameter("channel", false)
+                .setParameter("context", context)
+                .setParameter("placement", placement)
+                .executeUpdate();
         } catch(Exception e) {
             log.warn(e.getMessage());
         }
