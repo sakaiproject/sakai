@@ -22,7 +22,8 @@ Java packages: `org.sakaiproject.pluto.*`
 | Container | `org.sakaiproject.pluto:sak-pluto-container` |
 | Tag library | `org.sakaiproject.pluto:sak-pluto-taglib` |
 
-Version: `${sakai.pluto.version}` → `${sakai.version}` (currently `27-SNAPSHOT`)
+Maven version: Sakai’s platform version (currently `27-SNAPSHOT`), not upstream `1.1.7`.
+In `master/pom.xml`, `sakai.pluto.version` is set equal to `sakai.version` so portal deps stay aligned.
 
 Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` copies them to Tomcat `shared/lib`.
 
@@ -33,7 +34,7 @@ Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` c
 3. **Modernize build** for current Maven/JDK (drop broken `pluto-site` remote-resources, fix resources path).
 4. **Reparent under Sakai master**; use Sakai-managed dependency versions; Servlet 3.1 stubs for servlet-api 4.
 5. **Rename artifacts** to `sak-pluto-*`.
-6. **Align versions** with `${sakai.version}` / `27-SNAPSHOT`.
+6. **Align versions** with Sakai’s platform version (`27-SNAPSHOT`).
 7. **JDK 17 test fixes** (Castor → Apache Xerces serializer; Maven-style version parsing).
 8. **Explicit Castor dep** on `portal-service-impl` (no longer transitive under provided scope).
 9. **Rename packages** to `org.sakaiproject.pluto`; change Maven `groupId` to `org.sakaiproject.pluto`; wire `<module>pluto</module>` into the base reactor; deploy jars via `deploy.target=shared` (removed from `deploy/pom.xml` third-party list).
