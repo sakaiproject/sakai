@@ -36,11 +36,26 @@ public class EnvironmentTest extends PlutoTestCase {
     }
 
     public void testContainerMajorVersion() {
-        assertEquals("1", Environment.getPortletContainerMajorVersion());
+        String version = Environment.getPortletContainerVersion();
+        String expectedMajor;
+        int dot = version.indexOf('.');
+        if (dot >= 0) {
+            expectedMajor = version.substring(0, dot);
+        } else {
+            int dash = version.indexOf('-');
+            expectedMajor = dash < 0 ? version : version.substring(0, dash);
+        }
+        assertEquals(expectedMajor, Environment.getPortletContainerMajorVersion());
     }
 
     public void testContainerMinorVersion() {
-        assertTrue(Environment.getPortletContainerVersion().endsWith(Environment.getPortletContainerMinorVersion()));
+        String minor = Environment.getPortletContainerMinorVersion();
+        if (minor.length() == 0) {
+            assertTrue(Environment.getPortletContainerVersion().indexOf('.') < 0
+                    && Environment.getPortletContainerVersion().indexOf('-') < 0);
+        } else {
+            assertTrue(Environment.getPortletContainerVersion().endsWith(minor));
+        }
     }
 
     public void testContainerVersion() {

@@ -107,14 +107,7 @@ abstract class AbstractCastorDescriptorService {
     protected Object readInternal(InputStream is) throws IOException {
         Object object = null;
         try {
-            // Use JAXP if we are instructed to do so.
-            if (USING_JAXP) {
-                LocalConfiguration castorConfig = LocalConfiguration.getInstance();
-                // empty string means "use JAXP" for Castor
-                castorConfig.getProperties().setProperty("org.exolab.castor.parser", "");
-                castorConfig.getProperties().setProperty("org.exolab.castor.xml.serializer.factory", 
-                        "org.exolab.castor.xml.XercesJDK5XMLSerializerFactory" );
-            }
+            configureCastorXml();
             
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Pluto descriptor service implementation using JAXP: [" + USING_JAXP + "]");                        
@@ -166,23 +159,17 @@ abstract class AbstractCastorDescriptorService {
             // See Also:
             //  https://issues.apache.org/jira/browse/PLUTO-312
             //  http://castor.org/javadoc/org/exolab/castor/xml/Marshaller.html#setDoctype(java.lang.String,%20java.lang.String)
+            configureCastorXml();
+            LocalConfiguration.getInstance().getProperties()
+                    .setProperty("org.exolab.castor.indent", "true");
+
             Marshaller marshaller = new Marshaller(writer);
             marshaller.setMapping(getCastorMapping());
-            
-            // Use JAXP if we are instructed to do so.
-            LocalConfiguration castorConfig = LocalConfiguration.getInstance();
-            if (USING_JAXP) {                
-                // empty string means "use JAXP" for Castor
-                castorConfig.getProperties().setProperty("org.exolab.castor.parser", "" );                
-                castorConfig.getProperties().setProperty("org.exolab.castor.xml.serializer.factory", 
-                        "org.exolab.castor.xml.XercesJDK5XMLSerializerFactory" );
-            }
             
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Pluto descriptor service implementation using JAXP: [" + USING_JAXP + "]");                        
             }
             
-            castorConfig.getProperties().setProperty("org.exolab.castor.indent", "true");
             setCastorMarshallerOptions(marshaller, object);
             marshaller.marshal(object);
         } catch (IOException e) {
@@ -202,6 +189,23 @@ abstract class AbstractCastorDescriptorService {
 
     protected boolean getIgnoreExtraElements() {
         return false;
+    }
+
+    /**
+     * Configure Castor before creating a Marshaller/Unmarshaller.
+     * Prefer Apache Xerces (xercesImpl) over XercesJDK5XMLSerializerFactory;
+     * the JDK-internal serializer package is not exported on Java 9+.
+     */
+    private static void configureCastorXml() {
+        if (!USING_JAXP) {
+            return;
+        }
+        LocalConfiguration castorConfig = LocalConfiguration.getInstance();
+        // empty string means "use JAXP" for Castor
+        castorConfig.getProperties().setProperty("org.exolab.castor.parser", "");
+        castorConfig.getProperties().setProperty(
+                "org.exolab.castor.xml.serializer.factory",
+                "org.exolab.castor.xml.XercesXMLSerializerFactory");
     }
 
     protected abstract Mapping getCastorMapping() throws IOException, MappingException;
