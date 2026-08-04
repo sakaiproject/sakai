@@ -17,15 +17,16 @@ package org.sakaiproject.hibernate;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import org.sakaiproject.springframework.data.Repository;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,8 +89,12 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @Override
     public Iterable<T> findAll() {
 
-        List<?> list = startCriteriaQuery().list();
-        return (List<T>) list;
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<T> query = cb.createQuery(domainClass);
+        Root<T> root = query.from(domainClass);
+        query.select(root);
+
+        return sessionFactory.getCurrentSession().createQuery(query).getResultList();
     }
 
     @Override
@@ -107,8 +112,12 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @Override
     public long count() {
 
-        Object count = startCriteriaQuery().setProjection(Projections.rowCount()).uniqueResult();
-        return ((Number) count).longValue();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<T> root = query.from(domainClass);
+        query.select(cb.count(root));
+
+        return sessionFactory.getCurrentSession().createQuery(query).getSingleResult();
     }
 
     @Override
@@ -166,13 +175,5 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @Transactional
     public void update(T entity) {
         sessionFactory.getCurrentSession().update(entity);
-    }
-
-    /**
-     * Starts a Hibernate Criteria query for the type T in HibernateCrudRespository&lt;T, I&gt;
-     * @return a Criteria query
-     */
-    protected Criteria startCriteriaQuery() {
-        return sessionFactory.getCurrentSession().createCriteria(domainClass);
     }
 }

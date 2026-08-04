@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {FileConversionServiceTestConfiguration.class})
@@ -48,22 +48,22 @@ public class FileConversionServiceTest extends AbstractTransactionalJUnit4Spring
     @Test
     public void testCanConvert() {
 
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.DOCX_MIMETYPE), "DOCX is one of the default convertable types");
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.DOC_MIMETYPE), "DOC is one of the default convertable types");
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPT_MIMETYPE), "PPT is one of the default convertable types");
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPTX_MIMETYPE), "PPTX is one of the default convertable types");
+        assertTrue("DOCX is one of the default convertable types", fileConversionService.canConvert(ContentHostingService.DOCX_MIMETYPE));
+        assertTrue("DOC is one of the default convertable types", fileConversionService.canConvert(ContentHostingService.DOC_MIMETYPE));
+        assertTrue("PPT is one of the default convertable types", fileConversionService.canConvert(ContentHostingService.PPT_MIMETYPE));
+        assertTrue("PPTX is one of the default convertable types", fileConversionService.canConvert(ContentHostingService.PPTX_MIMETYPE));;
     }
 
     @Test
     public void noMultipleSubmits() {
 
         String ref = "xyz";
-        Assert.isTrue(repository.findByReference(ref).size() == 0);
+        assertTrue(repository.findByReference(ref).size() == 0);
         fileConversionService.submit(ref);
-        Assert.isTrue(repository.findByReference(ref).size() == 1);
+        assertTrue(repository.findByReference(ref).size() == 1);
         fileConversionService.submit(ref);
-        Assert.isTrue(repository.findByReference(ref).size() == 1);
+        assertTrue(repository.findByReference(ref).size() == 1);
         fileConversionService.submit(ref);
-        Assert.isTrue(repository.findByReference(ref).size() == 1);
+        assertTrue(repository.findByReference(ref).size() == 1);
     }
 }

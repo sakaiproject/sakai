@@ -18,7 +18,6 @@ package org.sakaiproject.cardgame.impl.persistence;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.cardgame.api.model.CardGameStatItem;
 import org.sakaiproject.cardgame.api.persistence.StatItemRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -28,18 +27,23 @@ public class StatItemRepositoryImpl extends BasicSerializableRepository<CardGame
 
     @SuppressWarnings("unchecked")
     public List<CardGameStatItem> findByPlayerId(String playerId) {
-        return startCriteriaQuery().add(Restrictions.eq("playerId", playerId)).list();
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM CardGameStatItem WHERE playerId = :playerId", CardGameStatItem.class)
+                .setParameter("playerId", playerId)
+                .list();
     }
 
     public Optional<CardGameStatItem> findByPlayerIdAndUserId(String playerId, String userId) {
-        return Optional.ofNullable((CardGameStatItem) startCriteriaQuery()
-                .add(Restrictions.eq("playerId", playerId))
-                .add(Restrictions.eq("userId", userId))
-                .uniqueResult());
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM CardGameStatItem WHERE playerId = :playerId AND userId = :userId", CardGameStatItem.class)
+                .setParameter("playerId", playerId)
+                .setParameter("userId", userId)
+                .uniqueResultOptional();
     }
 
     @SuppressWarnings("unchecked")
     public void deleteByPlayerId(String playerId) {
-        delete(startCriteriaQuery().add(Restrictions.eq("playerId", playerId)).list());
+        List<CardGameStatItem> items = findByPlayerId(playerId);
+        delete(items);
     }
 }

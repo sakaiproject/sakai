@@ -49,7 +49,6 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.wicket.util.io.Streams;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.apache.wicket.util.time.Time;
 
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 

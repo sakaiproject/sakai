@@ -28,10 +28,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.query.Query;
-import org.hibernate.criterion.Expression;
 
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;

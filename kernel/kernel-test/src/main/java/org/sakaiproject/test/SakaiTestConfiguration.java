@@ -25,7 +25,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -67,8 +66,9 @@ public abstract class SakaiTestConfiguration {
         srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
         srb.applySettings(hibernateProperties());
         StandardServiceRegistry sr = srb.build();
-        sr.getService(MutableIdentifierGeneratorFactoryInitiator.INSTANCE.getServiceInitiated())
-                .register("uuid2", AssignableUUIDGenerator.class);
+        sfb.addProperties(new Properties() {{
+            setProperty("hibernate.type.preferred_uuid_jdbc_type", "CHAR");
+        }});
         getAdditionalHibernateMappings().processAdditionalMappings(sfb);
         return sfb.buildSessionFactory(sr);
     }

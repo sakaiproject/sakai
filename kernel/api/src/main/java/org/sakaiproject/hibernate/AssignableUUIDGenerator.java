@@ -50,11 +50,11 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
             if (classes != null) {
                 String entityName = object.getClass().getName();
                 if (Arrays.asList(classes).contains(entityName)) {
-                    final Serializable id = session.getEntityPersister(entityName, object).getIdentifier(object, session);
+                    final Serializable id = (Serializable) session.getEntityPersister(entityName, object).getIdentifier(object, session);
                     if (id != null) return id;
                 }
             }
         }
-        return super.generate(session, object);
+        return (Serializable) super.generate(session, object);
     }
 }

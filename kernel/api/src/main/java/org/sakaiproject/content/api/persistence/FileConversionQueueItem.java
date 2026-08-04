@@ -62,7 +62,6 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
     private Integer attempts;
 
     @Column(name = "LAST_ATTEMPT_STARTED")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant lastAttemptStarted;
 
     /**

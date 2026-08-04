@@ -126,35 +126,27 @@ public class Assignment {
     @Column(name = "SECTION")
     private String section;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
     private Instant dateCreated;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "VISIBLE_DATE")
     private Instant visibleDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "OPEN_DATE")
     private Instant openDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DUE_DATE")
     private Instant dueDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CLOSE_DATE")
     private Instant closeDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "SOFT_REMOVED_DATE")
     private Instant softRemovedDate;
 
@@ -238,7 +230,6 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
     private Instant peerAssessmentPeriodDate;
 

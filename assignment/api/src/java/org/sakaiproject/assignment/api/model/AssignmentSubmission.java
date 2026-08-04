@@ -94,19 +94,15 @@ public class AssignmentSubmission {
 
     //private List submissionLog;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "SUBMITTED_DATE")
     private Instant dateSubmitted;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "RETURNED_DATE")
     private Instant dateReturned;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE")
     private Instant dateCreated;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 

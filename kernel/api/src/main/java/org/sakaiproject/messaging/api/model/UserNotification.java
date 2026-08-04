@@ -71,11 +71,9 @@ public class UserNotification implements PersistableEntity<Long> {
     private String url;
 
     @Column(name="EVENT_DATE", nullable = false)
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant eventDate;
 
     @Column(name="END_DATE")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant endDate;
 
     @Column(name="DEFERRED", nullable = false)

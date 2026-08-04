@@ -16,7 +16,6 @@
 package org.sakaiproject.content.impl.persistence;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
 
@@ -31,16 +30,18 @@ public class FileConversionServiceRepositoryImpl extends SpringCrudRepositoryImp
     @Transactional
     public List<FileConversionQueueItem> findByStatus(FileConversionQueueItem.Status status) {
 
-        Session session = sessionFactory.getCurrentSession();
-        return session.createCriteria(FileConversionQueueItem.class)
-                .add(Restrictions.eq("status", status)).list();
+        return sessionFactory.getCurrentSession()
+                .createQuery("from FileConversionQueueItem where status = :status", FileConversionQueueItem.class)
+                .setParameter("status", status)
+                .list();
     }
 
     @Transactional
     public List<FileConversionQueueItem> findByReference(String reference) {
 
-        Session session = sessionFactory.getCurrentSession();
-        return session.createCriteria(FileConversionQueueItem.class)
-                .add(Restrictions.eq("reference", reference)).list();
+        return sessionFactory.getCurrentSession()
+                .createQuery("from FileConversionQueueItem where reference = :reference", FileConversionQueueItem.class)
+                .setParameter("reference", reference)
+                .list();
     }
 }
