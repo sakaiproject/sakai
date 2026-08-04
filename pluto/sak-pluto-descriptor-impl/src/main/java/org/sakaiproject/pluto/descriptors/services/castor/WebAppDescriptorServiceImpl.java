@@ -16,23 +16,17 @@
  */
 package org.sakaiproject.pluto.descriptors.services.castor;
 
-import org.sakaiproject.pluto.descriptors.services.Constants;
 import org.sakaiproject.pluto.descriptors.services.WebAppDescriptorService;
 import org.sakaiproject.pluto.descriptors.servlet.WebAppDD;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
-import org.exolab.castor.xml.Marshaller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * Abstract Implementation of the Web Application Deployment
- * Descriptor service.  Provides default implementation of
- * the service; requiring only that subclasses provide the
- * input streams to/from the actual descriptor.
+ * Castor-based Web Application Deployment Descriptor service (read-only).
  *
  * @version $Id: WebAppDescriptorServiceImpl.java 156743 2005-03-10 05:50:30Z ddewolf $
  * @since Mar 5, 2005
@@ -55,41 +49,6 @@ public class WebAppDescriptorServiceImpl
     }
 
     /**
-     * Write the deployment descriptor.
-     * @param webApp
-     * @throws IOException
-     */
-    public void write(WebAppDD webApp, OutputStream out) throws IOException {
-        writeInternal(webApp, out);
-    }
-
-    /**
-     * Retrieve the Web Application Deployment
-     * descriptor's public Id.
-     * @return
-     */
-    protected String getPublicId() {
-        return Constants.WEB_XML_PUBLIC_ID;
-    }
-
-    /**
-     * Retrieve the Web Application Deployment
-     * descriptor's DTD uri.
-     * @return
-     */
-    protected String getDTDUri() {
-        return Constants.WEB_XML_DTD;
-    }
-    
-    /**
-     * Retrieve the Web Application Schema location for a Servlet version 2.4 web.xml
-     * @return
-     */
-    protected String get24SchemaLocation() {
-        return Constants.WEB_XML_24_SCHEMA_LOCATION;
-    }
-
-    /**
      * Read and Retrieve the Web Application's Castor Mapping
      * resource.
      *
@@ -109,18 +68,4 @@ public class WebAppDescriptorServiceImpl
         return mapping;
     }
 
-    protected void setCastorMarshallerOptions(Marshaller marshaller, Object beingMarshalled) {
-        String servletVersion = ((WebAppDD)beingMarshalled).getServletVersion();
-        if ( "2.3".equals(servletVersion) )
-        {
-            marshaller.setDoctype(getPublicId(), getDTDUri());
-            marshaller.setSuppressNamespaces(true);
-        }
-        else if ( "2.4".equals(servletVersion) )
-        {
-            marshaller.setSchemaLocation(get24SchemaLocation());
-        }
-    }
-
 }
-

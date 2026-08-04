@@ -21,19 +21,17 @@ import org.apache.commons.logging.LogFactory;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.util.LocalConfiguration;
-import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 /**
  * Abstract deployment descriptor support class.
- * This Base class provides support for reading
- * and writing deployment descriptors using Castor.
+ * Provides Castor-based <em>read</em> support for deployment descriptors.
+ * Write/marshall support was removed: Sakai only loads descriptors
+ * (see PortletDescriptorRegistry) and this tree is frozen for that use.
  *
  * @version $Id: AbstractCastorDescriptorService.java 156743 2005-03-10 05:50:30Z ddewolf $
  * @since Mar 5, 2005
@@ -141,60 +139,13 @@ abstract class AbstractCastorDescriptorService {
         return object;
     }
 
-    /**
-     * Write the object graph to it's descriptor.
-     * @param object
-     * @throws IOException
-     */
-    protected void writeInternal(Object object, OutputStream out) throws IOException {
-
-        OutputStreamWriter writer =
-            new OutputStreamWriter(out);
-
-        try {
-            // Construct the marshaller with a Writer instead of
-            // a SAX DocumentHandler.  When you supply a document
-            // handler, you can't set call marshaller.setDocType(String, String)
-
-            // See Also:
-            //  https://issues.apache.org/jira/browse/PLUTO-312
-            //  http://castor.org/javadoc/org/exolab/castor/xml/Marshaller.html#setDoctype(java.lang.String,%20java.lang.String)
-            configureCastorXml();
-            LocalConfiguration.getInstance().getProperties()
-                    .setProperty("org.exolab.castor.indent", "true");
-
-            Marshaller marshaller = new Marshaller(writer);
-            marshaller.setMapping(getCastorMapping());
-            
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Pluto descriptor service implementation using JAXP: [" + USING_JAXP + "]");                        
-            }
-            
-            setCastorMarshallerOptions(marshaller, object);
-            marshaller.marshal(object);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            IOException ioe = new IOException(e.getMessage());
-            ioe.initCause(e);            
-            throw ioe;
-        }
-        finally {
-            writer.flush();
-            writer.close();
-        }
-    }
-
     protected boolean getIgnoreExtraElements() {
         return false;
     }
 
     /**
-     * Configure Castor before creating a Marshaller/Unmarshaller.
-     * Prefer Apache Xerces (xercesImpl) over XercesJDK5XMLSerializerFactory;
-     * the JDK-internal serializer package is not exported on Java 9+.
+     * Configure Castor before creating an Unmarshaller.
+     * Use the JDK JAXP parser; no Xerces serializer is required for read-only use.
      */
     private static void configureCastorXml() {
         if (!USING_JAXP) {
@@ -203,25 +154,8 @@ abstract class AbstractCastorDescriptorService {
         LocalConfiguration castorConfig = LocalConfiguration.getInstance();
         // empty string means "use JAXP" for Castor
         castorConfig.getProperties().setProperty("org.exolab.castor.parser", "");
-        castorConfig.getProperties().setProperty(
-                "org.exolab.castor.xml.serializer.factory",
-                "org.exolab.castor.xml.XercesXMLSerializerFactory");
     }
 
     protected abstract Mapping getCastorMapping() throws IOException, MappingException;
-    protected abstract String getPublicId();
-    protected abstract String getDTDUri();
-
-    /**
-     * Subclasses should override this method if they need to set
-     * options on the Castor marshaller, such as a doctype.
-     *
-     * @param marshaller the Castor Marshaller
-     * @param beingMarshalled the Object being marshalled by Castor.
-     */
-    protected void setCastorMarshallerOptions(final Marshaller marshaller, final Object beingMarshalled) {
-
-    }
 
 }
-

@@ -42,7 +42,8 @@ Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` c
 
 - **Portlet API 1.0** — Pluto is the Portlet 1.0 RI. Master manages `portlet-api` 3.0.1 for tools; container/taglib keep an explicit `portlet-api:1.0`.
 - **Portlet spec identity in filtered resources** — `javax.portlet.version.major=1` / `minor=0` for `environment.properties`.
-- **Test-only deps not in master** — `jmock` 1.2.0 and `xmlunit` 1.6.
+- **Read-only descriptors** — Sakai only loads `portlet.xml` / related descriptors. Castor write/marshall support and `xercesImpl` were removed from this frozen tree (JDK JAXP is enough for unmarshall).
+- **Test-only deps not in master** — `jmock` 1.2.0.
 - **Maven source layout** — Pluto keeps `src/main/java` (overrides Sakai’s `src/java` default).
 
 ## How to build / deploy

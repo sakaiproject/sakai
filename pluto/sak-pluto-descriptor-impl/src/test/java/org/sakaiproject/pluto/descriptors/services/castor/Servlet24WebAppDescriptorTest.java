@@ -18,8 +18,7 @@ package org.sakaiproject.pluto.descriptors.services.castor;
 
 
 /**
- * This test ensures that the version attribute of a Servlet 2.4
- * descriptor is being read from and written to propery by Castor.
+ * Ensures the version attribute of a Servlet 2.4 descriptor is read by Castor.
  *
  * @since Mar 3, 2007
  * @version $Id: Servlet24WebAppDescriptorTest.java 607452 2007-12-29 17:52:38Z esm $
@@ -28,25 +27,11 @@ public class Servlet24WebAppDescriptorTest extends AbstractVersionedWebAppDescri
 {
 
     private static final String DESCRIPTOR = "/servlet-2.4-webapp-descriptor.xml";
-    private static final String EXPECTED_DESCRIPTOR = "/servlet-2.4-expected-webapp-descriptor.xml";
     
-    /* (non-Javadoc)
-     * @see org.sakaiproject.pluto.descriptors.services.castor.AbstractVersionedWebAppDescriptorTest#getDescriptorPath()
-     */
     protected String getDescriptorPath() {
         return DESCRIPTOR;
     }
     
-    /* (non-Javadoc)
-     * @see org.sakaiproject.pluto.descriptors.services.castor.AbstractVersionedWebAppDescriptorTest#getExpectedDescriptorPath()
-     */
-    protected String getExpectedDescriptorPath() {
-        return EXPECTED_DESCRIPTOR;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.sakaiproject.pluto.descriptors.services.castor.AbstractVersionedWebAppDescriptorTest#getDescriptorVersion()
-     */
     protected String getDescriptorVersion() {
         return "2.4";
     }

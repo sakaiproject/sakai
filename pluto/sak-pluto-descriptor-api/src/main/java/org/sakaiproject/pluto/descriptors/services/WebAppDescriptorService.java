@@ -20,11 +20,11 @@ import org.sakaiproject.pluto.descriptors.servlet.WebAppDD;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * WebApplication configuration as contained
  * within the web.xml Deployment Descriptor.
+ * Read-only for the Sakai-frozen Pluto tree.
  *
  * @version $Id: WebAppDescriptorService.java 157038 2005-03-11 03:44:40Z ddewolf $
  * @since Feb 28, 2005
@@ -38,13 +38,4 @@ public interface WebAppDescriptorService {
      * @throws IOException if an IO error occurs.
      */
     WebAppDD read(InputStream in) throws IOException;
-
-    /**
-     * Write the WebApp deployment descriptor
-     * (web.xml).
-     * @param dd
-     * @param out output stream to which the descriptor should be written
-     * @throws IOException if an IO error occurs.
-     */
-    void write(WebAppDD dd, OutputStream out) throws IOException;
 }

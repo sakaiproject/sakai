@@ -16,31 +16,20 @@
  */
 package org.sakaiproject.pluto.descriptors.services.castor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.sakaiproject.pluto.descriptors.services.WebAppDescriptorService;
 import org.sakaiproject.pluto.descriptors.servlet.WebAppDD;
-import org.custommonkey.xmlunit.DetailedDiff;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
 
 /**
- * Base test for doing a read and read/write/read test on specific versions
- * of the descriptor xml.
+ * Base test for reading specific versions of the webapp descriptor xml.
  *
  * @since Mar 3, 2007
  * @version $Id: AbstractVersionedWebAppDescriptorTest.java 611006 2008-01-11 01:21:16Z esm $
- * @todo JavaDoc
  */
-public abstract class AbstractVersionedWebAppDescriptorTest extends XMLTestCase
+public abstract class AbstractVersionedWebAppDescriptorTest extends TestCase
 {
     private WebAppDescriptorService underTest = null;
 
@@ -52,11 +41,6 @@ public abstract class AbstractVersionedWebAppDescriptorTest extends XMLTestCase
     protected final InputStream getDescriptorStream() {
         final String descriptorPath = this.getDescriptorPath();
         return this.getRequiredResource(descriptorPath);
-    }
-    
-    protected final InputStream getExpectedDescriptorStream() {
-        final String expectedDescriptorPath = this.getExpectedDescriptorPath();
-        return this.getRequiredResource(expectedDescriptorPath);
     }
     
     protected final InputStream getRequiredResource(String path) {
@@ -72,8 +56,6 @@ public abstract class AbstractVersionedWebAppDescriptorTest extends XMLTestCase
     
     protected abstract String getDescriptorPath();
     
-    protected abstract String getExpectedDescriptorPath();
-    
     protected abstract String getDescriptorVersion();
 
     public final void testRead() throws Exception
@@ -82,33 +64,5 @@ public abstract class AbstractVersionedWebAppDescriptorTest extends XMLTestCase
         WebAppDD webappdd = underTest.read(descriptorStream);
         assertNotNull(webappdd);
         assertEquals(this.getDescriptorVersion(), webappdd.getServletVersion());
-    }
-
-    public final void testWrite() throws Exception
-    {
-        XMLUnit.setIgnoreWhitespace(true);
-        
-        File outputFile = File.createTempFile("web-app-descriptor-test", ".xml");
-        OutputStream out = new FileOutputStream(outputFile);
-        final InputStream descriptorStream = this.getDescriptorStream();
-        WebAppDD webappdd = underTest.read(descriptorStream);
-        underTest.write(webappdd, out);
-        
-        final InputStream expectedDescriptorStream = getExpectedDescriptorStream();
-        // Use DetailedDiff to list all differences
-        final DetailedDiff diff = new DetailedDiff(
-                new Diff(new InputStreamReader(expectedDescriptorStream), new FileReader(outputFile))
-                );
-        final List diffs = diff.getAllDifferences(); 
-        // diffs.size() will be 0 if no differences were found.
-        assertEquals( "Encountered differences in XML: " + System.getProperty( "line.separator" ) + 
-                diff.toString(), 
-                0, diffs.size() );
-        
-        // now round-trip it
-        WebAppDD webappdd2 = underTest.read(new FileInputStream(outputFile));
-        assertNotNull(webappdd2);
-        assertEquals(this.getDescriptorVersion(), webappdd2.getServletVersion());
-        outputFile.delete();
     }
 }

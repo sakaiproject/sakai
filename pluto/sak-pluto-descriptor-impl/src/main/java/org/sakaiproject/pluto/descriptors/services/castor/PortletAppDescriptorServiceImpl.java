@@ -17,21 +17,16 @@
 package org.sakaiproject.pluto.descriptors.services.castor;
 
 import org.sakaiproject.pluto.descriptors.portlet.PortletAppDD;
-import org.sakaiproject.pluto.descriptors.services.Constants;
 import org.sakaiproject.pluto.descriptors.services.PortletAppDescriptorService;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * Abstract Implementation of the Web Application Deployment
- * Descriptor service.  Provides default implementation of
- * the service; requiring only that subclasses provide the
- * input streams to/from the actual descriptor.
+ * Castor-based Portlet Application Deployment Descriptor service (read-only).
  *
  * @version $Id: PortletAppDescriptorServiceImpl.java 156743 2005-03-10 05:50:30Z ddewolf $
  * @since Mar 5, 2005
@@ -44,9 +39,9 @@ public class PortletAppDescriptorServiceImpl
         "castor-portlet-xml-mapping.xml";
 
     /**
-     * Read the Web Application Deployment Descriptor.
+     * Read the Portlet Application Deployment Descriptor.
      *
-     * @return WebAppDD instance representing the descriptor.
+     * @return PortletAppDD instance representing the descriptor.
      * @throws java.io.IOException
      */
     public PortletAppDD read(InputStream in) throws IOException {
@@ -56,34 +51,7 @@ public class PortletAppDescriptorServiceImpl
     }
 
     /**
-     * Write the deployment descriptor.
-     * @param portlet
-     * @throws java.io.IOException
-     */
-    public void write(PortletAppDD portlet, OutputStream out) throws IOException {
-        writeInternal(portlet, out);
-    }
-
-    /**
-     * Retrieve the Web Application Deployment
-     * descriptor's public Id.
-     * @return
-     */
-    protected String getPublicId() {
-        return Constants.PORLTET_XML_PUBLIC_ID;
-    }
-
-    /**
-     * Retrieve the Web Application Deployment
-     * descriptor's DTD uri.
-     * @return
-     */
-    protected String getDTDUri() {
-        return Constants.PORTLET_XML_DTD;
-    }
-
-    /**
-     * Read and Retrieve the Web Application's Castor Mapping
+     * Read and Retrieve the Portlet Application's Castor Mapping
      * resource.
      *
      * @return
@@ -107,4 +75,3 @@ public class PortletAppDescriptorServiceImpl
         return true;
     }
 }
-

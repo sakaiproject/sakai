@@ -21,12 +21,11 @@ import org.sakaiproject.pluto.descriptors.portlet.PortletAppDD;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
- * Read/Write services for Portlet Application configuration
+ * Read services for Portlet Application configuration.
  * This service reads the portlet.xml and converts it to a
- * standard bean model.
+ * standard bean model. Write support was removed for the Sakai-frozen tree.
  *
  * @version $Id: PortletAppDescriptorService.java 157038 2005-03-11 03:44:40Z ddewolf $
  * @since Mar 6, 2005
@@ -40,13 +39,4 @@ public interface PortletAppDescriptorService {
      * @throws IOException if an IO error occurs.
      */
     PortletAppDD read(InputStream in) throws IOException;
-
-    /**
-     * Write the PortletApp deployment descriptor
-     * (portlet.xml).
-     * @param portletDescriptor
-     * @param out
-     * @throws IOException if an IO error occurs.
-     */
-    void write(PortletAppDD portletDescriptor, OutputStream out) throws IOException;
 }
