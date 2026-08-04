@@ -52,7 +52,7 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
         }
 
         // override default UUIDGenerator with AssignableUUIDGenerator
-        pui.addProperty(org.hibernate.jpa.AvailableSettings.IDENTIFIER_GENERATOR_STRATEGY_PROVIDER, SakaiIdentifierGeneratorProvider.class.getName());
+        pui.addProperty("hibernate.identifier_generator_strategy_provider", SakaiIdentifierGeneratorProvider.class.getName());
         AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
 
         postProcessPersistenceUnitInfo(pui);

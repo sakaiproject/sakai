@@ -21,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
 import org.sakaiproject.serialization.MapperFactory;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -47,7 +45,6 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
-    // currently using a static since all entities should use these mappers
     protected static ObjectMapper jsonMapper = MapperFactory.createDefaultJsonMapper();
     protected static ObjectMapper xmlMapper = MapperFactory.createDefaultXmlMapper();
     protected static ObjectMapper xmlMapperDisableCDataAsText = MapperFactory.xmlBuilder()
@@ -81,8 +78,12 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     public long count() {
 
-        Object count = startCriteriaQuery().setProjection(Projections.rowCount()).uniqueResult();
-        return ((Number) count).longValue();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<T> root = query.from(domainClass);
+        query.select(cb.count(root));
+
+        return sessionFactory.getCurrentSession().createQuery(query).getSingleResult();
     }
 
     @Override
@@ -141,16 +142,30 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
     @Override
     public List<T> findAll() {
-        return (List<T>) startCriteriaQuery().list();
+
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<T> query = cb.createQuery(domainClass);
+        Root<T> root = query.from(domainClass);
+        query.select(root);
+
+        return sessionFactory.getCurrentSession().createQuery(query).getResultList();
     }
 
     @Override
     public Page<T> findAll(Pageable pageable) {
 
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(domainClass);
-        criteria.setFirstResult((int) pageable.getOffset());
-        criteria.setMaxResults(pageable.getPageSize());
-        return new PageImpl(criteria.list());
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<T> query = cb.createQuery(domainClass);
+        Root<T> root = query.from(domainClass);
+        query.select(root);
+
+        List<T> content = sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+
+        return new PageImpl<>(content, pageable, count());
     }
 
     @Override
@@ -278,13 +293,5 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
             }
         }
         return obj;
-    }
-
-    /**
-     * Starts a Hibernate Criteria query for the type T in HibernateCrudRespository&lt;T, I&gt;
-     * @return a Criteria query
-     */
-    protected Criteria startCriteriaQuery() {
-        return sessionFactory.getCurrentSession().createCriteria(domainClass);
     }
 }

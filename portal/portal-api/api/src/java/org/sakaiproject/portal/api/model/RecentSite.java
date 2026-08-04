@@ -54,7 +54,6 @@ public class RecentSite implements PersistableEntity<Long> {
     @Column(name = "SITE_ID", length = 99, nullable = false)
     private String siteId;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED", nullable = false)
     private Instant created;
 }
