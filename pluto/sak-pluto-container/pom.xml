@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.apache.pluto</groupId>
         <artifactId>sak-pluto</artifactId>
-        <version>1.1.7</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>sak-pluto-descriptor-api</artifactId>
-            <version>${project.version}</version>
+            <version>${sakai.pluto.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>sak-pluto-descriptor-impl</artifactId>
-            <version>${project.version}</version>
+            <version>${sakai.pluto.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -32,8 +32,8 @@
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <!--
-          Pluto 1.1.7 is the Portlet 1.0 RI. Sakai master manages portlet-api 3.0.1 for tools;
-          compiling this container against 3.0.1 fails, so keep the Portlet 1.0 API here.
+          Keep Portlet API 1.0: this is the Portlet 1.0 RI. Sakai master manages
+          portlet-api 3.0.1 for tools; compiling this container against 3.0.1 fails.
         -->
         <dependency>
             <groupId>javax.portlet</groupId>

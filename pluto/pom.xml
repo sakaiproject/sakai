@@ -12,22 +12,12 @@
 
     <groupId>org.apache.pluto</groupId>
     <artifactId>sak-pluto</artifactId>
-    <!-- Keep coordinates aligned with sakai.pluto.version in master -->
-    <version>1.1.7</version>
     <packaging>pom</packaging>
-    <name>Apache Pluto</name>
+    <name>Sakai Pluto</name>
     <description>Apache Pluto portlet container (vendored for Sakai)</description>
     <url>https://portals.apache.org/pluto</url>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <!-- Resource-filtering properties used by sak-pluto-container (not dependency versions) -->
+    <!-- Resource-filtering properties used by sak-pluto-container (Portlet 1.0 RI identity) -->
     <properties>
         <pluto.container.name>Pluto</pluto.container.name>
         <javax.portlet.version.major>1</javax.portlet.version.major>
