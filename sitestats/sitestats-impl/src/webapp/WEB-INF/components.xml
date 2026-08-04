@@ -32,9 +32,10 @@
 		The preferred way to change these values is on sakai.properties. Please refer to
 		http://bugs.sakaiproject.org/confluence/display/STAT to detailed caonfiguration
 		information.
+		The target bean IDs are retained so existing sakai.properties overrides remain valid.
 	 -->
 	<!-- StatsManager ______________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsManager.target"
 		  class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
 		  depends-on="org.sakaiproject.sitestats.api.DBHelper"
 		  init-method="init"
@@ -97,6 +98,8 @@
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
+	<alias name="org.sakaiproject.sitestats.api.StatsManager.target"
+		   alias="org.sakaiproject.sitestats.api.StatsManager"/>
 
 	<!-- DetailedEventsManager ______________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager"
@@ -350,7 +353,7 @@
 
 
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager.target"
 		  class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
 		  lazy-init="true"
 		  init-method="init"
@@ -380,6 +383,8 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 	</bean>
+	<alias name="org.sakaiproject.sitestats.api.StatsUpdateManager.target"
+		   alias="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
