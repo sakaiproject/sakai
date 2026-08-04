@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.emailtemplateservice.impl.repository;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,26 +31,30 @@ public class EmailTemplateRepositoryImpl extends SpringCrudRepositoryImpl<EmailT
     @Transactional
     public Optional<EmailTemplate> findByKeyAndLocale(String key, String locale) {
 
-        Session session = sessionFactory.getCurrentSession();
-        List<EmailTemplate> templates = session.createCriteria(EmailTemplate.class)
-            .add(Restrictions.eq("key", key))
-            .add(Restrictions.eq("locale", locale)).list();
-        return templates.size() > 0 ? Optional.of(templates.get(0)) : Optional.empty();
+        return sessionFactory.getCurrentSession()
+            .createQuery("from EmailTemplate where key = :key and locale = :locale", EmailTemplate.class)
+            .setParameter("key", key)
+            .setParameter("locale", locale)
+            .uniqueResultOptional();
     }
 
     @Transactional
     public Optional<EmailTemplate> findByKeyAndLocaleAndNotTemplateId(String key, String locale, Long templateId) {
 
-        Session session = sessionFactory.getCurrentSession();
-        Criteria criteria = session.createCriteria(EmailTemplate.class)
-                .add(Restrictions.eq("key", key))
-                .add(Restrictions.eq("locale", locale));
-
+        StringBuilder hql = new StringBuilder("from EmailTemplate where key = :key and locale = :locale");
         if (templateId != null) {
-            criteria.add(Restrictions.ne("id", templateId));
+            hql.append(" and id != :templateId");
         }
 
-        List<EmailTemplate> templates = criteria.list();
-        return templates.size() > 0 ? Optional.of(templates.get(0)) : Optional.empty();
+        var query = sessionFactory.getCurrentSession()
+                .createQuery(hql.toString(), EmailTemplate.class)
+                .setParameter("key", key)
+                .setParameter("locale", locale);
+
+        if (templateId != null) {
+            query.setParameter("templateId", templateId);
+        }
+
+        return query.uniqueResultOptional();
     }
 }

@@ -63,8 +63,8 @@ public class EnumUserType<E extends Enum<E>> implements UserType
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] strings, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-        String name = resultSet.getString(strings[0]);
+    public Object nullSafeGet(ResultSet resultSet, int position, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
+        String name = resultSet.getString(position);
         E result = null;
 
         if (!resultSet.wasNull())
@@ -129,4 +129,10 @@ public class EnumUserType<E extends Enum<E>> implements UserType
 
         return x.equals(y);
     }
+
+	@Override
+	public int getSqlType() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
