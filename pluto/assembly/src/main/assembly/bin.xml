@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+    Maven 2 assembly describing a distribution which contains Pluto binary artifacts (with no
+    external dependencies) - including the Pluto Portal and Testsuite, and site documentation.
+-->
+<assembly>
+
+    <id>bin</id>
+
+    <formats>
+        <format>tar.gz</format>
+        <format>tar.bz2</format>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    
+    <componentDescriptors>
+        <componentDescriptor>assembly/src/main/assembly/license-and-notice-component.xml</componentDescriptor>
+        <componentDescriptor>assembly/src/main/assembly/site-documentation-component.xml</componentDescriptor>
+    </componentDescriptors>
+    
+    <moduleSets>        
+        
+        <moduleSet>
+            <includes>
+                <include>org.apache.pluto:pluto-descriptor-api:*</include>
+                <include>org.apache.pluto:pluto-descriptor-impl:*</include>
+                <include>org.apache.pluto:pluto-container:*</include>
+                <include>org.apache.pluto:pluto-taglib:*</include>
+            </includes>
+            <binaries>
+                <outputDirectory>/lib</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+                <useStrictFiltering>true</useStrictFiltering>
+            </binaries>
+        </moduleSet>
+                
+        <!-- Pluto Portal and testsuite webapps (no dependencies) -->
+        <moduleSet>
+            <includes>
+                <include>org.apache.pluto:pluto-portal:*</include>
+                <include>org.apache.pluto:pluto-testsuite:*</include>
+            </includes>
+            <binaries>
+                <outputDirectory>/webapps</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+                <useStrictFiltering>true</useStrictFiltering>
+            </binaries>                
+        </moduleSet>
+        
+        <!-- Pluto ant tasks, maven plugin, assembler (utils) -->
+        <moduleSet>
+            <includes>
+                <include>org.apache.pluto:pluto-util:*</include>
+                <include>org.apache.pluto:maven-pluto-plugin:*</include>
+                <include>org.apache.pluto:pluto-ant-tasks:*</include>
+            </includes>
+            <binaries>
+                <outputDirectory>/util</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+                <useStrictFiltering>true</useStrictFiltering>
+            </binaries>                
+        </moduleSet>
+           
+    </moduleSets>        
+
+</assembly>
+

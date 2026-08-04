@@ -1,0 +1,296 @@
+(instructions copied from forrest's KEYS file)
+
+This file contains the PGP keys of various developers.
+Please don't use them for email unless you have to. Their main
+purpose is code signing.
+
+Users: pgp < KEYS
+Developers:
+        pgp -kxa <your name> and append it to this file.
+        (pgpk -ll <your name> && pgpk -xa <your name>) >> this file.
+        (gpg --list-sigs <your name>
+             && gpg --armor --export <your name>) >> this file.
+------------------------------------------------------------------------
+
+pub  1024D/E41EDC7E 2003-09-26 Carsten Ziegeler <cziegeler@apache.org>
+sig 3       E41EDC7E 2003-09-26   Carsten Ziegeler <cziegeler@apache.org>
+sig 3       EE56550E 2003-12-01   Cliff Schmidt <cliff@alum.mit.edu>
+sig 3       CC78C893 2003-11-18   Rich Bowen <rbowen@rcbowen.com>
+sig 3       EE65E321 2003-11-24   Martin Kraemer <martin@apache.org>
+sig         40581837 2003-11-27   Nick Kew <nick@webthing.com>
+sig 3       142B509B 2003-11-25   Glenn L. Nielsen (Sign jakarta.apache.org distributions) <glenn@apache.org>
+sig 3       CE19D5C6 2003-11-18   Jamie Wallingford (legobuff) <jamie@legobuff.com>
+sig 3       D147B776 2003-11-28   Mitch Comstock (RAID) <mcomstock@raidworks.com>
+sig 2       65FDCDEE 2003-11-20   James Howison <james@freelancepropaganda.com>
+sig         FD093C41 2003-11-23   James M. Turner <turner@blackbear.com>
+sig 2       A1D69759 2003-11-24   Michael Kellen <idsfa@visi.com>
+sig 2       76D83CC6 2003-11-22   Manoj Kasichainula <manoj@apache.org>
+sig 3       A54DA2DF 2003-11-18   Erin Mulder <meara@alumni.princeton.edu>
+sig         152924AF 2003-11-22   Sander Temme <sander@temme.net>
+sig         964F31D9 2003-11-22   [User id not found]
+sig         B6B45F1F 2003-11-19   Chengetai Masango <chengetai@masango.net>
+sig 2       4C9165B6 2003-11-18   Aaron Mulder <ammulder@alumni.princeton.edu>
+sig 3       F5FC4B42 2003-11-21   Theodore W. Leung <twl@sauria.com>
+sig 2       F88341D9 2003-11-30   Lars Eilebrecht <lars@eilebrecht.org>
+sig 3       A11D56FB 2003-12-03   Geoffrey Young (http://www.modperlcookbook.org/~geoff/) <geoff@modperlcookbook.org>
+sub  1024g/0F6ED732 2003-09-26
+sig         E41EDC7E 2003-09-26   Carsten Ziegeler <cziegeler@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.2.3 (MingW32)
+
+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
+PDGaBFWsUIyQDUGS56dkC0k=
+=4pJn
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub  1024D/320B4FB4 2004-12-05 Nick Lothian (Apache) <nlothian@apache.org>
+sig 3       320B4FB4 2004-12-05   Nick Lothian (Apache) <nlothian@apache.org>
+sub  1024g/5436F884 2004-12-05
+sig         320B4FB4 2004-12-05   Nick Lothian (Apache) <nlothian@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.2.5 (MingW32)
+
+mQGiBEGy7V4RBACHbTfwKP3tYgujjVlgIuH6O/kZAZkGr5BlK6t3aZxWxn1hnZUb
+u9fNdFK6TuVxLN8/clRHw6SqKjfFsFl0ximws9ArgvAZtOB7lAwI8Dun7cqLiQ92
+4h/FivOXumqsFmUNWLtbbyzlbbjOs6yuUTUMn94X+sjR1BdJ61jHsX27HwCg+gYJ
+C8sC9azTSP520s+QDIqqqC0D/0Ixw9E1ioTREC+DKTl0Yc67NttrRja860eyJ5gW
+3EbADK57jaHUJbUpGkuJhGKnNlCbE4Zg+j//kTKU8RdO/DO9h61MfIAjSjAlI880
+I4GqQcVKN1cRwFCW1qiZHjqMxeDv+SUVuTde6ZmFT7pCpQGy3/vq3H/29ejkVnVn
+EmJsA/4vwczcvXfCt2j2hyq8p/70TO9fm/tWaPLfYZ9s61M2wCXT5414L+K/KS+L
++ucXCNumVQSMmsAg4rCS9vE+WPxaT/KqvDyEeSpfNA9KK0tgL2pAT+J/ikDqmiFV
+SSwYLdFfmKpfhL1OUHoInmFzhJB0sKFJ2xPY2B5WyKXSPRGUerQrTmljayBMb3Ro
+aWFuIChBcGFjaGUpIDxubG90aGlhbkBhcGFjaGUub3JnPoheBBMRAgAeBQJBsu1e
+AhsDBgsJCAcDAgMVAgMDFgIBAh4BAheAAAoJEJIfsKkyC0+0c6cAoOP9ObcM2kMD
+iEFWoW9btpC6+6RNAJ9fls4oHGsbY63s2NDPe0jMTMGrC7kBDQRBsu1fEAQAg1ys
+XC9D+Gyh33sxe4CD/lQGi0EeFMmsoKB9ZGsKy3BOy9bkYq6QFP4K1+ylYoiQ6Tb3
+BN2IiFqzP2MO8rLq1Gh7XFzbXEidj1xe9kXct5KAE8DnkQ7WTsqj9hpuae1Ipd3P
+dMaAnmGz38pEPezXrR5sUJQF9bg7q7XUWDmZ1HcAAwUD/jl89B8FOXDaNIl/Fb1S
+Kb3DQxbRJ2wQlbXi/td61sS9rznnv4bo2CoJ/Du5EYUoM4QDfj0Q/6eLEMSvz2VI
+b66kU2nLK7ERgk6I8be0ODpeU0XNMtFly7kg51uAhDg9Z0j+sFzbWRCr+zY2NUoo
+hRIdPJ55WPTQBZWaEBCikeEHiEkEGBECAAkFAkGy7V8CGwwACgkQkh+wqTILT7To
+AgCeIYQjWxrjd4c2jsB/ytfDVBBJZiUAn2LByyqYsMAQQVRyJaWF1E8b4TD4
+=Z3c0
+-----END PGP PUBLIC KEY BLOCK-----
+pub   1024D/DD4200EA 2004-11-02
+uid                  David H. DeWolf <david@daviddewolf.com>
+sig 3        DD4200EA 2004-11-02  David H. DeWolf <david@daviddewolf.com>
+uid                  David H. DeWolf <ddewolf@apache.org>
+sig 3        DD4200EA 2004-11-02  David H. DeWolf <david@daviddewolf.com>
+uid                  David H. DeWolf <ddewolf@rocketmail.com>
+sig 3        DD4200EA 2004-11-02  David H. DeWolf <david@daviddewolf.com>
+uid                  David H. DeWolf <ddewolf@gmail.com>
+sig 3        DD4200EA 2004-11-02  David H. DeWolf <david@daviddewolf.com>
+uid                  David H. DeWolf <david.dewolf@digitalfocus.com>
+sig 3        DD4200EA 2005-06-25  David H. DeWolf <david@daviddewolf.com>
+sub   1024g/F7DE5A9C 2004-11-02
+sig          DD4200EA 2004-11-02  David H. DeWolf <david@daviddewolf.com>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.0 (Cygwin)
+
+mQGiBEGHzhMRBACVBP2u+rePvFsGWoSnlpbXUJO3EyEHSlRKNeu+5MMLp2tYpP6k
+zM9zBFNHf0elbA8KESVkv6D6/YilYfogxvw+dgVy2sFsSDDxplaIOEumX783aiGS
+fYi7KM3W61co2g9RlKZm8Ho8ZVV0WoTD2L/OPKm1PRvlqM6eh6Pmr5fZhwCg88ZE
+jjtjg92j77t/ciZZ9a6YKrcD/0RDdIQl408krXfbCLK6AQXnzu5mJUjWit0HCtXr
+cN2UsAwX1KAANNV54N0IxxBWw1CpUIolIhZBpgE8Se5hNU90sTvvGjieWkiL1rET
+SolKIJT+cqzf6C9dzIydxuR2X+W6l6IKlytk0AYwaup9scAij0Zexx1qxHxjxylU
+Ief9A/9+lVQZ7Wd04Ul6/Wt+tcguP5OIr6fWVoD7+xRH5JtBGurUsm7eRsky65SJ
+OkNxJYsfXR4g7LygCMBZSG/nAx5Eus+Ah4mEHgHJ0h+AZOCY1EDs4K3LN47AkW/D
++vRbvfvMmh7J1pizubwyo0iyYniraQNI1zCWWrEereB/L3S9FLQnRGF2aWQgSC4g
+RGVXb2xmIDxkYXZpZEBkYXZpZGRld29sZi5jb20+iGEEExECACECGwMGCwkIBwMC
+AxUCAwMWAgECHgECF4AFAkGH1CgCGQEACgkQshdj+t1CAOrZygCgj41mE/x1iVew
+oqXBWdCTA+GYjX4AnRVodDBzkWCndt9n7HfNCL1nFL4vtCREYXZpZCBILiBEZVdv
+bGYgPGRkZXdvbGZAYXBhY2hlLm9yZz6IXgQTEQIAHgIbAwYLCQgHAwIDFQIDAxYC
+AQIeAQIXgAUCQYfUJgAKCRCyF2P63UIA6g9lAJ4i2NY+zD4bxJi0h2EpNkO+rgVF
+/ACgmL2VgAi8/lU8LXQDrLO3F30nrKi0KERhdmlkIEguIERlV29sZiA8ZGRld29s
+ZkByb2NrZXRtYWlsLmNvbT6IXgQTEQIAHgUCQYfSHwIbAwYLCQgHAwIDFQIDAxYC
+AQIeAQIXgAAKCRCyF2P63UIA6gEiAKCU58ktQAUGOMwpJXluG95mhhrCIwCg6bFe
+atZ5JvPoJwwiXBmbbZC3Oeq0I0RhdmlkIEguIERlV29sZiA8ZGRld29sZkBnbWFp
+bC5jb20+iF4EExECAB4FAkGH0jwCGwMGCwkIBwMCAxUCAwMWAgECHgECF4AACgkQ
+shdj+t1CAOqIRACgxA80v9zy9y+Aco3UNsC9DLHkwJ0AnRJPuPkt89NE/opcbgNH
+uI3+ylFbtC9EYXZpZCBILiBEZVdvbGYgPGRhdmlkLmRld29sZkBkaWdpdGFsZm9j
+dXMuY29tPoheBBMRAgAeBQJCvLVHAhsDBgsJCAcDAgMVAgMDFgIBAh4BAheAAAoJ
+ELIXY/rdQgDqCyAAmwf4gVzRpTaAFoSYp6ZmDAR8Qt5JAKCYMvybti9CFzYsa96D
+P7G0aRuxxLkBDQRBh84TEAQA6zybsVGREjBQ+wKLT764hWjR7SkBaIjYLZJHUOwl
+6TNXhl9302lT+DeQAQXeBGUIg79QR/JHjLL5MoMHeQ+xPbY/EtrlGL9O67Nn/gtq
+AqLjlGEwlKBhae9A3bzxViKEHyi2X9Qtib+lgW3jsJta33ifgGC8TWNSxCrBGnPb
+6pMAAwYEAM54Z0pEX7SnW38QomN6qn+JrJ5Kp5R3A2QCkeqTWuykTHZbI4I3vO2q
+TXiHVI8Rz0soAEFLMr+95SnpInf0jm/gBPBaKHS2DHcLMqLZvut3TH8Vs50pBlP3
+KnWqi9xqaJq2TwgWCNh1RFydcd+aC3bCHTNWq9M7B2sxM6hNaEkkiEkEGBECAAkF
+AkGHzhMCGwwACgkQshdj+t1CAOph4gCgpxV7iVMhaAHYaGFWT9m/opl9b+UAnRWl
+X5guSzlwPBtoCQ0rjtIIHGiL
+=k+ts
+-----END PGP PUBLIC KEY BLOCK-----
+pub   1024D/917DD857 2006-04-27
+uid                  Craig Doremus <cdoremus@apache.org>
+sig 3        917DD857 2006-04-27  Craig Doremus <cdoremus@apache.org>
+sub   2048g/5AA44BC4 2006-04-27
+sig          917DD857 2006-04-27  Craig Doremus <cdoremus@apache.org>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.3 (MingW32)
+
+mQGiBERRLT0RBAD6viO/WGm7UJ1yh/ZiGw1DeG2KXU0BKcIoXSFl/bfwkmB3/Vim
+096aUU2Q/TvWjKqrdM9WJ8RGcmzGZWmZRaLff+fLSz8Qj3o+65a0OE899KD5okpW
+6lEA7j8gniKbm0lN25tQt6j+9LLDJlzuk4ywxWvf7sH7cWZcKfHR5wsF2wCglIZK
+ev3TIrWciMIQcHc5dbukVAcEAMnj3rUVnNyBQ3nmwxbQ8tMEdNnYyTbXQAKuwzwT
+dWOiZE9ggS4N3hkgcVRlm0Eat6kLlNa9IikaVn8Oe1jt8W+O33lSIuyFyA/lznkh
+3UlIeC3qI9jp8/WjFGKORLG3xu3Xdk0JcXRroPBQHJH1Xm0dcei/z3PDem5xgX9x
+ywDLA/4hde+KTPVin/smXSh98ZmqEjKpcvpfWp5SW5Sg86YdEZyyADIQJDl4+E5g
+s7FryP6GvdO8krFvAmG55kPJV3BB5vplHCSe9suI/VB5ssp6+RTf7Ll7s/fqYojC
+7hXt539vkiXd6XP0s52C9eOWmIcezGwKudezC7K/pvrSOBAE8rQjQ3JhaWcgRG9y
+ZW11cyA8Y2RvcmVtdXNAYXBhY2hlLm9yZz6IYAQTEQIAIAUCRFEtPQIbAwYLCQgH
+AwIEFQIIAwQWAgMBAh4BAheAAAoJEFA40leRfdhX1f4An0d3MutZ47VR3/1hmY41
+mCdas3OWAJ9kqHzA70Q6dE/ZmbllFbpjAQG1ibkCDQREUS1MEAgAxfMGzTD5bs8w
+3lL5b8lmEd3iga3aGjzAn04QGyrZy475cKum5hBLY1lzfRW10nTudIunFe/fNauG
+/BrKrcQD2ebzXW5VWgG39oaoP219PJXCfCKNcg6ZcbxlBFmKcCmpHoyYJpkO3uup
+tL3LQpozNw+Bz48g8X3AMxRVJlqK2wdp6DR9MAifevVi7NdMhjdLrM4In9t72fTD
++hwUKAIOThxIgQlHOamNzxHKGS8RLxhAhK1O+yV1T254a3z/y3vwZkZrobcBq4pf
+MpK2IZdLpoO+9CDklpxUXS9Pk/sBiHgsI9Ik14aETs2xOiB6fxPbtKJAYHdF0G1i
+5kfGOBbjYwADBQf9HLe+NdU0C/AgueHlQPYTJfTQGNeHyMczefYzPepQkPSNVWGS
+vg9QDXCbdbvDaYTD0Qostuojhvs89UXpCwY3K33xwzkczTZWnbfAiehjTH6ClufD
+c8DQ69Mw+xgF38UbmezY13jpBNmk/nkiL5Nxq5Bd3bc9+40WY+ahqJ5Dzvv6cZ0d
+/USXmEd0lDn8Z0ArNqdruzqmWlsRQnUHfUQw1O+ZXQJj07WwKxQ1EWsPKMHsUCnh
+PyK5fxiQP/WNwC7EAKTpSjOJBGz05SdXpw6Du9ZhUHYVNk8GaCGGBJoR1gaOggmH
+gTtg+IbEjbg1RZGqr/NYPHkXfx3gVqA1HhTkxIhJBBgRAgAJBQJEUS1MAhsMAAoJ
+EFA40leRfdhX36YAn271wqmQdnwlsVg1U6IolfNT9PiTAKCPVWyr211pg1I+CBKX
+BphAwkntjw==
+=1L2C
+-----END PGP PUBLIC KEY BLOCK-----
+pub   1024D/5736D3D4 2007-02-21 [expires: 2012-02-20]
+uid                  Elliot Metsger <esm@apache.org>
+sig 3        5736D3D4 2007-02-21  Elliot Metsger <esm@apache.org>
+sub   4096g/94FBF926 2007-02-21 [expires: 2012-02-20]
+sig          5736D3D4 2007-02-21  Elliot Metsger <esm@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.5 (Darwin)
+
+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
+=BH8g
+-----END PGP PUBLIC KEY BLOCK-----
+pub   1024D/E4C36AEA 2008-08-04 [expires: 2012-08-03]
+uid                  Eric Dalquist <edalquist@apache.org>
+sig 3        E4C36AEA 2008-08-04  Eric Dalquist <edalquist@apache.org>
+sub   2048g/C234EC8F 2008-08-04 [expires: 2012-08-03]
+sig          E4C36AEA 2008-08-04  Eric Dalquist <edalquist@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+mQGiBEiXZr0RBACfkxI2flSWlJQoXL6XvJtHvC+itTfdKiRI5y4ze/yzgNPrg/rp
+XDU9LifZDPU7Cap8pzTqklb72LgHKOIuZ+oXEceNTxMLkB9WqdNp7FWcz13Ic34R
+wMHxlKdVtfiR/bSo5VwR+SfS3LQ9/r2DCGyNGBIUMW60+BRhrQSs9Fx+2wCg1j/U
+hY47D2F3evVIG7ALCjhtL8sD/355fp2NGdHJhWYmlO8+N5jxNB5rgcTAxqc0A7/x
+oVspW7P9YRdW9QqdmXIjipTplHufWuEr491imsoavXQd2J/4xjf3uf4rd69EA5gk
+a7MCas7AsoERSScB2fFSh1lTNKy+U8ANBCjpw7HnAayCqTb9P7Iw+hmWx4XHyLXM
+qr9IA/0ZFyoS/SRvrTgA2t0jMM5lsS1FdkYurV20r3/f4+akTxnMzoVrG3K6Bs+E
+6JnMAxC6XJ0Pg3kCatHKUcGjPs8S6DjhbT0QBkAeg+yL4PQ5wacXBrLOfdtWHVcv
+NrEdli29jDpLN4y55dz+tzO21frjnmLkBXMFfH4xALJhVLdirrQkRXJpYyBEYWxx
+dWlzdCA8ZWRhbHF1aXN0QGFwYWNoZS5vcmc+iGYEExECACYFAkiXZr0CGwMFCQeE
+zgAGCwkIBwMCBBUCCAMEFgIDAQIeAQIXgAAKCRBsXQJE5MNq6mkcAJ9/oMzoSNmd
+0JahwEdMgIhT+LrUMgCgsrhIH/QrEyynVQJ5OGJObOOod4C5Ag0ESJdmxhAIAPIz
+swueXhCi6RfJ2gz6/KaMvQm1PvTGfk+cFug79F9bZDH924UBraeSplY/3AnSeYtY
+NaDKouuKxmub3mpLbUUznjUaRsqbdUr0UHthJTDEjWLY4YoVKQpvsd+B/mqNw6IA
+8raS+uzopf8Dqi6rAD8J1AFpu3DGdiA9EaEANNKA1bzIfNExBQYY3HNDpKtG1fFs
+kgY4L6JFifIL47CnE3G6ocLM6LBv6f2KIB8i+RrNZGwpOgDCoxxaXiC4qgt5c5cj
+03go6cZ1HNlkK6+/NE/N+BJ9pTCEa/krYrjCj7l8o7FAwy8i3zv1+HbSBvxPIx7L
+j/4sgfgJ0C13JASDFcMAAwUH/RP9slIu2MZFqaGvLgdEhpfzWVDHlH9Ol/mp3j+/
+jQUJiV8eu8X8RaKt0h+aWSmhD3cd/YPeXgfRLsBDYfVISFCd/+8RcDOindIvyFoj
+SX1HBn38DoJwO/Tt3XsH/i/tgqqKo3nFMPzs8d9B0BWolbqU8xxYw73+WQNsmjvM
+5ACay8IutiSNDETR//u3j9uG1oeFeQXpXCQEB4BcQMw8dA8v/rUxTDI83BLMgpIM
+lAjRkRzwvSjC1EEXCo1KTfUCmte4w9746R7UkP5woKMavRT3niuZfvjuopxXe5I/
+ciR2cCIy81pecMWFncodmylWKud7LxHBO7vDy7s8l/uJKKiITwQYEQIADwUCSJdm
+xgIbDAUJB4TOAAAKCRBsXQJE5MNq6vfNAKCxqS44hbD+oTH9ExUGOnZ9pA7D/ACf
+aLLPIyQW/gt5dWPu/DjQ8AhFVXc=
+=Z9HG
+-----END PGP PUBLIC KEY BLOCK-----

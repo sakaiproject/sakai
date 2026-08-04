@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <parent>
+    <groupId>org.apache.pluto</groupId>
+    <artifactId>pluto</artifactId>
+    <version>1.1.7</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>maven-pluto-plugin</artifactId> 
+  <packaging>maven-plugin</packaging>
+  <name>Maven Pluto Installer Plugin</name>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-util</artifactId>
+      <version>${pom.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    
+    <!-- Do not remove this dep: See MNG-1178 -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+  </dependencies>
+  
+  <build> 
+    <scriptSourceDirectory>src/main/scripts</scriptSourceDirectory>    
+    <resources>
+      <resource>
+        <directory>src/main/scripts</directory>
+        <includes>
+          <include>**/*.mmld</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>        
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>        
+        <configuration>
+          <goalPrefix>pluto</goalPrefix>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>

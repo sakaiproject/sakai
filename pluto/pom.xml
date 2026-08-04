@@ -1,0 +1,445 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>3</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.pluto</groupId>
+    <artifactId>pluto</artifactId>
+    <packaging>pom</packaging>
+    <name>Apache Pluto</name>
+    <!--
+    Version numbers also need to be changed in
+     * All project pom.xml files,
+     * dist-build.xml in this directory,
+     * The pluto-portal-driver-config.xml in the pluto-portal module (src/main/webapp/WEB-INF),
+     * The pluto.container.version.major and pluto.container.version.minor properties (in this file)
+    -->
+    <version>1.1.7</version>
+    <!-- Due to a bug in maven 2.0, the description must not contain any line breaks or tabs. -->
+    <description>Pluto is the Reference Implementation of the Java Portlet Specfication.</description>
+    <url>http://portals.apache.org/pluto</url>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10560</url>
+    </issueManagement>
+    <ciManagement>
+        <system>continuum</system>
+        <notifiers>
+            <notifier>
+                <type>mail</type>
+                <address>pluto-dev@portals.apache.org</address>
+            </notifier>
+        </notifiers>
+    </ciManagement>
+    <inceptionYear>2003</inceptionYear>
+
+
+    <!-- Mailing Lists ======================================================= -->
+
+    <mailingLists>
+        <mailingList>
+            <name>Pluto User List</name>
+            <subscribe>pluto-user-subscribe@portals.apache.org</subscribe>
+            <unsubscribe>pluto-user-unsubscribe@portals.apache.org</unsubscribe>
+            <post>pluto-user@portals.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/portals-pluto-user</archive>
+        </mailingList>
+        <mailingList>
+            <name>Pluto Developer List</name>
+            <subscribe>pluto-dev-subscribe@portals.apache.org</subscribe>
+            <unsubscribe>pluto-dev-unsubscribe@portals.apache.org</unsubscribe>
+            <post>pluto-dev@portals.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/portals-pluto-dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>Pluto SCM List</name>
+            <subscribe>pluto-scm-subscribe@portals.apache.org</subscribe>
+            <unsubscribe>pluto-scm-unsubscribe@portals.apache.org</unsubscribe>
+            <post>pluto-scm@portals.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/portals-pluto-scm</archive>
+        </mailingList>
+    </mailingLists>
+
+
+    <!-- Pluto Committers ==================================================== -->
+
+    <!-- Email format: [name]#a@T#[domain].d0t.[extension]
+ '@' and '.' characters are added because m2 seems to need them to
+ generate mailto links. -->
+
+    <developers>
+
+        <developer>
+            <name>Michael Blum</name>
+            <id>blumm</id>
+            <email>blumm#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>Carsten Ziegeler</name>
+            <id>cziegeler</id>
+            <email>cziegeler#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>David DeWolf</name>
+            <id>ddewolf</id>
+            <email>ddewolf@apache.org</email>
+            <timezone>-4</timezone>
+            <url>http://www.daviddewolf.com</url>
+            <organization>Three Pillar Software, Inc.</organization>
+            <organizationUrl>http://www.threepillarsoftware.com</organizationUrl>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+
+        <developer>
+            <name>Nick Lothian</name>
+            <id>nlothian</id>
+            <email>nlothian#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>Craig Doremus</name>
+            <id>cdoremus</id>
+            <email>cdoremus#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>Zhong Zheng</name>
+            <id>zheng</id>
+            <email>zheng#a@T#apache.d0t.org</email>
+            <timezone>+1</timezone>
+            <organization />
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+
+        <developer>
+            <name>Santiago Gala</name>
+            <id>sgala</id>
+            <email>sgala#a@T#hisitech.d0t.com</email>
+            <organization />
+        </developer>
+
+        <developer>
+            <name>Raphael Luta</name>
+            <id>raphael</id>
+            <email>raphael#a@T#apache.d0t.org</email>
+            <organization />
+        </developer>
+
+        <developer>
+            <name>David S. Taylor</name>
+            <id>taylor</id>
+            <email>david#a@T#bluesunrise.d0t.com</email>
+            <organization />
+        </developer>
+
+        <developer>
+            <name>Scott T. Weaver</name>
+            <id>weaver</id>
+            <email>weaver#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>Stefan Hepper</name>
+            <id>sthepper</id>
+            <email>sthepper#a@T#apache.d0t.org</email>
+        </developer>
+
+        <developer>
+            <name>Elliot Metsger</name>
+            <id>esm</id>
+            <email>esm#a@T#apache.d0t.org</email>
+            <timezone>-4</timezone>
+            <url>http://uppertank.net/blog</url>
+            <organization>Johns Hopkins University, Sheridan Libraries</organization>
+            <organizationUrl>http://www.library.jhu.edu</organizationUrl>
+        </developer>
+
+        <developer>
+            <name>Eric Dalquist</name>
+            <id>edalquist</id>
+            <email>edalquist#a@T#apache.d0t.org</email>
+            <timezone>-5</timezone>
+            <url>http://erics-notes.blogspot.com/</url>
+            <organization>University of Wisconsin - Madison, DoIT</organization>
+            <organizationUrl>http://www.doit.wisc.edu</organizationUrl>
+        </developer>
+
+    </developers>
+
+
+    <!-- Pluto Contributors ================================================== -->
+
+    <contributors>
+        <contributor>
+            <name>Michael Westbay</name>
+            <email>westbay#a@T#users.d0t.sourceforge.d0t.net</email>
+        </contributor>
+        <contributor>
+            <name>Ken Weiner</name>
+            <email>kweiner#a@T#unicon.d0t.net</email>
+        </contributor>
+        <contributor>
+            <name>Ken Atherton</name>
+            <email>katherto#a@T#visa.d0t.com</email>
+        </contributor>
+        <contributor>
+            <name>David Hay</name>
+        </contributor>
+
+        <contributor>
+
+        </contributor>
+    </contributors>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.7</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.7</developerConnection>
+        <url>http://svn.apache.org/viewcvs.cgi/portals/pluto/tags/pluto-1.1.7</url>
+    </scm>
+
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+    </organization>
+
+
+    <!-- Dependency Version Properties ======================================= -->
+
+    <!--
+    NOTE:
+    
+    Modification of these properties affects:
+    1)  Dependent project poms
+    2)  maven-pluto-plugin/src/main/resources/versions.properties as well!
+    -->
+    <properties>
+        <pluto.container.name>Pluto</pluto.container.name>
+        <javax.portlet.version.major>1</javax.portlet.version.major>
+        <javax.portlet.version.minor>0</javax.portlet.version.minor>
+        <portlet-api.version>1.0</portlet-api.version>
+        <servlet-api.version>2.3</servlet-api.version>
+        <jsp-api.version>1.2</jsp-api.version>
+        <jstl.version>1.0.6</jstl.version>
+        <taglibs.standard.version>1.0.6</taglibs.standard.version>
+        <xerces.version>2.6.2</xerces.version>
+        <castor.version>1.1.1</castor.version>
+        <commons-digester.version>1.8</commons-digester.version>
+        <commons-collections.version>3.2</commons-collections.version>
+        <commons-cli.version>1.0</commons-cli.version>
+        <commons-logging.version>1.1</commons-logging.version>
+        <log4j.version>1.2.14</log4j.version>
+        <springframework.version>2.0.2</springframework.version>
+        <maven.version>2.0.5</maven.version>
+        <ant.version>1.6.5</ant.version>
+        <junit.version>3.8.2</junit.version>
+        <jmock.version>1.2.0</jmock.version>
+        <commons-io.version>1.3.1</commons-io.version>
+        <xmlunit.version>1.1</xmlunit.version>
+    </properties>
+
+
+    <!-- Pluto Modules ======================================================= -->
+
+    <modules>
+        <!-- Pluto Core Modules -->
+        <module>pluto-descriptor-api</module>
+        <module>pluto-descriptor-impl</module>
+        <module>pluto-container</module>
+        <module>pluto-taglib</module>
+
+        <!-- Pluto Portal and Testsuite Modules -->
+        <module>pluto-portal-driver</module>
+        <module>pluto-portal-driver-impl</module>
+        <module>pluto-portal</module>
+        <module>pluto-testsuite</module>
+
+        <!-- Pluto Utilities, Maven Plugins and Ant Tasks -->
+        <module>pluto-util</module>
+        <module>maven-pluto-plugin</module>
+        <module>pluto-ant-tasks</module>
+
+        <!-- Pluto Documentations -->
+        <!--module>pluto-site</module-->
+        <module>pluto-site-skin</module>
+    </modules>
+
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>scp://people.apache.org/www/portals.apache.org/pluto</url>
+        </site>
+
+        <repository>
+            <id>pluto-staging</id>
+            <name>Apache Pluto Staging Repository</name>
+            <url>scp://people.apache.org/www/people.apache.org/builds/portals-pluto/m2-staging-repository</url>
+        </repository>
+
+        <!--
+        <repository>
+            <id>apache.releases</id>
+            <name>Apache Release Distribution Repository</name>
+            <url>scp://people.apache.org/www/people.apache.org/repo/m2-ibiblio-rsync-repository</url>
+        </repository>
+        -->
+
+        <snapshotRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Maven Repository (Snapshots and Test Builds)</name>
+            <url>scp://people.apache.org/www/people.apache.org/repo/m2-snapshot-repository</url>
+        </snapshotRepository>
+
+    </distributionManagement>
+
+    <build>
+        <pluginManagement>
+          <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.0-alpha-5</version>
+                <executions>
+                  <execution>
+                    <goals> 
+                      <goal>process</goal>
+                    </goals>
+                    <configuration>
+                      <supplementalModels>
+                        <supplementalModel>
+                          ${project.basedir}/../pluto-site/src/main/appended-resources/supplemental-models.xml
+                        </supplementalModel>
+                      </supplementalModels>
+                      <resourceBundles>
+                        <resourceBundle>org.apache:apache-jar-resource-bundle:1.2</resourceBundle>
+                      </resourceBundles>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-gpg-plugin</artifactId>
+                  <version>1.0-alpha-4</version>
+                  <executions>
+                      <execution>
+                          <id>sign-artifacts</id>
+                          <phase>verify</phase>
+                          <goals>
+                              <goal>sign</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-release-plugin</artifactId>
+                  <version>2.0-beta-7</version>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <version>2.2-beta-2</version>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-site-plugin</artifactId>
+                  <!-- NOTE: When publishing the Pluto website, you
+                    need to use the 2.0-beta-7-SNAPSHOT version.  However,
+                    it is being commented out so CI builds do not fail.
+                    (CI build servers may not have snapshot repos
+                    configured) -->
+                  <!--version>2.0-beta-7-SNAPSHOT</version-->
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <executions>
+                      <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                              <goal>jar</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+              </plugin>
+          </plugins>
+        </pluginManagement>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+          </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <profiles>
+        <profile>
+            <id>assembly</id>
+            <modules>
+                <module>assembly</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptors>
+                                <!-- binary libraries and webapps, no external dependencies -->
+                                <descriptor>assembly/src/main/assembly/bin.xml</descriptor>
+                                <!-- portal and testsuite, all bundled and configured with Tomcat -->
+                                <descriptor>assembly/src/main/assembly/bundled.xml</descriptor>
+                                <!-- Buildable source distribution (includes Maven 2 poms) -->
+                                <descriptor>assembly/src/main/assembly/src.xml</descriptor>
+                                <!-- Container binaries only, no external dependencies -->
+                                <descriptor>assembly/src/main/assembly/container-bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>pluto-${pom.version}</finalName>
+                            <outputDirectory>${project.build.directory}/assembly/out</outputDirectory>
+                            <workDirectory>${project.build.directory}/assembly/work</workDirectory>
+                        </configuration>                        
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>                
+            </build>        
+        </profile>
+    </profiles>
+
+</project>

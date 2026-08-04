@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<web-app>
+  
+  <display-name>Pluto Testsuite</display-name>
+  
+  <context-param>
+    <param-name>test-parameter-name</param-name>
+    <param-value>test-parameter-val</param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>parameter-name</param-name>
+    <param-value>parameter-value</param-value>
+  </context-param>
+  
+  <!-- Companion Servlet Definitions ======================================= -->
+  
+  <servlet>
+    <servlet-name>ExternalAppScopedAttributeTest_Servlet</servlet-name>
+    <servlet-class>org.apache.pluto.testsuite.test.ExternalAppScopedAttributeTest$CompanionServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>DispatcherRenderParameterTest_Servlet</servlet-name>
+    <servlet-class>org.apache.pluto.testsuite.test.DispatcherRenderParameterTest$CompanionServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>DispatcherRequestTest_Servlet</servlet-name>
+    <servlet-class>org.apache.pluto.testsuite.test.DispatcherRequestTest$CompanionServlet</servlet-class>
+  </servlet>
+  
+  
+  <!-- Companion Servlet Mappings ========================================== -->
+  
+  <servlet-mapping>
+    <servlet-name>ExternalAppScopedAttributeTest_Servlet</servlet-name>
+    <url-pattern>/test/ExternalAppScopedAttributeTest_Servlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>DispatcherRenderParameterTest_Servlet</servlet-name>
+    <url-pattern>/test/DispatcherRenderParameterTest_Servlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>DispatcherRequestTest_Servlet</servlet-name>
+    <url-pattern>/test/DispatcherRequestTest_Servlet/*</url-pattern>
+  </servlet-mapping>
+  
+  <security-role>
+    <role-name>tomcat</role-name>
+  </security-role>
+  
+</web-app>
+

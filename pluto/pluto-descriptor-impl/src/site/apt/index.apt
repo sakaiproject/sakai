@@ -1,0 +1,61 @@
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~ 
+~~ http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed  under the  License is distributed on an "AS IS" BASIS,
+~~ WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+~~ implied.
+~~ 
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+
+ ---
+ Pluto Descriptor Service Implementation
+ ---
+ Elliot Metsger
+ ---
+ March 29, 2006
+
+Pluto Descriptor Service Implementation
+
+    The Pluto descriptor services provide an entry point for reading and 
+writing object models representing the web and portlet descriptor files
+(<<<WEB-INF/web.xml>>> and <<<WEB-INF/portlet.xml>>>).  The Pluto 1.1
+ implementation uses {{{http://www.castor.org}Castor}} for marshalling 
+and unmarshalling the object models.  Pluto 2.0 uses JAXB.
+
+    If you use the Pluto descriptor services in your own project, be
+sure to code to the interfaces <<<org.apache.pluto.descriptors.services.PortletAppDescriptorService>>>
+and <<<org.apache.pluto.descriptors.services.WebAppDescriptorService>>> and 
+not directly to the implementation classes.
+
+* XML parsing in Pluto 2.x
+
+    In Pluto 2.x, JAXB is used to (un)marshal the descriptor files.  Pluto 2.x
+requires JDK 1.5 and will use JAXP for XML parsing.  No XML parsers
+are required to be endorsed.
+
+* XML parsing in Pluto 1.1.x
+
+    In Pluto 1.1.x, Castor is used to (un)marshal the descriptor files.  Pluto
+1.1.x targets JDK 1.4, therefore 1.1.x distributions will include endorsed
+XML libraries in Tomcat 5's <<<common/endorsed>>> directory.
+
+  However, if your runtime is JDK 1.5 or greater and you are running
+Pluto 1.1.5+, Pluto will automatically configure Castor to use JAXP.
+If you meet these criteria (JDK 1.5+, Pluto 1.1.5+), no XML libraries need 
+to be endorsed - simply delete them from Tomcat 5's common/endorsed directory.
+When Castor is configured to use JAXP, the parser that was defined by the 
+Castor property <<<org.exolab.castor.parser>>> is ignored.
+
+    If for some reason you need to override the the use of JAXP, set the system
+property <<<org.apache.pluto.useJaxp>>> to the string <<<false>>>.  When the 
+property is set to <<<false>>>, Castor will use the parser defined by the 
+<<<org.exolab.castor.parser>>> property.  You will be responsible for providing 
+the XML parser APIs and implementation libraries.

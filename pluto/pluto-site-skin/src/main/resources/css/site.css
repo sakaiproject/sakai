@@ -1,0 +1,208 @@
+/*
+* Licensed to the Apache Software Foundation (ASF) under one or more
+* contributor license agreements.  See the NOTICE file distributed with
+* this work for additional information regarding copyright ownership.
+* The ASF licenses this file to You under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with
+* the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
+ * =============================================================================
+ * Customized stylesheet for maven-generated site.
+ * =============================================================================
+ */
+
+
+html {
+    border-width: 10px;
+    border-style: solid;
+    border-color: #2E6794;
+}
+
+body {
+    
+}
+
+.composite {
+    background-color: #FFFFFF;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #000000;
+}
+
+/**
+ * The top banner, which contains the apache portals logo and pluto logo.
+ */
+#banner {
+    background-color: #8DB7DF;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: #000000;
+    vertical-align: top;
+}
+
+/**
+ * The left part of the top banner, which is the apache portals logo.
+ */
+#bannerLeft {
+    display: none;
+}
+
+/**
+ * The right part of the top banner.
+ */
+#bannerRight {
+    width: 450px;
+    margin: 0px;
+    float: left;
+}
+
+/**
+ * Breadcrumbs under the top banner: last published date and quick links.
+ */
+#breadcrumbs {
+    background-color: #F0F0F0;
+}
+
+.highlightBox {
+    width: 240px;
+    float: right;
+    clear: right;
+    background-color: #EEEEEE;
+    margin: 0px 0px 20px 20px;
+    padding: 5px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #909090;
+}
+
+.highlightBox h5 {
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    font-size: smaller;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+    border-color: #909090;
+}
+
+.highlightBox p {
+    margin: 1em 0 0.5em 0;
+    padding: 0;
+    font-size: smaller;
+}
+
+.highlightBox ul {
+    margin-top: 0;
+    margin-bottom: 1em;
+    list-style-type: square;
+}
+
+.highlightBox li {  
+    margin: 0;
+    padding: 0;
+    font-size: smaller;
+}
+
+#leftColumn {
+    background-color: #FFFFFF;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #CCCCCC;
+}
+
+
+#bodyColumn {
+    
+}
+
+/**
+ * The section title.
+ */
+.section h2 {
+    padding: 0em;
+    margin: 0.25em 0em 0.25em 0em;
+    background-color: #FFFFFF;
+    color: #6D97BF;
+    font-family: "Trebuchet MS", Trebuchet, Arial, Verdana, Sans-serif;
+    font-weight: bold;
+    white-space: nowrap;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+    border-color: #8DB7DF;
+}
+
+/**
+ * The subsection title.
+ */
+.section h3 {
+    padding: 0em;
+    margin: 0.25em 0em 0.25em 0em;
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: "Trebuchet MS", Trebuchet, Arial, Verdana, Sans-serif;
+    font-weight: bold;
+    white-space: nowrap;
+    border-width: 0px;
+}
+
+/**
+ * The subsection title.
+ */
+.section h4 {
+    padding: 0em;
+    margin: 0.25em 0em 0.25em 0em;
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: "Trebuchet MS", Trebuchet, Arial, Verdana, Sans-serif;
+    font-size: 120%;
+    font-weight: bold;
+    border-width: 0px;
+}
+
+/**
+ * The FAQ.
+ */
+
+.section dl {
+    background-color: #FFFFFF;
+    border-width: 0px;
+}
+
+.section dt {
+    padding: 10px 0px 5px 0px;
+}
+
+.section dt b {
+    font-family: "Trebuchet MS", Trebuchet, Arial, Verdana, Sans-serif;
+    font-size: 120%;
+}
+
+.section dd {
+    border-width: 0px 0px 1px 0px;
+    border-color: #808080;
+    border-style: dotted;
+}
+
+.section dd hr {
+    visibility: hidden;
+}
+
+/**
+ * The footer.
+ */
+
+#footer {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: #2E6794;
+}
+

@@ -1,0 +1,145 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.apache.pluto</groupId>
+    <artifactId>pluto</artifactId>
+    <version>1.1.7</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.pluto</groupId>
+  <artifactId>pluto-container</artifactId>
+  <packaging>jar</packaging>
+  <name>Pluto Portlet Container</name>
+  <description>The pluto portlet container.</description>
+
+
+  <dependencies>
+
+    <!-- Pluto Support Libraries =========================================== -->
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-descriptor-api</artifactId>
+      <version>${pom.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-descriptor-impl</artifactId>
+      <version>${pom.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- Other Support Libraries =========================================== -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging-api</artifactId>
+      <version>${commons-logging.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- Specification Libraries =========================================== -->
+    <dependency>
+      <groupId>javax.portlet</groupId>
+      <artifactId>portlet-api</artifactId>
+      <version>${portlet-api.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Testing Libraries ================================================= -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- EasyMock
+       2.2, 2.0 requires Java 5
+       1.2_Java1.3 requires Java 1.3
+       use groupId "easymock" for version 1.2_Java1.3 -->
+    <!--
+   <dependency>
+             <groupId>org.easymock</groupId>
+             <artifactId>easymock</artifactId>
+             <version>2.2</version>
+         </dependency>
+   -->
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>${jmock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>jmock</groupId>
+        <artifactId>jmock-cglib</artifactId>
+        <version>${jmock.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-mock</artifactId>
+        <version>${springframework.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${springframework.version}</version>
+        <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/resources/META-INF</directory>
+        <targetPath>/META-INF</targetPath>
+      </resource>
+    </resources>
+
+    <testResources>
+      <testResource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
+    <plugins>
+      <!-- Surefire Plugin: Exec Tests ===================================== -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <excludes>
+            <!-- Abstract -->
+            <exclude>**/PlutoTestCase.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <!--plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <resourcesDirectory>${basedir}/../pluto-site/src/site/resources</resourcesDirectory>
+        </configuration>
+      </plugin-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

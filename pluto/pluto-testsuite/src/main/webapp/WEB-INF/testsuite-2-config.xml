@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testportlet-config>
+  
+  <testsuite-config>
+    <name>Render Parameter Test</name>
+    <class>org.apache.pluto.testsuite.test.RenderParameterTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+    <action-param>
+      <name>org.apache.pluto.testsuite.PARAM_ACTION_KEY</name>
+      <value>org.apache.pluto.testsuite.ACTION_VALUE</value>
+    </action-param>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Action Parameter Test</name>
+    <class>org.apache.pluto.testsuite.test.ActionParameterTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+    <action-param>
+      <name>org.apache.pluto.testsuite.PARAM_ACTION_KEY_NO_VAL</name>
+    </action-param>
+    <action-param>
+      <name>org.apache.pluto.testsuite.PARAM_ACTION_KEY</name>
+      <value>org.apache.pluto.testsuite.ACTION_VALUE</value>
+    </action-param>
+    <action-param>
+      <name>org.apache.pluto.testsuite.PARAM_ACTION_MULTI_KEY</name>
+      <value>org.apache.pluto.testsuite.ACTION_MULTI_VALUE_A</value>
+    </action-param>
+    <action-param>
+      <name>org.apache.pluto.testsuite.PARAM_ACTION_MULTI_KEY</name>
+      <value>org.apache.pluto.testsuite.ACTION_MULTI_VALUE_B</value>
+    </action-param>
+  </testsuite-config>
+    
+  <testsuite-config>
+    <name>Dispatcher Render Parameter Test</name>
+    <class>org.apache.pluto.testsuite.test.DispatcherRenderParameterTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+  
+  <testsuite-config>
+    <name>Dispatcher Request Test</name>
+    <class>org.apache.pluto.testsuite.test.DispatcherRequestTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Simple Attribute Test</name>
+    <class>org.apache.pluto.testsuite.test.SimpleAttributeTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+    
+  <testsuite-config>
+    <name>Application Scoped Session Attribute Test</name>
+    <class>org.apache.pluto.testsuite.test.AppScopedSessionAttributeTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+    
+  <testsuite-config>
+    <name>External Application Scoped Attribute Test</name>
+    <class>org.apache.pluto.testsuite.test.ExternalAppScopedAttributeTest</class>
+    <display-uri>/jsp/ExternalAppScopedAttributeTest.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Context Init Parameter Test</name>
+    <class>org.apache.pluto.testsuite.test.ContextInitParameterTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Preference In Action Test</name>
+    <class>org.apache.pluto.testsuite.test.PreferenceInActionTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Preference In Render Test</name>
+    <class>org.apache.pluto.testsuite.test.PreferenceInRenderTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Session Timeout Test</name>
+    <class>org.apache.pluto.testsuite.test.SessionTimeoutTest</class>
+    <display-uri>/jsp/SessionTimeoutTest.jsp</display-uri>
+  </testsuite-config>
+
+  <!--testsuite-config>
+    <name>Render Response No Content Type Test</name>
+    <class>org.apache.pluto.testsuite.test.RenderResponseNoContentTypeTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config-->
+
+  <testsuite-config>
+    <name>Portlet Mode Test</name>
+    <display-uri>/jsp/portlet_mode_test.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Window State Test</name>
+    <display-uri>/jsp/window_state_test.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Misc Test</name>
+    <class>org.apache.pluto.testsuite.test.MiscTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Security Mapping Test</name>
+    <class>org.apache.pluto.testsuite.test.SecurityMappingTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+  </testsuite-config>
+
+  <testsuite-config>
+    <name>Resource Bundle Test</name>
+    <class>org.apache.pluto.testsuite.test.ResourceBundleTest</class>
+    <display-uri>/jsp/test_results.jsp</display-uri>
+    <init-param>
+      <name>resource-bundle</name>
+      <value>true</value>
+    </init-param>
+    <init-param>
+      <name>title_en</name>
+      <value>Test Portlet 2 (en)</value>
+    </init-param>
+    <init-param>
+      <name>short-title_en</name>
+      <value>Test 2 (en)</value>
+    </init-param>
+    <init-param>
+      <name>keywords_en</name>
+      <value>Test,Testing</value>
+    </init-param>
+    <init-param>
+      <name>title_de</name>
+      <value>Test Portlet 2 (de)</value>
+    </init-param>
+    <init-param>
+      <name>short-title_de</name>
+      <value>Test 2 (de)</value>
+    </init-param>
+    <init-param>
+        <name>keywords_de</name>
+        <value>Test,Testen</value>
+    </init-param>
+    <init-param>
+      <name>title_dflt</name>
+      <value>Test Portlet 2 (dflt)</value>
+    </init-param>
+    <init-param>
+      <name>short-title_dflt</name>
+      <value>Test 2 (dflt)</value>
+    </init-param>
+    <init-param>
+      <name>keywords_dflt</name>
+      <value>Test,Testing</value>
+    </init-param>
+  </testsuite-config>
+</testportlet-config>

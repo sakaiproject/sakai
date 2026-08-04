@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <artifactId>pluto</artifactId>
+    <groupId>org.apache.pluto</groupId>
+    <version>1.1.7</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>assembly</artifactId>
+  <name>Pluto Assembly Project</name>
+  <url>http://portals.apache.org/pluto/</url>
+  <inceptionYear>2001</inceptionYear>
+
+  <profiles>
+    <profile>
+      <id>build-assemblies</id>
+      <build>
+        <plugins>
+            
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>compile</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <tasks>
+                <ant antfile="${basedir}/src/main/assembly/bundle-ant.xml" inheritRefs="true">
+                  <target name="package" />
+                </ant>
+              </tasks>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>ant</groupId>
+                <artifactId>ant-antlr</artifactId>
+                <version>1.6.5</version>
+              </dependency>
+              <dependency>
+                <groupId>antlr</groupId>
+                <artifactId>antlrall</artifactId>
+                <version>2.7.4</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+            
+          <plugin>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>maven-pluto-plugin</artifactId>
+            <version>${pom.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <installDir>${project.build.directory}/pluto-tomcat</installDir>
+              <installationDirectory>${project.build.directory}/pluto-tomcat</installationDirectory>
+            </configuration>
+          </plugin>
+            
+<!--          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>  
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-assemblies</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>attached</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>-->
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+    
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-descriptor-api</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-descriptor-impl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-container</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-portal-driver</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-portal-driver-impl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-portal</artifactId>
+      <type>war</type>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pluto</groupId>
+      <artifactId>pluto-testsuite</artifactId>
+      <type>war</type>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <!--
+      This dependency is required because the
+      of the Pluto resource plugin.  Note this
+      is an issue in the Maven Remote Resources plugin
+      as well (which the Pluto resource plugin is
+      based on).
+    -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
