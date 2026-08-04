@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 /**
  * This is a specialized class implementing a ServletOutputStream that works in
@@ -120,6 +121,16 @@ public class PrintWriterServletOutputStream extends ServletOutputStream {
      */
     public void println() throws IOException {
         mPrintWriter.println();
+    }
+
+    @Override
+    public boolean isReady() {
+        return true;
+    }
+
+    @Override
+    public void setWriteListener(WriteListener writeListener) {
+        throw new UnsupportedOperationException("WriteListener is not supported");
     }
 
 }

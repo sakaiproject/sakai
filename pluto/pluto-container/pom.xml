@@ -1,135 +1,108 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.pluto</groupId>
-    <artifactId>pluto</artifactId>
-    <version>1.1.7</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.pluto</groupId>
+        <artifactId>pluto</artifactId>
+        <version>1.1.7</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.pluto</groupId>
-  <artifactId>pluto-container</artifactId>
-  <packaging>jar</packaging>
-  <name>Pluto Portlet Container</name>
-  <description>The pluto portlet container.</description>
+    <artifactId>pluto-container</artifactId>
+    <packaging>jar</packaging>
+    <name>Pluto Portlet Container</name>
+    <description>The pluto portlet container.</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto-descriptor-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto-descriptor-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <!--
+          Pluto 1.1.7 is the Portlet 1.0 RI. Sakai master manages portlet-api 3.0.1 for tools;
+          compiling this container against 3.0.1 fails, so keep the Portlet 1.0 API here.
+        -->
+        <dependency>
+            <groupId>javax.portlet</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Not managed by Sakai master; test-only -->
+        <dependency>
+            <groupId>jmock</groupId>
+            <artifactId>jmock</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jmock</groupId>
+            <artifactId>jmock-cglib</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-  <dependencies>
-
-    <!-- Pluto Support Libraries =========================================== -->
-    <dependency>
-      <groupId>org.apache.pluto</groupId>
-      <artifactId>pluto-descriptor-api</artifactId>
-      <version>${pom.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pluto</groupId>
-      <artifactId>pluto-descriptor-impl</artifactId>
-      <version>${pom.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <!-- Other Support Libraries =========================================== -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging-api</artifactId>
-      <version>${commons-logging.version}</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- Specification Libraries =========================================== -->
-    <dependency>
-      <groupId>javax.portlet</groupId>
-      <artifactId>portlet-api</artifactId>
-      <version>${portlet-api.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Testing Libraries ================================================= -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- EasyMock
-       2.2, 2.0 requires Java 5
-       1.2_Java1.3 requires Java 1.3
-       use groupId "easymock" for version 1.2_Java1.3 -->
-    <!--
-   <dependency>
-             <groupId>org.easymock</groupId>
-             <artifactId>easymock</artifactId>
-             <version>2.2</version>
-         </dependency>
-   -->
-    <dependency>
-      <groupId>jmock</groupId>
-      <artifactId>jmock</artifactId>
-      <version>${jmock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>jmock</groupId>
-        <artifactId>jmock-cglib</artifactId>
-        <version>${jmock.version}</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-mock</artifactId>
-        <version>${springframework.version}</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>${springframework.version}</version>
-        <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>src/main/resources/META-INF</directory>
-        <targetPath>META-INF</targetPath>
-      </resource>
-    </resources>
-
-    <testResources>
-      <testResource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </testResource>
-    </testResources>
-
-    <plugins>
-      <!-- Surefire Plugin: Exec Tests ===================================== -->
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>**/*Test.java</include>
-          </includes>
-          <excludes>
-            <!-- Abstract -->
-            <exclude>**/PlutoTestCase.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/PlutoTestCase.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
