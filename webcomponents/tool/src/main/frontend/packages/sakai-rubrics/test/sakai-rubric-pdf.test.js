@@ -58,7 +58,7 @@ describe("sakai-rubric-pdf tests", () => {
     expect(link).to.exist;
     const href = `/api/sites/${data.siteId}/rubrics/${data.rubric1.id}/pdf\\?toolId=${data.toolId}&itemId=${data.entityId}&evaluatedItemId=${data.evaluatedItemId}`;
     expect(link.href).to.match(new RegExp(`.*${href}$`));
+    expect(link.hasAttribute("download")).to.be.true;
 
   });
 });
-
