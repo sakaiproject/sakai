@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <groupId>org.sakaiproject</groupId>
   <artifactId>e2e-tests</artifactId>
-  <version>26-SNAPSHOT</version>
+  <version>27-SNAPSHOT</version>
   <name>Sakai Playwright Java E2E Tests</name>
   <packaging>jar</packaging>
 
