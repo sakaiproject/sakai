@@ -31,7 +31,6 @@ import org.sakaiproject.pluto.descriptors.portlet.PortletAppDD;
 import org.sakaiproject.pluto.descriptors.portlet.PortletDD;
 import org.sakaiproject.pluto.descriptors.portlet.PortletPreferenceDD;
 import org.sakaiproject.pluto.descriptors.portlet.PortletPreferencesDD;
-import org.sakaiproject.pluto.descriptors.servlet.ServletDD;
 import org.sakaiproject.pluto.internal.InternalPortletPreference;
 import org.sakaiproject.pluto.internal.PortletDescriptorRegistry;
 import org.sakaiproject.pluto.internal.PortletEntity;
@@ -40,9 +39,8 @@ import org.sakaiproject.pluto.internal.PreferencesValidatorRegistry;
 /**
  * The PortletEntity encapsulates all data pertaining to a single portlet
  * instance.  This instance may appear zero or more times per user. The
- * PortletEntity consists of two primary peices of information, the Portlet
- * Definition as defined by the {@link PortletDD} and the Wrapping Servlet
- * information as defined by the{@link ServletDD}
+ * PortletEntity consists of the Portlet Definition as defined by the
+ * {@link PortletDD} and wrapping-servlet identity used for invocation.
  *
  */
 public class PortletEntityImpl implements PortletEntity {

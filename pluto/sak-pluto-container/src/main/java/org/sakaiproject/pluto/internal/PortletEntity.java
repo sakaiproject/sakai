@@ -20,7 +20,6 @@ import javax.portlet.PreferencesValidator;
 import javax.portlet.ValidatorException;
 
 import org.sakaiproject.pluto.descriptors.portlet.PortletDD;
-import org.sakaiproject.pluto.descriptors.servlet.ServletDD;
 
 /**
  * The PortletEntity encapsulates all data pertaining to a single portlet

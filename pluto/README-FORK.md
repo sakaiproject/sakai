@@ -37,12 +37,13 @@ Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` c
 7. **JDK 17 test fixes** (Castor → Apache Xerces serializer; Maven-style version parsing).
 8. **Explicit Castor dep** on `portal-service-impl` (no longer transitive under provided scope).
 9. **Rename packages** to `org.sakaiproject.pluto`; change Maven `groupId` to `org.sakaiproject.pluto`; wire `<module>pluto</module>` into the base reactor; deploy jars via `deploy.target=shared` (removed from `deploy/pom.xml` third-party list).
+10. **Freeze for Sakai-only use** — descriptor services are read-only (`portlet.xml` load); drop unused web.xml Castor stack, Maven site/assemble leftovers, and upstream portal-driver README. This tree will not track later Pluto releases.
 
 ## Intentional exceptions
 
 - **Portlet API 1.0** — Pluto is the Portlet 1.0 RI. Master manages `portlet-api` 3.0.1 for tools; container/taglib keep an explicit `portlet-api:1.0`.
 - **Portlet spec identity in filtered resources** — `javax.portlet.version.major=1` / `minor=0` for `environment.properties`.
-- **Read-only descriptors** — Sakai only loads `portlet.xml` / related descriptors. Castor write/marshall support and `xercesImpl` were removed from this frozen tree (JDK JAXP is enough for unmarshall).
+- **Read-only `portlet.xml` descriptors** — Sakai only loads portlet descriptors. Castor write/marshall, `xercesImpl`, and the unused web.xml descriptor API were removed (JDK JAXP is enough for unmarshall).
 - **Test-only deps not in master** — `jmock` 1.2.0.
 - **Maven source layout** — Pluto keeps `src/main/java` (overrides Sakai’s `src/java` default).
 
@@ -72,12 +73,13 @@ mvn sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
 
 ## Still out of scope
 
-- Porting the container to Portlet 2.0 / 3.0 APIs
+- Tracking later Pluto upstream releases (this copy is frozen at 1.1.7 for Sakai)
+- Porting the container to Portlet 2.0 / 3.0 APIs (except as needed for Tomcat 10 / jakarta)
 
 ## Source provenance
 
 Upstream: Apache Pluto 1.1.7 (Apache License 2.0)  
 https://archive.apache.org/dist/portals/pluto/SOURCES/v1.1.7/
 
-Checksums and signature for the upstream `pluto-1.1.7-src.zip` are in `pluto/original/`
+The upstream source zip plus checksums/signature are kept in `pluto/original/`
 (see also `Pluto-Distribution.html` for the Apache archive listing).
