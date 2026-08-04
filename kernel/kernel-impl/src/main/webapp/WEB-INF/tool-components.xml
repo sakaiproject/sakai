@@ -18,8 +18,7 @@
 		<property name="clusterableTools">
 			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 
 				guarantee that everything that tool
-				puts in the session is itself clusterable, and in the case of Terracotta, is documented in the
-				tc-config.xml file.  This value is a String, instead of a Set of values, to allow for overriding
+				puts in the session is itself clusterable. This value is a String, instead of a Set of values, to allow for overriding
                 the contents in the sakai.properties file. -->
 			<value>sakai.login,sakai.membership</value>
 		</property>

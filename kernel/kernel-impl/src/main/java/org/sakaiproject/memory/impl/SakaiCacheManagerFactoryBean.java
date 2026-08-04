@@ -152,15 +152,6 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                     .timeToIdleSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToIdle", DEFAULT_CACHE_TIMEOUT))
                     .timeToLiveSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToLive", DEFAULT_CACHE_TIMEOUT));
         }
-        clusterCache.terracotta(new TerracottaConfiguration()
-                .nonstop(new NonstopConfiguration()
-                        .timeoutBehavior(new TimeoutBehaviorConfiguration()
-                                .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
-                        .enabled(true)));
-        // Make sure we don't go to local disk
-        clusterCache.overflowToOffHeap(false);
-        // Required to control the L2 cache size in terracotta itself, default should be adequate
-        clusterCache.maxElementsOnDisk(10000);
         return clusterCache;
     }
     
