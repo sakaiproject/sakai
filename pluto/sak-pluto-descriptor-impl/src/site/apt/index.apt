@@ -31,8 +31,8 @@ writing object models representing the web and portlet descriptor files
 and unmarshalling the object models.  Pluto 2.0 uses JAXB.
 
     If you use the Pluto descriptor services in your own project, be
-sure to code to the interfaces <<<org.apache.pluto.descriptors.services.PortletAppDescriptorService>>>
-and <<<org.apache.pluto.descriptors.services.WebAppDescriptorService>>> and 
+sure to code to the interfaces <<<org.sakaiproject.pluto.descriptors.services.PortletAppDescriptorService>>>
+and <<<org.sakaiproject.pluto.descriptors.services.WebAppDescriptorService>>> and 
 not directly to the implementation classes.
 
 * XML parsing in Pluto 2.x
@@ -55,7 +55,7 @@ When Castor is configured to use JAXP, the parser that was defined by the
 Castor property <<<org.exolab.castor.parser>>> is ignored.
 
     If for some reason you need to override the the use of JAXP, set the system
-property <<<org.apache.pluto.useJaxp>>> to the string <<<false>>>.  When the 
+property <<<org.sakaiproject.pluto.useJaxp>>> to the string <<<false>>>.  When the 
 property is set to <<<false>>>, Castor will use the parser defined by the 
 <<<org.exolab.castor.parser>>> property.  You will be responsible for providing 
 the XML parser APIs and implementation libraries.

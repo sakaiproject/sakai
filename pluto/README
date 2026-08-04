@@ -40,7 +40,7 @@ Release Notes - Pluto - Version 1.1.7
 ** Bug
     * [PLUTO-440] - portlet:actionURL not wrapping portlet:param
     * [PLUTO-518] - DefineObjectsTag defines PortletRequest instead of RenderRequest
-    * [PLUTO-524] - Error in org.apache.pluto.core.DefaultUserInfoService
+    * [PLUTO-524] - Error in org.sakaiproject.pluto.core.DefaultUserInfoService
     * [PLUTO-526] - portlet:param JSP tag doesn't handle multi-valued parameters
 
 ** Improvement
@@ -61,7 +61,7 @@ Release Notes - Pluto - Version 1.1.6
 
 **Improvement
 
-    * [PLUTO-486] - The USER_INFO map is re-created every time the USER_INFO attribute is retrieved using getAttribute() on org.apache.pluto.internal.impl.PortletRequestImpl
+    * [PLUTO-486] - The USER_INFO map is re-created every time the USER_INFO attribute is retrieved using getAttribute() on org.sakaiproject.pluto.internal.impl.PortletRequestImpl
     * [PLUTO-487] - PortletPreferencesImpl should not store the preferences every time it is instantiated
     * [PLUTO-488] - When executing doAction/doRender/doLoad/doAdmin and retrieving the servlet context of the portlet app fails, a generic NullPointerException is thrown
     * [PLUTO-489] - Refactor request attribute handling into optional service interface

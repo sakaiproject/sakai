@@ -27,13 +27,13 @@ limitations under the License.
     <uri>http://portals.apache.org/pluto/portlet-el</uri>
     <tag>
         <name>defineObjects</name>
-        <tagclass>org.apache.pluto.tags.DefineObjectsTag</tagclass>
-        <teiclass>org.apache.pluto.tags.DefineObjectsTag$TEI</teiclass>
+        <tagclass>org.sakaiproject.pluto.tags.DefineObjectsTag</tagclass>
+        <teiclass>org.sakaiproject.pluto.tags.DefineObjectsTag$TEI</teiclass>
         <bodycontent>empty</bodycontent>
     </tag>
     <tag>
         <name>param</name>
-        <tagclass>org.apache.pluto.tags.el.ParamTag</tagclass>
+        <tagclass>org.sakaiproject.pluto.tags.el.ParamTag</tagclass>
         <bodycontent>empty</bodycontent>
         <attribute>
             <name>name</name>
@@ -48,8 +48,8 @@ limitations under the License.
     </tag>
     <tag>
         <name>actionURL</name>
-        <tagclass>org.apache.pluto.tags.ActionURLTag</tagclass>
-        <teiclass>org.apache.pluto.tags.BasicURLTag$TEI</teiclass>
+        <tagclass>org.sakaiproject.pluto.tags.ActionURLTag</tagclass>
+        <teiclass>org.sakaiproject.pluto.tags.BasicURLTag$TEI</teiclass>
         <bodycontent>JSP</bodycontent>
         <attribute>
             <name>windowState</name>
@@ -74,8 +74,8 @@ limitations under the License.
     </tag>
     <tag>
         <name>renderURL</name>
-        <tagclass>org.apache.pluto.tags.RenderURLTag</tagclass>
-        <teiclass>org.apache.pluto.tags.BasicURLTag$TEI</teiclass>
+        <tagclass>org.sakaiproject.pluto.tags.RenderURLTag</tagclass>
+        <teiclass>org.sakaiproject.pluto.tags.BasicURLTag$TEI</teiclass>
         <bodycontent>JSP</bodycontent>
         <attribute>
             <name>windowState</name>
@@ -100,7 +100,7 @@ limitations under the License.
     </tag>
     <tag>
         <name>namespace</name>
-        <tagclass>org.apache.pluto.tags.NamespaceTag</tagclass>
+        <tagclass>org.sakaiproject.pluto.tags.NamespaceTag</tagclass>
         <bodycontent>empty</bodycontent>
     </tag>
 </taglib>

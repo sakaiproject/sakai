@@ -59,11 +59,11 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>sak-pluto-container</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>sak-pluto-descriptor-api</artifactId>
         </dependency>
         <dependency>

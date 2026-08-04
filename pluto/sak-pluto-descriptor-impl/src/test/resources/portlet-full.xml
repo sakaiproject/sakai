@@ -8,7 +8,7 @@
         <portlet-name>AboutPortlet</portlet-name>
         <display-name>About Portlet</display-name>
         <display-name xml:lang="fr">About Portlet</display-name>
-        <portlet-class>org.apache.pluto.driver.portlets.AboutPortlet</portlet-class>
+        <portlet-class>org.sakaiproject.pluto.driver.portlets.AboutPortlet</portlet-class>
         <init-param>
             <description>a</description>
             <name>b</name>

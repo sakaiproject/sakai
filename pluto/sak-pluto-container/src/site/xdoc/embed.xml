@@ -35,7 +35,7 @@ limitations under the License.
       
       <subsection name="Steps for Embedding Pluto">
         <p>
-          <b>Step 1:</b> Implement <code>org.apache.pluto.PortletContainerServices</code>
+          <b>Step 1:</b> Implement <code>org.sakaiproject.pluto.PortletContainerServices</code>
         </p>
         <p>
           <b>Step 2:</b> Manage the Portlet Container Lifecycle:

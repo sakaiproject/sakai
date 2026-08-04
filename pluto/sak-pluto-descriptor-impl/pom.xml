@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.sakaiproject.pluto</groupId>
         <artifactId>sak-pluto</artifactId>
         <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -14,9 +14,13 @@
     <packaging>jar</packaging>
     <name>Pluto Descriptor Service Implementation</name>
 
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>sak-pluto-descriptor-api</artifactId>
             <version>${sakai.pluto.version}</version>
         </dependency>

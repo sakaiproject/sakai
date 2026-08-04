@@ -28,9 +28,9 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.apache.pluto.descriptors.portlet.PortletDD;
-import org.apache.pluto.descriptors.portlet.PortletInfoDD;
-import org.apache.pluto.internal.InternalPortletContext;
+import org.sakaiproject.pluto.descriptors.portlet.PortletDD;
+import org.sakaiproject.pluto.descriptors.portlet.PortletInfoDD;
+import org.sakaiproject.pluto.internal.InternalPortletContext;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Tool;

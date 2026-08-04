@@ -10,7 +10,7 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.apache.pluto</groupId>
+    <groupId>org.sakaiproject.pluto</groupId>
     <artifactId>sak-pluto</artifactId>
     <packaging>pom</packaging>
     <name>Sakai Pluto</name>

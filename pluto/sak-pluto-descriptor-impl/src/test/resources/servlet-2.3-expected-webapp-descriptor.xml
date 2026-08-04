@@ -24,7 +24,7 @@
         <filter-name>test</filter-name>
         <display-name>TestName</display-name>
         <description>Test Description</description>
-        <filter-class>org.apache.pluto.test.TestMe</filter-class>
+        <filter-class>org.sakaiproject.pluto.test.TestMe</filter-class>
         <init-param>
             <param-name>Test</param-name>
             <param-value>true</param-value>
@@ -43,10 +43,10 @@
         <servlet-name>jsp</servlet-name>
     </filter-mapping>
     <listener>
-        <listener-class>org.apache.pluto.test.TestListener</listener-class>
+        <listener-class>org.sakaiproject.pluto.test.TestListener</listener-class>
     </listener>
     <listener>
-        <listener-class>org.apache.pluto.test.AnotherListener</listener-class>
+        <listener-class>org.sakaiproject.pluto.test.AnotherListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>default</servlet-name>
@@ -178,7 +178,7 @@
     <ejb-ref>
         <description>Test EJB</description>
         <ejb-ref-name>test</ejb-ref-name>
-        <ejb-ref-type>org.apache.pluto.test.ejb.TestEJB</ejb-ref-type>
+        <ejb-ref-type>org.sakaiproject.pluto.test.ejb.TestEJB</ejb-ref-type>
         <home>testHomeInterface</home>
         <remote>testRemoteInterface</remote>
     </ejb-ref>

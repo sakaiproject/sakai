@@ -1,92 +1,82 @@
 # SAK-52804 — Vendoring Apache Pluto into Sakai
 
-This document records how Apache Pluto 1.1.7 was imported into the Sakai source tree, pruned, adapted to Sakai Maven conventions, and renamed so it cannot be confused with upstream Maven Central artifacts.
+This document records how Apache Pluto 1.1.7 was imported into the Sakai source tree, pruned, adapted to Sakai Maven conventions, renamed, and wired into the Sakai reactor.
 
 Branch: `SAK-52804`
 
 ## Goal
 
-Ship a Sakai-owned build of the Pluto portlet container (Portlet 1.0 RI) from source, under distinct artifact names, using Sakai’s master POM and versioning — without yet wiring Pluto into the top-level Sakai reactor.
+Ship a Sakai-owned build of the Pluto portlet container (Portlet 1.0 RI) from source, under Sakai package/artifact names, using Sakai’s master POM and versioning, building and deploying like any other Sakai module.
 
 ## What landed
 
-Top-level directory: `pluto/`
+Top-level directory: `pluto/` (reactor module)
 
-| Module | Artifact |
-|--------|----------|
-| Parent aggregator | `org.apache.pluto:sak-pluto` |
-| Descriptor API | `org.apache.pluto:sak-pluto-descriptor-api` |
-| Descriptor impl | `org.apache.pluto:sak-pluto-descriptor-impl` |
-| Container | `org.apache.pluto:sak-pluto-container` |
-| Tag library | `org.apache.pluto:sak-pluto-taglib` |
+Java packages: `org.sakaiproject.pluto.*`
+
+| Module | Maven coordinates |
+|--------|-------------------|
+| Parent aggregator | `org.sakaiproject.pluto:sak-pluto` |
+| Descriptor API | `org.sakaiproject.pluto:sak-pluto-descriptor-api` |
+| Descriptor impl | `org.sakaiproject.pluto:sak-pluto-descriptor-impl` |
+| Container | `org.sakaiproject.pluto:sak-pluto-container` |
+| Tag library | `org.sakaiproject.pluto:sak-pluto-taglib` |
 
 Version: `${sakai.pluto.version}` → `${sakai.version}` (currently `27-SNAPSHOT`)
 
+Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` copies them to Tomcat `shared/lib`.
+
 ## Commit history (on `SAK-52804`)
 
-1. **Import Apache Pluto 1.1.7 source**  
-   Copied the full upstream tree into `pluto/`, excluding `target/` build output.
-
-2. **Prune Pluto modules unused by Sakai**  
-   Removed portal driver, portal, testsuite, util, maven plugin, ant tasks, site-skin, and assembly. Kept only the four artifacts Sakai already consumed from Maven Central.
-
-3. **Allow Pluto modules to build with modern Maven/JDK**  
-   Removed broken `pluto-site` remote-resources wiring, set Java 8+ compiler settings (later superseded by master), fixed container `META-INF` resource `targetPath`.
-
-4. **Reparent Pluto under Sakai master POM**  
-   Switched parent from `org.apache:apache:3` to `org.sakaiproject:master`. Dropped Apache mailing lists / distributionManagement / gpg noise. Used Sakai-managed dependency versions (servlet-api 4, junit, spring-test, castor, xerces, jcl-over-slf4j, etc.). Overrode source layout back to Maven standard (`src/main/java`) because master defaults to Sakai’s `src/java`. Added Servlet 3.1 stubs on `PrintWriterServletOutputStream` for servlet-api 4.
-
-5. **Rename Pluto artifacts to `sak-pluto-*`**  
-   Renamed module directories and artifactIds; updated `master`, `deploy`, portal POMs, and docker Tomcat jar-scan / shared-classloader patterns. GroupId remains `org.apache.pluto` for now.
-
-6. **Align Pluto with Sakai master versioning**  
-   Dropped hard-coded `1.1.7`. Inherit `27-SNAPSHOT` from master. Set `sakai.pluto.version` to `${sakai.version}` in `master/pom.xml`. Inter-module deps use `${sakai.pluto.version}`.
+1. **Import Apache Pluto 1.1.7 source** into `pluto/` (no `target/` trees).
+2. **Prune** unused upstream modules; keep the four Sakai-consumed artifacts.
+3. **Modernize build** for current Maven/JDK (drop broken `pluto-site` remote-resources, fix resources path).
+4. **Reparent under Sakai master**; use Sakai-managed dependency versions; Servlet 3.1 stubs for servlet-api 4.
+5. **Rename artifacts** to `sak-pluto-*`.
+6. **Align versions** with `${sakai.version}` / `27-SNAPSHOT`.
+7. **JDK 17 test fixes** (Castor → Apache Xerces serializer; Maven-style version parsing).
+8. **Explicit Castor dep** on `portal-service-impl` (no longer transitive under provided scope).
+9. **Rename packages** to `org.sakaiproject.pluto`; change Maven `groupId` to `org.sakaiproject.pluto`; wire `<module>pluto</module>` into the base reactor; deploy jars via `deploy.target=shared` (removed from `deploy/pom.xml` third-party list).
 
 ## Intentional exceptions
 
-- **Portlet API 1.0** — Pluto is the Portlet 1.0 reference implementation. Sakai master manages `portlet-api` 3.0.1 for tools; compiling this container against 3.0.1 fails. Container and taglib keep an explicit `portlet-api:1.0` dependency.
-- **Portlet spec identity in filtered resources** — `javax.portlet.version.major=1` / `minor=0` remain in the aggregator POM for `environment.properties` filtering (runtime identity of the RI, not the Maven dependency version).
-- **Test-only deps not in master** — `jmock` 1.2.0 and `xmlunit` 1.6 are still pinned for legacy unit tests.
-- **Not in the Sakai reactor yet** — `pluto` is not listed in the root `pom.xml` `<modules>`. Building Sakai alone will not build these jars until that wiring is added (or you `mvn install` from `pluto/` first).
+- **Portlet API 1.0** — Pluto is the Portlet 1.0 RI. Master manages `portlet-api` 3.0.1 for tools; container/taglib keep an explicit `portlet-api:1.0`.
+- **Portlet spec identity in filtered resources** — `javax.portlet.version.major=1` / `minor=0` for `environment.properties`.
+- **Test-only deps not in master** — `jmock` 1.2.0 and `xmlunit` 1.6.
+- **Maven source layout** — Pluto keeps `src/main/java` (overrides Sakai’s `src/java` default).
 
-## How to build
+## How to build / deploy
 
-From the Sakai trunk checkout:
+As part of a normal Sakai build (reactor includes `pluto` before `portal`):
 
 ```bash
-cd pluto
-mvn clean -DskipTests package
+mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
 ```
 
-Artifacts land under each module’s `target/` as `sak-pluto-*-27-SNAPSHOT.jar`.
-
-To publish into the local Maven repo (so `deploy` / portal can resolve them before reactor wiring):
+Standalone from the vendored tree:
 
 ```bash
 cd pluto
-mvn clean -DskipTests install
+mvn clean install
+# optional: deploy just these jars
+mvn sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
 ```
 
 ## Sakai consumers updated
 
-These now depend on `sak-pluto-*` via `${sakai.pluto.version}`:
-
-- `master/pom.xml` (dependencyManagement)
-- `deploy/pom.xml` (shared/lib deploy)
-- `portal/portal-service-impl/impl/pom.xml`
-- `portal/portal-render-impl/impl/pom.xml`
-- `docker/tomcat/conf/catalina.properties` (shared loader jar patterns)
-- `docker/tomcat/conf/context.xml` (TLD scan for `sak-pluto-taglib-*.jar`)
+- `master/pom.xml` (dependencyManagement → `org.sakaiproject.pluto:sak-pluto-*`)
+- `portal/portal-service-impl`, `portal/portal-render-impl` (deps + Java imports)
+- `lti` / `web` portlet `web.xml` (`PortletServlet` class name)
+- `docker/tomcat/conf/catalina.properties` and `context.xml` (`sak-pluto-*.jar` patterns)
 
 ## Still out of scope
 
-- Adding `<module>pluto</module>` to the Sakai base reactor
-- Changing `deploy.target` / `sakai:deploy` so a Pluto-only build copies jars into Tomcat (today Tomcat still gets Pluto via the Sakai `deploy` module after artifacts are installed/resolved)
-- Migrating Java package names away from `org.apache.pluto`
-- Changing groupId to `org.sakaiproject`
 - Porting the container to Portlet 2.0 / 3.0 APIs
 
 ## Source provenance
 
 Upstream: Apache Pluto 1.1.7 (Apache License 2.0)  
-Original import tree: local `pluto-1.1.7` distribution (source only; no `target/` artifacts).
+https://archive.apache.org/dist/portals/pluto/SOURCES/v1.1.7/
+
+Checksums and signature for the upstream `pluto-1.1.7-src.zip` are in `pluto/original/`
+(see also `Pluto-Distribution.html` for the Apache archive listing).

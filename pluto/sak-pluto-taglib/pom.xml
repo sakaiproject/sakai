@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.sakaiproject.pluto</groupId>
         <artifactId>sak-pluto</artifactId>
         <version>27-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -14,6 +14,10 @@
     <packaging>jar</packaging>
     <name>Pluto Portlet Tag Library</name>
     <description>Pluto's Java Portlet Specification Tag Library implementation</description>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
 
     <dependencies>
         <!-- Keep Portlet API 1.0 (same constraint as sak-pluto-container) -->
