@@ -59,10 +59,6 @@
                     <finalName>pluto-taglib-${pom.currentVersion}</finalName>
                 </configuration>
             </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-remote-resources-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 </project>

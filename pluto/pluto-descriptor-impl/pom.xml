@@ -11,21 +11,6 @@
   <packaging>jar</packaging>
   <name>Pluto Descriptor Service Implementation</name>
   
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <resourcesDirectory>${basedir}/../pluto-site/src/site/resources</resourcesDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-remote-resources-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-  
   <dependencies>
     <dependency>
       <groupId>org.apache.pluto</groupId>

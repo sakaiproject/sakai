@@ -254,6 +254,9 @@
         <jmock.version>1.2.0</jmock.version>
         <commons-io.version>1.3.1</commons-io.version>
         <xmlunit.version>1.1</xmlunit.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 
@@ -304,15 +307,11 @@
                 <version>1.0-alpha-5</version>
                 <executions>
                   <execution>
-                    <goals> 
+                    <goals>
                       <goal>process</goal>
                     </goals>
                     <configuration>
-                      <supplementalModels>
-                        <supplementalModel>
-                          ${project.basedir}/../pluto-site/src/main/appended-resources/supplemental-models.xml
-                        </supplementalModel>
-                      </supplementalModels>
+                      <!-- pluto-site was never a kept module; skip its supplemental models -->
                       <resourceBundles>
                         <resourceBundle>org.apache:apache-jar-resource-bundle:1.2</resourceBundle>
                       </resourceBundles>
@@ -370,6 +369,16 @@
         </pluginManagement>
         
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <configuration>
+              <source>${maven.compiler.source}</source>
+              <target>${maven.compiler.target}</target>
+              <encoding>${project.build.sourceEncoding}</encoding>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
