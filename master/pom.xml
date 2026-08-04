@@ -1168,6 +1168,11 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
           </exclusion>
+          <!-- Castor 1.1.2.1 pulls xerces:xerces:1.4.0, which breaks Spring XSD parsing (JAXP) -->
+          <exclusion>
+            <groupId>xerces</groupId>
+            <artifactId>xerces</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
