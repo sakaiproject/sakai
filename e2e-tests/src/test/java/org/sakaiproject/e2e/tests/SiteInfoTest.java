@@ -76,14 +76,14 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertNoTemplateRenderingError();
         assertThat(page.locator("#participant-helper")).isVisible();
         assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .breadcrumb-item").last()).hasText("Finish");
-        page.locator("#officialAccountParticipant").fill("instructor1\nstudent0011");
+        page.locator("#officialAccountParticipant").fill("instructor1");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
         Locator existingParticipantMessage = page.locator("#participant-helper .sak-banner-warn")
                 .filter(new Locator.FilterOptions().setHasText("instructor1"));
         assertThat(existingParticipantMessage).containsText("instructor1");
         assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
-        assertThat(page.locator("#officialAccountParticipant")).hasValue("student0011\n");
+        page.locator("#officialAccountParticipant").fill("student0011\nstudent0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 

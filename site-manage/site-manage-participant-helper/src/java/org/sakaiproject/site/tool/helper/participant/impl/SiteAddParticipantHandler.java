@@ -59,6 +59,7 @@ public class SiteAddParticipantHandler {
     private final ParticipantAccountParser participantAccountParser;
 
     private String csrfToken;
+    private boolean initializationFailed;
     private AuthzGroup realm;
     private List<Role> roles = new ArrayList<>();
     private Site site;
@@ -82,8 +83,12 @@ public class SiteAddParticipantHandler {
     }
 
     public boolean canAddParticipant() {
-		if (site == null) init();
-		if (siteService.allowUpdateSiteMembership(site.getId())) return true;
+        if (site == null) init();
+        if (site == null) {
+            addInitializationError();
+            return false;
+        }
+        if (siteService.allowUpdateSiteMembership(site.getId())) return true;
 
 		messages.add(new ParticipantMessage(
 				"java.permeditsite",
@@ -114,19 +119,25 @@ public class SiteAddParticipantHandler {
     public void init() {
         siteTypeUtil = new SiteTypeUtil(siteService, serverConfigurationService);
 
-        if (site == null) {
-			siteId = Optional.ofNullable(sessionManager.getCurrentToolSession().getAttribute(ParticipantConstants.HELPER_SITE_ID_ATTRIBUTE))
-					.map(Object::toString)
-					.orElseGet(() -> toolManager.getCurrentPlacement().getContext());
+        if (site == null && !initializationFailed) {
             try {
+                siteId = Optional.ofNullable(sessionManager.getCurrentToolSession()
+                        .getAttribute(ParticipantConstants.HELPER_SITE_ID_ATTRIBUTE))
+                        .map(Object::toString)
+                        .orElseGet(() -> toolManager.getCurrentPlacement().getContext());
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
                 roles = new ArrayList<>(SiteParticipantHelper.getAllowedRoles(site.getType(), realm.getRoles()));
             } catch (Exception e) {
-				log.warn("could not find site [{}], {}", siteId, e);
+                initializationFailed = true;
+                site = null;
+                realm = null;
+                roles = new ArrayList<>();
+                addInitializationError();
+                log.warn("Could not initialize participant helper for site {}", siteId, e);
             }
         }
-	}
+    }
 
 	public String getSiteTitle() {
 		if (site == null) init();
@@ -161,7 +172,14 @@ public class SiteAddParticipantHandler {
 
     public boolean submitAdd(String csrfToken, String officialAccounts, String nonOfficialAccounts,
             ParticipantStatus selectedStatus) {
+        if (invalidCsrfToken(csrfToken)) return false;
+
         csrfToken(csrfToken);
+        if (site == null) init();
+        if (site == null) {
+            addInitializationError();
+            return false;
+        }
         wizardState.setOfficialAccountParticipant(officialAccounts);
         wizardState.setNonOfficialAccountParticipant(nonOfficialAccounts);
         if (selectedStatus == null) {
@@ -171,10 +189,6 @@ public class SiteAddParticipantHandler {
             return false;
         }
         wizardState.setStatus(selectedStatus);
-        if (invalidCsrfToken()) {
-            saveState();
-            return false;
-        }
 
         resetMessages();
         ParticipantAccountParser.Result result = participantAccountParser.parse(site,
@@ -186,7 +200,7 @@ public class SiteAddParticipantHandler {
         wizardState.setUserRoleEntries(result.entries());
         messages.addAll(result.messages());
         saveState();
-        return messages.isEmpty();
+        return messages.stream().noneMatch(message -> message.getSeverity() == ParticipantMessage.Severity.ERROR);
     }
 
     public boolean submitRoles(String csrfToken, ParticipantRoleMode selectedRoleMode, String selectedSameRole,
@@ -232,7 +246,11 @@ public class SiteAddParticipantHandler {
     }
 
     private boolean invalidCsrfToken() {
-		boolean invalid = !StringUtils.equals(csrfToken, getCsrfToken());
+		return invalidCsrfToken(csrfToken);
+	}
+
+    private boolean invalidCsrfToken(String value) {
+		boolean invalid = !StringUtils.equals(value, getCsrfToken());
 		if (invalid) {
 		messages.add(new ParticipantMessage(
 				"java.badcsrftoken",
@@ -244,6 +262,14 @@ public class SiteAddParticipantHandler {
 
     private void resetMessages() {
 		messages.clear();
+    }
+
+    private void addInitializationError() {
+        boolean present = messages.stream().anyMatch(message -> "java.realm".equals(message.getCode())
+                && message.getSeverity() == ParticipantMessage.Severity.ERROR);
+        if (!present) {
+            messages.add(new ParticipantMessage("java.realm", null, ParticipantMessage.Severity.ERROR));
+        }
     }
     
     private boolean applySameRole() {
@@ -281,6 +307,10 @@ public class SiteAddParticipantHandler {
 
     private boolean validateRoles(Collection<String> roleNames) {
         if (realm == null) init();
+        if (realm == null) {
+            addInitializationError();
+            return false;
+        }
         Set<String> allowedRoleNames = getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         boolean mayUpdateRealm = authzGroupService.allowUpdate(siteService.siteReference(siteId));
         for (String roleName : roleNames) {
@@ -315,6 +345,11 @@ public class SiteAddParticipantHandler {
 
         resetMessages();
         if (site == null) init();
+        if (site == null) {
+            addInitializationError();
+            saveState();
+            return false;
+        }
         ParticipantRealmUpdater.Result updateResult = participantRealmUpdater.addParticipants(site, roles,
                 wizardState.getUserRoleEntries(), wizardState.getStatus(), wizardState.getNotificationOption());
         messages.addAll(updateResult.messages());
@@ -391,6 +426,7 @@ public class SiteAddParticipantHandler {
 	private void reset() {
 		site = null;
 		siteId = null;
+		initializationFailed = false;
 		realm = null;
 		roles = new ArrayList<>();
 		wizardState = new ParticipantWizardState();

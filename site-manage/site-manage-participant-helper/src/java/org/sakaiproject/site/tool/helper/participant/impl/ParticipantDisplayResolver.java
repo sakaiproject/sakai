@@ -6,7 +6,6 @@
  */
 package org.sakaiproject.site.tool.helper.participant.impl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +29,6 @@ public class ParticipantDisplayResolver {
     }
 
     public List<ParticipantDisplay> displays(List<UserRoleEntry> entries) {
-        if (entries.size() < 2) {
-            return Collections.emptyList();
-        }
         return entries.stream().map(this::display).collect(Collectors.toList());
     }
 
