@@ -39,7 +39,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.query.Query;
-import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -107,7 +106,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
         HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_WORKSPACE_SYNOPTIC_ITEMS);
-            q.setParameter("userId", userId, StringType.INSTANCE);
+            q.setParameter("userId", userId);
             return q.list();
         };
 
@@ -138,7 +137,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
             List rtn = new ArrayList();
             Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
-            q.setParameter("siteId", siteId, StringType.INSTANCE);
+            q.setParameter("siteId", siteId);
             for (int initIndex = 0; initIndex < userIds.size(); initIndex+=ORACLE_IN_CLAUSE_SIZE_LIMIT) {
                 q.setParameterList("userIds", userIds.subList(initIndex, Math.min(initIndex+ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size())));
                 rtn.addAll(q.list());
@@ -1274,8 +1273,8 @@ public class DecoratedForumInfo{
 	public void updateAllSiteTitles(final String siteId, final String siteTitle) {
 		HibernateCallback<Integer> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_UPDATE_ALL_SITE_TITLES);
-            q.setParameter("siteTitle", siteTitle, StringType.INSTANCE);
-            q.setParameter("siteId", siteId, StringType.INSTANCE);
+            q.setParameter("siteTitle", siteTitle);
+            q.setParameter("siteId", siteId);
             return q.executeUpdate();
         };
 

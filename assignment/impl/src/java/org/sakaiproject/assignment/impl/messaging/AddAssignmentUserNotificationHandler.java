@@ -25,7 +25,6 @@ import java.util.Set;
 import java.time.Instant;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.type.StringType;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_ADD_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
@@ -138,7 +137,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
 
             sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
                 .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS, EVENT_AVAILABLE_ASSIGNMENT})
-                .setParameter("ref", ref, StringType.INSTANCE)
+                .setParameter("ref", ref)
                 .setParameterList("toUsers", users).executeUpdate();
             return null;
         });
@@ -183,7 +182,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
 
                 Long bhWithRef = (Long) sessionFactory.getCurrentSession()
                     .createQuery("select count(*) from UserNotification where ref = :ref and event = :event")
-                    .setParameter("ref", ref, StringType.INSTANCE).setParameter("event", EVENT_UPDATE_ASSIGNMENT_ACCESS, StringType.INSTANCE).uniqueResult();
+                    .setParameter("ref", ref).setParameter("event", EVENT_UPDATE_ASSIGNMENT_ACCESS).uniqueResult();
                 return bhWithRef > 0;
             });
     }

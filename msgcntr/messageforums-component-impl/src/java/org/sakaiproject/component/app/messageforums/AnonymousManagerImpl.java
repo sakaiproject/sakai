@@ -30,7 +30,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.type.StringType;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -128,7 +127,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 				while (minUser < userIds.size())
 				{
 					Query q = session.getNamedQuery(QUERY_BY_SITE_AND_USERS);
-					q.setParameter("siteId", siteId, StringType.INSTANCE);
+					q.setParameter("siteId", siteId);
 					q.setParameterList("userIds", userIds.subList(minUser, maxUser));
 					mappings.addAll(q.list());
 					minUser += MAX_IN_CLAUSE_SIZE;
@@ -151,7 +150,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(QUERY_BY_SITE);
-				q.setParameter("siteId", siteId, StringType.INSTANCE);
+				q.setParameter("siteId", siteId);
 				return q.list();
 			}
 		};
