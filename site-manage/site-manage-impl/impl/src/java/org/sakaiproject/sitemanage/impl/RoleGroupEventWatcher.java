@@ -92,41 +92,44 @@ public class RoleGroupEventWatcher implements Observer {
 
         // the sync only propagates changes already made to the site realm, bypass permission checks
         SecurityAdvisor advisor = (userId, sf, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
-        securityService.pushAdvisor(advisor);
         try {
-            AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-            Site site = siteService.getSite(realmId.substring(SITE_REF_PREFIX.length()));
+            securityService.pushAdvisor(advisor);
+            try {
+                AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+                Site site = siteService.getSite(realmId.substring(SITE_REF_PREFIX.length()));
 
-            boolean needSave = false;
-            for (Group group : site.getGroups()) {
-                if (group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED) == null) continue;
-                String roleString = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-                if (StringUtils.isBlank(roleString)) continue;
+                boolean needSave = false;
+                for (Group group : site.getGroups()) {
+                    if (group.getProperties().getProperty(Group.GROUP_PROP_WSETUP_CREATED) == null) continue;
+                    String roleString = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+                    if (StringUtils.isBlank(roleString)) continue;
 
-                needSave = true;
-                for (String role : SiteGroupHelper.unpack(roleString)) {
-                    try {
-                        // replace the members holding this role with the current site users of the role
-                        for (Member member : group.getMembers()) {
-                            if (role.equals(member.getRole().getId())) {
-                                group.deleteMember(member.getUserId());
+                    needSave = true;
+                    for (String role : SiteGroupHelper.unpack(roleString)) {
+                        try {
+                            // replace the members holding this role with the current site users of the role
+                            for (Member member : group.getMembers()) {
+                                if (role.equals(member.getRole().getId())) {
+                                    group.deleteMember(member.getUserId());
+                                }
                             }
+                            for (String userId : realm.getUsersHasRole(role)) {
+                                group.insertMember(userId, role, true, false);
+                            }
+                        } catch (AuthzRealmLockException e) {
+                            log.warn("Could not sync role {} in locked group {}, {}", role, group.getId(), e.toString());
                         }
-                        for (String userId : realm.getUsersHasRole(role)) {
-                            group.insertMember(userId, role, true, false);
-                        }
-                    } catch (AuthzRealmLockException e) {
-                        log.warn("Could not sync role {} in locked group {}, {}", role, group.getId(), e.toString());
                     }
                 }
-            }
-            if (needSave) {
-                siteService.saveGroupMembership(site);
+                if (needSave) {
+                    siteService.saveGroupMembership(site);
+                }
+            } finally {
+                securityService.popAdvisor(advisor);
             }
         } catch (Exception e) {
-            log.warn("Could not sync role based groups for {}, {}", event.getResource(), e.toString());
+            log.warn("Could not sync role based groups for {}", event.getResource(), e);
         } finally {
-            securityService.popAdvisor(advisor);
             threadLocalManager.set(CURRENT_EVENT_RESOURCE_REF, null);
         }
     }
