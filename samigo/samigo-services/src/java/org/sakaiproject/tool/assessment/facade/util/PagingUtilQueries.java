@@ -58,7 +58,7 @@ public class PagingUtilQueries extends HibernateDaoSupport implements PagingUtil
            assessmentList.beforeFirst();
            while ( (pageSize > i++) && assessmentList.next()){
              log.debug("**** add "+i);
-             page.add(assessmentList.get(0));
+             page.add(assessmentList.get());
            }
          }
          return page;

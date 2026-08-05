@@ -25,11 +25,14 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObjectContent;
@@ -48,17 +51,16 @@ public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(
-							RWikiHistoryObjectContent.class).add(
-							Expression.eq("rwikiid", parent.getId())).list();
-				}
+			HibernateCallback<List<RWikiHistoryObjectContent>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<RWikiHistoryObjectContent> cq = cb.createQuery(RWikiHistoryObjectContent.class);
+				Root<RWikiHistoryObjectContent> root = cq.from(RWikiHistoryObjectContent.class);
 
+				cq.select(root).where(cb.equal(root.get("rwikiid"), parent.getId()));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			List found = (List) getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{

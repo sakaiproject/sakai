@@ -41,13 +41,9 @@ import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
-import org.hibernate.type.StringType;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -293,15 +289,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 */
 	public JobRun getLatestJobRun() throws Exception {
 		JobRun r = getHibernateTemplate().execute(session -> {
-            JobRun jobRun = null;
-            Criteria c = session.createCriteria(JobRunImpl.class);
-            c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
-            List jobs = c.list();
-            if(jobs != null && jobs.size() > 0){
-                jobRun = (JobRun) jobs.get(0);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<JobRunImpl> cq = cb.createQuery(JobRunImpl.class);
+            Root<JobRunImpl> root = cq.from(JobRunImpl.class);
+            cq.select(root);
+            cq.orderBy(cb.desc(root.get("id")));
+	        List<JobRunImpl> jobs = session.createQuery(cq).setMaxResults(1).list();
+            if(jobs != null && !jobs.isEmpty()) {
+                return (JobRun) jobs.get(0);
             }
-            return jobRun;
+            return null;
         });
 		return r;
 	}
@@ -311,12 +308,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 */
 	public Date getEventDateFromLatestJobRun() throws Exception {
 		Date r = getHibernateTemplate().execute(session -> {
-            Criteria c = session.createCriteria(JobRunImpl.class);
-            c.add(Restrictions.isNotNull("lastEventDate"));
-            c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
-            List jobs = c.list();
-            if(jobs != null && jobs.size() > 0){
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<JobRunImpl> cq = cb.createQuery(JobRunImpl.class);
+            Root<JobRunImpl> root = cq.from(JobRunImpl.class);
+            cq.select(root);
+            cq.where(root.get("lastEventDate").isNotNull());
+            cq.orderBy(cb.desc(root.get("id")));
+            List<JobRunImpl> jobs = session.createQuery(cq).setMaxResults(1).list();
+            if(jobs != null && !jobs.isEmpty()) {
                 JobRun jobRun = (JobRun) jobs.get(0);
                 return jobRun.getLastEventDate();
             }
@@ -697,9 +696,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						// New files
 						HibernateCallback<List<String>> hcb1 = session -> {
                             Query q = session.createQuery(hql);
-                            q.setParameter("siteid", siteId, StringType.INSTANCE);
-                            q.setParameter("pageAction", "create", StringType.INSTANCE);
-                            q.setParameter("pageRef", finalPageRef, StringType.INSTANCE);
+                            q.setParameter("siteid", siteId);
+                            q.setParameter("pageAction", "create");
+                            q.setParameter("pageRef", finalPageRef);
                             return q.list();
                         };
 
@@ -975,19 +974,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			EventStat eExisting = null;
 			try{
-				Criteria c = session.createCriteria(EventStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from EventStatImpl where siteId = :siteId and eventId = :eventId and userId = :userId and date = :date";
+				Query<EventStatImpl> q = session.createQuery(hql, EventStatImpl.class);
+				q.setParameter("siteId", eUpdate.getSiteId());
+				q.setParameter("eventId", eUpdate.getEventId());
+				q.setParameter("userId", eUpdate.getUserId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (EventStat) c.uniqueResult();
+					eExisting = (EventStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (EventStat) c.list().get(0);
+							eExisting = (EventStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1031,20 +1031,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ResourceStat eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(ResourceStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("resourceRef", eUpdate.getResourceRef()));
-				c.add(Restrictions.eq("resourceAction", eUpdate.getResourceAction()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from ResourceStatImpl where siteId = :siteId and resourceRef = :resourceRef and resourceAction = :resourceAction and userId = :userId and date = :date";
+				Query<ResourceStatImpl> q = session.createQuery(hql, ResourceStatImpl.class);
+				q.setParameter("siteId", eUpdate.getSiteId());
+				q.setParameter("resourceRef", eUpdate.getResourceRef());
+				q.setParameter("resourceAction", eUpdate.getResourceAction());
+				q.setParameter("userId", eUpdate.getUserId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (ResourceStat) c.uniqueResult();
+					eExisting = (ResourceStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (ResourceStat) c.list().get(0);
+							eExisting = (ResourceStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1080,20 +1081,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			LessonBuilderStat eExisting = null;
 			String eExistingSiteId = null;
 			try {
-				Criteria c = session.createCriteria(LessonBuilderStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("pageRef", eUpdate.getPageRef()));
-				c.add(Restrictions.eq("pageAction", eUpdate.getPageAction()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from LessonBuilderStatImpl where siteId = :siteId and pageRef = :pageRef and pageAction = :pageAction and userId = :userId and date = :date";
+				Query<LessonBuilderStatImpl> q = session.createQuery(hql, LessonBuilderStatImpl.class);
+				q.setParameter("siteId", eUpdate.getSiteId());
+				q.setParameter("pageRef", eUpdate.getPageRef());
+				q.setParameter("pageAction", eUpdate.getPageAction());
+				q.setParameter("userId", eUpdate.getUserId());
+				q.setParameter("date", eUpdate.getDate());
 				try {
-					eExisting = (LessonBuilderStat) c.uniqueResult();
+					eExisting = (LessonBuilderStat) q.uniqueResult();
 				} catch (HibernateException ex){
 					try {
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (LessonBuilderStat) c.list().get(0);
+							eExisting = (LessonBuilderStat) q.list().get(0);
 						} else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1129,18 +1131,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteActivity eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(SiteActivityImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from SiteActivityImpl where siteId = :siteId and eventId = :eventId and date = :date";
+				Query<SiteActivityImpl> q = session.createQuery(hql, SiteActivityImpl.class);
+				q.setParameter("siteId", eUpdate.getSiteId());
+				q.setParameter("eventId", eUpdate.getEventId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (SiteActivity) c.uniqueResult();
+					eExisting = (SiteActivity) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SiteActivity) c.list().get(0);
+							eExisting = (SiteActivity) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1176,17 +1179,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteVisits eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(SiteVisitsImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from SiteVisitsImpl where siteId = :siteId and date = :date";
+				Query<SiteVisitsImpl> q = session.createQuery(hql, SiteVisitsImpl.class);
+				q.setParameter("siteId", eUpdate.getSiteId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (SiteVisits) c.uniqueResult();
+					eExisting = (SiteVisits) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SiteVisits) c.list().get(0);
+							eExisting = (SiteVisits) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1223,17 +1227,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ServerStat eUpdate = i.next();
 			ServerStat eExisting = null;
 			try{
-				Criteria c = session.createCriteria(ServerStatImpl.class);
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from ServerStatImpl where eventId = :eventId and date = :date";
+				Query<ServerStatImpl> q = session.createQuery(hql, ServerStatImpl.class);
+				q.setParameter("eventId", eUpdate.getEventId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (ServerStat) c.uniqueResult();
+					eExisting = (ServerStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (ServerStat) c.list().get(0);
+							eExisting = (ServerStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1267,17 +1272,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			UserStat eExisting = null;
 			String eExistingUserId = null;
 			try{
-				Criteria c = session.createCriteria(UserStatImpl.class);
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				String hql = "from UserStatImpl where userId = :userId and date = :date";
+				Query<UserStatImpl> q = session.createQuery(hql, UserStatImpl.class);
+				q.setParameter("userId", eUpdate.getUserId());
+				q.setParameter("date", eUpdate.getDate());
 				try{
-					eExisting = (UserStat) c.uniqueResult();
+					eExisting = (UserStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (UserStat) c.list().get(0);
+							eExisting = (UserStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1316,8 +1322,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					"where s.siteId = :siteid " +
 					"and s.eventId = 'pres.begin' " +
 					"and s.date = :idate");
-			q.setString("siteid", key.siteId);
-			q.setDate("idate", key.date);
+			q.setParameter("siteid", key.siteId);
+			q.setParameter("idate", key.date);
 			Integer uv = 1;
 			try{
 				uv = (Integer) q.uniqueResult();
@@ -1555,16 +1561,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@SuppressWarnings("unchecked")
 	private SitePresence doGetSitePresence(Session session, String siteId, String userId, Date date) {
 		SitePresence eDb = null;
-		Criteria c = session.createCriteria(SitePresenceImpl.class);
-		c.add(Restrictions.eq("siteId", siteId));
-		c.add(Restrictions.eq("userId", userId));
-		c.add(Restrictions.eq("date", date));
-		
+		String hql = "from SitePresenceImpl where siteId = :siteId and userId = :userId and date = :date";
+		Query<SitePresenceImpl> q = session.createQuery(hql, SitePresenceImpl.class);
+		q.setParameter("siteId", siteId);
+		q.setParameter("userId", userId);
+		q.setParameter("date", date);
+
 		try{
-			eDb = (SitePresence) c.uniqueResult();
+			eDb = (SitePresence) q.uniqueResult();
 		}catch(HibernateException ex){
 			try{
-				List es = c.list();
+				List es = q.list();
 				if(es != null && es.size() > 0){
 					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresence) es.get(0);
@@ -1634,15 +1641,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private SitePresenceTotal doGetSitePresenceTotal(Session session, String siteId, String userId) {
 
 		SitePresenceTotal eDb = null;
-		Criteria c = session.createCriteria(SitePresenceTotalImpl.class);
-		c.add(Restrictions.eq("siteId", siteId));
-		c.add(Restrictions.eq("userId", userId));
+		String hql = "from SitePresenceTotalImpl where siteId = :siteId and userId = :userId";
+		Query<SitePresenceTotalImpl> q = session.createQuery(hql, SitePresenceTotalImpl.class);
+		q.setParameter("siteId", siteId);
+		q.setParameter("userId", userId);
 
 		try {
-			eDb = (SitePresenceTotal) c.uniqueResult();
+			eDb = (SitePresenceTotal) q.uniqueResult();
 		} catch (HibernateException ex) {
 			try {
-				List es = c.list();
+				List es = q.list();
 				if (es != null && es.size() > 0) {
 					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresenceTotal) es.get(0);
