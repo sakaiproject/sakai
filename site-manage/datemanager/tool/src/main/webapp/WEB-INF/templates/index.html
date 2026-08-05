@@ -27,10 +27,16 @@
 
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
       <h1 class="mb-0" th:text="#{page.title}">Date Manager</h1>
-      <div class="date-manager-actions">
-        <a id="exportDates" class="btn btn-secondary btn-sm" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
-        <a id="importDates" class="btn btn-secondary btn-sm" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
-      </div>
+      <!-- Standard Sakai intra-tool menu chips (same pattern as Postem, Site Group Manager, …)
+           kept top-right per the T&L mockup, so Export/Import read like every other tool's actions. -->
+      <ul class="navIntraTool date-manager-actions" role="menu">
+        <li role="menuitem">
+          <span><a id="exportDates" href="#" th:href="@{/date-manager/export}" th:text="#{dateshifter.export.dates.csv}">Export Dates</a></span>
+        </li>
+        <li role="menuitem">
+          <span><a id="importDates" href="#" th:href="@{/date-manager/page/import}" th:text="#{dateshifter.import.dates.csv}">Import Dates</a></span>
+        </li>
+      </ul>
     </div>
 
     <form id="date-manager-form" method="POST">
@@ -60,14 +66,14 @@
 
     <ul class="nav nav-tabs mt-3" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="dm-tab-bulk-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-bulk" type="button" role="tab" aria-controls="dm-tab-bulk" aria-selected="true" th:text="#{section.batch.heading}">Bulk Edit</button>
+        <button class="nav-link active" id="dm-tab-items-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-items" type="button" role="tab" aria-controls="dm-tab-items" aria-selected="true" th:text="#{section.items.heading}">Edit Individual Items</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="dm-tab-items-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-items" type="button" role="tab" aria-controls="dm-tab-items" aria-selected="false" th:text="#{section.items.heading}">Edit Individual Items</button>
+        <button class="nav-link" id="dm-tab-bulk-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-bulk" type="button" role="tab" aria-controls="dm-tab-bulk" aria-selected="false" th:text="#{section.batch.heading}">Bulk Edit</button>
       </li>
     </ul>
     <div class="tab-content">
-    <div class="tab-pane fade show active pt-3" id="dm-tab-bulk" role="tabpanel" aria-labelledby="dm-tab-bulk-btn">
+    <div class="tab-pane fade pt-3" id="dm-tab-bulk" role="tabpanel" aria-labelledby="dm-tab-bulk-btn">
     <p class="small mb-2" th:text="#{section.batch.help}">Pick how you want to move dates, choose which tools to apply to, and apply.</p>
 
     <!-- Bulk tools, grouped behind a coloured accent bar. The radios show one method's panel at a
@@ -174,56 +180,56 @@
           <thead>
             <tr>
               <th rowspan="2" class="align-bottom" th:text="#{termdates.column.header}">Term date</th>
-              <th th:if="${assignments != null}" colspan="3" class="text-center" th:text="${assignmentsToolTitle}">Assignments</th>
-              <th th:if="${assessments != null}" colspan="5" class="text-center" th:text="${assessmentsToolTitle}">Tests &amp; Quizzes</th>
-              <th th:if="${signupMeetings != null}" colspan="4" class="text-center" th:text="${signupMeetingsToolTitle}">Sign up</th>
-              <th th:if="${gradebookItems != null}" colspan="1" class="text-center" th:text="${gradebookItemsToolTitle}">Gradebook</th>
-              <th th:if="${resources != null}" colspan="2" class="text-center" th:text="${resourcesToolTitle}">Resources</th>
-              <th th:if="${calendarEvents != null}" colspan="2" class="text-center" th:text="${calendarEventsToolTitle}">Calendar</th>
-              <th th:if="${forums != null}" colspan="2" class="text-center" th:text="${forumsToolTitle}">Forums</th>
-              <th th:if="${announcements != null}" colspan="2" class="text-center" th:text="${announcementsToolTitle}">Announcements</th>
-              <th th:if="${lessons != null}" colspan="1" class="text-center" th:text="${lessonsToolTitle}">Lessons</th>
+              <th th:if="${assignments != null}" colspan="3" class="text-center dm-mx-assignments dm-mx-first" th:text="${assignmentsToolTitle}">Assignments</th>
+              <th th:if="${assessments != null}" colspan="5" class="text-center dm-mx-assessments dm-mx-first" th:text="${assessmentsToolTitle}">Tests &amp; Quizzes</th>
+              <th th:if="${signupMeetings != null}" colspan="4" class="text-center dm-mx-signup dm-mx-first" th:text="${signupMeetingsToolTitle}">Sign up</th>
+              <th th:if="${gradebookItems != null}" colspan="1" class="text-center dm-mx-gradebook dm-mx-first" th:text="${gradebookItemsToolTitle}">Gradebook</th>
+              <th th:if="${resources != null}" colspan="2" class="text-center dm-mx-resources dm-mx-first" th:text="${resourcesToolTitle}">Resources</th>
+              <th th:if="${calendarEvents != null}" colspan="2" class="text-center dm-mx-calendar dm-mx-first" th:text="${calendarEventsToolTitle}">Calendar</th>
+              <th th:if="${forums != null}" colspan="2" class="text-center dm-mx-forums dm-mx-first" th:text="${forumsToolTitle}">Forums</th>
+              <th th:if="${announcements != null}" colspan="2" class="text-center dm-mx-announcements dm-mx-first" th:text="${announcementsToolTitle}">Announcements</th>
+              <th th:if="${lessons != null}" colspan="1" class="text-center dm-mx-lessons dm-mx-first" th:text="${lessonsToolTitle}">Lessons</th>
             </tr>
             <tr>
               <th:block th:if="${assignments != null}">
-                <th class="text-center" th:text="#{column.open.date}">Open Date</th>
-                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
-                <th class="text-center" th:text="#{column.accept.until}">Accept Until Date</th>
+                <th class="text-center dm-mx-assignments dm-mx-first" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center dm-mx-assignments" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center dm-mx-assignments" th:text="#{column.accept.until}">Accept Until Date</th>
               </th:block>
               <th:block th:if="${assessments != null}">
-                <th class="text-center" th:text="#{column.available.date}">Available Date</th>
-                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
-                <th class="text-center" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
-                <th class="text-center" th:text="#{column.feedback.start.date}">Show Feedback Date</th>
-                <th class="text-center" th:text="#{column.feedback.end.date}">Hide Feedback Date</th>
+                <th class="text-center dm-mx-assessments dm-mx-first" th:text="#{column.available.date}">Available Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.feedback.start.date}">Show Feedback Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.feedback.end.date}">Hide Feedback Date</th>
               </th:block>
               <th:block th:if="${signupMeetings != null}">
-                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
-                <th class="text-center" th:text="#{column.end.date}">End Date</th>
-                <th class="text-center" th:text="#{column.signup.begins.date}">Sign-up Begin Date</th>
-                <th class="text-center" th:text="#{column.signup.deadline.date}">Sign-up End Date</th>
+                <th class="text-center dm-mx-signup dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.end.date}">End Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.signup.begins.date}">Sign-up Begin Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.signup.deadline.date}">Sign-up End Date</th>
               </th:block>
               <th:block th:if="${gradebookItems != null}">
-                <th class="text-center" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center dm-mx-gradebook dm-mx-first" th:text="#{column.due.date}">Due Date</th>
               </th:block>
               <th:block th:if="${resources != null}">
-                <th class="text-center" th:text="#{column.show.from.date}">Show From Date</th>
-                <th class="text-center" th:text="#{column.show.until}">Show Until Date</th>
+                <th class="text-center dm-mx-resources dm-mx-first" th:text="#{column.show.from.date}">Show From Date</th>
+                <th class="text-center dm-mx-resources" th:text="#{column.show.until}">Show Until Date</th>
               </th:block>
               <th:block th:if="${calendarEvents != null}">
-                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
-                <th class="text-center" th:text="#{column.end.date}">End Date</th>
+                <th class="text-center dm-mx-calendar dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-calendar" th:text="#{column.end.date}">End Date</th>
               </th:block>
               <th:block th:if="${forums != null}">
-                <th class="text-center" th:text="#{column.open.date}">Open Date</th>
-                <th class="text-center" th:text="#{column.close.date}">Close Date</th>
+                <th class="text-center dm-mx-forums dm-mx-first" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center dm-mx-forums" th:text="#{column.close.date}">Close Date</th>
               </th:block>
               <th:block th:if="${announcements != null}">
-                <th class="text-center" th:text="#{column.start.date}">Start Date</th>
-                <th class="text-center" th:text="#{column.end.date}">End Date</th>
+                <th class="text-center dm-mx-announcements dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-announcements" th:text="#{column.end.date}">End Date</th>
               </th:block>
               <th:block th:if="${lessons != null}">
-                <th class="text-center" th:text="#{column.hide.until}">Hide Until Date</th>
+                <th class="text-center dm-mx-lessons dm-mx-first" th:text="#{column.hide.until}">Hide Until Date</th>
               </th:block>
             </tr>
           </thead>
@@ -266,8 +272,9 @@
     </div>
     </div>
 
-    <!-- Which tool sections the active method's Apply acts on: explicit, visible scoping in
-         place of the old "tools expanded below" behaviour. Only tools present on the page render. -->
+    <!-- Which tool sections the shift/fit Apply acts on: explicit, visible scoping in place of
+         the old "tools expanded below" behaviour. Only tools present on the page render. Hidden
+         for the milestone matrix, whose checkbox grid already targets tools column by column. -->
     <div class="dm-scope mt-3 mb-2">
       <span class="fw-bold d-block mb-1" th:text="#{bulk.scope.label}">Apply to:</span>
       <label class="d-block">
@@ -328,7 +335,7 @@
     </div>
     </div>
 
-    <div class="tab-pane fade pt-3" id="dm-tab-items" role="tabpanel" aria-labelledby="dm-tab-items-btn">
+    <div class="tab-pane fade show active pt-3" id="dm-tab-items" role="tabpanel" aria-labelledby="dm-tab-items-btn">
     <p class="small" th:text="#{section.items.help}">Expand a tool to review or adjust each item's dates.</p>
 
       <div th:if="${assignments != null}" class="card">
@@ -406,7 +413,9 @@
     </div>
     </div>
 
-      <div class="act">
+      <!-- Separated from the tab content by a rule and extra space: these actions commit or
+           discard the staged edits from BOTH tabs, unlike the applies inside the Bulk Edit tab. -->
+      <div class="act mt-4 pt-3 border-top">
         <button class="btn btn-primary"
             aria-controls="modal-confirm"
             id="submit-form-button"

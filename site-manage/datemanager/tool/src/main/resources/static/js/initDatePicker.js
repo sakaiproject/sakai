@@ -56,6 +56,7 @@ DTMN.initDatePicker = function(updates, notModified) {
 // ----- Bulk method radios: show one bulk-edit panel (and its Apply button) at a time -----
 
 DTMN.initBulkModeRadios = function() {
+  const scopeRow = document.querySelector(".dm-scope");
   document.querySelectorAll("input[name='dm-bulk-mode']").forEach(function(radio) {
     radio.addEventListener("change", function() {
       document.querySelectorAll(".dm-bulk-panel").forEach(function(panel) {
@@ -64,6 +65,11 @@ DTMN.initBulkModeRadios = function() {
       document.querySelectorAll(".dm-bulk-apply").forEach(function(button) {
         button.classList.toggle("d-none", button.dataset.dmPanel !== radio.value);
       });
+      // The milestone matrix already targets tools column by column, so the scope row
+      // would be redundant there — it only accompanies the shift and fit methods.
+      if (scopeRow) {
+        scopeRow.classList.toggle("d-none", radio.value === "dm-bulk-panel-set");
+      }
     }, false);
   });
 };
@@ -78,14 +84,14 @@ DTMN.initScopePicker = function() {
     return;
   }
 
-  // A scope change can enable or disable any method's Apply button, so re-run all three
+  // A scope change can enable or disable the shift/fit Apply buttons, so re-run their
   // validators, and re-label the buttons so a narrowed scope stays visible before the click.
+  // The milestone matrix ignores the scope row, so its validator is not involved.
   const revalidate = function() {
     DTMN.updateScopeAllState();
     DTMN.updateApplyButtonLabels();
     DTMN.validateShiftInput();
     DTMN.validateFitInputs();
-    DTMN.validateTermInputs();
     DTMN.updateFitAnchorHints();
   };
 
@@ -121,14 +127,15 @@ DTMN.formatTemplate = function(template, args) {
 };
 
 // Reflect a narrowed scope right on the apply buttons ("Apply shift (2 of 7 tools)") so a
-// selection left over from an earlier apply is visible before the next click.
+// selection left over from an earlier apply is visible before the next click. The term
+// apply is exempt: the milestone matrix ignores the scope row.
 DTMN.updateApplyButtonLabels = function() {
   if (!DTMN.scopeChecks || !DTMN.scopeChecks.length || !DTMN.bulkFeedbackText) {
     return;
   }
   const checked = DTMN.scopeChecks.filter(function(check) { return check.checked; }).length;
   const total = DTMN.scopeChecks.length;
-  document.querySelectorAll(".dm-bulk-apply").forEach(function(button) {
+  document.querySelectorAll(".dm-bulk-apply:not(#dm-apply-term)").forEach(function(button) {
     if (!button.dataset.baseLabel) {
       button.dataset.baseLabel = button.textContent.trim();
     }
@@ -156,7 +163,10 @@ DTMN.showApplyFeedback = function(kind, stats) {
   msgSpan.textContent = msg + " ";
 
   if (scopeSpan) {
-    const narrowed = DTMN.scopeChecks && DTMN.scopeChecks.some(function(check) { return !check.checked; });
+    // The term apply ignores the scope row (the matrix picks its own tools), so a narrowed
+    // scope is only worth calling out for the shift and fit applies.
+    const narrowed = kind !== "term"
+        && DTMN.scopeChecks && DTMN.scopeChecks.some(function(check) { return !check.checked; });
     if (narrowed) {
       const names = DTMN.scopeChecks.filter(function(check) { return check.checked; })
           .map(function(check) { return check.closest("label").textContent.trim(); });
@@ -845,42 +855,27 @@ DTMN.termHasActionableInput = function() {
   });
 };
 
-// Like termHasActionableInput, but only counts a checked target whose section is ticked in the
-// scope row. Without this the button could be enabled while every checked column lives in an
-// unscoped section, making the click a no-op.
-DTMN.termHasActionableInputInScopedSections = function() {
-  const scopedIds = new Set(DTMN.getScopedSections().map(function(section) { return section.id; }));
-  return DTMN.termFields.some(function(term) {
-    const hidden = document.getElementById(DTMN.getTermHiddenId(term));
-    if (!hidden || hidden.value === "") {
-      return false;
-    }
-    const checks = document.querySelectorAll('.term-target[data-term="' + term + '"]:checked');
-    return Array.prototype.some.call(checks, function(check) {
-      return scopedIds.has(check.dataset.root);
-    });
-  });
-};
-
 DTMN.validateTermInputs = function() {
   if (!DTMN.termApplyBtn) {
     return;
   }
 
-  DTMN.termApplyBtn.disabled = !DTMN.termHasActionableInputInScopedSections();
+  DTMN.termApplyBtn.disabled = !DTMN.termHasActionableInput();
 };
 
 DTMN.handleTermButtonClick = function(button, updates, notModified) {
 
-  if (!DTMN.termHasActionableInputInScopedSections()) {
+  if (!DTMN.termHasActionableInput()) {
     return;
   }
 
   button.classList.add("spinButton");
   DTMN.termApplyBtn.disabled = true;
 
+  // The matrix checkboxes already say exactly which tools each term date fills, so the term
+  // apply deliberately ignores the shift/fit scope row and acts on every section.
   window.setTimeout(function() {
-    const stats = DTMN.applyTermDates(DTMN.getScopedSections(), updates, notModified);
+    const stats = DTMN.applyTermDates(DTMN.collapseElements, updates, notModified);
     button.classList.remove("spinButton");
     DTMN.validateTermInputs();
     DTMN.showApplyFeedback("term", stats);
@@ -889,7 +884,7 @@ DTMN.handleTermButtonClick = function(button, updates, notModified) {
 
 DTMN.applyTermDates = function(sections, updates, notModified) {
 
-  const scopedIds = new Set(sections.map(function(section) { return section.id; }));
+  const sectionIds = new Set(sections.map(function(section) { return section.id; }));
   const toolsTouched = new Set();
   let changed = 0;
   let blanksSkipped = 0;
@@ -912,7 +907,7 @@ DTMN.applyTermDates = function(sections, updates, notModified) {
       const root = check.dataset.root;
       const field = check.dataset.field;
 
-      if (!scopedIds.has(root) || !document.getElementById(root)) {
+      if (!sectionIds.has(root) || !document.getElementById(root)) {
         return;
       }
 
