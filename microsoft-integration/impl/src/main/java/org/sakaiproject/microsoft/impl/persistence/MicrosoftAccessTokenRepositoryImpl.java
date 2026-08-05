@@ -16,8 +16,12 @@
 
 package org.sakaiproject.microsoft.impl.persistence;
 
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
 import org.sakaiproject.microsoft.api.model.MicrosoftAccessToken;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -27,8 +31,10 @@ public class MicrosoftAccessTokenRepositoryImpl extends BasicSerializableReposit
 
 	@Override
 	public MicrosoftAccessToken findBySakaiId(String sakaiId){
-        return (MicrosoftAccessToken) startCriteriaQuery()
-                .add(Restrictions.eq("sakaiUserId", sakaiId))
-                .uniqueResult();
-    }
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<MicrosoftAccessToken> cq = cb.createQuery(MicrosoftAccessToken.class);
+		Root<MicrosoftAccessToken> root = cq.from(MicrosoftAccessToken.class);
+		cq.where(cb.equal(root.get("sakaiUserId"), sakaiId));
+		return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
+	}
 }

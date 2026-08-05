@@ -23,9 +23,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
 import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
@@ -41,16 +43,15 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 	}
 	
 	public Optional<MicrosoftConfigItem> getConfigItemByKey(String key){
-		MicrosoftConfigItem ret = (MicrosoftConfigItem)startCriteriaQuery().add(Restrictions.eq("key", key)).uniqueResult();
-		return Optional.ofNullable(ret);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<MicrosoftConfigItem> cq = cb.createQuery(MicrosoftConfigItem.class);
+		Root<MicrosoftConfigItem> root = cq.from(MicrosoftConfigItem.class);
+		cq.where(cb.equal(root.get("key"), key));
+		return Optional.ofNullable(sessionFactory.getCurrentSession().createQuery(cq).uniqueResult());
 	}
 	
 	public String getConfigItemValueByKey(String key){
-		MicrosoftConfigItem ret = (MicrosoftConfigItem)startCriteriaQuery().add(Restrictions.eq("key", key)).uniqueResult();
-		if(ret != null) {
-			return ret.getValue(); 
-		}
-		return null;
+		return getConfigItemByKey(key).map(MicrosoftConfigItem::getValue).orElse(null);
 	}
 	
 	//------------------------------ CREDENTIALS -------------------------------------------------------
@@ -103,7 +104,11 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 	public Map<String, MicrosoftConfigItem> getAllSynchronizationConfigItems() {
 		Map<String, MicrosoftConfigItem> map = getDefaultSynchronizationConfigItems();
 		
-		List<MicrosoftConfigItem> list = (List<MicrosoftConfigItem>)startCriteriaQuery().add(Restrictions.like("key", PREFIX_SYNCH, MatchMode.START)).list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<MicrosoftConfigItem> cq = cb.createQuery(MicrosoftConfigItem.class);
+		Root<MicrosoftConfigItem> root = cq.from(MicrosoftConfigItem.class);
+		cq.where(cb.like(root.get("key"), PREFIX_SYNCH + "%"));
+		List<MicrosoftConfigItem> list = sessionFactory.getCurrentSession().createQuery(cq).list();
 		list.stream().forEach(item -> map.get(item.getKey()).setValue(item.getValue()));
 		
 		return map;

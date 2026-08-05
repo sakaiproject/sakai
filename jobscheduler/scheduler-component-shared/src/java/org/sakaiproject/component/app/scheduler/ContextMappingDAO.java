@@ -15,17 +15,21 @@
  */
 package org.sakaiproject.component.app.scheduler;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This is used to allow faster lookups from a UUID to a context ID.
@@ -53,17 +57,23 @@ public class ContextMappingDAO {
     }
 
     public Collection<String> find(String componentId, String contextId) {
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(ContextMapping.class);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<ContextMapping> root = cq.from(ContextMapping.class);
+        // We only want the IDs
+        cq.select(root.get("id"));
+        List<Predicate> predicates = new ArrayList<>();
         if (contextId != null) {
-                criteria.add(Restrictions.eq("contextId", contextId));
+            predicates.add(cb.equal(root.get("contextId"), contextId));
         }
         if (componentId != null) {
-            criteria.add(Restrictions.eq("componentId", componentId));
+            predicates.add(cb.equal(root.get("componentId"), componentId));
         }
-        // We only want the IDs
-        criteria.setProjection(Projections.property("id"));
-        return criteria.list();
-
+        if (!predicates.isEmpty()) {
+            cq.where(predicates.toArray(new Predicate[0]));
+        }
+        return session.createQuery(cq).list();
     }
 
     public void add(String uuid, String componentId, String contextId) {
@@ -92,9 +102,14 @@ public class ContextMappingDAO {
     }
 
     private ContextMapping getContextMapping(String componentId, String contextId) {
-        return (ContextMapping) sessionFactory.getCurrentSession().createCriteria(ContextMapping.class)
-                .add(Restrictions.eq("contextId", contextId))
-                .add(Restrictions.eq("componentId", componentId))
-                .uniqueResult();
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ContextMapping> cq = cb.createQuery(ContextMapping.class);
+        Root<ContextMapping> root = cq.from(ContextMapping.class);
+        cq.where(
+            cb.equal(root.get("contextId"), contextId),
+            cb.equal(root.get("componentId"), componentId)
+        );
+        return session.createQuery(cq).uniqueResult();
     }
 }

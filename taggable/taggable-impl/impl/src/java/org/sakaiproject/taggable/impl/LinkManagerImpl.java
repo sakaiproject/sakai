@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.hibernate.query.Query;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.type.StringType;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.taggable.api.Link;
@@ -101,8 +100,8 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
                 q.setParameter(VISIBLE, true);
             }
 
-            q.setParameter(ACTIVITY_REF, activityRef, StringType.INSTANCE);
-            q.setParameter(CONTEXT, likeContext, StringType.INSTANCE);
+            q.setParameter(ACTIVITY_REF, activityRef);
+            q.setParameter(CONTEXT, likeContext);
 
             return q.list();
         });
@@ -121,7 +120,7 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
                 q.setParameter(VISIBLE, true);
             }
 
-            q.setParameter(TAG_CRITERIA_REF, criteriaRef, StringType.INSTANCE);
+            q.setParameter(TAG_CRITERIA_REF, criteriaRef);
 
             return q.list();
         });

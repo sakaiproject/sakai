@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.query.Query;
-import org.hibernate.type.IntegerType;
-import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.EmailNotification;
 import org.sakaiproject.api.app.messageforums.EmailNotificationManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -95,8 +93,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 
 		HibernateCallback<EmailNotification> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_USER_ID);
-            q.setParameter("userId", userId, StringType.INSTANCE);
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("userId", userId);
+            q.setParameter("contextId", getContextId());
             return (EmailNotification) q.uniqueResult();
         };
 
@@ -202,8 +200,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 
 		HibernateCallback<List<String>> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_USERLIST_BY_NOTIFICATION_LEVEL);
-            q.setParameter("contextId", contextid, StringType.INSTANCE);
-            q.setParameter("level", notificationlevel, IntegerType.INSTANCE);
+            q.setParameter("contextId", contextid);
+            q.setParameter("level", notificationlevel);
             return q.list();
         };
 

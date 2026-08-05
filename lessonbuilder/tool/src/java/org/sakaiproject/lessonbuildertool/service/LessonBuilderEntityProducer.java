@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-import org.apache.commons.fileupload2.core.disk.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.json.simple.JSONArray;
@@ -2939,7 +2939,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		DiskFileItem cartridge = (DiskFileItem)params.get("cartridge");
 		String siteId = (String)params.get("site");
 
-		return loadCartridge(cartridge.getStoreLocation(), null, siteId);
+		return loadCartridge(cartridge.getPath().toFile(), null, siteId);
 	}
 
 	public String loadCartridge(File cartFile, String unzippedDir, String siteId) {

@@ -1379,8 +1379,8 @@ public class QuestionPoolFacadeQueries
       public Object doInHibernate(Session session) throws HibernateException {
         Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa " +
             "where qpa.questionPoolId=?0 and qpa.agentId=?1");
-        q.setLong(0, questionPoolId.longValue());
-        q.setString(1, user);
+        q.setParameter(0, questionPoolId.longValue());
+        q.setParameter(1, user);
         return q.list();
       };
     };
@@ -1488,20 +1488,20 @@ public class QuestionPoolFacadeQueries
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
 
   			  query = "DELETE FROM SAM_QUESTIONPOOLACCESS_T WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND agentid = :id";
-  			  session.createSQLQuery(query).setString("id", ownerId).executeUpdate();
+  			  session.createNativeQuery(query).setParameter("id", ownerId).executeUpdate();
 
   			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
-  			  session.createSQLQuery(query).setParameter("id", ownerId).executeUpdate();
+  			  session.createNativeQuery(query).setParameter("id", ownerId).executeUpdate();
 
   			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
-			  session.createSQLQuery(query).setParameter("id", ownerId).executeUpdate();
+			  session.createNativeQuery(query).setParameter("id", ownerId).executeUpdate();
               session.flush();
   		  }
   
   		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
   		  if (!"".equals(removeParentPoolString)) {
   			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (" + removeParentPoolString + ")";
-  			  session.createSQLQuery(query).executeUpdate();
+  			  session.createNativeQuery(query).executeUpdate();
               session.flush();
   		  }
   		  session.getTransaction().commit();

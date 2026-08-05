@@ -36,14 +36,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.http.Cookie;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
@@ -445,9 +448,9 @@ public class HttpRESTUtils {
         int requestTimeout = idleConnectionTimeout <= 0 ? DEFAULT_TIMEOUT : idleConnectionTimeout;
         CookieStore cookieStore = HttpClientWrapper.makeCookieStore();
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(requestTimeout)
-                .setConnectionRequestTimeout(requestTimeout)
-                .setSocketTimeout(requestTimeout)
+                .setConnectTimeout(Timeout.of(requestTimeout, TimeUnit.MILLISECONDS))
+                .setConnectionRequestTimeout(Timeout.of(requestTimeout, TimeUnit.MILLISECONDS))
+                .setResponseTimeout(Timeout.of(requestTimeout, TimeUnit.MILLISECONDS))
                 .build();
         CloseableHttpClient client = HttpClients.custom()
                 .setConnectionManager(new PoolingHttpClientConnectionManager())

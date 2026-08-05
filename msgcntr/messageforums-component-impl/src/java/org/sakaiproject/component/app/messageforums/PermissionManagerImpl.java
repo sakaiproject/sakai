@@ -22,8 +22,6 @@ package org.sakaiproject.component.app.messageforums;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.Query;
-import org.hibernate.type.BooleanType;
-import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -476,9 +474,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         }
         HibernateCallback<ControlPermissions> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
-            q.setParameter("roleId", roleId, StringType.INSTANCE);
-            q.setParameter("areaId", area.getId().toString(), StringType.INSTANCE);
-            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            q.setParameter("roleId", roleId);
+            q.setParameter("areaId", area.getId().toString());
+            q.setParameter("defaultValue", defaultValue);
             return (ControlPermissions) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);
@@ -489,9 +487,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         HibernateCallback<ControlPermissions> hcb = session -> {
             String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;
             Query q = session.getNamedQuery(queryString);
-            q.setParameter("roleId", roleId, StringType.INSTANCE);
-            q.setParameter(key, value, StringType.INSTANCE);
-            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            q.setParameter("roleId", roleId);
+            q.setParameter(key, value);
+            q.setParameter("defaultValue");
             return (ControlPermissions) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);
@@ -502,9 +500,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         HibernateCallback<MessagePermissions> hcb = session -> {
             String queryString = "forumId".equals(key) ? QUERY_MP_BY_FORUM : QUERY_MP_BY_TOPIC;
             Query q = session.getNamedQuery(queryString);
-            q.setParameter("roleId", roleId, StringType.INSTANCE);
-            q.setParameter(key, value, StringType.INSTANCE);
-            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            q.setParameter("roleId", roleId);
+            q.setParameter(key, value);
+            q.setParameter("defaultValue", defaultValue);
             return (MessagePermissions) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);
@@ -935,9 +933,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         }
         HibernateCallback<MessagePermissions> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_MP_BY_ROLE);
-            q.setParameter("roleId", roleId, StringType.INSTANCE);
-            q.setParameter("areaId", area.getId().toString(), StringType.INSTANCE);
-            q.setParameter("defaultValue", Boolean.valueOf(defaultValue), BooleanType.INSTANCE);
+            q.setParameter("roleId", roleId);
+            q.setParameter("areaId", area.getId().toString());
+            q.setParameter("defaultValue", Boolean.valueOf(defaultValue));
             return (MessagePermissions) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);
