@@ -82,5 +82,11 @@ mvn sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
 Upstream: Apache Pluto 1.1.7 (Apache License 2.0)  
 https://archive.apache.org/dist/portals/pluto/SOURCES/v1.1.7/
 
-The upstream source zip plus checksums/signature are kept in `pluto/original/`
-(see also `Pluto-Distribution.html` for the Apache archive listing).
+We have a forked copy of this code at 
+
+https://github.com/sakaicontrib/portals-pluto
+
+
+We have a forked copy of this code at 
+
+https://github.com/sakaicontrib/portals-pluto
