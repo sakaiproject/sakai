@@ -193,6 +193,15 @@
 				}
 			}
 
+			th {
+				// The datepicker stamps an inline min-width on its input, which is wider
+				// than a header cell in tools with many date columns and would cover the
+				// neighboring header; let the column setter's input shrink to its cell.
+				.bulk-col-input {
+					min-width: 0 !important;
+				}
+			}
+
 			td {
 				&.ajax-error {
 					background-color: var(--errorBanner-bgcolor);
