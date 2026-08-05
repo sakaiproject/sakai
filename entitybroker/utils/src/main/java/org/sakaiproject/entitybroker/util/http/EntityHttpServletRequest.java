@@ -51,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
@@ -61,7 +62,6 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
-import jakarta.servlet.http.HttpSessionContext;
 
 
 /**
@@ -845,14 +845,6 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         return protocol;
     }
 
-    public String getRealPath(String path) {
-        if (copy != null) {
-            return copy.getRealPath(path);
-        } else {
-            return path;
-        }
-    }
-
     public String getRemoteAddr() {
         return remoteAddr;
     }
@@ -948,14 +940,6 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     public boolean isRequestedSessionIdFromCookie() {
         if (copy != null) {
             return copy.isRequestedSessionIdFromCookie();
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isRequestedSessionIdFromUrl() {
-        if (copy != null) {
-            return copy.isRequestedSessionIdFromUrl();
         } else {
             return false;
         }
@@ -1413,10 +1397,6 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             return this.maxInactiveInterval;
         }
 
-        public HttpSessionContext getSessionContext() {
-            throw new UnsupportedOperationException("getSessionContext");
-        }
-
         public Object getAttribute(String name) {
             if (name == null) {
                 throw new IllegalArgumentException("name must not be null");
@@ -1536,5 +1516,24 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         }
 
     }
+
+
+	@Override
+	public String getRequestId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getProtocolRequestId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ServletConnection getServletConnection() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

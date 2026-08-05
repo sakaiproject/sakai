@@ -27,7 +27,5 @@ public class CustomHsqlDialect extends HSQLDialect {
 
     public CustomHsqlDialect() {
         super();
-        registerColumnType(Types.BLOB, "blob");
-        registerColumnType(Types.CLOB, "clob");
     }
 }

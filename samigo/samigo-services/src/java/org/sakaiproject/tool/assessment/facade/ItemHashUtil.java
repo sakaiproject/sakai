@@ -141,7 +141,7 @@ public class ItemHashUtil {
                     Session session = null;
                     try { // resource cleanup block
                         session = sessionFactory.getCurrentSession();
-                        session.setFlushMode(FlushMode.MANUAL);
+                        session.setHibernateFlushMode(FlushMode.MANUAL);
                         List<Long> itemIds;
                         try { // initial read block (failures here are fatal)
 

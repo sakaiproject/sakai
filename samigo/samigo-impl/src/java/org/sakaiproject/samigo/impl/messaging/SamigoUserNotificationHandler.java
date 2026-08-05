@@ -166,7 +166,7 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
                 transactionTemplate.execute(status -> {
                     sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
                             .setParameterList("events", new String[]{EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE})
-                            .setString("ref", ref)
+                            .setParameter("ref", ref)
                             .setParameterList("toUsers", siteUsers).executeUpdate();
                     return null;
                 });
@@ -207,7 +207,7 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
                 transactionTemplate.execute(status -> {
                     sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
                             .setParameterList("events", new String[]{EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE})
-                            .setString("ref", ref)
+                            .setParameter("ref", ref)
                             .setParameterList("toUsers", users).executeUpdate();
                     return null;
                 });
@@ -309,7 +309,7 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
         return transactionTemplate.execute(status -> {
             Long bhWithRef = (Long) sessionFactory.getCurrentSession()
                     .createQuery("select count(*) from UserNotification where ref = :ref and event = :event and toUser = :toUser")
-                    .setString("ref", ref).setString("event", EVENT_ASSESSMENT_AVAILABLE).setString("toUser", toUser).uniqueResult();
+                    .setParameter("ref", ref).setParameter("event", EVENT_ASSESSMENT_AVAILABLE).setParameter("toUser", toUser).uniqueResult();
             return bhWithRef > 0;
         });
     }

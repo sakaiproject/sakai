@@ -24,6 +24,7 @@ import java.util.List;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
+import org.hibernate.Session;
 import org.sakaiproject.sitestats.impl.DetailedEventImpl;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.LessonBuilderStatImpl;
@@ -70,13 +71,18 @@ public class DB extends HibernateDaoSupport {
         }
         return results;
 	}
+
+	private <T> void deleteAllOfClass(Session session, Class<T> classz) {
+        CriteriaQuery<T> cq = session.getCriteriaBuilder().createQuery(classz);
+        cq.from(classz);
+        session.createQuery(cq).getResultList().forEach(session::delete);
+    }
 	
 	@SuppressWarnings("unchecked")
 	public <T> void deleteAllForClass(final Class<T> classz) {
         try {
-		    getHibernateTemplate().execute(session -> {
-                List<T> all = session.createCriteria(classz).list();
-                all.forEach(session::delete);
+             getHibernateTemplate().execute(session -> {
+                deleteAllOfClass(session, classz);
                 return null;
             });
         } catch(DataAccessException dae) {
@@ -88,16 +94,16 @@ public class DB extends HibernateDaoSupport {
 	public void deleteAll() {
         try{
 		    getHibernateTemplate().execute(session -> {
-                session.createCriteria(SiteVisitsImpl.class).list().forEach(session::delete);
-                session.createCriteria(SiteActivityImpl.class).list().forEach(session::delete);
-                session.createCriteria(EventStatImpl.class).list().forEach(session::delete);
-                session.createCriteria(ResourceStatImpl.class).list().forEach(session::delete);
-                session.createCriteria(SitePresenceImpl.class).list().forEach(session::delete);
-                session.createCriteria(SitePresenceTotalImpl.class).list().forEach(session::delete);
-                session.createCriteria(DetailedEventImpl.class).list().forEach(session::delete);
-                session.createCriteria(LessonBuilderStatImpl.class).list().forEach(session::delete);
-                session.createCriteria(UserStatImpl.class).list().forEach(session::delete);
-                session.createCriteria(ServerStatImpl.class).list().forEach(session::delete);
+                deleteAllOfClass(session, SiteVisitsImpl.class);
+                deleteAllOfClass(session, SiteActivityImpl.class);
+                deleteAllOfClass(session, EventStatImpl.class);
+                deleteAllOfClass(session, ResourceStatImpl.class);
+                deleteAllOfClass(session, SitePresenceImpl.class);
+                deleteAllOfClass(session, SitePresenceTotalImpl.class);
+                deleteAllOfClass(session, DetailedEventImpl.class);
+                deleteAllOfClass(session, LessonBuilderStatImpl.class);
+                deleteAllOfClass(session, UserStatImpl.class);
+                deleteAllOfClass(session, ServerStatImpl.class);
                 session.flush();
                 return null;
             });

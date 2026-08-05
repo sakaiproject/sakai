@@ -21,12 +21,10 @@ import java.util.Optional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.microsoft.api.model.GroupSynchronization;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftGroupSynchronizationRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -39,40 +37,51 @@ public class MicrosoftGroupSynchronizationRepositoryImpl extends BasicSerializab
 	
 	@Override
 	public Optional<GroupSynchronization> findById(String id) {
-		GroupSynchronization groupSynchronization = (GroupSynchronization) startCriteriaQuery().add(Restrictions.eq("id", id)).uniqueResult();
-		return Optional.ofNullable(groupSynchronization);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<GroupSynchronization> cq = cb.createQuery(GroupSynchronization.class);
+		Root<GroupSynchronization> root = cq.from(GroupSynchronization.class);
+		cq.where(cb.equal(root.get("id"), id));
+		return Optional.ofNullable(sessionFactory.getCurrentSession().createQuery(cq).uniqueResult());
 	}
 	
 	@Override
 	public Optional<GroupSynchronization> findByGroupChannel(String groupId, String channelId) {
-		GroupSynchronization groupSynchronization = (GroupSynchronization) startCriteriaQuery()
-				.add(Restrictions.eq("groupId", groupId))
-				.add(Restrictions.eq("channelId", channelId))
-				.uniqueResult();
-		return Optional.ofNullable(groupSynchronization);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<GroupSynchronization> cq = cb.createQuery(GroupSynchronization.class);
+		Root<GroupSynchronization> root = cq.from(GroupSynchronization.class);
+		cq.where(
+			cb.equal(root.get("groupId"), groupId),
+			cb.equal(root.get("channelId"), channelId)
+		);
+		return Optional.ofNullable(sessionFactory.getCurrentSession().createQuery(cq).uniqueResult());
 	}
 	
 	@Override
 	public List<GroupSynchronization> findBySiteSynchronizationId(String siteSynchronizationId) {
-		return (List<GroupSynchronization>)startCriteriaQuery()
-		.add(Restrictions.eq("siteSynchronization.id", siteSynchronizationId))
-		.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<GroupSynchronization> cq = cb.createQuery(GroupSynchronization.class);
+		Root<GroupSynchronization> root = cq.from(GroupSynchronization.class);
+		cq.where(cb.equal(root.get("siteSynchronization").get("id"), siteSynchronizationId));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public List<GroupSynchronization> findByGroup(String groupId) {
-		return (List<GroupSynchronization>)startCriteriaQuery()
-		.add(Restrictions.eq("groupId", groupId))
-		.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<GroupSynchronization> cq = cb.createQuery(GroupSynchronization.class);
+		Root<GroupSynchronization> root = cq.from(GroupSynchronization.class);
+		cq.where(cb.equal(root.get("groupId"), groupId));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public long countGroupSynchronizationsByChannelId(String channelId) {
-		Criteria criteria = startCriteriaQuery()
-				.setProjection(Projections.countDistinct("id"))
-				.add(Restrictions.eq("channelId", channelId));
-		
-		return ((Number) criteria.uniqueResult()).longValue();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<GroupSynchronization> root = cq.from(GroupSynchronization.class);
+		cq.select(cb.countDistinct(root.get("id")));
+		cq.where(cb.equal(root.get("channelId"), channelId));
+		return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
 	}
 	
 	@Override

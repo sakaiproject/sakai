@@ -61,8 +61,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Expression;
+import org.hibernate.query.Query;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -631,21 +630,26 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			log.debug("Getting report list from cache for site "+siteId);
 		}else{
 			HibernateCallback<List<ReportDef>> hcb = session -> {
-                Criteria c = session.createCriteria(ReportDef.class);
-                if(siteId != null) {
-                    if(includedPredefined) {
-                        c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
-                    }else{
-                        c.add(Expression.eq("siteId", siteId));
-                    }
-                }else{
-                    c.add(Expression.isNull("siteId"));
-                }
-                if(!includeHidden) {
-                    c.add(Expression.eq("hidden", false));
-                }
-                return c.list();
-            };
+				StringBuilder hql = new StringBuilder("FROM ReportDef WHERE 1=1");
+				if(siteId != null) {
+					if(includedPredefined) {
+						hql.append(" AND (siteId = :siteId OR siteId IS NULL)");
+					}else{
+						hql.append(" AND siteId = :siteId");
+					}
+				}else{
+					hql.append(" AND siteId IS NULL");
+				}
+				if(!includeHidden) {
+					hql.append(" AND hidden = false");
+				}
+
+				Query<ReportDef> query = session.createQuery(hql.toString(), ReportDef.class);
+				if (siteId != null) {
+					query.setParameter("siteId", siteId);
+				}
+				return query.list();
+			};
 			reportDefs = getHibernateTemplate().execute(hcb);
 			if(reportDefs != null) {
 				for(ReportDef reportDef : reportDefs) {

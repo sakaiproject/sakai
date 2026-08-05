@@ -21,7 +21,6 @@ import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.StringType;
 import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
 import org.springframework.transaction.annotation.Transactional;
 
