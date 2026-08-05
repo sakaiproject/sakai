@@ -28,11 +28,14 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.message.model.PreferenceImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.PreferenceDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Preference;
@@ -58,15 +61,16 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Preference.class).add(
-							Expression.eq("userid", user)).list();
-				}
+			HibernateCallback<List> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Preference> cq = cb.createQuery(Preference.class);
+				Root<Preference> root = cq.from(Preference.class);
+
+				cq.select(root).where(cb.equal(root.get("userid"), user));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -116,17 +120,20 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					String prefcontext = context + "%";
-					return session.createCriteria(Preference.class).add(
-							Expression.eq("userid", user)).add(
-							Expression.like("prefcontext", prefcontext)).list();
-				}
+			HibernateCallback<List> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Preference> cq = cb.createQuery(Preference.class);
+				Root<Preference> root = cq.from(Preference.class);
+
+				String prefcontext = context + "%";
+				cq.select(root).where(
+					cb.equal(root.get("userid"), user),
+					cb.like(root.get("prefcontext"), prefcontext)
+				);
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -147,18 +154,21 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					String prefcontext = context + "%";
-					return session.createCriteria(Preference.class).add(
-							Expression.eq("userid", user)).add(
-							Expression.eq("preftype", type)).add(
-							Expression.like("prefcontext", prefcontext)).list();
-				}
+			HibernateCallback<List> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Preference> cq = cb.createQuery(Preference.class);
+				Root<Preference> root = cq.from(Preference.class);
+
+				String prefcontext = context + "%";
+				cq.select(root).where(
+					cb.equal(root.get("userid"), user),
+					cb.equal(root.get("preftype"), type),
+					cb.like(root.get("prefcontext"), prefcontext)
+				);
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -178,16 +188,20 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Preference.class).add(
-							Expression.eq("userid", user)).add(
-							Expression.eq("prefcontext", context)).list();
-				}
+			HibernateCallback<List> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Preference> cq = cb.createQuery(Preference.class);
+				Root<Preference> root = cq.from(Preference.class);
+
+				String prefcontext = context + "%";
+				cq.select(root).where(
+					cb.equal(root.get("userid"), user),
+					cb.like(root.get("prefcontext"), prefcontext)
+				);
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 
 		}
@@ -209,17 +223,20 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Preference.class).add(
-							Expression.eq("userid", user)).add(
-							Expression.eq("preftype", type)).add(
-							Expression.eq("prefcontext", context)).list();
-				}
+			HibernateCallback<List> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Preference> cq = cb.createQuery(Preference.class);
+				Root<Preference> root = cq.from(Preference.class);
+
+				cq.select(root).where(
+					cb.equal(root.get("userid"), user),
+					cb.equal(root.get("preftype"), type),
+					cb.equal(root.get("prefcontext"), context)
+				);
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			List found = (List) getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{

@@ -25,11 +25,14 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiPropertyDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
@@ -46,16 +49,16 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPr
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiProperty.class).add(
-							Expression.eq("name", name)).list();
-				}
+			HibernateCallback<List<RWikiProperty>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<RWikiProperty> cq = cb.createQuery(RWikiProperty.class);
+				Root<RWikiProperty> root = cq.from(RWikiProperty.class);
 
+				cq.select(root).where(cb.equal(root.get("name"), name));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			List found = (List) getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{

@@ -124,9 +124,9 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${sakai.httpclient.version}</version>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${sakai.httpclient5.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

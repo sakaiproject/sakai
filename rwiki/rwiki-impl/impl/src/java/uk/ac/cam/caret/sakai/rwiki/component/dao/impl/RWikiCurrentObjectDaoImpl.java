@@ -33,15 +33,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
-import org.hibernate.type.DateType;
-import org.hibernate.type.StringType;
+import org.hibernate.query.Query;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
@@ -69,7 +70,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		try {
 			HibernateCallback<Number> callback = session -> (Number) session
                     .createQuery("select count(*) from RWikiCurrentObjectImpl r where r.name = :name")
-                    .setString("name", name)
+                    .setParameter("name", name)
                     .uniqueResult();
 
 			Integer count = getHibernateTemplate().execute(callback).intValue();
@@ -88,10 +89,16 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List> callback = session -> session
-					.createCriteria(RWikiCurrentObject.class)
-                    .add(Expression.eq("name", name))
-					.list();
+			HibernateCallback<List<RWikiCurrentObject>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
+				Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+
+				cq.select(root).where(cb.equal(root.get("name"), name));
+
+				return session.createQuery(cq).getResultList();
+			};
+
 			List found = getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{
@@ -242,17 +249,17 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 
 		query += "and r.id = c.rwikiid order by r.name";
 
-		final Type[] types = new Type[t];
-		for (int i = 0; i < t; i++)
-		{
-			types[i] = StringType.INSTANCE;
-		}
-
 		String finalQuery = query;
-		HibernateCallback<List> callback = session -> session
-				.createQuery(finalQuery)
-				.setParameters(criteriaList.toArray(), types)
-				.list();
+		final List finalCriteriaList = criteriaList;
+
+		HibernateCallback<List> callback = session -> {
+			Query q = session.createNativeQuery(finalQuery);
+			// Set each positional parameter individually (1-based)
+			for (int i = 0; i < finalCriteriaList.size(); i++) {
+				q.setParameter(i + 1, finalCriteriaList.get(i));
+			}
+			return q.list();
+		};
 
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
@@ -288,19 +295,28 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	}
 
 	public List findChangedSince(final Date since, final String realm) {
-		HibernateCallback<List> callback = session -> session
-				.createCriteria(RWikiCurrentObject.class)
-				.add(Expression.ge("version", since))
-				.add(Expression.eq("realm", realm))
-				.addOrder(Order.desc("version"))
-				.list();
+		HibernateCallback<List> callback = session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
+			Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+
+			cq.select(root)
+				.where(cb.and(
+					cb.greaterThanOrEqualTo(root.get("version"), since),
+					cb.equal(root.get("realm"), realm)
+				))
+			.orderBy(cb.desc(root.get("version")));
+
+			return session.createQuery(cq).getResultList();
+		};
+
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
 	public List findReferencingPages(final String name) {
 		HibernateCallback<List> callback = session -> session
 				.createQuery("select r.name " + "from RWikiCurrentObjectImpl r where referenced like :name")
-				.setString("name", "%::" + name + "::%")
+				.setParameter("name", "%::" + name + "::%")
 				.list();
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
@@ -308,9 +324,16 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	public RWikiCurrentObject getRWikiCurrentObject(final RWikiObject reference) {
 		long start = System.currentTimeMillis();
 		try {
-			HibernateCallback<List> callback = session -> session.createCriteria(RWikiCurrentObject.class)
-                    .add(Expression.eq("id", reference.getRwikiobjectid()))
-					.list();
+			HibernateCallback<List<RWikiCurrentObject>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
+				Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+
+				cq.select(root).where(cb.equal(root.get("id"), reference.getRwikiobjectid()));
+
+				return session.createQuery(cq).getResultList();
+			};
+
 			List found = getHibernateTemplate().execute(callback);
 			if (found.size() == 0) {
 				log.debug("Found {} objects with id {}", found.size(), reference.getRwikiobjectid());
@@ -351,10 +374,15 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 
 	public List getAll() {
 		HibernateCallback<List> callback = session -> {
-            return session.createCriteria(RWikiCurrentObject.class)
-                    .addOrder(Order.desc("version"))
-					.list();
-        };
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
+			Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+
+			cq.select(root).orderBy(cb.desc(root.get("version")));
+
+			return session.createQuery(cq).getResultList();
+		};
+
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
@@ -369,7 +397,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		{
 			HibernateCallback<Number> callback = session -> (Number) session
 					.createQuery("select count(*) from RWikiCurrentObjectImpl r where r.realm = :realm")
-					.setString("realm", group)
+					.setParameter("realm", group)
 					.uniqueResult();
 
 			return getHibernateTemplate().execute(callback).intValue();
@@ -386,7 +414,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		HibernateCallback<List> callback = session -> {
             String search = globalParentPageName.replaceAll("([A%_])", "A$1");
             return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name asc")
-					.setString("search", search)
+					.setParameter("search", search)
 					.list();
         };
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
@@ -396,7 +424,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		HibernateCallback<List> callback = session -> {
             String search = globalParentPageName.replaceAll("([A%_])", "A$1");
             return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name desc")
-					.setString("search", search)
+                    .setParameter("search", search)
                     .list();
         };
 		List l = getHibernateTemplate().execute(callback);
@@ -409,8 +437,8 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
             String search = basepath.replaceAll("([A%_])", "A$1");
             return session
                     .createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' and r.version >= :time order by r.version desc, r.name asc")
-                    .setString("search", search)
-                    .setDate("time", time)
+                    .setParameter("search", search)
+                    .setParameter("time", time)
                     .list();
         };
 		return new ListProxy(getHibernateTemplate().execute(callback), this);

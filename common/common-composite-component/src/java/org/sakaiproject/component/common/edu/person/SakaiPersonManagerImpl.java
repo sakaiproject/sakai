@@ -23,6 +23,7 @@ package org.sakaiproject.component.common.edu.person;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,14 +40,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Example;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
-import org.hibernate.type.StringType;
 import org.sakaiproject.api.common.edu.person.PhotoService;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -216,7 +212,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
         final HibernateCallback<List<SakaiPerson>> hcb = session -> {
             final Query<SakaiPerson> q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_UID);
-            q.setParameter(UID, uid, StringType.INSTANCE);
+            q.setParameter(UID, uid);
             return q.list();
         };
 
@@ -327,8 +323,8 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
         Optional<SakaiPerson> sakaiPerson = getHibernateTemplate().execute(session -> {
             Query<SakaiPerson> query = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_AGENT_AND_TYPE);
-            query.setParameter(AGENT_UUID, agentUuid, StringType.INSTANCE);
-            query.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
+            query.setParameter(AGENT_UUID, agentUuid);
+            query.setParameter(TYPE_UUID, recordType.getUuid());
             return Optional.ofNullable(query.uniqueResult());
         });
 
@@ -410,7 +406,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			{
 				Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSONS_BY_AGENTS_AND_TYPE);
 				q.setParameterList(AGENT_UUID_COLLECTION, userIds);
-				q.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
+				q.setParameter(TYPE_UUID, recordType.getUuid());
 				// q.setCacheable(false);
 				return q.list();
 			}
@@ -436,19 +432,13 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			throw new IllegalArgumentException("Illegal simpleSearchCriteria argument passed!");
 
 		final String match = PERCENT_SIGN + simpleSearchCriteria + PERCENT_SIGN;
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
-				c.add(Expression.disjunction().add(Expression.ilike(UID, match)).add(Expression.ilike(GIVENNAME, match)).add(
-						Expression.ilike(SURNAME, match)));
-				c.addOrder(Order.asc(SURNAME));
-				// c.setCacheable(cacheFindSakaiPersonString);
-				return c.list();
-				
-			}
-		};
+		final HibernateCallback<List<SakaiPersonImpl>> hcb = session -> session.createQuery(
+			"from SakaiPersonImpl s where lower(s.uid) like lower(:match) " +
+			"or lower(s.givenName) like lower(:match) " +
+			"or lower(s.surname) like lower(:match) order by s.surname asc",
+			SakaiPersonImpl.class)
+			.setParameter("match", match)
+			.list();
 
 		log.debug("return getHibernateTemplate().executeFind(hcb);");
 		List hb = (List) getHibernateTemplate().execute(hcb);
@@ -490,15 +480,36 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		}
 		if (queryByExample == null) throw new IllegalArgumentException("Illegal queryByExample argument passed!");
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				Criteria criteria = session.createCriteria(queryByExample.getClass());
-				criteria.add(Example.create(queryByExample));
-				// criteria.setCacheable(cacheFindSakaiPersonSakaiPerson);
-				return criteria.list();
+		final HibernateCallback<List<SakaiPersonImpl>> hcb = session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SakaiPersonImpl> query = cb.createQuery(SakaiPersonImpl.class);
+			Root<SakaiPersonImpl> root = query.from(SakaiPersonImpl.class);
+
+			List<Predicate> predicates = new ArrayList<>();
+			if (StringUtils.isNotBlank(queryByExample.getUid())) {
+				predicates.add(cb.equal(root.get(UID), queryByExample.getUid()));
 			}
+			if (StringUtils.isNotBlank(queryByExample.getGivenName())) {
+				predicates.add(cb.equal(root.get(GIVENNAME), queryByExample.getGivenName()));
+			}
+			if (StringUtils.isNotBlank(queryByExample.getSurname())) {
+				predicates.add(cb.equal(root.get(SURNAME), queryByExample.getSurname()));
+			}
+			if (StringUtils.isNotBlank(queryByExample.getAgentUuid())) {
+				predicates.add(cb.equal(root.get(AGENT_UUID), queryByExample.getAgentUuid()));
+			}
+			if (StringUtils.isNotBlank(queryByExample.getTypeUuid())) {
+				predicates.add(cb.equal(root.get(TYPE_UUID), queryByExample.getTypeUuid()));
+			}
+			if (StringUtils.isNotBlank(queryByExample.getMail())) {
+				predicates.add(cb.equal(root.get("mail"), queryByExample.getMail()));
+			}
+
+			if (!predicates.isEmpty()) {
+				query.where(cb.and(predicates.toArray(new Predicate[0])));
+			}
+
+			return session.createQuery(query).list();
 		};
 
 		log.debug("return getHibernateTemplate().executeFind(hcb);");
@@ -562,16 +573,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			throw new IllegalArgumentException("Illegal Set agentUuids argument!");
 		}
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
-				c.add(Expression.in(AGENT_UUID, agentUuids));
-				c.add(Expression.eq(FERPA_ENABLED, Boolean.TRUE));
-				return c.list();
-			}
-		};
+		HibernateCallback<List> hcb = session -> session.createQuery(
+			"from SakaiPersonImpl s where s.agentUuid in (:agentUuids) and s.ferpaEnabled = :ferpa")
+			.setParameterList(AGENT_UUID, agentUuids)
+			.setParameter(FERPA_ENABLED, Boolean.TRUE)
+			.list();
 		return (List) getHibernateTemplate().execute(hcb);
 	}
 
@@ -579,15 +585,10 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	{
 		log.debug("findAllFerpaEnabled()");
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
-				c.add(Expression.eq(FERPA_ENABLED, Boolean.TRUE));
-				return c.list();
-			}
-		};
+		HibernateCallback<List> hcb = session -> session.createQuery(
+			"from SakaiPersonImpl s where s.ferpaEnabled = :ferpa")
+			.setParameter(FERPA_ENABLED, Boolean.TRUE)
+			.list();
 		return (List) getHibernateTemplate().execute(hcb);
 	}
 

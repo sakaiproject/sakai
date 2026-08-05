@@ -27,12 +27,14 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.message.model.PagePresenceImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.PagePresenceDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.PagePresence;
@@ -77,16 +79,18 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(PagePresence.class).add(
-							Expression.eq("pagespace", pageSpace)).addOrder(
-							Order.desc("lastseen")).list();
-				}
+			HibernateCallback<List<PagePresence>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
+				Root<PagePresence> root = cq.from(PagePresence.class);
+
+				cq.select(root)
+					.where(cb.equal(root.get("pagespace"), pageSpace))
+					.orderBy(cb.desc(root.get("lastseen")));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			List l = (List) getHibernateTemplate().execute(callback);
 			log.info("Found  " + l.size() + " in " + pageSpace);
 			return l;
@@ -114,18 +118,21 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(PagePresence.class).add(
-							Expression.eq("pagename", pageName)).add(
-							Expression.eq("pagespace", pageSpace)).addOrder(
-							Order.desc("lastseen")).list();
-				}
+			HibernateCallback<List<PagePresence>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
+				Root<PagePresence> root = cq.from(PagePresence.class);
+
+				cq.select(root)
+					.where(cb.and(
+						cb.equal(root.get("pagename"), pageName),
+						cb.equal(root.get("pagespace"), pageSpace)
+					))
+				.orderBy(cb.desc(root.get("lastseen")));
+
+				return session.createQuery(cq).getResultList();
 			};
-			return (List) getHibernateTemplate().execute(callback);
+			return getHibernateTemplate().execute(callback);
 		}
 		finally
 		{
@@ -149,16 +156,17 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(PagePresence.class).add(
-							Expression.eq("user", user)).list();
-				}
+			HibernateCallback<List<PagePresence>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
+				Root<PagePresence> root = cq.from(PagePresence.class);
+
+				cq.select(root).where(cb.equal(root.get("user"), user));
+
+				return session.createQuery(cq).getResultList();
 			};
-			return (List) getHibernateTemplate().execute(callback);
+
+			return getHibernateTemplate().execute(callback);
 		}
 		finally
 		{
@@ -182,15 +190,16 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(PagePresence.class).add(
-							Expression.eq("sessionid", sessionid)).list();
-				}
+			HibernateCallback<List<PagePresence>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
+				Root<PagePresence> root = cq.from(PagePresence.class);
+
+				cq.select(root).where(cb.equal(root.get("sessionid"), sessionid));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			List found = (List) getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{
@@ -242,19 +251,19 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(PagePresence.class).add(
-							Expression.eq("pagespace", pageSpace))
-							.add(
-									Expression.not(Expression.eq("pagename",
-											pageName))).addOrder(
-									Order.desc("lastseen")).list();
-				}
+			HibernateCallback<List<PagePresence>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
+				Root<PagePresence> root = cq.from(PagePresence.class);
+				cq.select(root)
+					.where(cb.and(
+						cb.equal(root.get("pagespace"), pageSpace),
+						cb.notEqual(root.get("pagename"), pageName)
+					))
+					.orderBy(cb.desc(root.get("lastseen")));
+				return session.createQuery(cq).getResultList();
 			};
+
 			List l = (List) getHibernateTemplate().execute(callback);
 			log.info("Found " + l.size() + " in " + pageSpace + " : "
 					+ pageName);

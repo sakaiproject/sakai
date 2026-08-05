@@ -31,10 +31,10 @@
     <sakai.opensearch.version>2.19.5</sakai.opensearch.version>
     <sakai.hibernate.version>6.6.54.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
-    <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.6.2</sakai.httpclient5.version>
+    <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpcore5.version>5.4.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.18.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
@@ -79,6 +79,7 @@
     <sakai.jakarta.faces-api.version>4.1.2</sakai.jakarta.faces-api.version>
     <sakai.jakarta.el-api.version>6.0.1</sakai.jakarta.el-api.version>
     <sakai.jakarta.jstl-api.version>3.0.2</sakai.jakarta.jstl-api.version>
+    <sakai.jakarta.servlet.jsp.jstl.version>3.0.1</sakai.jakarta.servlet.jsp.jstl.version>
     <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
     <handlebars4.version>4.4.0</handlebars4.version>
@@ -909,7 +910,7 @@
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>6.2.5.Final</version>
+        <version>8.0.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -929,18 +930,6 @@
         <artifactId>httpcore</artifactId>
         <version>${sakai.httpcore.version}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${sakai.httpclient.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -976,7 +965,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpmime</artifactId>
-        <version>${sakai.httpclient.version}</version>
+        <version>${sakai.httpmime.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2283,7 +2272,7 @@
       <dependency>
         <groupId>org.glassfish.web</groupId>
         <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.jakarta.servlet.jsp.jstl.version}</version>
       </dependency>
       <!-- Sakai Wicket -->
       <dependency>

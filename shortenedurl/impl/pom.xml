@@ -78,8 +78,8 @@
 
         <!-- bundled dependencies -->
         <dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 
         <!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
