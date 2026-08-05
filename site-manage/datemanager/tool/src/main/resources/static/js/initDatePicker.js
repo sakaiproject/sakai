@@ -430,8 +430,8 @@ DTMN.updateFitAnchorHints = function() {
       if (!parsed.isValid()) {
         return;
       }
-      if (earliest === null || parsed.valueOf() < earliest.valueOf()) { earliest = parsed; }
-      if (latest === null || parsed.valueOf() > latest.valueOf()) { latest = parsed; }
+      if (earliest === null || DTMN.wallClockMs(parsed) < DTMN.wallClockMs(earliest)) { earliest = parsed; }
+      if (latest === null || DTMN.wallClockMs(parsed) > DTMN.wallClockMs(latest)) { latest = parsed; }
     });
   });
 
@@ -468,7 +468,7 @@ DTMN.validateFitInputs = function() {
   }
 
   const anchors = DTMN.getFitAnchors();
-  const rangeOk = anchors !== null && anchors.last.valueOf() > anchors.first.valueOf();
+  const rangeOk = anchors !== null && DTMN.wallClockMs(anchors.last) > DTMN.wallClockMs(anchors.first);
 
   // Surface the ordering error only once both dates are present but out of order.
   if (anchors !== null && !rangeOk) {
@@ -499,7 +499,7 @@ DTMN.hideFitError = function() {
 DTMN.handleFitButtonClick = function(button, sections, updates, notModified) {
 
   const anchors = DTMN.getFitAnchors();
-  if (!anchors || anchors.last.valueOf() <= anchors.first.valueOf() || sections.length === 0) {
+  if (!anchors || DTMN.wallClockMs(anchors.last) <= DTMN.wallClockMs(anchors.first) || sections.length === 0) {
     return;
   }
 
@@ -535,11 +535,21 @@ DTMN.snapToSourceWeekday = function(target, source) {
   return result;
 };
 
-// Map one source instant onto the new [first, last] range. Pure (no DOM): the earliest source
-// (frac <= 0) lands exactly on anchors.first, the latest (frac >= 1) exactly on anchors.last, and a
-// middle source is placed proportionally then, when snap is on, snapped to its own weekday/time.
-// `sourceMoment` is only used by the snap branch. A zero old span (all dates identical) collapses
-// every date onto anchors.first.
+// Timezone-neutral wall-clock milliseconds: the moment's own calendar fields laid onto the UTC
+// scale. All fitting arithmetic runs on these, never on valueOf(): valueOf() is a browser-local
+// instant, and across a DST transition elapsed instant-milliseconds differ from elapsed wall-clock
+// time, so the same spread would fit to different clock times depending on the browser's timezone.
+DTMN.wallClockMs = function(date) {
+  return Date.UTC(date.year(), date.month(), date.date(), date.hours(), date.minutes(), date.seconds());
+};
+
+// Map one source wall-clock value onto the new [first, last] range. Pure (no DOM): the earliest
+// source (frac <= 0) lands exactly on anchors.first, the latest (frac >= 1) exactly on anchors.last,
+// and a middle source is placed proportionally then, when snap is on, snapped to its own
+// weekday/time. `currentMs` and `oldStartMs` are wallClockMs values; the result is built in UTC
+// mode so an interpolated time that does not exist in the browser's zone (spring-forward gap)
+// cannot be shifted by moment. `sourceMoment` is only used by the snap branch. A zero old span
+// (all dates identical) collapses every date onto anchors.first.
 DTMN.computeFittedDate = function(currentMs, oldStartMs, oldSpan, anchors, snap, sourceMoment) {
   if (oldSpan <= 0) {
     return anchors.first.clone();
@@ -553,9 +563,9 @@ DTMN.computeFittedDate = function(currentMs, oldStartMs, oldSpan, anchors, snap,
     return anchors.last.clone();
   }
 
-  const newStartMs = anchors.first.valueOf();
-  const newSpan = anchors.last.valueOf() - newStartMs;
-  const target = moment(newStartMs + frac * newSpan);
+  const newStartMs = DTMN.wallClockMs(anchors.first);
+  const newSpan = DTMN.wallClockMs(anchors.last) - newStartMs;
+  const target = moment.utc(newStartMs + frac * newSpan);
   return snap ? DTMN.snapToSourceWeekday(target, sourceMoment) : target;
 };
 
@@ -574,15 +584,15 @@ DTMN.computeRowFittedDates = function(rowCells, oldStartMs, oldSpan, anchors, sn
 
   const snapped = rowCells.map(cell =>
       DTMN.computeFittedDate(cell.currentMs, oldStartMs, oldSpan, anchors, true, cell.current));
-  const firstMs = anchors.first.valueOf();
-  const lastMs = anchors.last.valueOf();
+  const firstMs = DTMN.wallClockMs(anchors.first);
+  const lastMs = DTMN.wallClockMs(anchors.last);
   for (let i = 0; i < rowCells.length; i++) {
-    const snappedMs = snapped[i].valueOf();
+    const snappedMs = DTMN.wallClockMs(snapped[i]);
     if (snappedMs < firstMs || snappedMs > lastMs) {
       return proportional;
     }
     for (let j = 0; j < rowCells.length; j++) {
-      if (rowCells[i].currentMs < rowCells[j].currentMs && snappedMs > snapped[j].valueOf()) {
+      if (rowCells[i].currentMs < rowCells[j].currentMs && snappedMs > DTMN.wallClockMs(snapped[j])) {
         return proportional;
       }
     }
@@ -617,7 +627,7 @@ DTMN.fitDates = function(anchors, sections, updates, notModified) {
       if (!current.isValid()) {
         return;
       }
-      cells.push({ datepicker, useTime, current, currentMs: current.valueOf(), row: datepicker.closest("tr"), sectionId: section.id });
+      cells.push({ datepicker, useTime, current, currentMs: DTMN.wallClockMs(current), row: datepicker.closest("tr"), sectionId: section.id });
     });
   });
 
