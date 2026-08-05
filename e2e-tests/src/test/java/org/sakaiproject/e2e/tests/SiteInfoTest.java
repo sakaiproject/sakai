@@ -75,7 +75,7 @@ class SiteInfoTest extends SakaiUiTestBase {
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("#participant-helper")).isVisible();
-        assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .nav-link").last()).hasText("Finish");
+        assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .breadcrumb-item").last()).hasText("Finish");
         page.locator("#officialAccountParticipant").fill("instructor1");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
