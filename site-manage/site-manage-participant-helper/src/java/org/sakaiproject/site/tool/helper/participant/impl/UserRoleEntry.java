@@ -15,20 +15,35 @@
  */
 package org.sakaiproject.site.tool.helper.participant.impl;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.io.Serializable;
 
-@Data
-@AllArgsConstructor
-public class UserRoleEntry {
-    private String firstName;
-    private String lastName;
-    private String role;
-    private String eid;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-    public UserRoleEntry(String eid, String role) {
+@Getter
+@EqualsAndHashCode
+@ToString
+public class UserRoleEntry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private final String firstName;
+    private final String lastName;
+    private final String role;
+    private final String eid;
+
+    public UserRoleEntry(String firstName, String lastName, String role, String eid) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.role = role;
         this.eid = eid;
     }
-}
 
+    public UserRoleEntry(String eid, String role) {
+        this(null, null, role, eid);
+    }
+
+    public UserRoleEntry withRole(String role) {
+        return new UserRoleEntry(firstName, lastName, role, eid);
+    }
+}
