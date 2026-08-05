@@ -312,7 +312,7 @@ public class AssessmentPdfQuestionRenderer {
                 circleCell.setMinimumHeight(30f);
                 circleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 circleCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                circleCell.setCellEvent(new CircleCellEvent(false));
+                circleCell.setCellEvent(new CircleCellEvent(false, true));
                 matrixTable.addCell(circleCell);
             }
         }
