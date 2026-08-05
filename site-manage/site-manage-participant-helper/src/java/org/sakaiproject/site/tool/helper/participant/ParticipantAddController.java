@@ -46,12 +46,7 @@ public class ParticipantAddController {
 
     @GetMapping("/add")
     public String add(Model model) {
-        AddForm form = new AddForm();
-        form.setCsrfToken(handler.getCsrfToken());
-        form.setOfficialAccountParticipant(handler.getOfficialAccountParticipant());
-        form.setNonOfficialAccountParticipant(handler.getNonOfficialAccountParticipant());
-        form.setStatusChoice(handler.getStatusChoice());
-        model.addAttribute("addForm", form);
+        model.addAttribute("addForm", createAddForm());
         return renderAdd(model);
     }
 
@@ -61,7 +56,7 @@ public class ParticipantAddController {
                 form.getNonOfficialAccountParticipant(), ParticipantStatus.fromFormValue(form.getStatusChoice()))) {
             return "redirect:/roles";
         }
-        model.addAttribute("addForm", form);
+        model.addAttribute("addForm", createAddForm());
         return renderAdd(model);
     }
 
@@ -138,6 +133,15 @@ public class ParticipantAddController {
         model.addAttribute("showStatusChoice", handler.showsStatusChoice());
         model.addAttribute("showCourseInstructions", handler.showsCourseInstructions());
         return render(model, "add", 1);
+    }
+
+    private AddForm createAddForm() {
+        AddForm form = new AddForm();
+        form.setCsrfToken(handler.getCsrfToken());
+        form.setOfficialAccountParticipant(handler.getOfficialAccountParticipant());
+        form.setNonOfficialAccountParticipant(handler.getNonOfficialAccountParticipant());
+        form.setStatusChoice(handler.getStatusChoice());
+        return form;
     }
 
     private String renderRoles(Model model) {

@@ -76,17 +76,24 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertNoTemplateRenderingError();
         assertThat(page.locator("#participant-helper")).isVisible();
         assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .breadcrumb-item").last()).hasText("Finish");
-        page.locator("#officialAccountParticipant").fill("instructor1");
+        page.locator("#officialAccountParticipant").fill("instructor1\nstudent0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
         Locator existingParticipantMessage = page.locator("#participant-helper .sak-banner-info")
                 .filter(new Locator.FilterOptions().setHasText("instructor1"));
         assertThat(existingParticipantMessage).containsText("instructor1");
         assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
-        page.locator("#officialAccountParticipant").fill("student0011");
+        assertThat(page.locator("#officialAccountParticipant")).hasValue("student0011\n");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
 
+        page.locator("#different-role").check(new Locator.CheckOptions().setForce(true));
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+        assertThat(page.locator("#participant-helper .sak-banner-error")).isVisible();
+        assertThat(page.locator("#participant-role-0")).hasValue("");
+
+        page.locator("#same-role").check(new Locator.CheckOptions().setForce(true));
         Locator sameRole = page.locator("input[name=\"sameRoleChoice\"][value=\"maintain\"]");
         assertThat(sameRole).isVisible();
         sameRole.check(new Locator.CheckOptions().setForce(true));

@@ -31,4 +31,22 @@ public class ParticipantWizardState implements Serializable {
     private ParticipantStatus status = ParticipantStatus.ACTIVE;
     private ParticipantNotificationOption notificationOption = ParticipantNotificationOption.DO_NOT_SEND;
     private List<UserRoleEntry> userRoleEntries = new ArrayList<>();
+
+    public ParticipantWizardState() {
+    }
+
+    private ParticipantWizardState(ParticipantWizardState source) {
+        officialAccountParticipant = source.officialAccountParticipant;
+        officialAccountEidOnly = new ArrayList<>(source.officialAccountEidOnly);
+        nonOfficialAccountParticipant = source.nonOfficialAccountParticipant;
+        roleMode = source.roleMode;
+        sameRoleChoice = source.sameRoleChoice;
+        status = source.status;
+        notificationOption = source.notificationOption;
+        userRoleEntries = new ArrayList<>(source.userRoleEntries);
+    }
+
+    public ParticipantWizardState copy() {
+        return new ParticipantWizardState(this);
+    }
 }

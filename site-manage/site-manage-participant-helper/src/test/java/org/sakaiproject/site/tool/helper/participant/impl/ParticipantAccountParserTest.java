@@ -9,7 +9,9 @@ package org.sakaiproject.site.tool.helper.participant.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -93,6 +95,44 @@ public class ParticipantAccountParserTest {
         assertEquals(1, result.entries().size());
         assertEquals("student0011", result.entries().get(0).getEid());
         assertTrue(messageCodes(result).contains("add.duplicatedpart.single"));
+    }
+
+    @Test
+    public void replacesAmbiguousOfficialEmailWithCandidateEids() {
+        User firstUser = user("student0011", "user-1");
+        User secondUser = user("student0012", "user-2");
+        when(firstUser.getDisplayId()).thenReturn("student0011");
+        when(secondUser.getDisplayId()).thenReturn("student0012");
+        when(userDirectoryService.findUsersByEmail("shared@example.edu"))
+                .thenReturn(List.of(firstUser, secondUser));
+
+        ParticipantAccountParser.Result result = parser.parse(mock(Site.class), "shared@example.edu",
+                new ArrayList<>(), null);
+
+        assertTrue(result.entries().isEmpty());
+        assertEquals("student0011\nstudent0012\n", result.officialAccounts());
+        assertEquals(List.of("student0011", "student0012"), result.officialAccountEidOnly());
+        assertTrue(messageCodes(result).contains("java.username.multiple"));
+    }
+
+    @Test
+    public void replacesAmbiguousNonOfficialEmailWithCandidateEids() {
+        User firstUser = user("student0011", "user-1");
+        User secondUser = user("student0012", "user-2");
+        when(firstUser.getDisplayId()).thenReturn("student0011");
+        when(secondUser.getDisplayId()).thenReturn("student0012");
+        when(userDirectoryService.findUsersByEmail("shared@example.edu"))
+                .thenReturn(List.of(firstUser, secondUser));
+
+        ParticipantAccountParser.Result result = parser.parse(mock(Site.class), null, new ArrayList<>(),
+                "shared@example.edu,Shared,User");
+
+        assertTrue(result.entries().isEmpty());
+        assertEquals("student0011\nstudent0012\n", result.officialAccounts());
+        assertEquals("", result.nonOfficialAccounts());
+        assertEquals(List.of("student0011", "student0012"), result.officialAccountEidOnly());
+        assertTrue(messageCodes(result).contains("java.username.multiple"));
+        verify(userDirectoryService, never()).allowAddUser();
     }
 
     @Test

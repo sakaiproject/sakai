@@ -59,8 +59,8 @@ public class ParticipantAccountParser {
                     updatedOfficialAccounts, messages);
         }
         if (trimmedNonOfficialAccounts != null) {
-            parseNonOfficialAccounts(site, trimmedNonOfficialAccounts, entries, existingUsers, candidateEids,
-                    updatedNonOfficialAccounts, messages);
+            parseNonOfficialAccounts(site, trimmedNonOfficialAccounts, eidOnly, entries, existingUsers,
+                    candidateEids, updatedOfficialAccounts, updatedNonOfficialAccounts, messages);
         }
 
         addDuplicateAndExistingMessages(candidateEids, existingUsers, messages);
@@ -75,12 +75,16 @@ public class ParticipantAccountParser {
             String officialAccount = StringUtils.trimToNull(currentOfficialAccount.replaceAll("[\\t\\r\\n]", ""));
             if (officialAccount == null) continue;
 
-            User user = findOfficialAccount(officialAccount, eidOnly, messages);
+            AccountResolution resolution = findOfficialAccount(officialAccount, eidOnly, messages);
+            if (!resolution.candidateEids().isEmpty()) {
+                resolution.candidateEids().forEach(eid -> updatedOfficialAccounts.append(eid).append("\n"));
+                continue;
+            }
+
+            User user = resolution.user();
             if (user == null) {
-                if (!hasMultipleMatchMessage(messages, officialAccount)) {
-                    messages.add(new ParticipantMessage("java.username", new Object[] {officialAccount},
-                            ParticipantMessage.Severity.ERROR));
-                }
+                messages.add(new ParticipantMessage("java.username", new Object[] {officialAccount},
+                        ParticipantMessage.Severity.ERROR));
                 continue;
             }
 
@@ -96,29 +100,54 @@ public class ParticipantAccountParser {
         }
     }
 
-    private User findOfficialAccount(String officialAccount, List<String> eidOnly, List<ParticipantMessage> messages) {
+    private AccountResolution findOfficialAccount(String officialAccount, List<String> eidOnly,
+            List<ParticipantMessage> messages) {
         User user = findUserByEid(officialAccount);
         if (!officialAccount.contains(SiteAddParticipantHandler.EMAIL_CHAR) || eidOnly.contains(officialAccount)) {
-            return user;
+            return new AccountResolution(user, List.of());
         }
 
-        Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(officialAccount);
-        if (usersWithEmail == null || usersWithEmail.isEmpty()) return user;
-        if (usersWithEmail.size() == 1) return user == null ? usersWithEmail.iterator().next() : user;
-
-        StringBuilder alertEids = new StringBuilder();
-        for (User matchedUser : usersWithEmail) {
-            alertEids.append(matchedUser.getDisplayId()).append(", ");
-            eidOnly.add(matchedUser.getEid());
-        }
-        String alert = alertEids.substring(0, alertEids.length() - 2);
-        messages.add(new ParticipantMessage("java.username.multiple", new Object[] {officialAccount, alert},
-                ParticipantMessage.Severity.INFO));
-        return null;
+        return findUserByEmail(officialAccount, user, eidOnly, messages);
     }
 
-    private void parseNonOfficialAccounts(Site site, String nonOfficialAccounts, List<UserRoleEntry> entries,
-            Set<String> existingUsers, List<String> candidateEids, StringBuilder updatedNonOfficialAccounts,
+    private AccountResolution findUserByEmail(String email, User userByEid, List<String> eidOnly,
+            List<ParticipantMessage> messages) {
+        Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(email);
+        if (usersWithEmail == null || usersWithEmail.isEmpty()) {
+            return new AccountResolution(userByEid, List.of());
+        }
+        if (usersWithEmail.size() == 1) {
+            User resolvedUser = userByEid == null ? usersWithEmail.iterator().next() : userByEid;
+            return new AccountResolution(resolvedUser, List.of());
+        }
+
+        List<String> candidateEids = new ArrayList<>();
+        List<String> candidateDisplayIds = new ArrayList<>();
+        addCandidate(userByEid, candidateEids, candidateDisplayIds);
+        for (User matchedUser : usersWithEmail) {
+            addCandidate(matchedUser, candidateEids, candidateDisplayIds);
+        }
+        for (String candidateEid : candidateEids) {
+            if (!eidOnly.contains(candidateEid)) {
+                eidOnly.add(candidateEid);
+            }
+        }
+        messages.add(new ParticipantMessage("java.username.multiple",
+                new Object[] {email, String.join(", ", candidateDisplayIds)},
+                ParticipantMessage.Severity.INFO));
+        return new AccountResolution(null, candidateEids);
+    }
+
+    private void addCandidate(User user, List<String> candidateEids, List<String> candidateDisplayIds) {
+        if (user == null || candidateEids.contains(user.getEid())) return;
+
+        candidateEids.add(user.getEid());
+        candidateDisplayIds.add(StringUtils.defaultIfBlank(user.getDisplayId(), user.getEid()));
+    }
+
+    private void parseNonOfficialAccounts(Site site, String nonOfficialAccounts, List<String> eidOnly,
+            List<UserRoleEntry> entries, Set<String> existingUsers, List<String> candidateEids,
+            StringBuilder updatedOfficialAccounts, StringBuilder updatedNonOfficialAccounts,
             List<ParticipantMessage> messages) {
         List<String> invalidDomains = Arrays.asList(ArrayUtils.nullToEmpty(
                 serverConfigurationService.getStrings(SiteAddParticipantHandler.SAK_PROP_INVALID_EMAIL_DOMAINS)));
@@ -132,7 +161,14 @@ public class ParticipantAccountParser {
             if (!validNonOfficialEmail(email, invalidDomains, messages)) continue;
 
             User user = findUserByEid(email);
-            if (user == null) user = findUserByEmail(email);
+            if (user == null) {
+                AccountResolution resolution = findUserByEmail(email, null, eidOnly, messages);
+                if (!resolution.candidateEids().isEmpty()) {
+                    resolution.candidateEids().forEach(eid -> updatedOfficialAccounts.append(eid).append("\n"));
+                    continue;
+                }
+                user = resolution.user();
+            }
             if (user != null && site.getUserRole(user.getId()) != null) {
                 existingUsers.add(email);
                 continue;
@@ -185,13 +221,6 @@ public class ParticipantAccountParser {
         }
     }
 
-    private User findUserByEmail(String email) {
-        Collection<User> matches = userDirectoryService.findUsersByEmail(email);
-        if (matches == null || matches.isEmpty()) return null;
-        if (matches.size() > 1) log.warn("Found multiple users with email {}", email);
-        return matches.iterator().next();
-    }
-
     private void addDuplicateAndExistingMessages(List<String> candidateEids, Set<String> existingUsers,
             List<ParticipantMessage> messages) {
         Set<String> uniqueEids = new HashSet<>();
@@ -215,11 +244,6 @@ public class ParticipantAccountParser {
         }
     }
 
-    private boolean hasMultipleMatchMessage(List<ParticipantMessage> messages, String officialAccount) {
-        return messages.stream().anyMatch(message -> "java.username.multiple".equals(message.getCode())
-                && message.getArgs().length > 0 && officialAccount.equals(message.getArgs()[0]));
-    }
-
     private boolean containsEid(List<UserRoleEntry> entries, String eid) {
         return entries.stream().anyMatch(entry -> entry.getEid().equals(eid));
     }
@@ -238,5 +262,8 @@ public class ParticipantAccountParser {
 
     public record Result(String officialAccounts, List<String> officialAccountEidOnly, String nonOfficialAccounts,
             List<UserRoleEntry> entries, List<ParticipantMessage> messages) {
+    }
+
+    private record AccountResolution(User user, List<String> candidateEids) {
     }
 }
