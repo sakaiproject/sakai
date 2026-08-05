@@ -62,8 +62,6 @@ public class PDFAssessmentBean implements Serializable {
 
 	private String title = "";
 
-	private List<SectionContentsBean> deliveryParts = null;
-
 	private String actionString = "";
 
 	@Autowired
@@ -86,11 +84,11 @@ public class PDFAssessmentBean implements Serializable {
 		this.title = title;
 	}
 
-	public List<SectionContentsBean> getDeliveryParts() {
-		return deliveryParts;
-	}
-
-	public void setDeliveryParts(List<org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean> deliveryParts) {
+	/**
+	 * Copies delivery parts into their printable form, numbering questions across the whole
+	 * assessment and deriving answer sequences from their labels.
+	 */
+	private static List<SectionContentsBean> toPrintParts(List<org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean> deliveryParts) {
 		List<SectionContentsBean> parts = new ArrayList<>();
 		int numberQuestion = 1;
 		for (org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean part : deliveryParts) {
@@ -112,7 +110,7 @@ public class PDFAssessmentBean implements Serializable {
 			}
 			parts.add(section);
 		}
-		this.deliveryParts = parts;
+		return parts;
 	}
 
 	public String genName() {
@@ -140,7 +138,6 @@ public class PDFAssessmentBean implements Serializable {
 		beginDeliveryAL.processAction(null);
 		deliveryAL.processAction(null);
 
-		setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
 		setTitle(deliveryBean.getAssessmentTitle());
 		cleanupPreviewPublishedAssessment(deliveryBean);
 
@@ -182,35 +179,35 @@ public class PDFAssessmentBean implements Serializable {
 	 * @return the PDF bytes, or an empty array when there is nothing printable
 	 */
 	public byte[] generatePrintablePdf(DeliveryBean deliveryBean, PrintSettingsBean printSettings) {
-		ensureDeliveryPartsLoaded(deliveryBean);
-		if (deliveryParts == null || deliveryParts.isEmpty()) {
-			log.debug("No delivery parts loaded; nothing to print");
+		List<SectionContentsBean> deliveryParts = resolveDeliveryParts(deliveryBean);
+		if (deliveryParts.isEmpty()) {
+			log.debug("No delivery parts available; nothing to print");
 			return new byte[0];
 		}
-		return pdfService().buildPrintable(buildPrintModel(deliveryBean, printSettings));
+		return pdfService().buildPrintable(buildPrintModel(deliveryBean, deliveryParts, printSettings));
 	}
 
-	private AssessmentPrintPdfModel buildPrintModel(DeliveryBean deliveryBean, PrintSettingsBean printSettings) {
+	private AssessmentPrintPdfModel buildPrintModel(DeliveryBean deliveryBean, List<SectionContentsBean> deliveryParts, PrintSettingsBean printSettings) {
 		String introHtml = AssessmentPdfSnapshotBuilder.buildIntroHtml(deliveryBean, printSettings, formattedText);
 		return AssessmentPdfSnapshotBuilder.buildPrintModel(deliveryBean, deliveryParts, printSettings, introHtml, formattedText);
 	}
 
-	public void ensureDeliveryPartsLoaded(DeliveryBean deliveryBean) {
-		if (deliveryParts != null && !deliveryParts.isEmpty()) {
-			return;
-		}
+	/**
+	 * Derives the printable parts from the supplied delivery bean. Deliberately keeps no state:
+	 * the parts must always belong to the assessment the caller passed in.
+	 */
+	private List<SectionContentsBean> resolveDeliveryParts(DeliveryBean deliveryBean) {
 		if (deliveryBean.getTableOfContents() != null
 				&& deliveryBean.getTableOfContents().getPartsContents() != null
 				&& !deliveryBean.getTableOfContents().getPartsContents().isEmpty()) {
-			setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
-		} else if (deliveryBean.getPageContents() != null
+			return toPrintParts(deliveryBean.getTableOfContents().getPartsContents());
+		}
+		if (deliveryBean.getPageContents() != null
 				&& deliveryBean.getPageContents().getPartsContents() != null
 				&& !deliveryBean.getPageContents().getPartsContents().isEmpty()) {
-			setDeliveryParts(deliveryBean.getPageContents().getPartsContents());
+			return toPrintParts(deliveryBean.getPageContents().getPartsContents());
 		}
-		if (StringUtils.isBlank(title) && StringUtils.isNotBlank(deliveryBean.getAssessmentTitle())) {
-			setTitle(deliveryBean.getAssessmentTitle());
-		}
+		return List.of();
 	}
 
 	public String getPdfPreviewUrl() {
@@ -252,20 +249,5 @@ public class PDFAssessmentBean implements Serializable {
 
 	public void setActionString(String actionString) {
 		this.actionString = actionString;
-	}
-
-	public String getSizeDeliveryParts() {
-		return deliveryParts == null ? "0" : "" + deliveryParts.size();
-	}
-
-	public String getTotalQuestions() {
-		if (deliveryParts == null) {
-			return "0";
-		}
-		int items = 0;
-		for (SectionContentsBean section : deliveryParts) {
-			items += section.getItemContents().size();
-		}
-		return String.valueOf(items);
 	}
 }

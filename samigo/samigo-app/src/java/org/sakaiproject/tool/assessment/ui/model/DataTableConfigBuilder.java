@@ -116,7 +116,11 @@ public class DataTableConfigBuilder {
         return this;
     }
 
-    public DataTableConfigBuilder language(Map<String, Object> language) {
+    /**
+     * Only {@link #withDefaults()} sets this, and it passes a map that
+     * {@link #entitiesMessage(String)} is free to add to.
+     */
+    private DataTableConfigBuilder language(Map<String, Object> language) {
         this.language = language;
         return this;
     }
