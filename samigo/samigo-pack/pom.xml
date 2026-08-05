@@ -43,6 +43,10 @@
 		</dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>samigo-qti</artifactId>
         </dependency>
 

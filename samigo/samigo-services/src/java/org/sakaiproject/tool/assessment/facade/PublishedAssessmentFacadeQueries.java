@@ -2200,15 +2200,35 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		List<AuthorizationData> l = getHibernateTemplate().execute(hcb);
 
 		PublishedAssessmentData publishedAssessment = loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
-		boolean releaseToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(publishedAssessment.getAssessmentAccessControl().getReleaseTo());
+		Boolean releaseToGroups = null;
+		if (publishedAssessment != null && publishedAssessment.getAssessmentAccessControl() != null) {
+			releaseToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(
+					publishedAssessment.getAssessmentAccessControl().getReleaseTo());
+		}
 		for (AuthorizationData a : l) {
-			if (releaseToGroups) {
-				String agentId = a.getAgentIdString();
-				if (siteService.findGroup(agentId) != null && siteService.findGroup(agentId).getContainingSite() != null) {
-					return siteService.findGroup(a.getAgentIdString()).getContainingSite().getId();
+			String agentId = a.getAgentIdString();
+			if (Boolean.TRUE.equals(releaseToGroups)) {
+				Group group = siteService.findGroup(agentId);
+				if (group != null && group.getContainingSite() != null) {
+					return group.getContainingSite().getId();
 				}
+				continue;
 			}
-			return a.getAgentIdString();
+			if (Boolean.FALSE.equals(releaseToGroups)) {
+				return agentId;
+			}
+			try {
+				Site site = siteService.getSite(agentId);
+				if (site != null) {
+					return site.getId();
+				}
+			} catch (IdUnusedException ex) {
+				// not a site id
+			}
+			Group group = siteService.findGroup(agentId);
+			if (group != null && group.getContainingSite() != null) {
+				return group.getContainingSite().getId();
+			}
 		}
 		return "";
 	}

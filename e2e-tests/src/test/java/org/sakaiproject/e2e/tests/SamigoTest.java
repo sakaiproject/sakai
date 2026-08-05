@@ -15,24 +15,25 @@
  */
 package org.sakaiproject.e2e.tests;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.microsoft.playwright.ElementHandle;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.PlaywrightException;
-import com.microsoft.playwright.assertions.LocatorAssertions;
-import com.microsoft.playwright.options.LoadState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+
+import com.microsoft.playwright.ElementHandle;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.assertions.LocatorAssertions;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import com.microsoft.playwright.options.LoadState;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SamigoTest extends SakaiUiTestBase {
@@ -351,6 +352,43 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(permissions.locator(".permission-row").first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
         assertThat(permissions).containsText(Pattern.compile("Create assessments", Pattern.CASE_INSENSITIVE));
         assertThat(permissions.locator("button[data-perm^='assessment.template.']")).hasCount(0);
+    }
+
+    @Test
+    @Order(9)
+    void canOpenPrintPreviewWithPdfViewer() {
+        String courseUrl = ensureCourseUrl();
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+
+        editWorkingCopyFromAssessmentsTable();
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        Locator printLink = page.locator("#assessmentForm a").filter(
+            new Locator.FilterOptions().setHasText(Pattern.compile("^Print$", Pattern.CASE_INSENSITIVE))
+        ).first();
+        assertThat(printLink).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+        printLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        Locator previewIframe = page.locator("#print-pdf-preview");
+        assertThat(previewIframe).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+
+        page.waitForFunction("() => {"
+            + "const iframe = document.getElementById('print-pdf-preview');"
+            + "const url = document.getElementById('pdf-preview-url');"
+            + "return iframe && url && url.textContent.trim().length > 0;"
+            + "}", null, new com.microsoft.playwright.Page.WaitForFunctionOptions().setTimeout(30_000));
+
+        Locator showAnswerKey = page.locator("#assessmentForm\\:showKeys");
+        if (isVisible(showAnswerKey, 5_000)) {
+            showAnswerKey.check(new Locator.CheckOptions().setForce(true));
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+
+            assertThat(previewIframe).isVisible();
+        }
     }
 
     private void addMultipleChoiceQuestion(String points, String questionText, List<String> choices, int correctIndex) {

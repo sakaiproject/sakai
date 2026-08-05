@@ -235,6 +235,17 @@
     <url-pattern>/servlet/ShowAttachmentMedia</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <description>Print Assessment PDF</description>
+    <servlet-name>PrintAssessmentPdfServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.print.PrintAssessmentPdfServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>PrintAssessmentPdfServlet</servlet-name>
+    <url-pattern>/servlet/PrintAssessmentPdf</url-pattern>
+  </servlet-mapping>
+
   <!-- initialization servlets -->
   <servlet>
    	<!--  Ordering change required - PAFH 9/7/2006 -->
