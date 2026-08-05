@@ -31,9 +31,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.criterion.Expression;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -127,14 +125,12 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback<Set> hcb = session -> {
-        // get syllabi in an eager fetch mode
-        Criteria crit = session.createCriteria(SyllabusItem.class)
-                    .add(Expression.eq(SURROGATE_KEY, syllabusItem.getSurrogateKey()))
-                    .setFetchMode(SYLLABI, FetchMode.EAGER);
-
-
-        SyllabusItem syllabusItem1 = (SyllabusItem) crit.uniqueResult();
+        HibernateCallback<Set> hcb = session -> {
+          SyllabusItem syllabusItem1 = session.createQuery(
+          "from SyllabusItem s left join fetch s.syllabi where s.surrogateKey = :key",
+          SyllabusItem.class)
+          .setParameter("key", syllabusItem.getSurrogateKey())
+          .uniqueResult();
 
         if (syllabusItem1 != null){
           return syllabusItem1.getSyllabi();
@@ -274,26 +270,25 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   
   @SuppressWarnings("unchecked")
   public Set<SyllabusData> findPublicSyllabusData() {
-      HibernateCallback<List<SyllabusData>> hcb = session -> {
-        Criteria crit = session.createCriteria(SyllabusData.class)
-                    .add(Expression.eq(VIEW, "yes"))
-                    .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
-
-        return crit.list();
-      };
+      HibernateCallback<List<SyllabusData>> hcb = session ->
+      session.createQuery(
+        "from SyllabusData s left join fetch s.attachments where s.view = :view",
+        SyllabusData.class)
+        .setParameter("view", "yes")
+        .list();
       return new HashSet<>(getHibernateTemplate().execute(hcb));
   }
   
   @SuppressWarnings("unchecked")
   private Set<SyllabusData> findPublicSyllabusDataWithCalendarEvent(final long syllabusId) {
-      HibernateCallback<List<SyllabusData>> hcb = session -> {
-        Criteria crit = session.createCriteria(SyllabusData.class)
-                        .add(Expression.eq("syllabusItem.surrogateKey", syllabusId))
-                    .add(Expression.eq("status", "posted"))
-                    .add(Expression.eq("linkCalendar", true));
-
-        return crit.list();
-      };
+      HibernateCallback<List<SyllabusData>> hcb = session ->
+      session.createQuery(
+        "from SyllabusData s where s.syllabusItem.surrogateKey = :syllabusId and s.status = :status and s.linkCalendar = :linkCalendar",
+        SyllabusData.class)
+        .setParameter("syllabusId", syllabusId)
+        .setParameter("status", "posted")
+        .setParameter("linkCalendar", true)
+        .list();
       return new HashSet<>(getHibernateTemplate().execute(hcb));
   }
   
@@ -587,14 +582,13 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }
     else
-    {                 
+    {
       HibernateCallback<Set<SyllabusAttachment>> hcb = session -> {
-        Criteria crit = session.createCriteria(SyllabusData.class)
-                    .add(Expression.eq(SYLLABUS_DATA_ID, syllabusData.getSyllabusId()))
-                    .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
-
-
-        SyllabusData syllabusData1 = (SyllabusData) crit.uniqueResult();
+        SyllabusData syllabusData1 = session.createQuery(
+          "from SyllabusData s left join fetch s.attachments where s.syllabusId = :id",
+          SyllabusData.class)
+          .setParameter("id", syllabusData.getSyllabusId())
+          .uniqueResult();
 
         if (syllabusData1 != null){
           return syllabusData1.getAttachments();

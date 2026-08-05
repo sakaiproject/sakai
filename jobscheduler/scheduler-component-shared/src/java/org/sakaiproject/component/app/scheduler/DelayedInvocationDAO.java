@@ -39,7 +39,9 @@ public class DelayedInvocationDAO {
     }
 
     public List<DelayedInvocation> all() {
-        return sessionFactory.getCurrentSession().createCriteria(DelayedInvocation.class).list();
+        return sessionFactory.getCurrentSession()
+            .createQuery("from DelayedInvocation", DelayedInvocation.class)
+            .list();
     }
 
     public void remove(DelayedInvocation invocation) {

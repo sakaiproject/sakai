@@ -26,11 +26,14 @@ import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Message;
@@ -73,15 +76,16 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("pagespace", pageSpace)).list();
-				}
+			HibernateCallback<List<Message>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+				Root<Message> root = cq.from(Message.class);
+
+				cq.select(root).where(cb.equal(root.get("pagespace"), pageSpace));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -108,16 +112,20 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("pagespace", pageSpace)).add(
-							Expression.eq("pagename", pageName)).list();
-				}
+			HibernateCallback<List<Message>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+				Root<Message> root = cq.from(Message.class);
+
+				cq.select(root)
+					.where(cb.and(
+						cb.equal(root.get("pagespace"), pageSpace),
+						cb.equal(root.get("pagename"), pageName)
+					));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -142,15 +150,16 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("user", user)).list();
-				}
+			HibernateCallback<List<Message>> callback = session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+				Root<Message> root = cq.from(Message.class);
+
+				cq.select(root).where(cb.equal(root.get("user"), user));
+
+				return session.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally
@@ -186,15 +195,16 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("sessionid", session)).list();
-				}
+			HibernateCallback<List<Message>> callback = s -> {
+				CriteriaBuilder cb = s.getCriteriaBuilder();
+				CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+				Root<Message> root = cq.from(Message.class);
+
+				cq.select(root).where(cb.equal(root.get("sessionid"), session));
+
+				return s.createQuery(cq).getResultList();
 			};
+
 			return (List) getHibernateTemplate().execute(callback);
 		}
 		finally

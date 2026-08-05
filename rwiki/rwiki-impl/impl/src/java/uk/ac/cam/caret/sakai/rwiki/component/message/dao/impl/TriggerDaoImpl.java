@@ -27,7 +27,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -75,16 +74,11 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("user", user)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			return (List) getHibernateTemplate().execute(session ->
+				session.createSelectionQuery("from Trigger where user = :user", Trigger.class)
+					.setParameter("user", user)
+					.getResultList()
+			);
 		}
 		finally
 		{
@@ -108,16 +102,11 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("pagespage", space)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			return (List) getHibernateTemplate().execute(session ->
+				session.createSelectionQuery("from Trigger where pagespace = :space", Trigger.class)
+					.setParameter("space", space)
+					.getResultList()
+			);
 		}
 		finally
 		{
@@ -142,17 +131,14 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Trigger.class).add(
-							Expression.eq("pagespage", space)).add(
-							Expression.eq("pagename", page)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			return (List) getHibernateTemplate().execute(session ->
+				session.createSelectionQuery(
+					"from Trigger where pagespace = :space and pagename = :page",
+					Trigger.class)
+					.setParameter("space", space)
+					.setParameter("page", page)
+					.getResultList()
+			);
 		}
 		finally
 		{

@@ -15,16 +15,13 @@
  */
 package org.sakaiproject.component.app.scheduler.events.hibernate;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
@@ -33,6 +30,11 @@ import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 /**
  * Created by IntelliJ IDEA.
@@ -89,9 +91,15 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
 
     @Transactional(readOnly = true)
     public int getTriggerEventsSize(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types) {
-        final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
-        criteria.setProjection(Projections.rowCount());
-        return ((Long) criteria.list().get(0)).intValue();
+        final Session session = getSessionFactory().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<TriggerEventHibernateImpl> root = cq.from(TriggerEventHibernateImpl.class);
+        cq.select(cb.count(root));
+        List<Predicate> predicates = buildPredicates(cb, root, after, before, jobs, triggerName, types);
+        if (!predicates.isEmpty())
+            cq.where(predicates.toArray(new Predicate[0]));
+        return session.createQuery(cq).uniqueResult().intValue();
     }
 
     @Transactional(readOnly = true)
@@ -109,53 +117,46 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
      * Internal search for events. Applies the sort and optionally the limit/offset.
      */
     protected List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types, Integer first, Integer size) {
-        final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
-        // We put the newest items first as generally that's what people are most interested in.
-        criteria.addOrder(Order.desc("time"));
-        // Sort by event type so that if the time of 2 events is the same the fired event happens before
-        // the completed event.
-        criteria.addOrder(Order.asc("eventType"));
-        if (first != null && size != null)
-        {
-            criteria.setFirstResult(first).setMaxResults(size);
-        }
-        return criteria.list();
+    	 final Session session = getSessionFactory().getCurrentSession();
+         CriteriaBuilder cb = session.getCriteriaBuilder();
+         CriteriaQuery<TriggerEventHibernateImpl> cq = cb.createQuery(TriggerEventHibernateImpl.class);
+         Root<TriggerEventHibernateImpl> root = cq.from(TriggerEventHibernateImpl.class);
+         List<Predicate> predicates = buildPredicates(cb, root, after, before, jobs, triggerName, types);
+         if (!predicates.isEmpty())
+             cq.where(predicates.toArray(new Predicate[0]));
+         cq.orderBy(cb.desc(root.get("time")), cb.asc(root.get("eventType")));
+
+         var query = session.createQuery(cq);
+         if (first != null && size != null) {
+             query.setFirstResult(first).setMaxResults(size);
+         }
+         return (List<TriggerEvent>)(List<?>) query.list();
     }
 
     /**
-     * Creates a criteria with all restrictions applied.
-     */
-    protected Criteria buildCriteria(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types) {
-        final Session session = getSessionFactory().getCurrentSession();
-        final Criteria criteria = session.createCriteria(TriggerEventHibernateImpl.class);
+	 * Build the criteria for searching for events.
+	 */
+    protected List<Predicate> buildPredicates(CriteriaBuilder cb, Root<TriggerEventHibernateImpl> root,
+            Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types) {
+        List<Predicate> predicates = new ArrayList<>();
         if (after != null)
-        {
-            criteria.add(Restrictions.ge("time", after));
-        }
+            predicates.add(cb.greaterThanOrEqualTo(root.get("time"), after));
         if (before != null)
-        {
-            criteria.add(Restrictions.le("time", before));
-        }
+            predicates.add(cb.lessThanOrEqualTo(root.get("time"), before));
         if (jobs != null && !jobs.isEmpty())
-        {
-            criteria.add(Restrictions.in("jobName", jobs));
-        }
+            predicates.add(root.get("jobName").in(jobs));
         if (triggerName != null)
-        {
-            criteria.add(Restrictions.eq("triggerName", triggerName));
-        }
+            predicates.add(cb.equal(root.get("triggerName"), triggerName));
         if (types != null)
-        {
-            criteria.add(Restrictions.in("eventType", (Object[]) types));
-        }
-        return criteria;
+            predicates.add(root.get("eventType").in((Object[]) types));
+        return predicates;
     }
 
     @Transactional
     public void purgeEvents(Date before)
     {
         getSessionFactory().getCurrentSession().getNamedQuery("purgeEventsBefore")
-                .setTimestamp("before", before)
+                .setParameter("before", before)
                 .executeUpdate();
     }
 }

@@ -18,10 +18,13 @@ package org.sakaiproject.microsoft.impl.persistence;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.microsoft.api.model.MicrosoftTeamArchiveRecord;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftTeamArchiveRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public class MicrosoftTeamArchiveRepositoryImpl extends BasicSerializableRepository<MicrosoftTeamArchiveRecord, Long> implements MicrosoftTeamArchiveRepository {
 
@@ -37,8 +40,11 @@ public class MicrosoftTeamArchiveRepositoryImpl extends BasicSerializableReposit
 
     @Override
     public List<MicrosoftTeamArchiveRecord> findByStatus(int status, int maxResults, int offset) {
-        return (List<MicrosoftTeamArchiveRecord>) startCriteriaQuery()
-                .add(Restrictions.eq("status", status))
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<MicrosoftTeamArchiveRecord> cq = cb.createQuery(MicrosoftTeamArchiveRecord.class);
+        Root<MicrosoftTeamArchiveRecord> root = cq.from(MicrosoftTeamArchiveRecord.class);
+        cq.where(cb.equal(root.get("status"), status));
+        return sessionFactory.getCurrentSession().createQuery(cq)
                 .setMaxResults(maxResults)
                 .setFirstResult(offset)
                 .list();
