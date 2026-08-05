@@ -81,7 +81,6 @@ ul#otherSitesMenu {
   .moresites-left-col {
     display: inline-block;
     width: 49%;
-    float: left;
     margin-right: 1%;
     @media #{$more-sites-single-column} {
       width: 100%;
@@ -94,7 +93,6 @@ ul#otherSitesMenu {
   .moresites-right-col {
     display: inline-block;
     width: 49%;
-    float: left;
     @media #{$more-sites-single-column} {
       width: 100%;
       float: none;
@@ -276,6 +274,11 @@ div.fav-title-myworkspace {
     line-height: 29px;
     text-decoration: none !important;
     vertical-align: middle;
+    @media #{$phone} {
+      overflow-x: auto;
+      scrollbar-width: none;
+      text-overflow: unset;
+    }
 
     .fullTitle {
       padding-left: 2px;
