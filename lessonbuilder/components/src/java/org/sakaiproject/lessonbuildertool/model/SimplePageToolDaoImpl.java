@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,13 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.CacheMode;
 import org.hibernate.query.Query;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Order;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -216,15 +212,22 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findItemsOnPage(long pageId) {
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId));
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
-		
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
+
+			cq.where(cb.equal(root.get("pageId"), pageId));
+
+			return session.createQuery(cq).getResultList();
+		});
+
 		Collections.sort(list, new Comparator<SimplePageItem>() {
 			public int compare(SimplePageItem a, SimplePageItem b) {
 				return Integer.valueOf(a.getSequence()).compareTo(b.getSequence());
 			}
 		});
-		
+
 		return list;
 	}
 
@@ -327,9 +330,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePageItem findItem(long id) {
-	    
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("id", id));
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
+
+			cq.where(cb.equal(root.get("id"), id));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (list != null && list.size() > 0) {
 			return list.get(0);
@@ -339,14 +348,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimplePageProperty findProperty(String attribute) {
-	    
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageProperty.class).add(Restrictions.eq("attribute", attribute));
-		
 		List<SimplePageProperty> list = null;
 		try {
-		    list = (List<SimplePageProperty>) getHibernateTemplate().findByCriteria(d);
+			list = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePageProperty> cq = cb.createQuery(SimplePageProperty.class);
+				Root<SimplePageProperty> root = cq.from(SimplePageProperty.class);
+
+				cq.where(cb.equal(root.get("attribute"), attribute));
+
+				return session.createQuery(cq).getResultList();
+			});
 		} catch (org.hibernate.ObjectNotFoundException e) {
-		    return null;
+			return null;
 		}
 
 		if (list != null && list.size() > 0) {
@@ -361,46 +375,92 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageComment> findComments(long commentWidgetId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("itemId", commentWidgetId));
-		return (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(cb.equal(root.get("itemId"), commentWidgetId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public List<SimplePageComment> findCommentsOnItems(List<Long> commentItemIds) {
-		if ( commentItemIds == null || commentItemIds.size() == 0)
-		    return new ArrayList<SimplePageComment>();
+		if ( commentItemIds == null || commentItemIds.isEmpty()) {
+			return new ArrayList<>();
+		}
 
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.in("itemId", commentItemIds));
-		return (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(root.get("itemId").in(commentItemIds));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public List<SimplePageComment> findCommentsOnItemsByAuthor(List<Long> commentItemIds, String author) {
-		if ( commentItemIds == null || commentItemIds.size() == 0)
-		    return new ArrayList<SimplePageComment>();
+		if ( commentItemIds == null || commentItemIds.isEmpty()) {
+			return new ArrayList<>();
+		}
 
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.in("itemId", commentItemIds))
-				.add(Restrictions.eq("author", author));
-		return (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(
+					root.get("itemId").in(commentItemIds),
+					cb.equal(root.get("author"), author)
+					);
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public List<SimplePageComment> findCommentsOnItemByAuthor(long commentWidgetId, String author) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class)
-		    .add(Restrictions.eq("itemId", commentWidgetId))
-		    .add(Restrictions.eq("author", author));
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
 
-		return (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("itemId"), commentWidgetId),
+				cb.equal(root.get("author"), author)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public List<SimplePageComment> findCommentsOnPageByAuthor(long pageId, String author) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class)
-			.add(Restrictions.eq("pageId", pageId))
-			.add(Restrictions.eq("author", author));
-		
-		return (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(
+				cb.equal(root.get("pageId"), pageId),
+				cb.equal(root.get("author"), author)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public SimplePageComment findCommentById(long commentId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("id", commentId));
-		List<SimplePageComment> list = (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		List<SimplePageComment> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(cb.equal(root.get("id"), commentId));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -410,8 +470,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimplePageComment findCommentByUUID(String commentUUID) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("UUID", commentUUID));
-		List<SimplePageComment> list = (List<SimplePageComment>) getHibernateTemplate().findByCriteria(d);
+		List<SimplePageComment> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+			Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+			cq.where(cb.equal(root.get("UUID"), commentUUID));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -421,8 +488,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimplePageItem findCommentsToolBySakaiId(String sakaiId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", sakaiId));
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
+
+			cq.where(cb.equal(root.get("sakaiId"), sakaiId));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		// We loop through and check type here in-case something else has the same
 		// sakaiId, and to prevent creating a new index for something that probably
@@ -438,13 +512,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public List<SimplePageItem> findItemsBySakaiId(String sakaiId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", sakaiId));
-		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+	        CriteriaBuilder cb = session.getCriteriaBuilder();
+	        CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+	        Root<SimplePageItem> root = cq.from(SimplePageItem.class);
+
+	        cq.where(cb.equal(root.get("sakaiId"), sakaiId));
+
+	        return session.createQuery(cq).getResultList();
+	    });
 	}
 
 	public List<SimplePageItem> findPageItemsByPageId(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId));
-		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
+
+			cq.where(cb.equal(root.get("pageId"), pageId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 
 	private List<SimplePageItem> findSubPageItemsByPageId(long pageId) {
@@ -480,9 +568,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // Different versions if item is controlled by group or not. That lets us use simple
     // hibernate queries and maximum caching
 	public SimpleStudentPage findStudentPage(long itemId, String owner) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
-			.add(Restrictions.eq("owner", owner)).add(Restrictions.eq("deleted", false));
-		List<SimpleStudentPage> list = (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		List<SimpleStudentPage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(
+				cb.equal(root.get("itemId"), itemId),
+				cb.equal(root.get("owner"), owner),
+				cb.equal(root.get("deleted"), false)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -494,12 +592,23 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // groups is set of groups to search. 
     // null groups means there are no permitted groups, so the answer is obviously null
 	public SimpleStudentPage findStudentPage(long itemId, Collection<String> groups) {
-		if (groups == null || groups.size() == 0) // no possible groups, so no result
-		    return null;
+		if (groups == null || groups.isEmpty()) { // no possible groups, so no result
+			return null;
+		}
 
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
-			.add(Restrictions.in("group", groups)).add(Restrictions.eq("deleted", false));
-		List<SimpleStudentPage> list = (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		List<SimpleStudentPage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(
+				cb.equal(root.get("itemId"), itemId),
+				root.get("group").in(groups),
+				cb.equal(root.get("deleted"), false)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -510,8 +619,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	
 	public SimpleStudentPage findStudentPage(long id) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("id", id));
-		List<SimpleStudentPage> list = (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		List<SimpleStudentPage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(cb.equal(root.get("id"), id));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -521,8 +637,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimpleStudentPage findStudentPageByPageId(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("pageId", pageId));
-		List<SimpleStudentPage> list = (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		List<SimpleStudentPage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(cb.equal(root.get("pageId"), pageId));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if(list.size() > 0) {
 			return list.get(0);
@@ -532,14 +655,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public List<SimpleStudentPage> findStudentPages(long itemId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId));
-		return (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(cb.equal(root.get("itemId"), itemId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 	
 	public SimplePageItem findItemFromStudentPage(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("pageId", pageId));
-	
-		List<SimpleStudentPage> list = (List<SimpleStudentPage>) getHibernateTemplate().findByCriteria(d);
+		List<SimpleStudentPage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimpleStudentPage> cq = cb.createQuery(SimpleStudentPage.class);
+			Root<SimpleStudentPage> root = cq.from(SimpleStudentPage.class);
+
+			cq.where(cb.equal(root.get("pageId"), pageId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	
 		if(list.size() > 0) {
 			return findItem(list.get(0).getItemId());
@@ -549,11 +685,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePageItem findTopLevelPageItemBySakaiId(String id) {
-	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", id))
-		    .add(Restrictions.eq("pageId", 0L))
-		    .add(Restrictions.eq("type",SimplePageItem.PAGE));
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
 
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("sakaiId"), id),
+				cb.equal(root.get("pageId"), 0L),
+				cb.equal(root.get("type"), SimplePageItem.PAGE)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (list == null || list.size() < 1)
 		    return null;
@@ -562,12 +706,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findTopLevelPageItemsBySakaiIds(List<String> ids) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class)
-			.add(Restrictions.in("sakaiId", ids))
-			.add(Restrictions.eq("pageId", 0L))
-			.add(Restrictions.eq("type",SimplePageItem.PAGE));
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
 
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				root.get("sakaiId").in(ids),
+				cb.equal(root.get("pageId"), 0L),
+				cb.equal(root.get("type"), SimplePageItem.PAGE)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (list == null || list.size() < 1) {
 			return null;
@@ -577,10 +728,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findPageItemsBySakaiId(String id) {
-	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", id)).
-		    add(Restrictions.eq("type",SimplePageItem.PAGE));
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
 
-		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("sakaiId"), id),
+				cb.equal(root.get("type"), SimplePageItem.PAGE)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 
 	public List findControlledResourcesBySakaiId(String id, String siteId) {
@@ -594,11 +753,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 
 	public SimplePageItem findNextPageItemOnPage(long pageId, int sequence) {
-	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId)).
-		    add(Restrictions.eq("sequence", sequence+1)).
-		    add(Restrictions.eq("type",SimplePageItem.PAGE));
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
 
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("pageId"), pageId),
+				cb.equal(root.get("sequence"), sequence + 1),
+				cb.equal(root.get("type"), SimplePageItem.PAGE)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (list == null || list.size() < 1)
 		    return null;
@@ -607,10 +774,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePageItem findNextItemOnPage(long pageId, int sequence) {
-	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId)).
-		    add(Restrictions.eq("sequence", sequence+1));
+		List<SimplePageItem> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItem> cq = cb.createQuery(SimplePageItem.class);
+			Root<SimplePageItem> root = cq.from(SimplePageItem.class);
 
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("pageId"), pageId),
+				cb.equal(root.get("sequence"), sequence + 1)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (list == null || list.size() < 1)
 		    return null;
@@ -663,10 +838,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimplePageQuestionResponse findQuestionResponse(long questionId, String userId) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId", questionId))
-        		.add(Restrictions.eq("userId", userId));
+		List<SimplePageQuestionResponse> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageQuestionResponse> cq = cb.createQuery(SimplePageQuestionResponse.class);
+			Root<SimplePageQuestionResponse> root = cq.from(SimplePageQuestionResponse.class);
 
-        List<SimplePageQuestionResponse> list = (List<SimplePageQuestionResponse>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("questionId"), questionId),
+				cb.equal(root.get("userId"), userId)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
+
         if(list != null && list.size() > 0) {
         	return list.get(0);
         }else {
@@ -675,9 +859,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public SimplePageQuestionResponse findQuestionResponse(long responseId) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("id", responseId));
+		List<SimplePageQuestionResponse> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageQuestionResponse> cq = cb.createQuery(SimplePageQuestionResponse.class);
+			Root<SimplePageQuestionResponse> root = cq.from(SimplePageQuestionResponse.class);
 
-        List<SimplePageQuestionResponse> list = (List<SimplePageQuestionResponse>) getHibernateTemplate().findByCriteria(d);
+			cq.where(cb.equal(root.get("id"), responseId));
+
+			return session.createQuery(cq).getResultList();
+		});
+
         if(list != null && list.size() > 0) {
         	return list.get(0);
         }else {
@@ -686,10 +877,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public List<SimplePageQuestionResponse> findQuestionResponses(long questionId) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId", questionId));
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageQuestionResponse> cq = cb.createQuery(SimplePageQuestionResponse.class);
+			Root<SimplePageQuestionResponse> root = cq.from(SimplePageQuestionResponse.class);
 
-        List<SimplePageQuestionResponse> list = (List<SimplePageQuestionResponse>) getHibernateTemplate().findByCriteria(d);
-        return list;
+			cq.where(cb.equal(root.get("questionId"), questionId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 
 	public void getCause(Throwable t, List<String>elist) {
@@ -950,10 +1146,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public Long getTopLevelPageId(String toolId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("toolId", toolId))
-			.add(Restrictions.isNull("parent")).addOrder(Order.desc("pageId"));
+		List<SimplePage> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
+			Root<SimplePage> root = cq.from(SimplePage.class);
 
-		List list = getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("toolId"), toolId),
+				cb.isNull(root.get("parent"))
+			);
+			cq.orderBy(cb.desc(root.get("pageId")));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if ( list == null || list.size() < 1 ) return null;
 
@@ -980,9 +1185,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePage getPage(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("pageId", pageId));
+		List<SimplePage> l = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
+			Root<SimplePage> root = cq.from(SimplePage.class);
 
-		List l = getHibernateTemplate().findByCriteria(d);
+			cq.where(cb.equal(root.get("pageId"), pageId));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (l != null && l.size() > 0) {
 			return (SimplePage) l.get(0);
@@ -1046,13 +1257,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePage> getSitePages(String siteId) {
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId))
-		    .add(Restrictions.disjunction()
-				    .add(Restrictions.isNull("owner"))
-				    .add(Restrictions.eq("owned", true))
-		    );
+		List<SimplePage> l = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
+			Root<SimplePage> root = cq.from(SimplePage.class);
 
-		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("siteId"), siteId),
+				cb.or(
+					cb.isNull(root.get("owner")),
+					cb.equal(root.get("owned"), true)
+				)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (l != null && l.size() > 0) {
 		    return l;
@@ -1086,16 +1305,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public SimplePageLogEntry getLogEntry(String userId, long itemId, Long studentPageId) {
 		if(studentPageId.equals(-1L)) studentPageId = null;
 		
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("userId", userId))
-				.add(Restrictions.eq("itemId", itemId));
-		
-		if(studentPageId != null) {
-			d.add(Restrictions.eq("studentPageId", studentPageId));
-		}else {
-			d.add(Restrictions.isNull("studentPageId"));
-		}
+		final Long finalStudentPageId = studentPageId;
 
-		List l = getHibernateTemplate().findByCriteria(d);
+		List<SimplePageLogEntry> l = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageLogEntry> cq = cb.createQuery(SimplePageLogEntry.class);
+			Root<SimplePageLogEntry> root = cq.from(SimplePageLogEntry.class);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(root.get("userId"), userId));
+			predicates.add(cb.equal(root.get("itemId"), itemId));
+
+			if (finalStudentPageId != null) {
+				predicates.add(cb.equal(root.get("studentPageId"), finalStudentPageId));
+			} else {
+				predicates.add(cb.isNull(root.get("studentPageId")));
+			}
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			return session.createQuery(cq).getResultList();
+		});
 		
 		if (l != null && l.size() > 0) {
 			return (SimplePageLogEntry) l.get(0);
@@ -1128,11 +1358,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageLogEntry> getStudentPageLogEntries(long itemId, String userId) {		
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("userId", userId))
-				.add(Restrictions.eq("itemId", itemId))
-				.add(Restrictions.isNotNull("studentPageId"));
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageLogEntry> cq = cb.createQuery(SimplePageLogEntry.class);
+			Root<SimplePageLogEntry> root = cq.from(SimplePageLogEntry.class);
 
-		return (List<SimplePageLogEntry>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("userId"), userId),
+				cb.equal(root.get("itemId"), itemId),
+				cb.isNotNull(root.get("studentPageId"))
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 
 	public List<String> findUserWithCompletePages(Long itemId){
@@ -1145,9 +1383,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePageGroup findGroup(String itemId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageGroup.class).add(Restrictions.eq("itemId", itemId));
+		List<SimplePageGroup> l = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageGroup> cq = cb.createQuery(SimplePageGroup.class);
+			Root<SimplePageGroup> root = cq.from(SimplePageGroup.class);
 
-		List l = getHibernateTemplate().findByCriteria(d);
+			cq.where(cb.equal(root.get("itemId"), itemId));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if (l != null && l.size() > 0) {
 			return (SimplePageGroup) l.get(0);
@@ -1404,15 +1648,22 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageQuestionResponseTotals> findQRTotals(long questionId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId", questionId));
-		return (List<SimplePageQuestionResponseTotals>) getHibernateTemplate().findByCriteria(d);
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageQuestionResponseTotals> cq = cb.createQuery(SimplePageQuestionResponseTotals.class);
+			Root<SimplePageQuestionResponseTotals> root = cq.from(SimplePageQuestionResponseTotals.class);
+
+			cq.where(cb.equal(root.get("questionId"), questionId));
+
+			return session.createQuery(cq).getResultList();
+		});
 	}
 
 	public void incrementQRCount(long questionId, long responseId) {
 		getHibernateTemplate().execute(session -> {
 			Query query = session.createQuery("update SimplePageQuestionResponseTotalsImpl s set s.count = s.count + 1 where s.questionId= :questionId and s.responseId = :responseId");
-			query.setParameter("questionId", questionId, LongType.INSTANCE);
-			query.setParameter("responseId", responseId, LongType.INSTANCE);
+			query.setParameter("questionId", questionId);
+			query.setParameter("responseId", responseId);
 			return query.executeUpdate();
 		});
 	}
@@ -1533,10 +1784,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	// items in lesson_builder_groups for specified site, map of itemId to groups
 	public Map<String,String> getExternalAssigns(String siteId) {
 
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageGroup.class)
-		.add(Restrictions.eq("siteId", siteId));
+		List<SimplePageGroup> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageGroup> cq = cb.createQuery(SimplePageGroup.class);
+			Root<SimplePageGroup> root = cq.from(SimplePageGroup.class);
 
-	    List<SimplePageGroup> list = (List<SimplePageGroup>) getHibernateTemplate().findByCriteria(d);
+			cq.where(cb.equal(root.get("siteId"), siteId));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 	    Map<String,String>ret = new HashMap<String,String>();	
 	    for (SimplePageGroup group: list)
@@ -1624,7 +1880,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		tx = session.beginTransaction();
 
 		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
-		query.setParameter("attr", property, StringType.INSTANCE);
+		query.setParameter("attr", property);
 
 		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
 
@@ -1660,8 +1916,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public int clearNeedsGroupFixup(String siteId) {
 	    String property = "groupfixup " + siteId;
 
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageProperty.class).add(Restrictions.eq("attribute", property));
-	    List<SimplePageProperty> list = (List<SimplePageProperty>) getHibernateTemplate().findByCriteria(d);
+	    List<SimplePageProperty> list = getHibernateTemplate().execute(session -> {
+	    	CriteriaBuilder cb = session.getCriteriaBuilder();
+	    	CriteriaQuery<SimplePageProperty> cq = cb.createQuery(SimplePageProperty.class);
+	    	Root<SimplePageProperty> root = cq.from(SimplePageProperty.class);
+
+	    	cq.where(cb.equal(root.get("attribute"), property));
+
+	    	return session.createQuery(cq).getResultList();
+	    });
 
 	    if (list == null || list.size() == 0)
 		return 0;
@@ -1682,7 +1945,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		tx = session.beginTransaction();
 
 		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
-		query.setParameter("attr", property, StringType.INSTANCE);
+		query.setParameter("attr", property);
 
 		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
 
@@ -1861,12 +2124,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	@SuppressWarnings("unchecked")
 	public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId) {
-		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("id.checklistId", checklistId))
-				.add(Restrictions.eq("id.checklistItemId", checklistItemId))
-				.add(Restrictions.eq("id.owner", userId));
+		List<ChecklistItemStatus> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ChecklistItemStatus> cq = cb.createQuery(ChecklistItemStatus.class);
+			Root<ChecklistItemStatus> root = cq.from(ChecklistItemStatus.class);
 
-		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+			cq.where(
+				cb.equal(root.get("id").get("checklistId"), checklistId),
+				cb.equal(root.get("id").get("checklistItemId"), checklistItemId),
+				cb.equal(root.get("id").get("owner"), userId)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if(list.size() > 0) {
 			return list.get(0).isDone();
@@ -1877,9 +2147,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	@SuppressWarnings("unchecked")
 	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklist(long checklistId) {
-		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("id.checklistId", checklistId));
-		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+		List<ChecklistItemStatus> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ChecklistItemStatus> cq = cb.createQuery(ChecklistItemStatus.class);
+			Root<ChecklistItemStatus> root = cq.from(ChecklistItemStatus.class);
+
+			cq.where(cb.equal(root.get("id").get("checklistId"), checklistId));
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if(list.size() > 0) {
 			return list;
@@ -1890,10 +2166,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	@SuppressWarnings("unchecked")
 	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklistItem(long checklistId, long checklistItemId) {
-		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("id.checklistId", checklistId))
-				.add(Restrictions.eq("id.checklistItemId", checklistItemId));
-		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+		List<ChecklistItemStatus> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ChecklistItemStatus> cq = cb.createQuery(ChecklistItemStatus.class);
+			Root<ChecklistItemStatus> root = cq.from(ChecklistItemStatus.class);
+
+			cq.where(
+				cb.equal(root.get("id").get("checklistId"), checklistId),
+				cb.equal(root.get("id").get("checklistItemId"), checklistItemId)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if(list.size() > 0) {
 			return list;
@@ -1904,11 +2188,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	@SuppressWarnings("unchecked")
 	public ChecklistItemStatus findChecklistItemStatus(long checklistId, long checklistItemId, String userId) {
-		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("id.checklistId", checklistId))
-				.add(Restrictions.eq("id.checklistItemId", checklistItemId))
-				.add(Restrictions.eq("id.owner", userId));
-		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
+		List<ChecklistItemStatus> list = getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ChecklistItemStatus> cq = cb.createQuery(ChecklistItemStatus.class);
+			Root<ChecklistItemStatus> root = cq.from(ChecklistItemStatus.class);
+
+			cq.where(
+				cb.equal(root.get("id").get("checklistId"), checklistId),
+				cb.equal(root.get("id").get("checklistItemId"), checklistItemId),
+				cb.equal(root.get("id").get("owner"), userId)
+			);
+
+			return session.createQuery(cq).getResultList();
+		});
 
 		if(list.size() > 0) {
 			return list.get(0);
@@ -1998,13 +2290,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 			final List<String> sitePageIds = sitePages.stream().map(sp -> sp.getId()).collect(Collectors.toList());
 
-			DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class);
-			d.add(Restrictions.in("toolId", sitePageIds));
-			d.add(Restrictions.isNull("parent"));
+			List<SimplePage> lessonsPages = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
+				Root<SimplePage> root = cq.from(SimplePage.class);
 
-			List<SimplePage> lessonsPages = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+				cq.where(
+					root.get("toolId").in(sitePageIds),
+					cb.isNull(root.get("parent"))
+				);
 
-			return lessonsPages;
+				return session.createQuery(cq).getResultList();
+			});
 
 		} catch (IdUnusedException e) {
 			log.warn("Could not find site {}: {}", siteId, e);
@@ -2042,8 +2339,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public void deleteLogForLessonsItem(SimplePageItem item) {
 		try {
-			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("itemId",item.getId()));
-			List<SimplePageLogEntry> logEntries = (List<SimplePageLogEntry>) getHibernateTemplate().findByCriteria(d2);
+			List<SimplePageLogEntry> logEntries = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePageLogEntry> cq = cb.createQuery(SimplePageLogEntry.class);
+				Root<SimplePageLogEntry> root = cq.from(SimplePageLogEntry.class);
+
+				cq.where(cb.equal(root.get("itemId"), item.getId()));
+
+				return session.createQuery(cq).getResultList();
+			});
 			getHibernateTemplate().deleteAll(logEntries);
 		} catch (DataAccessException e) {
 			log.warn("Failed to delete lessons log for item {}", item.getId());
@@ -2052,10 +2356,28 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public void deleteQuestionResponsesForItem(SimplePageItem item) {
 		try {
-			DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId",item.getId()));
-			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId",item.getId()));
-			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
-			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d2));
+			List<SimplePageQuestionResponse> responses = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePageQuestionResponse> cq = cb.createQuery(SimplePageQuestionResponse.class);
+				Root<SimplePageQuestionResponse> root = cq.from(SimplePageQuestionResponse.class);
+
+				cq.where(cb.equal(root.get("questionId"), item.getId()));
+
+				return session.createQuery(cq).getResultList();
+			});
+
+			List<SimplePageQuestionResponseTotals> totals = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePageQuestionResponseTotals> cq = cb.createQuery(SimplePageQuestionResponseTotals.class);
+				Root<SimplePageQuestionResponseTotals> root = cq.from(SimplePageQuestionResponseTotals.class);
+
+				cq.where(cb.equal(root.get("questionId"), item.getId()));
+
+				return session.createQuery(cq).getResultList();
+			});
+
+			getHibernateTemplate().deleteAll(responses);
+			getHibernateTemplate().deleteAll(totals);
 		} catch (DataAccessException e) {
 			log.error("Failed to delete SimplePageQuestion responses for item {}: {}", item.getId(), e.toString());
 		}
@@ -2063,8 +2385,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public void deleteCommentsForLessonsItem(SimplePageItem item) {
 		try {
-			DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("itemId",item.getId()));
-			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
+			List<SimplePageComment> comments = getHibernateTemplate().execute(session -> {
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SimplePageComment> cq = cb.createQuery(SimplePageComment.class);
+				Root<SimplePageComment> root = cq.from(SimplePageComment.class);
+
+				cq.where(cb.equal(root.get("itemId"), item.getId()));
+
+				return session.createQuery(cq).getResultList();
+			});
+			getHibernateTemplate().deleteAll(comments);
 		} catch (DataAccessException e) {
 			log.error("Failed to delete SimplePageComments for item {}: {}", item.getId(), e.toString());
 		}
