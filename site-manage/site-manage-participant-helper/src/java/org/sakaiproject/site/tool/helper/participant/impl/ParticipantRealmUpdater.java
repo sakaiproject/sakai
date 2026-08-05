@@ -37,9 +37,12 @@ import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.userauditservice.api.model.UserAuditEntry;
 import org.sakaiproject.util.api.PasswordFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 /** Owns participant provisioning and membership updates for one site operation. */
+@Component
 @Slf4j
 public class ParticipantRealmUpdater {
 
@@ -59,8 +62,9 @@ public class ParticipantRealmUpdater {
             AuthzGroupService authzGroupService, EventTrackingService eventTrackingService,
             PasswordFactory passwordFactory, ServerConfigurationService serverConfigurationService,
             SiteService siteService, UserNotificationProvider notificationProvider, SessionManager sessionManager,
-            UserAuditRegistration userAuditRegistration, UserAuditService userAuditService,
-            UserDirectoryService userDirectoryService) {
+            @Qualifier("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage")
+            UserAuditRegistration userAuditRegistration,
+            UserAuditService userAuditService, UserDirectoryService userDirectoryService) {
         this.accountValidationService = accountValidationService;
         this.authzGroupService = authzGroupService;
         this.eventTrackingService = eventTrackingService;
@@ -83,8 +87,14 @@ public class ParticipantRealmUpdater {
         }
 
         String realmId = site.getReference();
+        AuthzGroup realmEdit;
+        List<CreatedGuestAccount> createdGuestAccounts = new ArrayList<>();
+        List<PendingParticipant> pendingParticipants = new ArrayList<>();
+        List<UserAuditEntry> auditEntries = new ArrayList<>();
+        List<String> addedUserReferences = new ArrayList<>();
+        List<UserRoleEntry> rejectedEntries = new ArrayList<>();
         try {
-            AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+            realmEdit = authzGroupService.getAuthzGroup(realmId);
             boolean mayUpdateRealm = authzGroupService.allowUpdate(realmId);
             if (!mayUpdateRealm && !siteService.allowUpdateSiteMembership(site.getId())) {
                 messages.add(new ParticipantMessage("java.permeditsite", new Object[] {site.getTitle()},
@@ -95,34 +105,30 @@ public class ParticipantRealmUpdater {
             Set<String> allowedRoleNames = allowedRoles.stream().map(Role::getId).collect(Collectors.toSet());
             Set<String> reportedRestrictedRoles = new HashSet<>();
             List<UserRoleEntry> acceptedEntries = new ArrayList<>();
-            List<UserRoleEntry> rejectedEntries = new ArrayList<>();
 
             for (UserRoleEntry entry : entries) {
-                String roleName = entry.getRole();
-                Role role = realmEdit.getRole(roleName);
-                if (role == null || !allowedRoleNames.contains(roleName)) {
-                    messages.add(new ParticipantMessage("java.roleperm", new Object[] {roleName},
-                            ParticipantMessage.Severity.ERROR));
-                    rejectedEntries.add(entry);
-                } else if (!mayUpdateRealm && role.isAllowed("site.upd")) {
-                    if (reportedRestrictedRoles.add(roleName)) {
-                        messages.add(new ParticipantMessage("java.roleperm", new Object[] {roleName},
-                                ParticipantMessage.Severity.ERROR));
-                    }
-                    rejectedEntries.add(entry);
-                } else {
+                ParticipantRolePolicy.Outcome outcome = ParticipantRolePolicy.evaluate(entry.getRole(), realmEdit,
+                        allowedRoleNames, mayUpdateRealm);
+                if (outcome == ParticipantRolePolicy.Outcome.ALLOWED) {
                     acceptedEntries.add(entry);
+                    continue;
                 }
+                if (outcome == ParticipantRolePolicy.Outcome.RESTRICTED_SITE_UPD
+                        && !reportedRestrictedRoles.add(entry.getRole())) {
+                    rejectedEntries.add(entry);
+                    continue;
+                }
+                ParticipantMessage message = ParticipantRolePolicy.messageFor(outcome, entry.getRole(), false);
+                if (message != null) {
+                    messages.add(message);
+                }
+                rejectedEntries.add(entry);
             }
 
             if (acceptedEntries.isEmpty()) {
                 return Result.failure(rejectedEntries, messages);
             }
 
-            List<PendingParticipant> pendingParticipants = new ArrayList<>();
-            List<CreatedGuestAccount> createdGuestAccounts = new ArrayList<>();
-            List<UserAuditEntry> auditEntries = new ArrayList<>();
-            List<String> addedUserReferences = new ArrayList<>();
             String auditorId = sessionManager.getCurrentSessionUserId();
 
             for (UserRoleEntry entry : acceptedEntries) {
@@ -135,6 +141,7 @@ public class ParticipantRealmUpdater {
             }
 
             if (pendingParticipants.isEmpty()) {
+                rollbackCreatedGuests(createdGuestAccounts);
                 return Result.failure(rejectedEntries, messages);
             }
 
@@ -149,37 +156,35 @@ public class ParticipantRealmUpdater {
                 }
             }
 
-            try {
-                authzGroupService.save(realmEdit);
-            } catch (GroupNotDefinedException e) {
-                messages.add(new ParticipantMessage("java.realm", null, ParticipantMessage.Severity.ERROR));
-                log.warn("cannot find realm for {}", realmId, e);
-                return Result.failure(entries, messages);
-            } catch (AuthzPermissionException e) {
-                messages.add(new ParticipantMessage("java.permeditsite", new Object[] {site.getTitle()},
-                        ParticipantMessage.Severity.ERROR));
-                log.warn("don't have permission to edit realm {}", realmId, e);
-                return Result.failure(entries, messages);
-            }
-
-            postCommit(site, realmEdit, auditEntries, addedUserReferences);
-            if (notificationOption.sendsNotification()) {
-                notifyParticipants(site, pendingParticipants);
-            }
-            notifyCreatedGuestAccounts(site, createdGuestAccounts);
-
-            List<String> addedEids = pendingParticipants.stream()
-                    .map(pending -> pending.entry().getEid())
-                    .toList();
-            return Result.committed(addedEids, rejectedEntries, messages);
+            authzGroupService.save(realmEdit);
         } catch (GroupNotDefinedException e) {
+            rollbackCreatedGuests(createdGuestAccounts);
             messages.add(new ParticipantMessage("java.realm", null, ParticipantMessage.Severity.ERROR));
             log.warn("cannot find realm for {}", realmId, e);
+            return Result.failure(entries, messages);
+        } catch (AuthzPermissionException e) {
+            rollbackCreatedGuests(createdGuestAccounts);
+            messages.add(new ParticipantMessage("java.permeditsite", new Object[] {site.getTitle()},
+                    ParticipantMessage.Severity.ERROR));
+            log.warn("don't have permission to edit realm {}", realmId, e);
+            return Result.failure(entries, messages);
         } catch (Exception e) {
+            rollbackCreatedGuests(createdGuestAccounts);
             messages.add(new ParticipantMessage("java.realm", null, ParticipantMessage.Severity.ERROR));
             log.warn("could not update participant realm {}", realmId, e);
+            return Result.failure(entries, messages);
         }
-        return Result.failure(entries, messages);
+
+        postCommit(site, realmEdit, auditEntries, addedUserReferences);
+        if (notificationOption.sendsNotification()) {
+            notifyParticipants(site, pendingParticipants);
+        }
+        notifyCreatedGuestAccounts(site, createdGuestAccounts);
+
+        List<String> addedEids = pendingParticipants.stream()
+                .map(pending -> pending.entry().getEid())
+                .toList();
+        return Result.committed(addedEids, rejectedEntries, messages);
     }
 
     private User resolveUser(UserRoleEntry entry, List<CreatedGuestAccount> createdGuestAccounts,
@@ -187,7 +192,7 @@ public class ParticipantRealmUpdater {
         try {
             return userDirectoryService.getUserByEid(entry.getEid());
         } catch (UserNotDefinedException e) {
-            if (!entry.getEid().contains(SiteAddParticipantHandler.EMAIL_CHAR)) {
+            if (!entry.getEid().contains(ParticipantConstants.EMAIL_CHAR)) {
                 messages.add(new ParticipantMessage("java.account", new Object[] {entry.getEid()},
                         ParticipantMessage.Severity.INFO));
                 log.debug("cannot find user with eid={}", entry.getEid(), e);
@@ -231,6 +236,32 @@ public class ParticipantRealmUpdater {
         return null;
     }
 
+    private void rollbackCreatedGuests(List<CreatedGuestAccount> createdGuestAccounts) {
+        for (CreatedGuestAccount account : createdGuestAccounts) {
+            UserEdit userEdit = null;
+            try {
+                userEdit = userDirectoryService.editUser(account.user().getId());
+                userDirectoryService.removeUser(userEdit);
+            } catch (Exception e) {
+                log.warn("Could not roll back guest account {} after participant update failure",
+                        account.user().getEid(), e);
+            } finally {
+                cancelActiveEdit(userEdit, account.user().getEid());
+            }
+        }
+    }
+
+    private void cancelActiveEdit(UserEdit userEdit, String eid) {
+        if (userEdit == null) return;
+        try {
+            if (userEdit.isActiveEdit()) {
+                userDirectoryService.cancelEdit(userEdit);
+            }
+        } catch (RuntimeException e) {
+            log.warn("Could not release guest account edit for {} after rollback failure", eid, e);
+        }
+    }
+
     private void postCommit(Site site, AuthzGroup realmEdit, List<UserAuditEntry> auditEntries,
             List<String> userReferences) {
         try {
@@ -257,7 +288,7 @@ public class ParticipantRealmUpdater {
         for (PendingParticipant pending : pendingParticipants) {
             try {
                 notificationProvider.notifyAddedParticipant(
-                        pending.entry().getEid().contains(SiteAddParticipantHandler.EMAIL_CHAR), pending.user(), site);
+                        pending.entry().getEid().contains(ParticipantConstants.EMAIL_CHAR), pending.user(), site);
             } catch (RuntimeException e) {
                 log.warn("Could not notify added participant {} for site {}", pending.entry().getEid(), site.getId(), e);
             }
@@ -265,9 +296,15 @@ public class ParticipantRealmUpdater {
     }
 
     private void notifyCreatedGuestAccounts(Site site, List<CreatedGuestAccount> createdGuestAccounts) {
-        if (!serverConfigurationService.getBoolean("notifyNewUserEmail", true)) return;
+        boolean validateUsers;
+        try {
+            if (!serverConfigurationService.getBoolean("notifyNewUserEmail", true)) return;
+            validateUsers = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
+        } catch (RuntimeException e) {
+            log.warn("Could not read guest account notification settings for site {}", site.getId(), e);
+            return;
+        }
 
-        boolean validateUsers = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
         for (CreatedGuestAccount account : createdGuestAccounts) {
             try {
                 if (validateUsers) {

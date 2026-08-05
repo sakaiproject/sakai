@@ -68,6 +68,11 @@ public class ParticipantAccountParserTest {
 
         assertTrue(result.entries().isEmpty());
         assertTrue(messageCodes(result).contains("add.existingpart.1"));
+        ParticipantMessage existingMemberMessage = result.messages().stream()
+                .filter(message -> message.getCode().equals("add.existingpart.1"))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(ParticipantMessage.Severity.WARNING, existingMemberMessage.getSeverity());
         assertTrue(messageCodes(result).contains("java.guest"));
     }
 
@@ -137,7 +142,7 @@ public class ParticipantAccountParserTest {
 
     @Test
     public void rejectsNonOfficialAccountFromBlockedDomain() {
-        when(serverConfigurationService.getStrings(SiteAddParticipantHandler.SAK_PROP_INVALID_EMAIL_DOMAINS))
+        when(serverConfigurationService.getStrings(ParticipantConstants.INVALID_EMAIL_DOMAINS_KEY))
                 .thenReturn(new String[] {"blocked.example.org"});
 
         ParticipantAccountParser.Result result = parser.parse(mock(Site.class), null, new ArrayList<>(),

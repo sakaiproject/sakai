@@ -209,6 +209,80 @@ public class ParticipantRealmUpdaterTest {
                 guest, "generated-password", site);
     }
 
+    @Test
+    public void reportsCommittedWhenGuestNotificationConfigurationFails() throws Exception {
+        String guestEid = "guest@example.org";
+        UserEdit guest = mock(UserEdit.class);
+        entry = new UserRoleEntry("Guest", "User", "access", guestEid);
+        when(authzGroupService.allowUpdate(SITE_REFERENCE)).thenReturn(true);
+        when(userDirectoryService.getUserByEid(guestEid))
+                .thenThrow(new UserNotDefinedException(guestEid));
+        when(userDirectoryService.addUser(null, guestEid)).thenReturn(guest);
+        when(guest.getId()).thenReturn("guest-1");
+        when(guest.getEid()).thenReturn(guestEid);
+        when(passwordFactory.generatePassword()).thenReturn("generated-password");
+        when(serverConfigurationService.getBoolean("notifyNewUserEmail", true))
+                .thenThrow(new RuntimeException("configuration failure"));
+
+        ParticipantRealmUpdater.Result result = addParticipant(ParticipantNotificationOption.DO_NOT_SEND);
+
+        assertTrue(result.committed());
+        assertEquals(List.of(guestEid), result.addedEids());
+        verify(authzGroupService).save(realm);
+        verify(userDirectoryService, never()).editUser("guest-1");
+        verify(userDirectoryService, never()).removeUser(any());
+    }
+
+    @Test
+    public void releasesGuestEditWhenRollbackRemovalFails() throws Exception {
+        String guestEid = "guest@example.org";
+        UserEdit guest = mock(UserEdit.class);
+        entry = new UserRoleEntry("Guest", "User", "access", guestEid);
+        when(authzGroupService.allowUpdate(SITE_REFERENCE)).thenReturn(true);
+        when(userDirectoryService.getUserByEid(guestEid))
+                .thenThrow(new UserNotDefinedException(guestEid));
+        when(userDirectoryService.addUser(null, guestEid)).thenReturn(guest);
+        when(guest.getId()).thenReturn("guest-1");
+        when(guest.getEid()).thenReturn(guestEid);
+        when(passwordFactory.generatePassword()).thenReturn("generated-password");
+        when(userDirectoryService.editUser("guest-1")).thenReturn(guest);
+        when(guest.isActiveEdit()).thenReturn(true);
+        doThrow(new RuntimeException("removal failure")).when(userDirectoryService).removeUser(guest);
+        doThrow(new RuntimeException("membership failure"))
+                .when(realm).addMember(any(), any(), anyBoolean(), anyBoolean());
+
+        ParticipantRealmUpdater.Result result = addParticipant(ParticipantNotificationOption.DO_NOT_SEND);
+
+        assertFalse(result.committed());
+        verify(userDirectoryService).removeUser(guest);
+        verify(userDirectoryService).cancelEdit(guest);
+        verify(authzGroupService, never()).save(any());
+    }
+
+    @Test
+    public void rollsBackGuestAccountWhenRealmSaveFails() throws Exception {
+        String guestEid = "guest@example.org";
+        UserEdit guest = mock(UserEdit.class);
+        entry = new UserRoleEntry("Guest", "User", "access", guestEid);
+        when(authzGroupService.allowUpdate(SITE_REFERENCE)).thenReturn(true);
+        when(userDirectoryService.getUserByEid(guestEid))
+                .thenThrow(new UserNotDefinedException(guestEid));
+        when(userDirectoryService.addUser(null, guestEid)).thenReturn(guest);
+        when(guest.getId()).thenReturn("guest-1");
+        when(guest.getEid()).thenReturn(guestEid);
+        when(passwordFactory.generatePassword()).thenReturn("generated-password");
+        when(userDirectoryService.editUser("guest-1")).thenReturn(guest);
+        doThrow(new AuthzPermissionException("user-1", "site.upd", SITE_REFERENCE))
+                .when(authzGroupService).save(realm);
+
+        ParticipantRealmUpdater.Result result = addParticipant(ParticipantNotificationOption.DO_NOT_SEND);
+
+        assertFalse(result.committed());
+        verify(userDirectoryService).commitEdit(guest);
+        verify(userDirectoryService).removeUser(guest);
+        verify(notificationProvider, never()).notifyNewUserEmail(any(), any(), any());
+    }
+
     private ParticipantRealmUpdater.Result addParticipant(ParticipantNotificationOption notificationOption) {
         return updater.addParticipants(site, List.of(role), List.of(entry), ParticipantStatus.ACTIVE,
                 notificationOption);

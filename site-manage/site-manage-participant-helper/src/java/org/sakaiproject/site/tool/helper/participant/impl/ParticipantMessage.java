@@ -16,6 +16,7 @@ public class ParticipantMessage {
 
     public enum Severity {
         ERROR,
+        WARNING,
         INFO
     }
 

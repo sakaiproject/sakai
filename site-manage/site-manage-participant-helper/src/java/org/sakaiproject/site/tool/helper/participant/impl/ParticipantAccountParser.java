@@ -103,7 +103,7 @@ public class ParticipantAccountParser {
     private AccountResolution findOfficialAccount(String officialAccount, List<String> eidOnly,
             List<ParticipantMessage> messages) {
         User user = findUserByEid(officialAccount);
-        if (!officialAccount.contains(SiteAddParticipantHandler.EMAIL_CHAR) || eidOnly.contains(officialAccount)) {
+        if (!officialAccount.contains(ParticipantConstants.EMAIL_CHAR) || eidOnly.contains(officialAccount)) {
             return new AccountResolution(user, List.of());
         }
 
@@ -150,7 +150,7 @@ public class ParticipantAccountParser {
             StringBuilder updatedOfficialAccounts, StringBuilder updatedNonOfficialAccounts,
             List<ParticipantMessage> messages) {
         List<String> invalidDomains = Arrays.asList(ArrayUtils.nullToEmpty(
-                serverConfigurationService.getStrings(SiteAddParticipantHandler.SAK_PROP_INVALID_EMAIL_DOMAINS)));
+                serverConfigurationService.getStrings(ParticipantConstants.INVALID_EMAIL_DOMAINS_KEY)));
         for (String currentAccount : nonOfficialAccounts.split("\\r\\n")) {
             String account = StringUtils.trimToNull(currentAccount.replaceAll("[\\t\\r\\n]", ""));
             if (account == null) continue;
@@ -188,8 +188,8 @@ public class ParticipantAccountParser {
     }
 
     private boolean validNonOfficialEmail(String email, List<String> invalidDomains, List<ParticipantMessage> messages) {
-        String[] emailParts = email.split(SiteAddParticipantHandler.EMAIL_CHAR);
-        if (!email.contains(SiteAddParticipantHandler.EMAIL_CHAR)) {
+        String[] emailParts = email.split(ParticipantConstants.EMAIL_CHAR);
+        if (!email.contains(ParticipantConstants.EMAIL_CHAR)) {
             messages.add(new ParticipantMessage("java.emailaddress", new Object[] {email}, ParticipantMessage.Severity.ERROR));
             return false;
         }
@@ -235,7 +235,7 @@ public class ParticipantAccountParser {
         }
         if (!existingUsers.isEmpty()) {
             messages.add(new ParticipantMessage("add.existingpart.1", new Object[] {String.join(", ", existingUsers)},
-                    ParticipantMessage.Severity.INFO));
+                    ParticipantMessage.Severity.WARNING));
             if (!uniqueEids.isEmpty()) {
                 messages.add(new ParticipantMessage("add.existingpart.2", null, ParticipantMessage.Severity.INFO));
             } else {

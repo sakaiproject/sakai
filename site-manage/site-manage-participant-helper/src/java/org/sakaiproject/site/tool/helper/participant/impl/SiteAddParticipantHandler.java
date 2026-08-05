@@ -18,7 +18,6 @@ package org.sakaiproject.site.tool.helper.participant.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,21 +40,12 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteAddParticipantHandler {
 
-    public static final String EMAIL_CHAR = "@";
-    public static final String HELPER_ID = "sakai.tool.helper.id";
-    private static final String HELPER_TOOL_ID = "sakai-site-manage-participant-helper";
-    public static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
-    public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
     private static final String STATE_ATTRIBUTE = SiteAddParticipantHandler.class.getName() + ".STATE";
 
     private final AuthzGroupService authzGroupService;
@@ -65,17 +55,14 @@ public class SiteAddParticipantHandler {
     private final SiteService siteService;
     private final ToolManager toolManager;
     @Getter private final List<ParticipantMessage> messages = new ArrayList<>();
-    private final UserDirectoryService userDirectoryService;
     private final ParticipantRealmUpdater participantRealmUpdater;
     private final ParticipantAccountParser participantAccountParser;
 
     private String csrfToken;
-    // realm for the site
-    public AuthzGroup realm = null;
-    // the role set for the site
-    @Setter public List<Role> roles = new ArrayList<>();
-    public Site site = null;
-    public String siteId = null;
+    private AuthzGroup realm;
+    private List<Role> roles = new ArrayList<>();
+    private Site site;
+    private String siteId;
     private SiteTypeUtil siteTypeUtil;
     /** The tool session owns this serializable operation state for the current request. */
     private ParticipantWizardState wizardState = new ParticipantWizardState();
@@ -83,20 +70,18 @@ public class SiteAddParticipantHandler {
     public SiteAddParticipantHandler(AuthzGroupService authzGroupService,
             CourseManagementService courseManagementService, ServerConfigurationService serverConfigurationService,
             SessionManager sessionManager, SiteService siteService, ToolManager toolManager,
-            UserDirectoryService userDirectoryService, ParticipantRealmUpdater participantRealmUpdater,
-            ParticipantAccountParser participantAccountParser) {
+            ParticipantRealmUpdater participantRealmUpdater, ParticipantAccountParser participantAccountParser) {
         this.authzGroupService = authzGroupService;
         this.courseManagementService = courseManagementService;
         this.serverConfigurationService = serverConfigurationService;
         this.sessionManager = sessionManager;
         this.siteService = siteService;
         this.toolManager = toolManager;
-        this.userDirectoryService = userDirectoryService;
         this.participantRealmUpdater = participantRealmUpdater;
         this.participantAccountParser = participantAccountParser;
     }
 
-	public boolean canAddParticipant() {
+    public boolean canAddParticipant() {
 		if (site == null) init();
 		if (siteService.allowUpdateSiteMembership(site.getId())) return true;
 
@@ -118,22 +103,9 @@ public class SiteAddParticipantHandler {
 		if (roles.isEmpty()) {
             init();
         }
-		Collections.sort(roles);
-        return roles;
-	}
-
-	public String getUserRole(String userId) {
-		return wizardState.getUserRoleEntries().stream()
-				.filter(ure -> ure.getEid().equals(userId))
-				.findAny()
-				.map(UserRoleEntry::getRole)
-				.orElse("");
-	}
-
-	public List<String> getUsers() {
-		return wizardState.getUserRoleEntries().stream()
-				.map(UserRoleEntry::getEid)
-				.collect(Collectors.toList());
+		List<Role> sortedRoles = new ArrayList<>(roles);
+		Collections.sort(sortedRoles);
+        return sortedRoles;
 	}
 
 	/**
@@ -143,13 +115,13 @@ public class SiteAddParticipantHandler {
         siteTypeUtil = new SiteTypeUtil(siteService, serverConfigurationService);
 
         if (site == null) {
-			siteId = Optional.ofNullable(sessionManager.getCurrentToolSession().getAttribute(HELPER_ID + ".siteId"))
+			siteId = Optional.ofNullable(sessionManager.getCurrentToolSession().getAttribute(ParticipantConstants.HELPER_SITE_ID_ATTRIBUTE))
 					.map(Object::toString)
 					.orElseGet(() -> toolManager.getCurrentPlacement().getContext());
             try {
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                roles = SiteParticipantHelper.getAllowedRoles( site.getType(), realm.getRoles() );
+                roles = new ArrayList<>(SiteParticipantHelper.getAllowedRoles(site.getType(), realm.getRoles()));
             } catch (Exception e) {
 				log.warn("could not find site [{}], {}", siteId, e);
             }
@@ -236,12 +208,7 @@ public class SiteAddParticipantHandler {
         return valid;
     }
 
-    public void backToAdd() {
-        resetMessages();
-        saveState();
-    }
-
-    public void backToRoles() {
+    public void clearStepMessages() {
         resetMessages();
         saveState();
     }
@@ -249,7 +216,7 @@ public class SiteAddParticipantHandler {
     /** Cancels the operation and returns the helper's caller-provided exit URL. */
     public String cancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
-        session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+        session.setAttribute(ParticipantConstants.ATTR_TOP_REFRESH, Boolean.TRUE);
         setNextPage(SiteConstants.SITE_INFO_TEMPLATE_INDEX);
         String doneUrl = getDoneUrl();
         resetMessages();
@@ -313,24 +280,20 @@ public class SiteAddParticipantHandler {
     }
 
     private boolean validateRoles(Collection<String> roleNames) {
+        if (realm == null) init();
         Set<String> allowedRoleNames = getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+        boolean mayUpdateRealm = authzGroupService.allowUpdate(siteService.siteReference(siteId));
         for (String roleName : roleNames) {
-            if (StringUtils.isBlank(roleName) || !allowedRoleNames.contains(roleName)) {
-                messages.add(new ParticipantMessage("java.pleasechoose", null, ParticipantMessage.Severity.ERROR));
-                return false;
+            ParticipantRolePolicy.Outcome outcome = ParticipantRolePolicy.evaluate(roleName, realm, allowedRoleNames,
+                    mayUpdateRealm);
+            if (outcome == ParticipantRolePolicy.Outcome.ALLOWED) {
+                continue;
             }
-        }
-
-        if (!authzGroupService.allowUpdate(siteService.siteReference(siteId))) {
-            if (realm == null) init();
-            for (String roleName : new HashSet<>(roleNames)) {
-                Role role = realm.getRole(roleName);
-                if (role != null && role.isAllowed("site.upd")) {
-                    messages.add(new ParticipantMessage("java.roleperm", new Object[] {roleName},
-                            ParticipantMessage.Severity.ERROR));
-                    return false;
-                }
+            ParticipantMessage message = ParticipantRolePolicy.messageFor(outcome, roleName, true);
+            if (message != null) {
+                messages.add(message);
             }
+            return false;
         }
         return true;
     }
@@ -386,7 +349,7 @@ public class SiteAddParticipantHandler {
             return "/";
         }
 
-        String doneUrl = (String) session.getAttribute(HELPER_TOOL_ID + Tool.HELPER_DONE_URL);
+        String doneUrl = (String) session.getAttribute(ParticipantConstants.HELPER_TOOL_ID + Tool.HELPER_DONE_URL);
         if (StringUtils.isNotBlank(doneUrl)) {
             return doneUrl;
         }
@@ -409,43 +372,8 @@ public class SiteAddParticipantHandler {
         return !wizardState.getUserRoleEntries().isEmpty();
     }
 
-    public List<UserRoleEntry> getParticipants() {
-        return Collections.unmodifiableList(wizardState.getUserRoleEntries());
-    }
-
-    public List<UserRoleEntry> getUserRoleEntries() {
-        return getParticipants();
-    }
-
-    /** Returns display identities for reviewing a shared role assignment. */
-    public List<ParticipantDisplay> getParticipantDisplays() {
-        if (wizardState.getUserRoleEntries().size() < 2) {
-            return Collections.emptyList();
-        }
-        return wizardState.getUserRoleEntries().stream().map(this::participantDisplay).collect(Collectors.toList());
-    }
-
-    private ParticipantDisplay participantDisplay(UserRoleEntry entry) {
-        String displayId = entry.getEid();
-        String displayName = participantName(entry);
-        try {
-            User user = userDirectoryService.getUserByEid(entry.getEid());
-            displayId = user.getDisplayId();
-            displayName = user.getSortName();
-        } catch (UserNotDefinedException e) {
-            log.debug("Cannot find user with eid {} while preparing role assignment", entry.getEid(), e);
-        }
-        return new ParticipantDisplay(displayId + " (" + displayName + ")");
-    }
-
-    private String participantName(UserRoleEntry entry) {
-        if (StringUtils.isBlank(entry.getLastName()) && StringUtils.isBlank(entry.getFirstName())) {
-            return entry.getEid();
-        }
-        return StringUtils.defaultString(entry.getLastName()) + ", " + StringUtils.defaultString(entry.getFirstName());
-    }
-
-    public record ParticipantDisplay(String displayName) {
+    public ParticipantWizardSnapshot snapshot() {
+        return ParticipantWizardSnapshot.from(wizardState);
     }
 
     public boolean allowsNonOfficialAccounts() {
@@ -460,39 +388,11 @@ public class SiteAddParticipantHandler {
         return isCourseSite() && !courseManagementService.getCurrentAcademicSessions().isEmpty();
     }
 
-    public String getRoleChoice() {
-        return wizardState.getRoleMode().getFormValue();
-    }
-
-    public String getStatusChoice() {
-        return wizardState.getStatus().getFormValue();
-    }
-
-    public boolean isActive() {
-        return wizardState.getStatus().isActive();
-    }
-
-    public String getEmailNotiChoice() {
-        return wizardState.getNotificationOption().getFormValue();
-    }
-
-    public String getOfficialAccountParticipant() {
-        return wizardState.getOfficialAccountParticipant();
-    }
-
-    public String getNonOfficialAccountParticipant() {
-        return wizardState.getNonOfficialAccountParticipant();
-    }
-
-    public String getSameRoleChoice() {
-        return wizardState.getSameRoleChoice();
-    }
-
 	private void reset() {
 		site = null;
 		siteId = null;
 		realm = null;
-		roles.clear();
+		roles = new ArrayList<>();
 		wizardState = new ParticipantWizardState();
 	}
 

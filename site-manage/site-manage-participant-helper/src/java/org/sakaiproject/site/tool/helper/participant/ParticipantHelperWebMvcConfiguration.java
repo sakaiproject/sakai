@@ -8,25 +8,18 @@ package org.sakaiproject.site.tool.helper.participant;
 
 import java.nio.charset.StandardCharsets;
 
-import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantRealmUpdater;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantAccountParser;
 import org.sakaiproject.site.util.SecFetchSiteCsrfInterceptor;
-import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.userauditservice.api.UserAuditRegistration;
-import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.sakaiproject.util.api.LocaleService;
-import org.sakaiproject.util.api.PasswordFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -97,23 +90,10 @@ public class ParticipantHelperWebMvcConfiguration implements WebMvcConfigurer, A
     public SiteAddParticipantHandler siteAddParticipantHandler(AuthzGroupService authzGroupService,
             @Qualifier("org.sakaiproject.coursemanagement.api.CourseManagementService") CourseManagementService courseManagementService,
             ServerConfigurationService serverConfigurationService, SessionManager sessionManager,
-            SiteService siteService, ToolManager toolManager, UserDirectoryService userDirectoryService,
+            SiteService siteService, ToolManager toolManager,
             ParticipantRealmUpdater participantRealmUpdater, ParticipantAccountParser participantAccountParser) {
         return new SiteAddParticipantHandler(authzGroupService, courseManagementService, serverConfigurationService,
-                sessionManager, siteService, toolManager, userDirectoryService, participantRealmUpdater,
-                participantAccountParser);
-    }
-
-    @Bean
-    public ParticipantRealmUpdater participantRealmUpdater(AccountValidationService accountValidationService,
-            AuthzGroupService authzGroupService, EventTrackingService eventTrackingService,
-            PasswordFactory passwordFactory, ServerConfigurationService serverConfigurationService, SiteService siteService,
-            UserNotificationProvider userNotificationProvider, SessionManager sessionManager,
-            @Qualifier("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage") UserAuditRegistration userAuditRegistration,
-            UserAuditService userAuditService, UserDirectoryService userDirectoryService) {
-        return new ParticipantRealmUpdater(accountValidationService, authzGroupService, eventTrackingService,
-                passwordFactory, serverConfigurationService, siteService, userNotificationProvider, sessionManager,
-                userAuditRegistration, userAuditService, userDirectoryService);
+                sessionManager, siteService, toolManager, participantRealmUpdater, participantAccountParser);
     }
 
     private ISpringTemplateEngine templateEngine() {

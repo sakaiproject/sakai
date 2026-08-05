@@ -24,7 +24,7 @@
 
   <div th:fragment="messages" aria-live="polite">
     <div th:each="message : ${messages}"
-         th:class="${message.severity.name() == 'ERROR'} ? 'sak-banner-error' : 'sak-banner-info'"
+         th:class="${message.bannerClass}"
          th:text="${message.text}">Message</div>
   </div>
 

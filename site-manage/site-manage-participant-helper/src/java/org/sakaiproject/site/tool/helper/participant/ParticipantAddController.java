@@ -9,10 +9,12 @@ package org.sakaiproject.site.tool.helper.participant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.site.tool.helper.participant.impl.ParticipantDisplayResolver;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantMessage;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantNotificationOption;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantRoleMode;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantStatus;
+import org.sakaiproject.site.tool.helper.participant.impl.ParticipantWizardSnapshot;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -31,10 +33,13 @@ import lombok.Setter;
 public class ParticipantAddController {
 
     private final SiteAddParticipantHandler handler;
+    private final ParticipantDisplayResolver displayResolver;
     private final MessageSource messageSource;
 
-    public ParticipantAddController(SiteAddParticipantHandler handler, MessageSource messageSource) {
+    public ParticipantAddController(SiteAddParticipantHandler handler, ParticipantDisplayResolver displayResolver,
+            MessageSource messageSource) {
         this.handler = handler;
+        this.displayResolver = displayResolver;
         this.messageSource = messageSource;
     }
 
@@ -44,9 +49,15 @@ public class ParticipantAddController {
         handler.beginStep();
     }
 
+    @GetMapping("/")
+    public String startNewOperation() {
+        handler.startNewOperation();
+        return "redirect:/add";
+    }
+
     @GetMapping("/add")
     public String add(Model model) {
-        model.addAttribute("addForm", createAddForm());
+        model.addAttribute("addForm", createAddForm(handler.snapshot()));
         return renderAdd(model);
     }
 
@@ -56,7 +67,7 @@ public class ParticipantAddController {
                 form.getNonOfficialAccountParticipant(), ParticipantStatus.fromFormValue(form.getStatusChoice()))) {
             return "redirect:/roles";
         }
-        model.addAttribute("addForm", createAddForm());
+        model.addAttribute("addForm", createAddForm(handler.snapshot()));
         return renderAdd(model);
     }
 
@@ -65,13 +76,14 @@ public class ParticipantAddController {
         if (!handler.hasParticipants()) {
             return "redirect:/add";
         }
+        ParticipantWizardSnapshot snapshot = handler.snapshot();
         RoleForm form = new RoleForm();
         form.setCsrfToken(handler.getCsrfToken());
-        form.setRoleChoice(handler.getRoleChoice());
-        form.setSameRoleChoice(handler.getSameRoleChoice());
-        form.setIndividualRoles(handler.getParticipants().stream().map(participant -> participant.getRole()).toList());
+        form.setRoleChoice(snapshot.roleChoice());
+        form.setSameRoleChoice(snapshot.sameRoleChoice());
+        form.setIndividualRoles(snapshot.participants().stream().map(participant -> participant.getRole()).toList());
         model.addAttribute("roleForm", form);
-        return renderRoles(model);
+        return renderRoles(model, snapshot);
     }
 
     @PostMapping("/roles")
@@ -84,12 +96,12 @@ public class ParticipantAddController {
             return "redirect:/confirm";
         }
         model.addAttribute("roleForm", form);
-        return renderRoles(model);
+        return renderRoles(model, handler.snapshot());
     }
 
     @PostMapping("/roles/back")
     public String backFromRoles() {
-        handler.backToAdd();
+        handler.clearStepMessages();
         return "redirect:/add";
     }
 
@@ -98,11 +110,12 @@ public class ParticipantAddController {
         if (!handler.hasParticipants()) {
             return "redirect:/add";
         }
+        ParticipantWizardSnapshot snapshot = handler.snapshot();
         ConfirmForm form = new ConfirmForm();
         form.setCsrfToken(handler.getCsrfToken());
-        form.setEmailNotiChoice(handler.getEmailNotiChoice());
+        form.setEmailNotiChoice(snapshot.emailNotiChoice());
         model.addAttribute("confirmForm", form);
-        return renderConfirm(model);
+        return renderConfirm(model, snapshot);
     }
 
     @PostMapping("/confirm")
@@ -111,14 +124,14 @@ public class ParticipantAddController {
             return doneRedirect(handler.getDoneUrl());
         }
         model.addAttribute("confirmForm", form);
-        return renderConfirm(model);
+        return renderConfirm(model, handler.snapshot());
     }
 
     @PostMapping("/confirm/back")
     public String backFromConfirm(@ModelAttribute ConfirmForm form) {
         handler.saveNotificationChoice(form.getCsrfToken(),
                 ParticipantNotificationOption.fromFormValue(form.getEmailNotiChoice()));
-        handler.backToRoles();
+        handler.clearStepMessages();
         return "redirect:/roles";
     }
 
@@ -135,25 +148,25 @@ public class ParticipantAddController {
         return render(model, "add", 1);
     }
 
-    private AddForm createAddForm() {
+    private AddForm createAddForm(ParticipantWizardSnapshot snapshot) {
         AddForm form = new AddForm();
         form.setCsrfToken(handler.getCsrfToken());
-        form.setOfficialAccountParticipant(handler.getOfficialAccountParticipant());
-        form.setNonOfficialAccountParticipant(handler.getNonOfficialAccountParticipant());
-        form.setStatusChoice(handler.getStatusChoice());
+        form.setOfficialAccountParticipant(snapshot.officialAccountParticipant());
+        form.setNonOfficialAccountParticipant(snapshot.nonOfficialAccountParticipant());
+        form.setStatusChoice(snapshot.statusChoice());
         return form;
     }
 
-    private String renderRoles(Model model) {
+    private String renderRoles(Model model, ParticipantWizardSnapshot snapshot) {
         model.addAttribute("roles", handler.getRoles());
-        model.addAttribute("participants", handler.getParticipants());
-        model.addAttribute("participantDisplays", handler.getParticipantDisplays());
+        model.addAttribute("participants", snapshot.participants());
+        model.addAttribute("participantDisplays", displayResolver.displays(snapshot.participants()));
         return render(model, "roles", 2);
     }
 
-    private String renderConfirm(Model model) {
-        model.addAttribute("participants", handler.getParticipants());
-        model.addAttribute("active", handler.isActive());
+    private String renderConfirm(Model model, ParticipantWizardSnapshot snapshot) {
+        model.addAttribute("participants", snapshot.participants());
+        model.addAttribute("active", snapshot.active());
         return render(model, "confirm", 3);
     }
 
@@ -176,6 +189,14 @@ public class ParticipantAddController {
     }
 
     public record ParticipantMessageView(String text, ParticipantMessage.Severity severity) {
+
+        public String bannerClass() {
+            return switch (severity) {
+                case ERROR -> "sak-banner-error";
+                case WARNING -> "sak-banner-warn";
+                case INFO -> "sak-banner-info";
+            };
+        }
     }
 
     @Getter
