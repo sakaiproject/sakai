@@ -12,14 +12,13 @@
 <body>
   <div th:fragment="header">
     <h1 th:text="#{java.addp}">Add Participants</h1>
-    <p class="text-muted mb-3" th:text="${siteTitle}">Site title</p>
   </div>
 
   <nav th:fragment="steps(current)" aria-label="Add participants progress">
-    <ol class="nav nav-pills flex-wrap gap-2 mb-4">
-      <li class="nav-item"><span class="nav-link" th:classappend="${current == 1} ? ' active'" th:attr="aria-current=${current == 1} ? 'step'" th:text="#{java.addp}">Add participants</span></li>
-      <li class="nav-item"><span class="nav-link" th:classappend="${current == 2} ? ' active'" th:attr="aria-current=${current == 2} ? 'step'" th:text="#{adddif.choose}">Choose roles</span></li>
-      <li class="nav-item"><span class="nav-link" th:classappend="${current == 3} ? ' active'" th:attr="aria-current=${current == 3} ? 'step'" th:text="#{gen.finish}">Finish</span></li>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item" th:classappend="${current == 1} ? ' active'" th:text="#{java.addp}">Add participants</li>
+      <li class="breadcrumb-item" th:classappend="${current == 2} ? ' active'" th:text="#{adddif.choose}">Choose roles</li>
+      <li class="breadcrumb-item" th:classappend="${current == 3} ? ' active'" th:text="#{gen.finish}">Finish</li>
     </ol>
   </nav>
 

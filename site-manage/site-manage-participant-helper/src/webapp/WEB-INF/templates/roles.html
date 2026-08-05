@@ -62,7 +62,7 @@
 
       <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center mt-4">
         <button type="submit" class="btn btn-primary" th:text="#{gen.continue}">Continue</button>
-        <button type="submit" class="btn btn-outline-secondary" th:formaction="@{/roles/back}" formmethod="post" th:text="#{gen.back}">Back</button>
+        <button type="submit" class="btn btn-link" th:formaction="@{/roles/back}" formmethod="post" th:text="#{gen.back}">Back</button>
         <div th:replace="~{fragments/common :: cancel}"></div>
       </div>
     </form>

@@ -6,8 +6,6 @@
     <div th:replace="~{fragments/common :: header}"></div>
     <div th:replace="~{fragments/common :: steps(3)}"></div>
     <div th:replace="~{fragments/common :: messages}"></div>
-    <h2 class="h4" th:text="#{addconf.confirming(${siteTitle})}">Confirm participants</h2>
-    <p th:text="#{addconf.finish}">The following people will be added.</p>
     <form th:action="@{/confirm}" th:object="${confirmForm}" method="post">
       <input type="hidden" th:field="*{csrfToken}">
       <fieldset class="mb-4">
@@ -21,6 +19,8 @@
           <label class="form-check-label" for="dont-send-email" th:text="#{addnoti.dontsend}">Don't send</label>
         </div>
       </fieldset>
+      <h2 class="h4 mt-4" th:text="#{addconf.confirming(${siteTitle})}">Confirm participants</h2>
+      <p th:text="#{addconf.finish}">The following people will be added.</p>
       <div class="table-responsive">
         <table class="table table-striped align-middle">
           <thead><tr><th scope="col" th:text="#{addconf.username}">Username</th><th scope="col" th:text="#{addconf.role}">Role</th><th scope="col" th:text="#{participant.status}">Status</th></tr></thead>
@@ -35,7 +35,7 @@
       </div>
       <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center">
         <button type="submit" class="btn btn-primary" th:text="#{gen.finish}">Finish</button>
-        <button type="submit" class="btn btn-outline-secondary" th:formaction="@{/confirm/back}" formmethod="post" th:text="#{gen.back}">Back</button>
+        <button type="submit" class="btn btn-link" th:formaction="@{/confirm/back}" formmethod="post" th:text="#{gen.back}">Back</button>
         <div th:replace="~{fragments/common :: cancel}"></div>
       </div>
     </form>

@@ -9,7 +9,8 @@
 
     <div th:if="${showCourseInstructions}" class="sak-banner-info">
       <strong th:text="#{add.official}">Students Registered for Course</strong>
-      <p class="mb-0" th:text="#{add.official.instruction}">Course roster instructions.</p>
+      <p class="mb-0" th:text="#{add.official1}">Officially enrolled students automatically become participants when you add your course roster to the site.</p>
+      <p class="mb-0" th:text="#{add.official.instruction}">Go to Site Info > Edit Class Roster(s) > Add Roster(s) to add your roster now if you haven't already.</p>
     </div>
 
     <form th:if="${allowAddParticipant}" th:action="@{/add}" th:object="${addForm}" method="post" novalidate>
