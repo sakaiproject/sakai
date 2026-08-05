@@ -27,7 +27,6 @@ import java.net.URL;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.Query;
-import org.hibernate.type.StringType;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
@@ -181,7 +180,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		HibernateCallback<RandomisedUrl> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_GET_URL);
-            q.setParameter(KEY, key, StringType.INSTANCE);
+            q.setParameter(KEY, key);
             q.setMaxResults(1);
             return (RandomisedUrl) q.uniqueResult();
       };
@@ -244,7 +243,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		HibernateCallback<RandomisedUrl> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_GET_KEY);
-            q.setParameter(URL, url, StringType.INSTANCE);
+            q.setParameter(URL, url);
             q.setMaxResults(1);
             return (RandomisedUrl) q.uniqueResult();
       };
@@ -282,7 +281,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		HibernateCallback<RandomisedUrl> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_GET_URL);
-            q.setParameter(KEY, key, StringType.INSTANCE);
+            q.setParameter(KEY, key);
             q.setMaxResults(1);
             return (RandomisedUrl) q.uniqueResult();
       };

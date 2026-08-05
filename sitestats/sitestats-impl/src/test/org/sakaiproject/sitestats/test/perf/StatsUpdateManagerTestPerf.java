@@ -160,14 +160,14 @@ public class StatsUpdateManagerTestPerf extends AbstractTransactionalJUnit4Sprin
 	
 
 	public void getEvents() throws InterruptedException {
-		NativeQuery query = sessionFactory.getCurrentSession().createSQLQuery(
+		NativeQuery query = sessionFactory.getCurrentSession().createNativeQuery(
 				"SELECT e.event_date, e.event, e.ref, e.context, s.session_user, e.session_id, s.session_server server " +
 				"FROM SAKAI_EVENT e " +
 				"LEFT JOIN SAKAI_SESSION s ON e.session_id = s.session_id ORDER BY e.event_date ASC LIMIT 400000"
 		);
 		query.setReadOnly(true);
 		query.setFetchSize(0);
-		ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
+		ScrollableResults<Object[]> results = query.scroll(ScrollMode.FORWARD_ONLY);
 
 		// How long to wait until we post the events (can't initialize until first run through.)
 		Date postBatchAt = null;
@@ -196,7 +196,7 @@ public class StatsUpdateManagerTestPerf extends AbstractTransactionalJUnit4Sprin
 			if (serverId != null) {
 				serverId = extractServerId(serverId);
 			} else {
-				String sessionId = results.getString(5);
+				String sessionId = (String) row[5];
 				serverId = extractServerIdFromSession(sessionId);
 			}
 			// We can't put null in map.

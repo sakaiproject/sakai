@@ -1,6 +1,4 @@
 /**
- * $URL$
- * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -81,7 +79,7 @@ public class DBHelper extends HibernateDaoSupport {
                             sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
                         }
                         try{
-                            session.createSQLQuery(sqlLine).executeUpdate();
+                            session.createNativeQuery(sqlLine).executeUpdate();
                             session.flush();
                         }catch(Exception e){
                             log.warn("Failed to preload default report: " + sqlLine, e);

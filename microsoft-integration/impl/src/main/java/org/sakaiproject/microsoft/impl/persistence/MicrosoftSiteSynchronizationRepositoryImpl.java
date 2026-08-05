@@ -22,13 +22,10 @@ import java.util.Optional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftSiteSynchronizationRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -41,79 +38,100 @@ public class MicrosoftSiteSynchronizationRepositoryImpl extends BasicSerializabl
 	
 	@Override
 	public List<SiteSynchronization> findAll(){
-		return (List<SiteSynchronization>) startCriteriaQuery()
-				.addOrder(Order.asc("status"))
-				.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.orderBy(cb.asc(root.get("status")));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public List<SiteSynchronization> findAllEnabled() {
-		return (List<SiteSynchronization>) startCriteriaQuery()
-				.addOrder(Order.asc("status"))
-				.add(Restrictions.eq("disabled", false))
-				.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.where(cb.equal(root.get("disabled"), false));
+		cq.orderBy(cb.asc(root.get("status")));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public Optional<SiteSynchronization> findById(String id) {
-		SiteSynchronization siteSynchronization = (SiteSynchronization) startCriteriaQuery().add(Restrictions.eq("id", id)).uniqueResult();
-		return Optional.ofNullable(siteSynchronization);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.where(cb.equal(root.get("id"), id));
+		return Optional.ofNullable(sessionFactory.getCurrentSession().createQuery(cq).uniqueResult());
 	}
 	
 	@Override
 	public Optional<SiteSynchronization> findBySiteTeam(String siteId, String teamId) {
-		SiteSynchronization siteSynchronization = (SiteSynchronization) startCriteriaQuery()
-				.add(Restrictions.eq("siteId", siteId))
-				.add(Restrictions.eq("teamId", teamId))
-				.uniqueResult();
-		return Optional.ofNullable(siteSynchronization);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.where(
+			cb.equal(root.get("siteId"), siteId),
+			cb.equal(root.get("teamId"), teamId)
+		);
+		return Optional.ofNullable(sessionFactory.getCurrentSession().createQuery(cq).uniqueResult());
 	}
 	
 	@Override
 	public List<SiteSynchronization> findBySite(String siteId) {
-		return (List<SiteSynchronization>)startCriteriaQuery()
-		.add(Restrictions.eq("siteId", siteId))
-		.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.where(cb.equal(root.get("siteId"), siteId));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public List<String> findBySiteIdList(List<String> siteIds) {
-		return (List<String>)startCriteriaQuery()
-				.setProjection(Projections.property("siteId"))
-				.add(Restrictions.in("siteId", siteIds))
-		.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.select(root.get("siteId"));
+		cq.where(root.get("siteId").in(siteIds));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 	
 	@Override
 	public List<SiteSynchronization> findByTeam(String teamId) {
-		return (List<SiteSynchronization>)startCriteriaQuery()
-		.add(Restrictions.eq("teamId", teamId))
-		.list();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.where(cb.equal(root.get("teamId"), teamId));
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 
 	@Override
 	public List<SiteSynchronization> findByDate(ZonedDateTime fromDate, ZonedDateTime toDate) {
-		Criteria criteria = startCriteriaQuery();
-		if(Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
-			criteria
-					.add(Restrictions.between("syncDateFrom", fromDate, toDate));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSynchronization> cq = cb.createQuery(SiteSynchronization.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
+			cq.where(cb.between(root.get("syncDateFrom"), fromDate, toDate));
 		} else {
-			criteria
-					.addOrder(Order.asc("status"));
+			cq.orderBy(cb.asc(root.get("status")));
 		}
-		return criteria.list();
+		return sessionFactory.getCurrentSession().createQuery(cq).list();
 	}
 
 	@Override
 	public long countSiteSynchronizationsByTeamId(String teamId, boolean forced) {
-		Criteria criteria = startCriteriaQuery()
-				.setProjection(Projections.countDistinct("id"))
-				.add(Restrictions.eq("teamId", teamId));
-		if(forced) {
-			criteria.add(Restrictions.eq("forced", true));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<SiteSynchronization> root = cq.from(SiteSynchronization.class);
+		cq.select(cb.countDistinct(root.get("id")));
+		if (forced) {
+			cq.where(
+				cb.equal(root.get("teamId"), teamId),
+				cb.equal(root.get("forced"), true)
+			);
+		} else {
+			cq.where(cb.equal(root.get("teamId"), teamId));
 		}
-		
-		return ((Number) criteria.uniqueResult()).longValue();
+		return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
 	}
 	
 	@Override

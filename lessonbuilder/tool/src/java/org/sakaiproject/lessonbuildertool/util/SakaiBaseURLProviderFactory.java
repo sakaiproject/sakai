@@ -29,7 +29,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import uk.org.ponder.rsf.viewstate.BaseURLProvider;
 import uk.org.ponder.rsf.viewstate.support.StaticBaseURLProvider;
-import uk.org.ponder.servletutil.ServletUtil;
 
 public class SakaiBaseURLProviderFactory implements ApplicationContextAware, FactoryBean {
   private HttpServletRequest request;
@@ -56,19 +55,26 @@ public class SakaiBaseURLProviderFactory implements ApplicationContextAware, Fac
     int slashpos = computed.indexOf('/', endprotpos + 3);
     return serverURL + computed.substring(slashpos);
   }
-  
+
+  private String computeBaseURL(HttpServletRequest request) {
+    StringBuffer url = request.getRequestURL();
+    String uri = request.getRequestURI();
+    String contextPath = request.getContextPath();
+    return url.substring(0, url.length() - uri.length()) + contextPath + "/";
+  }
+
   public StaticBaseURLProvider computeBaseURLProvider(HttpServletRequest request) {
     ServletContext servletcontext = wac.getServletContext();
     // yes, these two fields are not request-scope, but not worth creating
     // a whole new class and bean file for them.
     resourceurlbase = servletcontext.getInitParameter("resourceurlbase");
     if (resourceurlbase == null) {
-      resourceurlbase = ServletUtil.computeContextName(servletcontext);
+        resourceurlbase = request.getContextPath();
     }
 
     // compute the baseURLprovider.
     StaticBaseURLProvider sbup = new StaticBaseURLProvider();
-    String baseurl = fixSakaiURL(request, ServletUtil.getBaseURL2(request));
+    String baseurl = fixSakaiURL(request, computeBaseURL(request));
     String requestURL = request.getRequestURL().toString();
     int i = requestURL.indexOf("/tool/");
     if (i >= 0) {

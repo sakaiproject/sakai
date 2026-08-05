@@ -49,8 +49,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.LockMode;
 import org.hibernate.query.Query;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -791,9 +789,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       Query qOrdered = session.createQuery(q.getQueryString() + " order by "
           + orderField + " " + order);
 
-      qOrdered.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
-      qOrdered.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
-      qOrdered.setParameter("contextId", getContextId(), StringType.INSTANCE);
+      qOrdered.setParameter("userId", getCurrentUser());
+      qOrdered.setParameter("typeUuid", typeUuid);
+      qOrdered.setParameter("contextId", getContextId());
       return qOrdered.list();
     };
 
@@ -823,9 +821,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     HibernateCallback<List> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
 
-      q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
-      q.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
-      q.setParameter("contextId", contextId, StringType.INSTANCE);
+      q.setParameter("userId", getCurrentUser());
+      q.setParameter("typeUuid", typeUuid);
+      q.setParameter("contextId", contextId);
       return q.list();
     };
 
@@ -843,9 +841,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
       Query qOrdered = session.createQuery(q.getQueryString() + " order by "
               + orderField + " " + order);
-      qOrdered.setParameter("userId", userId, StringType.INSTANCE);
-      qOrdered.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
-      qOrdered.setParameter("contextId", contextId, StringType.INSTANCE);
+      qOrdered.setParameter("userId", userId);
+      qOrdered.setParameter("typeUuid", typeUuid);
+      qOrdered.setParameter("contextId", contextId);
       return qOrdered.list();
     };
 
@@ -936,8 +934,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     HibernateCallback<List> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);
-      q.setParameter("contextId", contextId, StringType.INSTANCE);
-      q.setParameter("userId", userId, StringType.INSTANCE);
+      q.setParameter("contextId", contextId);
+      q.setParameter("userId", userId);
       return q.list();
     };
         
@@ -956,7 +954,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public List getPrivateMessageCountsForAllSites() {
 	  HibernateCallback<List> hcb = session -> {
          Query q = session.getNamedQuery("findUnreadPvtMsgCntByUserForAllSites");
-         q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+         q.setParameter("userId", getCurrentUser());
          return q.list();
       };
   
@@ -1757,7 +1755,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     HibernateCallback<PrivateMessage> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);
-      q.setParameter("id", message.getId(), LongType.INSTANCE);
+      q.setParameter("id", message.getId());
       return (PrivateMessage) q.uniqueResult();
     };
 
@@ -2168,8 +2166,8 @@ return topicTypeUuid;
     log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
     HibernateCallback<Area> hcb = session -> {
         Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-        q.setParameter("contextId", getContextId(), StringType.INSTANCE);
-        q.setParameter("typeId", typeId, StringType.INSTANCE);
+        q.setParameter("contextId", getContextId());
+        q.setParameter("typeId", typeId);
         return (Area) q.uniqueResult();
     };
 
@@ -2180,8 +2178,8 @@ return topicTypeUuid;
 	    log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
 	    HibernateCallback<Area> hcb = session -> {
 	        Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-	        q.setParameter("contextId", contextId, StringType.INSTANCE);
-	        q.setParameter("typeId", typeId, StringType.INSTANCE);
+	        q.setParameter("contextId", contextId);
+	        q.setParameter("typeId", typeId);
 	        return (Area) q.uniqueResult();
 	    };
 
@@ -2376,8 +2374,8 @@ return topicTypeUuid;
 
 	  HibernateCallback<Number> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_RESPONSED_COUNT);
-		  q.setParameter("userId", userId, StringType.INSTANCE);
-		  q.setParameter("messageId", messageId, LongType.INSTANCE);
+		  q.setParameter("userId", userId);
+		  q.setParameter("messageId", messageId);
 		  return (Number) q.uniqueResult();
 	  };
     
@@ -2389,8 +2387,8 @@ return topicTypeUuid;
 
 	  HibernateCallback<String> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_USER_ID_BY_FOWARD_MAIL);
-		  q.setParameter("messageId", messageId, LongType.INSTANCE);
-		  q.setParameter("mail", mail, StringType.INSTANCE);
+		  q.setParameter("messageId", messageId);
+		  q.setParameter("mail", mail);
 		  return (String)q.uniqueResult();
 	  };
 
