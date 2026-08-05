@@ -45,16 +45,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.comparators.NullComparator;
 import org.apache.commons.lang3.StringUtils;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.NullPrecedence;
 import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -116,6 +109,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 @Slf4j
 @Transactional
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -158,24 +156,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public List<AssessmentGradingData> getTotalScores(final Long publishedId, final String which, final boolean getSubmittedOnly) {
         if (publishedId == null) return Collections.emptyList();
         try {
+            final String forGradeClause = getSubmittedOnly
+                    ? " and a.forGrade = true"
+                    : " and (a.forGrade = true or (a.forGrade = false and a.status = :noSubmission))";
+
             final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                Criteria q = session.createCriteria(AssessmentGradingData.class)
-                        .add(Restrictions.eq("publishedAssessmentId", publishedId))
-                        .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
-                        .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
-                        .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
-                        .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
-
-                if (getSubmittedOnly) {
-                    q.add(Restrictions.eq("forGrade", true));
-                } else {
-                    q.add(Restrictions.or(
-                            Restrictions.eq("forGrade", true),
-                            Restrictions.and(
-                                    Restrictions.eq("forGrade", false),
-                                    Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))));
+                Query q = session.createQuery(
+                        "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
+                        " and a.status > :removed" +
+                        forGradeClause +
+                        " order by a.agentId asc, a.finalScore desc, a.submittedDate desc");
+                q.setParameter("id", publishedId);
+                q.setParameter("removed", AssessmentGradingData.REMOVED);
+                if (!getSubmittedOnly) {
+                    q.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
                 }
-
                 return q.list();
             };
             List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
@@ -191,20 +186,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             // last submission
             if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
                 final HibernateCallback<List<AssessmentGradingData>> hcb2 = session -> {
-                    Criteria q = session.createCriteria(AssessmentGradingData.class)
-                            .add(Restrictions.eq("publishedAssessmentId", publishedId))
-                            .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
-                            .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
-                            .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
-
-                    if (getSubmittedOnly) {
-                        q.add(Restrictions.eq("forGrade", true));
-                    } else {
-                        q.add(Restrictions.or(
-                                Restrictions.eq("forGrade", true),
-                                Restrictions.and(
-                                        Restrictions.eq("forGrade", false),
-                                        Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))));
+                    Query q = session.createQuery(
+                            "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
+                            " and a.status > :removed" +
+                            forGradeClause +
+                            " order by a.agentId asc, a.submittedDate desc");
+                    q.setParameter("id", publishedId);
+                    q.setParameter("removed", AssessmentGradingData.REMOVED);
+                    if (!getSubmittedOnly) {
+                        q.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
                     }
                     return q.list();
                 };
@@ -277,8 +267,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             HashMap<Long, List<ItemGradingData>> map = new HashMap<>();
 
             HibernateCallback<List<ItemGradingData>> hcb = session -> {
-                Criteria criteria = session.createCriteria(ItemGradingData.class);
-                Disjunction disjunction = Expression.disjunction();
+                CriteriaBuilder cb = session.getCriteriaBuilder();
+                CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+                Root<ItemGradingData> root = cq.from(ItemGradingData.class);
 
                 /** make list from AssessmentGradingData ids */
                 List<Long> gradingIdList = scores.stream()
@@ -286,31 +277,31 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         .collect(Collectors.toList());
 
                 /** create or disjunctive expression for (in clauses) */
-                List tempList;
+                List<Predicate> inPredicates = new ArrayList<>();
                 for (int i = 0; i < gradingIdList.size(); i += 50) {
-                    if (i + 50 > gradingIdList.size()) {
-                        tempList = gradingIdList.subList(i, gradingIdList.size());
-                        disjunction.add(Expression.in("assessmentGradingId", tempList));
-                    } else {
-                        tempList = gradingIdList.subList(i, i + 50);
-                        disjunction.add(Expression.in("assessmentGradingId", tempList));
-                    }
+                    List<Long> tempList = gradingIdList.subList(i, Math.min(i + 50, gradingIdList.size()));
+                    inPredicates.add(root.get("assessmentGradingId").in(tempList));
                 }
+                Predicate disjunction = cb.or(inPredicates.toArray(new Predicate[0]));
 
                 if (itemId.equals(Long.valueOf(0))) {
-                    criteria.add(disjunction);
+                    cq.where(disjunction);
                     //criteria.add(Expression.isNotNull("submittedDate"));
                 } else {
 
                     /** create logical and between the pubCriterion and the disjunction criterion */
                     //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
-                    Criterion pubCriterion = Expression.eq("publishedItemId", itemId);
-                    criteria.add(Expression.and(pubCriterion, disjunction));
+                    Predicate pubCriterion = cb.equal(root.get("publishedItemId"), itemId);
+                    cq.where(cb.and(pubCriterion, disjunction));
                     //criteria.add(Expression.isNotNull("submittedDate"));
                 }
-                criteria.addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST));
-                criteria.addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
-                return criteria.list();
+                HibernateCriteriaBuilder hcb2 = (HibernateCriteriaBuilder) cb;
+                cq.orderBy(
+                    hcb2.asc(root.get("agentId"), false),
+                    hcb2.desc(root.get("submittedDate"), false)
+                );
+
+                return session.createQuery(cq).getResultList();
                 //large list cause out of memory error (java heap space)
                 //return criteria.setMaxResults(10000).list();
             };
@@ -502,11 +493,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId) {
-        Number size = (Number) getHibernateTemplate().execute(session -> session.createCriteria(AssessmentGradingData.class)
-                .add(Restrictions.eq("publishedAssessmentId", publishedAssessmentId))
-                .add(Restrictions.eq("forGrade", true))
-                .setProjection(Projections.rowCount())
-                .uniqueResult());
+        Number size = (Number) getHibernateTemplate().execute(session -> {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(cb.count(root));
+            cq.where(
+                cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.equal(root.get("forGrade"), true)
+            );
+
+            return session.createQuery(cq).uniqueResult();
+        });
         return size.intValue();
     }
 
@@ -847,8 +846,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             log.debug("list size list.size() = " + list.size());
 
             HibernateCallback<List<MediaData>> hcb = session -> {
-                Criteria criteria = session.createCriteria(MediaData.class);
-                Disjunction disjunction = Expression.disjunction();
+                CriteriaBuilder cb = session.getCriteriaBuilder();
+                CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
+                Root<MediaData> root = cq.from(MediaData.class);
 
                 /** make list from AssessmentGradingData ids */
                 List<Long> itemGradingIdList = list.stream()
@@ -856,18 +856,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         .collect(Collectors.toList());
 
                 /** create or disjunctive expression for (in clauses) */
-                List<Long> tempList;
+                List<Predicate> inPredicates = new ArrayList<>();
                 for (int i = 0; i < itemGradingIdList.size(); i += 50) {
-                    if (i + 50 > itemGradingIdList.size()) {
-                        tempList = itemGradingIdList.subList(i, itemGradingIdList.size());
-                        disjunction.add(Expression.in("itemGradingData.itemGradingId", tempList));
-                    } else {
-                        tempList = itemGradingIdList.subList(i, i + 50);
-                        disjunction.add(Expression.in("itemGradingData.itemGradingId", tempList));
-                    }
+                    List<Long> tempList = itemGradingIdList.subList(i, Math.min(i + 50, itemGradingIdList.size()));
+                    inPredicates.add(root.get("itemGradingData").get("itemGradingId").in(tempList));
                 }
-                criteria.add(disjunction);
-                return criteria.list();
+                cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
+
+                return session.createQuery(cq).getResultList();
                 //large list cause out of memory error (java heap space)
                 //return criteria.setMaxResults(10000).list();
             };
@@ -1235,17 +1231,30 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public List getLastSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createCriteria(
-                AssessmentGradingData.class)
-                .add(Restrictions.eq("publishedAssessmentId", publishedAssessmentId))
-                .add(Restrictions.or(
-                        Restrictions.eq("forGrade", true),
-                        Restrictions.and(
-                                Restrictions.eq("forGrade", false),
-                                Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
-                .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST))
-                .list();
+        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
+            HibernateCriteriaBuilder cb = (HibernateCriteriaBuilder) session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            Predicate forGradeTrue = cb.equal(root.get("forGrade"), true);
+            Predicate forGradeFalse = cb.equal(root.get("forGrade"), false);
+            Predicate noSubmission = cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION);
+
+            cq.where(
+                cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.or(
+                    forGradeTrue,
+                    cb.and(forGradeFalse, noSubmission)
+                )
+            );
+
+            cq.orderBy(
+                cb.asc(root.get("agentId"), false),
+                cb.desc(root.get("submittedDate"), false)
+            );
+
+            return session.createQuery(cq).getResultList();
+        };
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
 
         return new ArrayList<>(assessmentGradings.stream()
@@ -1271,18 +1280,31 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 
     public List<AssessmentGradingData> getHighestSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createCriteria(
-                AssessmentGradingData.class)
-                .add(Restrictions.eq("publishedAssessmentId", publishedAssessmentId))
-                .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
-                .add(Restrictions.or(
-                        Restrictions.eq("forGrade", true),
-                        Restrictions.and(
-                                Restrictions.eq("forGrade", false),
-                                Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
-                .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
-                .list();
+        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
+            HibernateCriteriaBuilder cb = (HibernateCriteriaBuilder) session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            Predicate forGradeTrue = cb.equal(root.get("forGrade"), true);
+            Predicate forGradeFalse = cb.equal(root.get("forGrade"), false);
+            Predicate noSubmission = cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION);
+
+            cq.where(
+                cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.gt(root.get("status"), AssessmentGradingData.REMOVED),
+                cb.or(
+                    forGradeTrue,
+                    cb.and(forGradeFalse, noSubmission)
+                )
+            );
+
+            cq.orderBy(
+                cb.asc(root.get("agentId"), false),
+                cb.desc(root.get("finalScore"), false)
+            );
+
+            return session.createQuery(cq).getResultList();
+        };
 
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
 
@@ -1602,23 +1624,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         final HibernateCallback<List<PublishedItemData>> hcb2 = session -> {
 
-            final Criteria criteria = session.createCriteria(PublishedItemData.class);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<PublishedItemData> cq = cb.createQuery(PublishedItemData.class);
+            Root<PublishedItemData> root = cq.from(PublishedItemData.class);
             if (itemIds.size() > 1000) {
-                final Set<Long> ids = new HashSet<>();
-                Disjunction disjunction = Restrictions.disjunction();
-
-                for (Long id : itemIds) {
-                    if (ids.size() < 1000) {
-                        ids.add(id);
-                    } else {
-                        criteria.add(disjunction.add(Restrictions.in("itemId", ids)));
-                        ids.clear();
-                    }
+                List<Predicate> inPredicates = new ArrayList<>();
+                for (int i = 0; i < itemIds.size(); i += 1000) {
+                    List<Long> chunk = itemIds.subList(i, Math.min(i + 1000, itemIds.size()));
+                    inPredicates.add(root.get("itemId").in(chunk));
                 }
+                cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
             } else {
-                criteria.add(Restrictions.in("itemId", itemIds));
+                cq.where(root.get("itemId").in(itemIds));
             }
-            return criteria.list();
+
+            return session.createQuery(cq).getResultList();
         };
 
         List<PublishedItemData> publishedItems = getHibernateTemplate().execute(hcb2);
@@ -1672,10 +1692,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             throw new IllegalArgumentException("publishedItemId cant' be null");
         }
 
-        return getHibernateTemplate().execute(session -> session.createCriteria(ItemGradingData.class)
-                .add(Restrictions.eq("assessmentGradingId", assesmentGradingId))
-                .add(Restrictions.eq("publishedItemId", publishedItemId))
-                .list());
+        return getHibernateTemplate().execute(session -> {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+            cq.where(
+                cb.equal(root.get("assessmentGradingId"), assesmentGradingId),
+                cb.equal(root.get("publishedItemId"), publishedItemId)
+            );
+            return session.createQuery(cq).getResultList();
+        });
     }
 
     public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(final String siteId) {
@@ -3150,7 +3176,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" and a.attemptDate is not null " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
-		query.setTimestamp("currentTime",currentTime);
+		query.setParameter("currentTime",currentTime);
 		query.setParameterList("status", Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION) );
 		query.setTimeout(300);
 

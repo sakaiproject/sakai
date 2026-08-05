@@ -700,4 +700,10 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return this.errorMessage;
     }
 
+	@Override
+	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
