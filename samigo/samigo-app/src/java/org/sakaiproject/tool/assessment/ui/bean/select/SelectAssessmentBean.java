@@ -24,14 +24,14 @@ package org.sakaiproject.tool.assessment.ui.bean.select;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* For select: Select Assessment backing bean. */
-@ManagedBean(name="select")
+@Named("select")
 @SessionScoped
 public class SelectAssessmentBean implements Serializable {
 	private List takeableAssessments;

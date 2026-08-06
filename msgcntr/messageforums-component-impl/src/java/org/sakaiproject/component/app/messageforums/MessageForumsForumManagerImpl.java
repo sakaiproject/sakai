@@ -36,7 +36,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
-import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.query.Query;
 import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;

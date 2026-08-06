@@ -28,11 +28,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -47,7 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 /* For evaluation: Download File Submissions backing bean */
 @Slf4j
-@ManagedBean(name="downloadFileSubmissions")
+@Named("downloadFileSubmissions")
 @SessionScoped
 public class DownloadFileSubmissionsBean implements Serializable {
 

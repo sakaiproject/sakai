@@ -23,9 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
+
 import javax.imageio.ImageIO;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -58,7 +59,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* Print to PDF backing bean. */
 @Slf4j
-@ManagedBean(name="pdfAssessment")
+@Named("pdfAssessment")
 @SessionScoped
 public class PDFAssessmentBean implements Serializable {
 

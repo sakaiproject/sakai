@@ -23,10 +23,9 @@ package org.sakaiproject.tool.assessment.jsf;
 
 import java.io.Serializable;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
-
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -39,7 +38,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Test Bean with some properties</p>
  */
 @Slf4j
-@ManagedBean(name="testwsbean")
+@Named("testwsbean")
 @SessionScoped
 public class TestWSBean implements Serializable {
   private String itemid;

@@ -27,7 +27,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -108,8 +107,6 @@ public class AssignmentTestConfiguration {
         srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
         srb.applySettings(hibernateProperties());
         StandardServiceRegistry sr = srb.build();
-        sr.getService(MutableIdentifierGeneratorFactoryInitiator.INSTANCE.getServiceInitiated())
-                .register("uuid2", AssignableUUIDGenerator.class);
         hibernateMappings.processAdditionalMappings(sfb);
         return sfb.buildSessionFactory(sr);
     }

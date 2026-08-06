@@ -32,11 +32,11 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,7 +60,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 /* For author: Assessment Authoring backing bean. */
 @Slf4j
-@ManagedBean(name="author")
+@Named("author")
 @SessionScoped
 public class AuthorBean implements Serializable {
 

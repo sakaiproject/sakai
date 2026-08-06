@@ -26,13 +26,13 @@ package org.sakaiproject.tool.assessment.ui.bean.cms;
 import java.util.ArrayList;
 import java.io.Serializable;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* Course Management Info.  Dummy data for now. */
-@ManagedBean(name="course")
+@Named("course")
 @SessionScoped
 public class CourseManagementBean implements Serializable {
   private String courseName;

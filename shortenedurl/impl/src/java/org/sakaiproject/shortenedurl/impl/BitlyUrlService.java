@@ -19,23 +19,27 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.utils.URIUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.net.URLEncodedUtils;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -126,27 +130,20 @@ public class BitlyUrlService implements ShortenedUrlService {
 	 * @return
 	 */
 	private String doGet(String address){
-		try {
-			
-			HttpClient httpclient = new DefaultHttpClient();
+		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			HttpGet httpget = new HttpGet(address);
-			HttpResponse response = httpclient.execute(httpget);
-			
-			//check reponse code
-			StatusLine status = response.getStatusLine();
-			if(status.getStatusCode() != 200) {
-				log.error("Error shortening URL. Status: " + status.getStatusCode() + ", reason: " + status.getReasonPhrase());
-				return null;
-			}
-			
-			HttpEntity entity = response.getEntity();
-			if (entity != null) {
-			    return EntityUtils.toString(entity);
-			}
-			
+			return httpclient.execute(httpget, response -> {
+				int statusCode = response.getCode();
+				if (statusCode != 200) {
+					log.error("Error shortening URL. Status: " + statusCode + ", reason: " + response.getReasonPhrase());
+					return null;
+				}
+				var entity = response.getEntity();
+				return entity != null ? EntityUtils.toString(entity) : null;
+			});
 		} catch (Exception e) {
 			log.error(e.getClass() + ":" + e.getMessage());
-		} 
+		}
 		return null;
 	}
 
@@ -165,7 +162,11 @@ public class BitlyUrlService implements ShortenedUrlService {
 				queryParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 			}
 			
-			URI uri = URIUtils.createURI(null, address, -1, null, URLEncodedUtils.format(queryParams, "UTF-8"), null);
+			String query = queryParams.stream()
+					.map(p -> p.getName() + "=" + URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8))
+					.collect(Collectors.joining("&"));
+
+			URI uri = new URI(address + "?" + query);
 			
 			log.info(uri.toString());
 			

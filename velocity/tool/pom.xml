@@ -54,9 +54,20 @@
             <version>${sakai.velocity.version}</version>
         </dependency>
         <dependency>
-            <groupId>velocity-tools</groupId>
-            <artifactId>velocity-tools</artifactId>
-            <version>1.4</version>
+            <groupId>org.apache.velocity.tools</groupId>
+            <artifactId>velocity-tools-generic</artifactId>
+            <version>3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+        </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.4.1</version>
         </dependency>
         <!-- Required for velocity -->
         <dependency>

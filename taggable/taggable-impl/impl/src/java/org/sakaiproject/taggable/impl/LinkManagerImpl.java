@@ -23,7 +23,6 @@ package org.sakaiproject.taggable.impl;
 import java.util.List;
 
 import org.hibernate.query.Query;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.taggable.api.Link;
@@ -31,6 +30,10 @@ import org.sakaiproject.taggable.api.LinkManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @Transactional
 public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
@@ -80,9 +83,16 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		return (Link) getHibernateTemplate().execute(session -> session.createCriteria(LinkImpl.class).add(
-                Restrictions.eq(ACTIVITY_REF, activityRef)).add(
-                Restrictions.eq(TAG_CRITERIA_REF, tagCriteriaRef)).uniqueResult());
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<LinkImpl> cq = cb.createQuery(LinkImpl.class);
+			Root<LinkImpl> root = cq.from(LinkImpl.class);
+			cq.where(
+				cb.equal(root.get(ACTIVITY_REF), activityRef),
+				cb.equal(root.get(TAG_CRITERIA_REF), tagCriteriaRef)
+			);
+			return session.createQuery(cq).uniqueResult();
+		});
 	}
 
 	public List<Link> getLinks(final String activityRef, final boolean any,

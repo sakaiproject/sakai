@@ -47,10 +47,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import jakarta.faces.bean.ManagedProperty;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.component.UIData;
 import jakarta.faces.component.UIInput;
 import jakarta.faces.context.ExternalContext;
@@ -58,6 +56,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -164,7 +163,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -188,7 +187,7 @@ import static org.sakaiproject.component.app.messageforums.dao.hibernate.Message
 @Slf4j
 @Setter
 @Getter
-@ManagedBean(name="ForumTool")
+@Named("ForumTool")
 @SessionScoped
 public class DiscussionForumTool {
 
@@ -243,7 +242,7 @@ public class DiscussionForumTool {
   private Map<String, MembershipItem> courseMemberMap;
   private List<PermissionBean> permissions;
   private List levels;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
+  @Autowired
   private AreaManager areaManager;
   private int numPendingMessages = 0;
   
@@ -355,11 +354,10 @@ public class DiscussionForumTool {
   private boolean showThreadChanges = true;
 
   // compose
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
+  @Autowired
   private MessageForumsMessageManager messageManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
-  private FormattedText formattedText;
+  @Autowired
+  @Setter private FormattedText formattedText;
   private String composeTitle;
   private String composeBody;
   private String composeLabel;
@@ -421,52 +419,50 @@ public class DiscussionForumTool {
   /**
    * Dependency Injected
    */
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.LocaleService\"]}")
+  @Autowired
   private LocaleService localeService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
+  @Autowired
   private DiscussionForumManager forumManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
+  @Autowired
   private UIPermissionsManager uiPermissionsManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
+  @Autowired
   private MessageForumsTypeManager typeManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
+  @Autowired
   private MembershipManager membershipManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.PermissionLevelManager\"]}")
-  private PermissionLevelManager permissionLevelManager; 
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.EmailNotificationManager\"]}")
+  @Autowired
+  private PermissionLevelManager permissionLevelManager;
+  @Autowired
   private EmailNotificationManager emailNotificationManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
+  @Autowired
   private SynopticMsgcntrManager synopticMsgcntrManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.content.api.ContentHostingService\"]}")
+  @Autowired
   private ContentHostingService contentHostingService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.AuthzGroupService\"]}")
+  @Autowired
   private AuthzGroupService authzGroupService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
+  @Autowired
   private EventTrackingService eventTrackingService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
+  @Autowired
   private UserDirectoryService userDirectoryService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
+  @Autowired
   private SiteService siteService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
+  @Autowired
   private SecurityService securityService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
+  @Autowired
   private SessionManager sessionManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
+  @Autowired
   private ToolManager toolManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.thread_local.api.ThreadLocalManager\"]}")
+  @Autowired
   private ThreadLocalManager threadLocalManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.api.RubricsService\"]}")
+  @Autowired
   private RubricsService rubricsService;
-  @ManagedProperty(value = "#{Components[\"org.sakaiproject.time.api.UserTimeService\"]}")
+  @Autowired
   private UserTimeService userTimeService;
-  @ManagedProperty(value = "#{Components[\"org.sakaiproject.tasks.api.TaskService\"]}")
+  @Autowired
   private TaskService taskService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.calendar.api.CalendarService\"]}")
-  @Getter @Setter
-  private CalendarService calendarService;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.time.api.TimeService\"]}")
-  @Setter
-  private TimeService timeService;
+  @Autowired
+  @Getter @Setter private CalendarService calendarService;
+  @Autowired
+  @Setter private TimeService timeService;
 
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -497,11 +493,11 @@ public class DiscussionForumTool {
   private boolean needToPostFirst;
   
   // rank
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.RankManager\"]}")
+  @Autowired
   private RankManager rankManager;
   private ForumRankBean forumRankBean;
 
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AnonymousManager\"]}")
+  @Autowired
   private AnonymousManager anonymousManager;
 
   private String editorRows;

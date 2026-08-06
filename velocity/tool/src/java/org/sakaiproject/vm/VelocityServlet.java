@@ -21,171 +21,173 @@
 
 package org.sakaiproject.vm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Properties;
 
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.Template;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 /**
- * <p>
- * Responds with the expansion of a Velocity Template. The template and context references are specified in the request.
- * </p>
+ * Replacement for the deprecated VelocityViewServlet.
  */
-public class VelocityServlet extends VelocityViewServlet
-{
+public class VelocityServlet extends HttpServlet {
 
-	/**
-	 * Called by the VelocityServlet init(). We want to set a set of properties so that templates will be found in the webapp root. This makes this easier to work with as an example, so a new user doesn't have to worry about config issues when first
-	 * figuring things out
-	 */
-	protected ExtendedProperties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException
-	{
-		// This is to support old config property.
-		String configPath = config.getInitParameter("properties");
-		ExtendedProperties p;
-		if (configPath != null && configPath.length() > 0)
-		{
-			p = new ExtendedProperties();
-			if (!configPath.startsWith("/"))
-			{
-				configPath = "/"+configPath;
-			}
-			p.load(getServletContext().getResourceAsStream(configPath));
-		}
-		else
-		{
-			// load the properties as configured in the servlet init params
-			p = super.loadConfiguration(config);
-		}
+    private VelocityEngine velocityEngine;
 
-		/*
-		 * first, we set the template path for the FileResourceLoader to the root of the webapp. This probably won't work under in a WAR under WebLogic, but should under tomcat :)
-		 */
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
 
-		String path = config.getServletContext().getRealPath("/");
+        try {
+            velocityEngine = new VelocityEngine();
 
-		if (path == null)
-		{
-			getVelocityEngine().getLog().debug(" VelocityServlet.loadConfiguration() : unable to "
-					+ "get the current webapp root.  Using '/'. Please fix.");
-			path = "/";
-		}
+            Properties props = loadConfiguration(config);
 
-		p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, path);
+            for (String key : props.stringPropertyNames()) {
+                velocityEngine.setProperty(key, props.getProperty(key));
+            }
 
-		/**
-		 * and the same for the log file
-		 */
-		p.setProperty("runtime.log", path + p.getProperty("runtime.log"));
+            velocityEngine.init();
 
-		return p;
-	}
+        } catch (Exception e) {
+            throw new ServletException("Unable to initialize VelocityEngine", e);
+        }
+    }
 
-	/**
-	 * <p>
-	 * main routine to handle a request. Called by VelocityServlet, your responsibility as programmer is to simply return a valid Template
-	 * </p>
-	 * 
-	 * @param ctx
-	 *        a Velocity Context object to be filled with data. Will be used for rendering this template
-	 * @return Template to be used for request
-	 */
-	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context ctx)
-	{
-		// Note: Velocity doesn't like dots in the context names, so we change them to '_'
+    /**
+     * Compatible with the previous implementation.
+     */
+    protected Properties loadConfiguration(ServletConfig config) throws IOException {
 
-		// load the context with attributes
-		Enumeration e = request.getAttributeNames();
-		while (e.hasMoreElements())
-		{
-			String name = (String) e.nextElement();
-			String vName = escapeVmName(name);
-			Object value = request.getAttribute(name);
+        Properties props = new Properties();
 
-			ctx.put(vName, value);
-			// log("--> context (attribute): " + vName + " = " + value);
-		}
+        String configPath = config.getInitParameter("properties");
 
-		// if the javax.servlet.include.servlet_path attribute exists, use this value as the template
-		String templatePath = (String) request.getAttribute("javax.servlet.include.servlet_path");
+        if (configPath != null && !configPath.isBlank()) {
 
-		// if not there, try our special include
-		if (templatePath == null)
-		{
-			templatePath = (String) request.getAttribute("sakai.vm.path");
-		}
+            if (!configPath.startsWith("/")) {
+                configPath = "/" + configPath;
+            }
 
-		// if not there, use the servletpath
-		if (templatePath == null)
-		{
-			templatePath = request.getServletPath();
-		}
+            try (InputStream in = getServletContext().getResourceAsStream(configPath)) {
+                if (in != null) {
+                    props.load(in);
+                }
+            }
+        }
 
-		Template template = null;
-		try
-		{
-			// log("--> template path: " + templatePath);
-			template = getTemplate(templatePath);
-		}
-		catch (ParseErrorException ex)
-		{
-			log("Exception reading vm template: " + templatePath + " " + ex);
-		}
-		catch (ResourceNotFoundException ex)
-		{
-			log("Exception reading vm template: " + templatePath + " " + ex);
-		}
-		catch (Exception ex)
-		{
-			log("Exception reading vm template: " + templatePath + " " + ex);
-		}
+        String root = config.getServletContext().getRealPath("/");
 
-		return template;
+        if (root == null) {
+            root = "/";
+        }
 
-	} // handleRequest
+        props.put(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, root);
 
-	/**
-	 * Change any characters that Velocity doesn't like in the name to '_' to make a valid Velocity name
-	 * 
-	 * @param name
-	 *        The name to convert.
-	 * @return The name converted to a valid Velocity name.
-	 */
-	protected String escapeVmName(String name)
-	{
-		char[] chars = name.toCharArray();
+        if (props.containsKey("runtime.log")) {
+            props.put("runtime.log", root + props.getProperty("runtime.log"));
+        }
 
-		// make sure first character is valid (alpha)
-		if (!Character.isLetter(chars[0]))
-		{
-			chars[0] = 'X';
-		}
+        props.putIfAbsent(RuntimeConstants.RESOURCE_LOADER, "file");
+        props.putIfAbsent("resource.loader.file.class",
+                "org.apache.velocity.runtime.resource.loader.FileResourceLoader");
 
-		// replace any other invalid characters
-		for (int i = 1; i < chars.length; i++)
-		{
-			char c = chars[i];
-			if (!(Character.isLetterOrDigit(c) || (c == '_') || (c == '-')))
-			{
-				chars[i] = '_';
-			}
-		}
+        return props;
+    }
 
-		return new String(chars);
+    @Override
+    protected void service(HttpServletRequest request,
+                           HttpServletResponse response)
+            throws ServletException, IOException {
 
-	} // escapeVmName
+        VelocityContext context = new VelocityContext();
 
-} // class VelocityServlet
+        Enumeration<String> names = request.getAttributeNames();
 
+        while (names.hasMoreElements()) {
+
+            String name = names.nextElement();
+
+            context.put(escapeVmName(name), request.getAttribute(name));
+        }
+
+        Template template = handleRequest(request, response, context);
+
+        if (template == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        try (Writer writer = response.getWriter()) {
+            template.merge(context, writer);
+        }
+    }
+
+    protected Template handleRequest(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     VelocityContext context) {
+
+        String templatePath =
+                (String) request.getAttribute("jakarta.servlet.include.servlet_path");
+
+        if (templatePath == null) {
+            templatePath = (String) request.getAttribute("javax.servlet.include.servlet_path");
+        }
+
+        if (templatePath == null) {
+            templatePath = (String) request.getAttribute("sakai.vm.path");
+        }
+
+        if (templatePath == null) {
+            templatePath = request.getServletPath();
+        }
+
+        try {
+            return velocityEngine.getTemplate(templatePath);
+        } catch (ParseErrorException | ResourceNotFoundException e) {
+            log("Unable to load template " + templatePath, e);
+        } catch (Exception e) {
+            log("Unexpected error loading template " + templatePath, e);
+        }
+
+        return null;
+    }
+
+    protected String escapeVmName(String name) {
+
+        char[] chars = name.toCharArray();
+
+        if (!Character.isLetter(chars[0])) {
+            chars[0] = 'X';
+        }
+
+        for (int i = 1; i < chars.length; i++) {
+
+            char c = chars[i];
+
+            if (!(Character.isLetterOrDigit(c)
+                    || c == '_'
+                    || c == '-')) {
+
+                chars[i] = '_';
+            }
+        }
+
+        return new String(chars);
+    }
+}

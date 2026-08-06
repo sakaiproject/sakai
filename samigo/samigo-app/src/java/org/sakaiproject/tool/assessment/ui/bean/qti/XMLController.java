@@ -25,12 +25,12 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.ManagedProperty;
-import jakarta.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.annotation.ManagedProperty;
+import jakarta.inject.Named;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
@@ -42,7 +42,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * <p>Used to maintain information or to dump XML to client.</p>
  */
 @Slf4j
-@ManagedBean(name="xmlController")
+@Named("xmlController")
 @SessionScoped
 public class XMLController implements Serializable {
 

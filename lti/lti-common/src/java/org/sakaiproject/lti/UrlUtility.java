@@ -18,9 +18,9 @@
  */
 package org.sakaiproject.lti;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.utils.Base64;
 
-import org.apache.commons.codec.binary.Base64;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class implementing the Base64 modified Base64 for URL variant. See:

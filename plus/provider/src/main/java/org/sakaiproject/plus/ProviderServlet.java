@@ -110,8 +110,7 @@ import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.client.utils.URIBuilder;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.sakaiproject.plus.api.PlusService;
 
 import org.sakaiproject.plus.api.model.Tenant;

@@ -30,7 +30,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.meetings.api.model.AttendeeType;
 import org.sakaiproject.meetings.api.model.Meeting;
 import org.sakaiproject.meetings.api.model.MeetingAttendee;
@@ -42,12 +41,20 @@ public class MeetingRepositoryImpl extends BasicSerializableRepository<Meeting, 
     }
     
     public Optional<Meeting> findById(String id) {
-        Meeting meeting = (Meeting) startCriteriaQuery().add(Restrictions.eq("id", id)).uniqueResult();
+        CriteriaBuilder criteriaBuilder = getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Meeting> query = criteriaBuilder.createQuery(Meeting.class);
+        Root<Meeting> root = query.from(Meeting.class);
+        query.select(root).where(criteriaBuilder.equal(root.get("id"), id));
+        Meeting meeting = getCurrentSession().createQuery(query).uniqueResult();
         return Optional.ofNullable(meeting);
     }
     
     public Meeting findMeetingById(String id) {
-        return (Meeting) startCriteriaQuery().add(Restrictions.eq("id", id)).uniqueResult();
+        CriteriaBuilder criteriaBuilder = getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Meeting> query = criteriaBuilder.createQuery(Meeting.class);
+        Root<Meeting> root = query.from(Meeting.class);
+        query.select(root).where(criteriaBuilder.equal(root.get("id"), id));
+        return getCurrentSession().createQuery(query).uniqueResult();
     }
 
     @Override

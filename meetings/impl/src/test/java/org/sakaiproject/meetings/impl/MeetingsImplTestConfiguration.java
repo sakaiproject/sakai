@@ -15,33 +15,14 @@
  */
 package org.sakaiproject.meetings.impl;
 
-import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
-import java.util.Properties;
-import javax.sql.DataSource;
-
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
-import org.hibernate.SessionFactory;
-import org.hsqldb.jdbcDriver;
-import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Getter;
 
