@@ -29,17 +29,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* For author: Template Index backing bean. */
 @Slf4j
-@ManagedBean(name="templateIndex")
+@Named("templateIndex")
 @SessionScoped
 public class IndexBean implements Serializable {
   private Collection templateList;

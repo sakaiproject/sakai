@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Submission navigation backing bean. */
 @Slf4j
-@ManagedBean(name="submissionNav")
+@Named("submissionNav")
 @SessionScoped
 @Data
 public class SubmissionNavBean extends SpringBeanAutowiringSupport implements Serializable {

@@ -31,12 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,7 +72,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For author: Section backing bean. */
 @Slf4j
-@ManagedBean(name="sectionBean")
+@Named("sectionBean")
 @SessionScoped
 public class SectionBean implements Serializable {
 

@@ -25,10 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.ManagedProperty;
-import jakarta.faces.bean.RequestScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -56,9 +52,13 @@ import org.sakaiproject.tool.messageforums.SynopticSiteSemesterComparator;
 import org.sakaiproject.tool.messageforums.SynopticSitesPreferencesComparator;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Named;
 
 @Slf4j
-@ManagedBean(name="mfSynopticBeanLite")
+@Named("mfSynopticBeanLite")
 @RequestScoped
 public class MessageForumSynopticBeanLite {
 	
@@ -67,15 +67,15 @@ public class MessageForumSynopticBeanLite {
 	private transient Boolean anyMFToolInSite = null;
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
+	@Autowired
 	private SynopticMsgcntrManager synopticMsgcntrManager;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
+	@Autowired
 	private MessageForumsForumManager forumsManager;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
+	@Autowired
 	private MessageForumsTypeManager typeManager;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
+	@Autowired
 	private AreaManager areaManager;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
+	@Autowired
 	private PrivateMessageManager pvtMessageManager;
 	private int myContentsSize = -1;
 	private Map mfPageInSiteMap, sitesMap;
@@ -89,11 +89,11 @@ public class MessageForumSynopticBeanLite {
 	private String disableMyWorkspaceDisabledMessage;
 	
 	/** Dependency Injected   */
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
+	@Autowired
 	private SiteService siteService;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
+	@Autowired
 	private SessionManager sessionManager;
-	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
+	@Autowired
 	private ToolManager toolManager;
 
 	public void setToolManager(ToolManager toolManager) {

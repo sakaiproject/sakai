@@ -28,9 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.event.ActionEvent;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.jsf2.model.PhaseAware;
@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Submission Status backing bean. */
 @Slf4j
-@ManagedBean(name="submissionStatus")
+@Named("submissionStatus")
 @SessionScoped
 public class SubmissionStatusBean implements Serializable, PhaseAware {
   private String assessmentId;

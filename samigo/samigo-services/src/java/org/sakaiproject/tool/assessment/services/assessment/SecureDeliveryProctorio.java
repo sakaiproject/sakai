@@ -20,14 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -284,7 +284,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 			if (urls != null && urls.length == 2) {
 				return urls;
 			}
-		} catch (IOException e) {
+		} catch (IOException | ParseException e) {
 			log.warn("ProctorIO could not build the URL", e);
 		}
 
@@ -331,7 +331,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 		return normalizedString.substring(1); // remove the leading ampersand
 	}
 
-	private String[] buildURL(String uid, String fullname, Long assessmentId, String launchUrl, String options) throws ClientProtocolException, IOException {
+	private String[] buildURL(String uid, String fullname, Long assessmentId, String launchUrl, String options) throws IOException, ParseException {
         Map<String, String> parameters = new LinkedHashMap<>();
         parameters.put("launch_url", launchUrl);
         parameters.put("user_id", uid);
@@ -359,7 +359,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
         //  BASE64 ENCODED
         String oauthSignature = Base64.getEncoder().encodeToString(hmac);
         //  Add the signature to the params list
-        parameters.put("oauth_signature", oauthSignature);
+        parameters.put("oauth_signat	ure", oauthSignature);
 
         //  Build data parameters
         StringBuilder parameterBuilder = new StringBuilder();
@@ -383,7 +383,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
         HttpPost httpPost = new HttpPost(proctorioUrl);
         httpPost.setEntity(new StringEntity(parameterString));
         CloseableHttpResponse response = client.execute(httpPost);
-        final int statusCode = response.getStatusLine().getStatusCode();
+        final int statusCode = response.getCode();
         final HttpEntity returnEntity = response.getEntity();
         final String r = EntityUtils.toString(returnEntity);
         log.debug("Proctorio return status={}, text={}", statusCode, r);

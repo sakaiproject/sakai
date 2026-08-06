@@ -18,20 +18,21 @@ package org.sakaiproject.hibernate;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.id.UUIDGenerator;
+import org.hibernate.id.uuid.UuidGenerator;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 import lombok.Setter;
 
-public class AssignableUUIDGenerator extends UUIDGenerator implements IdentifierGenerator, Configurable {
+public class AssignableUUIDGenerator implements IdentifierGenerator, Configurable {
 
     public static final String HIBERNATE_ASSIGNABLE_ID_CLASSES = "hibernate.assignable.id.classes";
 
@@ -40,7 +41,7 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
 
     @Override
     public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
-        super.configure(type, params, serviceRegistry);
+        // No configuration required
     }
 
     @Override
@@ -55,6 +56,6 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
                 }
             }
         }
-        return (Serializable) super.generate(session, object);
+        return UUID.randomUUID().toString();
     }
 }

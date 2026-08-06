@@ -29,9 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +37,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.util.api.FormattedText;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* For questionpool: Question Pool Data backing bean. */
 @Slf4j
-@ManagedBean(name="questionpooldata")
+@Named("questionpooldata")
 @SessionScoped
 public class QuestionPoolDataBean implements Serializable {
 

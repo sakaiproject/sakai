@@ -36,20 +36,20 @@ import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jasig.cas.client.Protocol;
-import org.jasig.cas.client.authentication.AuthenticationRedirectStrategy;
-import org.jasig.cas.client.authentication.ContainsPatternUrlPatternMatcherStrategy;
-import org.jasig.cas.client.authentication.DefaultAuthenticationRedirectStrategy;
-import org.jasig.cas.client.authentication.DefaultGatewayResolverImpl;
-import org.jasig.cas.client.authentication.ExactUrlPatternMatcherStrategy;
-import org.jasig.cas.client.authentication.GatewayResolver;
-import org.jasig.cas.client.authentication.RegexUrlPatternMatcherStrategy;
-import org.jasig.cas.client.authentication.UrlPatternMatcherStrategy;
-import org.jasig.cas.client.configuration.ConfigurationKeys;
-import org.jasig.cas.client.util.AbstractCasFilter;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.util.ReflectUtils;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.Protocol;
+import org.apereo.cas.client.authentication.AuthenticationRedirectStrategy;
+import org.apereo.cas.client.authentication.ContainsPatternUrlPatternMatcherStrategy;
+import org.apereo.cas.client.authentication.DefaultAuthenticationRedirectStrategy;
+import org.apereo.cas.client.authentication.DefaultGatewayResolverImpl;
+import org.apereo.cas.client.authentication.ExactUrlPatternMatcherStrategy;
+import org.apereo.cas.client.authentication.GatewayResolver;
+import org.apereo.cas.client.authentication.RegexUrlPatternMatcherStrategy;
+import org.apereo.cas.client.authentication.UrlPatternMatcherStrategy;
+import org.apereo.cas.client.configuration.ConfigurationKeys;
+import org.apereo.cas.client.util.AbstractCasFilter;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.ReflectUtils;
+import org.apereo.cas.client.validation.Assertion;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;

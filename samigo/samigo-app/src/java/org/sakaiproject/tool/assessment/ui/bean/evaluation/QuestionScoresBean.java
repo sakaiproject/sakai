@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.event.ActionEvent;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
@@ -62,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Question Scores backing bean. */
 @Slf4j
-@ManagedBean(name="questionScores")
+@Named("questionScores")
 @SessionScoped
 public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter

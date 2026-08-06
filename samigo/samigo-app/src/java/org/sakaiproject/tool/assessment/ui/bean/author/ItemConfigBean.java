@@ -26,11 +26,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.ManagedProperty;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.model.SelectItemGroup;
+import jakarta.inject.Named;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -46,47 +45,30 @@ import org.sakaiproject.util.ResourceLoader;
  * Also developers could add an administrative configuration later.</p>
  *
  */
-@ManagedBean(name="itemConfig")
+@Named("itemConfig")
 @SessionScoped
 public class ItemConfigBean implements Serializable {
 
 	private static final long serialVersionUID = 5017545754149103817L;
 
   private static final ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-  @ManagedProperty(value="true")
-  private boolean showFileUpload;
-  @ManagedProperty(value="true")
-  private boolean showEssay;
-  @ManagedProperty(value="true")
-  private boolean showAudio;
-  @ManagedProperty(value="true")
-  private boolean showMatching;
-  @ManagedProperty(value="true")
-  private boolean showTrueFalse;
-  @ManagedProperty(value="true")
-  private boolean showMultipleChoiceSingleCorrect;
-  @ManagedProperty(value="true")
-  private boolean showMultipleChoiceMultipleCorrect;
-  @ManagedProperty(value="true")
-  private boolean showSurvey;
-  @ManagedProperty(value="true")
-  private boolean showFillInTheBlank;
-  @ManagedProperty(value="true")
-  private boolean showFillInNumeric;
-  @ManagedProperty(value="false")
-  private boolean showExtendedMatchingItems;
-  @ManagedProperty(value="true")
-  private boolean selectFromQuestionPool;
-  @ManagedProperty(value="false")
-  private boolean selectFromQuestionBank;
-  @ManagedProperty(value="true")
-  private boolean showMatrixSurvey;
-  @ManagedProperty(value="true")
-  private boolean showCalculatedQuestion; // CALCULATED_QUESTION
-  @ManagedProperty(value="true")
-  private boolean showImageMapQuestion; //IMAGEMAP_QUESTION
-  @ManagedProperty(value="true")
-  private boolean showSearchQuestion; //SEARCH QUESTION
+  private boolean showFileUpload = true;
+  private boolean showEssay = true;
+  private boolean showAudio = true;
+  private boolean showMatching = true;
+  private boolean showTrueFalse = true;
+  private boolean showMultipleChoiceSingleCorrect = true;
+  private boolean showMultipleChoiceMultipleCorrect = true;
+  private boolean showSurvey = true;
+  private boolean showFillInTheBlank = true;
+  private boolean showFillInNumeric = true;
+  private boolean showExtendedMatchingItems = false;
+  private boolean selectFromQuestionPool = true;
+  private boolean selectFromQuestionBank = false;
+  private boolean showMatrixSurvey = true;
+  private boolean showCalculatedQuestion = true; // CALCULATED_QUESTION
+  private boolean showImageMapQuestion = true; //IMAGEMAP_QUESTION
+  private boolean showSearchQuestion = true; //SEARCH QUESTION
 
   /**
    * Should we show extended matching items question?
