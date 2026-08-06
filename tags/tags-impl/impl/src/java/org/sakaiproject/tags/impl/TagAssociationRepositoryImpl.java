@@ -14,11 +14,15 @@
 package org.sakaiproject.tags.impl;
 
 import java.util.List;
-import org.hibernate.criterion.Restrictions;
+
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.sakaiproject.tags.api.TagAssociation;
 import org.sakaiproject.tags.api.TagAssociationRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @Transactional(readOnly = true)
 public class TagAssociationRepositoryImpl extends BasicSerializableRepository<TagAssociation, String>  implements TagAssociationRepository {
@@ -48,9 +52,13 @@ public class TagAssociationRepositoryImpl extends BasicSerializableRepository<Ta
 
 	@Override
 	public TagAssociation findTagAssociationByItemIdAndTagId(String itemId, String tagId) {
-		return (TagAssociation) startCriteriaQuery()
-				.add(Restrictions.eq("itemId", itemId))
-				.add(Restrictions.eq("tagId", tagId))
-				.uniqueResult();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<TagAssociation> cq = cb.createQuery(TagAssociation.class);
+		Root<TagAssociation> root = cq.from(TagAssociation.class);
+		cq.where(
+			cb.equal(root.get("itemId"), itemId),
+			cb.equal(root.get("tagId"), tagId)
+		);
+		return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
 	}
 }

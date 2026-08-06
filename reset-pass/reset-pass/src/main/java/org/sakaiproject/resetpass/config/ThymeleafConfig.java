@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import org.thymeleaf.spring5.ISpringTemplateEngine;
@@ -39,7 +39,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.resetpass")
-public class ThymeleafConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAware {
     private static final String UTF8 = "UTF-8";
 
     private ApplicationContext applicationContext;

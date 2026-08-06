@@ -35,11 +35,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.model.SelectItem;
-
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import lombok.Getter;
@@ -91,7 +90,7 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 
 /* For evaluation: Total Scores backing bean. */
 @Slf4j
-@ManagedBean(name="totalScores")
+@Named("totalScores")
 @SessionScoped
 public class TotalScoresBean implements Serializable, PhaseAware {
   private String assessmentId;
