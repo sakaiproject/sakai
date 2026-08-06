@@ -44,11 +44,6 @@ public interface SamigoETSProvider {
      * @param studentUserIds  the user ids to notify
      * @param siteId          the site holding the assessment
      * @param assessmentTitle the assessment title for the message
-     * @return how many notifications were actually delivered
-     */
-    /**
-     * Emails the given students that grading/comments changed on an assessment.
-     *
      * @return the userIds that were actually delivered to (sent or digested);
      *         callers must not treat skipped users (no email, unknown, opted
      *         out) as notified.

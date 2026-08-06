@@ -916,7 +916,8 @@ function showLoadingMessage() {
       <f:facet name="header">
         <h:outputText value="#{evaluationMessages.notify_grading_updated_column}"/>
       </f:facet>
-      <h:panelGroup layout="block" rendered="#{description.assessmentGradingId ne '-1' && description.attemptDate != null}">
+      <%-- mirror the listener's eligibility gate: no notify affordance on rows it would skip --%>
+      <h:panelGroup layout="block" rendered="#{description.assessmentGradingId ne '-1' && description.attemptDate != null && description.forGrade}">
         <h:commandLink id="notifyRow" action="totalScores" styleClass="sam-notify-grading-updated"
             title="#{evaluationMessages.notify_grading_updated_tooltip}"
             rendered="#{!totalScores.notifyCooldown[description.assessmentGradingIdString]}">
