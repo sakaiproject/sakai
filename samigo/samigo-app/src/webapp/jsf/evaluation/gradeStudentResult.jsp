@@ -150,7 +150,7 @@ function toPoint(id)
   <!-- EVALUATION SUBMENU -->
   <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
-  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h2>
   <div styleClass="container">

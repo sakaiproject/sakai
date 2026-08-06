@@ -305,7 +305,13 @@
 			min-width: 70px;
 		}
 	}
-	
+
+	// let the per-row "Email last sent" note wrap over a few lines so the
+	// Total Scores Notify column stays slim
+	.sam-notify-last-sent {
+		max-width: 8em;
+	}
+
 	.navIntraTool {
 		margin: 0px !important;
 	}

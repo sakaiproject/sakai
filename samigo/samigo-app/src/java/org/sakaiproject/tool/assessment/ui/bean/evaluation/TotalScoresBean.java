@@ -22,7 +22,9 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
-import java.text.DateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -405,8 +407,8 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	
   // "email student: grading updated" — session-side cooldown and
   // last-sent display; resets with the session (no schema change)
-  private static final long NOTIFY_COOLDOWN_MILLIS = 60L * 1000L;
-  private final Map<String, Date> gradingNotifiedDates = new HashMap<>();
+  private static final Duration NOTIFY_COOLDOWN = Duration.ofMinutes(1);
+  private final Map<String, Instant> gradingNotifiedDates = new HashMap<>();
 
   /** true when the assessment's feedback settings let students see grading now */
   public boolean getGradingNotifyAvailable() {
@@ -427,12 +429,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
   public void markGradingNotified(String assessmentGradingId) {
-    gradingNotifiedDates.put(assessmentGradingId, new Date());
+    gradingNotifiedDates.put(assessmentGradingId, Instant.now());
   }
 
   public boolean isNotifyCoolingDown(String assessmentGradingId) {
-    Date sent = gradingNotifiedDates.get(assessmentGradingId);
-    return sent != null && System.currentTimeMillis() - sent.getTime() < NOTIFY_COOLDOWN_MILLIS;
+    Instant sent = gradingNotifiedDates.get(assessmentGradingId);
+    return sent != null && Instant.now().isBefore(sent.plus(NOTIFY_COOLDOWN));
   }
 
   /** per-row cooldown state for the JSP, keyed by assessmentGradingId string */
@@ -448,8 +450,10 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     if (gradingNotifiedDates.isEmpty()) {
       return display;
     }
-    gradingNotifiedDates.forEach((id, date) ->
-        display.put(id, userTimeService.dateTimeFormat(date, null, DateFormat.SHORT)));
+    // the Instant overload resolves the user's locale itself; the Date/Locale
+    // overload returns "" when handed a null locale
+    gradingNotifiedDates.forEach((id, sent) ->
+        display.put(id, userTimeService.dateTimeFormat(sent, FormatStyle.SHORT, FormatStyle.SHORT)));
     return display;
   }
 

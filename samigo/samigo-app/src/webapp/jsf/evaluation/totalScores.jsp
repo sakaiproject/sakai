@@ -144,7 +144,7 @@ function showLoadingMessage() {
   </div>
 
 <div class="tier1">
-  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
   <sakai:flowState bean="#{totalScores}" />
@@ -935,7 +935,7 @@ function showLoadingMessage() {
           <h:outputText value=" #{evaluationMessages.notify_grading_updated_sent}"
               title="#{evaluationMessages.notify_grading_updated_cooldown}"/>
         </h:panelGroup>
-        <h:panelGroup layout="block" styleClass="small"
+        <h:panelGroup layout="block" styleClass="small sam-notify-last-sent"
             rendered="#{totalScores.notifyLastSent[description.assessmentGradingIdString] != null}">
           <h:outputFormat value="#{evaluationMessages.notify_grading_updated_last_sent}">
             <f:param value="#{totalScores.notifyLastSent[description.assessmentGradingIdString]}"/>
