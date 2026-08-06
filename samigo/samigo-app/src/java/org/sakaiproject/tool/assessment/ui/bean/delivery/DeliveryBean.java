@@ -453,7 +453,14 @@ public class DeliveryBean implements Serializable {
 
   @Getter @Setter
   private boolean isFromPrint;
-  
+
+  /**
+   * Id of the throwaway assessment published so a draft could be rendered for print. Only set on
+   * the print-a-draft path, and the only assessment the print flow is ever allowed to remove.
+   */
+  @Getter @Setter
+  private String printPreviewPublishedId;
+
   private ExtendedTimeDeliveryService extendedTimeDeliveryService = null;
 
   @Getter @Setter
@@ -2760,10 +2767,20 @@ public class DeliveryBean implements Serializable {
     public boolean getIsMathJaxEnabled(){
       String siteId = AgentFacade.getCurrentSiteId();
       if(siteId == null) {
+        // AgentFacade needs the portal's current placement, which is absent when the PDF is built
+        // from a plain servlet request. The bean caches its own site id, so prefer that next.
+        siteId = getSiteId();
+      }
+      if(siteId == null && StringUtils.isNumeric(getAssessmentId())) {
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
       }
-      return Boolean.parseBoolean(getCurrentSite(siteId).getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+      Site currentSite = getCurrentSite(siteId);
+      if (currentSite == null) {
+        log.warn("Could not resolve site [{}] to read the MathJax setting; treating it as disabled", siteId);
+        return false;
+      }
+      return Boolean.parseBoolean(currentSite.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
     }
     public String getMathJaxHeader(){
       Document headMJ = new Document("");

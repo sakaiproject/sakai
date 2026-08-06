@@ -55,7 +55,7 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
             PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBeanFromExternalServlet("printSettings", request, response);
 
             pdfBytes = pdfAssessmentBean.generatePrintablePdf(deliveryBean, printSettings);
-            filename = pdfAssessmentBean.genName();
+            filename = pdfAssessmentBean.generateFilename();
         } catch (Exception e) {
             log.error("Failed to generate printable assessment PDF", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not generate assessment PDF");

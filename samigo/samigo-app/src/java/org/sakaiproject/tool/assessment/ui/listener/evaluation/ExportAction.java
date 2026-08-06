@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.print.AssessmentPdfSnapshotBuilder;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 
@@ -65,7 +66,8 @@ public class ExportAction implements ActionListener {
             byte[] pdfBytes = assessmentPdfService.buildStudentReport(model);
 
             response.setContentType("application/pdf");
-            String reportFilename = "Report_" + studentScoreBean.getStudentName() + "_" + deliveryBean.getAssessmentTitle() + ".pdf";
+            String reportFilename = FilenameUtil.timestampedFilename(
+                    "Report_" + studentScoreBean.getStudentName() + "_" + deliveryBean.getAssessmentTitle(), ".pdf");
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(reportFilename, StandardCharsets.UTF_8).build().toString());
             response.setContentLength(pdfBytes.length);
 

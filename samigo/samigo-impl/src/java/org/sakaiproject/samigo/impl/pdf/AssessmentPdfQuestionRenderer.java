@@ -718,7 +718,10 @@ public class AssessmentPdfQuestionRenderer {
                 }
             }
         }
-        cellImage.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles, image.getWidth(), image.getHeight()));
+        // getWidth/getHeight are the intrinsic size the answer coordinates are stored against;
+        // getScaledWidth/Height are what scaleImageForPage left the image occupying on the page.
+        cellImage.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles,
+                image.getWidth(), image.getHeight(), image.getScaledWidth(), image.getScaledHeight()));
         contentHelper.configureSplittableCell(cellImage);
         tableImage.addCell(cellImage);
         document.add(tableImage);

@@ -601,8 +601,9 @@ public class AssessmentPdfContentHelper {
         if (originalWidth <= 0 || originalHeight <= 0) {
             return;
         }
-        if (originalHeight > AssessmentPdfStyle.MAX_IMAGE_HEIGHT) {
-            float scale = AssessmentPdfStyle.MAX_IMAGE_HEIGHT / originalHeight;
+        float maxImageHeight = AssessmentPdfStyle.maxImageHeight();
+        if (originalHeight > maxImageHeight) {
+            float scale = maxImageHeight / originalHeight;
             image.scaleAbsolute(originalWidth * scale, originalHeight * scale);
         }
     }

@@ -24,10 +24,10 @@ import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfContentHelper;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfDocumentRenderer;
+import org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfQuestionRenderer;
 
 import com.lowagie.text.Document;
-import com.lowagie.text.PageSize;
 import com.lowagie.text.pdf.PdfWriter;
 
 import lombok.Setter;
@@ -60,7 +60,7 @@ public class AssessmentPdfServiceImpl implements AssessmentPdfService {
 
     private byte[] buildPdf(DocumentConsumer consumer, float marginLeft, float marginRight, float marginTop, float marginBottom) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (Document document = new Document(PageSize.A4, marginLeft, marginRight, marginTop, marginBottom)) {
+        try (Document document = new Document(AssessmentPdfStyle.pageSize(), marginLeft, marginRight, marginTop, marginBottom)) {
             PdfWriter.getInstance(document, output);
             document.open();
             consumer.accept(document);

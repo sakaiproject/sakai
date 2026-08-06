@@ -20,8 +20,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +33,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -44,7 +45,11 @@ import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssess
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.sakaiproject.util.api.FormattedText;
+
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,17 +118,10 @@ public class PDFAssessmentBean implements Serializable {
 		return parts;
 	}
 
-	public String genName() {
-		LocalDateTime now = LocalDateTime.now();
-		String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-
-		String plainTitle = formattedText.convertFormattedTextToPlaintext(title);
-		plainTitle = plainTitle.substring(0, Math.min(plainTitle.length(), 9));
-
-		return formattedText.escapeUrl(
-				String.format("%s%s.pdf", plainTitle, timestamp)
-						.replace(" ", "_")
-		);
+	public String generateFilename() {
+		// Normalised, not escaped: every consumer puts this in a Content-Disposition header, where
+		// ContentDisposition applies the RFC 5987 encoding. Escaping here would be encoded again.
+		return FilenameUtil.timestampedFilename(formattedText.convertFormattedTextToPlaintext(title), ".pdf");
 	}
 
 	public String prepPDF() {
@@ -148,15 +146,22 @@ public class PDFAssessmentBean implements Serializable {
 		return "print";
 	}
 
+	/**
+	 * Removes the throwaway assessment published so a draft could be rendered, and nothing else.
+	 * <p>
+	 * This deliberately keys off the id recorded when that temporary assessment was published
+	 * rather than off {@code isFromPrint}: printing an already published assessment sets the same
+	 * flag, and removing {@code getAssessmentId()} on that path destroys the real assessment along
+	 * with every submission against it, with no trash entry to restore from.
+	 * </p>
+	 */
 	private void cleanupPreviewPublishedAssessment(DeliveryBean deliveryBean) {
-		if (!deliveryBean.isFromPrint()) {
+		String printPreviewPublishedId = deliveryBean.getPrintPreviewPublishedId();
+		if (StringUtils.isBlank(printPreviewPublishedId)) {
 			return;
 		}
-		String publishedId = deliveryBean.getAssessmentId();
-		if (StringUtils.isBlank(publishedId)) {
-			return;
-		}
-		RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
+		deliveryBean.setPrintPreviewPublishedId(null);
+		RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(printPreviewPublishedId, "preview");
 		thread.start();
 	}
 
@@ -211,7 +216,17 @@ public class PDFAssessmentBean implements Serializable {
 	}
 
 	public String getPdfPreviewUrl() {
-		return SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF;
+		StringBuilder url = new StringBuilder(SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF);
+		Placement placement = ToolManager.getCurrentPlacement();
+		if (placement != null) {
+			// RequestFilter binds the current tool session from this parameter, and Samigo's JSF
+			// session beans live in that tool session. Without it the servlet still resolves beans,
+			// but gets freshly constructed empty ones rather than the ones prepPDF populated.
+			url.append('?').append(Tool.PLACEMENT_ID).append('=').append(placement.getId());
+		} else {
+			log.warn("No current tool placement; the print preview request will not resolve the delivery beans");
+		}
+		return url.toString();
 	}
 
 	public String getPdfJsViewerUrl() {
@@ -233,7 +248,9 @@ public class PDFAssessmentBean implements Serializable {
 		response.reset();
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/pdf");
-		response.setHeader("Content-disposition", "attachment; filename=" + genName());
+		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+				ContentDisposition.attachment().filename(generateFilename(),
+						StandardCharsets.UTF_8).build().toString());
 		response.setContentLength(pdf.length);
 		try (OutputStream out = response.getOutputStream()) {
 			out.write(pdf);

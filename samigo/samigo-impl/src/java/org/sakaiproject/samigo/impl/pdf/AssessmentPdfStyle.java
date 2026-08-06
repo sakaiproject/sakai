@@ -18,7 +18,7 @@ package org.sakaiproject.samigo.impl.pdf;
 import java.awt.Color;
 
 import com.lowagie.text.Font;
-import com.lowagie.text.PageSize;
+import com.lowagie.text.Rectangle;
 
 /**
  * Shared PDF colour and font constants for Samigo assessment documents.
@@ -50,7 +50,20 @@ public final class AssessmentPdfStyle {
     public static final Font SMALL_FONT = new Font(Font.HELVETICA, 8, Font.NORMAL);
     public static final Font SMALL_BOLD_FONT = new Font(Font.HELVETICA, 8, Font.BOLD);
 
-    public static final float MAX_IMAGE_HEIGHT = PageSize.A4.getHeight() * 0.16f;
+    /**
+     * Page size for the reader's locale: US Letter in the countries that use it, A4 otherwise.
+     */
+    public static Rectangle pageSize() {
+        return AssessmentPdfLocaleSupport.pageSize();
+    }
+
+    /**
+     * Tallest an embedded image may be drawn. Not a constant: it follows the page size resolved
+     * for the reader's locale.
+     */
+    public static float maxImageHeight() {
+        return AssessmentPdfLocaleSupport.maxImageHeight();
+    }
 
     public static final float ELEMENT_SPACING = 12f;
 
