@@ -324,6 +324,44 @@ input::placeholder {
 			cursor: pointer;
 			text-decoration: none;
 		}
+
+		// Bootstrap 5 tabs render as <button class="nav-link"> with .active on the button
+		// itself rather than on the <li>; give button-backed tabs the same treatment as the
+		// anchor form above so tools do not have to restate it.
+		> button.nav-link {
+			background: var(--tool-tab-background-color);
+			border: 1px solid var(--sakai-border-color);
+			color: var(--sakai-text-color-1);
+			cursor: pointer;
+
+			&:hover {
+				background: var(--tool-tab-hover-background-color);
+				color: var(--tool-tab-hover-text-color);
+			}
+
+			&.active {
+				position: relative;
+				background: var(--tool-tab-active-background-color);
+				border-color: var(--sakai-border-color) var(--sakai-border-color) var(--tool-tab-active-background-color);
+				color: var(--tool-tab-active-text-color);
+
+				&:hover {
+					background: var(--tool-tab-active-background-color);
+					color: var(--tool-tab-active-text-color);
+				}
+
+				&::before {
+					border-top: 4px solid var(--tool-tab-active-highlight-color);
+					border-radius: 4px 4px 0 0;
+					content: "";
+					display: block;
+					position: absolute;
+					top: -1px;
+					left: -1px;
+					right: -1px;
+				}
+			}
+		}
 	}
 }
 

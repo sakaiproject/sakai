@@ -123,7 +123,6 @@ public class MainController {
     public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
 		String siteId = dateManagerService.getCurrentSiteId();
 		model = getModelWithLocale(model, request, response);
-		model.addAttribute("bulkDateFields", dateManagerService.getBulkDateFieldsForCurrentSite());
 
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
 			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);

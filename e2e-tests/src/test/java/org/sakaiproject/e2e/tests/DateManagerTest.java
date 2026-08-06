@@ -27,79 +27,102 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class DateManagerTest extends SakaiUiTestBase {
 
     @Test
-    void bulkSetterOnlyShowsFieldsForSiteTools() {
+    void dateColumnsMatchSiteTools() {
         sakai.login("instructor1");
 
+        // The "Bulk Term Date Matrix" term-date matrix renders one checkbox per (tool, date column) present in the
+        // site - driven by tool presence (not by whether the tool has items), so it is the surface that
+        // reflects "which date fields exist for this site's tools". Each checkbox carries
+        // data-root='collapse-<tool>' and data-field='<column>'; we scope to one term row for a count of 1.
+        // The panel is collapsed by default, so we assert presence in the DOM rather than visibility.
         String gradebookResourcesSite = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.resources"));
         page.navigate(gradebookResourcesSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertTermColumnPresent("gradebook", "due_date");
+        assertTermColumnPresent("resources", "open_date");
+        assertTermColumnPresent("resources", "due_date");
+        assertTermColumnAbsent("assignments", "open_date");
+        assertTermColumnAbsent("assignments", "accept_until");
+        assertTermColumnAbsent("assessments", "feedback_start");
+        assertTermColumnAbsent("signup", "signup_begins");
 
         String assignmentsSite = sakai.createCourse("instructor1",
             List.of("sakai\\.gradebookng", "sakai\\.resources", "sakai\\.assignment\\.grades"));
         page.navigate(assignmentsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertTermColumnPresent("assignments", "open_date");
+        assertTermColumnPresent("assignments", "due_date");
+        assertTermColumnPresent("assignments", "accept_until");
+        assertTermColumnAbsent("assessments", "feedback_start");
+        assertTermColumnAbsent("signup", "signup_begins");
 
         String gradebookOnlySite = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng"));
         page.navigate(gradebookOnlySite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-open-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
+        assertTermColumnPresent("gradebook", "due_date");
+        assertTermColumnAbsent("gradebook", "open_date");
+        assertTermColumnAbsent("assignments", "open_date");
 
         String assessmentsSite = sakai.createCourse("instructor1", List.of("sakai\\.samigo"));
         page.navigate(assessmentsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-accept-until");
-        assertBulkDateFieldVisible("bulk-feedback-start");
-        assertBulkDateFieldVisible("bulk-feedback-end");
-        assertBulkDateFieldHidden("bulk-signup-begins");
-        assertBulkDateFieldHidden("bulk-signup-deadline");
+        assertTermColumnPresent("assessments", "open_date");
+        assertTermColumnPresent("assessments", "due_date");
+        assertTermColumnPresent("assessments", "accept_until");
+        assertTermColumnPresent("assessments", "feedback_start");
+        assertTermColumnPresent("assessments", "feedback_end");
+        assertTermColumnAbsent("signup", "signup_begins");
 
         String signupSite = sakai.createCourse("instructor1", List.of("sakai\\.signup"));
         page.navigate(signupSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldVisible("bulk-due-date");
-        assertBulkDateFieldVisible("bulk-signup-begins");
-        assertBulkDateFieldVisible("bulk-signup-deadline");
-        assertBulkDateFieldHidden("bulk-accept-until");
-        assertBulkDateFieldHidden("bulk-feedback-start");
-        assertBulkDateFieldHidden("bulk-feedback-end");
+        assertTermColumnPresent("signup", "open_date");
+        assertTermColumnPresent("signup", "due_date");
+        assertTermColumnPresent("signup", "signup_begins");
+        assertTermColumnPresent("signup", "signup_deadline");
+        assertTermColumnAbsent("assignments", "accept_until");
+        assertTermColumnAbsent("assessments", "feedback_start");
 
         String lessonsSite = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
         page.navigate(lessonsSite);
         openDateManager();
 
-        assertBulkDateFieldVisible("bulk-open-date");
-        assertBulkDateFieldHidden("bulk-due-date");
-        assertBulkDateFieldHidden("bulk-accept-until");
+        assertTermColumnPresent("lessons", "open_date");
+        assertTermColumnAbsent("lessons", "due_date");
+        assertTermColumnAbsent("assignments", "open_date");
 
         String dashboardOnlySite = sakai.createCourse("instructor1", List.of("sakai\\.dashboard"));
         page.navigate(dashboardOnlySite);
         openDateManager();
 
-        assertThat(page.locator(".date-manager-setter")).hasCount(0);
+        // No dated tools -> the term matrix has no columns at all.
+        assertThat(page.locator(".term-target")).hasCount(0);
+    }
+
+    @Test
+    void visualPreviewOpensCalendar() {
+        sakai.login("instructor1");
+
+        // Any site with a dated tool renders the footer actions; the Visual Preview button and its
+        // read-only calendar modal are wired regardless of whether the site has any dated items yet.
+        String site = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.resources"));
+        page.navigate(site);
+        openDateManager();
+
+        Locator previewButton = page.locator("#datemanager-preview");
+        assertThat(previewButton).isVisible();
+
+        previewButton.click();
+
+        // The modal opens (its title resolves via i18n) and mounts either the FullCalendar month grid
+        // or the empty-state message, depending on whether the site has any dated items.
+        assertThat(page.locator("#modal-calendar-preview")).isVisible();
+        assertThat(page.locator("#datemanager-preview-title")).isVisible();
     }
 
     private void openDateManager() {
@@ -113,12 +136,18 @@ class DateManagerTest extends SakaiUiTestBase {
         assertNoTemplateRenderingError();
     }
 
-    private void assertBulkDateFieldVisible(String id) {
-        assertThat(page.locator("#" + id)).isVisible();
+    private Locator termColumn(String toolRoot, String field) {
+        // Scope to a single term row (classes_start) so a present column matches exactly one checkbox.
+        return page.locator(".term-target[data-root='collapse-" + toolRoot + "']"
+            + "[data-field='" + field + "'][data-term='classes_start']");
     }
 
-    private void assertBulkDateFieldHidden(String id) {
-        assertThat(page.locator("#" + id)).hasCount(0);
+    private void assertTermColumnPresent(String toolRoot, String field) {
+        assertThat(termColumn(toolRoot, field)).hasCount(1);
+    }
+
+    private void assertTermColumnAbsent(String toolRoot, String field) {
+        assertThat(termColumn(toolRoot, field)).hasCount(0);
     }
 
     private void assertNoTemplateRenderingError() {

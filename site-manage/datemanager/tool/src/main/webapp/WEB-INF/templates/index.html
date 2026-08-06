@@ -18,50 +18,25 @@
         includeLatestJQuery('datemanager/index.html');
         includeWebjarLibrary('momentjs');
         includeWebjarLibrary('moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js');
+        includeWebjarLibrary('fullcalendar');
       /*]]>*/
     </script>
     <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
     <script th:src="@{/js/initDatePicker.js}"></script>
     <meta http-equiv="Content-Style-Type" content="text/css" />
 
-    <div class="page-header border-bottom">
-      <h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
-    </div>
-
-    <div class="date-manager-shifter mb-3">
-      <p>
-        <div class="sak-banner-error d-none" id="dateShifterError">
-          <span th:text="#{dateshifter.error.nonnumeric}"></span>
-        </div>
-        <label>
-          <span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
-          <input id="dateShifterDays" type="text" />
-          <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
-        </label>
-      </p>
-      <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
-      <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
-      <a id="exportDates" class="btn-link" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
-      <a id="importDates" class="btn-link" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
-    </div>
-
-    <div th:if="${bulkDateFields != null and !bulkDateFields.isEmpty()}" class="date-manager-setter mb-3">
-      <div class="sak-banner-error d-none" id="dateBulkSetterError">
-        <span data-error="empty" th:text="#{datesetter.error.empty}"></span>
-        <span data-error="dateonly" class="d-none" th:text="#{datesetter.error.dateonly}"></span>
-      </div>
-      <p th:text="#{datesetter.instructions}">Enter one or more dates below, then apply them to all items or expanded sections only. Remember to click Save Changes at the bottom of the page to save your adjustments.</p>
-      <div class="row g-3">
-        <div th:each="field : ${bulkDateFields}" class="col-sm-6 col-lg-3"
-             th:with="inputId=${'bulk-' + #strings.replace(field, '_', '-')}">
-          <label class="form-label" th:for="${inputId}"
-                 th:text="#{${T(org.sakaiproject.datemanager.api.DateManagerConstants).BULK_DATE_FIELD_LABEL_KEYS.get(field)}}">Date</label>
-          <input th:id="${inputId}" type="text" class="form-control bulk-date-input" />
-          <input th:id="${'bulk-hidden-' + #strings.replace(field, '_', '-')}" type="hidden" th:attr="data-field=${field}" />
-        </div>
-      </div>
-      <button class="btn btn-link m-2" id="applyAllDates" th:text="#{datesetter.all.button}" disabled></button>
-      <button class="btn btn-link m-2" id="applyVisibleDates" th:text="#{datesetter.visible.button}" disabled></button>
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h1 class="mb-0" th:text="#{page.title}">Date Manager</h1>
+      <!-- Standard Sakai intra-tool menu chips (same pattern as Postem, Site Group Manager, …)
+           kept top-right per the T&L mockup, so Export/Import read like every other tool's actions. -->
+      <ul class="navIntraTool date-manager-actions" role="menu">
+        <li role="menuitem">
+          <span><a id="exportDates" href="#" th:href="@{/date-manager/export}" th:text="#{dateshifter.export.dates.csv}">Export Dates</a></span>
+        </li>
+        <li role="menuitem">
+          <span><a id="importDates" href="#" th:href="@{/date-manager/page/import}" th:text="#{dateshifter.import.dates.csv}">Import Dates</a></span>
+        </li>
+      </ul>
     </div>
 
     <form id="date-manager-form" method="POST">
@@ -74,6 +49,10 @@
         <span th:text="#{success.message}">The dates were updated successfully.</span>
       </div>
 
+      <div class="sak-banner-info d-none" id="dm-cancel-banner" aria-live="polite">
+        <span th:text="#{cancel.reverted}">All unsaved changes were discarded — dates are back to their last saved values.</span>
+      </div>
+
       <div class="sak-banner-info d-none" id="export-success">
         <span th:text="#{success.export}">The dates were exported successfully. Please note the following considerations:</span>
         <ul class="m-0">
@@ -84,6 +63,280 @@
           <li th:text="#{success.export.5}">Do not change the date format.</li>
         </ul>
       </div>
+
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="dm-tab-items-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-items" type="button" role="tab" aria-controls="dm-tab-items" aria-selected="true" th:text="#{section.items.heading}">Edit Individual Items</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="dm-tab-bulk-btn" data-bs-toggle="tab" data-bs-target="#dm-tab-bulk" type="button" role="tab" aria-controls="dm-tab-bulk" aria-selected="false" th:text="#{section.batch.heading}">Bulk Edit</button>
+      </li>
+    </ul>
+    <div class="tab-content">
+    <div class="tab-pane fade pt-3" id="dm-tab-bulk" role="tabpanel" aria-labelledby="dm-tab-bulk-btn">
+    <p class="small mb-2" th:text="#{section.batch.help}">Pick how you want to move dates, choose which tools to apply to, and apply.</p>
+
+    <!-- Bulk tools, grouped behind a coloured accent bar. The radios show one method's panel at a
+         time; the scope row picks which tool sections the apply acts on. Export/Import sit in the
+         page header, top-right, since they act on the whole site rather than the in-page edits. -->
+    <div class="dm-batch-tools border-start border-4 border-primary ps-3 mb-4">
+
+    <div class="dm-bulk-mode mb-3" role="radiogroup" th:attr="aria-label=#{section.batch.heading}">
+      <label class="me-3">
+        <input type="radio" name="dm-bulk-mode" value="dm-bulk-panel-shift" checked />
+        <span th:text="#{section.shift.heading}" th:remove="tag">Shift dates by a number of days</span>
+      </label>
+      <label class="me-3">
+        <input type="radio" name="dm-bulk-mode" value="dm-bulk-panel-fit" />
+        <span th:text="#{section.fit.heading}" th:remove="tag">Fit dates to a new term</span>
+      </label>
+      <label>
+        <input type="radio" name="dm-bulk-mode" value="dm-bulk-panel-set" />
+        <span th:text="#{section.set.heading}" th:remove="tag">Set dates from term milestones</span>
+      </label>
+    </div>
+
+    <div id="dm-bulk-panel-shift" class="dm-bulk-panel date-manager-shifter">
+      <p class="small mb-2" th:text="#{dateshifter.help}">Moves every date by the same number of days — ideal when your items are already spaced correctly relative to each other.</p>
+      <div class="date-manager-datediff mb-3">
+        <label class="form-label mb-1 d-block fw-bold" th:text="#{datediff.label}">Pick your old and new term start dates and the number of days to shift is calculated for you — or type the day count directly below.</label>
+        <div class="row g-2 align-items-end">
+          <div class="col-auto">
+            <label class="form-label mb-1 d-block" for="date-diff-from" th:text="#{datediff.from.label}">Old term start</label>
+            <input type="text" class="form-control form-control-sm" id="date-diff-from" th:attr="aria-label=#{datediff.from.label}" />
+            <input type="hidden" id="date-diff-from-hidden" />
+          </div>
+          <div class="col-auto">
+            <label class="form-label mb-1 d-block" for="date-diff-to" th:text="#{datediff.to.label}">New term start</label>
+            <input type="text" class="form-control form-control-sm" id="date-diff-to" th:attr="aria-label=#{datediff.to.label}" />
+            <input type="hidden" id="date-diff-to-hidden" />
+          </div>
+          <div class="col-auto">
+            <span id="date-diff-result" class="fw-bold" aria-live="polite" th:attr="data-template=#{datediff.result}"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sak-banner-error d-none" id="dateShifterError">
+        <span th:text="#{dateshifter.error.nonnumeric}"></span>
+      </div>
+      <p>
+        <label>
+          <span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
+          <input id="dateShifterDays" type="text" />
+          <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
+        </label>
+      </p>
+    </div>
+
+    <div id="dm-bulk-panel-fit" class="dm-bulk-panel date-manager-fit d-none">
+      <p class="small mb-2" th:text="#{datefit.help}">Pins your earliest dated item to the new first date, your latest to the new last date, and spreads everything in between to fit — ideal for items spaced evenly through the term. Items with no date stay blank.</p>
+      <div class="sak-banner-error d-none" id="date-fit-error">
+        <span th:text="#{datefit.error.range}"></span>
+      </div>
+      <div class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label mb-1 d-block" for="date-fit-first" th:text="#{datefit.first.label}">Move earliest dated item to</label>
+          <input type="text" class="form-control form-control-sm" id="date-fit-first" th:attr="aria-label=#{datefit.first.label}" />
+          <input type="hidden" id="date-fit-first-hidden" />
+          <div><small id="dm-fit-anchor-first" aria-live="polite" th:attr="data-template=#{datefit.anchor.current},data-none=#{datefit.anchor.none}"></small></div>
+        </div>
+        <div class="col-auto">
+          <label class="form-label mb-1 d-block" for="date-fit-last" th:text="#{datefit.last.label}">Move latest dated item to</label>
+          <input type="text" class="form-control form-control-sm" id="date-fit-last" th:attr="aria-label=#{datefit.last.label}" />
+          <input type="hidden" id="date-fit-last-hidden" />
+          <div><small id="dm-fit-anchor-last" aria-live="polite" th:attr="data-template=#{datefit.anchor.current},data-none=#{datefit.anchor.none}"></small></div>
+        </div>
+        <div class="col-auto">
+          <label class="mb-1">
+            <input type="checkbox" id="date-fit-snap" checked />
+            <span th:text="#{datefit.snap.label}" th:remove="tag">Snap to weeks (keep each item's weekday &amp; time)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="dm-bulk-panel-set" class="dm-bulk-panel date-manager-set d-none">
+    <p class="small mb-2" th:text="#{bulk.help}">Enter your term's key dates once — first and last day of classes, exam window — and fill whole date columns with them. Ideal when many items share the same dates.</p>
+
+    <!-- Governs the matrix applies below only; the per-column setters in the item section headers
+         carry their own "Fill Empty" checkbox instead. -->
+    <div class="date-manager-bulk-options mb-3" role="radiogroup" th:attr="aria-label=#{bulk.fill.mode.label}">
+      <span class="me-2 fw-bold" th:text="#{bulk.fill.mode.label}">When a term date fills a column:</span>
+      <label class="me-3">
+        <input type="radio" name="bulk-fill-mode" value="existing" checked />
+        <span th:text="#{bulk.fill.mode.existing}" th:remove="tag">Only update items that already have a date (blanks stay blank)</span>
+      </label>
+      <label>
+        <input type="radio" name="bulk-fill-mode" value="all" />
+        <span th:text="#{bulk.fill.mode.all}" th:remove="tag">Fill every item, even ones with no date yet</span>
+      </label>
+    </div>
+
+    <div class="date-manager-term mb-3">
+      <p th:text="#{termdates.instructions}">Enter your new term's dates, then tick which date columns each one should fill. If two ticked rows target the same column, the lower row wins. Remember to click Save Changes at the bottom of the page.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle table-datemanager-term">
+          <thead>
+            <tr>
+              <th rowspan="2" class="align-bottom" th:text="#{termdates.column.header}">Term date</th>
+              <th th:if="${assignments != null}" colspan="3" class="text-center dm-mx-assignments dm-mx-first" th:text="${assignmentsToolTitle}">Assignments</th>
+              <th th:if="${assessments != null}" colspan="5" class="text-center dm-mx-assessments dm-mx-first" th:text="${assessmentsToolTitle}">Tests &amp; Quizzes</th>
+              <th th:if="${signupMeetings != null}" colspan="4" class="text-center dm-mx-signup dm-mx-first" th:text="${signupMeetingsToolTitle}">Sign up</th>
+              <th th:if="${gradebookItems != null}" colspan="1" class="text-center dm-mx-gradebook dm-mx-first" th:text="${gradebookItemsToolTitle}">Gradebook</th>
+              <th th:if="${resources != null}" colspan="2" class="text-center dm-mx-resources dm-mx-first" th:text="${resourcesToolTitle}">Resources</th>
+              <th th:if="${calendarEvents != null}" colspan="2" class="text-center dm-mx-calendar dm-mx-first" th:text="${calendarEventsToolTitle}">Calendar</th>
+              <th th:if="${forums != null}" colspan="2" class="text-center dm-mx-forums dm-mx-first" th:text="${forumsToolTitle}">Forums</th>
+              <th th:if="${announcements != null}" colspan="2" class="text-center dm-mx-announcements dm-mx-first" th:text="${announcementsToolTitle}">Announcements</th>
+              <th th:if="${lessons != null}" colspan="1" class="text-center dm-mx-lessons dm-mx-first" th:text="${lessonsToolTitle}">Lessons</th>
+            </tr>
+            <tr>
+              <th:block th:if="${assignments != null}">
+                <th class="text-center dm-mx-assignments dm-mx-first" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center dm-mx-assignments" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center dm-mx-assignments" th:text="#{column.accept.until}">Accept Until Date</th>
+              </th:block>
+              <th:block th:if="${assessments != null}">
+                <th class="text-center dm-mx-assessments dm-mx-first" th:text="#{column.available.date}">Available Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.due.date}">Due Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.feedback.start.date}">Show Feedback Date</th>
+                <th class="text-center dm-mx-assessments" th:text="#{column.feedback.end.date}">Hide Feedback Date</th>
+              </th:block>
+              <th:block th:if="${signupMeetings != null}">
+                <th class="text-center dm-mx-signup dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.end.date}">End Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.signup.begins.date}">Sign-up Begin Date</th>
+                <th class="text-center dm-mx-signup" th:text="#{column.signup.deadline.date}">Sign-up End Date</th>
+              </th:block>
+              <th:block th:if="${gradebookItems != null}">
+                <th class="text-center dm-mx-gradebook dm-mx-first" th:text="#{column.due.date}">Due Date</th>
+              </th:block>
+              <th:block th:if="${resources != null}">
+                <th class="text-center dm-mx-resources dm-mx-first" th:text="#{column.show.from.date}">Show From Date</th>
+                <th class="text-center dm-mx-resources" th:text="#{column.show.until}">Show Until Date</th>
+              </th:block>
+              <th:block th:if="${calendarEvents != null}">
+                <th class="text-center dm-mx-calendar dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-calendar" th:text="#{column.end.date}">End Date</th>
+              </th:block>
+              <th:block th:if="${forums != null}">
+                <th class="text-center dm-mx-forums dm-mx-first" th:text="#{column.open.date}">Open Date</th>
+                <th class="text-center dm-mx-forums" th:text="#{column.close.date}">Close Date</th>
+              </th:block>
+              <th:block th:if="${announcements != null}">
+                <th class="text-center dm-mx-announcements dm-mx-first" th:text="#{column.start.date}">Start Date</th>
+                <th class="text-center dm-mx-announcements" th:text="#{column.end.date}">End Date</th>
+              </th:block>
+              <th:block th:if="${lessons != null}">
+                <th class="text-center dm-mx-lessons dm-mx-first" th:text="#{column.hide.until}">Hide Until Date</th>
+              </th:block>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-classes-start" th:text="#{termdates.classes.start}">Classes Start</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-classes-start" th:attr="aria-label=#{termdates.classes.start}" />
+                <input type="hidden" id="term-hidden-classes-start" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('classes_start')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-classes-end" th:text="#{termdates.classes.end}">Classes End</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-classes-end" th:attr="aria-label=#{termdates.classes.end}" />
+                <input type="hidden" id="term-hidden-classes-end" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('classes_end')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-exam-begins" th:text="#{termdates.exam.begins}">Exam Begins</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-exam-begins" th:attr="aria-label=#{termdates.exam.begins}" />
+                <input type="hidden" id="term-hidden-exam-begins" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('exam_begins')}"></th:block>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap">
+                <label class="form-label mb-1 d-block" for="term-input-exam-ends" th:text="#{termdates.exam.ends}">Exam Ends</label>
+                <input type="text" class="form-control form-control-sm term-input" id="term-input-exam-ends" th:attr="aria-label=#{termdates.exam.ends}" />
+                <input type="hidden" id="term-hidden-exam-ends" />
+              </th>
+              <th:block th:replace="~{tool_fragment :: termCells('exam_ends')}"></th:block>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+
+    <!-- Which tool sections the shift/fit Apply acts on: explicit, visible scoping in place of
+         the old "tools expanded below" behaviour. Only tools present on the page render. Hidden
+         for the milestone matrix, whose checkbox grid already targets tools column by column. -->
+    <div class="dm-scope mt-3 mb-2">
+      <span class="fw-bold d-block mb-1" th:text="#{bulk.scope.label}">Apply to:</span>
+      <label class="d-block">
+        <input type="checkbox" id="dm-scope-all" checked />
+        <span th:text="#{bulk.scope.all}" th:remove="tag">All tools</span>
+      </label>
+      <label class="d-block ms-3" th:if="${assignments != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-assignments" checked />
+        <span th:text="${assignmentsToolTitle + ' (' + #lists.size(assignments) + ')'}" th:remove="tag">Assignments</span>
+      </label>
+      <label class="d-block ms-3" th:if="${assessments != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-assessments" checked />
+        <span th:text="${assessmentsToolTitle + ' (' + #lists.size(assessments) + ')'}" th:remove="tag">Tests &amp; Quizzes</span>
+      </label>
+      <label class="d-block ms-3" th:if="${signupMeetings != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-signup" checked />
+        <span th:text="${signupMeetingsToolTitle + ' (' + #lists.size(signupMeetings) + ')'}" th:remove="tag">Sign up</span>
+      </label>
+      <label class="d-block ms-3" th:if="${gradebookItems != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-gradebook" checked />
+        <span th:text="${gradebookItemsToolTitle + ' (' + #lists.size(gradebookItems) + ')'}" th:remove="tag">Gradebook</span>
+      </label>
+      <label class="d-block ms-3" th:if="${resources != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-resources" checked />
+        <span th:text="${resourcesToolTitle + ' (' + #lists.size(resources) + ')'}" th:remove="tag">Resources</span>
+      </label>
+      <label class="d-block ms-3" th:if="${calendarEvents != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-calendar" checked />
+        <span th:text="${calendarEventsToolTitle + ' (' + #lists.size(calendarEvents) + ')'}" th:remove="tag">Calendar</span>
+      </label>
+      <label class="d-block ms-3" th:if="${forums != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-forums" checked />
+        <span th:text="${forumsToolTitle + ' (' + #lists.size(forums) + ')'}" th:remove="tag">Forums</span>
+      </label>
+      <label class="d-block ms-3" th:if="${announcements != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-announcements" checked />
+        <span th:text="${announcementsToolTitle + ' (' + #lists.size(announcements) + ')'}" th:remove="tag">Announcements</span>
+      </label>
+      <label class="d-block ms-3" th:if="${lessons != null}">
+        <input type="checkbox" class="dm-scope-tool" data-root="collapse-lessons" checked />
+        <span th:text="${lessonsToolTitle + ' (' + #lists.size(lessons) + ')'}" th:remove="tag">Lessons</span>
+      </label>
+    </div>
+
+    <div class="mb-2">
+      <button type="button" class="btn dm-bulk-apply" id="dm-apply-shift" data-dm-panel="dm-bulk-panel-shift" th:text="#{bulk.apply.shift}" disabled>Apply shift</button>
+      <button type="button" class="btn dm-bulk-apply d-none" id="dm-apply-fit" data-dm-panel="dm-bulk-panel-fit" th:text="#{bulk.apply.fit}" disabled>Apply fit</button>
+      <button type="button" class="btn dm-bulk-apply d-none" id="dm-apply-term" data-dm-panel="dm-bulk-panel-set" th:text="#{bulk.apply.term}" disabled>Apply term dates</button>
+    </div>
+
+    <!-- Summarises what the last apply actually did (counts, tools, skipped blanks, narrowed scope)
+         since the affected grid lives on the other tab. -->
+    <div class="sak-banner-info d-none" id="dm-apply-feedback" aria-live="polite">
+      <span id="dm-apply-feedback-msg"></span>
+      <span id="dm-apply-feedback-scope" class="d-none fw-bold"></span>
+      <span th:text="#{bulk.applied.review}">Review the changes on the Edit Individual Items tab or with the Visual Preview below, then click Save Changes.</span>
+    </div>
+    </div>
+    </div>
+
+    <div class="tab-pane fade show active pt-3" id="dm-tab-items" role="tabpanel" aria-labelledby="dm-tab-items-btn">
+    <p class="small" th:text="#{section.items.help}">Expand a tool to review or adjust each item's dates.</p>
 
       <div th:if="${assignments != null}" class="card">
         <div class="card-header">
@@ -157,15 +410,23 @@
         </div>
         <div th:replace="~{tool_fragment :: tool_fragment(items=${lessons}, toolId='lessons', collapseId='collapse-lessons')}"></div>
       </div>
+    </div>
+    </div>
 
-      <div class="act">
+      <!-- Separated from the tab content by a rule and extra space: these actions commit or
+           discard the staged edits from BOTH tabs, unlike the applies inside the Bulk Edit tab. -->
+      <div class="act mt-4 pt-3 border-top">
         <button class="btn btn-primary"
             aria-controls="modal-confirm"
             id="submit-form-button"
             th:text="#{button.save}"
             disabled>
         </button>
-        <button type="button" class="btn btn-link" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
+        <button type="button" class="btn"
+            id="datemanager-preview"
+            aria-controls="modal-calendar-preview"
+            th:text="#{button.calendar.preview}">Visual Preview</button>
+        <button type="button" class="btn" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
       <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>
@@ -184,6 +445,24 @@
             <div class="modal-footer act">
               <button type="button" class="btn btn-primary" id="modal-btn-confirm" th:text="#{button.save}">Save Changes</button>
               <button type="button" class="btn btn-secondary" id="modal-btn-cancel" th:text="#{button.cancel}">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read-only calendar preview: plots every date currently entered below into a month grid so the
+           user can visually sanity-check a shift/fit/anchor before choosing Save Changes. -->
+      <div class="modal fade" tabindex="-1" aria-hidden="true" aria-labelledby="datemanager-preview-title" id="modal-calendar-preview">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 id="datemanager-preview-title" th:text="#{calendar.preview.title}" class="modal-title">Calendar preview of all dates</h5>
+              <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p class="small" th:text="#{calendar.preview.help}"></p>
+              <p id="datemanager-calendar-empty" class="d-none" th:text="#{calendar.preview.empty}"></p>
+              <div id="datemanager-calendar"></div>
             </div>
           </div>
         </div>
@@ -290,11 +569,42 @@
 
           var notModified = [];
 
-          DTMN.bulkFields = /*[[${bulkDateFields}]]*/ [];
+          // Localized labels for each editable date column, used by the calendar preview to name markers
+          // ("<item title> — <field label>"). Reuses the same column keys the table headers render with.
+          DTMN.fieldLabels = {
+            open_date: /*[[#{column.open.date}]]*/ 'Open Date',
+            due_date: /*[[#{column.due.date}]]*/ 'Due Date',
+            accept_until: /*[[#{column.accept.until}]]*/ 'Accept Until Date',
+            feedback_start: /*[[#{column.feedback.start.date}]]*/ 'Show Feedback On',
+            feedback_end: /*[[#{column.feedback.end.date}]]*/ 'Show Feedback Until',
+            signup_begins: /*[[#{column.signup.begins.date}]]*/ 'Sign-up Begins Date',
+            signup_deadline: /*[[#{column.signup.deadline.date}]]*/ 'Sign-up Ends Date'
+          };
+
+          DTMN.previewSpanButtonText = /*[[#{calendar.preview.span.button}]]*/ 'Overview';
+
+          // Localized templates for the post-apply feedback banner and the scope-narrowed
+          // suffix on the apply buttons. {n} placeholders are substituted client-side.
+          DTMN.bulkFeedbackText = {
+            shift: /*[[#{bulk.applied.shift}]]*/ 'Shifted {0} date(s) in {1} tool(s).',
+            fit: /*[[#{bulk.applied.fit}]]*/ 'Re-fitted {0} date(s) in {1} tool(s).',
+            term: /*[[#{bulk.applied.term}]]*/ 'Set {0} date(s) in {1} tool(s).',
+            termBlanks: /*[[#{bulk.applied.term.blanks}]]*/ '{0} blank date cell(s) were left blank.',
+            scope: /*[[#{bulk.applied.scope}]]*/ 'Applied only to: {0}.',
+            none: /*[[#{bulk.applied.none}]]*/ 'No dates were changed.',
+            applySuffix: /*[[#{bulk.apply.scope.suffix}]]*/ '({0} of {1} tools)'
+          };
 
           DTMN.initDatePicker(updates, notModified);
+          DTMN.initUnsavedGuard();
+          DTMN.initCancelRevert();
+          DTMN.initBulkModeRadios();
+          DTMN.initScopePicker();
           DTMN.initShifter(updates, notModified);
-          DTMN.initBulkSetter(updates, notModified);
+          DTMN.initFitter(updates, notModified);
+          DTMN.initColumnBulkSetters(updates, notModified);
+          DTMN.initTermDates(updates, notModified);
+          DTMN.initCalendarPreview();
 
           function printErrors() {
             $('.errors').empty();
@@ -322,6 +632,7 @@
             $('#form-success').removeClass('d-none').css('display', '');
             $('#export-success').addClass('d-none').css('display', '');
             $('#form-errors').addClass('d-none');
+            $('#dm-apply-feedback').addClass('d-none');
             $('.ajax-error').removeClass('ajax-error');
             $('.errors').each(function(idx, elt) {
               $(elt).text('');
@@ -414,10 +725,6 @@
             });
           }
 
-          $('#datemanager-cancel').click(function(e) {
-            e.preventDefault;
-            window.location = window.location.href.replace('/sakai.datemanager.helper', '');
-          });
 
           
           $('#exportDates').click(function(e) {
