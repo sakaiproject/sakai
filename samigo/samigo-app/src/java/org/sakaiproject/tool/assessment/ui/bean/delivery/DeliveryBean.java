@@ -38,11 +38,11 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -119,7 +119,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For delivery: Delivery backing bean */
 @Slf4j
-@ManagedBean(name="delivery")
+@Named("delivery")
 @SessionScoped
 public class DeliveryBean implements Serializable {
 

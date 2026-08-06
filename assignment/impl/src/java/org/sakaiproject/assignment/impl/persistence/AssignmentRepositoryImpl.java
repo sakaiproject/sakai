@@ -16,6 +16,7 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -27,18 +28,17 @@ import java.util.stream.Collectors;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.persister.collection.CollectionPropertyNames;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.*;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
@@ -67,26 +67,36 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        return startCriteriaQuery()
-                .add(Restrictions.eq("context", siteId))
-                .add(Restrictions.eq("deleted", Boolean.FALSE))
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Assignment> cq = cb.createQuery(Assignment.class);
+        Root<Assignment> root = cq.from(Assignment.class);
+        cq.where(
+            cb.equal(root.get("context"), siteId),
+            cb.equal(root.get("deleted"), Boolean.FALSE)
+        );
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findDeletedAssignmentsBySite(String siteId) {
-        return startCriteriaQuery()
-                .add(Restrictions.eq("context", siteId))
-                .add(Restrictions.eq("deleted", Boolean.TRUE))
-                .list();
+    	CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Assignment> cq = cb.createQuery(Assignment.class);
+        Root<Assignment> root = cq.from(Assignment.class);
+        cq.where(
+            cb.equal(root.get("context"), siteId),
+            cb.equal(root.get("deleted"), Boolean.TRUE)
+        );
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override
     public List<String> findAllAssignmentIds() {
-        return startCriteriaQuery()
-                .setProjection(Projections.property("id"))
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<Assignment> root = cq.from(Assignment.class);
+        cq.select(root.get("id"));
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override
@@ -201,11 +211,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     @SuppressWarnings("unchecked")
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
-        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
-                .add(Restrictions.eq("assignment.id", assignmentId))
-                .createAlias("submitters", "s")
-                .add(Restrictions.eq("s.submitter", userId))
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSubmission> cq = cb.createQuery(AssignmentSubmission.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        Join<AssignmentSubmission, AssignmentSubmissionSubmitter> submitters = root.join("submitters");
+        cq.where(
+            cb.equal(root.get("assignment").get("id"), assignmentId),
+            cb.equal(submitters.get("submitter"), userId)
+        );
+        List<AssignmentSubmission> submissions = geCurrentSession().createQuery(cq).list();
 
         switch (submissions.size()) {
             case 0: return null;
@@ -245,74 +259,100 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds) {
-        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
-                .add(Restrictions.eq("assignment.id", assignmentId))
-                .createAlias("submitters", "s")
-                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
-                .list();
-        return submissions;
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSubmission> cq = cb.createQuery(AssignmentSubmission.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        Join<AssignmentSubmission, AssignmentSubmissionSubmitter> submitters = root.join("submitters");
+        cq.where(
+            cb.equal(root.get("assignment").get("id"), assignmentId),
+            submitters.get("submitter").in(userIds)
+        );
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override
     public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
-        return (AssignmentSubmission) geCurrentSession().createCriteria(AssignmentSubmission.class)
-                .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("groupId", groupId))
-                .uniqueResult();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSubmission> cq = cb.createQuery(AssignmentSubmission.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        cq.where(
+            cb.equal(root.get("assignment").get("id"), assignmentId),
+            cb.equal(root.get("groupId"), groupId)
+        );
+        return geCurrentSession().createQuery(cq).uniqueResult();
     }
 
     @Override
     public long countAssignmentsBySite(String siteId) {
-        Criteria criteria = geCurrentSession().createCriteria(Assignment.class)
-                .setProjection(Projections.countDistinct("id"))
-                .add(Restrictions.eq("context", siteId));
-
-        return ((Number) criteria.uniqueResult()).longValue();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Assignment> root = cq.from(Assignment.class);
+        cq.select(cb.countDistinct(root.get("id")));
+        cq.where(cb.equal(root.get("context"), siteId));
+        return geCurrentSession().createQuery(cq).uniqueResult();
     }
 
     @Override
     public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
-        Criteria criteria = geCurrentSession().createCriteria(AssignmentSubmission.class)
-                .setProjection(Projections.countDistinct("id"))
-                .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .createAlias("submitters", "s");
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        Join<AssignmentSubmission, AssignmentSubmissionSubmitter> submitters = root.join("submitters");
+
+        cq.select(cb.countDistinct(root.get("id")));
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("assignment").get("id"), assignmentId));
+        predicates.add(cb.equal(root.get("submitted"), Boolean.TRUE));
 
         if (graded != null) {
-            criteria.add(Restrictions.eq("graded", graded));
+            predicates.add(cb.equal(root.get("graded"), graded));
         }
         if (hasSubmissionDate != null) {
-            criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
+            predicates.add(hasSubmissionDate ? cb.isNotNull(root.get("dateSubmitted")) : cb.isNull(root.get("dateSubmitted")));
         }
         if (userSubmission != null) {
-            criteria.add(Restrictions.eq("userSubmission", userSubmission));
+            predicates.add(cb.equal(root.get("userSubmission"), userSubmission));
         }
         if (userIds != null) {
             if (userIds.isEmpty()) {
                 return 0; // if we have an empty list then we return always return 0
             } else {
-                criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
+                predicates.add(submitters.get("submitter").in(userIds));
             }
         }
-        return ((Number) criteria.uniqueResult()).longValue();
+
+        cq.where(predicates.toArray(new Predicate[0]));
+        return geCurrentSession().createQuery(cq).uniqueResult();
     }
 
     @Override
     public void resetAssignment(Assignment assignment) {
         if (assignment != null && assignment.getId() != null) {
-            sessionFactory.getCache().evictEntity(Assignment.class, assignment.getId());
+            sessionFactory.getCache().evictEntityData(Assignment.class, assignment.getId());
         }
     }
 
     @Override
     public List<Assignment> findAssignmentsForGradebookLink(String context, String linkId) {
-        List<Assignment> result = startCriteriaQuery()
-                .createAlias("properties", "p")
-                .add(Restrictions.eq("context", context))
-                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
-                .list();
-        return result;
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Assignment> cq = cb.createQuery(Assignment.class);
+        Root<Assignment> root = cq.from(Assignment.class);
+
+        MapJoin<Assignment, String, String> properties = root.joinMap("properties");
+
+        cq.select(root)
+            .distinct(true)
+            .where(
+                cb.and(
+                    cb.equal(root.get("context"), context),
+                    cb.equal(properties.key(),
+                        AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT),
+                    cb.equal(properties.value(), linkId)
+                )
+            );
+
+        return geCurrentSession().createQuery(cq).getResultList();
     }
 
     @Override
@@ -335,7 +375,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
         try{
             // only one per assignment
-            AssignmentAllPurposeItem apItem = (AssignmentAllPurposeItem) sessionFactory.getCurrentSession().createCriteria(AssignmentAllPurposeItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+            CriteriaQuery<AssignmentAllPurposeItem> cq = cb.createQuery(AssignmentAllPurposeItem.class);
+            Root<AssignmentAllPurposeItem> root = cq.from(AssignmentAllPurposeItem.class);
+
+            cq.select(root)
+           .where(cb.equal(root.get("assignmentId"), assignmentId));
+
+            AssignmentAllPurposeItem apItem = sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
+
             if (apItem != null){
                 log.info("delete AssignmentAllPurposeItem for assignment: {}", assignmentId);
                 sessionFactory.getCurrentSession().delete(apItem);
@@ -343,7 +391,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
 
             // only one per assignment
-            AssignmentModelAnswerItem maItem = (AssignmentModelAnswerItem) sessionFactory.getCurrentSession().createCriteria(AssignmentModelAnswerItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+            CriteriaQuery<AssignmentModelAnswerItem> cq2 = cb.createQuery(AssignmentModelAnswerItem.class);
+            Root<AssignmentModelAnswerItem> root2 = cq2.from(AssignmentModelAnswerItem.class);
+            cq2.select(root2)
+            .where(cb.equal(root.get("assignmentId"), assignmentId));
+
+            AssignmentModelAnswerItem maItem = sessionFactory.getCurrentSession().createQuery(cq2).uniqueResult();
+
             if(maItem != null){
                 log.info("delete AssignmentModelAnswerItem for assignment: {}", assignmentId);
                 sessionFactory.getCurrentSession().delete(maItem);
@@ -351,21 +406,50 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
 
             // only one per assignment
-            AssignmentNoteItem noteItem = (AssignmentNoteItem) sessionFactory.getCurrentSession().createCriteria(AssignmentNoteItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+            CriteriaQuery<AssignmentNoteItem> cq3 = cb.createQuery(AssignmentNoteItem.class);
+            Root<AssignmentNoteItem> root3 = cq.from(AssignmentNoteItem.class);
+
+            cq3.select(root3)
+            .where(cb.equal(root.get("assignmentId"), assignmentId));
+
+            AssignmentNoteItem noteItem = sessionFactory.getCurrentSession().createQuery(cq3).uniqueResult();
+
             if (noteItem != null) {
                 log.info("delete AssignmentNoteItem for assignment: {}", assignmentId);
                 sessionFactory.getCurrentSession().delete(noteItem);
             }
 
             // multiple possible per assignment
-            List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) sessionFactory.getCurrentSession().createCriteria(PeerAssessmentItem.class).add(Restrictions.eq("assignmentId", assignmentId)).list();
+            cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+            CriteriaQuery<PeerAssessmentItem> cq4 = cb.createQuery(PeerAssessmentItem.class);
+            Root<PeerAssessmentItem> root4 = cq4.from(PeerAssessmentItem.class);
+
+            cq4.select(root4)
+            .where(cb.equal(root.get("assignmentId"), assignmentId));
+
+            List<PeerAssessmentItem> peerAssessmentItems = sessionFactory.getCurrentSession().createQuery(cq4).getResultList();
+
             if (!peerAssessmentItems.isEmpty()){
                 for(PeerAssessmentItem item : peerAssessmentItems){
                     //get submissionId and assessor_user_id for deletion of PeerAssessmentAttachment
                     String submissionId = item.getId().getSubmissionId();
                     String assessorUserId = item.getId().getAssessorUserId();
                     sessionFactory.getCurrentSession().delete(item);
-                    List<PeerAssessmentAttachment> peerAssessmentItemAttach = (List) sessionFactory.getCurrentSession().createCriteria(PeerAssessmentAttachment.class).add(Restrictions.eq("submissionId", submissionId)).add(Restrictions.eq("assessorUserId", assessorUserId)).list();
+
+                    cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+                    CriteriaQuery<PeerAssessmentAttachment> cq5 = cb.createQuery(PeerAssessmentAttachment.class);
+                    Root<PeerAssessmentAttachment> root5 = cq5.from(PeerAssessmentAttachment.class);
+
+                    cq5.select(root5)
+                        .where(
+                            cb.and(
+                                cb.equal(root.get("submissionId"), submissionId),
+                                cb.equal(root.get("assessorUserId"), assessorUserId)
+                            )
+                        );
+
+                    List<PeerAssessmentAttachment> peerAssessmentItemAttach = sessionFactory.getCurrentSession().createQuery(cq5).getResultList();
                     if(peerAssessmentItemAttach.size() !=  0){
                         for(PeerAssessmentAttachment attach: peerAssessmentItemAttach)
                             sessionFactory.getCurrentSession().delete(attach);

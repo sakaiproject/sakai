@@ -23,11 +23,11 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 
 /* For author: Delete Confirm backing bean. */
-@ManagedBean(name="deleteconfirm")
+@Named("deleteconfirm")
 @SessionScoped
 public class DeleteConfirmBean implements Serializable {
 
