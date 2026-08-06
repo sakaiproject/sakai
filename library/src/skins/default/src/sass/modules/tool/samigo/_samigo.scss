@@ -485,9 +485,12 @@
 		font-family: var(--sakai-font-family);
 	}
 
-	.disabled.awesomplete {
+	// disabled comment boxes need a visible state in both themes
+	.disabled.awesomplete,
+	textarea:disabled {
 		background-color: transparent;
 		color: var(--sakai-text-color-disabled);
+		cursor: not-allowed;
 	}
 
 	.display-flex {
