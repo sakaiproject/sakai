@@ -37,6 +37,10 @@
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
         </exclusion>
+        <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -73,6 +77,11 @@
       <groupId>jakarta.servlet.jsp.jstl</groupId>
       <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
       <version>${sakai.jakarta.jstl-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.faces</groupId>
+      <artifactId>jakarta.faces-api</artifactId>
+      <version>${sakai.jakarta.faces-api.version}</version>
     </dependency>
   </dependencies>
   <build>

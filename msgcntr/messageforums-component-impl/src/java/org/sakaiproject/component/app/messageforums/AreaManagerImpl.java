@@ -24,8 +24,9 @@ import java.util.Date;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.query.Query;
-import org.hibernate.collection.internal.PersistentSet;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;

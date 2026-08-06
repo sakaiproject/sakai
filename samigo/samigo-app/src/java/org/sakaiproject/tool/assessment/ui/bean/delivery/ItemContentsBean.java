@@ -32,10 +32,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.model.SelectItem;
-
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,7 +70,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 /* For delivery: ItemContents backing bean. */
 @Slf4j
-@ManagedBean(name="itemContents")
+@Named("itemContents")
 @SessionScoped
 public class ItemContentsBean implements Serializable {
 

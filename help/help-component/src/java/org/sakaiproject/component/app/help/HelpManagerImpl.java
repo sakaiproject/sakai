@@ -81,7 +81,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -921,7 +922,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			{
 				org.springframework.core.io.Resource resource =
 					new UrlResource(urlResource);  
-				BeanFactory beanFactory = new XmlBeanFactory(resource);
+				DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+				reader.loadBeanDefinitions(resource);
 				TableOfContents tocTemp = (TableOfContents) beanFactory.getBean(TOC_API);
 				Set<Category> categories = tocTemp.getCategories();
 				storeRecursive(categories);

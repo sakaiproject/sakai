@@ -34,9 +34,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
+
 import javax.imageio.ImageIO;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -80,7 +81,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* Print to PDF backing bean. */
 @Slf4j
-@ManagedBean(name="pdfAssessment")
+@Named("pdfAssessment")
 @SessionScoped
 public class PDFAssessmentBean implements Serializable {
 

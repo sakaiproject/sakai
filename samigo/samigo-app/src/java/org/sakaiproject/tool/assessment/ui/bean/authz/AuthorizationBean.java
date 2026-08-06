@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
@@ -37,12 +34,14 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.cover.ToolManager;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /* For authorization */
 @Slf4j
-@ManagedBean(name="authorization")
+@Named("authorization")
 @SessionScoped
 public class AuthorizationBean implements Serializable {
 
