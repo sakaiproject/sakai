@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +45,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* For evaluation: Histogram Question Scores backing bean. */
 @Slf4j
-@ManagedBean(name="histogramquestionscores")
+@Named("histogramquestionscores")
 @SessionScoped
 public class HistogramQuestionScoresBean implements Serializable {
   private String assessmentName;

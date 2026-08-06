@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.cover.SecurityService;
@@ -41,9 +38,12 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+
 /* For shared: Person backing bean. */
 @Slf4j
-@ManagedBean(name="person")
+@Named("person")
 @SessionScoped
 public class PersonBean implements Serializable {
 

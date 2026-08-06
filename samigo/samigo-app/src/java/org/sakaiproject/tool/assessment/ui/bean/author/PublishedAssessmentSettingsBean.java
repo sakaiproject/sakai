@@ -40,11 +40,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
@@ -114,7 +114,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For author: Assessment Settings backing bean.*/
 @Slf4j
-@ManagedBean(name="publishedSettings")
+@Named("publishedSettings")
 @SessionScoped
 public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
 

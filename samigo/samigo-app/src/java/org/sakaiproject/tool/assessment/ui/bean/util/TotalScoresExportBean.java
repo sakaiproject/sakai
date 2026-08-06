@@ -31,9 +31,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 @Slf4j
-@ManagedBean(name="totalScoresExportBean")
+@Named("totalScoresExportBean")
 @SessionScoped
 public class TotalScoresExportBean implements Serializable {
 

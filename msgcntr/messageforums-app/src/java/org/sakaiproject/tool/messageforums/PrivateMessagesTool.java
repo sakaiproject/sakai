@@ -90,18 +90,18 @@ import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.ApplicationFactory;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.ManagedProperty;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
@@ -126,7 +126,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Slf4j
-@ManagedBean(name="PrivateMessagesTool")
+@Named("PrivateMessagesTool")
 @SessionScoped
 public class PrivateMessagesTool {
 
@@ -196,61 +196,43 @@ public class PrivateMessagesTool {
   /**
    *Dependency Injected 
    */
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
-  private PrivateMessageManager prtMsgManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
-  private MessageForumsMessageManager messageManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
-  private MessageForumsForumManager forumManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
-  private MembershipManager membershipManager;
-  @Getter @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
-  private SynopticMsgcntrManager synopticMsgcntrManager;
+  @Autowired
+  @Setter private PrivateMessageManager prtMsgManager;
+  @Autowired
+  @Setter private MessageForumsMessageManager messageManager;
+  @Autowired
+  @Setter private MessageForumsForumManager forumManager;
+  @Autowired
+  @Setter private MembershipManager membershipManager;
+  @Autowired
+  @Getter @Setter private SynopticMsgcntrManager synopticMsgcntrManager;
   /** Dependency Injected   */
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
-  private MessageForumsTypeManager typeManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.content.api.ContentHostingService\"]}")
-  private ContentHostingService contentHostingService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.LearningResourceStoreService\"]}")
-  private LearningResourceStoreService learningResourceStoreService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
-  private UserDirectoryService userDirectoryService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
-  private SecurityService securityService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
-  private EventTrackingService eventTrackingService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
-  private SiteService siteService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.AuthzGroupService\"]}")
-  private AuthzGroupService authzGroupService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
-  private SessionManager sessionManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.time.api.UserTimeService\"]}")
-  private UserTimeService userTimeService;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
-  private ToolManager toolManager;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
-  private FormattedText formattedText;
-  @Setter
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.tags.api.TagService\"]}")
-  private TagService tagService;
+  @Autowired
+  @Setter private MessageForumsTypeManager typeManager;
+  @Autowired
+  @Setter private ContentHostingService contentHostingService;
+  @Autowired
+  @Setter private LearningResourceStoreService learningResourceStoreService;
+  @Autowired
+  @Setter private UserDirectoryService userDirectoryService;
+  @Autowired
+  @Setter private SecurityService securityService;
+  @Autowired
+  @Setter private EventTrackingService eventTrackingService;
+  @Autowired
+  @Setter private SiteService siteService;
+  @Autowired
+  @Setter private AuthzGroupService authzGroupService;
+  @Autowired
+  @Setter private SessionManager sessionManager;
+  @Autowired
+  @Setter private UserTimeService userTimeService;
+  @Autowired
+  @Setter private ToolManager toolManager;
+  @Autowired
+  @Setter private FormattedText formattedText;
+  @Autowired
+  @Setter private TagService tagService;
   
 /** Navigation for JSP   */
   public static final String MAIN_PG="main";

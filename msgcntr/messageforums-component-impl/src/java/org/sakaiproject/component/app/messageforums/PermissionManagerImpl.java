@@ -489,7 +489,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             Query q = session.getNamedQuery(queryString);
             q.setParameter("roleId", roleId);
             q.setParameter(key, value);
-            q.setParameter("defaultValue");
+            q.setParameter("defaultValue", defaultValue);
             return (ControlPermissions) q.uniqueResult();
         };
         return getHibernateTemplate().execute(hcb);

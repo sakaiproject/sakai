@@ -36,12 +36,12 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
@@ -116,7 +116,7 @@ import lombok.extern.slf4j.Slf4j;
  * For author: Assessment Settings backing bean.
  */
 @Slf4j
-@ManagedBean(name="assessmentSettings")
+@Named("assessmentSettings")
 @SessionScoped
 public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
     private static final IntegrationContextFactory integrationContextFactory =

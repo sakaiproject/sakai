@@ -24,11 +24,11 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 
 /* For media: Media bean. */
-@ManagedBean(name="mediaBean")
+@Named("mediaBean")
 @SessionScoped
 public class MediaBean implements Serializable {
 

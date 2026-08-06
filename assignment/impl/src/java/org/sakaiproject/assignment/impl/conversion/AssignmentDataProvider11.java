@@ -36,8 +36,8 @@ public class AssignmentDataProvider11 implements AssignmentDataProvider{
         try {
             list = sessionFactory.getCurrentSession()
                     // here we order the assignments based on the sites created date so newer sites will import first
-                    .createSQLQuery("SELECT aa.ASSIGNMENT_ID FROM ASSIGNMENT_ASSIGNMENT aa LEFT JOIN SAKAI_SITE ss ON (aa.CONTEXT = ss.SITE_ID) ORDER BY ss.CREATEDON DESC")
-                    .addScalar("ASSIGNMENT_ID", StringType.INSTANCE)
+                    .createNativeQuery("SELECT aa.ASSIGNMENT_ID FROM ASSIGNMENT_ASSIGNMENT aa LEFT JOIN SAKAI_SITE ss ON (aa.CONTEXT = ss.SITE_ID) ORDER BY ss.CREATEDON DESC")
+                    .addScalar("ASSIGNMENT_ID")
                     .list();
 
             return list;
@@ -52,9 +52,9 @@ public class AssignmentDataProvider11 implements AssignmentDataProvider{
     public String fetchAssignment(String assignmentId) {
         try {
             String xml = (String) sessionFactory.getCurrentSession()
-                    .createSQLQuery("SELECT XML FROM ASSIGNMENT_ASSIGNMENT WHERE ASSIGNMENT_ID = :id")
-                    .addScalar("XML", StringType.INSTANCE)
-                    .setParameter("id", assignmentId, StringType.INSTANCE)
+                    .createNativeQuery("SELECT XML FROM ASSIGNMENT_ASSIGNMENT WHERE ASSIGNMENT_ID = :id")
+                    .addScalar("XML")
+                    .setParameter("id", assignmentId)
                     .uniqueResult();
 
             return xml;
@@ -69,9 +69,9 @@ public class AssignmentDataProvider11 implements AssignmentDataProvider{
     public String fetchAssignmentContent(String contentId) {
         try {
             String xml = (String) sessionFactory.getCurrentSession()
-                    .createSQLQuery("SELECT XML FROM ASSIGNMENT_CONTENT WHERE CONTENT_ID = :id")
-                    .addScalar("XML", StringType.INSTANCE)
-                    .setParameter("id", contentId, StringType.INSTANCE)
+                    .createNativeQuery("SELECT XML FROM ASSIGNMENT_CONTENT WHERE CONTENT_ID = :id")
+                    .addScalar("XML")
+                    .setParameter("id", contentId)
                     .uniqueResult();
 
             return xml;
@@ -87,9 +87,9 @@ public class AssignmentDataProvider11 implements AssignmentDataProvider{
     public List<String> fetchAssignmentSubmissions(String assignmentId) {
         try {
             List<String> list = sessionFactory.getCurrentSession()
-                    .createSQLQuery("SELECT XML FROM ASSIGNMENT_SUBMISSION WHERE CONTEXT = :id")
-                    .addScalar("XML", StringType.INSTANCE)
-                    .setParameter("id", assignmentId, StringType.INSTANCE)
+                    .createNativeQuery("SELECT XML FROM ASSIGNMENT_SUBMISSION WHERE CONTEXT = :id")
+                    .addScalar("XML")
+                    .setParameter("id", assignmentId)
                     .list();
 
             return list;

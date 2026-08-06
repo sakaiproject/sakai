@@ -41,12 +41,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.ListDataModel;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -125,7 +125,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* Question Pool backing bean. */
 @Slf4j
-@ManagedBean(name="questionpool")
+@Named("questionpool")
 @SessionScoped
 public class QuestionPoolBean implements Serializable {
 	

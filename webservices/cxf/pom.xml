@@ -16,7 +16,7 @@
     </parent>
 
     <properties>
-        <cxf.version>3.6.3</cxf.version>
+        <cxf.version>4.2.2</cxf.version>
     </properties>
 
     <dependencies>
@@ -65,6 +65,21 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.jws</groupId>
+            <artifactId>jakarta.jws-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.3</version>
         </dependency>
 
         <!--  Sakai dependencies -->
