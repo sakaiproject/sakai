@@ -312,6 +312,120 @@
 		max-width: 8em;
 	}
 
+	// Total Scores bulk bar: keep the Adjustment/target group and the Comment
+	// group visually distinct so they don't read as one crowded control
+	.sam-batch-inputs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: stretch;
+		gap: 1rem 1.5rem;
+		margin: 0.5rem 0 0.75rem;
+	}
+
+	// Adjustment and Comment are two equal (~50/50) bordered boxes
+	.sam-batch-group {
+		flex: 1 1 45%;
+		min-width: 260px;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem;
+		border: 1px solid var(--sakai-border-color);
+		border-radius: 6px;
+		padding: 0.6rem 0.8rem;
+	}
+
+	// center the comment's content within its box, pushing it right with room to breathe
+	.sam-batch-comment {
+		justify-content: center;
+		column-gap: 1.25rem;
+	}
+
+	.sam-batch-label {
+		margin: 0 0.25rem 0 0;
+		font-weight: 600;
+	}
+
+	// the "Also email" checkbox sits just above the Update button
+	.sam-batch-notify {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		margin: 0.25rem 0;
+	}
+
+	.sam-batch-off {
+		opacity: 0.45;
+	}
+
+	.sam-batch-hint {
+		margin-left: 0.75rem;
+		font-style: italic;
+	}
+
+	// colour/weight via Bootstrap text-danger fw-bold
+	.sam-batch-hint-warn {
+		font-style: normal;
+	}
+
+	// offending inline adjustment(s) in a conflict — red border (like Date Manager) + tint
+	.sam-batch-conflict-cell {
+		background-color: rgba(220, 53, 69, 0.15);
+	}
+
+	.sam-batch-update.disabled {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
+
+	.sam-batch-commentmode {
+		margin-top: 0.25rem;
+	}
+
+	// disclosure bar styled like the Assignments "Send Feedback to Multiple
+	// Students" toggle. Raw Bootstrap .alert-info isn't dark-adapted on the
+	// Samigo page (renders light-cyan on the dark theme), so use the same
+	// theme-adaptive --infoBanner-* vars the Assignments .discTria bar uses:
+	// light-blue bar / dark text in light mode, dark-blue bar / light text in dark.
+	.sam-batch-bar {
+		background-color: var(--infoBanner-bgcolor);
+		border-radius: 4px;
+		padding: 0.45em 0.75em;
+		margin-bottom: 0.5rem;
+	}
+
+	// heading doubles as the collapse toggle for the composer
+	.sam-batch-toggle {
+		background: none;
+		border: 0;
+		padding: 0;
+		font-size: inherit;
+		font-weight: bold;
+		color: var(--infoBanner-color);
+		text-decoration: none;
+		cursor: pointer;
+
+		&:hover,
+		&:focus {
+			color: var(--infoBanner-color);
+			text-decoration: none;
+		}
+	}
+
+	.sam-batch-count {
+		color: var(--infoBanner-color);
+		opacity: 0.85;
+	}
+
+	.sam-batch-caret {
+		margin-right: 0.35rem;
+		transition: transform 0.15s ease;
+	}
+
+	.sam-batch-toggle[aria-expanded="false"] .sam-batch-caret {
+		transform: rotate(-90deg);
+	}
+
 	.navIntraTool {
 		margin: 0px !important;
 	}

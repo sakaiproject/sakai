@@ -187,6 +187,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
                     delivered.add(user.getId());
                 }
             } catch (Exception e) {
+                // a mail/SMTP failure for one recipient must not abort the rest of the batch
                 log.warn("Cannot notify grading updated for user {}", user.getId(), e);
             }
         }

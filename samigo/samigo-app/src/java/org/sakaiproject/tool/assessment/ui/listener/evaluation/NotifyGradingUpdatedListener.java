@@ -52,6 +52,8 @@ public class NotifyGradingUpdatedListener implements ActionListener {
 
     /** component ids that target the single student of the student score page */
     private static final List<String> STUDENT_PAGE_SOURCES = List.of("notifyStudent", "saveAndNotify");
+    /** the unified Update button; notify rides with it via the "Also email" checkbox */
+    private static final String APPLY_SOURCE = "updateScores";
 
     public void processAction(ActionEvent ae) throws AbortProcessingException {
         TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
@@ -75,6 +77,35 @@ public class NotifyGradingUpdatedListener implements ActionListener {
                     gradingIds.add(studentScores.getAssessmentGradingId());
                 }
             }
+        } else if (APPLY_SOURCE.equals(sourceId)) {
+            // Rides with the unified Apply: only fire when the instructor ticked
+            // "Also email affected students". Emails the target's submitters
+            // (the same matchesTarget set Apply wrote to, intersected with real
+            // submissions) — non-submitters have nothing to view, so they are
+            // never emailed whatever the target.
+            if (!Boolean.TRUE.equals(totalScores.getBulkNotify())) {
+                return;
+            }
+            String target = totalScores.getBulkApplyTarget();
+            for (Object o : totalScores.getAgents()) {
+                AgentResults agent = (AgentResults) o;
+                if (!ApplyToSelectedListener.matchesTarget(agent, target) || !isEligible(agent)) {
+                    continue;
+                }
+                // "affected students" means it: the save loop just recorded per-row
+                // whether anything actually changed — an Update with no effective
+                // edit must not email the whole target set
+                if (!Boolean.TRUE.equals(agent.getGradeUpdated())) {
+                    continue;
+                }
+                if (totalScores.isNotifyCoolingDown(agent.getAssessmentGradingId().toString())) {
+                    skippedCooldown++;
+                    continue;
+                }
+                userIds.add(agent.getIdString());
+                gradingIds.add(agent.getAssessmentGradingId().toString());
+            }
+            totalScores.setBulkNotify(Boolean.FALSE);
         } else { // per-row send link: trust only the gradingData id and
                  // resolve the student from our own rows, so a tampered
                  // studentid param cannot direct mail at someone else

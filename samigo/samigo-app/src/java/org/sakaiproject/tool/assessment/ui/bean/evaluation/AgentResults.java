@@ -75,6 +75,11 @@ public class AgentResults
   private PublishedAssessmentIfc publishedAssessment;
   private Date submittedDate;
   private Date attemptDate;
+  // batch-actions row selection (transient UI state)
+  private Boolean selected = Boolean.FALSE;
+  // set true by the save loop when this row's grade/comment actually
+  // changed in the current Update, so "email affected" notifies only who changed.
+  private Boolean gradeUpdated = Boolean.FALSE;
   private Boolean isLate;
   private Boolean forGrade;
   private String totalAutoScore;
@@ -236,6 +241,20 @@ public class AgentResults
   /** string form for EL map lookups on the notify column */
   public String getAssessmentGradingIdString() {
     return assessmentGradingId == null ? "" : assessmentGradingId.toString();
+  }
+
+  public Boolean getSelected() {
+    return Validator.bcheck(selected, false);
+  }
+  public void setSelected(Boolean selected) {
+    this.selected = selected;
+  }
+
+  public Boolean getGradeUpdated() {
+    return Validator.bcheck(gradeUpdated, false);
+  }
+  public void setGradeUpdated(Boolean gradeUpdated) {
+    this.gradeUpdated = gradeUpdated;
   }
 
   public Boolean getForGrade() {

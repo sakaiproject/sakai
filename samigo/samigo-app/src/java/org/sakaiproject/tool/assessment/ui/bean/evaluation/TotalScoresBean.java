@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -405,10 +406,61 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 		init();
 	}
 	
+  // batch actions bar inputs (transient)
+  private Boolean selectAll = Boolean.FALSE; // header checkbox; selection state lives per row
+  private String applyToSelectedScore;
+  private String bulkComment;
+  private String bulkCommentMode = "ONLY_EMPTY";
+  // which participants the unified "Apply" targets. Folds in the old
+  // "Apply This Score to No Submission" control (default keeps that behaviour).
+  // One of NO_SUBMISSION | WITH_SUBMISSIONS | SELECTED | ALL.
+  private String bulkApplyTarget = "NO_SUBMISSION";
+  // "Also email affected students" toggle that rides with Apply.
+  private Boolean bulkNotify = Boolean.FALSE;
+
+  public Boolean getSelectAll() { return selectAll; }
+  public void setSelectAll(Boolean selectAll) { this.selectAll = selectAll; }
+  public String getBulkApplyTarget() { return bulkApplyTarget; }
+  public void setBulkApplyTarget(String bulkApplyTarget) { this.bulkApplyTarget = bulkApplyTarget; }
+  public Boolean getBulkNotify() { return bulkNotify; }
+  public void setBulkNotify(Boolean bulkNotify) { this.bulkNotify = bulkNotify; }
+  // the out-of-range adjustment we last warned about; a matching
+  // re-submit is the instructor's "apply it anyway" confirmation.
+  private String bulkOverrideConfirmValue;
+  public String getBulkOverrideConfirmValue() { return bulkOverrideConfirmValue; }
+  public void setBulkOverrideConfirmValue(String bulkOverrideConfirmValue) { this.bulkOverrideConfirmValue = bulkOverrideConfirmValue; }
+
+  /** roster count of participants who have a real submission (for the Update hint) */
+  public int getSubmittedAgentCount() {
+    if (allAgents == null) return 0;
+    int count = 0;
+    for (Iterator i = allAgents.iterator(); i.hasNext();) {
+      AgentResults a = (AgentResults) i.next();
+      if (a.getAssessmentGradingId() != null
+          && !Long.valueOf(-1L).equals(a.getAssessmentGradingId())
+          && a.getSubmittedDate() != null) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /** roster count of participants with no submission (for the Update hint) */
+  public int getNoSubmissionAgentCount() {
+    if (allAgents == null) return 0;
+    return allAgents.size() - getSubmittedAgentCount();
+  }
+  public String getApplyToSelectedScore() { return applyToSelectedScore; }
+  public void setApplyToSelectedScore(String applyToSelectedScore) { this.applyToSelectedScore = applyToSelectedScore; }
+  public String getBulkComment() { return bulkComment; }
+  public void setBulkComment(String bulkComment) { this.bulkComment = bulkComment; }
+  public String getBulkCommentMode() { return bulkCommentMode; }
+  public void setBulkCommentMode(String bulkCommentMode) { this.bulkCommentMode = bulkCommentMode; }
+
   // "email student: grading updated" — session-side cooldown and
   // last-sent display; resets with the session (no schema change)
   private static final Duration NOTIFY_COOLDOWN = Duration.ofMinutes(1);
-  private final Map<String, Instant> gradingNotifiedDates = new HashMap<>();
+  private final Map<String, Instant> gradingNotifiedDates = new ConcurrentHashMap<>(); // session-scoped, read on render + written from the notify listener
 
   /** true when the assessment's feedback settings let students see grading now */
   public boolean getGradingNotifyAvailable() {
