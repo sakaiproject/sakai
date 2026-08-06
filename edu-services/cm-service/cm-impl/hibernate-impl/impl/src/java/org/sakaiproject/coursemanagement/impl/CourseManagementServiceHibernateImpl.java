@@ -252,7 +252,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
             Query q = session.getNamedQuery("countEnrollments");
             q.setParameter("userId", userId);
             q.setParameterList("enrollmentSetEids", enrollmentSetEids);
-            return q.iterate().next();
+            return q.uniqueResult();
         };
 		int i = ((Number)getHibernateTemplate().execute(hc)).intValue();
 		if(log.isDebugEnabled()) log.debug(userId + " is enrolled in " + i + " of these " + enrollmentSetEids.size() + " EnrollmentSets" );
@@ -356,7 +356,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		HibernateCallback hc = session -> {
             Query q = session.getNamedQuery("findNonEmptyCourseSet");
             q.setParameter("eid", courseSetEid);
-            return Boolean.valueOf( ! q.iterate().hasNext());
+            return q.list().isEmpty();
         };
 		return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
 	}

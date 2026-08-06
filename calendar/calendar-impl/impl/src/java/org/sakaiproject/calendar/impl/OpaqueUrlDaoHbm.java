@@ -35,10 +35,10 @@ public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {
 		final OpaqueUrlHbm opaqueUrl = new OpaqueUrlHbm(userUUID, calendarRef, UUID.randomUUID().toString());
 		getHibernateTemplate().execute(session -> {
-            Serializable opaqueUUID = session.save(opaqueUrl);
+            session.persist(opaqueUrl);
             // We look for the opaque URL later on in the request so flush.
             session.flush();
-            return opaqueUUID;
+            return null;
         });
 		return opaqueUrl;
 	}

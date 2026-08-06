@@ -236,9 +236,9 @@ public class ParameterParser
 	public FileItem getFileItem(String name) {
 		// wrap the Apache FileItem in our own homegrown FileItem
 		Object o = m_req.getAttribute(name);
-		if (o instanceof org.apache.commons.fileupload.FileItem)
+		if (o instanceof org.apache.commons.fileupload2.core.FileItem)
 		{
-			org.apache.commons.fileupload.FileItem item = (org.apache.commons.fileupload.FileItem) o;
+			org.apache.commons.fileupload2.core.FileItem item = (org.apache.commons.fileupload2.core.FileItem) o;
 			try
 			{
 				return new FileItem(

@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 
-@ManagedBean(name="subbean")
+@Named("subbean")
 @SessionScoped
 public class SubBackingBean implements Serializable {
   private String title;

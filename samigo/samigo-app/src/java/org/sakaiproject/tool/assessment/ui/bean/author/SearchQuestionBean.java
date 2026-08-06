@@ -29,10 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
 
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
@@ -57,7 +57,7 @@ import net.htmlparser.jericho.Source;
 
 /* For author: Search Questions backing bean. */
 @Slf4j
-@ManagedBean(name="searchQuestionBean")
+@Named("searchQuestionBean")
 @SessionScoped
 public class SearchQuestionBean   implements Serializable {
 

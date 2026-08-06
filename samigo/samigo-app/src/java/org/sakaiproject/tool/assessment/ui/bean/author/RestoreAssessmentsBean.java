@@ -38,10 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
-
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -66,7 +65,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.util.api.FormattedText;
 
 
-@ManagedBean(name = "restoreAssessmentsBean", eager = true)
+@Named("restoreAssessmentsBean")
 @SessionScoped
 @Data
 @Slf4j
