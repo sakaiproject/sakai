@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,11 +58,15 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
     @Transactional(readOnly = true)
     public List<Comment> findByGradableObjectAndStudentIdIn(GradebookAssignment assignment, Collection<String> studentIds) {
 
-        return (List<Comment>) sessionFactory.getCurrentSession()
-            .createCriteria(Comment.class)
-            .add(Restrictions.eq("gradableObject", assignment))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Comment> query = cb.createQuery(Comment.class);
+        Root<Comment> comment = query.from(Comment.class);
+        query.where(cb.and(
+            cb.equal(comment.get("gradableObject"), assignment),
+            comment.get("studentId").in(studentIds)
+        ));
+        return session.createQuery(query).list();
     }
 
     @Transactional(readOnly = true)

@@ -71,9 +71,9 @@
         </exclusions>
     </dependency>
       <dependency>
-          <groupId>org.jasig.cas.client</groupId>
+          <groupId>org.apereo.cas.client</groupId>
           <artifactId>cas-client-core</artifactId>
-          <version>3.6.4</version>
+          <version>4.0.4</version>
       </dependency>
       <dependency>
           <groupId>org.springframework</groupId>

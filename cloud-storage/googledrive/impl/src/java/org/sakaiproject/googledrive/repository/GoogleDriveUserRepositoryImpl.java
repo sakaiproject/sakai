@@ -15,11 +15,13 @@
  */
 package org.sakaiproject.googledrive.repository;
 
-import org.hibernate.criterion.Restrictions;
-import org.springframework.transaction.annotation.Transactional;
-import org.sakaiproject.serialization.BasicSerializableRepository;
-
 import org.sakaiproject.googledrive.model.GoogleDriveUser;
+import org.sakaiproject.serialization.BasicSerializableRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 /**
  * Created by bgarcia
@@ -29,7 +31,15 @@ public class GoogleDriveUserRepositoryImpl extends BasicSerializableRepository<G
 
 	@Override
 	public GoogleDriveUser findBySakaiId(String sakaiId){
-		return (GoogleDriveUser) startCriteriaQuery().add(Restrictions.eq("sakaiUserId", sakaiId)).uniqueResult();
+		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaQuery<GoogleDriveUser> query = cb.createQuery(GoogleDriveUser.class);
+		Root<GoogleDriveUser> root = query.from(GoogleDriveUser.class);
+
+		query.select(root).where(cb.equal(root.get("sakaiUserId"), sakaiId));
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(query)
+				.uniqueResult();
 	}
 
 }

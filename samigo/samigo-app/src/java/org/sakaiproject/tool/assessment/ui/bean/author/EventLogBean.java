@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.model.SelectItem;
-
+import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 
 /* Event Log backing bean. */
 @Slf4j
-@ManagedBean(name="eventLog")
+@Named("eventLog")
 @SessionScoped
 public class EventLogBean implements Serializable {
 
