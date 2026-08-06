@@ -60,13 +60,13 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.net.URIBuilder;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -426,26 +426,28 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 httpGet.setHeader("Content-Type", "application/x-www-form-urlencoded");
                 log.debug("namecoach http get: " + httpGet.toString());
 
-                ResponseHandler<String> handler = new BasicResponseHandler();
                 ObjectMapper objectMapper = new ObjectMapper();
 
-                CloseableHttpResponse response = client.execute(httpGet);
-                int statusCode = response.getStatusLine().getStatusCode();
+                try (CloseableHttpResponse response = client.execute(httpGet)) {
+                    int statusCode = response.getCode();
 
-                if (statusCode == 200) {
-                    String body = handler.handleResponse(response);
-                    JsonNode rootNode = objectMapper.readTree(body);
-                    log.debug("JSON returned: {}", rootNode.toString());
-                    JsonNode participantsNode = rootNode.path("participants");
-                    for (JsonNode pNode : participantsNode) {
-                        JsonNode emailNode = pNode.get("email");
-                        JsonNode embedNode = pNode.get("embed_image");
-                        String emailText = emailNode.asText();
-                        String embedCode = embedNode.asText();
-                        if (emailNode != null && embedNode != null && !emailText.equals("null") && !embedCode.equals("null")) {
-                            pronounceMap.put(emailText, embedCode);
-                        }
-                    }
+	                if (statusCode == 200) {
+	                    String body = EntityUtils.toString(response.getEntity());
+	                    JsonNode rootNode = objectMapper.readTree(body);
+	                    log.debug("JSON returned: {}", rootNode.toString());
+	                    JsonNode participantsNode = rootNode.path("participants");
+	                    for (JsonNode pNode : participantsNode) {
+	                        JsonNode emailNode = pNode.get("email");
+	                        JsonNode embedNode = pNode.get("embed_image");
+	                        String emailText = emailNode.asText();
+	                        String embedCode = embedNode.asText();
+	                        if (emailNode != null && embedNode != null && !emailText.equals("null") && !embedCode.equals("null")) {
+	                            pronounceMap.put(emailText, embedCode);
+	                        }
+	                    }
+	                }
+                } catch (ParseException e) {
+                    log.warn("Could not parse response: {}", e.toString());
                 }
             }
             catch (UnsupportedEncodingException e) {

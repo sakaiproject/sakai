@@ -30,9 +30,9 @@ import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.SessionScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.model.SelectItem;
+import jakarta.inject.Named;
 
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -55,7 +55,7 @@ import lombok.Setter;
 
 /* For evaluation: Histogram Scores backing bean. */
 @Slf4j
-@ManagedBean(name="histogramScores")
+@Named("histogramScores")
 @SessionScoped
 public class HistogramScoresBean implements Serializable {
 

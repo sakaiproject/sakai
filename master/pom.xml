@@ -32,7 +32,6 @@
     <sakai.hibernate.version>6.6.54.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
-    <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.6.2</sakai.httpclient5.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpcore5.version>5.4.3</sakai.httpcore5.version>
@@ -961,12 +960,6 @@
         <groupId>org.apache.httpcomponents.client5</groupId>
         <artifactId>httpclient5</artifactId>
         <version>${sakai.httpclient5.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpmime</artifactId>
-        <version>${sakai.httpmime.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

@@ -33,15 +33,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.bean.ManagedBean;
-import jakarta.faces.bean.ManagedProperty;
-import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +75,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter @Setter
-@ManagedBean(name="ChatTool")
+@Named("ChatTool")
 @SessionScoped
 public class ChatTool {
 
@@ -120,17 +121,17 @@ public class ChatTool {
    
    private Boolean fromPermissions = false;
 
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.chat2.model.ChatManager\"]}")
+   @Inject
    private ChatManager chatManager;
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.component.api.ServerConfigurationService\"]}")
+   @Inject
    private ServerConfigurationService serverConfigurationService;
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ActiveToolManager\"]}")
+   @Inject
    private ToolManager toolManager;
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
+   @Inject
    private UserDirectoryService userDirectoryService;
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
+   @Inject
    private SessionManager sessionManager;
-   @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
+   @Inject
    private SiteService siteService;
    
    /** The current channel the user is in */
@@ -160,7 +161,7 @@ public class ChatTool {
    
    // Used for fetching user's default language locale
    ResourceLoader rl = new ResourceLoader();
-   
+
    protected void setupTool() {
       
       Placement placement = getToolManager().getCurrentPlacement();
