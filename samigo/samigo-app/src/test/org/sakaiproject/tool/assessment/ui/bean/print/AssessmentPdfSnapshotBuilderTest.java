@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
 import javax.faces.model.SelectItem;
@@ -70,10 +71,12 @@ public class AssessmentPdfSnapshotBuilderTest {
         when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.FALSE);
 
         PrintSettingsBean printSettings = new PrintSettingsBean();
-        FormattedText formattedText = mock(FormattedText.class);
 
-        AssessmentPrintPdfModel model = AssessmentPdfSnapshotBuilder.buildPrintModel(
-                deliveryBean, List.of(section), printSettings, "", formattedText);
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(printSettings)
+                .buildPrintModel();
 
         assertNotNull(model);
         AssessmentPdfQuestionModel question = model.getParts().get(0).getQuestions().get(0);
@@ -101,10 +104,12 @@ public class AssessmentPdfSnapshotBuilderTest {
         when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.FALSE);
 
         PrintSettingsBean printSettings = new PrintSettingsBean();
-        FormattedText formattedText = mock(FormattedText.class);
 
-        AssessmentPrintPdfModel model = AssessmentPdfSnapshotBuilder.buildPrintModel(
-                deliveryBean, List.of(section), printSettings, "", formattedText);
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(printSettings)
+                .buildPrintModel();
 
         assertNull(model.getParts().get(0).getQuestions().get(0).getCalculatedQuestionText());
     }
@@ -134,10 +139,12 @@ public class AssessmentPdfSnapshotBuilderTest {
         when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.FALSE);
 
         PrintSettingsBean printSettings = new PrintSettingsBean();
-        FormattedText formattedText = mock(FormattedText.class);
 
-        AssessmentPrintPdfModel model = AssessmentPdfSnapshotBuilder.buildPrintModel(
-                deliveryBean, List.of(section), printSettings, "", formattedText);
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(printSettings)
+                .buildPrintModel();
 
         assertEquals("Kevin has 3 apples", model.getParts().get(0).getQuestions().get(0).getCalculatedQuestionText());
     }
@@ -147,7 +154,10 @@ public class AssessmentPdfSnapshotBuilderTest {
         DeliveryBean deliveryBean = studentReportDeliveryBean(matchingQuestionItem());
         StudentScoresBean studentScoresBean = studentReportScoresBean("Strong work overall.");
 
-        AssessmentStudentReportPdfModel model = AssessmentPdfSnapshotBuilder.buildStudentReportModel(deliveryBean, studentScoresBean);
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .studentScores(studentScoresBean)
+                .buildStudentReportModel();
 
         assertEquals("Strong work overall.", model.getComments());
         assertTrue(model.hasComments());
@@ -178,7 +188,10 @@ public class AssessmentPdfSnapshotBuilderTest {
         DeliveryBean deliveryBean = studentReportDeliveryBean(item);
         StudentScoresBean studentScoresBean = studentReportScoresBean(null);
 
-        AssessmentStudentReportPdfModel model = AssessmentPdfSnapshotBuilder.buildStudentReportModel(deliveryBean, studentScoresBean);
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .studentScores(studentScoresBean)
+                .buildStudentReportModel();
         AssessmentPdfMatchingRowModel row = model.getParts().get(0).getQuestions().get(0).getMatchingRows().get(0);
 
         assertEquals("Paris", row.getText());
@@ -219,13 +232,20 @@ public class AssessmentPdfSnapshotBuilderTest {
         DeliveryBean deliveryBean = studentReportDeliveryBean(item);
         StudentScoresBean studentScoresBean = studentReportScoresBean(null);
 
-        AssessmentStudentReportPdfModel model = AssessmentPdfSnapshotBuilder.buildStudentReportModel(deliveryBean, studentScoresBean);
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .studentScores(studentScoresBean)
+                .buildStudentReportModel();
         AssessmentPdfSelectionAnswerModel selection = model.getParts().get(0).getQuestions().get(0).getSelectionAnswers().get(0);
 
         assertEquals("A", selection.getLabel());
         assertEquals("First choice", selection.getText());
         assertEquals(Boolean.TRUE, selection.getCorrect());
         assertTrue(selection.isSelected());
+    }
+
+    private static AssessmentPdfSnapshotBuilder snapshotBuilder() {
+        return new AssessmentPdfSnapshotBuilder(mock(FormattedText.class), mock(ResourceLoader.class));
     }
 
     private static ItemContentsBean matchingQuestionItem() {

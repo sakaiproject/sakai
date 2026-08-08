@@ -62,7 +62,10 @@ public class ExportAction implements ActionListener {
         StudentScoresBean studentScoreBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
 
         try {
-            AssessmentStudentReportPdfModel model = AssessmentPdfSnapshotBuilder.buildStudentReportModel(deliveryBean, studentScoreBean);
+            AssessmentStudentReportPdfModel model = new AssessmentPdfSnapshotBuilder()
+                    .deliveryBean(deliveryBean)
+                    .studentScores(studentScoreBean)
+                    .buildStudentReportModel();
             byte[] pdfBytes = assessmentPdfService.buildStudentReport(model);
 
             response.setContentType("application/pdf");

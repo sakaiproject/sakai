@@ -193,8 +193,11 @@ public class PDFAssessmentBean implements Serializable {
 	}
 
 	private AssessmentPrintPdfModel buildPrintModel(DeliveryBean deliveryBean, List<SectionContentsBean> deliveryParts, PrintSettingsBean printSettings) {
-		String introHtml = AssessmentPdfSnapshotBuilder.buildIntroHtml(deliveryBean, printSettings, formattedText);
-		return AssessmentPdfSnapshotBuilder.buildPrintModel(deliveryBean, deliveryParts, printSettings, introHtml, formattedText);
+		return new AssessmentPdfSnapshotBuilder()
+				.deliveryBean(deliveryBean)
+				.deliveryParts(deliveryParts)
+				.printSettings(printSettings)
+				.buildPrintModel();
 	}
 
 	/**

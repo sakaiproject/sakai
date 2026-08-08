@@ -23,6 +23,7 @@ import java.util.List;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -73,11 +74,53 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class AssessmentPdfSnapshotBuilder {
 
-    private static final ResourceLoader PRINT_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages");
+    private final FormattedText formattedText;
+    private final ResourceLoader printMessages;
 
-    private AssessmentPdfSnapshotBuilder() {}
+    private DeliveryBean deliveryBean;
+    private List<? extends SectionContentsBean> deliveryParts;
+    private PrintSettingsBean printSettings;
+    private StudentScoresBean studentScoresBean;
 
-    public static AssessmentPrintPdfModel buildPrintModel(DeliveryBean deliveryBean, List<? extends SectionContentsBean> deliveryParts, PrintSettingsBean printSettings, String introHtml, FormattedText formattedText) {
+    public AssessmentPdfSnapshotBuilder() {
+        this(ComponentManager.get(FormattedText.class),
+             new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages"));
+    }
+
+    public AssessmentPdfSnapshotBuilder(FormattedText formattedText, ResourceLoader printMessages) {
+        this.formattedText = formattedText;
+        this.printMessages = printMessages;
+    }
+
+    public AssessmentPdfSnapshotBuilder deliveryBean(DeliveryBean deliveryBean) {
+        this.deliveryBean = deliveryBean;
+        return this;
+    }
+
+    public AssessmentPdfSnapshotBuilder deliveryParts(List<? extends SectionContentsBean> deliveryParts) {
+        this.deliveryParts = deliveryParts;
+        return this;
+    }
+
+    public AssessmentPdfSnapshotBuilder printSettings(PrintSettingsBean printSettings) {
+        this.printSettings = printSettings;
+        return this;
+    }
+
+    public AssessmentPdfSnapshotBuilder studentScores(StudentScoresBean studentScoresBean) {
+        this.studentScoresBean = studentScoresBean;
+        return this;
+    }
+
+    /**
+     * Builds the printable assessment model from {@link #deliveryBean(DeliveryBean)},
+     * {@link #deliveryParts(List)} and {@link #printSettings(PrintSettingsBean)}.
+     */
+    public AssessmentPrintPdfModel buildPrintModel() {
+        requireDeliveryBean();
+        if (deliveryParts == null) {
+            throw new IllegalStateException("deliveryParts is required to build a printable assessment");
+        }
         AssessmentPdfPrintSettingsModel settingsModel = toPrintSettings(printSettings);
         List<AssessmentPdfPartModel> parts = new ArrayList<>();
         for (SectionContentsBean section : deliveryParts) {
@@ -85,14 +128,19 @@ public final class AssessmentPdfSnapshotBuilder {
         }
         return new AssessmentPrintPdfModel(
                 deliveryBean.getAssessmentTitle(),
-                introHtml,
+                buildIntroHtml(),
                 deliveryBean.getIsMathJaxEnabled(),
                 settingsModel,
                 parts);
     }
 
-    public static String buildIntroHtml(DeliveryBean deliveryBean, PrintSettingsBean printSettings, FormattedText formattedText) {
-        if (!Boolean.TRUE.equals(printSettings.getShowPartIntros())) {
+    /**
+     * Builds the assessment intro markup from {@link #deliveryBean(DeliveryBean)} and
+     * {@link #printSettings(PrintSettingsBean)}.
+     */
+    public String buildIntroHtml() {
+        requireDeliveryBean();
+        if (printSettings == null || !Boolean.TRUE.equals(printSettings.getShowPartIntros())) {
             return "";
         }
         StringBuffer assessmentIntros = new StringBuffer();
@@ -102,19 +150,27 @@ public final class AssessmentPdfSnapshotBuilder {
         }
         if (deliveryBean.getAttachmentList() != null && !deliveryBean.getAttachmentList().isEmpty()) {
             assessmentIntros.append("<br />");
-            assessmentIntros.append(PRINT_MESSAGES.getString("attachments"));
+            assessmentIntros.append(printMessages.getString("attachments"));
             Iterator attachmentIter = deliveryBean.getAttachmentList().iterator();
             while (attachmentIter.hasNext()) {
                 assessmentIntros.append("<br />");
                 PublishedAssessmentAttachment attachment = (PublishedAssessmentAttachment) attachmentIter.next();
-                appendAttachmentHtml(assessmentIntros, attachment.getFilename(), attachment.getMimeType(), attachment.getResourceId(), formattedText);
+                appendAttachmentHtml(assessmentIntros, attachment.getFilename(), attachment.getMimeType(), attachment.getResourceId());
             }
         }
         return assessmentIntros.toString();
     }
 
-    public static AssessmentStudentReportPdfModel buildStudentReportModel(DeliveryBean deliveryBean, StudentScoresBean studentScoresBean) {
-        String siteTitle = PRINT_MESSAGES.getString("unknown_site");
+    /**
+     * Builds the graded student report model from {@link #deliveryBean(DeliveryBean)} and
+     * {@link #studentScores(StudentScoresBean)}.
+     */
+    public AssessmentStudentReportPdfModel buildStudentReportModel() {
+        requireDeliveryBean();
+        if (studentScoresBean == null) {
+            throw new IllegalStateException("studentScores is required to build a student report");
+        }
+        String siteTitle = printMessages.getString("unknown_site");
         if (deliveryBean.getSiteId() != null) {
             try {
                 siteTitle = SiteService.getSite(deliveryBean.getSiteId()).getTitle();
@@ -139,7 +195,13 @@ public final class AssessmentPdfSnapshotBuilder {
                 parts);
     }
 
-    private static AssessmentPdfPartModel toPart(SectionContentsBean section, boolean includeReportStats) {
+    private void requireDeliveryBean() {
+        if (deliveryBean == null) {
+            throw new IllegalStateException("deliveryBean is required to build a PDF snapshot");
+        }
+    }
+
+    private AssessmentPdfPartModel toPart(SectionContentsBean section, boolean includeReportStats) {
         List<AssessmentPdfQuestionModel> questions = new ArrayList<>();
         for (ItemContentsBean item : section.getItemContents()) {
             questions.add(toQuestion(item));
@@ -160,7 +222,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return new AssessmentPdfPartModel(section.getTitle(), section.getDescription(), attachments, questions);
     }
 
-    private static AssessmentPdfQuestionModel toQuestion(ItemContentsBean item) {
+    private AssessmentPdfQuestionModel toQuestion(ItemContentsBean item) {
         List<String> matchingResponses = new ArrayList<>();
         if (item.getAnswers() != null) {
             for (Object answer : item.getAnswers()) {
@@ -206,7 +268,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return builder.build();
     }
 
-    private static void applyItemDataSnapshot(AssessmentPdfQuestionModel.Builder builder, ItemDataIfc itemData) {
+    private void applyItemDataSnapshot(AssessmentPdfQuestionModel.Builder builder, ItemDataIfc itemData) {
         if (itemData == null) {
             return;
         }
@@ -231,7 +293,7 @@ public final class AssessmentPdfSnapshotBuilder {
                 .printChoices(toPrintChoices(itemData));
     }
 
-    private static List<AssessmentPdfPrintChoiceModel> toPrintChoices(ItemDataIfc itemData) {
+    private List<AssessmentPdfPrintChoiceModel> toPrintChoices(ItemDataIfc itemData) {
         List<AssessmentPdfPrintChoiceModel> choices = new ArrayList<>();
         List itemTexts = itemData.getItemTextArraySorted();
         if (itemTexts == null) {
@@ -261,7 +323,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return choices;
     }
 
-    private static List<AssessmentPdfChoiceOptionModel> toEmiAnswerOptions(ItemDataIfc itemData) {
+    private List<AssessmentPdfChoiceOptionModel> toEmiAnswerOptions(ItemDataIfc itemData) {
         List<AssessmentPdfChoiceOptionModel> options = new ArrayList<>();
         if (!itemData.getIsAnswerOptionsSimple() || itemData.getEmiAnswerOptions() == null) {
             return options;
@@ -272,7 +334,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return options;
     }
 
-    private static List<AssessmentPdfEmiPromptModel> toEmiPrompts(ItemDataIfc itemData) {
+    private List<AssessmentPdfEmiPromptModel> toEmiPrompts(ItemDataIfc itemData) {
         List<AssessmentPdfEmiPromptModel> prompts = new ArrayList<>();
         List<ItemTextIfc> combinations = itemData.getEmiQuestionAnswerCombinations();
         if (combinations == null) {
@@ -289,7 +351,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return prompts;
     }
 
-    private static List<String> toImageMapItemTexts(ItemDataIfc itemData) {
+    private List<String> toImageMapItemTexts(ItemDataIfc itemData) {
         List<String> texts = new ArrayList<>();
         List itemTexts = itemData.getItemTextArraySorted();
         if (itemTexts == null) {
@@ -303,7 +365,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return texts;
     }
 
-    private static String calculatedQuestionText(ItemContentsBean item) {
+    private String calculatedQuestionText(ItemContentsBean item) {
         if (item.getItemData() == null
                 || !TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
             return null;
@@ -315,7 +377,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return item.getCalculatedQuestionText();
     }
 
-    private static List<AssessmentPdfFillInRowModel> toFibRows(List fibArray) {
+    private List<AssessmentPdfFillInRowModel> toFibRows(List fibArray) {
         if (fibArray == null) {
             return Collections.emptyList();
         }
@@ -327,7 +389,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private static List<AssessmentPdfFillInRowModel> toFinRows(List<FinBean> finArray) {
+    private List<AssessmentPdfFillInRowModel> toFinRows(List<FinBean> finArray) {
         if (finArray == null) {
             return Collections.emptyList();
         }
@@ -338,7 +400,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private static List<AssessmentPdfMatchingRowModel> toMatchingRows(List matchingArray) {
+    private List<AssessmentPdfMatchingRowModel> toMatchingRows(List matchingArray) {
         if (matchingArray == null) {
             return Collections.emptyList();
         }
@@ -368,7 +430,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private static List<AssessmentPdfImageMapRowModel> toImageMapRows(List matchingArray, Long typeId) {
+    private List<AssessmentPdfImageMapRowModel> toImageMapRows(List matchingArray, Long typeId) {
         if (matchingArray == null) {
             return Collections.emptyList();
         }
@@ -382,7 +444,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private static List<AssessmentPdfSelectionAnswerModel> toSelectionAnswers(ItemContentsBean item) {
+    private List<AssessmentPdfSelectionAnswerModel> toSelectionAnswers(ItemContentsBean item) {
         if (item.getAnswers() == null) {
             return Collections.emptyList();
         }
@@ -410,7 +472,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return answers;
     }
 
-    private static List<AssessmentPdfMatrixRowModel> toMatrixRows(List matrixArray) {
+    private List<AssessmentPdfMatrixRowModel> toMatrixRows(List matrixArray) {
         if (matrixArray == null) {
             return Collections.emptyList();
         }
@@ -427,7 +489,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return rows;
     }
 
-    private static List<AssessmentPdfAttachmentModel> toAttachments(List attachmentList) {
+    private List<AssessmentPdfAttachmentModel> toAttachments(List attachmentList) {
         if (attachmentList == null || attachmentList.isEmpty()) {
             return Collections.emptyList();
         }
@@ -454,7 +516,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return attachments;
     }
 
-    private static List<AssessmentPdfMediaModel> toMediaItems(List mediaArray) {
+    private List<AssessmentPdfMediaModel> toMediaItems(List mediaArray) {
         if (mediaArray == null) {
             return Collections.emptyList();
         }
@@ -469,7 +531,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return items;
     }
 
-    private static List<AssessmentPdfItemGradingModel> toItemGradingData(List itemGradingDataArray) {
+    private List<AssessmentPdfItemGradingModel> toItemGradingData(List itemGradingDataArray) {
         if (itemGradingDataArray == null) {
             return Collections.emptyList();
         }
@@ -484,7 +546,7 @@ public final class AssessmentPdfSnapshotBuilder {
         return items;
     }
 
-    private static AssessmentPdfPrintSettingsModel toPrintSettings(PrintSettingsBean printSettings) {
+    private AssessmentPdfPrintSettingsModel toPrintSettings(PrintSettingsBean printSettings) {
         if (printSettings == null) {
             return null;
         }
@@ -496,7 +558,7 @@ public final class AssessmentPdfSnapshotBuilder {
                 printSettings.getShowSamePage());
     }
 
-    private static void appendAttachmentHtml(StringBuffer buffer, String filename, String mimeType, String resourceId, FormattedText formattedText) {
+    private void appendAttachmentHtml(StringBuffer buffer, String filename, String mimeType, String resourceId) {
         buffer.append(formattedText.escapeHtml(filename, false));
         String mime = mimeType != null ? mimeType.toLowerCase() : "";
         if (mime.equals("image/jpeg") || mime.equals("image/pjpeg") || mime.equals("image/gif")
