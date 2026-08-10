@@ -194,7 +194,8 @@ public class AssessmentPdfContentHelper {
                     pdfLatexImage.scaleAbsolute(finalWidth, finalHeight);
                     latexParagraph.add(new Chunk(pdfLatexImage, -1, -2, true));
                 } catch (Exception ex) {
-                    log.error(ex.getMessage(), ex);
+                    // an unrenderable formula still reads better as its source than not at all
+                    log.warn("Could not render LaTeX [{}] as an image, falling back to its source text, {}", latex, ex.toString());
                     latexParagraph.add(new Chunk(chunk.getContent(), font));
                 }
             }
@@ -600,8 +601,9 @@ public class AssessmentPdfContentHelper {
         if (originalWidth <= 0 || originalHeight <= 0) {
             return;
         }
-        if (originalHeight > AssessmentPdfStyle.MAX_IMAGE_HEIGHT) {
-            float scale = AssessmentPdfStyle.MAX_IMAGE_HEIGHT / originalHeight;
+        float maxImageHeight = AssessmentPdfStyle.maxImageHeight();
+        if (originalHeight > maxImageHeight) {
+            float scale = maxImageHeight / originalHeight;
             image.scaleAbsolute(originalWidth * scale, originalHeight * scale);
         }
     }

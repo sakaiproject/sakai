@@ -33,29 +33,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -64,13 +57,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.osid.shared.SharedException;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.TagService;
-import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -107,6 +102,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListe
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.DataTableColumn;
 import org.sakaiproject.tool.assessment.ui.model.DataTableConfig;
+import org.sakaiproject.tool.assessment.ui.model.DataTableConfigBuilder;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -115,8 +111,10 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.SakaiCollators;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* Question Pool backing bean. */
 @Slf4j
@@ -1450,7 +1448,7 @@ public String getAddOrEdit()
 		// permission check to ensure the user should have access to the questions being copied
 		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));
+		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(Long.parseLong(sectionId));
 		String assessmentId = af.getAssessmentBaseId().toString();
 		String createdBy = af.getCreatedBy();
 		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, createdBy, false))
@@ -1518,8 +1516,7 @@ public String getAddOrEdit()
 						addMessageIfDuplicatedInSameDestPool(sourceItemId, destId);
 						Long copyItemFacadeId = questionPoolService
 								.copyItemFacade(sourceItem.getData());
-						delegate.addItemToPool(copyItemFacadeId, new Long(
-								destId));
+						delegate.addItemToPool(copyItemFacadeId, destId);
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
 					}
 				} catch (Exception e) {
@@ -1536,8 +1533,7 @@ public String getAddOrEdit()
 
 		SectionService sectiondelegate = new SectionService();
 
-		SectionFacade section = sectiondelegate.getSection(new Long(
-				getSourcePart()), AgentFacade.getAgentString());
+		SectionFacade section = sectiondelegate.getSection(Long.parseLong(getSourcePart()), AgentFacade.getAgentString());
 
 		Set itemSet = section.getItemSet();
 
@@ -1556,7 +1552,7 @@ public String getAddOrEdit()
 					while (iter2.hasNext()) {
 			            ItemDataIfc sourceItem = (ItemDataIfc)iter2.next();
 			            Long sourceItemId = delegate.copyItemFacade(sourceItem);
-		                delegate.addItemToPool(sourceItemId, new Long(destId));
+		                delegate.addItemToPool(sourceItemId, Long.parseLong(destId));
 					}
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -1580,7 +1576,7 @@ public String getAddOrEdit()
        ItemFacade itemfacade = (ItemFacade) iter.next();
        Long itemid = itemfacade.getItemId();
        QuestionPoolService delegate = new QuestionPoolService();
-       delegate.removeQuestionFromPool(itemid, new Long(sourceId));
+       delegate.removeQuestionFromPool(itemid, Long.parseLong(sourceId));
 
        //Questionpool has been deleted
        EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_DELETEITEM, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + itemid, true));
@@ -1696,10 +1692,9 @@ public String getAddOrEdit()
    try{
      QuestionPoolDataBean pool = new QuestionPoolDataBean();
 
-          String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
-          if((qpid != null) && (! qpid.equals("null")))
-          {
-          pool.setId(new Long(qpid));
+          String qpid = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
+          if(qpid != null && ! qpid.equals("null")) {
+              pool.setId(Long.parseLong(qpid));
           }
           else {
                 // This should not ococur.  It should always have an id.
@@ -1715,9 +1710,7 @@ public String getAddOrEdit()
               throw new IllegalArgumentException("User " + AgentFacade.getAgentString() + " does not have access to question pool id " + pool.getId() + " for move or copy");
           }
 
-          QuestionPoolFacade thepool =
-            delegate.getPool(
-              new Long(qpid), AgentFacade.getAgentString());
+          QuestionPoolFacade thepool = delegate.getPool(Long.parseLong(qpid), AgentFacade.getAgentString());
           tree.setCurrentId(thepool.getQuestionPoolId());
 
           pool.setDisplayName(thepool.getDisplayName());
@@ -1788,8 +1781,7 @@ public String getAddOrEdit()
         // if dest = source's parent,i.e copying to it's own parent ,  then if there is an existing pool with the same name, copyPool() will create a new pool with Copy prepended in the pool name
 		String copy = rb.getString("prepend_copy");
 		String of = rb.getString("prepend_of");
-		delegate.copyPool(tree, AgentFacade.getAgentString(),
-				  sourceId, new Long(destId), copy, of);
+		delegate.copyPool(tree, AgentFacade.getAgentString(), sourceId, Long.parseLong(destId), copy, of);
 	    }
             catch(Exception e)
             {
@@ -1833,9 +1825,7 @@ public String getAddOrEdit()
        
 	return "movePool";
 	      }
-            delegate.movePool(
-              AgentFacade.getAgentString(),
-              new Long(sourceId), new Long(destId));
+            delegate.movePool(AgentFacade.getAgentString(), Long.parseLong(sourceId), Long.parseLong(destId));
        
 	  }
           catch(Exception e)
@@ -1884,7 +1874,7 @@ public String getAddOrEdit()
 	if((qpid !=null) && (!qpid.equals("0")))
 // qpid = 0 if creating a new pool at root level
           {
-            pool.setParentPoolId(new Long(qpid));
+            pool.setParentPoolId(Long.parseLong(qpid));
 
           }
 
@@ -1906,7 +1896,7 @@ public String getAddOrEdit()
 	 String poolId = ContextUtil.lookupParam("qpid");
 
 	 QuestionPoolService delegate = new QuestionPoolService();
-	 QuestionPoolFacade qPool = delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+	 QuestionPoolFacade qPool = delegate.getPool(Long.parseLong(poolId), AgentFacade.getAgentString());
 	        
 	 this.setPoolToUnshare(qPool);
 	 return "unsharePool";
@@ -1943,7 +1933,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     	List qpools = new ArrayList();
         QuestionPoolService delegate = new QuestionPoolService();
         QuestionPoolFacade qPool =
-            delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+            delegate.getPool(Long.parseLong(poolId), AgentFacade.getAgentString());
         qpools.add(qPool);
 
         this.setPoolsToDelete(qpools);
@@ -1968,7 +1958,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
         QuestionPoolService delegate = new QuestionPoolService();
         QuestionPoolFacade qPool =
-            delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+            delegate.getPool(Long.parseLong(poolId), AgentFacade.getAgentString());
         qpools.add(qPool);
 
         }
@@ -2085,7 +2075,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
           if(qpid != null)
           {
-          	pool.setId(new Long(qpid));
+          	pool.setId(Long.parseLong(qpid));
           }
 	  else {
 		// should always have an id.
@@ -2095,7 +2085,7 @@ String poolId = ContextUtil.lookupParam("qpid");
           // Get all data from the database
           QuestionPoolService delegate = new QuestionPoolService();
           // The call to getPool will retrieve all questions/answers/metadata/etc via Hibernate
-          QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
+          QuestionPoolFacade thepool = delegate.getPool(Long.parseLong(qpid), AgentFacade.getAgentString());
           tree.setCurrentId(thepool.getQuestionPoolId());
 
           Long ppoolid = thepool.getParentPoolId();
@@ -2347,7 +2337,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   	public void setQpDataModelByLevel() {
 		// construct the sortedList, pools need to be sorted one level at a time
 		// so the hierachical structure can be maintained. Here, we start from root = 0,
-		setQpDataModelByLevel(new Long("0"));
+		setQpDataModelByLevel(Long.parseLong("0"));
 	}
 
   	public void setQpDataModelByLevel(Long poolId) {
@@ -2391,7 +2381,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	{
 		String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
 		if(qpid!=null) {
-			Long qpidL = new Long(qpid);
+			Long qpidL = Long.parseLong(qpid);
 
 	        QuestionPoolService delegate = new QuestionPoolService();
 	        QuestionPoolFacade thepool = delegate.getPool(qpidL, AgentFacade.getAgentString());
@@ -2435,8 +2425,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		log.debug("exporting as Excel: poolid = {}", poolId);
 
 		QuestionPoolService delegate = new QuestionPoolService();
-		QuestionPoolFacade qPool =
-				delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+		QuestionPoolFacade qPool = delegate.getPool(Long.parseLong(poolId), AgentFacade.getAgentString());
 
 		// changed from above by gopalrc - Jan 2008
 		// to allow local customization of spreadsheet output
@@ -3085,7 +3074,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   		  			QuestionPoolFacade qpFacade =  delegate.getPool(poolId, AgentFacade.getAgentString() );
   
   		  			IdImpl parentId = (IdImpl) qpFacade.getParentId();
-  		  			Long parentIdLong = new Long("0");
+  		  			Long parentIdLong = Long.parseLong("0");
   
   		  			try {
   					  parentIdLong = Long.valueOf(parentId.getIdString());
@@ -3127,11 +3116,9 @@ String poolId = ContextUtil.lookupParam("qpid");
   		// Construct the sortedList, pools need to be sorted one level at a time
   		// so the hierachical structure can be maintained. Here, we start from root = 0,
   		if (objects != null) {
-  			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
-  					getSortTransferPoolProperty(), getSortTransferPoolAscending());
-  			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
-  			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
-  					model);
+  			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(0L, objects, getSortTransferPoolProperty(), getSortTransferPoolAscending());
+  			ListDataModel model = new ListDataModel(sortedList);
+  			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
   			this.qpDataModelTransfer = qpDataModel;
   		}
   	}
@@ -3142,11 +3129,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 		// Construct the sortedList, pools need to be sorted one level at a time
 		// so the hierachical structure can be maintained. Here, we start from root = 0,
 		if (objects != null) {
-			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
-					"title", true);
-			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
-			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
-					model);
+			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(0L, objects, "title", true);
+			ListDataModel model = new ListDataModel(sortedList);
+			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 			this.qpDataModelTransferSelected = qpDataModel;
 		}
 	}
@@ -3181,7 +3166,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		for (int i = 0; i < poolIds.length; i++) {
 			if (StringUtils.isNotBlank(poolIds[i])) {
 				try {
-					Long poolId = new Long(poolIds[i]);
+					Long poolId = Long.parseLong(poolIds[i]);
 					if (poolsWithAccess.contains(poolId)) {
 						transferPoolIdLong.add(poolId);
 					}
@@ -3356,45 +3341,45 @@ String poolId = ContextUtil.lookupParam("qpid");
 	
 	public DataTableConfig getDataTableConfig() {
 		if(this.dataTableConfig == null) {
-			this.dataTableConfig = DataTableConfig.builderWithDefaults()
+			this.dataTableConfig = DataTableConfigBuilder.withDefaults()
 				.entitiesMessage(rb.getString("datatables_entities"))
-				.columnDefs(new LinkedList<DataTableColumn>() {{
-					// Order matters: First declarations take precedence over the last ones 
-					// CHECKBOX (delete)
-					add(DataTableColumn.builder()
-							.targets("columnCheckDelete")
-							.orderable(false)
-							.searchable(false)
-							.build());
-					add(DataTableColumn.builder()
-							.targets("columnQuestionText")
-							.orderable(true)
-							.searchable(true)
-							.type(DataTableColumn.TYPE_ANY_NUM)
-							.build());
-					// CHECKBOX (import)
-					add(DataTableColumn.builder()
-							.targets("columnCheckImport")
-							.orderable(false)
-							.searchable(false)
-							.build());
-					// POINTS
-					add(DataTableColumn.builder()
-							.targets("columnPoints")
-							.searchable(false)
-							.build());
-					// DATE
-					add(DataTableColumn.builder()
-							.targets("columnDate")
-							.type(DataTableColumn.TYPE_NUM)
-							.build());
-					// ALL
-					add(DataTableColumn.builder()
-							.targets("_all")
-							.orderable(true)
-							.searchable(true)
-							.build());
-			}}).build();
+				// Order matters: First declarations take precedence over the last ones
+				.columnDefs(List.of(
+						// CHECKBOX (delete)
+						DataTableColumn.builder()
+								.targets("columnCheckDelete")
+								.orderable(false)
+								.searchable(false)
+								.build(),
+						DataTableColumn.builder()
+								.targets("columnQuestionText")
+								.orderable(true)
+								.searchable(true)
+								.type(DataTableColumn.TYPE_ANY_NUM)
+								.build(),
+						// CHECKBOX (import)
+						DataTableColumn.builder()
+								.targets("columnCheckImport")
+								.orderable(false)
+								.searchable(false)
+								.build(),
+						// POINTS
+						DataTableColumn.builder()
+								.targets("columnPoints")
+								.searchable(false)
+								.build(),
+						// DATE
+						DataTableColumn.builder()
+								.targets("columnDate")
+								.type(DataTableColumn.TYPE_NUM)
+								.build(),
+						// ALL
+						DataTableColumn.builder()
+								.targets("_all")
+								.orderable(true)
+								.searchable(true)
+								.build()))
+				.build();
 		}
 		return this.dataTableConfig;
 	}
@@ -3462,7 +3447,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
       String itemId= ContextUtil.lookupParam("itemid");
       ItemService delegate = new ItemService();
-      ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+      ItemFacade itemfacade= delegate.getItem(Long.parseLong(itemId), AgentFacade.getAgentString());
       ItemContentsBean itemBean = new ItemContentsBean(itemfacade.getData());
       ArrayList<ItemContentsBean> list = new ArrayList<ItemContentsBean>();
       list.add(itemBean);

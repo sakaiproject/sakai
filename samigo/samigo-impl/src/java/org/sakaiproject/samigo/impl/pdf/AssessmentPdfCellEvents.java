@@ -16,7 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.lowagie.text.Element;
 import com.lowagie.text.Rectangle;
@@ -113,16 +113,28 @@ public final class AssessmentPdfCellEvents {
      * Overlays image-map answer regions and markers on a PDF cell.
      */
     public static class ImageMapQuestionCellEvent implements PdfPCellEvent {
-        private final ArrayList<Rectangle> answerRectangles;
-        private final ArrayList<ImageMapCircle> answerCircles;
+        private final List<Rectangle> answerRectangles;
+        private final List<ImageMapCircle> answerCircles;
         private final float originalWidth;
         private final float originalHeight;
+        private final float drawnWidth;
+        private final float drawnHeight;
 
-        public ImageMapQuestionCellEvent(ArrayList<ImageMapCircle> answerCircles, ArrayList<Rectangle> answerRectangles, float originalWidth, float originalHeight) {
+        /**
+         * @param originalWidth  intrinsic image width, the coordinate space the stored answer
+         *                       regions and responses are expressed in
+         * @param originalHeight intrinsic image height, as above
+         * @param drawnWidth     width the image actually occupies on the page after scaling
+         * @param drawnHeight    height the image actually occupies on the page after scaling
+         */
+        public ImageMapQuestionCellEvent(List<ImageMapCircle> answerCircles, List<Rectangle> answerRectangles,
+                float originalWidth, float originalHeight, float drawnWidth, float drawnHeight) {
             this.answerCircles = answerCircles;
             this.answerRectangles = answerRectangles;
             this.originalWidth = originalWidth;
             this.originalHeight = originalHeight;
+            this.drawnWidth = drawnWidth;
+            this.drawnHeight = drawnHeight;
         }
 
         @Override
@@ -131,17 +143,20 @@ public final class AssessmentPdfCellEvents {
                 return;
             }
             PdfContentByte canvas = canvases[PdfPTable.TEXTCANVAS];
+            // Anchor on the image, not the cell: the image is added with no padding so it sits at
+            // the cell's top left, but the cell is full width while the image is scaled down to
+            // fit the page. Scaling by the cell would stretch every overlay past the image.
             float x = position.getLeft();
-            float y = position.getBottom();
+            float y = position.getTop() - drawnHeight;
 
-            float scaleX = position.getWidth() / originalWidth;
-            float scaleY = position.getHeight() / originalHeight;
+            float scaleX = drawnWidth / originalWidth;
+            float scaleY = drawnHeight / originalHeight;
             for (Rectangle answerRectangle : answerRectangles) {
                 PdfGState transparentState = new PdfGState();
                 transparentState.setFillOpacity(0.65f);
                 transparentState.setStrokeOpacity(1f);
                 float transformedX = x + answerRectangle.getLeft() * scaleX;
-                float transformedY = y + position.getHeight() - answerRectangle.getTop() * scaleY;
+                float transformedY = y + drawnHeight - answerRectangle.getTop() * scaleY;
                 float transformedW = answerRectangle.getWidth() * scaleX;
                 float transformedH = answerRectangle.getHeight() * scaleY;
                 canvas.rectangle(transformedX, transformedY, transformedW, transformedH);
@@ -159,7 +174,7 @@ public final class AssessmentPdfCellEvents {
                 transparentState.setFillOpacity(0.3f);
                 transparentState.setStrokeOpacity(0.8f);
                 float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + position.getHeight() - answerCircle.getY() * scaleY;
+                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     canvas.circle(transformedX, transformedY, radius);
                     canvas.setGState(transparentState);
@@ -180,7 +195,7 @@ public final class AssessmentPdfCellEvents {
                 transparentState.setFillOpacity(1f);
                 transparentState.setStrokeOpacity(1f);
                 float transformedX = x + answerRectangle.getLeft() * scaleX;
-                float transformedY = y + position.getHeight() - answerRectangle.getTop() * scaleY;
+                float transformedY = y + drawnHeight - answerRectangle.getTop() * scaleY;
                 float transformedW = answerRectangle.getWidth() * scaleX;
                 canvas.setGState(transparentState);
                 try {
@@ -198,7 +213,7 @@ public final class AssessmentPdfCellEvents {
             int toReduce = smallestValue;
             for (ImageMapCircle answerCircle : answerCircles) {
                 float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + position.getHeight() - answerCircle.getY() * scaleY;
+                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     try {
                         int answerIndex = answerCircles.size() - (answerCircle.getPublishedItemId() - toReduce);

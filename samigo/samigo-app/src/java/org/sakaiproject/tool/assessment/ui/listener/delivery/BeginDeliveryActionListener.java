@@ -564,6 +564,10 @@ public class BeginDeliveryActionListener implements ActionListener
     				if (!delivery.isFromPrint()) {
     					RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
     					thread.start();
+    				} else {
+    					// The print flow needs this temporary publish to survive until the PDF has been
+    					// built, so hand the id over for PDFAssessmentBean to remove afterwards.
+    					delivery.setPrintPreviewPublishedId(publishedId);
     				}
     			} 
     			catch (Exception e) {

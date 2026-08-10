@@ -70,8 +70,15 @@ public class ExportReportServlet extends SamigoBaseServlet {
     public static final String EXPORT_TYPE_ITEM_ANALYSIS = "item_analysis";
     public static final String EXPORT_TYPE_STATISTICS = "statistics";
 
-    private static final ResourceLoader EVALUATION_BUNDLE = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
+    private final ResourceLoader resourceLoader;
 
+    public ExportReportServlet() {
+        this(new ResourceLoader(SamigoConstants.EVAL_BUNDLE));
+    }
+
+    public ExportReportServlet(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -133,19 +140,19 @@ public class ExportReportServlet extends SamigoBaseServlet {
             return;
         }
 
-        String reportTitle = EVALUATION_BUNDLE.getFormattedMessage("item_analysis") + ": " + highestSubmissionHsBean.getAssessmentName();
+        String reportTitle = resourceLoader.getFormattedMessage("item_analysis") + ": " + highestSubmissionHsBean.getAssessmentName();
         Optional<String> optSiteTitle = getSite(assessment.getOwnerSiteId()).map(Site::getTitle);
-        String reportSubject = optSiteTitle.map(siteTitle -> EVALUATION_BUNDLE.getFormattedMessage("export_site") + ": " + siteTitle).orElse(null);
+        String reportSubject = optSiteTitle.map(siteTitle -> resourceLoader.getFormattedMessage("export_site") + ": " + siteTitle).orElse(null);
 
         String typeLabel;
         AssessmentReport report;
         switch(type) {
             case EXPORT_TYPE_ITEM_ANALYSIS:
-                typeLabel = EVALUATION_BUNDLE.getFormattedMessage("item_analysis");
+                typeLabel = resourceLoader.getFormattedMessage("item_analysis");
                 report = itemAnalysisReport(reportTitle, reportSubject, highestSubmissionHsBean, allSubmissionsHsBean);
                 break;
             case EXPORT_TYPE_STATISTICS:
-                typeLabel = EVALUATION_BUNDLE.getFormattedMessage("stat_view");
+                typeLabel = resourceLoader.getFormattedMessage("stat_view");
                 report = statisticsReport(reportTitle, reportSubject, highestSubmissionHsBean, allSubmissionsHsBean);
                 break;
             default:
@@ -244,13 +251,13 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 .subject(subject)
                 .orientation(AssessmentReportOrientation.LANDSCAPE)
                 .section(AssessmentReportSection.builder()
-                        .title(EVALUATION_BUNDLE.getFormattedMessage("highest_sub"))
+                        .title(resourceLoader.getFormattedMessage("highest_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
                         .tableHeaderCells(itemAnalysisHeaderCells(highestSubmissionHsBean))
                         .tableDataCells(itemAnalysisDataCells(highestSubmissionHsBean))
                         .build())
                 .section(AssessmentReportSection.builder()
-                        .title(EVALUATION_BUNDLE.getFormattedMessage("all_sub"))
+                        .title(resourceLoader.getFormattedMessage("all_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
                         .tableHeaderCells(itemAnalysisHeaderCells(allSubmissionsHsBean))
                         .tableDataCells(itemAnalysisDataCells(allSubmissionsHsBean))
@@ -313,23 +320,23 @@ public class ExportReportServlet extends SamigoBaseServlet {
         int itemCount = histogramScoresBean.getDetailedStatistics().size();
         List<AssessmentReportCell> header = new ArrayList<>();
 
-        header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("question")));
+        header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("question")));
         header.add(AssessmentReportCell.bold(histogramScoresBean.isRandomType() ? "N(" + itemCount + ")" : "N"));
-        header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("whole_group")));
+        header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("pct_correct_of") + " " + resourceLoader.getFormattedMessage("whole_group")));
         if (histogramScoresBean.getShowDiscriminationColumn()) {
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("upper_pct")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("lower_pct")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("discrim_abbrev")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("pct_correct_of") + " " + resourceLoader.getFormattedMessage("upper_pct")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("pct_correct_of") + " " + resourceLoader.getFormattedMessage("lower_pct")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("discrim_abbrev")));
         }
         if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("difficulty")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("total_correct")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("total_incorrect")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("no_answer")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("difficulty")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("total_correct")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("total_incorrect")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("no_answer")));
         }
         if (histogramScoresBean.getShowObjectivesColumn()) {
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("obj")));
-            header.add(AssessmentReportCell.bold(EVALUATION_BUNDLE.getFormattedMessage("keywords")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("obj")));
+            header.add(AssessmentReportCell.bold(resourceLoader.getFormattedMessage("keywords")));
         }
 
         for (int i = 0; i < histogramScoresBean.getMaxNumberOfAnswers(); i++) {
@@ -348,13 +355,13 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 .title(title)
                 .subject(subject)
                 .section(AssessmentReportSection.builder()
-                        .title(EVALUATION_BUNDLE.getFormattedMessage("highest_sub"))
+                        .title(resourceLoader.getFormattedMessage("highest_sub"))
                         .tableLayout(TableLayout.VERTICAL)
                         .tableHeader(statisticsHeader(highestSubmissionHsBean))
                         .tableData(statisticsData(highestSubmissionHsBean))
                         .build())
                 .section(AssessmentReportSection.builder()
-                        .title(EVALUATION_BUNDLE.getFormattedMessage("all_sub"))
+                        .title(resourceLoader.getFormattedMessage("all_sub"))
                         .tableLayout(TableLayout.VERTICAL)
                         .tableHeader(statisticsHeader(allSubmissionsHsBean))
                         .tableData(statisticsData(allSubmissionsHsBean))
@@ -378,7 +385,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
                     "qtile_3_eq",
                     "std_dev",
                     "skew_coef"
-            ).map(EVALUATION_BUNDLE::getFormattedMessage).collect(Collectors.toList());
+            ).map(resourceLoader::getFormattedMessage).collect(Collectors.toList());
         }
         
         return Stream.of(
@@ -392,7 +399,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 "qtile_3_eq",
                 "std_dev",
                 "skew_coef"
-        ).map(EVALUATION_BUNDLE::getFormattedMessage).collect(Collectors.toList());
+        ).map(resourceLoader::getFormattedMessage).collect(Collectors.toList());
     }
 
     private List<List<String>> statisticsData(HistogramScoresBean histogramScoresBean) {

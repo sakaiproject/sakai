@@ -24,10 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -39,16 +39,6 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
 
     public static final String PARAM_ATTACHMENT = "attachment";
 
-    private final SessionManager sessionManager;
-
-    public PrintAssessmentPdfServlet() {
-        this(ComponentManager.get(SessionManager.class));
-    }
-
-    PrintAssessmentPdfServlet(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -57,27 +47,35 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
             return;
         }
 
-        String placementId = StringUtils.trimToNull(request.getParameter(SamigoConstants.PARAM_PRINT_PREVIEW_PLACEMENT));
-        if (placementId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing tool placement id");
+        byte[] pdfBytes;
+        String filename;
+        try {
+            PDFAssessmentBean pdfAssessmentBean = (PDFAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("pdfAssessment", request, response);
+            DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response);
+            PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBeanFromExternalServlet("printSettings", request, response);
+
+            pdfBytes = pdfAssessmentBean.generatePrintablePdf(deliveryBean, printSettings);
+            filename = pdfAssessmentBean.generateFilename();
+        } catch (Exception e) {
+            log.error("Failed to generate printable assessment PDF", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not generate assessment PDF");
             return;
         }
 
-        ToolSession toolSession = sessionManager.getCurrentSession().getToolSession(placementId);
-        byte[] pdfBytes = (byte[]) toolSession.getAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_BYTES);
-        if (pdfBytes == null || pdfBytes.length == 0) {
-            log.debug("No print preview PDF in tool session for placement {}", placementId);
+        if (pdfBytes.length == 0) {
+            log.debug("No printable assessment content available for the current session");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No printable assessment content in session");
             return;
         }
 
-        String filename = (String) toolSession.getAttribute(SamigoConstants.SESSION_ATTR_PRINT_PREVIEW_PDF_FILENAME);
         if (StringUtils.isBlank(filename)) {
             filename = "assessment.pdf";
         }
 
         response.setContentType(CONTENT_TYPE_PDF);
         response.setContentLength(pdfBytes.length);
+        // The PDF is rebuilt on every request from the current print settings, so it must never be cached
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
 
         boolean attachment = StringUtils.equalsIgnoreCase(request.getParameter(PARAM_ATTACHMENT), "true");
         ContentDisposition disposition = attachment
@@ -87,17 +85,8 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
 
         try (ServletOutputStream out = response.getOutputStream()) {
             out.write(pdfBytes);
-            out.flush();
         } catch (IOException e) {
             log.debug("Client disconnected while streaming print preview PDF", e);
         }
-    }
-
-    public static String previewUrl() {
-        return SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF;
-    }
-
-    public static String attachmentUrl() {
-        return SamigoConstants.SERVLET_MAPPING_PRINT_ASSESSMENT_PDF + "?" + PARAM_ATTACHMENT + "=true";
     }
 }

@@ -18,18 +18,14 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.model.SelectItem;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -46,21 +42,28 @@ import org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.DataTableColumn;
 import org.sakaiproject.tool.assessment.ui.model.DataTableConfig;
+import org.sakaiproject.tool.assessment.ui.model.DataTableConfigBuilder;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
-public class EventLogListener
-implements ActionListener, ValueChangeListener
-{
+public class EventLogListener implements ActionListener, ValueChangeListener {
+
 	private BeanSort bs;
-	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+	private ServerConfigurationService serverConfigurationService;
 
-	public EventLogListener() {}
+	public EventLogListener() {
+		this(ComponentManager.get(ServerConfigurationService.class));
+	}
 
+	public EventLogListener(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
 	public void processAction(ActionEvent ae)
 	{
-		log.debug("*****Log: inside EventLogListener =debugging ActionEvent: " + ae);
+		log.debug("ActionEvent: {}", ae);
 		EventLogBean eventLog = (EventLogBean) ContextUtil.lookupBean("eventLog");
 		
 		processPageLoad(eventLog);		
@@ -71,7 +74,7 @@ implements ActionListener, ValueChangeListener
 	 */
 	public void processValueChange(ValueChangeEvent event)
 	{
-	   log.debug("*****Log: inside EventLogListener =debugging ValueChangeEvent: " + event);
+	   log.debug("ValueChangeEvent: {}", event);
 	   EventLogBean eventLog = (EventLogBean) ContextUtil.lookupBean("eventLog");
 	   eventLog.setFilteredAssessmentId((Long)event.getNewValue());
 	   processPageLoad(eventLog);
@@ -225,67 +228,63 @@ implements ActionListener, ValueChangeListener
 	}
 	
 	private List<EventLogData> copyData (List<EventLogData> dataList) {
-		List<EventLogData> list = new ArrayList<EventLogData>();
-		for(int i = 0; i < dataList.size(); i++) {
-			list.add(dataList.get(i));
-		}
-		return list;
+        return new ArrayList<>(dataList);
 	}
 
 	private DataTableConfig eventLogDataTableConfig(boolean titleColumnSortable) {
 		boolean displayIpAddressColumn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
 				SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);
 
-		return DataTableConfig.builderWithDefaults()
+		return DataTableConfigBuilder.withDefaults()
 				.entitiesMessage(ContextUtil.getLocalizedString(SamigoConstants.EVENT_LOG_BUNDLE, "datatables_entities"))
-				.columns(new LinkedList<DataTableColumn>() {{
-						// TITLE
-						add(DataTableColumn.builder()
-								.orderable(titleColumnSortable)
-								.searchable(titleColumnSortable)
-								.type(DataTableColumn.TYPE_HTML)
-								.build());
-						// ASSESSMENT ID
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.type(DataTableColumn.TYPE_HTML_NUM)
-								.build());
-						// NAME
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.build());
-						// ENTRY DATE
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.type(DataTableColumn.TYPE_NUM)
-								.build());
-						// DATE SUBMITTED
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.type(DataTableColumn.TYPE_NUM)
-								.build());
-						// DURATION
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.type(DataTableColumn.TYPE_ANY_NUM)
-								.build());
-						// ERRORS
-						add(DataTableColumn.builder()
-								.orderable(true)
-								.searchable(true)
-								.build());
-						// IP ADDRESS
-						if (displayIpAddressColumn) {
-							add(DataTableColumn.builder()
-									.orderable(true)
-									.searchable(true)
-									.build());
-						}
-				}}).build();
+				.columns(new LinkedList<>() {{
+                    // TITLE
+                    add(DataTableColumn.builder()
+                            .orderable(titleColumnSortable)
+                            .searchable(titleColumnSortable)
+                            .type(DataTableColumn.TYPE_HTML)
+                            .build());
+                    // ASSESSMENT ID
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .type(DataTableColumn.TYPE_HTML_NUM)
+                            .build());
+                    // NAME
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .build());
+                    // ENTRY DATE
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .type(DataTableColumn.TYPE_NUM)
+                            .build());
+                    // DATE SUBMITTED
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .type(DataTableColumn.TYPE_NUM)
+                            .build());
+                    // DURATION
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .type(DataTableColumn.TYPE_ANY_NUM)
+                            .build());
+                    // ERRORS
+                    add(DataTableColumn.builder()
+                            .orderable(true)
+                            .searchable(true)
+                            .build());
+                    // IP ADDRESS
+                    if (displayIpAddressColumn) {
+                        add(DataTableColumn.builder()
+                                .orderable(true)
+                                .searchable(true)
+                                .build());
+                    }
+                }}).build();
 	}
 }

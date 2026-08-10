@@ -466,7 +466,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
      SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         List<ItemTextIfc> itemTextArray = item.getItemTextArray();
@@ -497,7 +497,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(8))) // FIB question
@@ -512,7 +512,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
 	    for (int i=0;i<sectionArray.size(); i++){
 	      SectionDataIfc section = sectionArray.get(i);
-	      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+	      List<ItemDataIfc> itemArray = section.getItemArray();
 	      for (int j=0;j<itemArray.size(); j++){
 	        ItemDataIfc item = itemArray.get(j);
 	        if (item.getTypeId().equals( Long.valueOf(11))) // FIN question
@@ -572,7 +572,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(2))) // MCMR question

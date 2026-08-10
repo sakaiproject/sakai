@@ -25,11 +25,15 @@ public interface AssessmentPdfService {
 
     /**
      * Builds a blank printable assessment handout PDF.
+     *
+     * @throws AssessmentPdfServiceException if the document could not be generated
      */
     byte[] buildPrintable(AssessmentPrintPdfModel model);
 
     /**
      * Builds a graded student response report PDF.
+     *
+     * @throws AssessmentPdfServiceException if the document could not be generated
      */
     byte[] buildStudentReport(AssessmentStudentReportPdfModel model);
 }

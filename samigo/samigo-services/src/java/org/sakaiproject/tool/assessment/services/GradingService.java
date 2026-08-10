@@ -62,6 +62,7 @@ import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -84,7 +85,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.CellValue;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
+import org.sakaiproject.tool.assessment.facade.ExportSection;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -2761,20 +2764,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param useridMap
    * @param responseCommentString
    * @param isOneSelectionType
-   * @return a list of responses or null if there are none
+   * @return a Map keyed by {@link ExportSection}, never null and always containing both HEADER and ROWS
+   *         keys; an empty single-row HEADER and empty ROWS if the data could not be retrieved
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) {
-	  List list = null;
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString, boolean isOneSelectionType) {
 	    try {
-	    	list = PersistenceService.getInstance().
+	    	Map<ExportSection, List<List<CellValue<?>>>> result = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, isOneSelectionType);
+	    	if (result != null) {
+	    		return result;
+	    	}
+	    	log.warn("No export responses data for published assessment [{}], exporting headers only", publishedAssessmentId);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
-	    return list;
+	    return Map.of(ExportSection.HEADER, List.of(List.of()), ExportSection.ROWS, List.of());
   }
 
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString) {
     return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
   }
   

@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,11 +60,9 @@ import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -81,7 +78,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -100,7 +96,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionNavBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
@@ -115,38 +110,70 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.EncryptionUtilityService;
 
 /**
- * <p>Title: Samigo</p>
- * <p>Purpose:  this module creates the lists of published assessments for the select index
- * <p>Description: Sakai Assessment Manager</p>
+ * Handles delivery actions for published assessments including taking, reviewing, previewing, and grading.
+ *
+ * <p>This listener manages the assessment delivery workflow by:</p>
+ * <ul>
+ *   <li>Processing assessment submission and navigation actions</li>
+ *   <li>Handling timing controls and session management</li>
+ *   <li>Managing feedback display based on assessment settings</li>
+ *   <li>Supporting multiple assessment formats (by question, part, or full assessment)</li>
+ *   <li>Enforcing secure delivery and access control requirements</li>
+ * </ul>
+ *
+ * <p>The listener supports four main action modes:</p>
+ * <ul>
+ *   <li>{@link DeliveryBean#TAKE_ASSESSMENT} - Student taking assessment</li>
+ *   <li>{@link DeliveryBean#PREVIEW_ASSESSMENT} - Instructor previewing assessment</li>
+ *   <li>{@link DeliveryBean#REVIEW_ASSESSMENT} - Student reviewing submitted assessment</li>
+ *   <li>{@link DeliveryBean#GRADE_ASSESSMENT} - Instructor grading assessment</li>
+ * </ul>
+ *
  * @author Ed Smiley
- * @version $Id$
+ * @see DeliveryBean
+ * @see PublishedAssessmentFacade
+ * @see BeginDeliveryActionListener
  */
 @Slf4j
-public class DeliveryActionListener
-  implements ActionListener
-{
+public class DeliveryActionListener implements ActionListener {
 
-  private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  private final EncryptionUtilityService encryptionUtilityService;
+  private final EventTrackingService eventTrackingService;
+  private final GradingService gradingService;
+  private final ResourceLoader ra;
+  private final ResourceLoader rb;
+  private final SessionManager sessionManager;
+
   private boolean resetPageContents = true;
-  private long previewGradingId = (long)(Math.random() * 1000);
-  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
-  private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
-  private EncryptionUtilityService encryptionUtilityService = ComponentManager.get(EncryptionUtilityService.class);
-  private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
-  private PersistenceService persistenceService = PersistenceService.getInstance();
+    public DeliveryActionListener() {
+        this(
+                ComponentManager.get(EncryptionUtilityService.class),
+                ComponentManager.get(EventTrackingService.class),
+                new GradingService(),
+                new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages"),
+                new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages"),
+                ComponentManager.get(SessionManager.class));
+    }
 
-  private GradingService service = new GradingService();
+    public DeliveryActionListener(
+            EncryptionUtilityService encryptionUtilityService,
+            EventTrackingService eventTrackingService,
+            GradingService gradingService,
+            ResourceLoader ra,
+            ResourceLoader rb,
+            SessionManager sessionManager) {
+        this.encryptionUtilityService = encryptionUtilityService;
+        this.eventTrackingService = eventTrackingService;
+        this.gradingService = gradingService;
+        this.ra = ra;
+        this.rb = rb;
+        this.sessionManager = sessionManager;
+    }
 
-  /**
-   * ACTION.
-   * @param ae
-   * @throws AbortProcessingException
-   */
-  public void processAction(ActionEvent ae) throws
-    AbortProcessingException
-  {
+  public void processAction(ActionEvent ae) throws AbortProcessingException {
     log.debug("DeliveryActionListener.processAction() ");
 
     try
@@ -263,7 +290,7 @@ public class DeliveryActionListener
                 itemGradingHash = new HashMap();
                 if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() ||
                         delivery.getFeedbackComponent().getShowItemLevel())
-                	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
+                	itemGradingHash = gradingService.getSubmitData(id, agent, scoringoption, assessmentGradingId);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }
@@ -278,9 +305,9 @@ public class DeliveryActionListener
               delivery.setFeedbackComponent(component);
               AssessmentGradingData agData = null;
               if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
+            	  agData = (AssessmentGradingData) gradingService.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
               } else {
-            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
+            	  agData = (AssessmentGradingData) gradingService.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
               }
               if (agData == null) {
             	  delivery.setOutcome("reviewAssessmentError");
@@ -335,7 +362,7 @@ public class DeliveryActionListener
                   ? delivery.getNextAssessmentGradingId().toString()
                   : ContextUtil.lookupParam("gradingData");
               delivery.setNextAssessmentGradingId(null);
-              itemGradingHash = service.getStudentGradingData(gradingData);
+              itemGradingHash = gradingService.getStudentGradingData(gradingData);
               delivery.setAssessmentGradingId(Long.valueOf(gradingData));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
               delivery.setAssessmentGrading(ag);
@@ -403,7 +430,7 @@ public class DeliveryActionListener
 
                   // For file upload and audio questions, adding the corresponding itemGradingData into itemGradingHash and itemGradingSet to display correctly in delivery
                   // this hash compose (itemGradingId, array list of MediaData)
-                  Map<Long, List<ItemGradingData>> mediaItemGradingHash = service.getMediaItemGradingHash(ag.getAssessmentGradingId());
+                  Map<Long, List<ItemGradingData>> mediaItemGradingHash = gradingService.getMediaItemGradingHash(ag.getAssessmentGradingId());
                   Set<Map.Entry<Long, List<ItemGradingData>>> set = mediaItemGradingHash.entrySet();
             	  for (Map.Entry<Long, List<ItemGradingData>> me : set) {
             		  Long publishedItemId = me.getKey();
@@ -422,7 +449,7 @@ public class DeliveryActionListener
               } else {
             	  log.debug("Get data from db otherwise");
                   // this returns a HashMap with (publishedItemId, itemGrading)
-                  itemGradingHash = service.getLastItemGradingData(id, agent); //
+                  itemGradingHash = gradingService.getLastItemGradingData(id, agent); //
                   log.debug("**** DeliveryActionListener #1");
 
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
@@ -430,7 +457,7 @@ public class DeliveryActionListener
                 	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
                 	  setAttemptDateIfNull(ag);
                   } else {
-                	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
+                	  ag = gradingService.getLastSavedAssessmentGradingByAgentId(id, agent);
                 	  if (ag == null) {
                 		  ag = createAssessmentGrading(publishedAssessment);
                 		  isFirstTimeBegin = true;
@@ -1490,7 +1517,7 @@ public class DeliveryActionListener
       }
     }
 
-    List myanswers = new ArrayList();
+    List<AnswerIfc> myanswers = new ArrayList<>();
 
     // Generate the answer key
     String key = "";
@@ -1595,7 +1622,7 @@ public class DeliveryActionListener
               item.getTypeId().equals(TypeIfc.MATCHING) ||
               item.getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION))
           {
-            answer.setLabel(Character.toString(alphabet.charAt(k++)));
+            answer.setLabel(Character.toString(ALPHABET.charAt(k++)));
             if (answer.getIsCorrect() != null &&
                 answer.getIsCorrect().booleanValue())
             {
@@ -1692,7 +1719,7 @@ public class DeliveryActionListener
           }
         }
         if (!hasCorrectAnswer) {
-          distractorKeys.append(", ").append(thisItemText.getSequence()).append(":").append(Character.toString(alphabet.charAt(myanswers.size())));
+          distractorKeys.append(", ").append(thisItemText.getSequence()).append(":").append(Character.toString(ALPHABET.charAt(myanswers.size())));
         }
       }
       if (distractorKeys.length() > 0) {
@@ -1794,9 +1821,9 @@ public class DeliveryActionListener
             selectionBean.setFeedback(answer.getGeneralAnswerFeedback());
           }
           else if (selectionBean.getResponse() &&
-                   answer.getIsCorrect().booleanValue() ||
+                  answer.getIsCorrect() ||
                    !selectionBean.getResponse() &&
-                   !answer.getIsCorrect().booleanValue())
+                   !answer.getIsCorrect())
           {
             selectionBean.setFeedback(answer.getCorrectAnswerFeedback());
           }
@@ -1891,7 +1918,7 @@ public class DeliveryActionListener
     //int j = 1;
     List beans = new ArrayList();
     List newAnswers = null;
-    
+
     // Iterate through the PublishedItemTexts
     // Each ItemText represents a sub-question question
     // and is used to populate a MatchingBean
@@ -1952,7 +1979,7 @@ public class DeliveryActionListener
   {
 	  // used only for questions with distractors where the user has selected None of the Above
 	  final Long NONE_OF_THE_ABOVE = -1l;
-	  
+
     Iterator iter = item.getItemTextArraySorted().iterator();
     int j = 1;
     List beans = new ArrayList();
@@ -1989,17 +2016,18 @@ public class DeliveryActionListener
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
-        newAnswers.add(Character.toString(alphabet.charAt(i)) +
-                       ". " + answer.getText());
+        String choiceText = Character.toString(ALPHABET.charAt(i)) + ". " + answer.getText();
+        newAnswers.add(choiceText);
         choices.add(new SelectItem(answer.getId().toString(),
-                                   Character.toString(alphabet.charAt(i++)),
+                                   Character.toString(ALPHABET.charAt(i++)),
                                    ""));
       }
       
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
-        String noneOfTheAboveOption = Character.toString(alphabet.charAt(i++));
-        newAnswers.add(noneOfTheAboveOption + ". " + ra.getString("none_above"));
+        String noneOfTheAboveOption = Character.toString(ALPHABET.charAt(i++));
+        String noneOfTheAboveText = noneOfTheAboveOption + ". " + ra.getString("none_above");
+        newAnswers.add(noneOfTheAboveText);
         choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(), noneOfTheAboveOption, ""));
       }
 
@@ -2142,62 +2170,6 @@ public class DeliveryActionListener
     return texts;
   }
 
-  /**
-   * Tests that malformed FIB text does not create an excessive number of loops.
-   * Quickie test, nice to have: refine, move to JUnit.
-   * @param verbose
-   * @return
-   */
-  /*
-  private static boolean testExtractFIBTextArray(boolean verbose)
-  {
-    boolean status = true;
-    String[] testsuite = {
-      "aaa{bbb}ccc{ddd}eee", // correct
-      "aaa{bbb}ccc{", //incorrect
-      "aaa{bbb}ccc}", //incorrect
-      "aaa{bbb{ccc}ddd}eee" //incorrect
-    };
-
-    ArrayList testResult;
-
-    try
-    {
-      for (int i = 0; i < testsuite.length; i++)
-      {
-        testResult = extractFIBTextArray(testsuite[i]);
-        if (verbose)
-        {
-          log.debug("Extracting: " + testsuite[i]);
-          for (int j = 0; j < testResult.size(); j++)
-          {
-            log.debug("testResult.get(" + j +
-                               ")="+testResult.get(j));
-          }
-        }
-        if (testResult.size() > 10)
-        {
-          if (verbose)
-          {
-            log.debug("Extraction failed: exceeded reasonable size.");
-          }
-          return false;
-        }
-      }
-    }
-    catch (Exception ex)
-    {
-      if (verbose)
-      {
-        log.debug("Extraction failed: " + ex);
-      }
-      return false;
-    }
-
-    return status;
-  } 
-  */
-   
   public void populateFin(ItemDataIfc item, ItemContentsBean bean, Map<Long, AnswerIfc> publishedAnswerHash)
   {
     // Only one text in FIN
@@ -2276,22 +2248,21 @@ public class DeliveryActionListener
 
   public void populateMatrixChoices(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash){
 
-	  List matrixArray = new ArrayList();
-
-	  List<Integer> columnIndexList = new ArrayList<Integer>();
-	  List itemTextArray = item.getItemTextArraySorted();
-	  List answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted(); 
+	  List<MatrixSurveyBean> matrixArray = new ArrayList<>();
+	  List<Integer> columnIndexList = new ArrayList<>();
+	  List<ItemTextIfc> itemTextArray = item.getItemTextArraySorted();
+	  List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();
 	  MatrixSurveyBean mbean = null;
 
 	  List<String> stringList = new ArrayList<String>();
 
-	  for(int i=0; i<answerArray.size(); i++){
-		  String str = ((AnswerIfc) answerArray.get(i)).getText();
+      for (AnswerIfc answerIfc : answerArray) {
+          String str = answerIfc.getText();
 
-		  if(str!=null && str.trim().length()>0) {
-			  stringList.add(str);
-		  }
-	  }
+          if (StringUtils.isNotBlank(str)) {
+              stringList.add(str);
+          }
+      }
 
 	  for (int k=0; k<stringList.size(); k++){
 		  columnIndexList.add(Integer.valueOf(k));
@@ -2300,44 +2271,44 @@ public class DeliveryActionListener
 	  String [] columnChoices = stringList.toArray(new String[stringList.size()]);
 	  List<ItemTextIfc> iList = new ArrayList<ItemTextIfc>();
 
-	  for (int i=0; i<itemTextArray.size(); i++)
-	  {
-		  String str = ((ItemTextIfc) itemTextArray.get(i)).getText();
-		  if (str!=null && str.trim().length()>0)
-			  iList.add((ItemTextIfc)itemTextArray.get(i));
-	  }
+      for (ItemTextIfc itemTextIfc : itemTextArray) {
+          String str = itemTextIfc.getText();
+          if (StringUtils.isNotBlank(str)) {
+              iList.add(itemTextIfc);
+          }
+      }
 
-	  for(int i=0; i<iList.size(); i++)
-	  {	
-		  ItemTextIfc text = iList.get(i);
-		  List answers = ((ItemTextIfc)itemTextArray.get(i)).getAnswerArraySorted();
-		  List<AnswerIfc> alist = new ArrayList<AnswerIfc>();
-		  List<String> slist = new ArrayList<String>();
-		  for(int j= 0; j<answers.size(); j++)
-		  {
-			  if ((AnswerIfc)answers.get(j) != null && !"".equals(((AnswerIfc)answers.get(j)).getText().trim()))	{
-				  alist.add((AnswerIfc)answers.get(j));
-				  slist.add(((AnswerIfc)answers.get(j)).getId().toString());
-			  }
-		  }
-		  AnswerIfc [] answerIfcs =alist.toArray(new AnswerIfc[alist.size()]);
-		  String[] answerSid = slist.toArray(new String[slist.size()]);
+	  for (ItemTextIfc text : iList) {
+		  // answers must come from this filtered row, not itemTextArray at the same index: blank
+		  // item texts are dropped from iList, which shifts the two out of alignment
+		  List<AnswerIfc> answers = text.getAnswerArraySorted();
+		  List<AnswerIfc> alist = new ArrayList<>();
+		  List<String> slist = new ArrayList<>();
+          for (AnswerIfc answer : answers) {
+              if (answer != null) {
+                  String answerText = answer.getText();
+                  if (StringUtils.isNotBlank(answerText)) {
+                      alist.add(answer);
+                      slist.add(answer.getId().toString());
+                  }
+              }
+          }
+          AnswerIfc[] answerIfcs = alist.toArray(new AnswerIfc[0]);
+		  String[] answerSid = slist.toArray(new String[0]);
 		  mbean = new MatrixSurveyBean();
 		  mbean.setItemText(text);
 		  mbean.setItemContentsBean(bean);
 		  mbean.setAnswerArray(answerIfcs);
 		  mbean.setAnswerSid(answerSid);
 		  List<ItemGradingData> itemGradingArray = bean.getItemGradingDataArray();
-		  for (int k=0; k< itemGradingArray.size(); k++)
-		  {
-			  ItemGradingData data = itemGradingArray.get(k);
-			  if((data.getPublishedItemTextId()).longValue() == text.getId().longValue()){
-				  mbean.setItemGradingData(data);
-				  if (data.getPublishedAnswerId() != null)
-					  mbean.setResponseId(data.getPublishedAnswerId().toString());
-				  break;
-			  }
-		  }
+          for (ItemGradingData data : itemGradingArray) {
+              if ((data.getPublishedItemTextId()).longValue() == text.getId().longValue()) {
+                  mbean.setItemGradingData(data);
+                  if (data.getPublishedAnswerId() != null)
+                      mbean.setResponseId(data.getPublishedAnswerId().toString());
+                  break;
+              }
+          }
 		  matrixArray.add(mbean);
 	  }
 	  bean.setColumnArray(columnChoices);
@@ -2351,77 +2322,6 @@ public class DeliveryActionListener
 	  bean.setAddComment(Boolean.parseBoolean(item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_COMMENT_MATRIX)));
 	  bean.setCommentField(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD));
   }
-
-  /**
-   * Tests that malformed FIN text does not create an excessive number of loops.
-   * Quickie test, nice to have: refine, move to JUnit.
-   * @param verbose
-   * @return
-   */
-
-  /*
-
-  private static boolean testExtractFINTextArray(boolean verbose)
-  {
-    boolean status = true;
-    String[] testsuite = {
-      "aaa{bbb}ccc{ddd}eee", // correct
-      "aaa{bbb}ccc{", //incorrect
-      "aaa{bbb}ccc}", //incorrect
-      "aaa{bbb{ccc}ddd}eee" //incorrect
-    };
-
-    ArrayList testResult;
-
-    try
-    {
-      for (int i = 0; i < testsuite.length; i++)
-      {
-        testResult = extractFINTextArray(testsuite[i]);
-        if (verbose)
-        {
-          log.debug("Extracting: " + testsuite[i]);
-          for (int j = 0; j < testResult.size(); j++)
-          {
-            log.debug("testResult.get(" + j +
-                               ")="+testResult.get(j));
-          }
-        }
-        if (testResult.size() > 10)
-        {
-          if (verbose)
-          {
-            log.debug("Extraction failed: exceeded reasonable size.");
-          }
-          return false;
-        }
-      }
-    }
-    catch (Exception ex)
-    {
-      if (verbose)
-      {
-        log.debug("Extraction failed: " + ex);
-      }
-      return false;
-    }
-
-    return status;
-  }
-  */
-  
-  
-  /*
-  public static void main (String args[])
-  {
-    boolean verbose = true;
-    if (args.length>0 && "false".equals(args[0]))
-    {
-      verbose = false;
-    }
-
-  }
-*/
 
   public void populateSubmissionsRemaining(PublishedAssessmentService service, PublishedAssessmentIfc pubAssessment, DeliveryBean delivery) {
       AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
@@ -2450,23 +2350,23 @@ public class DeliveryActionListener
       long gradingId = determineCalcQGradingId(delivery);
       String agentId = determineCalcQAgentId(delivery, bean);
 
-      service.getAnswersMap().clear();
-      service.getAnswersMapValues().clear();
-      service.getGlobalanswersMapValues().clear();
-      service.getMainvariablesWithValues().clear();
+      gradingService.getAnswersMap().clear();
+      gradingService.getAnswersMapValues().clear();
+      gradingService.getGlobalanswersMapValues().clear();
+      gradingService.getMainvariablesWithValues().clear();
 
-      List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
+      List<List<String>> texts = gradingService.extractCalcQAnswersArray(gradingService.getAnswersMap(), gradingService.getAnswersMapValues(), gradingService.getGlobalanswersMapValues(), gradingService.getMainvariablesWithValues(), item, gradingId, agentId);
       if (texts.get(0).isEmpty())
       {
           log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
           texts.set(0, Collections.singletonList(rb.get("calc.extract_text_error").toString()));
       }
-      service.setTexts(texts.get(0));
+      gradingService.setTexts(texts.get(0));
 
       //changing solutions ex: {{w}} with numbers
-      service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+      gradingService.replaceSolutionOnFeedbackWithNumbers(gradingService.getAnswersMapValues(), item, texts);
 
-      String questionText = service.getTexts().get(0);
+      String questionText = gradingService.getTexts().get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
       List<FinBean> fins = new ArrayList<FinBean>();
@@ -2493,14 +2393,14 @@ public class DeliveryActionListener
           AnswerIfc answer = iter.next();
           
           // Checks if the 'answer' object is a variable, a global variable or a real answer
-          if (StringUtils.isEmpty(service.getAnswersMapValues().get(answer.getLabel()))) {
+          if (StringUtils.isEmpty(gradingService.getAnswersMapValues().get(answer.getLabel()))) {
               continue;
           }
 
           FinBean fbean = new FinBean();
           fbean.setItemContentsBean(bean);
           fbean.setAnswer(answer);
-          fbean.setText((String) service.getTexts().toArray()[i++]);
+          fbean.setText((String) gradingService.getTexts().toArray()[i++]);
           fbean.setHasInput(Boolean.TRUE); // input box
 
           List<ItemGradingData> datas = bean.getItemGradingDataArray();
@@ -2518,7 +2418,7 @@ public class DeliveryActionListener
                       {
                           answer.setText("");
                       }
-                      fbean.setIsCorrect(service.getCalcQResult(data, item, service.getAnswersMap(), i));
+                      fbean.setIsCorrect(gradingService.getCalcQResult(data, item, gradingService.getAnswersMap(), i));
                   }
               }
           }
@@ -2528,8 +2428,8 @@ public class DeliveryActionListener
       bean.setCalculatedQuestionAnswer(commaDelimitedCalcQuestionAnswers(item , delivery, bean));
 
       FinBean fbean = new FinBean();
-      if(service.getTexts().toArray().length>i)
-          fbean.setText( (String) service.getTexts().toArray()[i]);
+      if(gradingService.getTexts().toArray().length>i)
+          fbean.setText( (String) gradingService.getTexts().toArray()[i]);
       else
           fbean.setText("");
       fbean.setHasInput(Boolean.FALSE);
@@ -2550,7 +2450,7 @@ public class DeliveryActionListener
     List newAnswers = new ArrayList();
     while (iter.hasNext())
     {
-      
+
       ItemTextIfc text = (ItemTextIfc) iter.next();
       ImageMapQuestionBean mbean = new  ImageMapQuestionBean();
       mbean.setText(Integer.toString(j++) + ". " + text.getText());
@@ -2558,7 +2458,7 @@ public class DeliveryActionListener
       mbean.setItemContentsBean(bean);
 
       Iterator iter2 = text.getAnswerArraySorted().iterator();
-      
+
       while (iter2.hasNext())
       {
 
@@ -2597,7 +2497,7 @@ public class DeliveryActionListener
     }
     bean.setMatchingArray(beans);
     bean.setAnswers(newAnswers); // Change the answers to just text
-  
+
   }
   
   public String getAgentString(){
@@ -3055,30 +2955,30 @@ public class DeliveryActionListener
 	  String keysString = "";
 	  String answer = "";
 
-	service.getAnswersMap().clear();
-	service.getAnswersMapValues().clear();
-	service.getGlobalanswersMapValues().clear();
-	service.getMainvariablesWithValues().clear();
+	gradingService.getAnswersMap().clear();
+	gradingService.getAnswersMapValues().clear();
+	gradingService.getGlobalanswersMapValues().clear();
+	gradingService.getMainvariablesWithValues().clear();
 
-	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
-	service.setTexts(texts.get(0));
+	List<List<String>> texts = gradingService.extractCalcQAnswersArray(gradingService.getAnswersMap(), gradingService.getAnswersMapValues(), gradingService.getGlobalanswersMapValues(), gradingService.getMainvariablesWithValues(), item, gradingId, agentId);
+	gradingService.setTexts(texts.get(0));
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
-	while(answerSequence <= service.getAnswersMap().size()) {
-		  answer = (String)service.getAnswersMap().get(answerSequence);
+	while(answerSequence <= gradingService.getAnswersMap().size()) {
+		  answer = (String) gradingService.getAnswersMap().get(answerSequence);
 		  decimalPlaces = Integer.valueOf(answer.substring(answer.lastIndexOf(',')+1, answer.length()));
 		  answer = answer.substring(0, answer.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 		  // searching and replacing recursively global variables on the answer
-		  answer = service.checkingEmptyGlobalVariables(answer, service.getMainvariablesWithValues(), service.getGlobalanswersMapValues());
+		  answer = gradingService.checkingEmptyGlobalVariables(answer, gradingService.getMainvariablesWithValues(), gradingService.getGlobalanswersMapValues());
 		  try {
-		      answer = service.processFormulaIntoValue(answer, decimalPlaces);
+		      answer = gradingService.processFormulaIntoValue(answer, decimalPlaces);
 		  } catch (SamigoExpressionError e1) {
 		      log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
 		  }
 		  
 		  // We need the key formatted in scientificNotation
-		  answer = service.toScientificNotation(answer, decimalPlaces);
+		  answer = gradingService.toScientificNotation(answer, decimalPlaces);
 		  
 		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
@@ -3088,7 +2988,7 @@ public class DeliveryActionListener
 	  }
 
 	  //changing solutions ex: {{w}} with numbers
-	  service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+	  gradingService.replaceSolutionOnFeedbackWithNumbers(gradingService.getAnswersMapValues(), item, texts);
 
 	  return keysString;
   }
@@ -3131,8 +3031,10 @@ public class DeliveryActionListener
 		  	gradingId = delivery.getAssessmentGradingId();
 	  }
 	  else { // preview
-	  	// give the instructor a random value each time for this
-	  	gradingId = previewGradingId;
+	  	// no grading row exists yet, so fall back to the preview's own seed. It has to come from the
+	  	// bean rather than be drawn here: this method is called once for the question text and again
+	  	// for the answer key, and those two have to be generated from the same seed to agree.
+	  	gradingId = delivery.getPreviewGradingId();
 	  }
 	  return gradingId;
   }
