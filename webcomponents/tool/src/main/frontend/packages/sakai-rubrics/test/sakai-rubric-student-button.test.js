@@ -75,6 +75,19 @@ describe("sakai-rubric-student-button tests", () => {
     expect(instructorRubric.querySelector("select")).to.exist;
   });
 
+  it("uses Bootstrap modal spacing and frame styles", async () => {
+
+    const { modal } = await openRubric();
+    const content = modal.shadowRoot.querySelector(".modal-content");
+    const header = modal.shadowRoot.querySelector(".modal-header");
+    const body = modal.shadowRoot.querySelector(".modal-body");
+
+    expect(getComputedStyle(header).padding).to.equal("16px");
+    expect(getComputedStyle(body).padding).to.equal("16px");
+    expect(getComputedStyle(content).borderTopWidth).to.equal("1px");
+    expect(getComputedStyle(content).borderTopLeftRadius).to.equal("8px");
+  });
+
   it("updates only the student component inside the rubric modal", async () => {
 
     const { modal: firstModal, rubric: firstRubric } = await openRubric();

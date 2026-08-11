@@ -109,6 +109,19 @@ export class SakaiRubricModal extends SakaiShadowElement {
     SakaiShadowElement.styles,
     css`
       dialog {
+        /* Bootstrap defines these on .modal for its nested modal classes. */
+        --bs-modal-padding: 1rem;
+        --bs-modal-bg: var(--sakai-background-color-1, var(--bs-body-bg));
+        --bs-modal-border-color: var(--sakai-border-color, var(--bs-border-color-translucent));
+        --bs-modal-border-width: var(--bs-border-width, 1px);
+        --bs-modal-border-radius: var(--bs-border-radius-lg, 0.5rem);
+        --bs-modal-inner-border-radius: calc(var(--bs-modal-border-radius) - var(--bs-modal-border-width));
+        --bs-modal-header-padding-x: 1rem;
+        --bs-modal-header-padding-y: 1rem;
+        --bs-modal-header-padding: var(--bs-modal-header-padding-y) var(--bs-modal-header-padding-x);
+        --bs-modal-header-border-color: var(--sakai-border-color, var(--bs-border-color));
+        --bs-modal-header-border-width: var(--bs-border-width, 1px);
+        --bs-modal-title-line-height: 1.5;
         box-sizing: border-box;
         width: calc(100% - 1rem);
         max-width: var(--bs-modal-width, 800px);
