@@ -60,6 +60,7 @@ describe("sakai-rubric-student-button tests", () => {
     expect(studentModal.ownerDocument).to.equal(document);
     expect(studentModal.shadowRoot).to.exist;
     expect(studentModal.querySelector("sakai-rubric-student")).to.not.exist;
+    expect(studentModal.shadowRoot.getElementById("rubric-modal-title").textContent.trim()).to.equal("Grading Rubric");
 
     studentModal.close();
     await waitUntil(() => !studentModal.isConnected, "Rubric modal was not removed");

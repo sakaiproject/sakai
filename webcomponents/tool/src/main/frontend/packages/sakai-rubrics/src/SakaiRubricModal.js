@@ -3,6 +3,10 @@ import { css, html } from "lit";
 
 export class SakaiRubricModal extends SakaiShadowElement {
 
+  static properties = {
+    _mode: { state: true },
+  };
+
   static openIn(ownerDocument, config) {
 
     let modal = ownerDocument.body.querySelector(":scope > sakai-rubric-modal");
@@ -29,6 +33,7 @@ export class SakaiRubricModal extends SakaiShadowElement {
   async open(config) {
 
     const openGeneration = ++this._openGeneration;
+    this._mode = config.mode;
     await this._i18nLoaded;
     await this.updateComplete;
     if (openGeneration !== this._openGeneration || !this.isConnected) {
@@ -89,7 +94,9 @@ export class SakaiRubricModal extends SakaiShadowElement {
       <dialog class="modal-lg" closedby="any" aria-labelledby="rubric-modal-title" @close=${this._closed}>
         <div class="modal-content">
           <div class="modal-header">
-            <h2 id="rubric-modal-title" class="modal-title h5">${this._i18n.preview_rubric}</h2>
+            <h2 id="rubric-modal-title" class="modal-title h5">
+              ${this._mode === "evaluation" ? this._i18n.grading_rubric : this._i18n.preview_rubric}
+            </h2>
             <button type="button" class="btn-close" aria-label=${this._i18n.close_dialog} @click=${this.close}></button>
           </div>
           <div class="modal-body"></div>

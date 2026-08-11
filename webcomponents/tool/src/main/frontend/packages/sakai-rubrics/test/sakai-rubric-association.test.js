@@ -67,6 +67,7 @@ describe("sakai-rubric-association tests", () => {
 
     const modal = document.querySelector("sakai-rubric-modal");
     expect(modal.shadowRoot.querySelector("dialog").open).to.be.true;
+    expect(modal.shadowRoot.getElementById("rubric-modal-title").textContent.trim()).to.equal("Preview Rubric");
     const rubricStudent = modal.shadowRoot.querySelector("sakai-rubric-student");
     expect(rubricStudent.preview).to.be.true;
 
