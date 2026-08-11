@@ -24,7 +24,7 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
   set siteId(value) {
 
     this._siteId = value;
-    this._i18nLoaded.then(r => this.initLightbox(r, value));
+    this._i18nLoaded.then(r => this.initLightbox(r));
   }
 
   get siteId() { return this._siteId; }
@@ -70,7 +70,7 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
 
     e.preventDefault();
 
-    this.showRubricLightbox(this._rubricId);
+    this.showRubricLightbox({ mode: "preview", rubricId: this._rubricId });
     return false;
   }
 }

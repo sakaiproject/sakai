@@ -81,6 +81,44 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     el && el.handleClose();
   }
 
+  loadRubric(config) {
+
+    if (!config?.siteId) {
+      throw new Error("A site id is required to load a rubric");
+    }
+
+    this.siteId = config.siteId;
+
+    if (config.mode === "preview") {
+      if (config.rubricId == null) {
+        throw new Error("A rubric id is required to preview a rubric");
+      }
+
+      this.instructor = false;
+      this.rubricId = config.rubricId;
+      this.preview = true;
+      this._setRubric();
+      return;
+    }
+
+    if (config.mode === "evaluation") {
+      if (!config.toolId || !config.entityId) {
+        throw new Error("Tool and entity ids are required to load a rubric evaluation");
+      }
+
+      this.toolId = config.toolId;
+      this.entityId = config.entityId;
+      this.evaluatedItemId = config.evaluatedItemId;
+      this.evaluatedItemOwnerId = config.evaluatedItemOwnerId;
+      this.instructor = config.instructor === true;
+      this._currentView = GRADING_RUBRIC;
+      this._init();
+      return;
+    }
+
+    throw new Error(`Unknown rubric mode: ${config.mode}`);
+  }
+
   shouldUpdate() {
     // Render when loaded and either instructor is viewing, or student preview is allowed
     // and the association is not dynamic (rbcs-associate != 2).

@@ -13,27 +13,23 @@ export class RubricsElement extends SakaiElement {
     this._i18nLoaded = this.loadTranslations("rubrics");
   }
 
-  isUtilsAvailable() {
+  _getRubricsUtils() {
 
-    const available = window.top.rubrics && window.top.rubrics.utils;
-    if (!available) {
+    const utils = window.rubrics?.utils;
+    if (!utils) {
       console.error("Rubrics Utils has not been loaded (sakai-rubrics-utils.js). THINGS WILL BREAK!");
     }
-    return available;
+    return utils;
   }
 
-  initLightbox(i18n, siteId, enablePdfExport) {
+  initLightbox(i18n) {
 
-    if (this.isUtilsAvailable()) {
-      window.top.rubrics.utils.initLightbox(i18n, siteId, enablePdfExport);
-    }
+    this._getRubricsUtils()?.initLightbox(i18n);
   }
 
-  showRubricLightbox(id, attributes) {
+  showRubricLightbox(config) {
 
-    if (this.isUtilsAvailable()) {
-      window.top.rubrics.utils.showRubric(id, attributes);
-    }
+    this._getRubricsUtils()?.showRubric({ ...config, siteId: this.siteId });
   }
 
   getHighLow(myArray) {
@@ -106,4 +102,3 @@ export class RubricsElement extends SakaiElement {
     return super.tr(key, options, "rubrics");
   }
 }
-

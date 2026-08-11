@@ -6,7 +6,7 @@ import fetchMock from "fetch-mock";
 
 window.sakai = window.sakai || {
   editor: {
-    launch: () => ({ focus: () => "", on: () => "", setData: (data, callback) => "" })
+    launch: () => ({ focus: () => "", on: () => "", setData: () => "" })
   },
 };
 
@@ -29,7 +29,7 @@ describe("sakai-rubric-association tests", () => {
 
   it ("renders a rubric association correctly", async () => {
 
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-rubric-association site-id="${data.siteId}"
           tool-id="sakai.assignment.grades"
           associate-value="1"
@@ -57,23 +57,21 @@ describe("sakai-rubric-association tests", () => {
     // The rubric selector should be be enabled
     expect(select.disabled).to.be.false;
 
-    expect(document.querySelectorAll("#rubric-preview sakai-rubric-student").length).to.equal(1);;
-    const rubricStudent = document.querySelector("#rubric-preview sakai-rubric-student");
-    expect(rubricStudent).to.exist;
-    expect(rubricStudent.hasAttribute("preview")).to.be.false
+    expect(document.querySelector("#rubric-preview sakai-rubric-student")).to.not.exist;
 
     // Check that the preview button exists and click it
     const previewButton = el.querySelector(".rubrics-selections > button");
     expect(previewButton).to.exist;
     expect(document.querySelector("#rubric-preview.show")).to.not.exist;
     previewButton.click();
-    await waitUntil(() => document.querySelector("#rubric-preview sakai-rubric-student[preview]"), "No lightbox displayed", { timeout: 5000 });
+    await waitUntil(() => window.rubrics.utils.getRubricElement()?.preview, "No rubric preview loaded", { timeout: 5000 });
 
     await waitUntil(() => document.querySelector("#rubric-preview.show"), "No lightbox displayed", { timeout: 5000 });
     expect(document.querySelector("#rubric-preview.show")).to.exist;
-    expect(rubricStudent.hasAttribute("preview")).to.be.true;
+    const rubricStudent = window.rubrics.utils.getRubricElement();
+    expect(rubricStudent.preview).to.be.true;
 
-    expect(rubricStudent.hasAttribute("rubric-id")).to.be.true;
-    expect(rubricStudent.hasAttribute("site-id")).to.be.true;
+    expect(rubricStudent.rubricId).to.equal(data.rubric1.id);
+    expect(rubricStudent.siteId).to.equal(data.siteId);
   });
 });
