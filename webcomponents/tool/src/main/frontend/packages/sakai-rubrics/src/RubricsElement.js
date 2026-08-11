@@ -13,17 +13,6 @@ export class RubricsElement extends SakaiElement {
     this._i18nLoaded = this.loadTranslations("rubrics");
   }
 
-  openRubricModal(config) {
-
-    const modal = this.ownerDocument.createElement("sakai-rubric-modal");
-    this.ownerDocument.body.prepend(modal);
-    modal.open({ ...config, siteId: this.siteId })
-      .catch(error => {
-        modal.remove();
-        console.error(error);
-      });
-  }
-
   getHighLow(myArray) {
 
     let lowest = Number.POSITIVE_INFINITY;

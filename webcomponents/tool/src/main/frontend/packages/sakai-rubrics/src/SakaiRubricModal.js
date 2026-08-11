@@ -3,26 +3,54 @@ import { css, html } from "lit";
 
 export class SakaiRubricModal extends SakaiShadowElement {
 
+  static openIn(ownerDocument, config) {
+
+    let modal = ownerDocument.body.querySelector(":scope > sakai-rubric-modal");
+    if (!modal) {
+      modal = ownerDocument.createElement("sakai-rubric-modal");
+      ownerDocument.body.prepend(modal);
+    }
+
+    return modal.open(config)
+      .catch(error => {
+        modal.remove();
+        throw error;
+      });
+  }
+
   constructor() {
 
     super();
 
     this._i18nLoaded = this.loadTranslations("rubrics");
+    this._openGeneration = 0;
   }
 
   async open(config) {
 
+    const openGeneration = ++this._openGeneration;
     await this._i18nLoaded;
     await this.updateComplete;
+    if (openGeneration !== this._openGeneration || !this.isConnected) {
+      return this;
+    }
 
+    this._removeRubric();
     const rubric = this.ownerDocument.createElement("sakai-rubric-student");
     this.shadowRoot.querySelector(".modal-body").replaceChildren(rubric);
     rubric.loadRubric(config);
-    this.shadowRoot.querySelector("dialog").showModal();
+
+    const dialog = this.shadowRoot.querySelector("dialog");
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+
+    return this;
   }
 
   close() {
 
+    this._openGeneration += 1;
     const dialog = this.shadowRoot?.querySelector("dialog");
     if (dialog?.open) {
       dialog.close();

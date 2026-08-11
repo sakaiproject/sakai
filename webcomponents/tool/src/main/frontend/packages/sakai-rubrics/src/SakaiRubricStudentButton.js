@@ -1,6 +1,7 @@
 import { RubricsElement } from "./RubricsElement.js";
 import { html } from "lit";
 import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
+import { SakaiRubricModal } from "./SakaiRubricModal.js";
 
 export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
 
@@ -59,18 +60,19 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
 
   showRubric() {
 
-    if (this.forcePreview) {
-      this.openRubricModal({ mode: "preview", rubricId: this._rubricId });
-    } else {
-      this.openRubricModal({
+    const config = this.forcePreview
+      ? { mode: "preview", rubricId: this._rubricId }
+      : {
         mode: "evaluation",
         toolId: this.toolId,
         entityId: this.entityId,
         evaluatedItemId: this.evaluatedItemId,
         evaluatedItemOwnerId: this.evaluatedItemOwnerId,
         instructor: this.instructor,
-      });
-    }
+      };
+
+    return SakaiRubricModal.openIn(this.ownerDocument, { ...config, siteId: this.siteId })
+      .catch(error => console.error(error));
   }
 
   releaseEvaluation() {

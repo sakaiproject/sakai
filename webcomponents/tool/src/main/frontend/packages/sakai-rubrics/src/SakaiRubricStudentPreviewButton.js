@@ -1,6 +1,7 @@
 import { RubricsElement } from "./RubricsElement.js";
 import { html } from "lit";
 import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
+import { SakaiRubricModal } from "./SakaiRubricModal.js";
 
 export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElement) {
 
@@ -62,7 +63,10 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
 
     e.preventDefault();
 
-    this.openRubricModal({ mode: "preview", rubricId: this._rubricId });
-    return false;
+    return SakaiRubricModal.openIn(this.ownerDocument, {
+      mode: "preview",
+      rubricId: this._rubricId,
+      siteId: this.siteId,
+    }).catch(error => console.error(error));
   }
 }

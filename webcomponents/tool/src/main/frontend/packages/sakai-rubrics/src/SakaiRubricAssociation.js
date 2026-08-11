@@ -1,6 +1,7 @@
 import { RubricsElement } from "./RubricsElement.js";
 import "../sakai-rubric-student.js";
 import { html, nothing } from "lit";
+import { SakaiRubricModal } from "./SakaiRubricModal.js";
 
 export class SakaiRubricAssociation extends RubricsElement {
 
@@ -169,7 +170,11 @@ export class SakaiRubricAssociation extends RubricsElement {
     e.stopPropagation();
 
     if (this.isAssociated == 1) {
-      this.openRubricModal({ mode: "preview", rubricId: this._selectedRubricId });
+      return SakaiRubricModal.openIn(this.ownerDocument, {
+        mode: "preview",
+        rubricId: this._selectedRubricId,
+        siteId: this.siteId,
+      }).catch(error => console.error(error));
     }
   }
 

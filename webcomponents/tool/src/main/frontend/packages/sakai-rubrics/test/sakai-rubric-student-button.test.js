@@ -27,7 +27,7 @@ describe("sakai-rubric-student-button tests", () => {
     fetchMock.hardReset();
   });
 
-  async function openRubric({ instructor = false } = {}) {
+  async function openRubric({ clicks = 1, instructor = false } = {}) {
 
     const el = await fixture(html`
       <sakai-rubric-student-button
@@ -41,7 +41,9 @@ describe("sakai-rubric-student-button tests", () => {
     `);
 
     await waitUntil(() => el.querySelector("a"), "Rubric button was not rendered");
-    el.querySelector("a").click();
+    for (let i = 0; i < clicks; i++) {
+      el.querySelector("a").click();
+    }
 
     await waitUntil(() => document.querySelector("sakai-rubric-modal")?.shadowRoot?.querySelector("sakai-rubric-student"), "Rubric modal was not opened");
     const modal = document.querySelector("sakai-rubric-modal");
@@ -87,5 +89,16 @@ describe("sakai-rubric-student-button tests", () => {
     expect(rubric.instructor).to.be.true;
     expect(strayRubric.instructor).to.not.be.true;
     expect(strayRubric.toolId).to.not.exist;
+  });
+
+  it("coalesces rapid opens into one modal session", async () => {
+
+    const { modal } = await openRubric({ clicks: 2 });
+
+    expect(document.querySelectorAll("sakai-rubric-modal")).to.have.length(1);
+    expect(modal.shadowRoot.querySelectorAll("sakai-rubric-student")).to.have.length(1);
+
+    modal.close();
+    await waitUntil(() => !modal.isConnected, "Rubric modal was not removed");
   });
 });
