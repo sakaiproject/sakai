@@ -5,10 +5,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
   windowRef: window != window.top ? window.top : window,
 
   initLightbox(i18n, siteId) {
-
-    const rubrics = window.top.rubrics;
-
     if (this.lightbox) {
+      this.setOptionalAttribute(this.getRubricElement(), "site-id", siteId);
       return;
     }
 
@@ -33,11 +31,25 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
     document.body.prepend(tpl.content);
 
     this.lightbox = this.windowRef.document.getElementById("rubric-preview");
+    this.lightbox.addEventListener("hidden.bs.modal", () => this.closeLightbox());
+  },
+
+  getRubricElement() {
+    return this.lightbox?.querySelector("sakai-rubric-student");
+  },
+
+  setOptionalAttribute(el, name, value) {
+
+    if (value == null) {
+      el.removeAttribute(name);
+    } else {
+      el.setAttribute(name, value);
+    }
   },
 
   closeLightbox() {
 
-    const el = this.windowRef.document.querySelector("sakai-rubric-student");
+    const el = this.getRubricElement();
 
     el.handleClose();
 
@@ -48,43 +60,40 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
     el.removeAttribute("evaluated-item-id");
     el.removeAttribute("instructor");
     el.removeAttribute("evaluated-item-owner-id");
-    el.removeAttribute("peer-or-self");
+    el.removeAttribute("force-preview");
+    el.removeAttribute("is-peer-or-self");
   },
 
-  showRubric(id, attributes, launchingElement) {
+  showRubric(id, attributes) {
 
-    const rubrics = this.windowRef.rubrics;
-
-    const el = this.windowRef.document.querySelector("sakai-rubric-student");
+    const el = this.getRubricElement();
 
     if (!attributes) {
-      el.setAttribute("rubric-id", id);
-      el.setAttribute("preview", "");
+      this.setOptionalAttribute(el, "rubric-id", id);
+      el.toggleAttribute("preview", true);
       el.removeAttribute("tool-id");
       el.removeAttribute("entity-id");
       el.removeAttribute("evaluated-item-id");
       el.removeAttribute("instructor");
       el.removeAttribute("evaluated-item-owner-id");
-      el.removeAttribute("peer-or-self");
+      el.removeAttribute("force-preview");
+      el.removeAttribute("is-peer-or-self");
     } else {
       el.removeAttribute("rubric-id");
-      if (attributes["force-preview"]) {
-        el.setAttribute("force-preview", "");
-      } else {
-        el.removeAttribute("force-preview");
+      el.removeAttribute("preview");
+      el.toggleAttribute("force-preview", attributes["force-preview"] === true);
+      if (!attributes["force-preview"]) {
         // If a dropdown menu of views can be selected, initialize the view with the Grading Rubric
         el.displayGradingTab();
       }
-      el.setAttribute("tool-id", attributes["tool-id"]);
-      el.setAttribute("entity-id", attributes["entity-id"]);
-      el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
-      el.setAttribute("instructor", attributes.instructor);
-      el.setAttribute("evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
-      el.setAttribute("peer-or-self", attributes["peer-or-self"]);
+      this.setOptionalAttribute(el, "tool-id", attributes["tool-id"]);
+      this.setOptionalAttribute(el, "entity-id", attributes["entity-id"]);
+      this.setOptionalAttribute(el, "evaluated-item-id", attributes["evaluated-item-id"]);
+      this.setOptionalAttribute(el, "evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
+      el.toggleAttribute("instructor", attributes.instructor === true);
+      el.toggleAttribute("is-peer-or-self", attributes["is-peer-or-self"] === true);
     }
 
     bootstrap.Modal.getOrCreateInstance(this.lightbox).show();
-
-    this.lightbox.addEventListener("hidden.bs.modal", () => this.closeLightbox());
   }
 };
