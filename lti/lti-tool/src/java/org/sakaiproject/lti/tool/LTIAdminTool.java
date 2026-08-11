@@ -39,6 +39,7 @@ import java.time.ZoneOffset;
 import java.time.format.FormatStyle;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import java.text.MessageFormat;
 
@@ -117,7 +118,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
-	private static String STATE_LESSONS_CONTENT_ITEMS = "lti:state_lessons_content_items";
 	private static String STATE_CONTENT_ITEM = "lti:state_content_item";
 	private static String STATE_CONTENT_ITEM_FAILURES = "lti:state_content_item_failures";
 	private static String STATE_CONTENT_ITEM_SUCCESSES = "lti:state_content_item_successes";
@@ -258,7 +258,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		state.removeAttribute(STATE_REDIRECT_URL);
-		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		return "lti_error";
 	}
 
@@ -274,7 +273,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		state.removeAttribute(STATE_REDIRECT_URL);
-		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		return "lti_finished";
 	}
 
@@ -1002,7 +1000,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		forwardUrl += "&registration_token=" + URLEncoder.encode(registration_token);
 
 		state.setAttribute(STATE_REDIRECT_URL, forwardUrl);
-		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		switchPanel(state, "Forward");
 	}
 
@@ -2066,7 +2063,6 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			log.debug("flow={} newPanelState={} to returnUrl={}", flow, newPanelState, returnUrl);
 			switchPanel(state, newPanelState);
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
-			state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 			return;
 		}
 
@@ -2702,10 +2698,13 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 				return;
 			}
 
-			log.debug("Lessons flow, posting {} content item(s) to returnUrl {}",
+			log.debug("Lessons flow, returning {} content item(s) to returnUrl {}",
 					lessonsContentItems.size(), returnUrl);
+			for (String contentItem : lessonsContentItems) {
+				returnUrl += (returnUrl.contains("?") ? "&" : "?") + "ltiItemId="
+						+ URLEncoder.encode(contentItem, StandardCharsets.UTF_8);
+			}
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
-			state.setAttribute(STATE_LESSONS_CONTENT_ITEMS, lessonsContentItems);
 			forward = "Redirect";
 		} else if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
 			forward = "AssignmentDone";
@@ -2950,15 +2949,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
-		List<String> lessonsContentItems = (List<String>) state.getAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		state.removeAttribute(STATE_REDIRECT_URL);
-		state.removeAttribute(STATE_LESSONS_CONTENT_ITEMS);
 		if (returnUrl == null) {
-			return "lti_content_redirect";
-		}
-		if (lessonsContentItems != null && !lessonsContentItems.isEmpty()) {
-			context.put("postReturnUrl", StringEscapeUtils.escapeHtml4(returnUrl));
-			context.put("lessonsContentItems", lessonsContentItems);
 			return "lti_content_redirect";
 		}
 		log.debug("Redirecting parent frame back to={}", returnUrl);
@@ -3925,7 +3917,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		For DL/CI - launch to the tool with response sent to doMultipleContentItemResponse
 			Allow multiple selections when adding new Lessons items; edits remain single-item
 			doMultipleContentItemResponse - loops through the graph and makes Sakai content items
-			POST resulting bltiItem references to the returnUrl in provider order
+			Redirect with resulting bltiItem references in the returnUrl in provider order
 			(inside the modal / popup iframe created by Lessons)
 
 */

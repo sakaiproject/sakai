@@ -26,9 +26,8 @@
 		<form action="#" rsf:id="blti-autosubmit" id="blti-autosubmit">
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="item-id" id="item-id" />
-			<span rsf:id="select-span" style="display:none">
-				<span rsf:id="select-row:"><input type="checkbox" rsf:id="select" /></span>
-			</span>
+			<span rsf:id="select-span" style="display:none"></span>
+			<span rsf:id="select-row:" style="display:none"><input type="checkbox" rsf:id="select" /></span>
 			<input type="hidden" rsf:id="add-before" id="add-before" />
 			<input type="hidden" rsf:id="item-description" id="item-description" />
 			<input type="hidden" class="bold" rsf:id="submit" />
@@ -75,7 +74,7 @@
 
       el.addEventListener("shown.bs.modal", e => {
         console.log('Height', modalDialogHeight());
-        document.getElementById('#modal-iframe-div').setAttribute('height', modalDialogHeight());
+        el.setAttribute('height', modalDialogHeight());
       });
 
       el.addEventListener("hidden.bs.modal", e => {

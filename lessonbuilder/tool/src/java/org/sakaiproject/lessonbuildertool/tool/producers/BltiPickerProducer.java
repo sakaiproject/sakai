@@ -151,7 +151,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		}
 
 		// here is a URL to return to this page
-		String comeBack = ToolUtils.getToolBaseUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
+		String comeBack = ToolUtils.getToolBaseUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?sendingPage=" +
 		    ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId + "&addBefore=" + ((GeneralViewParameters) viewparams).getAddBefore() + (bltiTool == null? "" : "&addTool=" + bltiToolId);
 		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
 
