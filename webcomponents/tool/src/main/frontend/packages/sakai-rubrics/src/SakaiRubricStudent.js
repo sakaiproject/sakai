@@ -22,6 +22,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     forcePreview: { attribute: "force-preview", type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Object },
     isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
+    studentSelfReport: { attribute: "student-self-report", type: Boolean },
 
     _rubric: { state: true },
     _currentView: { state: true },
@@ -31,9 +32,9 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
     super();
 
-    this.setRubricRequirements = [ "site-id", "rubric-id", "preview" ];
-
     this._currentView = GRADING_RUBRIC;
+    this._loadId = 0;
+    this._loadScheduled = false;
 
     this.options = {};
     this.instanceSalt = Math.floor(Math.random() * Date.now());
@@ -45,18 +46,35 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ((name === "entity-id" && this.toolId) || (name === "tool-id" && this.entityId) || (name === "evaluated-item-id" && this.evaluatedItemId)) {
-      this._init();
+    if ([ "site-id", "rubric-id", "preview", "tool-id", "entity-id", "evaluated-item-id", "evaluated-item-owner-id", "is-peer-or-self" ].includes(name)) {
+      this._scheduleRubricLoad();
+    }
+  }
+
+  _scheduleRubricLoad() {
+
+    this._loadId += 1;
+    if (this._loadScheduled) {
+      return;
     }
 
-    if (this.setRubricRequirements.includes(name)) {
-      this._setRubric();
-    }
+    this._loadScheduled = true;
+    queueMicrotask(() => {
 
-    // If rubric-id has been removed, undefine the rubric
-    if (name === "rubric-id" && !newValue) {
+      this._loadScheduled = false;
+      const loadId = this._loadId;
+
       this._rubric = undefined;
-    }
+      this.association = undefined;
+      this.evaluation = undefined;
+      this.options = {};
+
+      if (this.siteId && this.rubricId && this.preview) {
+        this._setRubric(loadId);
+      } else if (this.siteId && this.toolId && this.entityId) {
+        this._init(loadId);
+      }
+    });
   }
 
   _viewSelected(e) {
@@ -83,15 +101,19 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    // Render when loaded and either instructor is viewing, or student preview is allowed
-    // and the association is not dynamic (rbcs-associate != 2).
-    return this.siteId
-      && this._i18nLoaded
-      && this._rubric
-      && (this.instructor || (!this.options.hideStudentPreview && Number(this.options?.["rbcs-associate"]) !== 2));
+    return Boolean(this.siteId && this._i18n);
   }
 
   render() {
+
+    // Self-report results must remain visible even when the associated rubric is hidden from
+    // the normal student preview. This does not grant access to instructor summary views.
+    const rubricIsVisible = this.instructor
+      || this.studentSelfReport
+      || (!this.options.hideStudentPreview && !this.dynamic);
+    if (!this._rubric || !rubricIsVisible) {
+      return nothing;
+    }
 
     return html`
       <div class="rubric-details grading student-view">
@@ -143,100 +165,96 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     `;
   }
 
-  _setRubric() {
+  async _setRubric(loadId) {
 
-    if (!this.siteId || !this.rubricId || !this.preview) return;
+    const siteId = this.siteId;
+    const rubricId = this.rubricId;
+    const url = `/api/sites/${siteId}/rubrics/${rubricId}`;
 
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}`;
-    fetch(url, { credentials: "include", headers: { "Content-Type": "application/json" } })
-    .then(r => {
+    try {
+      const response = await fetch(url, { credentials: "include", headers: { "Content-Type": "application/json" } });
 
-      if (r.ok) {
-        return r.json();
+      if (!response.ok) {
+        throw new Error(`Network error while getting rubric at ${url}`);
       }
-      throw new Error(`Network error while getting rubric at ${url}`);
-    })
-    .then(rubric => this._rubric = rubric)
-    .catch (error => console.error(error));
+
+      const rubric = await response.json();
+      if (loadId === this._loadId) {
+        this._rubric = rubric;
+      }
+    } catch (error) {
+      if (loadId === this._loadId) {
+        console.error(error);
+      }
+    }
   }
 
-  _init() {
+  async _init(loadId) {
 
-    // First, grab the tool association
-    this.apiGetAssociation()
-      .then(association => {
+    const toolId = this.toolId;
+    const entityId = this.entityId;
+    const evaluatedItemId = this.evaluatedItemId;
+    const evaluatedItemOwnerId = this.evaluatedItemOwnerId;
+    const isPeerOrSelf = this.isPeerOrSelf;
 
-        if (association) {
-          this.association = association;
-          this.options = association.parameters;
-          const rubricId = association.rubricId;
+    try {
+      const association = await this.apiGetAssociation();
+      if (loadId !== this._loadId || !association) {
+        return;
+      }
 
-          // Now, get the rubric
-          const rubricUrl = `/api/sites/${association.siteId}/rubrics/${rubricId}`;
-          fetch(rubricUrl, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-          })
-          .then(r => {
+      const options = {
+        ...(association.parameters ?? {}),
+        hideStudentPreview: association.parameters?.hideStudentPreview ?? false,
+      };
+      const rubricUrl = `/api/sites/${association.siteId}/rubrics/${association.rubricId}`;
+      const rubricResponse = await fetch(rubricUrl, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
 
-            if (r.ok) {
-              return r.json();
-            }
-            throw new Error("Server error while getting rubric");
-          })
-          .then(rubric => {
+      if (!rubricResponse.ok) {
+        throw new Error("Server error while getting rubric");
+      }
 
-            if (this.evaluatedItemId) {
-              // Now, get the evaluation
-              let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}/owners/${this.evaluatedItemOwnerId}`;
-              if (this.isPeerOrSelf) {
-                //for permission filters
-                evalUrl += "?isPeer=true";
-              }
-              fetch(evalUrl, {
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-              })
-              .then(r => {
+      const rubric = await rubricResponse.json();
+      if (loadId !== this._loadId) {
+        return;
+      }
 
-                if (r.status === 200) {
-                  return r.json();
-                }
-
-                if (r.status !== 204) {
-                  throw new Error(`Network error while getting evaluation at ${evalUrl}`);
-                }
-
-                return null;
-              })
-              .then(evaluation => {
-
-                if (evaluation) {
-                  this.evaluation = evaluation;
-                  this.preview = false;
-                } else {
-                  this.evaluation = { criterionOutcomes: [] };
-                  this.preview = true;
-                }
-
-                // Set the rubric, thus triggering a render
-                this._rubric = rubric;
-              })
-              .catch (error => console.error(error));
-            } else {
-              this.evaluation = { criterionOutcomes: [] };
-              this.preview = true;
-              this._rubric = rubric;
-            }
-          })
-          .catch (error => console.error(error));
-
-          if (this.options.hideStudentPreview == null) {
-            this.options.hideStudentPreview = false;
-          }
+      let evaluation = null;
+      if (evaluatedItemId) {
+        let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${toolId}/items/${entityId}/evaluations/${evaluatedItemId}/owners/${evaluatedItemOwnerId}`;
+        if (isPeerOrSelf) {
+          evalUrl += "?isPeer=true";
         }
-      })
-      .catch (error => console.error(error));
+
+        const evaluationResponse = await fetch(evalUrl, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (evaluationResponse.status === 200) {
+          evaluation = await evaluationResponse.json();
+        } else if (evaluationResponse.status !== 204) {
+          throw new Error(`Network error while getting evaluation at ${evalUrl}`);
+        }
+      }
+
+      if (loadId !== this._loadId) {
+        return;
+      }
+
+      this.association = association;
+      this.options = options;
+      this.evaluation = evaluation ?? { criterionOutcomes: [] };
+      this.preview = !evaluation;
+      this._rubric = rubric;
+    } catch (error) {
+      if (loadId === this._loadId) {
+        console.error(error);
+      }
+    }
   }
 
   displayGradingTab() {

@@ -466,15 +466,13 @@
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 												#assignmentIcons($assignment)
 											</strong>
-											#set($submissionId="undefined")
-											#if ($submission && $submission.Graded && ($submission.GradeReleased || $submission.Returned))
-												#set($submissionId=$submission.Id)
-											#end
 										    #if ($rubricMap.containsKey($assignment.getId()))
 											<sakai-rubric-student-button
 												site-id="$assignment.getContext()"
 												tool-id="sakai.assignment.grades"
-												evaluated-item-id="$submissionId"
+												#if ($submission && $submission.Graded && ($submission.GradeReleased || $submission.Returned))
+													evaluated-item-id="$submission.Id"
+												#end
 												#if($!assignment.IsGroup)
 													evaluated-item-owner-id="$submission.GroupId"
 												#else

@@ -1,5 +1,5 @@
 import { RubricsElement } from "./RubricsElement.js";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 
 export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
@@ -21,6 +21,8 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     super();
 
     this.forcePreview = false;
+    this._associationLoadId = 0;
+    this._associationLoadScheduled = false;
   }
 
   set siteId(value) {
@@ -35,16 +37,20 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if (this.toolId && this.entityId) {
-      this._setRubricId();
+    if ([ "site-id", "tool-id", "entity-id", "instructor" ].includes(name)) {
+      this._scheduleAssociationLoad();
     }
   }
 
   shouldUpdate() {
-    return this._rubricId;
+    return this._i18n;
   }
 
   render() {
+
+    if (!this._rubricId) {
+      return nothing;
+    }
 
     return html`
       <a @click=${this.showRubric} href="javascript:;" title="${this._i18n.preview_rubric}">
@@ -53,16 +59,43 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     `;
   }
 
-  _setRubricId() {
+  _scheduleAssociationLoad() {
 
-    this.apiGetAssociation()
-      .then(association => {
+    this._associationLoadId += 1;
+    if (this._associationLoadScheduled) {
+      return;
+    }
 
-        if (association && (this.instructor || !association.parameters.hideStudentPreview)) {
-          this._rubricId = association.rubricId;
-        }
-      })
-    .catch(error => console.error(error));
+    this._associationLoadScheduled = true;
+    queueMicrotask(() => {
+
+      this._associationLoadScheduled = false;
+      const loadId = this._associationLoadId;
+      this._rubricId = undefined;
+
+      if (this.siteId && this.toolId && this.entityId) {
+        this._setRubricId(loadId);
+      }
+    });
+  }
+
+  async _setRubricId(loadId) {
+
+    try {
+      const association = await this.apiGetAssociation();
+      if (loadId !== this._associationLoadId) {
+        return;
+      }
+
+      const visibleToStudent = !association?.parameters?.hideStudentPreview;
+      this._rubricId = association && (this.instructor || visibleToStudent)
+        ? association.rubricId
+        : undefined;
+    } catch (error) {
+      if (loadId === this._associationLoadId) {
+        console.error(error);
+      }
+    }
   }
 
   showRubric() {
