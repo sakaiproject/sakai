@@ -43,7 +43,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this._i18n;
+    return Boolean(this._i18n);
   }
 
   render() {

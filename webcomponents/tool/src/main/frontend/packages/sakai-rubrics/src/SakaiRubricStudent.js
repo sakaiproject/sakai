@@ -208,39 +208,43 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
         hideStudentPreview: association.parameters?.hideStudentPreview ?? false,
       };
       const rubricUrl = `/api/sites/${association.siteId}/rubrics/${association.rubricId}`;
-      const rubricResponse = await fetch(rubricUrl, {
+      const rubricPromise = fetch(rubricUrl, {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
+      }).then(response => {
+
+        if (!response.ok) {
+          throw new Error("Server error while getting rubric");
+        }
+
+        return response.json();
       });
 
-      if (!rubricResponse.ok) {
-        throw new Error("Server error while getting rubric");
-      }
-
-      const rubric = await rubricResponse.json();
-      if (loadId !== this._loadId) {
-        return;
-      }
-
-      let evaluation = null;
+      let evaluationPromise = Promise.resolve(null);
       if (evaluatedItemId) {
         let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${toolId}/items/${entityId}/evaluations/${evaluatedItemId}/owners/${evaluatedItemOwnerId}`;
         if (isPeerOrSelf) {
           evalUrl += "?isPeer=true";
         }
 
-        const evaluationResponse = await fetch(evalUrl, {
+        evaluationPromise = fetch(evalUrl, {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-        });
+        }).then(response => {
 
-        if (evaluationResponse.status === 200) {
-          evaluation = await evaluationResponse.json();
-        } else if (evaluationResponse.status !== 204) {
-          throw new Error(`Network error while getting evaluation at ${evalUrl}`);
-        }
+          if (response.status === 200) {
+            return response.json();
+          }
+
+          if (response.status !== 204) {
+            throw new Error(`Network error while getting evaluation at ${evalUrl}`);
+          }
+
+          return null;
+        });
       }
 
+      const [ rubric, evaluation ] = await Promise.all([ rubricPromise, evaluationPromise ]);
       if (loadId !== this._loadId) {
         return;
       }

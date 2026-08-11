@@ -474,7 +474,9 @@
 													evaluated-item-id="$submission.Id"
 												#end
 												#if($!assignment.IsGroup)
-													evaluated-item-owner-id="$submission.GroupId"
+													#if ($submission && $submission.Graded && ($submission.GradeReleased || $submission.Returned))
+														evaluated-item-owner-id="$submission.GroupId"
+													#end
 												#else
 													evaluated-item-owner-id="$user.getId()"
 												#end
