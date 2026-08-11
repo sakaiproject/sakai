@@ -21,14 +21,6 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
     this.display = "button";
   }
 
-  set siteId(value) {
-
-    this._siteId = value;
-    this._i18nLoaded.then(r => this.initLightbox(r));
-  }
-
-  get siteId() { return this._siteId; }
-
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
@@ -70,7 +62,7 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
 
     e.preventDefault();
 
-    this.showRubricLightbox({ mode: "preview", rubricId: this._rubricId });
+    this.openRubricModal({ mode: "preview", rubricId: this._rubricId });
     return false;
   }
 }

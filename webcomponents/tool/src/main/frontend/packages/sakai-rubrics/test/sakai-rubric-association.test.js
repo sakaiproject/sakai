@@ -1,5 +1,4 @@
 import "../sakai-rubric-association.js";
-import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
@@ -23,6 +22,7 @@ describe("sakai-rubric-association tests", () => {
   });
 
   afterEach(() => {
+    document.querySelectorAll("sakai-rubric-modal").forEach(modal => modal.remove());
     fetchMock.hardReset();
   });
 
@@ -57,18 +57,17 @@ describe("sakai-rubric-association tests", () => {
     // The rubric selector should be be enabled
     expect(select.disabled).to.be.false;
 
-    expect(document.querySelector("#rubric-preview sakai-rubric-student")).to.not.exist;
+    expect(document.querySelector("sakai-rubric-modal")).to.not.exist;
 
     // Check that the preview button exists and click it
     const previewButton = el.querySelector(".rubrics-selections > button");
     expect(previewButton).to.exist;
-    expect(document.querySelector("#rubric-preview.show")).to.not.exist;
     previewButton.click();
-    await waitUntil(() => window.rubrics.utils.getRubricElement()?.preview, "No rubric preview loaded", { timeout: 5000 });
+    await waitUntil(() => document.querySelector("sakai-rubric-modal")?.shadowRoot?.querySelector("sakai-rubric-student")?.preview, "No rubric preview loaded", { timeout: 5000 });
 
-    await waitUntil(() => document.querySelector("#rubric-preview.show"), "No lightbox displayed", { timeout: 5000 });
-    expect(document.querySelector("#rubric-preview.show")).to.exist;
-    const rubricStudent = window.rubrics.utils.getRubricElement();
+    const modal = document.querySelector("sakai-rubric-modal");
+    expect(modal.shadowRoot.querySelector("dialog").open).to.be.true;
+    const rubricStudent = modal.shadowRoot.querySelector("sakai-rubric-student");
     expect(rubricStudent.preview).to.be.true;
 
     expect(rubricStudent.rubricId).to.equal(data.rubric1.id);

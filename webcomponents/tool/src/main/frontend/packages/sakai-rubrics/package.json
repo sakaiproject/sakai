@@ -35,7 +35,7 @@
     "./sakai-rubric-student-preview-button.js": "./sakai-rubric-student-preview-button.js",
     "./sakai-rubric-evaluation-remover.js": "./sakai-rubric-evaluation-remover.js",
     "./sakai-rubric-association.js": "./sakai-rubric-association.js",
-    "./sakai-rubrics-utils.js": "./sakai-rubrics-utils.js",
+    "./sakai-rubric-modal.js": "./sakai-rubric-modal.js",
     "./sakai-rubrics-manager.js": "./sakai-rubrics-manager.js"
   },
   "dependencies": {

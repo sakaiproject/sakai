@@ -13,23 +13,15 @@ export class RubricsElement extends SakaiElement {
     this._i18nLoaded = this.loadTranslations("rubrics");
   }
 
-  _getRubricsUtils() {
+  openRubricModal(config) {
 
-    const utils = window.rubrics?.utils;
-    if (!utils) {
-      console.error("Rubrics Utils has not been loaded (sakai-rubrics-utils.js). THINGS WILL BREAK!");
-    }
-    return utils;
-  }
-
-  initLightbox(i18n) {
-
-    this._getRubricsUtils()?.initLightbox(i18n);
-  }
-
-  showRubricLightbox(config) {
-
-    this._getRubricsUtils()?.showRubric({ ...config, siteId: this.siteId });
+    const modal = this.ownerDocument.createElement("sakai-rubric-modal");
+    this.ownerDocument.body.prepend(modal);
+    modal.open({ ...config, siteId: this.siteId })
+      .catch(error => {
+        modal.remove();
+        console.error(error);
+      });
   }
 
   getHighLow(myArray) {

@@ -1,6 +1,5 @@
 import "../sakai-rubric-student-button.js";
 import "../sakai-rubric-student.js";
-import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
@@ -23,18 +22,7 @@ describe("sakai-rubric-student-button tests", () => {
 
     await fetchMock.callHistory.flush(true);
 
-    const utils = window.rubrics.utils;
-    const modal = utils.lightbox;
-    if (modal) {
-      bootstrap.Modal.getInstance(modal)?.dispose();
-      modal.remove();
-      utils.lightbox = null;
-    }
-
-    document.querySelectorAll(".modal-backdrop").forEach(backdrop => backdrop.remove());
-    document.body.classList.remove("modal-open");
-    document.body.style.removeProperty("overflow");
-    document.body.style.removeProperty("padding-right");
+    document.querySelectorAll("sakai-rubric-modal").forEach(modal => modal.remove());
     document.querySelector("sakai-rubric-student[data-test-stray]")?.remove();
     fetchMock.hardReset();
   });
@@ -53,28 +41,32 @@ describe("sakai-rubric-student-button tests", () => {
     `);
 
     await waitUntil(() => el.querySelector("a"), "Rubric button was not rendered");
-    await waitUntil(() => window.rubrics.utils.lightbox, "Rubric modal was not initialized");
     el.querySelector("a").click();
 
-    const rubric = window.rubrics.utils.getRubricElement();
+    await waitUntil(() => document.querySelector("sakai-rubric-modal")?.shadowRoot?.querySelector("sakai-rubric-student"), "Rubric modal was not opened");
+    const modal = document.querySelector("sakai-rubric-modal");
+    const rubric = modal.shadowRoot.querySelector("sakai-rubric-student");
     await waitUntil(() => rubric.querySelector(".rubric-details"), "Rubric was not rendered in the modal");
-    return rubric;
+    return { modal, rubric };
   }
 
   it("creates isolated student and instructor modal sessions", async () => {
 
-    const studentRubric = await openRubric();
+    const { modal: studentModal, rubric: studentRubric } = await openRubric();
     expect(studentRubric.instructor).to.be.false;
     expect(studentRubric.querySelector("select")).to.not.exist;
-    expect(window.rubrics.utils.lightbox.ownerDocument).to.equal(document);
+    expect(studentModal.ownerDocument).to.equal(document);
+    expect(studentModal.shadowRoot).to.exist;
+    expect(studentModal.querySelector("sakai-rubric-student")).to.not.exist;
 
-    bootstrap.Modal.getInstance(window.rubrics.utils.lightbox).hide();
+    studentModal.close();
+    await waitUntil(() => !studentModal.isConnected, "Rubric modal was not removed");
     await waitUntil(() => !studentRubric.isConnected, "Rubric modal session was not removed");
     await fetchMock.callHistory.flush(true);
 
     expect(fetchMock.callHistory.called(incompleteAssociationUrl)).to.be.false;
 
-    const instructorRubric = await openRubric({ instructor: true });
+    const { rubric: instructorRubric } = await openRubric({ instructor: true });
     expect(instructorRubric).to.not.equal(studentRubric);
     expect(instructorRubric.instructor).to.be.true;
     expect(instructorRubric.querySelector("select")).to.exist;
@@ -82,15 +74,15 @@ describe("sakai-rubric-student-button tests", () => {
 
   it("updates only the student component inside the rubric modal", async () => {
 
-    const firstRubric = await openRubric();
-    bootstrap.Modal.getInstance(window.rubrics.utils.lightbox).hide();
+    const { modal: firstModal, rubric: firstRubric } = await openRubric();
+    firstModal.close();
     await waitUntil(() => !firstRubric.isConnected, "Rubric modal session was not removed");
 
     const strayRubric = document.createElement("sakai-rubric-student");
     strayRubric.setAttribute("data-test-stray", "");
     document.body.prepend(strayRubric);
 
-    const rubric = await openRubric({ instructor: true });
+    const { rubric } = await openRubric({ instructor: true });
 
     expect(rubric.instructor).to.be.true;
     expect(strayRubric.instructor).to.not.be.true;

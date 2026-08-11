@@ -1,5 +1,4 @@
 import "../sakai-rubric-student-preview-button.js";
-import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
@@ -16,13 +15,14 @@ describe("sakai-rubric-student-preview-button tests", () => {
   });
 
   afterEach(() => {
+    document.querySelectorAll("sakai-rubric-modal").forEach(modal => modal.remove());
     fetchMock.hardReset();
   });
 
 
   it ("rubric student preview button renders correctly", async () => {
 
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-rubric-student-preview-button
           site-id="${data.siteId}"
           tool-id="${data.toolId}"
@@ -38,7 +38,7 @@ describe("sakai-rubric-student-preview-button tests", () => {
     expect(button).to.exist;
     button.click();
 
-    await waitUntil(() => document.getElementById("rubric-preview"), "No lightbox displayed");
+    await waitUntil(() => document.querySelector("sakai-rubric-modal")?.shadowRoot?.querySelector("dialog")?.open, "No rubric modal displayed");
 
     el.setAttribute("display", "span");
     await waitUntil(() => el.querySelector("span"), "No span rendered");

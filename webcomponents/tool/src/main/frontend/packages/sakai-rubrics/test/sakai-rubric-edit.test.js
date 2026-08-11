@@ -1,6 +1,5 @@
 import "../sakai-rubric-edit.js";
 import * as data from "./data.js";
-import "../sakai-rubrics-utils.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
 
@@ -119,4 +118,3 @@ describe("sakai-rubric-edit tests", () => {
     expect(titleField).to.exist;
   });
 });
-

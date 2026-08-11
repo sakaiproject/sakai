@@ -1,5 +1,4 @@
 import "../sakai-rubric-student.js";
-import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, html, fixture, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";

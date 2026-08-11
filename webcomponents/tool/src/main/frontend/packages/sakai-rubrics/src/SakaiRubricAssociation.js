@@ -43,7 +43,6 @@ export class SakaiRubricAssociation extends RubricsElement {
     super.connectedCallback();
 
     if (this.siteId) {
-      this._i18nLoaded.then(r => this.initLightbox(r));
       this._getRubrics();
     }
 
@@ -170,7 +169,7 @@ export class SakaiRubricAssociation extends RubricsElement {
     e.stopPropagation();
 
     if (this.isAssociated == 1) {
-      this.showRubricLightbox({ mode: "preview", rubricId: this._selectedRubricId });
+      this.openRubricModal({ mode: "preview", rubricId: this._selectedRubricId });
     }
   }
 
@@ -290,7 +289,6 @@ export class SakaiRubricAssociation extends RubricsElement {
         ` : ""}
       </div>
     `;
-    //<button @click="${this._showRubric}" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#rubric-preview" aria-controls="rubric-preview" ?disabled=${!this.isAssociated}>
   }
 
   updateStudentSelfReportInput(e) {
