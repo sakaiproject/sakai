@@ -39,6 +39,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -308,7 +309,9 @@ public class MsgcntrTestConfiguration {
 
     @Bean(name = "org.sakaiproject.memory.api.MemoryService")
     public MemoryService memoryService() {
-        return mock(MemoryService.class);
+        MemoryService memoryService = mock(MemoryService.class);
+        Mockito.when(memoryService.getCache(Mockito.anyString())).thenReturn(mock(Cache.class));
+        return memoryService;
     }
 
     @Bean(name = "org.sakaiproject.thread_local.api.ThreadLocalManager")
