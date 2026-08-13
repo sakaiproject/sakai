@@ -167,13 +167,12 @@ public class PagePromotionService {
     }
 
     private Long parsePageId(String submittedPageId) {
-        String pageId = StringUtils.trimToNull(submittedPageId);
-        if (pageId == null) {
+        if (!StringUtils.isNumeric(submittedPageId)) {
             return null;
         }
 
         try {
-            long parsedPageId = Long.parseLong(pageId);
+            long parsedPageId = Long.parseLong(submittedPageId);
             return parsedPageId > 0 ? parsedPageId : null;
         } catch (NumberFormatException e) {
             return null;
