@@ -36,7 +36,10 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
     void replaceImportKeepsExistingLessonsPagesAvailableForRecovery() {
         sakai.login("instructor1");
         String sourceSite = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
-        String destinationSite = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        String destinationSite = sakai.createCourse("instructor1", List.of(
+            "sakai\\.lessonbuildertool",
+            "sakai\\.dashboard"
+        ));
 
         page.navigate(sourceSite);
         sakai.toolClick("Lessons");
@@ -74,7 +77,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             new Locator.GetByRoleOptions().setName("Delete pages permanently?"))).isVisible();
         assertThat(deleteDialog).containsText(PAGE_TO_DELETE);
         assertThat(deleteDialog).containsText("This action cannot be undone");
-        deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel")).click();
+        deleteDialog.locator(".delete-pages-dialog-footer .delete-pages-dialog-close").click();
         assertThat(pageToDeleteRow).isVisible();
 
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Delete permanently")).click();
@@ -118,10 +121,9 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         subpageDialog.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
 
-        assertThat(page.getByRole(AriaRole.HEADING)
-            .filter(new Locator.FilterOptions().setHasText(title))).isVisible();
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
         page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+            new Page.GetByRoleOptions().setName("Back").setExact(true)).first().click();
 
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();

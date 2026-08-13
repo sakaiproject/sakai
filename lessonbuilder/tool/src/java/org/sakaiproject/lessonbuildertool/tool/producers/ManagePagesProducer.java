@@ -297,6 +297,7 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
             SimplePage page = removedPages.get(index);
             UIBranchContainer row = UIBranchContainer.make(form, "removed-page:");
             UISelectChoice choice = UISelectChoice.make(row, "select-for-deletion", selection.getFullID(), index);
+            choice.decorate(new UIFreeAttributeDecorator("id", choice.getFullID()));
             choice.decorate(new UIFreeAttributeDecorator("data-page-title", page.getTitle()));
             UIOutput.make(row, "select-for-deletion-label",
                     messageLocator.getMessage("simplepage.select-for-deletion-page").replace("{}", page.getTitle()))

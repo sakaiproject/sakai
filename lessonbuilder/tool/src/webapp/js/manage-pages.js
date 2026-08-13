@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const selectAllCheckbox = document.querySelector("#chooseall");
     const deletionCheckboxes = Array.from(document.querySelectorAll("input.deletebox"));
-    const deleteButton = document.querySelector("#delete-pages-button");
+    const deleteButton = document.querySelector("#delete-button");
     const updateDeletionControls = () => {
         const selectedCount = deletionCheckboxes.filter((checkbox) => checkbox.checked).length;
         if (deleteButton) {
