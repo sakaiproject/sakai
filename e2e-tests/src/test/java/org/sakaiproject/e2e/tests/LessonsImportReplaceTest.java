@@ -118,6 +118,11 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         subpageDialog.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
 
+        assertThat(page.getByRole(AriaRole.HEADING)
+            .filter(new Locator.FilterOptions().setHasText(title))).isVisible();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();
     }
