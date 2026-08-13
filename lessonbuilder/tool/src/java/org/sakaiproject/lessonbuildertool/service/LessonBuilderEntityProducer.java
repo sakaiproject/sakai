@@ -694,14 +694,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	/**
-	 * Expands the selected page IDs to include all descendant pages
-	 * Only includes referenced subpages if the parent page is active.
+	 * Expands the selected page IDs to include all descendant pages. Active pages
+	 * follow the normal reference expansion; explicitly selected removed pages
+	 * include their complete retained page tree.
 	 */
 	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId,
 			Set<Long> removedPageIds, Map<Long, List<Long>> pageToReferencedPages) {
 		if (selectedPageIds.isEmpty()) return selectedPageIds;
 
 		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
+		for (Long selectedPageId : selectedPageIds) {
+			if (removedPageIds.contains(selectedPageId)) {
+				expandedIds.addAll(pageIndexService.getPageTreeIds(siteId, selectedPageId));
+			}
+		}
 		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
 
 		if (allPages == null || allPages.isEmpty()) return expandedIds;
@@ -3062,8 +3068,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	public String deleteOrphanPages(String siteId) {
-		removedPageService.deleteAllRemovedPages(siteId);
-		return "success";
+		RemovedPageService.DeleteResult result = removedPageService.deleteAllRemovedPages(siteId);
+		return "status=" + result.status() + ", deletedCount=" + result.deletedCount();
 	}
 
 	SimplePageBean makeSimplePageBean(String siteId) {

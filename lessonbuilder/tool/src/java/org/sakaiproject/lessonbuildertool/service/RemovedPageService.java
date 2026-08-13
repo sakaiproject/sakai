@@ -98,11 +98,20 @@ public class RemovedPageService {
         SitePage sitePage = site.addPage();
         ToolConfiguration tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
 
-        page.setToolId(tool.getPageId());
-        page.setParent(null);
-        page.setTopParent(null);
-        if (!simplePageToolDao.quickUpdate(page)) {
-            throw new RemovedPageOperationException("Unable to update removed Lessons page " + pageId);
+        String restoredToolId = tool.getPageId();
+        for (Long pageTreeId : pageIndexService.getPageTreeIds(siteId, pageId)) {
+            SimplePage pageInTree = simplePageToolDao.getPage(pageTreeId);
+            if (pageInTree == null || !siteId.equals(pageInTree.getSiteId())) {
+                throw new RemovedPageOperationException("Removed Lessons page tree changed during restore: " + pageTreeId);
+            }
+            pageInTree.setToolId(restoredToolId);
+            if (pageTreeId.equals(pageId)) {
+                pageInTree.setParent(null);
+                pageInTree.setTopParent(null);
+            }
+            if (!simplePageToolDao.quickUpdate(pageInTree)) {
+                throw new RemovedPageOperationException("Unable to update removed Lessons page " + pageTreeId);
+            }
         }
 
         SimplePageItem topLevelItem = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId.toString());
@@ -237,16 +246,28 @@ public class RemovedPageService {
         if (resourceId == null) {
             return;
         }
+        ContentResourceEdit edit = null;
         try {
             ContentResource resource = contentHostingService.getResource(resourceId);
             if (resource.isHidden()) {
-                ContentResourceEdit edit = contentHostingService.editResource(resourceId);
+                edit = contentHostingService.editResource(resourceId);
                 edit.setAvailability(false, edit.getReleaseDate(), edit.getRetractDate());
                 contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+                edit = null;
             }
         } catch (Exception e) {
             log.warn("Unable to restore visibility for resource {} while deleting Lessons item {}",
                     resourceId, item.getId(), e);
+            if (edit != null) {
+                try {
+                    if (edit.isActiveEdit()) {
+                        contentHostingService.cancelResource(edit);
+                    }
+                } catch (Exception cancelException) {
+                    log.warn("Unable to cancel resource edit for {} while deleting Lessons item {}",
+                            resourceId, item.getId(), cancelException);
+                }
+            }
         }
     }
 

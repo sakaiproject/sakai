@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -92,6 +94,67 @@ public class PageIndexService {
         return getPageIndex(siteId).removedPages().stream()
                 .map(SimplePage::getPageId)
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * Returns the page IDs in a Lessons page tree, including the requested root.
+     * Both persisted parent relationships and PAGE items are followed so retained
+     * trees can be copied or restored even when their original placement is gone.
+     */
+    public Set<Long> getPageTreeIds(String siteId, Long rootPageId) {
+        if (rootPageId == null) {
+            return Collections.emptySet();
+        }
+
+        List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
+        if (sitePages == null || sitePages.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Map<Long, SimplePage> pagesById = sitePages.stream().collect(Collectors.toMap(
+                SimplePage::getPageId,
+                page -> page,
+                (first, duplicate) -> first,
+                LinkedHashMap::new));
+        if (!pagesById.containsKey(rootPageId)) {
+            return Collections.emptySet();
+        }
+
+        Map<Long, List<Long>> childrenByParent = new LinkedHashMap<>();
+        for (SimplePage page : sitePages) {
+            if (page.getParent() != null) {
+                childrenByParent.computeIfAbsent(page.getParent(), ignored -> new ArrayList<>())
+                        .add(page.getPageId());
+            }
+        }
+
+        Set<Long> pageTreeIds = new LinkedHashSet<>();
+        Deque<Long> pagesToVisit = new ArrayDeque<>();
+        pagesToVisit.add(rootPageId);
+        while (!pagesToVisit.isEmpty()) {
+            Long pageId = pagesToVisit.removeFirst();
+            if (!pageTreeIds.add(pageId)) {
+                continue;
+            }
+
+            pagesToVisit.addAll(childrenByParent.getOrDefault(pageId, Collections.emptyList()));
+
+            List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+            if (items == null) {
+                continue;
+            }
+            for (SimplePageItem item : items) {
+                if (item.getType() != SimplePageItem.PAGE) {
+                    continue;
+                }
+                Long referencedPageId = parsePageId(item.getSakaiId());
+                if (referencedPageId != null && pagesById.containsKey(referencedPageId)) {
+                    pagesToVisit.addLast(referencedPageId);
+                }
+            }
+        }
+
+        return Collections.unmodifiableSet(pageTreeIds);
     }
 
     private final class PageTraversal {

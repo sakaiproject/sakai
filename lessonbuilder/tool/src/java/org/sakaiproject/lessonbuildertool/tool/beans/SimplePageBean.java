@@ -3036,6 +3036,13 @@ public class SimplePageBean {
 	}
 
 	public String selectSite(){
+		if (!checkCsrf()) {
+			return "permission-failed";
+		}
+		if (StringUtils.isBlank(selectedSite) || !securityService.unlock(
+				SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(selectedSite))) {
+			return "permission-failed";
+		}
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute("lessonbuilder.selectedsite", selectedSite);
 		toolSession.setAttribute("lessonbuilder.loadFromSite", "loadFromSite");	//indicate that Load Pages From This Site has been clicked
@@ -5151,6 +5158,7 @@ public class SimplePageBean {
 		RestoredPage restoredPage = result.get();
 		currentSite = null;
 		pageCache.remove(restoredPage.pageId());
+		setTopRefresh();
 		setSuccessMessage(messageLocator.getMessage("simplepage.restore-page-success")
 				.replace("{}", restoredPage.pageTitle()));
 		return "manage-pages";

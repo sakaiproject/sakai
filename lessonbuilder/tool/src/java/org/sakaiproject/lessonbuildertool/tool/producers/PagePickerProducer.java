@@ -25,6 +25,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -81,6 +82,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     private MessageLocator messageLocator;
     private LocaleGetter localeGetter;
     private SiteService siteService;
+    private SecurityService securityService;
 
     @Override
     public String getViewID() {
@@ -91,6 +93,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         List<Site> sites = siteService.getSites(SiteService.SelectionType.UPDATE, null, null, null,
                         SiteService.SortType.TITLE_ASC, null).stream()
                 .filter(site -> !site.getTools(LessonBuilderConstants.TOOL_ID).isEmpty())
+                .filter(site -> canUpdateLessons(site.getId()))
                 .collect(Collectors.toList());
         Collections.reverse(sites);
         return sites;
@@ -143,9 +146,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             }
         }
 
+        boolean canEditPage = canUpdateLessons(siteId);
+        if (!canEditPage) {
+            log.warn("User cannot update Lessons in selected site {}", siteId);
+            return;
+        }
         ensurePlacementPagesExist(siteId);
 
-        boolean canEditPage = simplePageBean.getEditPrivs() == 0;
         PageIndex pageIndex = pageIndexService.getPageIndex(siteId);
         VisibilityResult visibility = PageVisibilityHelper.getVisiblePages(
                 pageIndex.activePages(), canEditPage, simplePageBean);
@@ -206,6 +213,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         List<String> siteNames = sites.stream().map(Site::getTitle).collect(Collectors.toList());
         UISelect.make(siteForm, "pick-site", siteIds.toArray(new String[0]), siteNames.toArray(new String[0]),
                 "#{simplePageBean.selectedSite}", siteId);
+    }
+
+    private boolean canUpdateLessons(String siteId) {
+        return securityService.unlock(
+                SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId));
     }
 
     private void ensurePlacementPagesExist(String siteId) {

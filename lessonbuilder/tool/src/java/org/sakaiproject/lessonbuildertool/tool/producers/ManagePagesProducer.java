@@ -277,9 +277,9 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
         UIOutput.make(tofill, "removed-pages-section");
         UIOutput.make(tofill, "removed-pages-description",
                 messageLocator.getMessage("simplepage.chooser.unused.description"));
-        UIOutput.make(tofill, "chooseall");
 
         UIForm form = UIForm.make(tofill, "removed-pages-form");
+        UIOutput.make(form, "chooseall");
         Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
         if (sessionToken != null) {
             UIInput.make(form, "csrf", "#{simplePageBean.csrfToken}", sessionToken.toString());

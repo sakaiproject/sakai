@@ -15,28 +15,33 @@
  */
 package org.sakaiproject.lessonbuildertool.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-
+import org.junit.runner.RunWith;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.DeleteResult;
@@ -47,172 +52,198 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = LessonBuilderServiceTestConfiguration.class)
+@Transactional
 public class RemovedPageServiceTest {
 
     private static final String SITE_ID = "site";
 
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
+    @Autowired private RemovedPageService service;
+    @Autowired private SimplePageToolDao dao;
+    @Autowired private SiteService siteService;
+    @Autowired private SecurityService securityService;
+    @Autowired private ContentHostingService contentHostingService;
+    @Autowired private GradingService gradingService;
 
-    @Mock private SimplePageToolDao dao;
-    @Mock private SiteService siteService;
-    @Mock private Site site;
-    @Mock private SitePage sitePage;
-    @Mock private ToolConfiguration tool;
-    @Mock private GradebookIfc gradebookIfc;
-    @Mock private ContentHostingService contentHostingService;
-    @Mock private LessonEntity assignmentEntity;
-    @Mock private LessonEntity quizEntity;
-    @Mock private LessonEntity forumEntity;
-
-    private RemovedPageService service;
+    private Site site;
 
     @Before
-    public void setUp() {
-        PageIndexService pageIndexService = new PageIndexService();
-        pageIndexService.setSimplePageToolDao(dao);
-
-        service = new RemovedPageService();
-        service.setSimplePageToolDao(dao);
-        service.setPageIndexService(pageIndexService);
-        service.setSiteService(siteService);
-        service.setGradebookIfc(gradebookIfc);
-        service.setContentHostingService(contentHostingService);
-        service.setAssignmentEntity(assignmentEntity);
-        service.setQuizEntity(quizEntity);
-        service.setForumEntity(forumEntity);
+    public void setUp() throws Exception {
+        reset(siteService, securityService, contentHostingService, gradingService);
+        site = mock(Site.class);
+        when(siteService.getSite(SITE_ID)).thenReturn(site);
+        when(securityService.unlock(any(String.class), any(String.class))).thenReturn(true);
+        configurePlacements();
     }
 
     @Test
     public void detachLessonsPlacementsPreservesPageContent() throws Exception {
-        SitePage lessonsPage = org.mockito.Mockito.mock(SitePage.class);
-        SitePage otherPage = org.mockito.Mockito.mock(SitePage.class);
-        ToolConfiguration lessonsTool = org.mockito.Mockito.mock(ToolConfiguration.class);
-        ToolConfiguration otherTool = org.mockito.Mockito.mock(ToolConfiguration.class);
+        SitePage lessonsPage = mock(SitePage.class);
+        SitePage otherPage = mock(SitePage.class);
+        ToolConfiguration lessonsTool = mock(ToolConfiguration.class);
+        ToolConfiguration otherTool = mock(ToolConfiguration.class);
         when(lessonsTool.getToolId()).thenReturn(LessonBuilderConstants.TOOL_ID);
         when(otherTool.getToolId()).thenReturn("sakai.resources");
         when(lessonsPage.getTools()).thenReturn(List.of(lessonsTool));
         when(otherPage.getTools()).thenReturn(List.of(otherTool));
         when(site.getPages()).thenReturn(List.of(lessonsPage, otherPage));
-        when(siteService.getSite(SITE_ID)).thenReturn(site);
 
         assertEquals(1, service.detachLessonsPlacements(SITE_ID));
 
         verify(site).removePage(lessonsPage);
         verify(site, never()).removePage(otherPage);
         verify(siteService).save(site);
-        verify(dao, never()).deleteItem(org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     public void deleteRejectsEntireSelectionWhenAnyPageIsActive() {
-        SimplePage active = page(1);
-        SimplePage removed = page(2);
-        configureIndex(List.of(active, removed), List.of(pageItem(101, 1)));
+        SimplePage active = savePage("active-tool", "Active", null);
+        SimplePage removed = savePage("removed-tool", "Removed", null);
+        savePageItem(0, active, false);
+        configurePlacements(placement("active-tool"));
 
-        DeleteResult result = service.deleteRemovedPages(SITE_ID, List.of(1L, 2L));
+        DeleteResult result = service.deleteRemovedPages(
+                SITE_ID, List.of(active.getPageId(), removed.getPageId()));
 
         assertEquals(OperationStatus.INVALID, result.status());
         assertEquals(0, result.deletedCount());
-        verify(dao, never()).deleteItem(org.mockito.ArgumentMatchers.any());
+        assertTrue(dao.getPage(removed.getPageId()) != null);
     }
 
     @Test
     public void restoreRejectsPageThatIsAlreadyActive() throws Exception {
-        SimplePage active = page(1);
-        configureIndex(List.of(active), List.of(pageItem(101, 1)));
+        SimplePage active = savePage("active-tool", "Active", null);
+        savePageItem(0, active, false);
+        configurePlacements(placement("active-tool"));
 
-        Optional<RestoredPage> result = service.restorePage(SITE_ID, 1L);
+        Optional<RestoredPage> result = service.restorePage(SITE_ID, active.getPageId());
 
         assertEquals(Optional.empty(), result);
-        verify(siteService, never()).getSite(SITE_ID);
-        verify(dao, never()).quickUpdate(org.mockito.ArgumentMatchers.any());
+        verify(site, never()).addPage();
     }
 
     @Test
-    public void restoreCreatesPlacementAndTopLevelItemForRemovedPage() throws Exception {
-        SimplePage removed = page(2);
-        configureRemovedPage(removed);
-        when(siteService.getSite(SITE_ID)).thenReturn(site);
+    public void restoreCreatesPlacementAndPropagatesToolIdToDescendants() throws Exception {
+        SimplePage removed = savePage("old-tool", "Removed", null);
+        SimplePage child = savePage("old-tool", "Child", removed.getPageId());
+        savePageItem(removed.getPageId(), child, false);
+        SitePage sitePage = mock(SitePage.class);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
         when(site.addPage()).thenReturn(sitePage);
         when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
         when(tool.getPageId()).thenReturn("restored-tool");
-        when(dao.quickUpdate(removed)).thenReturn(true);
-        SimplePageItem topLevelItem = pageItem(202, 2);
-        when(dao.makeItem(0, 0, SimplePageItem.PAGE, "2", removed.getTitle())).thenReturn(topLevelItem);
-        when(dao.quickSaveItem(topLevelItem)).thenReturn(true);
 
-        Optional<RestoredPage> result = service.restorePage(SITE_ID, 2L);
+        Optional<RestoredPage> result = service.restorePage(SITE_ID, removed.getPageId());
+        dao.flush();
+        dao.clear();
 
-        assertEquals(Optional.of(new RestoredPage(2L, "Page 2")), result);
-        assertEquals("restored-tool", removed.getToolId());
+        assertEquals(Optional.of(new RestoredPage(removed.getPageId(), "Removed")), result);
+        assertEquals("restored-tool", dao.getPage(removed.getPageId()).getToolId());
+        assertEquals("restored-tool", dao.getPage(child.getPageId()).getToolId());
+        assertTrue(dao.findTopLevelPageItemBySakaiId(Long.toString(removed.getPageId())) != null);
         verify(siteService).save(site);
     }
 
     @Test
     public void restorePropagatesSiteSaveFailureInsteadOfReportingSuccess() throws Exception {
-        SimplePage removed = page(2);
-        configureRemovedPage(removed);
-        when(siteService.getSite(SITE_ID)).thenReturn(site);
+        SimplePage removed = savePage("old-tool", "Removed", null);
+        SitePage sitePage = mock(SitePage.class);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
         when(site.addPage()).thenReturn(sitePage);
         when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
         when(tool.getPageId()).thenReturn("restored-tool");
-        when(dao.quickUpdate(removed)).thenReturn(true);
-        when(dao.findTopLevelPageItemBySakaiId("2")).thenReturn(pageItem(202, 2));
         doThrow(new PermissionException("user", "site.upd", SITE_ID)).when(siteService).save(site);
 
-        assertThrows(PermissionException.class, () -> service.restorePage(SITE_ID, 2L));
+        assertThrows(PermissionException.class, () -> service.restorePage(SITE_ID, removed.getPageId()));
     }
 
     @Test
-    public void deleteSignalsPersistenceFailure() {
-        SimplePage removed = page(2);
-        configureRemovedPage(removed);
-        when(dao.findItemsOnPage(2)).thenReturn(List.of());
-        when(dao.deleteItem(removed)).thenReturn(false);
+    public void deleteSignalsGradebookFailure() {
+        SimplePage removed = savePage("removed-tool", "Removed", null);
+        removed.setGradebookPoints(10.0);
+        assertTrue(dao.quickUpdate(removed));
+        doThrow(new RuntimeException("gradebook unavailable")).when(gradingService)
+                .removeExternalAssignment(null, "lesson-builder:" + removed.getPageId(), LessonBuilderConstants.TOOL_ID);
 
         assertThrows(RemovedPageOperationException.class,
-                () -> service.deleteRemovedPages(SITE_ID, List.of(2L)));
+                () -> service.deleteRemovedPages(SITE_ID, List.of(removed.getPageId())));
+        assertTrue(dao.getPage(removed.getPageId()) != null);
     }
 
     @Test
     public void deleteRemovesValidatedPage() {
-        SimplePage removed = page(2);
-        configureRemovedPage(removed);
-        when(dao.findItemsOnPage(2)).thenReturn(List.of());
-        when(dao.deleteItem(removed)).thenReturn(true);
+        SimplePage removed = savePage("removed-tool", "Removed", null);
 
-        DeleteResult result = service.deleteRemovedPages(SITE_ID, List.of(2L));
+        DeleteResult result = service.deleteRemovedPages(SITE_ID, List.of(removed.getPageId()));
+        dao.flush();
+        dao.clear();
 
         assertEquals(OperationStatus.SUCCESS, result.status());
         assertEquals(1, result.deletedCount());
-        verify(dao).deleteItem(removed);
+        assertNull(dao.getPage(removed.getPageId()));
     }
 
-    private void configureRemovedPage(SimplePage removed) {
-        configureIndex(List.of(removed), List.of());
-        when(dao.getPage(removed.getPageId())).thenReturn(removed);
+    @Test
+    public void deleteCancelsResourceEditWhenVisibilityRestoreFails() throws Exception {
+        SimplePage removed = savePage("removed-tool", "Removed", null);
+        SimplePageItem resourceItem = dao.makeItem(
+                removed.getPageId(), 1, SimplePageItem.RESOURCE, "/content/resource", "Resource");
+        resourceItem.setPrerequisite(true);
+        assertTrue(dao.quickSaveItem(resourceItem));
+        ContentResource resource = mock(ContentResource.class);
+        ContentResourceEdit edit = mock(ContentResourceEdit.class);
+        when(contentHostingService.getResource("/content/resource")).thenReturn(resource);
+        when(resource.isHidden()).thenReturn(true);
+        when(contentHostingService.editResource("/content/resource")).thenReturn(edit);
+        when(edit.isActiveEdit()).thenReturn(true);
+        doThrow(new RuntimeException("availability update failed"))
+                .when(edit).setAvailability(false, null, null);
+
+        DeleteResult result = service.deleteRemovedPages(SITE_ID, List.of(removed.getPageId()));
+
+        assertEquals(OperationStatus.SUCCESS, result.status());
+        verify(contentHostingService).cancelResource(edit);
     }
 
-    private void configureIndex(List<SimplePage> pages, List<SimplePageItem> placements) {
-        when(dao.getSitePages(SITE_ID)).thenReturn(pages);
-        if (placements.isEmpty()) {
-            when(dao.getSiteTools(SITE_ID)).thenReturn(List.of());
-        } else {
-            when(dao.getSiteTools(SITE_ID)).thenReturn(List.of(tool));
-            when(dao.getOrderedTopLevelPageItems(SITE_ID)).thenReturn(placements);
-        }
+    private void configurePlacements(ToolConfiguration... placements) {
+        List<ToolConfiguration> siteTools = Arrays.asList(placements);
+        when(site.getTools(any(String[].class))).thenReturn(siteTools);
+        when(site.getTools(LessonBuilderConstants.TOOL_ID)).thenReturn(siteTools);
+        List<SitePage> sitePages = siteTools.stream().map(tool -> {
+            String pageId = tool.getPageId();
+            SitePage sitePage = mock(SitePage.class);
+            when(sitePage.getId()).thenReturn(pageId);
+            return sitePage;
+        }).toList();
+        when(site.getOrderedPages()).thenReturn(sitePages);
     }
 
-    private SimplePage page(long pageId) {
-        SimplePage page = new SimplePageImpl("old-tool-" + pageId, SITE_ID, "Page " + pageId, null, null);
-        page.setPageId(pageId);
+    private ToolConfiguration placement(String pageId) {
+        ToolConfiguration placement = mock(ToolConfiguration.class);
+        when(placement.getToolId()).thenReturn(LessonBuilderConstants.TOOL_ID);
+        when(placement.getPageId()).thenReturn(pageId);
+        return placement;
+    }
+
+    private SimplePage savePage(String toolId, String title, Long parent) {
+        SimplePage page = dao.makePage(toolId, SITE_ID, title, parent, parent);
+        assertTrue(dao.quickSaveItem(page));
+        dao.flush();
         return page;
     }
 
-    private SimplePageItem pageItem(long itemId, long targetPageId) {
-        return new SimplePageItemImpl(
-                itemId, 0, 0, SimplePageItem.PAGE, Long.toString(targetPageId), "Page " + targetPageId);
+    private SimplePageItem savePageItem(long pageId, SimplePage target, boolean nextPage) {
+        SimplePageItem item = dao.makeItem(pageId, 1, SimplePageItem.PAGE,
+                Long.toString(target.getPageId()), target.getTitle());
+        item.setNextPage(nextPage);
+        assertTrue(dao.quickSaveItem(item));
+        dao.flush();
+        return item;
     }
 }
