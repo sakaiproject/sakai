@@ -29,7 +29,7 @@
       <span rsf:id="msg=simplepage.sharedpageexplanation"></span>
     </p>
 
-    <section rsf:id="in-lessons-section" aria-labelledby="in-lessons-heading">
+    <section rsf:id="in-lessons-section" class="manage-pages-section" aria-labelledby="in-lessons-heading">
       <div class="manage-pages-section-header">
         <h3 id="in-lessons-heading" rsf:id="msg=simplepage.chooser.in-use"></h3>
         <div class="manage-pages-item-actions">
@@ -37,7 +37,7 @@
           <button type="button" id="hide-items" class="btn btn-link p-0" hidden="hidden"><span rsf:id="msg=simplepage.page.hideitems"></span></button>
         </div>
       </div>
-      <ul id="active-pages" class="pageList">
+      <ul id="active-pages" class="pageList mb-0">
         <li rsf:id="active-page:">
           <span rsf:id="status-image" class="bi page-picker-status" aria-hidden="true"></span>
           <a href="#" rsf:id="link" class="page-picker-link">
@@ -73,20 +73,20 @@
       </ul>
     </section>
 
-    <section rsf:id="removed-pages-section" class="removed-pages-section" aria-labelledby="removed-pages-heading">
+    <section rsf:id="removed-pages-section" class="manage-pages-section removed-pages-section border-top mt-3 pt-3" aria-labelledby="removed-pages-heading">
       <h3 id="removed-pages-heading" rsf:id="msg=simplepage.chooser.unused"></h3>
-      <p rsf:id="removed-pages-description" id="removed-pages-description" class="instructionPanel"></p>
+      <p rsf:id="removed-pages-description" id="removed-pages-description" class="instructionPanel rounded py-2 px-3 mb-2"></p>
 
       <form action="#" rsf:id="removed-pages-form" id="removed-pages-form">
         <input type="hidden" rsf:id="csrf" />
         <input type="hidden" rsf:id="restore-page-id" id="restore-page-id" />
         <span rsf:id="page-selection"></span>
-        <p rsf:id="chooseall" class="removed-pages-select-all">
+        <p rsf:id="chooseall" class="removed-pages-select-all d-flex align-items-center gap-2 mb-2">
           <input type="checkbox" id="chooseall" />
           <label for="chooseall"><span rsf:id="msg=simplepage.page.chooseall"></span></label>
         </p>
 
-        <ul id="removed-pages" class="pageList">
+        <ul id="removed-pages" class="pageList mb-0">
           <li rsf:id="removed-page:" class="removed-page">
             <span class="removed-page-delete-control">
               <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description" />
@@ -102,23 +102,23 @@
           </li>
         </ul>
 
-        <p class="removed-pages-actions">
+        <p class="removed-pages-actions border-top mt-2 pt-2 mb-0">
           <button type="button" rsf:id="delete-button" id="delete-button" class="btn btn-danger" disabled="disabled"></button>
         </p>
 
         <dialog id="delete-pages-dialog" aria-labelledby="delete-pages-dialog-title">
-          <div class="delete-pages-dialog-header">
+          <div class="delete-pages-dialog-header py-3 px-4">
             <h2 id="delete-pages-dialog-title" rsf:id="msg=simplepage.delete-confirm-title"></h2>
             <button type="button" rsf:id="delete-dialog-close" class="btn-close delete-pages-dialog-close"></button>
           </div>
-          <div class="delete-pages-dialog-body">
+          <div class="delete-pages-dialog-body p-4">
             <p id="delete-pages-confirm-message"></p>
             <p class="fw-bold mb-1" rsf:id="msg=simplepage.delete-confirm-list"></p>
             <ul id="delete-pages-confirm-list"></ul>
             <span id="delete-confirm-one-template" hidden="hidden" rsf:id="msg=simplepage.delete-confirm-one"></span>
             <span id="delete-confirm-many-template" hidden="hidden" rsf:id="msg=simplepage.delete-confirm-many"></span>
           </div>
-          <div class="delete-pages-dialog-footer">
+          <div class="delete-pages-dialog-footer py-3 px-4">
             <button type="button" class="btn btn-secondary delete-pages-dialog-close"><span rsf:id="msg=simplepage.cancel"></span></button>
             <button type="submit" rsf:id="delete-confirm-submit" id="delete-confirm-submit" class="btn btn-danger"></button>
           </div>

@@ -1685,6 +1685,10 @@
     list-style-type: none;
   }
 
+  .manage-pages-section {
+    max-inline-size: 52rem;
+  }
+
   .manage-pages-section-header {
     display: flex;
     align-items: baseline;
@@ -1696,26 +1700,24 @@
     margin-bottom: calc(#{$standard-spacing} / 2);
   }
 
-  .removed-pages-section {
-    margin-top: $standard-spacing;
-  }
-
   .removed-pages-section .instructionPanel {
-    max-width: 70ch;
-    margin-bottom: calc(#{$standard-spacing} / 2);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: none;
   }
 
   .removed-pages-select-all {
-    margin-bottom: calc(#{$standard-spacing} / 2);
+    min-block-size: 44px;
   }
 
   .removed-page {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: calc(#{$standard-spacing} / 2);
-    min-height: 44px;
-    padding-block: calc(#{$standard-spacing} / 4);
+    box-sizing: border-box;
+    min-block-size: 44px;
+    padding-block: 0;
   }
 
   .removed-page-delete-control {
@@ -1764,12 +1766,9 @@
     min-height: 44px;
   }
 
-  .removed-pages-actions {
-    margin-top: $standard-spacing;
-  }
-
   #delete-pages-confirm-list {
     max-height: 12rem;
+    margin-block-end: 0;
     overflow-y: auto;
     overflow-wrap: anywhere;
   }
@@ -1792,7 +1791,6 @@
     display: flex;
     align-items: center;
     gap: calc(#{$standard-spacing} / 2);
-    padding: $standard-spacing;
   }
 
   .delete-pages-dialog-header {
@@ -1803,10 +1801,6 @@
   .delete-pages-dialog-header h2 {
     margin: 0;
     font-size: 1.25rem;
-  }
-
-  .delete-pages-dialog-body {
-    padding: $standard-spacing;
   }
 
   .delete-pages-dialog-footer {
