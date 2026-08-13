@@ -4922,7 +4922,7 @@ public class SimplePageBean {
 			itemNow.setAttribute(CHECKLIST_ITEMS,null);
 			update(itemNow);	//finish writing break before subpages
 			for(int count=1; count<=pageSubpageCount; count++){
-				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
+				pageNow = addPage(pageSubpageTitle + ' ' + count, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
 				pageNow.setTopParent(getCurrentPage().getPageId());
 				update(pageNow);	//save revised page data
@@ -5113,7 +5113,7 @@ public class SimplePageBean {
 			
 			while (numPages > 0) {
 				String title = prefix + Integer.toString(start) + suffix;
-				addPage(title, null, copyPage, (numPages == 1));  // only save the last time
+				addPage(title, copyPage, (numPages == 1));  // only save the last time
 				numPages--;
 				start++;
 			}
@@ -5124,6 +5124,18 @@ public class SimplePageBean {
 		return "success";
 	}
 	
+	private enum PagePromotionResult {
+		SUCCESS,
+		INVALID_PAGE_ID,
+		PAGE_NOT_FOUND,
+		STUDENT_PAGE,
+		ALREADY_TOP_LEVEL,
+		NAVIGATION_CREATION_FAILED,
+		PAGE_UPDATE_FAILED,
+		TOP_LEVEL_ITEM_SAVE_FAILED,
+		SITE_SAVE_FAILED
+	}
+
 	// Adds an existing page as a top level page
 	public String addOldPage() {
 		if (getEditPrivs() != 0)
@@ -5131,10 +5143,14 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return "permission-failed";
 
-		String selectedPageId = StringUtils.trimToNull(selectedEntity);
+		return promotePageToTopLevel(selectedEntity) == PagePromotionResult.SUCCESS ? "success" : "failure";
+	}
+
+	private PagePromotionResult promotePageToTopLevel(String submittedPageId) {
+		String selectedPageId = StringUtils.trimToNull(submittedPageId);
 		if (selectedPageId == null) {
 			log.warn("Unable to add an existing page as top level: no page was selected");
-			return "failure";
+			return PagePromotionResult.INVALID_PAGE_ID;
 		}
 
 		long pageId;
@@ -5142,36 +5158,79 @@ public class SimplePageBean {
 			pageId = Long.parseLong(selectedPageId);
 		} catch (NumberFormatException e) {
 			log.warn("Unable to add an existing page as top level: invalid page ID");
-			return "failure";
+			return PagePromotionResult.INVALID_PAGE_ID;
 		}
 		if (pageId <= 0) {
 			log.warn("Unable to add an existing page as top level: invalid page ID {}", pageId);
-			return "failure";
+			return PagePromotionResult.INVALID_PAGE_ID;
 		}
 
 		String siteId = getCurrentSiteId();
 		SimplePage target = getPage(pageId);
 		if (target == null || !siteId.equals(target.getSiteId())) {
 			log.warn("Unable to add page {} as top level in site {}: page was not found in the site", pageId, siteId);
-			return "failure";
+			return PagePromotionResult.PAGE_NOT_FOUND;
+		}
+		if (isStudentPage(target)) {
+			log.warn("Unable to add page {} as top level in site {}: student pages cannot be promoted", pageId, siteId);
+			return PagePromotionResult.STUDENT_PAGE;
 		}
 
 		String canonicalPageId = Long.toString(pageId);
 		if (simplePageToolDao.findTopLevelPageItemBySakaiId(canonicalPageId) != null) {
 			log.warn("Unable to add page {} as top level in site {}: page is already top level", pageId, siteId);
-			return "failure";
+			return PagePromotionResult.ALREADY_TOP_LEVEL;
 		}
 
-		addPage(target.getTitle(), target.getPageId(), false, true);
+		Site site;
+		SitePage sitePage;
+		ToolConfiguration tool;
+		String toolId;
+		try {
+			site = getCurrentSite();
+			sitePage = site.addPage();
+			tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
+			toolId = tool.getPageId();
+			tool.setTitle(target.getTitle());
+			sitePage.setTitle(target.getTitle());
+			sitePage.setTitleCustom(true);
+		} catch (RuntimeException e) {
+			log.error("Unable to add page {} as top level in site {}: navigation creation failed", pageId, siteId, e);
+			return PagePromotionResult.NAVIGATION_CREATION_FAILED;
+		}
 
-		return "success";
+		target.setToolId(toolId);
+		target.setParent(null);
+		target.setTopParent(null);
+		if (!update(target)) {
+			log.error("Unable to add page {} as top level in site {}: page update failed", pageId, siteId);
+			return PagePromotionResult.PAGE_UPDATE_FAILED;
+		}
+
+		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, canonicalPageId, target.getTitle());
+		if (!saveItem(item)) {
+			log.error("Unable to add page {} as top level in site {}: top-level item save failed", pageId, siteId);
+			return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
+		}
+
+		try {
+			siteService.save(site);
+		} catch (Exception e) {
+			log.error("Unable to add page {} as top level in site {}", pageId, siteId, e);
+			return PagePromotionResult.SITE_SAVE_FAILED;
+		}
+
+		currentSite = null;
+		setTopRefresh();
+
+		return PagePromotionResult.SUCCESS;
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
-		return addPage(title, null, copyCurrent, true);
+		return addPage(title, copyCurrent, true);
 	}
 	
-        public SimplePage addPage(String title, Long pageId, boolean copyCurrent, boolean doSave) {
+	private SimplePage addPage(String title, boolean copyCurrent, boolean doSave) {
 
 		Site site = getCurrentSite();
 		SitePage sitePage = site.addPage();
@@ -5179,28 +5238,13 @@ public class SimplePageBean {
 		ToolConfiguration tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
 		String toolId = tool.getPageId();
 		
-		SimplePage page;
-		
-		if(pageId == null) {
-			page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
-			saveItem(page);
-		}else {
-			page = getPage(pageId);
-			page.setToolId(toolId);
-			page.setParent(null);
-			page.setTopParent(null);
-			update(page);
-			title = page.getTitle();
-		}
+		SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
+		saveItem(page);
 
 		tool.setTitle(title);
 		
-		// Does the top-level page item already exist, as in the case of adding a pre-existing page? If so, don't create another item.
-		SimplePageItem existingTop = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(page.getPageId()));
-		if (existingTop == null) {
-			SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
-			saveItem(item);
-		}
+		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
+		saveItem(item);
 
 		sitePage.setTitle(title);
 		sitePage.setTitleCustom(true);
