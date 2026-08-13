@@ -52,6 +52,10 @@ public class PagePromotionService {
     private final SiteService siteService;
     private final TransactionTemplate transactionTemplate;
 
+    private static final class PromotionState {
+        private boolean siteSaved;
+    }
+
     public PagePromotionService(SimplePageToolDao simplePageToolDao, SiteService siteService, TransactionTemplate transactionTemplate) {
         this.simplePageToolDao = simplePageToolDao;
         this.siteService = siteService;
@@ -104,25 +108,26 @@ public class PagePromotionService {
             sitePage.setTitle(target.getTitle());
             sitePage.setTitleCustom(true);
         } catch (RuntimeException e) {
-            restore(target, oldToolId, oldParent, oldTopParent, site, sitePage);
+            restore(target, oldToolId, oldParent, oldTopParent, site, sitePage, false);
             log.error("Unable to create site navigation while promoting page {} in site {}", pageId, siteId, e);
             return PagePromotionResult.NAVIGATION_CREATION_FAILED;
         }
 
+        PromotionState promotionState = new PromotionState();
         try {
-            PagePromotionResult result = transactionTemplate.execute(status -> promote(target, canonicalPageId, site, status));
+            PagePromotionResult result = transactionTemplate.execute(status -> promote(target, canonicalPageId, site, status, promotionState));
             if (result == null) {
                 result = PagePromotionResult.PERSISTENCE_FAILED;
             }
             if (result != PagePromotionResult.SUCCESS) {
-                restore(target, oldToolId, oldParent, oldTopParent, site, sitePage);
-                if (result != PagePromotionResult.SITE_SAVE_FAILED) {
+                restore(target, oldToolId, oldParent, oldTopParent, site, sitePage, promotionState.siteSaved);
+                if (result == PagePromotionResult.PERSISTENCE_FAILED) {
                     log.error("Unable to add page {} as top level in site {}: {}", pageId, siteId, result);
                 }
             }
             return result;
         } catch (RuntimeException e) {
-            restore(target, oldToolId, oldParent, oldTopParent, site, sitePage);
+            restore(target, oldToolId, oldParent, oldTopParent, site, sitePage, promotionState.siteSaved);
             log.error("Unable to add page {} as top level in site {}", pageId, siteId, e);
             return PagePromotionResult.PERSISTENCE_FAILED;
         }
@@ -132,22 +137,27 @@ public class PagePromotionService {
         return page != null && page.getOwner() != null && !page.isOwned();
     }
 
-    private PagePromotionResult promote(SimplePage target, String canonicalPageId, Site site, TransactionStatus status) {
-        List<String> errors = new ArrayList<>();
-        if (!simplePageToolDao.update(target, errors, "Unable to update page", true)) {
+    private PagePromotionResult promote(SimplePage target, String canonicalPageId, Site site, TransactionStatus status,
+            PromotionState promotionState) {
+        List<String> updateErrors = new ArrayList<>();
+        if (!simplePageToolDao.update(target, updateErrors, "Unable to update page", true)) {
             status.setRollbackOnly();
+            log.warn("Unable to update page {} while promoting it in site {}: {}", canonicalPageId, site.getId(), updateErrors);
             return PagePromotionResult.PAGE_UPDATE_FAILED;
         }
 
         SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, canonicalPageId, target.getTitle());
-        if (!simplePageToolDao.saveItem(item, errors, "Unable to save page", true)) {
+        List<String> itemErrors = new ArrayList<>();
+        if (!simplePageToolDao.saveItem(item, itemErrors, "Unable to save page", true)) {
             status.setRollbackOnly();
+            log.warn("Unable to save a top-level item for page {} in site {}: {}", canonicalPageId, site.getId(), itemErrors);
             return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
         }
 
         try {
             simplePageToolDao.flush();
             siteService.save(site);
+            promotionState.siteSaved = true;
             return PagePromotionResult.SUCCESS;
         } catch (Exception e) {
             status.setRollbackOnly();
@@ -170,12 +180,20 @@ public class PagePromotionService {
         }
     }
 
-    private void restore(SimplePage target, String toolId, Long parent, Long topParent, Site site, SitePage sitePage) {
+    private void restore(SimplePage target, String toolId, Long parent, Long topParent, Site site, SitePage sitePage,
+            boolean persistSiteRestore) {
         target.setToolId(toolId);
         target.setParent(parent);
         target.setTopParent(topParent);
         if (sitePage != null) {
             site.removePage(sitePage);
+            if (persistSiteRestore) {
+                try {
+                    siteService.save(site);
+                } catch (Exception e) {
+                    log.error("Unable to remove site page {} while restoring site {}", sitePage.getId(), site.getId(), e);
+                }
+            }
         }
     }
 }

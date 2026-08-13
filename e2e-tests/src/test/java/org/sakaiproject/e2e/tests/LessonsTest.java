@@ -98,6 +98,9 @@ class LessonsTest extends SakaiUiTestBase {
         lessonsRadio.check();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^Select$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.locator("body")).containsText("The page could not be added to site navigation.");
+        Locator currentSiteNavigation = page.locator("li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
 
         page.locator("#new-page").click(new Locator.ClickOptions().setForce(true));
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
@@ -107,6 +110,7 @@ class LessonsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^Select$", Pattern.CASE_INSENSITIVE))).click();
 
         sakai.toolClick("Promote Me");
-        assertThat(page.locator("body")).containsText("Promote Me");
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
+        assertThat(page.locator(".itemclass[role=main]")).isVisible();
     }
 }
