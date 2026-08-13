@@ -105,16 +105,21 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
 
     private void addSubpage(String title) {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content"))
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Subpage"))
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.locator("#subpage-title:visible").fill(title);
-        page.locator("#subpage-dialog:visible button.btn-primary")
-            .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
-        assertThat(page.locator("body")).containsText(title);
+            .click();
+
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.locator("#subpage-title").fill(title);
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
+
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();
     }
 
     private void replaceLessonsFromSite(String destinationSite, String sourceSite) {
