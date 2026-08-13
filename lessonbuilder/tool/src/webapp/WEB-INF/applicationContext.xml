@@ -314,6 +314,13 @@ simplePageBean.addForumSummary,
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.PlacementPageService"
+        class="org.sakaiproject.lessonbuildertool.service.PlacementPageService">
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+  </bean>
+
   <bean id="org.sakaiproject.lessonbuildertool.service.RemovedPageService"
         class="org.sakaiproject.lessonbuildertool.service.RemovedPageService">
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />

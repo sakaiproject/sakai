@@ -151,6 +151,28 @@ public class RemovedPageServiceTest {
     }
 
     @Test
+    public void restoreDoesNotRetargetLinkedActiveTopLevelPage() throws Exception {
+        SimplePage removed = savePage("old-tool", "Removed", null);
+        SimplePage active = savePage("active-tool", "Active", null);
+        savePageItem(removed.getPageId(), active, false);
+        savePageItem(0, active, false);
+        configurePlacements(placement("active-tool"));
+        SitePage sitePage = mock(SitePage.class);
+        ToolConfiguration tool = mock(ToolConfiguration.class);
+        when(site.addPage()).thenReturn(sitePage);
+        when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
+        when(tool.getPageId()).thenReturn("restored-tool");
+
+        Optional<RestoredPage> result = service.restorePage(SITE_ID, removed.getPageId());
+        dao.flush();
+        dao.clear();
+
+        assertEquals(Optional.of(new RestoredPage(removed.getPageId(), "Removed")), result);
+        assertEquals("restored-tool", dao.getPage(removed.getPageId()).getToolId());
+        assertEquals("active-tool", dao.getPage(active.getPageId()).getToolId());
+    }
+
+    @Test
     public void restorePropagatesSiteSaveFailureInsteadOfReportingSuccess() throws Exception {
         SimplePage removed = savePage("old-tool", "Removed", null);
         SitePage sitePage = mock(SitePage.class);

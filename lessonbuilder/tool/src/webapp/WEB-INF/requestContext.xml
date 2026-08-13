@@ -83,6 +83,8 @@
 		</property>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.AssignmentPickerProducer" >
@@ -134,6 +136,7 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
+		<property name="placementPageService" ref="org.sakaiproject.lessonbuildertool.service.PlacementPageService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />

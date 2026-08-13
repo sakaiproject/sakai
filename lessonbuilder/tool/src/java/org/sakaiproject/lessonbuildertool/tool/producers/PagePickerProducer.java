@@ -35,13 +35,13 @@ import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.service.PageIndexService;
 import org.sakaiproject.lessonbuildertool.service.PageIndexService.PageIndex;
 import org.sakaiproject.lessonbuildertool.service.PageIndexService.PageNode;
+import org.sakaiproject.lessonbuildertool.service.PlacementPageService;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.PageVisibilityHelper;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.PageVisibilityHelper.VisibilityResult;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -77,6 +77,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     private SimplePageBean simplePageBean;
     private SimplePageToolDao simplePageToolDao;
     private PageIndexService pageIndexService;
+    private PlacementPageService placementPageService;
     private LessonsAccess lessonsAccess;
     private ToolManager toolManager;
     private MessageLocator messageLocator;
@@ -106,7 +107,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             try {
                 simplePageBean.updatePageObject(params.getSendingPage());
             } catch (Exception e) {
-                log.info("Unable to open Lessons page picker for page {}", params.getSendingPage(), e);
+                log.warn("Unable to open Lessons page picker for page {}", params.getSendingPage(), e);
                 return;
             }
         }
@@ -151,7 +152,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             log.warn("User cannot update Lessons in selected site {}", siteId);
             return;
         }
-        ensurePlacementPagesExist(siteId);
+        placementPageService.ensurePlacementPagesExist(siteId);
 
         PageIndex pageIndex = pageIndexService.getPageIndex(siteId);
         VisibilityResult visibility = PageVisibilityHelper.getVisiblePages(
@@ -184,7 +185,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         int index = 0;
         for (PageNode node : activePages) {
             renderPageChoice(form, "active-page:", select, index++, node.page(), node.pageItem().getName(),
-                    node.level(), node.topLevel(), node.pageItem().getId(), pageIndex.sharedPageIds());
+                    node.level(), node.topLevel(), node.pageItem().getId(), pageIndex.sharedPageIds(), siteId);
         }
 
         if (!removedPages.isEmpty()) {
@@ -192,7 +193,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             UIOutput.make(section, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
             for (SimplePage page : removedPages) {
                 renderPageChoice(section, "removed-page:", select, index++, page, page.getTitle(), 0, false, null,
-                        pageIndex.sharedPageIds());
+                        pageIndex.sharedPageIds(), siteId);
             }
         }
 
@@ -220,32 +221,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId));
     }
 
-    private void ensurePlacementPagesExist(String siteId) {
-        List<ToolConfiguration> siteTools = simplePageToolDao.getSiteTools(siteId);
-        Set<String> existingToolIds = simplePageToolDao.getSitePages(siteId).stream()
-                .map(SimplePage::getToolId)
-                .collect(Collectors.toSet());
-
-        for (ToolConfiguration tool : siteTools) {
-            if (existingToolIds.contains(tool.getPageId())) {
-                continue;
-            }
-            SimplePage page = simplePageToolDao.makePage(tool.getPageId(), siteId, tool.getTitle(), null, null);
-            if (!simplePageToolDao.saveItem(page, new ArrayList<>(), "ignored", false)) {
-                log.error("Failed to save Lessons page for tool {}", tool.getPageId());
-                continue;
-            }
-            SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE,
-                    Long.toString(page.getPageId()), page.getTitle());
-            if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
-                log.error("Failed to save Lessons page item for tool {}", tool.getPageId());
-            }
-        }
-    }
-
     private void renderPageChoice(UIContainer rowContainer, String branchId, UISelect select, int index,
             SimplePage page, String title,
-            int level, boolean topLevel, Long itemId, Set<Long> sharedPageIds) {
+            int level, boolean topLevel, Long itemId, Set<Long> sharedPageIds, String siteId) {
         UIBranchContainer row = UIBranchContainer.make(rowContainer, branchId);
         if (topLevel) {
             row.decorate(new UIFreeAttributeDecorator("class", "top-level-page"));
@@ -256,6 +234,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         GeneralViewParameters preview = new GeneralViewParameters(PreviewProducer.VIEW_ID);
         preview.setSendingPage(page.getPageId());
+        preview.setSiteId(siteId);
         UIInternalLink.make(row, "link", preview)
                 .decorate(new UIFreeAttributeDecorator("style", "padding-left: " + Math.min(level, 5) + "em"))
                 .decorate(new UIFreeAttributeDecorator("target", "_blank"))
@@ -283,7 +262,6 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         }
 
         if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
-            String siteId = simplePageBean.getCurrentSiteId();
             if (lessonsAccess.isPageAccessible(page.getPageId(), siteId,
                     "c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
                 UIOutput.make(row, "page1");

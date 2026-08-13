@@ -140,6 +140,18 @@ public class LessonBuilderServiceTestConfiguration extends SakaiTestConfiguratio
         return pageIndexService;
     }
 
+    @Bean(name = "org.sakaiproject.lessonbuildertool.service.PlacementPageService")
+    public PlacementPageService placementPageService(
+            SimplePageToolDao simplePageToolDao,
+            org.sakaiproject.site.api.SiteService siteService,
+            org.sakaiproject.authz.api.SecurityService securityService) {
+        PlacementPageService placementPageService = new PlacementPageService();
+        placementPageService.setSimplePageToolDao(simplePageToolDao);
+        placementPageService.setSiteService(siteService);
+        placementPageService.setSecurityService(securityService);
+        return placementPageService;
+    }
+
     @Bean(name = "org.sakaiproject.lessonbuildertool.service.RemovedPageService")
     public RemovedPageService removedPageService(
             SimplePageToolDao simplePageToolDao,

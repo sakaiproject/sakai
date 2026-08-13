@@ -60,14 +60,7 @@ public class PageIndexService {
                 (first, duplicate) -> first,
                 LinkedHashMap::new));
 
-        List<ToolConfiguration> activePlacements = simplePageToolDao.getSiteTools(siteId);
-        List<SimplePageItem> topLevelItems = Collections.emptyList();
-        if (activePlacements != null && !activePlacements.isEmpty()) {
-            topLevelItems = simplePageToolDao.getOrderedTopLevelPageItems(siteId);
-            if (topLevelItems == null) {
-                topLevelItems = Collections.emptyList();
-            }
-        }
+        List<SimplePageItem> topLevelItems = getActiveTopLevelItems(siteId, sitePages);
 
         Set<Long> topLevelPageIds = topLevelItems.stream()
                 .map(SimplePageItem::getSakaiId)
@@ -128,11 +121,20 @@ public class PageIndexService {
             }
         }
 
+        Set<Long> activeTopLevelPageIds = getActiveTopLevelItems(siteId, sitePages).stream()
+                .map(SimplePageItem::getSakaiId)
+                .map(this::parsePageId)
+                .filter(pageId -> pageId != null)
+                .collect(Collectors.toSet());
+
         Set<Long> pageTreeIds = new LinkedHashSet<>();
         Deque<Long> pagesToVisit = new ArrayDeque<>();
         pagesToVisit.add(rootPageId);
         while (!pagesToVisit.isEmpty()) {
             Long pageId = pagesToVisit.removeFirst();
+            if (!rootPageId.equals(pageId) && activeTopLevelPageIds.contains(pageId)) {
+                continue;
+            }
             if (!pageTreeIds.add(pageId)) {
                 continue;
             }
@@ -155,6 +157,20 @@ public class PageIndexService {
         }
 
         return Collections.unmodifiableSet(pageTreeIds);
+    }
+
+    private List<SimplePageItem> getActiveTopLevelItems(String siteId, List<SimplePage> sitePages) {
+        if (sitePages.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ToolConfiguration> activePlacements = simplePageToolDao.getSiteTools(siteId);
+        if (activePlacements == null || activePlacements.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<SimplePageItem> topLevelItems = simplePageToolDao.getOrderedTopLevelPageItems(siteId);
+        return topLevelItems == null ? Collections.emptyList() : topLevelItems;
     }
 
     private final class PageTraversal {
