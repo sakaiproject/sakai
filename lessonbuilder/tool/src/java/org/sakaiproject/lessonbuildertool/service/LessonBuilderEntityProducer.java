@@ -2371,7 +2371,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 
 				// Removing the placements makes the existing page trees inactive. Keep their
-				// pages and items so instructors can recover them from Index of Pages.
+				// pages and items so instructors can recover them from Manage pages.
 			}
 
 			log.debug("lesson builder transferCopyEntities");

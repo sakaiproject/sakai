@@ -614,6 +614,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
+		List<String> successMessages = simplePageBean.successMessages();
+		if (successMessages != null) {
+			UIOutput.make(tofill, "success-div");
+			for (String message : successMessages) {
+				UIBranchContainer success = UIBranchContainer.make(tofill, "successes:");
+				UIOutput.make(success, "success-message", message);
+			}
+		}
+
 
 		if (canEditPage) {
 		    // special instructor-only javascript setup.

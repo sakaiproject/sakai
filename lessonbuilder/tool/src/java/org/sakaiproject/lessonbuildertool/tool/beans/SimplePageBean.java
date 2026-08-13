@@ -445,6 +445,8 @@ public class SimplePageBean {
 	public static final String COLUMN = "column";
 	public static final String COL_COLOR = "colcolor";
 	public static final String CHECKLIST_ITEMS = "checklistItems";
+	private static final String ERROR_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.errors";
+	private static final String SUCCESS_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.successes";
 	public static final String BTN_COLOR = "btnColor";
 	public static final String CUSTOM_CSS_CLASS = "customCssClass";
 	public static final String COLLAPSIBLE = "collapsible";
@@ -843,9 +845,9 @@ public class SimplePageBean {
 
 	public List<String> errMessages() {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
+		List<String> errors = (List<String>)toolSession.getAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
 		if (errors != null)
-			toolSession.removeAttribute("lessonbuilder.errors");
+			toolSession.removeAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
 		return errors;
 	}
 
@@ -855,11 +857,34 @@ public class SimplePageBean {
 		    log.info("Lesson Builder error not in tool: {}", s);
 		    return;
 		}
-		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
+		List<String> errors = (List<String>)toolSession.getAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
 		if (errors == null)
-		    errors = new ArrayList<>();
+			errors = new ArrayList<>();
 		errors.add(s);
-		toolSession.setAttribute("lessonbuilder.errors", errors);
+		toolSession.setAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE, errors);
+	}
+
+	public List<String> successMessages() {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		List<String> successes = (List<String>)toolSession.getAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
+		if (successes != null) {
+			toolSession.removeAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
+		}
+		return successes;
+	}
+
+	public void setSuccessMessage(String message) {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		if (toolSession == null) {
+			log.info("Lesson Builder success message not in tool: {}", message);
+			return;
+		}
+		List<String> successes = (List<String>)toolSession.getAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
+		if (successes == null) {
+			successes = new ArrayList<>();
+		}
+		successes.add(message);
+		toolSession.setAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE, successes);
 	}
 
 	public void setErrKey(String key, String text ) {
@@ -3161,7 +3186,37 @@ public class SimplePageBean {
 			return "permission-failed";
 		if (!checkCsrf())
 			return "permission-failed";
-		return deletePagesInternal();
+
+		if (selectedEntities == null || selectedEntities.length == 0) {
+			setErrMessage(messageLocator.getMessage("simplepage.delete-pages-none"));
+			return "manage-pages";
+		}
+
+		Set<Long> selectedPageIds = new LinkedHashSet<>();
+		try {
+			for (String selectedEntity : selectedEntities) {
+				selectedPageIds.add(Long.valueOf(selectedEntity));
+			}
+		} catch (NumberFormatException e) {
+			setErrMessage(messageLocator.getMessage("simplepage.delete-pages-invalid"));
+			return "manage-pages";
+		}
+
+		Collection<Long> orphanPageIds = getOrphanFinder(getCurrentSiteId()).getOrphanPageIds();
+		if (!orphanPageIds.containsAll(selectedPageIds)) {
+			setErrMessage(messageLocator.getMessage("simplepage.delete-pages-invalid"));
+			return "manage-pages";
+		}
+
+		selectedEntities = selectedPageIds.stream().map(String::valueOf).toArray(String[]::new);
+		deletePagesInternal();
+		if (selectedPageIds.size() == 1) {
+			setSuccessMessage(messageLocator.getMessage("simplepage.delete-page-success"));
+		} else {
+			setSuccessMessage(messageLocator.getMessage("simplepage.delete-pages-success")
+					.replace("{}", Integer.toString(selectedPageIds.size())));
+		}
+		return "manage-pages";
 	}
 	
 	//Service method for deleting pages
@@ -5135,6 +5190,35 @@ public class SimplePageBean {
 		if(target != null)
 			addPage(target.getTitle(), target.getPageId(), false, true);
 		
+		return "success";
+	}
+
+	public String restorePage() {
+		if (getEditPrivs() != 0) {
+			return "permission-failed";
+		}
+		if (!checkCsrf()) {
+			return "permission-failed";
+		}
+
+		Long pageId = null;
+		try {
+			if (StringUtils.isNotBlank(selectedEntity)) {
+				pageId = Long.valueOf(selectedEntity);
+			}
+		} catch (NumberFormatException e) {
+			log.debug("Invalid removed Lessons page id: {}", selectedEntity);
+		}
+
+		String siteId = getCurrentSiteId();
+		SimplePage target = pageId != null ? getPage(pageId) : null;
+		if (target == null || !siteId.equals(target.getSiteId()) || !getOrphanFinder(siteId).isOrphan(pageId)) {
+			setErrMessage(messageLocator.getMessage("simplepage.restore-page-invalid"));
+			return "success";
+		}
+
+		addPage(target.getTitle(), target.getPageId(), false, true);
+		setSuccessMessage(messageLocator.getMessage("simplepage.restore-page-success").replace("{}", target.getTitle()));
 		return "success";
 	}
 

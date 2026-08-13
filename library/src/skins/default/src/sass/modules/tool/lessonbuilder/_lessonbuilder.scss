@@ -1664,9 +1664,6 @@
   .mainList .edit-colHidden {
     display:none;
   }
-  #hide-items {
-    display: none;
-  }
   .pageList {
     padding: 0 10px;
     list-style:none;
@@ -1674,6 +1671,72 @@
   .pageList li {
     padding-left:5px;
   }
+
+  .page-picker-section {
+    padding-left: 0;
+  }
+
+  .page-picker-section-heading {
+    margin: $standard-spacing 0 calc(#{$standard-spacing} / 2);
+  }
+
+  .removed-pages-section {
+    margin-top: $standard-spacing;
+  }
+
+  .removed-pages-section .instructionPanel {
+    max-width: 70ch;
+    margin-bottom: calc(#{$standard-spacing} / 2);
+  }
+
+  .removed-pages-select-all {
+    margin-bottom: calc(#{$standard-spacing} / 2);
+  }
+
+  .removed-page {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: calc(#{$standard-spacing} / 2);
+    min-height: 44px;
+    padding-block: calc(#{$standard-spacing} / 4);
+  }
+
+  .removed-page-delete-control {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .removed-page .page-picker-link {
+    flex: 1 1 18rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .removed-page-restore {
+    min-height: 44px;
+  }
+
+  .page-picker-status {
+    display: inline-block;
+    width: 18px;
+    margin-inline-end: 3px;
+  }
+
+  .itemListToggle {
+    min-height: 44px;
+  }
+
+  .removed-pages-actions {
+    margin-top: $standard-spacing;
+  }
+
+  #delete-pages-confirm-list {
+    max-height: 12rem;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+  }
+
   .pageList img {
     vertical-align:middle;
   }
@@ -1682,7 +1745,6 @@
   }
   .itemList {
     padding-left: 0px;
-    display: none;
     list-style:none;
     background-color: var(--sakai-background-color-2);
     padding-bottom: 1.0em;

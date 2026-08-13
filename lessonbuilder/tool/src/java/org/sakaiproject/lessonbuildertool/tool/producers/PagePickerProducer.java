@@ -96,6 +96,12 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
     public static final String VIEW_ID = "PagePicker";
 
+    private enum PageEntryType {
+        PAGE,
+        IN_LESSONS_SECTION,
+        REMOVED_PAGES_SECTION
+    }
+
     private SimplePageBean simplePageBean;
     private SimplePageToolDao simplePageToolDao;
     private LessonsAccess lessonsAccess;
@@ -114,6 +120,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         Long pageId;
         Long itemId;
         String title;
+        PageEntryType type = PageEntryType.PAGE;
         int level;
         boolean toplevel;
         boolean hidden;
@@ -341,6 +348,24 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             UIInternalLink.make(tofill, "return", returnText, view);
 
             UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
+
+            List<String> errMessages = simplePageBean.errMessages();
+            if (errMessages != null) {
+                UIOutput.make(tofill, "error-div");
+                for (String message : errMessages) {
+                    UIBranchContainer error = UIBranchContainer.make(tofill, "errors:");
+                    UIOutput.make(error, "error-message", message);
+                }
+            }
+
+            List<String> successMessages = simplePageBean.successMessages();
+            if (successMessages != null) {
+                UIOutput.make(tofill, "success-div");
+                for (String message : successMessages) {
+                    UIBranchContainer success = UIBranchContainer.make(tofill, "successes:");
+                    UIOutput.make(success, "success-message", message);
+                }
+            }
         } else if (StringUtils.equals(returnView, "reorder")){
             UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.add.from.other"));
         } else {
@@ -349,11 +374,6 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         if (!StringUtils.equals(returnView, "reorder")) {
             UIOutput.make(tofill, "hide-show-container");
-        }
-
-        // Explain which pages may be deleted
-        if (summaryPage && canEditPage) {
-            UIOutput.make(tofill, "deleteAlert");
         }
 
         // this looks at pages in the site, which should be safe
@@ -421,6 +441,12 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         // the tool
         sitePages.forEach(spi -> findAllPages(spi, entries, pageMap, topLevelPages, sharedPages, 0, true, canEditPage));
 
+        if (summaryPage && !entries.isEmpty()) {
+            PageEntry marker = new PageEntry();
+            marker.type = PageEntryType.IN_LESSONS_SECTION;
+            entries.add(0, marker);
+        }
+
         // warn students if we aren't showing all the pages
         if (!canEditPage && somePagesHavePrerequisites) {
             UIOutput.make(tofill, "onlyseen");
@@ -430,7 +456,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         if (canEditPage && pageMap.size() > 0) {
             // marker
             PageEntry marker = new PageEntry();
-            marker.level = -1;
+            marker.type = PageEntryType.REMOVED_PAGES_SECTION;
             entries.add(marker);
             for (SimplePage p: pageMap.values()) {
                 if (!simplePageBean.isStudentPage(p)) {
@@ -458,11 +484,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         if (sessionToken != null) {
             UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
         }
+        if (summaryPage) {
+            UIInput.make(form, "restore-page-id", "#{simplePageBean.selectedEntity}");
+        }
 
         List<String> values = new ArrayList<>();
         List<String> initValues = new ArrayList<>();
         for (PageEntry entry: entries) {
-            if (entry.level >= 0) {
+            if (entry.type == PageEntryType.PAGE) {
                 values.add(entry.pageId.toString());
                 initValues.add("");
             }
@@ -484,8 +513,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 row.decorate(new UIFreeAttributeDecorator("style", "list-style-type:none; margin-top:0.5em"));
             }
 
-            if (entry.level < 0) {
+            if (entry.type == PageEntryType.IN_LESSONS_SECTION) {
+                row.decorate(new UIStyleDecorator("page-picker-section"));
+                UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.in-use"));
+            } else if (entry.type == PageEntryType.REMOVED_PAGES_SECTION) {
+                row.decorate(new UIStyleDecorator("page-picker-section removed-pages-section"));
                 UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
+                UIOutput.make(row, "removed-pages-description", messageLocator.getMessage("simplepage.chooser.unused.description"));
                 if (summaryPage) {
                     UIOutput.make(row, "chooseall");
                 }
@@ -609,8 +643,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                             decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select")));
                 } else if (summaryPage) {
                     // i.e. summary if canEdit and page doesn't have an item
-                    UISelectChoice.make(row, "select-for-deletion", select.getFullID(), index).
-                            decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select-for-deletion")));
+                    row.decorate(new UIStyleDecorator("removed-page"));
+                    UIOutput.make(row, "delete-control");
+                    UISelectChoice deletionChoice = UISelectChoice.make(row, "select-for-deletion", select.getFullID(), index);
+                    deletionChoice.decorate(new UIFreeAttributeDecorator("data-page-title", entry.title));
+                    UIOutput.make(row, "select-for-deletion-label",
+                            messageLocator.getMessage("simplepage.select-for-deletion-page").replace("{}", entry.title))
+                            .decorate(new UIFreeAttributeDecorator("for", deletionChoice.getFullID()));
                     showDeleteButton = true; // at least one item to delete
                 }
 
@@ -620,12 +659,19 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
                 UIInternalLink.make(row, "link", params).
                         decorate(new UIFreeAttributeDecorator("style", "padding-left: " + level + "em")).
-                        decorate(new UIFreeAttributeDecorator("target", "_blank"));
+                        decorate(new UIFreeAttributeDecorator("target", "_blank")).
+                        decorate(new UIFreeAttributeDecorator("rel", "noopener"));
                 String levelstr = messageLocator.getMessage("simplepage.status.level").replace("{}", Integer.toString(level)) + " ";
+                String linkNote = messageLocator.getMessage("simplepage.opens-in-new") + ". ";
                 if (level > 0) {
-                    UIOutput.make(row, "link-note", levelstr);
+                    linkNote = levelstr + linkNote;
                 }
+                UIOutput.make(row, "link-note", linkNote);
                 UIOutput.make(row, "link-text", entry.title);
+                if (summaryPage) {
+                    UICommand.make(row, "restore-page", messageLocator.getMessage("simplepage.restore-page"), "#{simplePageBean.restorePage}")
+                            .decorate(new UIFreeAttributeDecorator("data-page-id", entry.pageId.toString()));
+                }
                 index++;
             }
 
@@ -670,6 +716,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         if (!summaryPage) {
 
+            UIOutput.make(form, "chooser-actions");
+
             UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 
             if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
@@ -693,7 +741,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             }
             UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
         } else if (showDeleteButton) {
-            UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
+            UIOutput.make(form, "delete-actions");
+            UIOutput.make(form, "delete-button", messageLocator.getMessage("simplepage.delete-selected"));
+            UIOutput.make(form, "delete-dialog-close")
+                    .decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.cancel")));
+            UICommand.make(form, "delete-confirm-submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
         }
     }
 
@@ -777,6 +829,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         togo.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
+        GeneralViewParameters managePages = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
+        managePages.setSource("summary");
+        togo.add(new NavigationCase("manage-pages", managePages));
         GeneralViewParameters selectsiteParams = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
         selectsiteParams.setSource("anotherPage");
         togo.add(new NavigationCase("selectsite", selectsiteParams));

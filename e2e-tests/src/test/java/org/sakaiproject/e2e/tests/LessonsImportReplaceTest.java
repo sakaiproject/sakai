@@ -30,6 +30,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
     private static final String IMPORTED_PAGE = "Imported page";
     private static final String PRESERVED_PAGE = "Preserved page";
     private static final String PRESERVED_CONTENT = "Preserved content";
+    private static final String PAGE_TO_DELETE = "Page to delete";
 
     @Test
     void replaceImportKeepsExistingLessonsPagesAvailableForRecovery() {
@@ -47,6 +48,10 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         openPage(PRESERVED_PAGE);
         addSubpage(PRESERVED_CONTENT);
 
+        page.navigate(destinationSite);
+        sakai.toolClick("Lessons");
+        addSubpage(PAGE_TO_DELETE);
+
         replaceLessonsFromSite(destinationSite, sourceSite);
 
         page.navigate(destinationSite);
@@ -54,27 +59,46 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(IMPORTED_PAGE);
 
         page.locator("#show-pages:visible").click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Pages in Current Site"))).isVisible();
-        assertThat(page.locator("body")).containsText("The following pages are currently not in use");
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Manage pages"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Removed pages"))).isVisible();
+        assertThat(page.locator("body")).containsText("Their content is still available");
 
-        Locator preservedPageRow = page.locator("#list > li")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*" + PRESERVED_PAGE + "\\s*$")))
-            .first();
-        assertThat(preservedPageRow.locator("input.deletebox")).isVisible();
+        Locator pageToDeleteRow = removedPageRow(PAGE_TO_DELETE);
+        pageToDeleteRow.getByLabel("Select " + PAGE_TO_DELETE + " for permanent deletion").check();
 
-        page.navigate(destinationSite);
-        sakai.toolClick("Lessons");
-        openExistingPageChooser();
-        Locator pageChoice = page.locator("#list > li")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*" + PRESERVED_PAGE + "\\s*$")))
-            .first();
-        pageChoice.locator("input[type=radio]").check(new Locator.CheckOptions().setForce(true));
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^Select$", Pattern.CASE_INSENSITIVE)))
-            .click(new Locator.ClickOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Delete permanently")).click();
+        Locator deleteDialog = page.locator("#delete-pages-dialog");
+        assertThat(deleteDialog.getByRole(AriaRole.HEADING,
+            new Locator.GetByRoleOptions().setName("Delete pages permanently?"))).isVisible();
+        assertThat(deleteDialog).containsText(PAGE_TO_DELETE);
+        assertThat(deleteDialog).containsText("This action cannot be undone");
+        deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Cancel")).click();
+        assertThat(pageToDeleteRow).isVisible();
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Delete permanently")).click();
+        deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete permanently")).click();
         page.waitForLoadState();
 
-        openPage(PRESERVED_PAGE);
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Manage pages"))).isVisible();
+        assertThat(page.locator(".sak-banner-success")).containsText("Deleted one page permanently");
+        assertThat(page.locator("#list")).not().containsText(PAGE_TO_DELETE);
+
+        Locator preservedPageRow = removedPageRow(PRESERVED_PAGE);
+        assertThat(preservedPageRow.locator("input.deletebox")).isVisible();
+        preservedPageRow.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add back to Lessons")).click();
+        page.waitForLoadState();
+
+        assertThat(page.locator(".sak-banner-success"))
+            .containsText("\"" + PRESERVED_PAGE + "\" was added to Lessons as a top-level page");
+        sakai.toolClick(PRESERVED_PAGE);
         assertThat(page.locator("body")).containsText(PRESERVED_CONTENT);
+    }
+
+    private Locator removedPageRow(String title) {
+        return page.locator("#list > li.removed-page")
+            .filter(new Locator.FilterOptions().setHasText(title))
+            .first();
     }
 
     private void addSubpage(String title) {
@@ -96,17 +120,6 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*" + title + "\\s*$")))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
-    }
-
-    private void openExistingPageChooser() {
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content"))
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Subpage"))
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.locator("#subpage-choose-button:visible").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
     }
 
@@ -133,7 +146,6 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             .check(new Locator.CheckOptions().setForce(true));
         page.onDialog(dialog -> dialog.accept());
         clickContinueOrFinish();
-        page.waitForTimeout(10_000);
     }
 
     private void clickContinueOrFinish() {

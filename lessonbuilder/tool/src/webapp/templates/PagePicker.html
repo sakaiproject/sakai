@@ -3,23 +3,27 @@
 <html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
 <script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('PagePicker.html');</script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.page.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
 
-	<div class="portletBody PagePicker" role="application">
+		<div class="portletBody PagePicker" role="main">
 
-		<div id="error" rsf:id="error" class="sak-banner-error below-link-help" role="alert"></div>
+			<div rsf:id="error-div" class="sak-banner-error below-link-help" role="alert">
+				<div rsf:id="errors:"><p rsf:id="error-message"></p></div>
+			</div>
+			<div rsf:id="success-div" class="sak-banner-success below-link-help" role="status">
+				<div rsf:id="successes:"><p rsf:id="success-message"></p></div>
+			</div>
 
-		<div class="navIntraTool" rsf:id="return-div" role="navigation">
-                <a href="#" rsf:id="return"></a>
-		</div>
+			<div class="navIntraTool" rsf:id="return-div">
+	                <a href="#" rsf:id="return"></a>
+			</div>
 		<h2 rsf:id="site-dropdown-title"></h2>
 		<div id="sitePicker">
 			<form action="#" rsf:id="site-picker" >
@@ -32,36 +36,37 @@
 		</div>
         <h2 rsf:id="title"></h2>
 
-		<div rsf:id="deleteAlert" class="ui-widget">
-			<div class="instruction">
-				<p><span rsf:id="msg=simplepage.delete-message"></span></p>
-			</div>
-		</div>
-
-		<p rsf:id="sharedpageexplanation" class="instructionPanel">
+			<p rsf:id="sharedpageexplanation" class="instructionPanel">
 			<span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"> </span> <span rsf:id="msg=simplepage.sharedpageexplanation"> </span> 
 		</p>
 
-		<div rsf:id="hide-show-container">
-			<a href="#" id="show-items"><span rsf:id="msg=simplepage.page.showitems"></span></a>
-			<a href="#" id="hide-items"><span rsf:id="msg=simplepage.page.hideitems"></span></a>
-		</div>
-        <form action="#" rsf:id="page-picker">
-		<input type="hidden" rsf:id="csrf"/>
-		<span rsf:id="page-span"/>
-		<ul id="list" class="pageList" role="main">
-			<li rsf:id="page:">
-				<h5 rsf:id="heading" style="margin:20px -8px 10px;" ></h5>
-				<p rsf:id="chooseall">
-				  <input type="checkbox" id="chooseall"/> <span rsf:id="msg=simplepage.page.chooseall"></span><br/>
-			</p>
-                <input type="radio" rsf:id="select" />
-                <input type="checkbox" rsf:id="select-for-deletion" class="deletebox"/>
-                <span rsf:id="status-image" class="bi" style="display:inline-block; width:18px; margin-right:3px"></span>
-                <a href="#" rsf:id="link"><span rsf:id="link-note" class="lb-offscreen"></span><span rsf:id="link-text"></span></a><span rsf:id="shared" class="page-picker-note small"></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
-                <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle" aria-expanded="false"><span class="bi bi-caret-down-fill" aria-hidden="true"></span><span class="lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span></a></span>
-                <div rsf:id="itemListContainer" class="itemListContainer">
-                    <ul rsf:id="itemList" class="itemList" role="menu">
+			<div rsf:id="hide-show-container">
+				<button type="button" id="show-items" class="btn btn-link p-0"><span rsf:id="msg=simplepage.page.showitems"></span></button>
+				<button type="button" id="hide-items" class="btn btn-link p-0" hidden="hidden"><span rsf:id="msg=simplepage.page.hideitems"></span></button>
+			</div>
+	        <form action="#" rsf:id="page-picker" id="page-picker-form">
+			<input type="hidden" rsf:id="csrf"/>
+			<input type="hidden" rsf:id="restore-page-id" id="restore-page-id"/>
+			<span rsf:id="page-span"/>
+			<ul id="list" class="pageList" role="list">
+				<li rsf:id="page:">
+					<h3 rsf:id="heading" class="page-picker-section-heading"></h3>
+					<p rsf:id="removed-pages-description" id="removed-pages-description" class="instructionPanel"></p>
+					<p rsf:id="chooseall" class="removed-pages-select-all">
+					  <input type="checkbox" id="chooseall"/> <label for="chooseall"><span rsf:id="msg=simplepage.page.chooseall"></span></label>
+					</p>
+	                <input type="radio" rsf:id="select" />
+	                <span rsf:id="delete-control" class="removed-page-delete-control">
+	                  <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description"/>
+	                  <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
+	                </span>
+	                <span rsf:id="status-image" class="bi page-picker-status" aria-hidden="true"></span>
+	                <a href="#" rsf:id="link" class="page-picker-link"><span rsf:id="link-note" class="lb-offscreen"></span><span rsf:id="link-text" class="page-picker-link-text"></span></a>
+	                <button type="submit" rsf:id="restore-page" class="btn btn-outline-primary btn-sm removed-page-restore"></button>
+	                <span rsf:id="shared" class="page-picker-note small"></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+	                <span rsf:id="item-list-toggle"><button type="button" class="btn btn-link btn-sm itemListToggle" aria-expanded="false"><span class="bi bi-caret-down-fill" aria-hidden="true"></span><span class="item-list-toggle-label-show" rsf:id="msg=simplepage.page.showitems"></span><span class="item-list-toggle-label-hide" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span></button></span>
+	                <div rsf:id="itemListContainer" class="itemListContainer">
+	                    <ul rsf:id="itemList" class="itemList" role="list" hidden="hidden">
                         <li rsf:id="item:">
                             <div class="contentCol">
 								<span rsf:id="required-image" style="display:inline-block; width:18px; margin-left:3px"><span class="bi bi-asterisk small" aria-hidden="true"></span><span class="lb-offscreen" rsf:id="msg=simplepage.status.required"></span></span>
@@ -85,13 +90,38 @@
 		<input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
 		<label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
 		</p>
-		<p>
-		<input type="hidden" rsf:id="addBefore" />
-		<input type="submit" class="bold" rsf:id="submit" />
-		<input type="submit" rsf:id="cancel" />
-		</p>
-		</form>
-	</div>
+			<p rsf:id="delete-actions" class="removed-pages-actions">
+			<button type="button" rsf:id="delete-button" id="delete-pages-button" class="btn btn-danger" disabled="disabled"></button>
+			</p>
+			<p rsf:id="chooser-actions">
+			<input type="hidden" rsf:id="addBefore" />
+			<input type="submit" class="bold" rsf:id="submit" />
+			<input type="submit" rsf:id="cancel" />
+			</p>
+
+			<div id="delete-pages-dialog" class="modal fade" tabindex="-1" aria-labelledby="delete-pages-dialog-title" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h2 id="delete-pages-dialog-title" class="modal-title fs-5" rsf:id="msg=simplepage.delete-confirm-title"></h2>
+							<button type="button" rsf:id="delete-dialog-close" class="btn-close" data-bs-dismiss="modal"></button>
+						</div>
+						<div class="modal-body">
+							<p id="delete-pages-confirm-message"></p>
+							<p class="fw-bold mb-1" rsf:id="msg=simplepage.delete-confirm-list"></p>
+							<ul id="delete-pages-confirm-list"></ul>
+							<span id="delete-confirm-one-template" class="d-none" rsf:id="msg=simplepage.delete-confirm-one"></span>
+							<span id="delete-confirm-many-template" class="d-none" rsf:id="msg=simplepage.delete-confirm-many"></span>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span rsf:id="msg=simplepage.cancel"></span></button>
+							<button type="submit" rsf:id="delete-confirm-submit" id="delete-confirm-submit" class="btn btn-danger"></button>
+						</div>
+					</div>
+				</div>
+			</div>
+			</form>
+		</div>
     <script src="/lessonbuilder-tool/js/page-picker.js"></script>
 </body>
 </html>
