@@ -64,7 +64,6 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -112,7 +111,6 @@ import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
@@ -186,6 +184,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private ContentHostingService contentHostingService;
 	private MemoryService memoryService;
 	private SimplePageToolDao simplePageToolDao;
+	private PageIndexService pageIndexService;
+	private RemovedPageService removedPageService;
 	private LessonEntity forumEntity;
 	private LessonEntity quizEntity;
 	private LessonEntity assignmentEntity;
@@ -560,9 +560,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
-		// Orphaned pages need not apply!
-		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
-		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+		Set<Long> removedPageIds = pageIndexService.getRemovedPageIds(siteId);
 
 		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 
@@ -580,7 +578,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 			// Expand selection to include all descendant pages
-			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId, orphanFinder, pageToReferencedPages);
+			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId, removedPageIds, pageToReferencedPages);
 		}
 
 		try
@@ -594,19 +592,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
-			int orphansSkipped = 0;
+			int removedPagesSkipped = 0;
 			int selectionSkipped = 0;
 
 			List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 			if (sitePages != null && !sitePages.isEmpty()) {
 				for (SimplePage page: sitePages) {
-					// Skip orphaned pages unless they are in our selected set
-					boolean isSelectedOrExpanded = hasSelection && selectedPageIds.contains(Long.valueOf(page.getPageId()));
-					if (orphanFinder.isOrphan(page.getPageId()) && !isSelectedOrExpanded) {
-						orphansSkipped++;
+					// Skip removed pages unless they are in our selected set
+					boolean isSelectedOrExpanded = hasSelection && selectedPageIds.contains(page.getPageId());
+					if (removedPageIds.contains(page.getPageId()) && !isSelectedOrExpanded) {
+						removedPagesSkipped++;
 						continue;
 					}
-					if (hasSelection && !selectedPageIds.contains(Long.valueOf(page.getPageId()))) {
+					if (hasSelection && !selectedPageIds.contains(page.getPageId())) {
 						selectionSkipped++;
 						continue;
 					}
@@ -614,16 +612,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 
-			log.info("Skipped {} orphaned pages and {} non-selected pages while archiving site {}", orphansSkipped, selectionSkipped, siteId);
+			log.info("Skipped {} removed pages and {} non-selected pages while archiving site {}",
+					removedPagesSkipped, selectionSkipped, siteId);
 
 			int count = 0;
 			if (hasSelection) {
 				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(originalSelectedPageIds, selectedPageIds, siteId, pageToReferencedPages);
-				// Filter out top-level selections that are orphans (not exported as pages)
+				// Filter out top-level selections that are removed pages (not exported as descendants)
 				List<Long> orderedTopLevelPages = new ArrayList<>();
 				for (Long id : topLevelSelectedPages) {
 					boolean wasOriginallySelected = originalSelectedPageIds.contains(id);
-					if (orphanFinder.isOrphan(id) && !wasOriginallySelected) {
+					if (removedPageIds.contains(id) && !wasOriginallySelected) {
 						selectionSkipped++;
 						continue;
 					}
@@ -696,9 +695,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	/**
 	 * Expands the selected page IDs to include all descendant pages
-	 * Only includes referenced subpages if the parent page is valid (not orphaned)
+	 * Only includes referenced subpages if the parent page is active.
 	 */
-	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId, OrphanPageFinder orphanFinder, Map<Long, List<Long>> pageToReferencedPages) {
+	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId,
+			Set<Long> removedPageIds, Map<Long, List<Long>> pageToReferencedPages) {
 		if (selectedPageIds.isEmpty()) return selectedPageIds;
 
 		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
@@ -721,12 +721,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		while (!toProcess.isEmpty()) {
 			Long currentPageId = toProcess.poll();
 
-			// Only process this page if it's not an orphan
+			// Only process this page if it is active or was explicitly selected.
 			boolean isExplicitlySelected = selectedPageIds.contains(currentPageId);
-			boolean isOrphan = orphanFinder.isOrphan(currentPageId);
+			boolean isRemoved = removedPageIds.contains(currentPageId);
 
-			if (isOrphan && !isExplicitlySelected) {
-				log.debug("Skipping orphan page {} during expansion", currentPageId);
+			if (isRemoved && !isExplicitlySelected) {
+				log.debug("Skipping removed page {} during expansion", currentPageId);
 				continue;
 			}
 
@@ -734,7 +734,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			List<Long> children = parentToChildren.get(currentPageId);
 			if (children != null) {
 				for (Long childId : children) {
-					if (!expandedIds.contains(childId) && !orphanFinder.isOrphan(childId)) {
+					if (!expandedIds.contains(childId) && !removedPageIds.contains(childId)) {
 						expandedIds.add(childId);
 						toProcess.offer(childId);
 					}
@@ -742,7 +742,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 
 			// Add pages referenced by items of type page (subpages)
-			if (!isOrphan) {
+			if (!isRemoved) {
 				List<Long> referencedPages = pageToReferencedPages.get(currentPageId);
 				if (referencedPages != null) {
 					for (Long referencedPageId : referencedPages) {
@@ -2288,33 +2288,31 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
-		// Get orphan finder to identify problematic pages
-		SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
-		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(fromContext);
+		Set<Long> removedPageIds = pageIndexService.getRemovedPageIds(fromContext);
 
 		List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
 		if (sitePages == null || sitePages.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		// Find pages referenced by items, but only from valid (non-orphan) pages
+		// Find pages referenced by items, but only from active pages.
 		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(sitePages);
 		Set<Long> validReferencedPageIds = new HashSet<>();
 
 		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
 			Long referencingPageId = entry.getKey();
-			// Only include references from pages that are not orphans
-			if (!orphanFinder.isOrphan(referencingPageId)) {
+			// Only include references from active pages.
+			if (!removedPageIds.contains(referencingPageId)) {
 				validReferencedPageIds.addAll(entry.getValue());
 			}
 		}
 
 		return sitePages.stream()
 			.filter(p -> {
-				// Include page if it's not an orphan OR if it's referenced by a valid (non-orphan) page
-				boolean isOrphan = orphanFinder.isOrphan(p.getPageId());
+				// Include active pages and pages referenced by active pages.
+				boolean isRemoved = removedPageIds.contains(p.getPageId());
 				boolean isValidlyReferenced = validReferencedPageIds.contains(p.getPageId());
-				return !isOrphan || isValidlyReferenced;
+				return !isRemoved || isValidlyReferenced;
 			})
 			.map(p -> {
 				String title = p.getTitle() != null ? p.getTitle() : "";
@@ -2343,35 +2341,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		try {
 
 			if (cleanup) {
-				Site toSite = siteService.getSite(toContext);
-
-				List<SitePage> toSitePages = toSite.getPages();
-				if (toSitePages != null && !toSitePages.isEmpty()) {
-					Vector<String> removePageIds = new Vector<>();
-					for (SitePage currPage : toSitePages) {
-						List<String> toolIds = myToolList();
-						List<ToolConfiguration> toolList = currPage.getTools();
-						for (ToolConfiguration toolConfig : toolList) {
-							if (toolIds.contains(toolConfig.getToolId())) {
-								removePageIds.add(toolConfig.getPageId());
-							}
-						}
-					}
-					for (String removeId : removePageIds) {
-						SitePage sitePage = toSite.getPage(removeId);
-						toSite.removePage(sitePage);
-					}
-
-				}
-				siteService.save(toSite);
+				removedPageService.detachLessonsPlacements(toContext);
 				ToolSession session = sessionManager.getCurrentToolSession();
 
 				if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
 					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 				}
 
-				// Removing the placements makes the existing page trees inactive. Keep their
-				// pages and items so instructors can recover them from Manage pages.
 			}
 
 			log.debug("lesson builder transferCopyEntities");
@@ -2734,6 +2710,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
 
+	public void setPageIndexService(PageIndexService service) {
+		pageIndexService = service;
+	}
+
+	public void setRemovedPageService(RemovedPageService service) {
+		removedPageService = service;
+	}
+
 	public void setForumEntity (LessonEntity e) {
 		forumEntity = (LessonEntity)e;
 	}
@@ -3078,8 +3062,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	public String deleteOrphanPages(String siteId) {
-		SimplePageBean spb = makeSimplePageBean(siteId);
-		return spb.deleteOrphanPagesInternal();
+		removedPageService.deleteAllRemovedPages(siteId);
+		return "success";
 	}
 
 	SimplePageBean makeSimplePageBean(String siteId) {

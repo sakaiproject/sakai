@@ -133,9 +133,21 @@
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+	</bean>
+
+	<bean name="org.sakaiproject.lessonbuildertool.tool.producers.ManagePagesProducer"
+	      class="org.sakaiproject.lessonbuildertool.tool.producers.ManagePagesProducer">
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="pageIndexService" ref="org.sakaiproject.lessonbuildertool.service.PageIndexService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
 	</bean>
@@ -325,6 +337,7 @@
 		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
 		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+		<property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>

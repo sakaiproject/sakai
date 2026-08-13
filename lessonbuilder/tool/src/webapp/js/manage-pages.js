@@ -1,22 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const itemToggles = Array.from(document.querySelectorAll("button.itemListToggle"));
-    const showItemsButton = document.querySelector("#show-items");
-    const hideItemsButton = document.querySelector("#hide-items");
-    const selectAllCheckbox = document.querySelector("#chooseall");
-    const deletionCheckboxes = Array.from(document.querySelectorAll("input.deletebox"));
-    const deleteButton = document.querySelector("#delete-pages-button");
-    const deleteDialog = document.querySelector("#delete-pages-dialog");
-    const restorePageId = document.querySelector("#restore-page-id");
-
     const resizeToolFrame = () => {
         if (window.frameElement?.id && typeof setMainFrameHeight === "function") {
             setMainFrameHeight(window.frameElement.id);
         }
     };
 
+    const itemToggles = Array.from(document.querySelectorAll("button.itemListToggle"));
     const getItemList = (toggle) => toggle.closest("li")
         ?.querySelector(":scope > .itemListContainer > .itemList");
-
     const setItemListVisibility = (toggle, list, show) => {
         list.hidden = !show;
         toggle.setAttribute("aria-expanded", show.toString());
@@ -31,45 +22,38 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) {
             return;
         }
-
         if (list.id) {
             toggle.setAttribute("aria-controls", list.id);
         }
-
         toggle.addEventListener("click", () => {
             setItemListVisibility(toggle, list, list.hidden);
             resizeToolFrame();
         });
     });
 
-    showItemsButton?.addEventListener("click", () => {
+    const showItemsButton = document.querySelector("#show-items");
+    const hideItemsButton = document.querySelector("#hide-items");
+    const setAllItemListsVisibility = (show) => {
         itemToggles.forEach((toggle) => {
             const list = getItemList(toggle);
             if (list) {
-                setItemListVisibility(toggle, list, true);
-            }
-        });
-        showItemsButton.hidden = true;
-        if (hideItemsButton) {
-            hideItemsButton.hidden = false;
-        }
-        resizeToolFrame();
-    });
-
-    hideItemsButton?.addEventListener("click", () => {
-        itemToggles.forEach((toggle) => {
-            const list = getItemList(toggle);
-            if (list) {
-                setItemListVisibility(toggle, list, false);
+                setItemListVisibility(toggle, list, show);
             }
         });
         if (showItemsButton) {
-            showItemsButton.hidden = false;
+            showItemsButton.hidden = show;
         }
-        hideItemsButton.hidden = true;
+        if (hideItemsButton) {
+            hideItemsButton.hidden = !show;
+        }
         resizeToolFrame();
-    });
+    };
+    showItemsButton?.addEventListener("click", () => setAllItemListsVisibility(true));
+    hideItemsButton?.addEventListener("click", () => setAllItemListsVisibility(false));
 
+    const selectAllCheckbox = document.querySelector("#chooseall");
+    const deletionCheckboxes = Array.from(document.querySelectorAll("input.deletebox"));
+    const deleteButton = document.querySelector("#delete-pages-button");
     const updateDeletionControls = () => {
         const selectedCount = deletionCheckboxes.filter((checkbox) => checkbox.checked).length;
         if (deleteButton) {
@@ -80,17 +64,16 @@ document.addEventListener("DOMContentLoaded", () => {
             selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < deletionCheckboxes.length;
         }
     };
-
     selectAllCheckbox?.addEventListener("change", () => {
         deletionCheckboxes.forEach((checkbox) => {
             checkbox.checked = selectAllCheckbox.checked;
         });
         updateDeletionControls();
     });
-
     deletionCheckboxes.forEach((checkbox) => checkbox.addEventListener("change", updateDeletionControls));
     updateDeletionControls();
 
+    const deleteDialog = document.querySelector("#delete-pages-dialog");
     deleteButton?.addEventListener("click", () => {
         const selectedPages = deletionCheckboxes
             .filter((checkbox) => checkbox.checked)
@@ -115,10 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
             item.textContent = title;
             return item;
         }));
-
-        bootstrap.Modal.getOrCreateInstance(deleteDialog).show();
+        deleteDialog.showModal();
+    });
+    document.querySelectorAll(".delete-pages-dialog-close").forEach((button) => {
+        button.addEventListener("click", () => deleteDialog?.close());
     });
 
+    const restorePageId = document.querySelector("#restore-page-id");
     document.querySelectorAll("button.removed-page-restore").forEach((button) => {
         button.addEventListener("click", () => {
             if (restorePageId) {

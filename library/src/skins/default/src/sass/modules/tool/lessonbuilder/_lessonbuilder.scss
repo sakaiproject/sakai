@@ -1680,6 +1680,22 @@
     margin: $standard-spacing 0 calc(#{$standard-spacing} / 2);
   }
 
+  .top-level-page {
+    margin-top: calc(#{$standard-spacing} / 2);
+    list-style-type: none;
+  }
+
+  .manage-pages-section-header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: calc(#{$standard-spacing} / 2) $standard-spacing;
+  }
+
+  .manage-pages-section-header h3 {
+    margin-bottom: calc(#{$standard-spacing} / 2);
+  }
+
   .removed-pages-section {
     margin-top: $standard-spacing;
   }
@@ -1735,6 +1751,57 @@
     max-height: 12rem;
     overflow-y: auto;
     overflow-wrap: anywhere;
+  }
+
+  #delete-pages-dialog {
+    width: min(32rem, calc(100% - 2rem));
+    padding: 0;
+    color: var(--sakai-text-color-1);
+    background: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 0.5rem;
+  }
+
+  #delete-pages-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .delete-pages-dialog-header,
+  .delete-pages-dialog-footer {
+    display: flex;
+    align-items: center;
+    gap: calc(#{$standard-spacing} / 2);
+    padding: $standard-spacing;
+  }
+
+  .delete-pages-dialog-header {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--sakai-border-color);
+  }
+
+  .delete-pages-dialog-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .delete-pages-dialog-body {
+    padding: $standard-spacing;
+  }
+
+  .delete-pages-dialog-footer {
+    justify-content: flex-end;
+    border-top: 1px solid var(--sakai-border-color);
+  }
+
+  .page-item-requirement {
+    display: inline-block;
+    width: 18px;
+    margin-inline-start: 3px;
+  }
+
+  .page-item-icon {
+    position: relative;
+    margin-inline-end: 2px;
   }
 
   .pageList img {

@@ -45,6 +45,9 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         page.navigate(destinationSite);
         sakai.toolClick("Lessons");
         addSubpage(PRESERVED_PAGE);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(PRESERVED_PAGE).setExact(true))
+            .click();
+        page.waitForLoadState();
         addSubpage(PRESERVED_CONTENT);
 
         page.navigate(destinationSite);
@@ -80,7 +83,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
 
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Manage pages"))).isVisible();
         assertThat(page.locator(".sak-banner-success")).containsText("Deleted one page permanently");
-        assertThat(page.locator("#list")).not().containsText(PAGE_TO_DELETE);
+        assertThat(page.locator("#removed-pages")).not().containsText(PAGE_TO_DELETE);
 
         Locator preservedPageRow = removedPageRow(PRESERVED_PAGE);
         assertThat(preservedPageRow.locator("input.deletebox")).isVisible();
@@ -95,7 +98,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
     }
 
     private Locator removedPageRow(String title) {
-        return page.locator("#list > li.removed-page")
+        return page.locator("#removed-pages > li.removed-page")
             .filter(new Locator.FilterOptions().setHasText(title))
             .first();
     }

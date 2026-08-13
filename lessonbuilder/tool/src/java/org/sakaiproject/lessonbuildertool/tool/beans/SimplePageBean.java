@@ -94,9 +94,12 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.RemovedPageService;
+import org.sakaiproject.lessonbuildertool.service.RemovedPageService.DeleteResult;
+import org.sakaiproject.lessonbuildertool.service.RemovedPageService.OperationStatus;
+import org.sakaiproject.lessonbuildertool.service.RemovedPageService.RestoredPage;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
-import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -478,6 +481,7 @@ public class SimplePageBean {
     @Getter @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private LessonsAccess lessonsAccess;
     @Setter private LessonBuilderAccessService lessonBuilderAccessService;
+    @Setter private RemovedPageService removedPageService;
     @Getter @Setter private MessageLocator messageLocator;
     @Setter private HttpServletResponse httpServletResponse;
     @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
@@ -793,18 +797,6 @@ public class SimplePageBean {
 		isoDateFormat = getIsoDateFormat();
 	}
 
-	static PagePickerProducer pagePickerProducer = null;
-       // need the bean, because findallpages uses a global that's in the class */
-	public PagePickerProducer pagePickerProducer() {
-	    if (pagePickerProducer == null) {
-		pagePickerProducer = new PagePickerProducer();
-		pagePickerProducer.setSimplePageBean(this);
-		pagePickerProducer.setSimplePageToolDao(simplePageToolDao);
-	    }
-	    return pagePickerProducer;
-	}
-
-
     // no destroy. We want to leave the cache intact when we exit, because there's one of us
     // per request. 
 
@@ -844,47 +836,45 @@ public class SimplePageBean {
 	}
 
 	public List<String> errMessages() {
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		List<String> errors = (List<String>)toolSession.getAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
-		if (errors != null)
-			toolSession.removeAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
-		return errors;
+		return consumeMessages(ERROR_MESSAGES_SESSION_ATTRIBUTE);
 	}
 
 	public void setErrMessage(String s) {
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		if (toolSession == null) {
-		    log.info("Lesson Builder error not in tool: {}", s);
-		    return;
-		}
-		List<String> errors = (List<String>)toolSession.getAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE);
-		if (errors == null)
-			errors = new ArrayList<>();
-		errors.add(s);
-		toolSession.setAttribute(ERROR_MESSAGES_SESSION_ATTRIBUTE, errors);
+		storeMessage(ERROR_MESSAGES_SESSION_ATTRIBUTE, s);
 	}
 
 	public List<String> successMessages() {
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		List<String> successes = (List<String>)toolSession.getAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
-		if (successes != null) {
-			toolSession.removeAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
-		}
-		return successes;
+		return consumeMessages(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
 	}
 
 	public void setSuccessMessage(String message) {
+		storeMessage(SUCCESS_MESSAGES_SESSION_ATTRIBUTE, message);
+	}
+
+	private List<String> consumeMessages(String attributeName) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession == null) {
-			log.info("Lesson Builder success message not in tool: {}", message);
+			return null;
+		}
+		List<String> messages = (List<String>)toolSession.getAttribute(attributeName);
+		if (messages != null) {
+			toolSession.removeAttribute(attributeName);
+		}
+		return messages;
+	}
+
+	private void storeMessage(String attributeName, String message) {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		if (toolSession == null) {
+			log.info("Lesson Builder message outside tool context: {}", message);
 			return;
 		}
-		List<String> successes = (List<String>)toolSession.getAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE);
-		if (successes == null) {
-			successes = new ArrayList<>();
+		List<String> messages = (List<String>)toolSession.getAttribute(attributeName);
+		if (messages == null) {
+			messages = new ArrayList<>();
 		}
-		successes.add(message);
-		toolSession.setAttribute(SUCCESS_MESSAGES_SESSION_ATTRIBUTE, successes);
+		messages.add(message);
+		toolSession.setAttribute(attributeName, messages);
 	}
 
 	public void setErrKey(String key, String text ) {
@@ -3158,10 +3148,6 @@ public class SimplePageBean {
 		return "success";
 	}
 	
-	public OrphanPageFinder getOrphanFinder(String siteId) {
-		return new OrphanPageFinder(siteId, simplePageToolDao, pagePickerProducer());
-	}
-
 	//This will be called from the UI
 	public String deleteOrphanPages() {
 	    if (getEditPrivs() != 0)
@@ -3174,10 +3160,8 @@ public class SimplePageBean {
 	//This is an internal call that expects you will check permissions before calling it
 	//Public because it's accessed from entity producer
 	public String deleteOrphanPagesInternal() {
-	    OrphanPageFinder orphanFinder = getOrphanFinder(getCurrentSiteId());
-	    selectedEntities = orphanFinder.getOrphanStringsIds();
-	    deletePagesInternal();
-	    return "success";
+		removedPageService.deleteAllRemovedPages(getCurrentSiteId());
+		return "success";
 	}
 
 	//External method for deleting pages for the tool CSRF protected
@@ -3192,7 +3176,7 @@ public class SimplePageBean {
 			return "manage-pages";
 		}
 
-		Set<Long> selectedPageIds = new LinkedHashSet<>();
+		Set<Long> selectedPageIds = new HashSet<>();
 		try {
 			for (String selectedEntity : selectedEntities) {
 				selectedPageIds.add(Long.valueOf(selectedEntity));
@@ -3202,88 +3186,28 @@ public class SimplePageBean {
 			return "manage-pages";
 		}
 
-		Collection<Long> orphanPageIds = getOrphanFinder(getCurrentSiteId()).getOrphanPageIds();
-		if (!orphanPageIds.containsAll(selectedPageIds)) {
+		DeleteResult result;
+		try {
+			result = removedPageService.deleteRemovedPages(getCurrentSiteId(), selectedPageIds);
+		} catch (RuntimeException e) {
+			log.error("Unable to permanently delete removed Lessons pages in site {}",
+					getCurrentSiteId(), e);
+			setErrMessage(messageLocator.getMessage("simplepage.delete-pages-failed"));
+			return "manage-pages";
+		}
+
+		if (result.status() != OperationStatus.SUCCESS) {
 			setErrMessage(messageLocator.getMessage("simplepage.delete-pages-invalid"));
 			return "manage-pages";
 		}
 
-		selectedEntities = selectedPageIds.stream().map(String::valueOf).toArray(String[]::new);
-		deletePagesInternal();
-		if (selectedPageIds.size() == 1) {
+		if (result.deletedCount() == 1) {
 			setSuccessMessage(messageLocator.getMessage("simplepage.delete-page-success"));
 		} else {
 			setSuccessMessage(messageLocator.getMessage("simplepage.delete-pages-success")
-					.replace("{}", Integer.toString(selectedPageIds.size())));
+					.replace("{}", Integer.toString(result.deletedCount())));
 		}
 		return "manage-pages";
-	}
-	
-	//Service method for deleting pages
-	protected String deletePagesInternal() {
-	    String siteId = getCurrentSiteId();
-	    log.debug("Found {} pages to delete", selectedEntities.length);
-	    for (int i = 0; i < selectedEntities.length; i++) {
-		deletePage(siteId, Long.valueOf(selectedEntities[i]));
-		if ((i % 10) == 0) {
-		    // we've seen situations with a million orphan pages
-		    // we don't want to leave those all in cache
-		    simplePageToolDao.flush();
-		    simplePageToolDao.clear();
-		}
-	    }
-	    return "success";
-	}
-
-
-	public void deletePage(String siteId, Long pageId) {
-		
-	    SimplePage target = simplePageToolDao.getPage(pageId);
-	    if (target != null) {
-		if (!target.getSiteId().equals(siteId)) {
-		    return;
-		}
-		// delete all the items on the page
-		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(target.getPageId());
-		for (SimplePageItem item: items) {
-		    // if access controlled, clear it before deleting item
-		    if (item.isPrerequisite()) {
-			item.setPrerequisite(false);
-			// doesn't seem to use any internal data
-			checkControlGroup(item, false);
-		    }
-
-		    // delete gradebook entries
-		    if(item.getGradebookId() != null) {
-			gradebookIfc.removeExternalAssessment(siteId, item.getGradebookId());
-		    }
-		    if(item.getAltGradebook() != null) {
-			gradebookIfc.removeExternalAssessment(siteId, item.getAltGradebook());
-		    }
-
-		    //actually delete item
-		    simplePageToolDao.deleteItem(item);
-
-		}
-		
-
-		// remove from gradebook
-		Double currentPoints = target.getGradebookPoints();
-		if (currentPoints != null && currentPoints != 0.0)
-		    gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + pageId);
-	    
-		// remove fake item if it's top level. We won't see it if it's still active
-		// so this means the user has removed it in site info
-		SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId+"");
-		if (item != null)
-		    simplePageToolDao.deleteItem(item);			
-		
-		// currently the UI doesn't allow you to kill top level pages until they have been
-		// removed by site info, so we don't have to hack on the site pages
-		
-		// remove page
-		simplePageToolDao.deleteItem(target);
-	    }
 	}
 
     //  remove a top-level page from the left margin. Does not actually delete it.
@@ -5210,16 +5134,26 @@ public class SimplePageBean {
 			log.debug("Invalid removed Lessons page id: {}", selectedEntity);
 		}
 
-		String siteId = getCurrentSiteId();
-		SimplePage target = pageId != null ? getPage(pageId) : null;
-		if (target == null || !siteId.equals(target.getSiteId()) || !getOrphanFinder(siteId).isOrphan(pageId)) {
-			setErrMessage(messageLocator.getMessage("simplepage.restore-page-invalid"));
-			return "success";
+		Optional<RestoredPage> result;
+		try {
+			result = removedPageService.restorePage(getCurrentSiteId(), pageId);
+		} catch (Exception e) {
+			log.error("Unable to restore removed Lessons page {} in site {}", pageId, getCurrentSiteId(), e);
+			setErrMessage(messageLocator.getMessage("simplepage.restore-page-failed"));
+			return "manage-pages";
 		}
 
-		addPage(target.getTitle(), target.getPageId(), false, true);
-		setSuccessMessage(messageLocator.getMessage("simplepage.restore-page-success").replace("{}", target.getTitle()));
-		return "success";
+		if (result.isEmpty()) {
+			setErrMessage(messageLocator.getMessage("simplepage.restore-page-invalid"));
+			return "manage-pages";
+		}
+
+		RestoredPage restoredPage = result.get();
+		currentSite = null;
+		pageCache.remove(restoredPage.pageId());
+		setSuccessMessage(messageLocator.getMessage("simplepage.restore-page-success")
+				.replace("{}", restoredPage.pageTitle()));
+		return "manage-pages";
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
