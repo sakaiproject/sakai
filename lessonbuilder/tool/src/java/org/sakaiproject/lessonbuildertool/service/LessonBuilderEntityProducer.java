@@ -2342,7 +2342,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		try {
 
-			if(cleanup == true) {
+			if (cleanup) {
 				Site toSite = siteService.getSite(toContext);
 
 				List<SitePage> toSitePages = toSite.getPages();
@@ -2370,13 +2370,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 				}
 
-				SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
-				List<SimplePage> sitePages = simplePageToolDao.getSitePages(toContext);
-				if (sitePages != null && !sitePages.isEmpty()) {
-					for (SimplePage page: sitePages)
-						simplePageBean.deletePage(toContext, page.getPageId());
-				}
-
+				// Removing the placements makes the existing page trees inactive. Keep their
+				// pages and items so instructors can recover them from Index of Pages.
 			}
 
 			log.debug("lesson builder transferCopyEntities");
