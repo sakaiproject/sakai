@@ -89,7 +89,7 @@ class LessonsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create")).click(new Locator.ClickOptions().setForce(true));
 
         sakai.toolClick("Lessons");
-        page.locator("#new-page").click(new Locator.ClickOptions().setForce(true));
+        openAddMorePages();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
 
         Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
@@ -102,7 +102,7 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
             .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
 
-        page.locator("#new-page").click(new Locator.ClickOptions().setForce(true));
+        openAddMorePages();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
         Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
         assertThat(subpageRadio).isEnabled();
@@ -112,5 +112,10 @@ class LessonsTest extends SakaiUiTestBase {
         sakai.toolClick("Promote Me");
         assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
         assertThat(page.locator(".itemclass[role=main]")).isVisible();
+    }
+
+    private void openAddMorePages() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add More Pages")).click();
     }
 }
