@@ -75,4 +75,38 @@ class LessonsTest extends SakaiUiTestBase {
         page.locator("#save").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator("#content")).isVisible();
     }
+
+    @Test
+    @Order(3)
+    void canPromoteOnlySubpagesToSiteNavigation() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click(new Locator.ClickOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Subpage")).click(new Locator.ClickOptions().setForce(true));
+        page.locator("#subpage-title:visible").fill("Promote Me");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create")).click(new Locator.ClickOptions().setForce(true));
+
+        sakai.toolClick("Lessons");
+        page.locator("#new-page").click(new Locator.ClickOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+
+        Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
+        assertThat(lessonsRadio).isDisabled();
+        lessonsRadio.evaluate("element => element.removeAttribute('disabled')");
+        lessonsRadio.check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^Select$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("body")).containsText("The page could not be added to site navigation.");
+
+        page.locator("#new-page").click(new Locator.ClickOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+        Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
+        assertThat(subpageRadio).isEnabled();
+        subpageRadio.check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^Select$", Pattern.CASE_INSENSITIVE))).click();
+
+        sakai.toolClick("Promote Me");
+        assertThat(page.locator("body")).containsText("Promote Me");
+    }
 }

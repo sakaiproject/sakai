@@ -762,7 +762,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
         togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-        togo.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
+        togo.add(new NavigationCase("failure", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
         GeneralViewParameters selectsiteParams = new GeneralViewParameters(PagePickerProducer.VIEW_ID);

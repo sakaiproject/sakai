@@ -94,6 +94,8 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.PagePromotionService;
+import org.sakaiproject.lessonbuildertool.service.PagePromotionService.PagePromotionResult;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
@@ -476,6 +478,7 @@ public class SimplePageBean {
     @Getter @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private LessonsAccess lessonsAccess;
     @Setter private LessonBuilderAccessService lessonBuilderAccessService;
+    @Setter private PagePromotionService pagePromotionService;
     @Getter @Setter private MessageLocator messageLocator;
     @Setter private HttpServletResponse httpServletResponse;
     @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
@@ -5124,18 +5127,6 @@ public class SimplePageBean {
 		return "success";
 	}
 	
-	private enum PagePromotionResult {
-		SUCCESS,
-		INVALID_PAGE_ID,
-		PAGE_NOT_FOUND,
-		STUDENT_PAGE,
-		ALREADY_TOP_LEVEL,
-		NAVIGATION_CREATION_FAILED,
-		PAGE_UPDATE_FAILED,
-		TOP_LEVEL_ITEM_SAVE_FAILED,
-		SITE_SAVE_FAILED
-	}
-
 	// Adds an existing page as a top level page
 	public String addOldPage() {
 		if (getEditPrivs() != 0)
@@ -5143,87 +5134,15 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return "permission-failed";
 
-		return promotePageToTopLevel(selectedEntity) == PagePromotionResult.SUCCESS ? "success" : "failure";
-	}
-
-	private PagePromotionResult promotePageToTopLevel(String submittedPageId) {
-		String selectedPageId = StringUtils.trimToNull(submittedPageId);
-		if (selectedPageId == null) {
-			log.warn("Unable to add an existing page as top level: no page was selected");
-			return PagePromotionResult.INVALID_PAGE_ID;
-		}
-
-		long pageId;
-		try {
-			pageId = Long.parseLong(selectedPageId);
-		} catch (NumberFormatException e) {
-			log.warn("Unable to add an existing page as top level: invalid page ID");
-			return PagePromotionResult.INVALID_PAGE_ID;
-		}
-		if (pageId <= 0) {
-			log.warn("Unable to add an existing page as top level: invalid page ID {}", pageId);
-			return PagePromotionResult.INVALID_PAGE_ID;
-		}
-
-		String siteId = getCurrentSiteId();
-		SimplePage target = getPage(pageId);
-		if (target == null || !siteId.equals(target.getSiteId())) {
-			log.warn("Unable to add page {} as top level in site {}: page was not found in the site", pageId, siteId);
-			return PagePromotionResult.PAGE_NOT_FOUND;
-		}
-		if (isStudentPage(target)) {
-			log.warn("Unable to add page {} as top level in site {}: student pages cannot be promoted", pageId, siteId);
-			return PagePromotionResult.STUDENT_PAGE;
-		}
-
-		String canonicalPageId = Long.toString(pageId);
-		if (simplePageToolDao.findTopLevelPageItemBySakaiId(canonicalPageId) != null) {
-			log.warn("Unable to add page {} as top level in site {}: page is already top level", pageId, siteId);
-			return PagePromotionResult.ALREADY_TOP_LEVEL;
-		}
-
-		Site site;
-		SitePage sitePage;
-		ToolConfiguration tool;
-		String toolId;
-		try {
-			site = getCurrentSite();
-			sitePage = site.addPage();
-			tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
-			toolId = tool.getPageId();
-			tool.setTitle(target.getTitle());
-			sitePage.setTitle(target.getTitle());
-			sitePage.setTitleCustom(true);
-		} catch (RuntimeException e) {
-			log.error("Unable to add page {} as top level in site {}: navigation creation failed", pageId, siteId, e);
-			return PagePromotionResult.NAVIGATION_CREATION_FAILED;
-		}
-
-		target.setToolId(toolId);
-		target.setParent(null);
-		target.setTopParent(null);
-		if (!update(target)) {
-			log.error("Unable to add page {} as top level in site {}: page update failed", pageId, siteId);
-			return PagePromotionResult.PAGE_UPDATE_FAILED;
-		}
-
-		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, canonicalPageId, target.getTitle());
-		if (!saveItem(item)) {
-			log.error("Unable to add page {} as top level in site {}: top-level item save failed", pageId, siteId);
-			return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
-		}
-
-		try {
-			siteService.save(site);
-		} catch (Exception e) {
-			log.error("Unable to add page {} as top level in site {}", pageId, siteId, e);
-			return PagePromotionResult.SITE_SAVE_FAILED;
-		}
-
+		PagePromotionResult result = pagePromotionService.promote(selectedEntity, getCurrentSiteId());
 		currentSite = null;
-		setTopRefresh();
+		if (result == PagePromotionResult.SUCCESS) {
+			setTopRefresh();
+			return "success";
+		}
 
-		return PagePromotionResult.SUCCESS;
+		setErrMessage(messageLocator.getMessage("simplepage.page-promotion-failed"));
+		return "failure";
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
