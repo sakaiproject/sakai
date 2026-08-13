@@ -92,11 +92,13 @@
               <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description" />
               <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
             </span>
-            <a href="#" rsf:id="link" class="page-picker-link">
-              <span rsf:id="link-note" class="lb-offscreen"></span>
-              <span rsf:id="link-text"></span>
-            </a>
-            <button type="submit" rsf:id="restore-page" class="btn btn-outline-primary btn-sm removed-page-restore"></button>
+            <span class="removed-page-recovery">
+              <a href="#" rsf:id="link" class="page-picker-link">
+                <span rsf:id="link-note" class="lb-offscreen"></span>
+                <span rsf:id="link-text"></span>
+              </a>
+              <button type="submit" rsf:id="restore-page" class="btn-transparent bi bi-arrow-counterclockwise removed-page-restore"></button>
+            </span>
           </li>
         </ul>
 
