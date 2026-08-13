@@ -45,7 +45,6 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         page.navigate(destinationSite);
         sakai.toolClick("Lessons");
         addSubpage(PRESERVED_PAGE);
-        openPage(PRESERVED_PAGE);
         addSubpage(PRESERVED_CONTENT);
 
         page.navigate(destinationSite);
@@ -113,14 +112,6 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             .click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
         assertThat(page.locator("body")).containsText(title);
-    }
-
-    private void openPage(String title) {
-        page.locator("a:visible")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*" + title + "\\s*$")))
-            .first()
-            .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
     }
 
     private void replaceLessonsFromSite(String destinationSite, String sourceSite) {
