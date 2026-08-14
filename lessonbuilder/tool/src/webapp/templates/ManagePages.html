@@ -33,8 +33,8 @@
       <div class="manage-pages-section-header">
         <h3 id="in-lessons-heading" rsf:id="msg=simplepage.chooser.in-use"></h3>
         <div class="manage-pages-item-actions">
-          <button type="button" id="show-items" class="btn btn-link p-0"><span rsf:id="msg=simplepage.page.showitems"></span></button>
-          <button type="button" id="hide-items" class="btn btn-link p-0" hidden="hidden"><span rsf:id="msg=simplepage.page.hideitems"></span></button>
+          <button type="button" id="show-items" class="btn btn-transparent link-color text-decoration-underline"><span rsf:id="msg=simplepage.page.showallitems"></span></button>
+          <button type="button" id="hide-items" class="btn btn-transparent link-color text-decoration-underline" hidden="hidden"><span rsf:id="msg=simplepage.page.hideallitems"></span></button>
         </div>
       </div>
       <ul id="active-pages" class="pageList mb-0">
@@ -48,10 +48,10 @@
           <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
           <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
           <span rsf:id="item-list-toggle">
-            <button type="button" class="btn btn-link btn-sm itemListToggle" aria-expanded="false">
+            <button type="button" class="btn btn-transparent link-color p-1 itemListToggle" aria-expanded="false">
               <span class="bi bi-caret-down-fill" aria-hidden="true"></span>
-              <span class="item-list-toggle-label-show" rsf:id="msg=simplepage.page.showitems"></span>
-              <span class="item-list-toggle-label-hide" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span>
+              <span class="item-list-toggle-label-show lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span>
+              <span class="item-list-toggle-label-hide lb-offscreen" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span>
             </button>
           </span>
           <div rsf:id="item-list-container" class="itemListContainer">

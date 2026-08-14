@@ -66,6 +66,10 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         page.locator("#show-pages:visible").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Index of pages"))).isVisible();
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Removed pages"))).isVisible();
+        assertThat(page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Show all items").setExact(true))).isVisible();
+        assertThat(page.locator("#active-pages").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Show items").setExact(true)).first()).isVisible();
         assertThat(page.locator("body")).containsText("Their content is still available");
 
         Locator pageToDeleteRow = removedPageRow(PAGE_TO_DELETE);
