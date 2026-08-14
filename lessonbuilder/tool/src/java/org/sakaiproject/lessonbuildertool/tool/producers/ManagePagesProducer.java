@@ -54,7 +54,6 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
-import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -63,7 +62,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-/** Renders the read-only page index and instructor recovery controls. */
+/** Renders the page index and removed-page management controls. */
 @Slf4j
 @Setter
 public class ManagePagesProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
@@ -285,8 +284,6 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
         if (sessionToken != null) {
             UIInput.make(form, "csrf", "#{simplePageBean.csrfToken}", sessionToken.toString());
         }
-        UIInput.make(form, "restore-page-id", "#{simplePageBean.selectedEntity}");
-
         String[] values = removedPages.stream()
                 .map(page -> Long.toString(page.getPageId()))
                 .toArray(String[]::new);
@@ -311,11 +308,6 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
                     .decorate(new UIFreeAttributeDecorator("rel", "noopener"));
             UIOutput.make(row, "link-note", messageLocator.getMessage("simplepage.opens-in-new") + ". ");
             UIOutput.make(row, "link-text", page.getTitle());
-            String restoreLabel = messageLocator.getMessage("simplepage.restore-page");
-            UICommand.make(row, "restore-page", restoreLabel, "#{simplePageBean.restorePage}")
-                    .decorate(new UIFreeAttributeDecorator("data-page-id", Long.toString(page.getPageId())))
-                    .decorate(new UIFreeAttributeDecorator("aria-label", restoreLabel))
-                    .decorate(new UITooltipDecorator(restoreLabel));
         }
 
         UIOutput.make(form, "delete-button", messageLocator.getMessage("simplepage.delete-selected"));

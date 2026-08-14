@@ -79,7 +79,6 @@
 
       <form action="#" rsf:id="removed-pages-form" id="removed-pages-form">
         <input type="hidden" rsf:id="csrf" />
-        <input type="hidden" rsf:id="restore-page-id" id="restore-page-id" />
         <span rsf:id="page-selection"></span>
         <p rsf:id="chooseall" class="removed-pages-select-all d-flex align-items-center gap-2 mb-2">
           <input type="checkbox" id="chooseall" />
@@ -92,13 +91,10 @@
               <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description" />
               <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
             </span>
-            <span class="removed-page-recovery">
-              <a href="#" rsf:id="link" class="page-picker-link">
-                <span rsf:id="link-note" class="lb-offscreen"></span>
-                <span rsf:id="link-text"></span>
-              </a>
-              <button type="submit" rsf:id="restore-page" class="btn-transparent bi bi-arrow-counterclockwise removed-page-restore"></button>
-            </span>
+            <a href="#" rsf:id="link" class="page-picker-link">
+              <span rsf:id="link-note" class="lb-offscreen"></span>
+              <span rsf:id="link-text"></span>
+            </a>
           </li>
         </ul>
 

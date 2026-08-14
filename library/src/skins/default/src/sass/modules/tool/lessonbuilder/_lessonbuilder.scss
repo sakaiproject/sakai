@@ -1725,35 +1725,10 @@
     align-items: center;
   }
 
-  .removed-page-recovery {
-    display: inline-flex;
-    align-items: center;
-    flex: 1 1 18rem;
-    gap: calc(#{$standard-spacing} / 4);
-    min-width: 0;
-  }
-
   .removed-page .page-picker-link {
-    flex: 0 1 auto;
+    flex: 1 1 18rem;
     min-width: 0;
     overflow-wrap: anywhere;
-  }
-
-  .removed-page-restore {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 44px;
-    width: 44px;
-    min-height: 44px;
-    padding: 0;
-    color: var(--link-color);
-    font-size: 0;
-    text-decoration: none;
-  }
-
-  .removed-page-restore::before {
-    font-size: 1rem;
   }
 
   .page-picker-status {

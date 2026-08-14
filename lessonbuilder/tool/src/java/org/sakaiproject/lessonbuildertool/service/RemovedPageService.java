@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import lombok.Setter;
@@ -80,54 +79,6 @@ public class RemovedPageService {
         }
         siteService.save(site);
         return pagesToRemove.size();
-    }
-
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
-    public Optional<RestoredPage> restorePage(String siteId, Long pageId)
-            throws IdUnusedException, PermissionException {
-        if (pageId == null || !pageIndexService.getRemovedPageIds(siteId).contains(pageId)) {
-            return Optional.empty();
-        }
-
-        SimplePage page = simplePageToolDao.getPage(pageId);
-        if (page == null || !siteId.equals(page.getSiteId())) {
-            return Optional.empty();
-        }
-
-        Site site = siteService.getSite(siteId);
-        SitePage sitePage = site.addPage();
-        ToolConfiguration tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
-
-        String restoredToolId = tool.getPageId();
-        for (Long pageTreeId : pageIndexService.getPageTreeIds(siteId, pageId)) {
-            SimplePage pageInTree = simplePageToolDao.getPage(pageTreeId);
-            if (pageInTree == null || !siteId.equals(pageInTree.getSiteId())) {
-                throw new RemovedPageOperationException("Removed Lessons page tree changed during restore: " + pageTreeId);
-            }
-            pageInTree.setToolId(restoredToolId);
-            if (pageTreeId.equals(pageId)) {
-                pageInTree.setParent(null);
-                pageInTree.setTopParent(null);
-            }
-            if (!simplePageToolDao.quickUpdate(pageInTree)) {
-                throw new RemovedPageOperationException("Unable to update removed Lessons page " + pageTreeId);
-            }
-        }
-
-        SimplePageItem topLevelItem = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId.toString());
-        if (topLevelItem == null) {
-            topLevelItem = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, pageId.toString(), page.getTitle());
-            if (!simplePageToolDao.quickSaveItem(topLevelItem)) {
-                throw new RemovedPageOperationException("Unable to create top-level item for Lessons page " + pageId);
-            }
-        }
-
-        tool.setTitle(page.getTitle());
-        sitePage.setTitle(page.getTitle());
-        sitePage.setTitleCustom(true);
-        siteService.save(site);
-
-        return Optional.of(new RestoredPage(pageId, page.getTitle()));
     }
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
@@ -280,9 +231,6 @@ public class RemovedPageService {
     public enum OperationStatus {
         SUCCESS,
         INVALID
-    }
-
-    public record RestoredPage(long pageId, String pageTitle) {
     }
 
     public record DeleteResult(OperationStatus status, int deletedCount) {

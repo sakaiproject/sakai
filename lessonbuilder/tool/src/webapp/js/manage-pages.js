@@ -103,13 +103,4 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".delete-pages-dialog-close").forEach((button) => {
         button.addEventListener("click", () => deleteDialog?.close());
     });
-
-    const restorePageId = document.querySelector("#restore-page-id");
-    document.querySelectorAll("button.removed-page-restore").forEach((button) => {
-        button.addEventListener("click", () => {
-            if (restorePageId) {
-                restorePageId.value = button.dataset.pageId;
-            }
-        });
-    });
 });

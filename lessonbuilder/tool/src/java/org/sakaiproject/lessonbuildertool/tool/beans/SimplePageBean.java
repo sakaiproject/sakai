@@ -97,7 +97,6 @@ import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.DeleteResult;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.OperationStatus;
-import org.sakaiproject.lessonbuildertool.service.RemovedPageService.RestoredPage;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
@@ -5122,46 +5121,6 @@ public class SimplePageBean {
 			addPage(target.getTitle(), target.getPageId(), false, true);
 		
 		return "success";
-	}
-
-	public String restorePage() {
-		if (getEditPrivs() != 0) {
-			return "permission-failed";
-		}
-		if (!checkCsrf()) {
-			return "permission-failed";
-		}
-
-		Long pageId = null;
-		try {
-			if (StringUtils.isNotBlank(selectedEntity)) {
-				pageId = Long.valueOf(selectedEntity);
-			}
-		} catch (NumberFormatException e) {
-			log.debug("Invalid removed Lessons page id: {}", selectedEntity);
-		}
-
-		Optional<RestoredPage> result;
-		try {
-			result = removedPageService.restorePage(getCurrentSiteId(), pageId);
-		} catch (Exception e) {
-			log.error("Unable to restore removed Lessons page {} in site {}", pageId, getCurrentSiteId(), e);
-			setErrMessage(messageLocator.getMessage("simplepage.restore-page-failed"));
-			return "manage-pages";
-		}
-
-		if (result.isEmpty()) {
-			setErrMessage(messageLocator.getMessage("simplepage.restore-page-invalid"));
-			return "manage-pages";
-		}
-
-		RestoredPage restoredPage = result.get();
-		currentSite = null;
-		pageCache.remove(restoredPage.pageId());
-		setTopRefresh();
-		setSuccessMessage(messageLocator.getMessage("simplepage.restore-page-success")
-				.replace("{}", restoredPage.pageTitle()));
-		return "manage-pages";
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {

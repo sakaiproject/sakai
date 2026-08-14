@@ -4452,8 +4452,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		view.setSendingPage(currentPage.getPageId());
 
 		if(!simplePageBean.isStudentPage(currentPage)) {
-			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
-			UIOutput.make(form, "subpage-choose-button", messageLocator.getMessage("simplepage.page.chooser"));
+			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.page.chooser"), view);
 		}
 		
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);

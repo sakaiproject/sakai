@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -47,7 +45,6 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.DeleteResult;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.OperationStatus;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.RemovedPageOperationException;
-import org.sakaiproject.lessonbuildertool.service.RemovedPageService.RestoredPage;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -114,75 +111,6 @@ public class RemovedPageServiceTest {
         assertEquals(OperationStatus.INVALID, result.status());
         assertEquals(0, result.deletedCount());
         assertTrue(dao.getPage(removed.getPageId()) != null);
-    }
-
-    @Test
-    public void restoreRejectsPageThatIsAlreadyActive() throws Exception {
-        SimplePage active = savePage("active-tool", "Active", null);
-        savePageItem(0, active, false);
-        configurePlacements(placement("active-tool"));
-
-        Optional<RestoredPage> result = service.restorePage(SITE_ID, active.getPageId());
-
-        assertEquals(Optional.empty(), result);
-        verify(site, never()).addPage();
-    }
-
-    @Test
-    public void restoreCreatesPlacementAndPropagatesToolIdToDescendants() throws Exception {
-        SimplePage removed = savePage("old-tool", "Removed", null);
-        SimplePage child = savePage("old-tool", "Child", removed.getPageId());
-        savePageItem(removed.getPageId(), child, false);
-        SitePage sitePage = mock(SitePage.class);
-        ToolConfiguration tool = mock(ToolConfiguration.class);
-        when(site.addPage()).thenReturn(sitePage);
-        when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
-        when(tool.getPageId()).thenReturn("restored-tool");
-
-        Optional<RestoredPage> result = service.restorePage(SITE_ID, removed.getPageId());
-        dao.flush();
-        dao.clear();
-
-        assertEquals(Optional.of(new RestoredPage(removed.getPageId(), "Removed")), result);
-        assertEquals("restored-tool", dao.getPage(removed.getPageId()).getToolId());
-        assertEquals("restored-tool", dao.getPage(child.getPageId()).getToolId());
-        assertTrue(dao.findTopLevelPageItemBySakaiId(Long.toString(removed.getPageId())) != null);
-        verify(siteService).save(site);
-    }
-
-    @Test
-    public void restoreDoesNotRetargetLinkedActiveTopLevelPage() throws Exception {
-        SimplePage removed = savePage("old-tool", "Removed", null);
-        SimplePage active = savePage("active-tool", "Active", null);
-        savePageItem(removed.getPageId(), active, false);
-        savePageItem(0, active, false);
-        configurePlacements(placement("active-tool"));
-        SitePage sitePage = mock(SitePage.class);
-        ToolConfiguration tool = mock(ToolConfiguration.class);
-        when(site.addPage()).thenReturn(sitePage);
-        when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
-        when(tool.getPageId()).thenReturn("restored-tool");
-
-        Optional<RestoredPage> result = service.restorePage(SITE_ID, removed.getPageId());
-        dao.flush();
-        dao.clear();
-
-        assertEquals(Optional.of(new RestoredPage(removed.getPageId(), "Removed")), result);
-        assertEquals("restored-tool", dao.getPage(removed.getPageId()).getToolId());
-        assertEquals("active-tool", dao.getPage(active.getPageId()).getToolId());
-    }
-
-    @Test
-    public void restorePropagatesSiteSaveFailureInsteadOfReportingSuccess() throws Exception {
-        SimplePage removed = savePage("old-tool", "Removed", null);
-        SitePage sitePage = mock(SitePage.class);
-        ToolConfiguration tool = mock(ToolConfiguration.class);
-        when(site.addPage()).thenReturn(sitePage);
-        when(sitePage.addTool(LessonBuilderConstants.TOOL_ID)).thenReturn(tool);
-        when(tool.getPageId()).thenReturn("restored-tool");
-        doThrow(new PermissionException("user", "site.upd", SITE_ID)).when(siteService).save(site);
-
-        assertThrows(PermissionException.class, () -> service.restorePage(SITE_ID, removed.getPageId()));
     }
 
     @Test

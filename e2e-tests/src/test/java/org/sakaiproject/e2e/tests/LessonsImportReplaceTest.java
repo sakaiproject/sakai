@@ -90,13 +90,12 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
 
         Locator preservedPageRow = removedPageRow(PRESERVED_PAGE);
         assertThat(preservedPageRow.locator("input.deletebox")).isVisible();
-        preservedPageRow.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("Add back to Lessons")).click();
-        page.waitForLoadState();
 
-        assertThat(page.locator(".sak-banner-success"))
-            .containsText("\"" + PRESERVED_PAGE + "\" was added to Lessons as a top-level page");
-        sakai.toolClick(PRESERVED_PAGE);
+        sakai.toolClick("Lessons");
+        addExistingSubpage(PRESERVED_PAGE);
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(PRESERVED_PAGE).setExact(true)).click();
+        page.waitForLoadState();
         assertThat(page.locator("body")).containsText(PRESERVED_CONTENT);
     }
 
@@ -129,6 +128,35 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();
     }
 
+    private void addExistingSubpage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content"))
+            .click();
+
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Pick a Page").setExact(true)).click();
+        page.waitForLoadState();
+
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName("Removed pages"))).isVisible();
+        Locator pageChoice = page.locator("#removed-pages > li")
+            .filter(new Locator.FilterOptions().setHasText(title))
+            .first();
+        pageChoice.locator("input[type=\"radio\"]").check();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
+        page.waitForLoadState();
+
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();
+    }
+
     private void replaceLessonsFromSite(String destinationSite, String sourceSite) {
         page.navigate(destinationSite);
         sakai.toolClick("Site Info");
@@ -150,7 +178,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
 
         page.locator("#toolSite-sakai\\.lessonbuildertool-" + sourceSiteId)
             .check(new Locator.CheckOptions().setForce(true));
-        page.onDialog(dialog -> dialog.accept());
+        page.onceDialog(dialog -> dialog.accept());
         clickContinueOrFinish();
     }
 
