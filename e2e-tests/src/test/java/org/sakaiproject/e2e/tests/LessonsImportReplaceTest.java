@@ -64,7 +64,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(IMPORTED_PAGE);
 
         page.locator("#show-pages:visible").click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Manage pages"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Index of pages"))).isVisible();
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Removed pages"))).isVisible();
         assertThat(page.locator("body")).containsText("Their content is still available");
 
@@ -84,7 +84,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete permanently")).click();
         page.waitForLoadState();
 
-        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Manage pages"))).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Index of pages"))).isVisible();
         assertThat(page.locator(".sak-banner-success")).containsText("Deleted one page permanently");
         assertThat(page.locator("#removed-pages")).not().containsText(PAGE_TO_DELETE);
 
