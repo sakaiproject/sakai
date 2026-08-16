@@ -3095,9 +3095,6 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		} else {
 			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 		}
-		contentData.setProperty("flow", flow);  // An example
-		contentData.setProperty("remember", "always bring a towel");  // An example
-
 		// Run the contentreturn through the forward servlet
 		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
 			Base64DoubleUrlEncodeSafe.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
@@ -3420,8 +3417,6 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_ALL);
 			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
 		}
-		contentData.setProperty("remember", "the answer is 42");  // An example
-
 		// Run the contentreturn through the forward servlet
 		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
 			Base64DoubleUrlEncodeSafe.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);

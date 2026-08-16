@@ -196,6 +196,8 @@ public class SakaiLTIUtil {
 	public static final String SESSION_LAUNCH_CODE = "launch_code:";
 
 	public static final String FOR_USER = "for_user";
+	private static final Set<String> DEEP_LINK_CONTROL_PARAMETERS = Set.of(
+			"state", "nonce", "redirect_uri", "flow", "lti_storage_target");
 
 	// Message type
 	public static final String MESSAGE_TYPE_PARAMETER = "message_type";
@@ -1430,6 +1432,10 @@ public class SakaiLTIUtil {
 			return dlr;
 		}
 
+		static boolean isDeepLinkControlParameter(String key) {
+			return DEEP_LINK_CONTROL_PARAMETERS.contains(key);
+		}
+
 		/**
 		 * An LTI ContentItemSelectionRequest launch
 		 *
@@ -1514,10 +1520,14 @@ public class SakaiLTIUtil {
 					continue;
 				}
 
-				// Pass in data for use to get back.
-				dataJSON.put(key, value);
+				// Pass opaque integration data through to the Deep Linking response.
+				if (!isDeepLinkControlParameter(key)) {
+					dataJSON.put(key, value);
+				}
 			}
-			setProperty(ltiProps, LTIConstants.DATA, dataJSON.toString());
+			if (!dataJSON.isEmpty()) {
+				setProperty(ltiProps, LTIConstants.DATA, dataJSON.toString());
+			}
 
 			setProperty(ltiProps, LTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
@@ -2203,7 +2213,7 @@ public class SakaiLTIUtil {
 				ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
 				// can_confirm is not there
 				ci.deep_link_return_url = ltiProps.getProperty(LTIConstants.CONTENT_ITEM_RETURN_URL);
-				ci.data = ltiProps.getProperty("data");
+				ci.data = ltiProps.getProperty(LTIConstants.DATA);
 				lj.deep_link = ci;
 			}
 
