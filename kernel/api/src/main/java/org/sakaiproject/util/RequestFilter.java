@@ -1456,21 +1456,19 @@ public class RequestFilter implements Filter
 	
 	protected void addCookie(HttpServletRequest req, HttpServletResponse res, Cookie cookie) {
 
-		if (!m_cookieHttpOnly) {
-			// Use the standard servlet mechanism for setting the cookie
+		if (!m_cookieHttpOnly && (m_cookieSameSite == null || m_cookieSameSite.isEmpty())) {
+			// Use the standard servlet mechanism when neither attribute is configured
 			res.addCookie(cookie);
-		} else {
-			// Set the cookie manually
-
-			StringBuffer sb = new StringBuffer();
-
-			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
-					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
-
-			res.addHeader("Set-Cookie", sb.toString());
+			return;
 		}
-		return;
+
+		StringBuffer sb = new StringBuffer();
+
+		ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
+				cookie.getPath(), cookie.getDomain(), cookie.getComment(),
+				cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite, req.getHeader("user-agent"));
+
+		res.addHeader("Set-Cookie", sb.toString());
 	}
 
 	/**
