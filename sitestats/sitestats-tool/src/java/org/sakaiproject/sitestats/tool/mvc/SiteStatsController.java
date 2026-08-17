@@ -251,6 +251,7 @@ public class SiteStatsController {
         model.addAttribute("activeMenu", activeMenu);
         boolean adminTool = toolService.isAdminTool();
         model.addAttribute("adminTool", adminTool);
+        model.addAttribute("toolMenuAvailable", adminTool || toolService.canViewAllSiteStats(siteId));
         model.addAttribute("userActivityAvailable", !adminTool && toolService.canViewUserActivity(siteId));
     }
 

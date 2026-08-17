@@ -46,6 +46,10 @@ public class SiteStatsToolAuthorizationService {
         return statsManager.isDisplayDetailedEvents() && statsAuthz.canCurrentUserTrackInSite(siteId);
     }
 
+    public boolean canViewAllSiteStats(String siteId) {
+        return statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
+    }
+
     private String authorizedSite(String requestedSiteId, AccessLevel accessLevel) {
         String siteId = StringUtils.defaultIfBlank(requestedSiteId, currentSiteId());
         String currentSiteId = currentSiteId();

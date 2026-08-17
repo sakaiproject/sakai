@@ -488,6 +488,10 @@ public class SiteStatsToolService {
         return authorizationService.canViewUserActivity(siteId);
     }
 
+    public boolean canViewAllSiteStats(String siteId) {
+        return authorizationService.canViewAllSiteStats(siteId);
+    }
+
     private void assertCanViewUserActivity(String siteId) {
         if (!canViewUserActivity(siteId)) {
             throw new SecurityException("User Activity is not available");

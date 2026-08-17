@@ -9,7 +9,7 @@
   <script type="module" th:src="@{/js/sitestats-tool.js}"></script>
 </head>
 <body>
-  <nav th:fragment="menu(active)" class="navIntraTool actionToolBar navIntraToolMobile" aria-label="SiteStats">
+  <nav th:fragment="menu(active)" th:if="${toolMenuAvailable}" class="navIntraTool actionToolBar navIntraToolMobile" aria-label="SiteStats">
     <div class="dropdown-toggle dropdown-navIntraTool" th:text="#{menu_tooloptions}">Tool Options</div>
     <ul>
       <li th:if="${!adminTool}"><a th:classappend="${active == 'overview'} ? ' current'" th:attr="aria-current=${active == 'overview'} ? 'page' : null" th:href="@{/home(siteId=${siteId})}" th:text="#{menu_overview}">Overview</a></li>
