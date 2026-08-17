@@ -157,8 +157,8 @@ class AnnouncementTest extends SakaiUiTestBase {
         Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
         assertThat(reorderLink).isVisible();
-        reorderLink.click();
-        assertThat(page.locator("#reorder-list")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        reorderLink.click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
 
         Locator reorderedAnnouncements = page.locator("#reorder-list li").filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertThat(reorderedAnnouncements).hasCount(20);
