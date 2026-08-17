@@ -82,7 +82,8 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		ReportDef table = new ReportDef(chart, siteId);
 		table.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		table.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
-		return new WidgetReportDefinition(message("overview_title_visits"), chart, table);
+		String title = message("overview_title_visits");
+		return new WidgetReportDefinition(title, title, chart, table);
 	}
 
 	private ReportDef visitsByUserChart(String siteId, SiteStatsReportRequest request) {

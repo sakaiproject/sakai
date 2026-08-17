@@ -106,6 +106,10 @@ public class SiteStatsReportViewMapper {
 		return siteStatsChartMapper.mapChart(report, prefsData, title);
 	}
 
+	public SiteStatsChart mapChart(Report report, PrefsData prefsData, String title, String datasetLabel) {
+		return siteStatsChartMapper.mapChart(report, prefsData, title, datasetLabel);
+	}
+
 	public String localizedReportTitle(ReportDef reportDef) {
 		if (reportDef.getTitle() == null) {
 			return message("reportres_title");
