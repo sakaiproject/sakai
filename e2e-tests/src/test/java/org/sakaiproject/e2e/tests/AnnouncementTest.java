@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import java.util.List;
@@ -158,7 +159,11 @@ class AnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
         assertThat(reorderLink).isVisible();
         reorderLink.click();
-        assertThat(page.locator("#reorder-list")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
 
         Locator reorderedAnnouncements = page.locator("#reorder-list li").filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertThat(reorderedAnnouncements).hasCount(20);
