@@ -765,6 +765,50 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 	}
 	
 	@Test
+	public void testEventStatsByUserGroupsAnonymousAndRegularEvents() {
+		Date today = new Date();
+		statsUpdateManager.collectEvents(Arrays.asList(
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/" + FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, FakeData.SESSION_A_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/" + FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, FakeData.SESSION_A_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_A_ID + "/resource-a", FakeData.SITE_A_ID, FakeData.USER_A_ID, FakeData.SESSION_A_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/" + FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_B_ID, FakeData.SESSION_B_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_POLLVOTE, "/poll/" + FakeData.SITE_A_ID + "/poll-a", FakeData.SITE_A_ID, FakeData.USER_A_ID, FakeData.SESSION_A_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_POLLVOTE, "/poll/" + FakeData.SITE_A_ID + "/poll-a", FakeData.SITE_A_ID, FakeData.USER_A_ID, FakeData.SESSION_A_ID),
+				statsUpdateManager.buildEvent(today, FakeData.EVENT_POLLVOTE, "/poll/" + FakeData.SITE_A_ID + "/poll-a", FakeData.SITE_A_ID, FakeData.USER_B_ID, FakeData.SESSION_B_ID)));
+
+		List<String> events = Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW, FakeData.EVENT_POLLVOTE);
+		List<String> totalsBy = Arrays.asList(StatsManager.T_USER);
+		List<Stat> stats = statsManager.getEventStats(FakeData.SITE_A_ID, events,
+				null, null, null, false, null, totalsBy, StatsManager.T_USER, true, 0);
+
+		assertEquals(3, stats.size());
+		assertEquals(3L, countForUser(stats, "-"));
+		assertEquals(3L, countForUser(stats, FakeData.USER_A_ID));
+		assertEquals(1L, countForUser(stats, FakeData.USER_B_ID));
+		assertEquals(3, statsManager.getEventStatsRowCount(FakeData.SITE_A_ID, events,
+				null, null, null, false, totalsBy));
+
+		List<Stat> firstPage = statsManager.getEventStats(FakeData.SITE_A_ID, events,
+				null, null, null, false, new PagingPosition(1, 2), totalsBy, StatsManager.T_USER, true, 0);
+		assertEquals(2, firstPage.size());
+		assertEquals("-", firstPage.get(0).getUserId());
+		assertEquals(FakeData.USER_A_ID, firstPage.get(1).getUserId());
+
+		List<Stat> secondPage = statsManager.getEventStats(FakeData.SITE_A_ID, events,
+				null, null, null, false, new PagingPosition(3, 3), totalsBy, StatsManager.T_USER, true, 0);
+		assertEquals(1, secondPage.size());
+		assertEquals(FakeData.USER_B_ID, secondPage.get(0).getUserId());
+	}
+
+	private long countForUser(List<Stat> stats, String userId) {
+		return stats.stream()
+				.filter(stat -> userId.equals(stat.getUserId()))
+				.mapToLong(Stat::getCount)
+				.findFirst()
+				.orElseThrow(() -> new AssertionError("No statistics found for user " + userId));
+	}
+
+	@Test
 	@Ignore		// TODO JUNIT test is not working on hsqldb need to look into
 	public void testEventStats() {
 		statsUpdateManager.collectEvents(getSampleData());

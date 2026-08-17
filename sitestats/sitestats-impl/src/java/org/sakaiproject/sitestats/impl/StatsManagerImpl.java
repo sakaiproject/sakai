@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -1148,9 +1149,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
-                q.setParameterList("anonymousEvents", anonymousEvents);
-            }
             if(page != null){
                 q.setFirstResult(page.getFirst() - 1);
                 q.setMaxResults(page.getLast() - page.getFirst() + 1);
@@ -1289,26 +1287,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     results.add(c);
                 }
             }
-            // hack for hibernate-oracle bug producing duplicate lines
-            else if("oracle".equals(getDbVendor()) && totalsBy != null && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
-                List<Stat> consolidated = new ArrayList<>();
-                for(Stat s : results) {
-                    EventStat es = (EventStat) s;
-                    boolean found = false;
-                    for(Stat c : consolidated) {
-                        EventStat esc = (EventStat) c;
-                        if(esc.equalExceptForCount((Object)es)) {
-                            esc.setCount(esc.getCount() + es.getCount());
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(!found) {
-                        consolidated.add(es);
-                    }
-                }
-                results = consolidated;
-            }
             return results;
         };
 		return getHibernateTemplate().execute(hcb);
@@ -1367,9 +1345,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
-            }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0){
-                q.setParameterList("anonymousEvents", anonymousEvents);
             }
             log.debug("getEventStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
@@ -2209,9 +2184,6 @@ if (log.isDebugEnabled()) {
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
-                q.setParameterList("anonymousEvents", anonymousEvents);
-            }
             if(page != null){
                 q.setFirstResult(page.getFirst() - 1);
                 q.setMaxResults(page.getLast() - page.getFirst() + 1);
@@ -2449,11 +2421,7 @@ if (log.isDebugEnabled()) {
 				}
 				// user
 				if(totalsBy.contains(T_USER)) {
-					if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						selectFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END) as user");						
-					}else{
-						selectFields.add("s.userId as user");
-					}
+					selectFields.add(getUserField() + " as user");
 					columnMap.put(C_USER, columnIndex++);
 				}
 				// event
@@ -2545,11 +2513,7 @@ if (log.isDebugEnabled()) {
 				
 			// inverse query (users not matching conditions)
 			}else{
-				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-					selectFields.add("distinct(case when s.eventId not in (:anonymousEvents) then s.userId else '-' end) as user");
-				}else{
-					selectFields.add("distinct s.userId as user");
-				}
+				selectFields.add("distinct " + getUserField() + " as user");
 				columnMap.put(C_USER, columnIndex++);
 			}
 			
@@ -2713,17 +2677,7 @@ if (log.isDebugEnabled()) {
 			}
 			// User: new approach		
 			if(totalsBy.contains(T_USER)) {
-				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						// unfortunately, this produces results different from the expected:
-						//	- hibernate-oracle bug (sometimes) producing duplicate lines
-						//	- hack fix in getEventStats() method
-						groupFields.add("s.eventId");
-						groupFields.add("s.userId");
-						// it should be: ( but doesn't work in Hibernate :( )
-						//groupFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END)");
-				} else {
-					groupFields.add("s.userId");
-				}
+				groupFields.add(getUserField());
 			}			
 			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
 					&& (
@@ -2784,6 +2738,22 @@ if (log.isDebugEnabled()) {
 			
 			return _hql.toString();
 		}
+
+		private boolean hasAnonymousUserField() {
+			return queryType == Q_TYPE_EVENT && totalsBy.contains(T_USER)
+					&& anonymousEvents != null && !anonymousEvents.isEmpty();
+		}
+
+		private String getUserField() {
+			if(!hasAnonymousUserField()) {
+				return "s.userId";
+			}
+			String anonymousEventIds = anonymousEvents.stream()
+					.sorted()
+					.map(eventId -> "'" + eventId.replace("'", "''") + "'")
+					.collect(Collectors.joining(", "));
+			return "(CASE WHEN s.eventId not in (" + anonymousEventIds + ") THEN s.userId ELSE '-' END)";
+		}
 		
 		private String getSortByClause() {
 			if(sortBy != null){
@@ -2794,7 +2764,7 @@ if (log.isDebugEnabled()) {
 					sortField = "s.siteId";
 				}
 				if(sortBy.equals(T_USER) && totalsBy.contains(T_USER)) {
-					sortField = "s.userId";
+					sortField = getUserField();
 				}
 				if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS) 
 					&& (sortBy.equals(T_EVENT) || sortBy.equals(T_TOOL)) && (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL))) {

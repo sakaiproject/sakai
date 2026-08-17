@@ -60,6 +60,7 @@ public class FakeData {
 	public final static String					EVENT_CHATNEW		= "chat.new";
 	public final static String					EVENT_CONTENTNEW	= "content.new";
 	public final static String					EVENT_CONTENTREV	= "content.revise";
+	public final static String					EVENT_POLLVOTE		= "poll.vote";
 	public final static String					EVENT_CONTENTREAD	= "content.read";
 	// anonymous events
 	public final static String					EVENT_CONTENTDEL	= "content.delete";
