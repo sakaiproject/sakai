@@ -1689,13 +1689,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			reqProps.remove(LTIService.LTI_SECRET);
 		}
 
-		if (!reqProps.containsKey(LTIService.LTI_MT_LAUNCH)) {
-			reqProps.setProperty(LTIService.LTI_MT_LAUNCH, "0");
-		}
-		if (!reqProps.containsKey(LTIService.LTI_MT_LINKSELECTION)) {
-			reqProps.setProperty(LTIService.LTI_MT_LINKSELECTION, "0");
-		}
-
 		// Retrieve the tool
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id.isEmpty()) {

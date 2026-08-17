@@ -330,6 +330,25 @@ public abstract class BaseLTIService implements LTIService {
 
 
 	private Object updateTool(Long key, Object newProps, String siteId) {
+		if (newProps instanceof Properties) {
+			Properties props = (Properties) newProps;
+			if (!props.containsKey(LTIService.LTI_MT_LAUNCH)) {
+				props.setProperty(LTIService.LTI_MT_LAUNCH, "0");
+			}
+			if (!props.containsKey(LTIService.LTI_MT_LINKSELECTION)) {
+				props.setProperty(LTIService.LTI_MT_LINKSELECTION, "0");
+			}
+		} else if (newProps instanceof Map) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> props = (Map<String, Object>) newProps;
+			if (!props.containsKey(LTIService.LTI_MT_LAUNCH)) {
+				props.put(LTIService.LTI_MT_LAUNCH, "0");
+			}
+			if (!props.containsKey(LTIService.LTI_MT_LINKSELECTION)) {
+				props.put(LTIService.LTI_MT_LINKSELECTION, "0");
+			}
+		}
+
 		return updateToolDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
