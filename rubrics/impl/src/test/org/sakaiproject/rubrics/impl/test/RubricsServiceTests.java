@@ -788,7 +788,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
                 toolItemId, evaluation.getEvaluatedItemId()));
-        assertTrue(pdfText.contains("export_adjusted: 0.68"));
+        String weightedCriterionText = StringUtils.substringBetween(pdfText,
+                rubric.getCriteria().get(0).getTitle(), rubric.getCriteria().get(1).getTitle());
+        assertNotNull(weightedCriterionText);
+        assertTrue(weightedCriterionText.contains("0.67 0.68"));
+        assertTrue(weightedCriterionText.contains("export_adjusted: 0.68"));
     }
 
     @Test
