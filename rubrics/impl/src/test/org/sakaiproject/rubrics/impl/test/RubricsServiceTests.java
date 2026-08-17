@@ -768,6 +768,27 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
                 toolItemId, evaluation.getEvaluatedItemId()));
         assertTrue(pdfText.contains("export_adjusted: 1.5"));
+
+        rubric.setWeighted(true);
+        rubric.getCriteria().get(0).setWeight(33.333F);
+        rubric = rubricsService.saveRubric(rubric);
+
+        outcome = evaluation.getCriterionOutcomes().get(0);
+        outcome.setPoints(0.67D);
+        outcome.setPointsAdjusted(true);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+
+        pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertFalse(pdfText.contains("export_adjusted"));
+
+        outcome = evaluation.getCriterionOutcomes().get(0);
+        outcome.setPoints(0.68D);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+
+        pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertTrue(pdfText.contains("export_adjusted: 0.68"));
     }
 
     @Test
