@@ -17,8 +17,10 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,6 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PollImportController {
 
     private static final long MAX_IMPORT_FILE_BYTES = 1024 * 1024;
+    private static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
 
     private final MessageSource messageSource;
     private final ToolManager toolManager;
@@ -190,14 +193,17 @@ public class PollImportController {
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale));
         }
 
-        try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)) {
-            StringBuilder builder = new StringBuilder();
-            char[] buffer = new char[4096];
-            int count;
-            while ((count = reader.read(buffer)) != -1) {
-                builder.append(buffer, 0, count);
+        try {
+            byte[] contents = file.getBytes();
+            try {
+                return StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(contents))
+                        .toString();
+            } catch (CharacterCodingException e) {
+                return new String(contents, WINDOWS_1252);
             }
-            return builder.toString();
         } catch (IOException e) {
             log.warn("Unable to read imported poll file {}", file.getOriginalFilename(), e);
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale), e);
