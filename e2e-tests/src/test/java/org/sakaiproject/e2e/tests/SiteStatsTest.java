@@ -18,10 +18,13 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -232,6 +235,15 @@ class SiteStatsTest extends SakaiUiTestBase {
     @Test
     @Order(6)
     void studentOwnStatisticsViewDoesNotRenderInstructorNavigation() {
+        sakai.login("admin");
+        String siteId = sakai.siteIdFromUrl(sakaiUrl);
+        APIResponse permissionsResponse = page.request().post("/api/sites/" + siteId + "/permissions",
+            RequestOptions.create().setForm(FormData.create()
+                .set("ref", "/site/" + siteId)
+                .set("Student:sitestats.view", "true")));
+        assertTrue(permissionsResponse.ok(),
+            "Unable to grant student access to Statistics: HTTP " + permissionsResponse.status());
+
         sakai.login("student0011");
         page.navigate(sakaiUrl);
         sakai.toolClick("Statistics");
