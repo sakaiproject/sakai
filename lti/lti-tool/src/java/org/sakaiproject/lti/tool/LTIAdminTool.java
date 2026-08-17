@@ -1689,6 +1689,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			reqProps.remove(LTIService.LTI_SECRET);
 		}
 
+		if (!reqProps.containsKey(LTIService.LTI_MT_LAUNCH)) {
+			reqProps.setProperty(LTIService.LTI_MT_LAUNCH, "0");
+		}
+		if (!reqProps.containsKey(LTIService.LTI_MT_LINKSELECTION)) {
+			reqProps.setProperty(LTIService.LTI_MT_LINKSELECTION, "0");
+		}
+
 		// Retrieve the tool
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if (id.isEmpty()) {
@@ -1951,6 +1958,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 			Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
+
+			Long allowLaunch = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LAUNCH));
+			Long allowLinkSelection = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
+			context.put("disableSiteLink", allowLaunch < 1 && allowLinkSelection > 0);
 		}
 
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
