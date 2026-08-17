@@ -915,7 +915,7 @@ public abstract class BaseLTIService implements LTIService {
 
 		Long allowLaunch = LTIUtil.toLongNull(ltiTool.get(LTIService.LTI_MT_LAUNCH));
 		Long allowLinkSelection = LTIUtil.toLongNull(ltiTool.get(LTIService.LTI_MT_LINKSELECTION));
-		if (allowLaunch != null && allowLaunch < 1 && allowLinkSelection != null && allowLinkSelection > 0) {
+		if ((allowLaunch == null || allowLaunch < 1) && allowLinkSelection != null && allowLinkSelection > 0) {
 			retval = "0" + rb.getString("error.deeplink.nav.denied");
 			return retval;
 		}
