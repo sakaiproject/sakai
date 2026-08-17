@@ -85,6 +85,8 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
         page.getByLabel("Title").fill(REPORT_TITLE);
         page.getByLabel("Period:").selectOption("when-custom");
+        page.locator("#when-from").fill("");
+        page.locator("#when-to").fill("");
 
         Locator validationError = page.locator(".sak-banner-error[role='alert']");
         for (String action : List.of("Save report", "Generate report")) {
