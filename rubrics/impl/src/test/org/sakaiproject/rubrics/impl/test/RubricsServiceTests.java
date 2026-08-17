@@ -22,6 +22,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -38,12 +40,18 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.parser.PdfTextExtractor;
+
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.sakaiproject.archive.api.ArchiveService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -96,6 +104,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private AssociationRepository associationRepository;
+    @Autowired private AssignmentService assignmentService;
     @Autowired private CriterionRepository criterionRepository;
     @Autowired private EvaluationRepository evaluationRepository;
     @Autowired private ReturnedEvaluationRepository returnedEvaluationRepository;
@@ -722,6 +731,46 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void createPdfDisplaysOnlyActualPointAdjustments() throws Exception {
+
+        switchToInstructor();
+
+        String toolItemId = "pdf-item";
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        Map<String, String> rbcsParams = Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService
+                .saveRubricAssociation(AssignmentConstants.TOOL_ID, toolItemId, rbcsParams)
+                .orElseThrow(() -> new IllegalStateException("Association not created"));
+
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, toolItemId);
+        CriterionOutcomeTransferBean outcome = evaluation.getCriterionOutcomes().get(0);
+        RatingTransferBean selectedRating = rubric.getCriteria().get(0).getRatings().get(2);
+        outcome.setSelectedRatingId(selectedRating.getId());
+        outcome.setPoints(selectedRating.getPoints());
+        outcome.setPointsAdjusted(true);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+
+        Assignment assignment = mock(Assignment.class);
+        when(assignment.getTitle()).thenReturn("PDF Assignment");
+        when(assignmentService.getAssignment(toolItemId)).thenReturn(assignment);
+        when(userDirectoryService.getUser(user2)).thenReturn(user2User);
+        configurePdfMessages();
+
+        String pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertFalse(pdfText.contains("export_adjusted"));
+
+        outcome = evaluation.getCriterionOutcomes().get(0);
+        outcome.setPoints(1.5D);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+
+        pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertTrue(pdfText.contains("export_adjusted: 1.5"));
+    }
+
+    @Test
     public void saveEvaluationAsTeachingAssistant() {
 
         // Only users with a rubrics.editor role can create rubric and save rubric association
@@ -1105,6 +1154,25 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         });
         etb.getCriterionOutcomes().addAll(criterionOutcomes);
         return etb;
+    }
+
+    private void configurePdfMessages() {
+        when(resourceLoader.getFormattedMessage(anyString(), any())).thenAnswer(invocation ->
+                invocation.getArgument(0) + ": " + invocation.getArgument(1));
+        when(resourceLoader.getFormattedMessage(anyString(), any(), any())).thenAnswer(invocation ->
+                invocation.getArgument(0) + ": " + invocation.getArgument(1) + " " + invocation.getArgument(2));
+        when(resourceLoader.getFormattedMessage(anyString(), any(), any(), any())).thenAnswer(invocation ->
+                invocation.getArgument(0) + ": " + invocation.getArgument(1) + " " + invocation.getArgument(2)
+                        + " " + invocation.getArgument(3));
+    }
+
+    private String extractPdfText(byte[] pdf) throws Exception {
+        PdfReader reader = new PdfReader(pdf);
+        try {
+            return new PdfTextExtractor(reader).getTextFromPage(1);
+        } finally {
+            reader.close();
+        }
     }
 
     private void setupStudentPermissions() {
