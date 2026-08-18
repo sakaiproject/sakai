@@ -39,15 +39,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pluto.PortletContainer;
-import org.apache.pluto.PortletContainerException;
-import org.apache.pluto.PortletContainerFactory;
-import org.apache.pluto.RequiredContainerServices;
-import org.apache.pluto.core.PortletContextManager;
-import org.apache.pluto.descriptors.portlet.PortletDD;
-import org.apache.pluto.descriptors.portlet.SupportsDD;
-import org.apache.pluto.spi.PortalCallbackService;
-import org.apache.pluto.spi.PortletURLProvider;
+import org.sakaiproject.pluto.PortletContainer;
+import org.sakaiproject.pluto.PortletContainerException;
+import org.sakaiproject.pluto.PortletContainerFactory;
+import org.sakaiproject.pluto.RequiredContainerServices;
+import org.sakaiproject.pluto.core.PortletContextManager;
+import org.sakaiproject.pluto.descriptors.portlet.PortletDD;
+import org.sakaiproject.pluto.descriptors.portlet.SupportsDD;
+import org.sakaiproject.pluto.spi.PortalCallbackService;
+import org.sakaiproject.pluto.spi.PortletURLProvider;
 import org.w3c.tidy.Tidy;
 
 import org.sakaiproject.util.api.FormattedText;

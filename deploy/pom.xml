@@ -620,26 +620,7 @@
             <artifactId>portlet-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-container</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-impl</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-taglib</artifactId>
-            <scope>compile</scope>
-        </dependency>
+        <!-- sak-pluto-* jars deploy themselves via deploy.target=shared on the pluto modules -->
 
         <!-- spring -->
         <dependency>
