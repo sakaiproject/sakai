@@ -144,7 +144,7 @@ function showLoadingMessage() {
   </div>
 
 <div class="tier1">
-  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn" errorClass="sak-banner-error" fatalClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
   <sakai:flowState bean="#{totalScores}" />
@@ -909,6 +909,40 @@ function showLoadingMessage() {
       <h:outputText value="#{description.roundedFinalScore}" />
     </h:column>
 
+
+
+    <!-- NOTIFY STUDENT: GRADING UPDATED -->
+    <h:column rendered="#{totalScores.gradingNotifyAvailable && totalScores.allSubmissions!='4'}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.notify_grading_updated_column}"/>
+      </f:facet>
+      <%-- mirror the listener's eligibility gate: no notify affordance on rows it would skip --%>
+      <h:panelGroup layout="block" rendered="#{description.assessmentGradingId ne '-1' && description.attemptDate != null && description.forGrade}">
+        <h:commandLink id="notifyRow" action="totalScores" styleClass="sam-notify-grading-updated"
+            title="#{evaluationMessages.notify_grading_updated_tooltip}"
+            rendered="#{!totalScores.notifyCooldown[description.assessmentGradingIdString]}">
+          <span class="fa fa-paper-plane" aria-hidden="true"></span>
+          <h:outputText value=" #{evaluationMessages.notify_grading_updated}" styleClass="sr-only"/>
+          <%-- save pending comment/score edits first so the email is truthful --%>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.NotifyGradingUpdatedListener" />
+          <f:param name="studentid" value="#{description.idString}" />
+          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+        </h:commandLink>
+        <h:panelGroup rendered="#{totalScores.notifyCooldown[description.assessmentGradingIdString]}">
+          <span class="fa fa-check" aria-hidden="true"></span>
+          <h:outputText value=" #{evaluationMessages.notify_grading_updated_sent}"
+              title="#{evaluationMessages.notify_grading_updated_cooldown}"/>
+        </h:panelGroup>
+        <h:panelGroup layout="block" styleClass="small sam-notify-last-sent"
+            rendered="#{totalScores.notifyLastSent[description.assessmentGradingIdString] != null}">
+          <h:outputFormat value="#{evaluationMessages.notify_grading_updated_last_sent}">
+            <f:param value="#{totalScores.notifyLastSent[description.assessmentGradingIdString]}"/>
+          </h:outputFormat>
+        </h:panelGroup>
+      </h:panelGroup>
+    </h:column>
 
     <!-- COMMENT -->
     <h:column rendered="#{totalScores.sortType!='comments' && totalScores.allSubmissions!='4'}">
