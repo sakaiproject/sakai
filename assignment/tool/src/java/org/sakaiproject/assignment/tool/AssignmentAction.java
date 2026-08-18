@@ -666,6 +666,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
     private static final String NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH = "new_assignment_check_allow_unrestricted_external_tool_launch";
+    private static final String NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT = "new_assignment_check_auto_submit";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS = "new_assignment_check_add_group_tags";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS = "new_assignment_check_add_instructor_tags";
     private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
@@ -3419,6 +3420,12 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_CheckAllowUnrestrictedExternalToolLaunch", NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
         context.put("name_CheckLtiAutoReleaseGrades", AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES);
 
+        boolean allowAutoSubmit = serverConfigurationService.getBoolean(SAK_PROP_AUTO_SUBMIT_ENABLED, SAK_PROP_AUTO_SUBMIT_ENABLED_DFLT);
+        context.put("allowAutoSubmit", allowAutoSubmit);
+        if (allowAutoSubmit) {
+            context.put("name_CheckAutoSubmit", NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
+        }
+
         context.put("name_CheckAddInstructorTags", NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         context.put("name_CheckAddGroupTags", NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
 
@@ -3600,6 +3607,10 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
         context.put("value_CheckAllowUnrestrictedExternalToolLaunch", state.getAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
         context.put("value_CheckLtiAutoReleaseGrades", state.getAttribute(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES));
+
+        if (allowAutoSubmit) {
+            context.put("value_CheckAutoSubmit", state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT));
+        }
 
         context.put("value_CheckAddInstructorTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS));
         context.put("value_CheckAddGroupTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS));
@@ -8548,6 +8559,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, hdd);
 
         Boolean hp = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+        Boolean autoSubmit = params.getBoolean(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
 
         // set the honor pledge to be "no honor pledge"
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, hp);
@@ -8555,6 +8567,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 params.getBoolean(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH));
         state.setAttribute(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES,
                 params.getBoolean(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES));
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT, autoSubmit);
 
         Boolean ait = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, ait);
@@ -9240,6 +9253,9 @@ public class AssignmentAction extends PagedResourceActionII {
             Boolean allowUnrestrictedExternalToolLaunch = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH);
             Boolean ltiAutoReleaseGrades = (Boolean) state.getAttribute(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES);
 
+            Boolean checkAutoSubmit = state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT) != null ? 
+                (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT) : Boolean.FALSE;
+
             Boolean checkAddInstructorTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) : null;
             Boolean checkAddGroupTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) : null;
 
@@ -9484,7 +9500,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // persist the Assignment changes
                 commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
-                        gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, rangeAndGroupSettings.range,
+                        gradeType, gradePoints, description, checkAddHonorPledge, checkAutoSubmit, attachments, section, rangeAndGroupSettings.range,
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
@@ -10205,6 +10221,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                   String gradePoints,
                                   String description,
                                   boolean checkAddHonorPledge,
+                                  boolean checkAutoSubmit,
                                   List<Reference> attachments,
                                   String section,
                                   String range,
@@ -10286,6 +10303,13 @@ public class AssignmentAction extends PagedResourceActionII {
         p.put(NEW_ASSIGNMENT_REMINDER_EMAIL,Boolean.toString(emailReminder));
         p.put(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH, Boolean.toString(allowUnrestrictedExternalToolLaunch));
         p.put(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES, Boolean.toString(ltiAutoReleaseGrades));
+
+        // Add auto-submit property
+        if (checkAutoSubmit) {
+            p.put(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED, "true");
+        } else {
+            p.remove(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED);
+        }
 
         if (!enableCloseDate) {
             // remove close date
@@ -10827,6 +10851,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         BooleanUtils.toBoolean(properties.get(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH)));
                 state.setAttribute(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES,
                         BooleanUtils.toBoolean(properties.get(AssignmentConstants.NEW_ASSIGNMENT_CHECK_LTI_AUTO_RELEASE_GRADES)));
+
+                // Load auto-submit setting
+                boolean autoSubmit = "true".equals(properties.get(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED));
+                state.setAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT, autoSubmit);
 
                 if (properties.get(NEW_ASSIGNMENT_TAG_CREATOR) != null) {
                     state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_CREATOR).toString()));
@@ -13352,6 +13380,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, Boolean.FALSE);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ALLOW_UNRESTRICTED_EXTERNAL_TOOL_LAUNCH, Boolean.FALSE);
 
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT, serverConfigurationService.getBoolean("assignment.autoSubmit.defaultCheckbox", false));
+
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.FALSE);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.FALSE);
 
@@ -13548,6 +13578,8 @@ public class AssignmentAction extends PagedResourceActionII {
         if (serverConfigurationService.getBoolean("gradebookng.category.reset", false)) {
             state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         }
+
+        state.removeAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
     } // resetAssignment
 
     /**

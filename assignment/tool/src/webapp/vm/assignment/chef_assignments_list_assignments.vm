@@ -559,6 +559,17 @@
 										#set ($submissionId = $submission.Id)
 									#end
 									$!service.getSubmissionStatus($!submissionId, true)
+
+									#if ($submission && $submission.Properties)
+										#set($isAutoSubmitted = $submission.Properties.get("auto_submitted"))
+										#if ("true".equalsIgnoreCase($isAutoSubmitted))
+											<br/>
+											<span class="badge bg-info" title="$tlang.getString('auto.submit.indicator')">
+												<span class="bi bi-clock-history me-1" aria-hidden="true"></span>
+												$tlang.getString("auto.submit.indicator")
+											</span>
+										#end
+									#end
 								#end
 							</td>
 							#if ($allowAddAssignment == false)
