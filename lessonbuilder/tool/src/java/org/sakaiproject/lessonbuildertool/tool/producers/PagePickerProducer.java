@@ -305,6 +305,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         // otherwise we have the chooser page for the "add subpage" command
         boolean summaryPage = "summary".equals(source);
         String returnView = ((GeneralViewParameters) viewparams).getReturnView();
+        boolean newTopLevel = ((GeneralViewParameters) viewparams).newTopLevel;
 
         UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
             .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
@@ -477,6 +478,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         int index = 0;
         boolean showDeleteButton = false;
+        final Set<Long> topLevelPagesForCheck = topLevelPages;
 
         for (PageEntry entry: entries) {
             UIBranchContainer row = UIBranchContainer.make(form, "page:");
@@ -605,8 +607,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 }
                 if (!summaryPage) {
                     // i.e. pagepicker; for the moment to edit something you need to attach it to something
-                    UISelectChoice.make(row, "select", select.getFullID(), index).
-                            decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select")));
+                    UISelectChoice radio = UISelectChoice.make(row, "select", select.getFullID(), index);
+                    radio.decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select")));
+                    // In newTopLevel mode, disable selection of top-level pages (only subpages can be selected)
+                    // Check if the page ID is in the topLevelPages set, not just if it's marked as toplevel
+                    // because a top-level page can also appear as a shared subpage elsewhere
+                    if (newTopLevel && topLevelPagesForCheck.contains(entry.pageId)) {
+                        radio.decorate(new UIFreeAttributeDecorator("disabled", "disabled"));
+                    }
                 } else if (summaryPage) {
                     // i.e. summary if canEdit and page doesn't have an item
                     UISelectChoice.make(row, "select-for-deletion", select.getFullID(), index).
@@ -774,7 +782,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
         togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-        togo.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
+        togo.add(new NavigationCase("failure", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
         GeneralViewParameters selectsiteParams = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
