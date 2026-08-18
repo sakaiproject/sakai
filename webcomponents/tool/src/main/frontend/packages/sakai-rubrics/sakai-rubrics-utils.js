@@ -78,7 +78,7 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
-      el.setAttribute("instructor", attributes.instructor);
+      el.toggleAttribute("instructor", attributes.instructor === true);
       el.setAttribute("evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
       el.setAttribute("peer-or-self", attributes["peer-or-self"]);
     }
