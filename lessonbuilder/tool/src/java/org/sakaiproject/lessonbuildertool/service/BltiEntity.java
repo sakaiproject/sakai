@@ -270,7 +270,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
                 // after the instructor updates the assignment, and the student is
                 // the first to launch after the change.
                 if ( ltiService != null && contentKey != null ) {
-                    ltiService.updateContentDao(contentKey, updates);
+                    ltiService.updateContent(contentKey, updates);
                     log.debug("Content Item id={} updated.", contentKey);
                 }
             }

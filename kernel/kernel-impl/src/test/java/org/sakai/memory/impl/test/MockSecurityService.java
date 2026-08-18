@@ -44,7 +44,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean hasAdvisors()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -53,7 +52,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean isSuperUser()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -62,8 +60,15 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean isSuperUser(String userId)
 	{
-		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public void registerAdvisor(SecurityAdvisor advisor)
+	{
+	}
+
+	public void unregisterAdvisor(SecurityAdvisor advisor)
+	{
 	}
 
 	/* (non-Javadoc)
@@ -71,7 +76,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public SecurityAdvisor popAdvisor()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -80,8 +84,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public void pushAdvisor(SecurityAdvisor advisor)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -89,7 +91,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean unlock(String lock, String reference)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -98,7 +99,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean unlock(String userId, String lock, String reference)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -108,7 +108,6 @@ public class MockSecurityService implements SecurityService
 	public boolean unlock(String userId, String lock, String reference,
 			Collection<String> authzGroupIds)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -117,7 +116,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public List<User> unlockUsers(String lock, String reference)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -126,7 +124,6 @@ public class MockSecurityService implements SecurityService
 	 */
 	public boolean unlock(User user, String lock, String reference)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -135,19 +132,16 @@ public class MockSecurityService implements SecurityService
 	}
 
 	public SecurityAdvisor popAdvisor(SecurityAdvisor advisor) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isUserRoleSwapped() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public String getUserEffectiveRole() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

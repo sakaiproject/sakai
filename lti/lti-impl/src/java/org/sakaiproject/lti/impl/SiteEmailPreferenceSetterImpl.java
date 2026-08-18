@@ -29,16 +29,16 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter {
 
+    @Autowired
     private PreferencesService preferencesService = null;
-    public void setPreferencesService(PreferencesService  preferencesService) {
-        this.preferencesService = preferencesService;
-    }
 
     public void setupUserEmailPreferenceForSite(Map payload, User user, Site site, boolean isTrustedConsumer) {
 

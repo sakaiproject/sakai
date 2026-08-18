@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.entitybroker.config;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.ignite.IgniteSpringBean;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.cluster.api.ClusterService;
@@ -33,6 +35,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
@@ -219,4 +222,18 @@ public class EntityRestTestConfiguration extends SakaiTestConfiguration {
         return mock(IgniteSpringBean.class);
     }
 
+    @Bean(name = "org.sakaiproject.lti.api.SakaiAccessTokenService")
+    public SakaiAccessTokenService sakaiAccessTokenService() {
+        return mock(SakaiAccessTokenService.class);
+    }
+
+    @Bean
+    public HttpServletRequest request() {
+        return mock(HttpServletRequest.class);
+    }
+
+    @Bean
+    public HttpServletResponse response() {
+        return mock(HttpServletResponse.class);
+    }
 }

@@ -113,7 +113,7 @@ ${includeLatestJQuery}
 		<div class="navPanel">
 			<div class="listNav">
 				<a style="float:right" href="$export_url_excel"><input type="submit" value="$tlang.getString("content.export.excel")" /></a>
-				<a style="float:right" href="$export_url_csv"><input type="submit" value="$tlang.getString("content.export.csv")" /></a>
+				<a class="me-1" style="float:right" href="$export_url_csv"><input type="submit" value="$tlang.getString("content.export.csv")" /></a>
 			</div>
 		</div>
         <div id="tools_site_pager" class="pager">

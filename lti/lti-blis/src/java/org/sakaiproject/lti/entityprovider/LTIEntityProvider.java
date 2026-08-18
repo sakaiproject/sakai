@@ -76,7 +76,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		int [] paging = parsePaging(params);
 
 		// Search is not yet safely implemented
-                List<Map<String,Object>> tools = ltiService.getToolsDao(null, (String)params.get("order"),
+                List<Map<String,Object>> tools = ltiService.getTools(null, (String)params.get("order"),
 			paging[0], paging[1], siteId, inAdmin);
 		adjustList(tools, inAdmin, siteId, "tool");
 		LTIListEntity retval = new LTIListEntity (tools);
@@ -85,14 +85,14 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 
         @EntityCustomAction(action = "tool", viewKey = "")
         public Map<String,Object> handleTool(EntityView view) {
-                String siteId = view.getPathSegment(2);
-                String toolId = view.getPathSegment(3);
-		getSiteById(siteId);
-		requireMemberUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-                Map<String,Object> tool = ltiService.getToolDao(new Long(toolId), siteId, inAdmin);
-		adjustMap(tool, inAdmin, siteId, "tool");
-                return tool;
+            String siteId = view.getPathSegment(2);
+            String toolId = view.getPathSegment(3);
+            getSiteById(siteId);
+		    requireMemberUser(siteId);
+		    boolean inAdmin = inAdmin(siteId);
+            Map<String,Object> tool = ltiService.getTool(new Long(toolId), siteId);
+		    adjustMap(tool, inAdmin, siteId, "tool");
+            return tool;
         }
 
         @EntityCustomAction(action = "contents", viewKey = EntityView.VIEW_SHOW)
@@ -105,7 +105,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		int [] paging = parsePaging(params);
 
 		// Search is not yet safely implemented
-                List<Map<String,Object>> contents = ltiService.getContentsDao(null, (String)params.get("order"),
+                List<Map<String,Object>> contents = ltiService.getContents(null, (String)params.get("order"),
 			paging[0], paging[1], siteId, inAdmin);
 		adjustList(contents, inAdmin, siteId, "content");
 		LTIListEntity retval = new LTIListEntity (contents);
@@ -114,14 +114,14 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 
         @EntityCustomAction(action = "content", viewKey = "")
         public Map<String,Object> handleContent(EntityView view) {
-                String siteId = view.getPathSegment(2);
-                String contentId = view.getPathSegment(3);
-		getSiteById(siteId);
-		requireMemberUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-                Map<String,Object> content = ltiService.getContentDao(new Long(contentId), siteId, inAdmin);
-		adjustMap(content, inAdmin, siteId, "content");
-                return content;
+            String siteId = view.getPathSegment(2);
+            String contentId = view.getPathSegment(3);
+		    getSiteById(siteId);
+		    requireMemberUser(siteId);
+		    boolean inAdmin = inAdmin(siteId);
+            Map<String,Object> content = ltiService.getContent(new Long(contentId), siteId);
+		    adjustMap(content, inAdmin, siteId, "content");
+            return content;
         }
 
 	/**
@@ -140,7 +140,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
 
-		Map<String,Object> toolSite = ltiService.getToolSiteDao(Long.valueOf(toolSiteId), siteId);
+		Map<String,Object> toolSite = ltiService.getToolSiteById(Long.valueOf(toolSiteId), siteId);
 		adjustMap(toolSite, inAdmin, siteId, "toolSite");
 		return toolSite;
 	}
@@ -162,7 +162,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
 
-		List<Map<String,Object>> toolSites = ltiService.getToolSitesDao(null, (String)params.get("order"),
+		List<Map<String,Object>> toolSites = ltiService.getToolSites(null, (String)params.get("order"),
 				paging[0], paging[1], siteId, inAdmin);
 		adjustList(toolSites, inAdmin, siteId, "toolSites");
 		LTIListEntity retval = new LTIListEntity(toolSites);
