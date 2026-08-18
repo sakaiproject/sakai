@@ -355,6 +355,7 @@
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
     </bean>
 
     <bean id="org.sakaiproject.samigo.impl.SamigoObserver"

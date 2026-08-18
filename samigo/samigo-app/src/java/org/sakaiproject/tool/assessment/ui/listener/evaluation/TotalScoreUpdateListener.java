@@ -88,23 +88,29 @@ public class TotalScoreUpdateListener
   {
     log.debug("Total Score Update LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    boolean saved;
     if ("4".equals(bean.getAllSubmissions()) && ae != null && ae.getComponent() != null && "applyScoreButton".equals(ae.getComponent().getId()))
     {
         // We're looking at average scores and we're applying a score to participants with no submission
         log.debug("Calling saveTotalScoresAverage.");
-        if (!saveTotalScoresAverage(bean))
-        {
-            throw new RuntimeException("failed to call saveTotalScoresAverage.");
-        }
+        saved = saveTotalScoresAverage(bean);
     }
     else
     {
         log.debug("Calling saveTotalScores.");
-        if (!saveTotalScores(bean))
-        {
-            throw new RuntimeException("failed to call saveTotalScores.");
-        }
-     }
+        saved = saveTotalScores(bean);
+    }
+    // a false return means a reflection/copy error, not a user input
+    // problem (those are reported per-student inside the save). Surface it as a
+    // message instead of a 500, then abort the chain so a downstream notify does
+    // NOT email students that grading was updated when the save actually failed.
+    if (!saved)
+    {
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "total_score_save_error"), null));
+        throw new AbortProcessingException();
+    }
  
 
   }
@@ -153,7 +159,7 @@ public class TotalScoreUpdateListener
   		  }catch (Exception e) {
   			  FacesContext context = FacesContext.getCurrentInstance();
   			  String err2 = (String) ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id_apply");
-  			  context.addMessage(null,  new FacesMessage(err2));
+  			  context.addMessage(null,  new FacesMessage(FacesMessage.SEVERITY_ERROR, err2, null));
   			  return true;
   		  }
   		  bean.setApplyToUngraded("");
@@ -191,7 +197,10 @@ public class TotalScoreUpdateListener
   				  badAdjList.add(agentResults.getAgentEid());
   			  }
   		  }
-  		  
+  		  // record whether this row actually changed, so the unified
+  		  // Update's "email affected" notifies only the students it changed.
+  		  agentResults.setGradeUpdated(update);
+
         if (update){
         	log.debug("update is true");
         	Double newScore = new Double(0d);
@@ -257,7 +266,7 @@ public class TotalScoreUpdateListener
 
       if (hasNumberFormatException) {
     	  FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(err + " " + badAdjList.stream().collect(Collectors.joining(", ")) + "."));
+        context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, err + " " + badAdjList.stream().collect(Collectors.joining(", ")) + ".", null));
       }
       
       GradingService delegate = new GradingService();
@@ -277,7 +286,7 @@ public class TotalScoreUpdateListener
       } catch (GradebookServiceException ge) {
     	  FacesContext context = FacesContext.getCurrentInstance();
     	  String error=(String)ContextUtil.getLocalizedString(SamigoConstants.AUTHOR_BUNDLE, "gradebook_exception_error");
-    	  context.addMessage(null, new FacesMessage(error));
+    	  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, error, null));
     	  // scores are saved in Samigo, still return true, but display error to user.
     	  return true;
       }
@@ -304,7 +313,7 @@ public class TotalScoreUpdateListener
        {
            FacesContext context = FacesContext.getCurrentInstance();
            String err2 = ContextUtil.getLocalizedString(SamigoConstants.EVAL_BUNDLE, "number_format_error_user_id_apply");
-           context.addMessage(null, new FacesMessage(err2));
+           context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, err2, null));
            return true;
        }
 
@@ -392,7 +401,7 @@ public class TotalScoreUpdateListener
        {
            FacesContext context = FacesContext.getCurrentInstance();
            String error = ContextUtil.getLocalizedString(SamigoConstants.AUTHOR_BUNDLE, "gradebook_exception_error");
-           context.addMessage(null, new FacesMessage(error));
+           context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, error, null));
        }
 
        // update bean for the presentation
