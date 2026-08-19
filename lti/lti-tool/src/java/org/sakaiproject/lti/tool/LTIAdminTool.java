@@ -2535,9 +2535,9 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					failures.add(rb.getString("error.contentitem.content.insert"));
 					continue;
 				}
-				contentKey = (Long) retval;
+				Long insertedContentKey = (Long) retval;
 				String contentUrl = null;
-				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
+				Map<String, Object> content = ltiService.getContent(insertedContentKey, getSiteId(state));
 				if (content != null) {
 					contentUrl = ltiService.getContentLaunch(content);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
@@ -2545,11 +2545,12 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					}
 				}
 				if (contentUrl == null) {
-					log.error("Unable to get launch url from contentitem content={}", contentKey);
+					log.error("Unable to get launch url from contentitem content={}", insertedContentKey);
 					log.debug("{}", item);
 					failures.add(rb.getString("error.contentitem.content.launch"));
 					continue;
 				}
+				contentKey = insertedContentKey;
 				item.put("launch", contentUrl);
 
 				JSONObject lineItem = getObject(item, DeepLinkResponse.LINEITEM);
@@ -2633,9 +2634,9 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					failures.add(rb.getString("error.contentitem.content.insert"));
 					continue;
 				}
-				contentKey = (Long) retval;
+				Long insertedContentKey = (Long) retval;
 				String contentUrl = null;
-				Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
+				Map<String, Object> content = ltiService.getContent(insertedContentKey, getSiteId(state));
 				if (content != null) {
 					contentUrl = ltiService.getContentLaunch(content);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
@@ -2643,11 +2644,12 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					}
 				}
 				if (contentUrl == null) {
-					log.error("Unable to get launch url from contentitem content={}", contentKey);
+					log.error("Unable to get launch url from contentitem content={}", insertedContentKey);
 					log.debug("{}", item);
 					failures.add(rb.getString("error.contentitem.content.launch"));
 					continue;
 				}
+				contentKey = insertedContentKey;
 				item.put("launch", contentUrl);
 
 				// Extract the lineItem material
@@ -2683,7 +2685,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		String forward;
 		if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
 			if  (contentKey == null ) {
-				log.warn("Deep Link response did not contain a usable LTI resource link for Lessons");
+				log.warn("Deep Link response did not contain a usable LTI resource link for Lessons, toolKey={} siteId={}",
+					toolKey, getSiteId(state));
 				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
 				switchPanel(state, errorPanel);
 				return;
