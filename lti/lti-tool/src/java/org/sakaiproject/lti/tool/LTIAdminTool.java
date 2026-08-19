@@ -2683,7 +2683,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		String forward;
 		if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
 			if  (contentKey == null ) {
-				log.warn("Returning content item to Lessons, but contentKey={}", contentKey);
+				log.warn("Deep Link response did not contain a usable LTI resource link for Lessons");
+				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
+				switchPanel(state, errorPanel);
+				return;
 			}
 			if (returnUrl.indexOf("?") > 0) {
 			   returnUrl += "&ltiItemId=/blti/" + contentKey;
