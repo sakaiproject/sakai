@@ -713,7 +713,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			{
 				// Initialize the learner id
 				element = CMI_LEARNER_ID;
-				DMInterface.processSetValue(element, learner.getId(), true, ioSCOData, validatorFactory);
+				DMInterface.processSetValue(element, learner.getDisplayId(), true, ioSCOData, validatorFactory);
 
 				// Initialize the learner name
 				element = CMI_LEARNER_NAME;
