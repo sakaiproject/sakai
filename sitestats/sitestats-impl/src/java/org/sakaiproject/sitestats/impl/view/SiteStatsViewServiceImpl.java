@@ -172,7 +172,8 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		}
 		view.setTitle(definition.getTitle());
 		if (chartReport != null) {
-			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData, definition.getTitle()));
+			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData, definition.getTitle(),
+					definition.getChartDatasetLabel()));
 		}
 		if (tableReport != null) {
 			view.setTable(siteStatsReportViewMapper.mapTable(tableReport, safeRequest, definition.getTitle()));

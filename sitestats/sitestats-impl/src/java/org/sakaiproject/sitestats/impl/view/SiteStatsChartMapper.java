@@ -39,6 +39,10 @@ public class SiteStatsChartMapper {
 	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
 	public SiteStatsChart mapChart(Report report, PrefsData prefsData, String title) {
+		return mapChart(report, prefsData, title, null);
+	}
+
+	public SiteStatsChart mapChart(Report report, PrefsData prefsData, String title, String datasetLabel) {
 		ReportParams params = report.getReportDefinition().getReportParams();
 		PrefsData safePrefsData = prefsData == null ? new PrefsData() : prefsData;
 		SiteStatsChart chart = new SiteStatsChart();
@@ -58,7 +62,7 @@ public class SiteStatsChartMapper {
 		}
 
 		try {
-			mapChartDatasets(chart, report, reportData, chartSource);
+			mapChartDatasets(chart, report, reportData, chartSource, datasetLabel);
 		} catch (IllegalArgumentException e) {
 			chart.getDatasets().clear();
 			String unsupportedReason = message("sitestats_chart_unsupported",
@@ -71,10 +75,11 @@ public class SiteStatsChartMapper {
 		return chart;
 	}
 
-	private void mapChartDatasets(SiteStatsChart chart, Report report, List<Stat> reportData, String chartSource) {
+	private void mapChartDatasets(SiteStatsChart chart, Report report, List<Stat> reportData, String chartSource,
+			String datasetLabel) {
 		String chartType = chart.getType();
 		if (StatsManager.CHARTTYPE_PIE.equals(chartType)) {
-			mapPieChartDatasets(chart, report, reportData, chartSource);
+			mapPieChartDatasets(chart, report, reportData, chartSource, datasetLabel);
 			return;
 		}
 		if (StatsManager.CHARTTYPE_TIMESERIES.equals(chartType) || StatsManager.CHARTTYPE_TIMESERIESBAR.equals(chartType)) {
@@ -88,11 +93,13 @@ public class SiteStatsChartMapper {
 		throw new IllegalArgumentException("Unsupported chart type: " + chartType);
 	}
 
-	private void mapPieChartDatasets(SiteStatsChart chart, Report report, List<Stat> reportData, String chartSource) {
+	private void mapPieChartDatasets(SiteStatsChart chart, Report report, List<Stat> reportData, String chartSource,
+			String datasetLabel) {
 		SiteStatsChartDataset dataset = new SiteStatsChartDataset();
 		String valueKey = chartSingleValueKey(report);
 		dataset.setKey(chartSource);
-		dataset.setLabel(siteStatsTableMapper.getColumn(valueKey, false).getLabel());
+		dataset.setLabel(StringUtils.defaultIfBlank(datasetLabel,
+				siteStatsTableMapper.getColumn(valueKey, false).getLabel()));
 		ChartDatasetAccumulator accumulator = new ChartDatasetAccumulator(dataset.getKey(), dataset.getLabel());
 		for (Stat stat : reportData) {
 			addPoint(accumulator, siteStatsTableMapper.getCell(stat, chartSource), siteStatsTableMapper.getNumericValue(stat, valueKey));

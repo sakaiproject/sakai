@@ -20,6 +20,7 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESS
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
@@ -214,6 +215,33 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		SiteStatsReportView view = service.getReport(SITE_ID, reportDef.getId(), new SiteStatsReportRequest());
 
 		assertEquals("Visits", view.getChart().getDatasets().get(0).getLabel());
+	}
+
+	@Test
+	public void activityByUserPieChartUsesTheLocalizedWidgetTitleForCounts() {
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT,
+				FakeData.EVENT_CHATNEW, Date.valueOf("2026-06-17"), 4));
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_ACTIVITY, TAB_BY_USER, request);
+
+		assertFalse(view.getChart().getDatasets().isEmpty());
+		assertEquals("overview_title_activity", view.getTitle());
+		assertEquals(view.getTitle(), view.getChart().getDatasets().get(0).getLabel());
+	}
+
+	@Test
+	public void visitsByUserPieChartUsesTheLocalizedWidgetTitleForCounts() {
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT,
+				StatsManager.SITEVISIT_EVENTID, Date.valueOf("2026-06-17"), 3));
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_USER, request);
+
+		assertFalse(view.getChart().getDatasets().isEmpty());
+		assertEquals("overview_title_visits", view.getTitle());
+		assertEquals(view.getTitle(), view.getChart().getDatasets().get(0).getLabel());
 	}
 
 	@Test

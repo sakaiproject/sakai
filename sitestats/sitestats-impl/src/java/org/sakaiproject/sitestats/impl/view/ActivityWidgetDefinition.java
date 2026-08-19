@@ -70,7 +70,8 @@ public class ActivityWidgetDefinition extends AbstractSiteStatsWidgetDefinition 
 		ReportDef table = new ReportDef(chart, siteId);
 		table.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		table.getReportParams().setHowSortBy(StatsManager.T_TOTAL);
-		return new WidgetReportDefinition(message("overview_title_activity"), chart, table);
+		String title = message("overview_title_activity");
+		return new WidgetReportDefinition(title, title, chart, table);
 	}
 
 	private WidgetReportDefinition activityByToolDefinition(String siteId, SiteStatsReportRequest request, String userId) {
