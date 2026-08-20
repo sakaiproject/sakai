@@ -614,6 +614,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
+		List<String> successMessages = simplePageBean.successMessages();
+		if (successMessages != null) {
+			UIOutput.make(tofill, "success-div");
+			for (String message : successMessages) {
+				UIBranchContainer success = UIBranchContainer.make(tofill, "successes:");
+				UIOutput.make(success, "success-message", message);
+			}
+		}
+
 
 		if (canEditPage) {
 		    // special instructor-only javascript setup.
@@ -690,8 +699,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		// put out link to index of pages
-		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
-		showAll.setSource("summary");
+		GeneralViewParameters showAll = new GeneralViewParameters(ManagePagesProducer.VIEW_ID);
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
 
@@ -4444,8 +4452,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		view.setSendingPage(currentPage.getPageId());
 
 		if(!simplePageBean.isStudentPage(currentPage)) {
-			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
-			UIOutput.make(form, "subpage-choose-button", messageLocator.getMessage("simplepage.page.chooser"));
+			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.page.chooser"), view);
 		}
 		
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
