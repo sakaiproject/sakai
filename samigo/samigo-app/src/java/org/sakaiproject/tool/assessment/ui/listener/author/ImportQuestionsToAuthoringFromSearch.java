@@ -262,8 +262,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
         searchQuestionBean.setTextToSearch("");
         searchQuestionBean.setTagToSearch(null);
         searchQuestionBean.setTagToSearchLabel("");
-        searchQuestionBean.setResults(null);
-        searchQuestionBean.setResultsSize(0);
+        searchQuestionBean.setResults(new java.util.HashMap<>());
 
       } else {
         // nothing is checked
