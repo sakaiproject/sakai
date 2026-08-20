@@ -58,7 +58,7 @@
 				#end
 				<p class="checkbox">
 				 ## select-all box
-				 <label for="selectall"><input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" #if($!download && $allDataSelected)checked="checked"#end onclick="ASN.toggleSelectAll(this, 'choices')" /> $tlang.getString("all")</label><br/>
+				 <label for="selectall"><input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" #if($allDataSelected)checked="checked"#end onclick="ASN.toggleSelectAll(this, 'choices')" /> $tlang.getString("all")</label><br/>
 			 #if ($!includeSubmissionText)
 					## student submission text
 					<label for="studentSubmissionText" class="indnt1"><input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" class="toggleSelectedAll" #if($!hasSubmissionText)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
