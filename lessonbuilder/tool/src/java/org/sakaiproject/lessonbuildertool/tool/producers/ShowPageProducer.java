@@ -2319,7 +2319,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									.decorate(new UIFreeAttributeDecorator("src", itemUrl))
 									.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
 						    if (!IframeUrlUtil.isLocalToSakai(itemUrl, ServerConfigurationService.getServerUrl())) {
-								item.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+								item.decorate(new UIStyleDecorator("sakai-iframe-force-light"));
 						    }
 						    // if user specifies auto, use Javascript to resize the
 						    // iframe when the
