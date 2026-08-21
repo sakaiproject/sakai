@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -1148,7 +1149,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
+            if(sqlBuilder.hasAnonymousUserParameter()) {
                 q.setParameterList("anonymousEvents", anonymousEvents);
             }
             if(page != null){
@@ -1289,8 +1290,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     results.add(c);
                 }
             }
-            // hack for hibernate-oracle bug producing duplicate lines
-            else if("oracle".equals(getDbVendor()) && totalsBy != null && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
+            // Consolidate results for dialects that cannot group by the anonymized user expression.
+            else if(!"mysql".equals(getDbVendor()) && totalsBy != null && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
                 List<Stat> consolidated = new ArrayList<>();
                 for(Stat s : results) {
                     EventStat es = (EventStat) s;
@@ -1368,7 +1369,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0){
+            if(sqlBuilder.hasAnonymousUserParameter()) {
                 q.setParameterList("anonymousEvents", anonymousEvents);
             }
             log.debug("getEventStatsRowCount(): " + q.getQueryString());
@@ -2209,7 +2210,7 @@ if (log.isDebugEnabled()) {
                 Date fDate2 = c.getTime();
                 q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
-            if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
+            if(sqlBuilder.hasAnonymousUserParameter()) {
                 q.setParameterList("anonymousEvents", anonymousEvents);
             }
             if(page != null){
@@ -2311,7 +2312,7 @@ if (log.isDebugEnabled()) {
 	// ################################################################
 	//  Statistics SQL builder class
 	// ################################################################
-	private static class StatsSqlBuilder {
+	static class StatsSqlBuilder {
 		public static final Integer		C_SITE				= 0;
 		public static final Integer		C_USER				= 1;
 		public static final Integer		C_EVENT				= 2;
@@ -2449,11 +2450,7 @@ if (log.isDebugEnabled()) {
 				}
 				// user
 				if(totalsBy.contains(T_USER)) {
-					if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						selectFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END) as user");						
-					}else{
-						selectFields.add("s.userId as user");
-					}
+					selectFields.add(getUserField() + " as user");
 					columnMap.put(C_USER, columnIndex++);
 				}
 				// event
@@ -2545,11 +2542,7 @@ if (log.isDebugEnabled()) {
 				
 			// inverse query (users not matching conditions)
 			}else{
-				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-					selectFields.add("distinct(case when s.eventId not in (:anonymousEvents) then s.userId else '-' end) as user");
-				}else{
-					selectFields.add("distinct s.userId as user");
-				}
+				selectFields.add("distinct " + getUserField() + " as user");
 				columnMap.put(C_USER, columnIndex++);
 			}
 			
@@ -2713,16 +2706,13 @@ if (log.isDebugEnabled()) {
 			}
 			// User: new approach		
 			if(totalsBy.contains(T_USER)) {
-				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						// unfortunately, this produces results different from the expected:
-						//	- hibernate-oracle bug (sometimes) producing duplicate lines
-						//	- hack fix in getEventStats() method
+				if(hasAnonymousUserField() && !"mysql".equals(dbVendor)) {
+						// Hibernate cannot reuse the CASE list parameter in GROUP BY for Oracle and HSQLDB.
+						// These rows are consolidated after the query in getEventStats().
 						groupFields.add("s.eventId");
 						groupFields.add("s.userId");
-						// it should be: ( but doesn't work in Hibernate :( )
-						//groupFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END)");
 				} else {
-					groupFields.add("s.userId");
+					groupFields.add(getUserField());
 				}
 			}			
 			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
@@ -2784,6 +2774,28 @@ if (log.isDebugEnabled()) {
 			
 			return _hql.toString();
 		}
+
+		private boolean hasAnonymousUserField() {
+			return queryType == Q_TYPE_EVENT && totalsBy.contains(T_USER)
+					&& anonymousEvents != null && !anonymousEvents.isEmpty();
+		}
+
+		boolean hasAnonymousUserParameter() {
+			return hasAnonymousUserField() && !"mysql".equals(dbVendor);
+		}
+
+		private String getUserField() {
+			if(!hasAnonymousUserField()) {
+				return "s.userId";
+			}
+			String anonymousEventIds = hasAnonymousUserParameter()
+					? ":anonymousEvents"
+					: anonymousEvents.stream()
+							.sorted()
+							.map(eventId -> "'" + eventId.replace("'", "''") + "'")
+							.collect(Collectors.joining(", "));
+			return "(CASE WHEN s.eventId not in (" + anonymousEventIds + ") THEN s.userId ELSE '-' END)";
+		}
 		
 		private String getSortByClause() {
 			if(sortBy != null){
@@ -2794,7 +2806,7 @@ if (log.isDebugEnabled()) {
 					sortField = "s.siteId";
 				}
 				if(sortBy.equals(T_USER) && totalsBy.contains(T_USER)) {
-					sortField = "s.userId";
+					sortField = hasAnonymousUserField() && "mysql".equals(dbVendor) ? getUserField() : "s.userId";
 				}
 				if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS) 
 					&& (sortBy.equals(T_EVENT) || sortBy.equals(T_TOOL)) && (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL))) {
@@ -3785,7 +3797,11 @@ if (log.isDebugEnabled()) {
 		}else{
 			dialectStr = serverConfigurationService.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
 		}
-		if(dialectStr.toLowerCase().contains("mysql")) {
+		return identifyDbVendor(dialectStr);
+	}
+
+	static String identifyDbVendor(String dialectStr) {
+		if(dialectStr.toLowerCase().contains("mysql") || dialectStr.toLowerCase().contains("mariadb")) {
 			return "mysql";
 		}else if(dialectStr.toLowerCase().contains("oracle")) {
 			return "oracle";
