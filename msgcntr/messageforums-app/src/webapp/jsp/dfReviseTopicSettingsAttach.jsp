@@ -55,27 +55,18 @@
 		}
 
 		function updateGradeAssignment() {
-			const topicAssignments = isGradebookGroupEnabled
-					? document.getElementById("revise:group_view:topic_assignments")
-					: document.getElementById("revise:non_group_view:topic_assignments");
-
-			if (topicAssignments?.value === undefined || topicAssignments.value === "Default_0") return;
-
-			const associations = document.querySelectorAll('sakai-rubric-association');
-			const createTaskGroup = document.getElementById("revise:createTaskGroup");
-			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
-			if (!!document.querySelector("sakai-tasks")) {
-				associations.forEach(a => {
-					a.setAttribute("entity-id", topicAssignments.value);
-					a.style.display = 'inline';
-				});
-				createTaskGroup && (createTaskGroup.style.display = 'inline');
-				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'inline');
-			} else {
-				associations.forEach(a => a.style.display = 'none');
-				createTaskGroup && (createTaskGroup.style.display = 'none');
-				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'none');
-			}
+			updateGradebookItemControls({
+				assignmentsId: isGradebookGroupEnabled
+					? "revise:group_view:topic_assignments"
+					: "revise:non_group_view:topic_assignments",
+				createCheckboxId: "revise:create_gradebook_item",
+				defaultGradebookItem: "<%= DiscussionForumTool.DEFAULT_GB_ITEM %>",
+				existingItemsId: "revise:topic_existing_gradebook_group",
+				pointsGroupId: "revise:topic_gradebook_points_group",
+				pointsId: "revise:topic_gradebook_points",
+				taskGroupId: "revise:createTaskGroup",
+				taskEmptyPanelId: "revise:createTaskEmptyPanel"
+			});
 		}
 
 		function setAutoCreatePanel(radioButton) {
@@ -381,7 +372,15 @@
 				<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>
 			</h:panelGroup>
 
-			<h:panelGroup layout="block" styleClass="row">
+			<h:panelGroup layout="block">
+				<h:panelGroup layout="block" styleClass="checkbox" rendered="#{ForumTool.gradebookItemCreationAllowed}">
+					<h:selectBooleanCheckbox id="create_gradebook_item" value="#{ForumTool.selectedTopic.createGradebookItem}"
+							disabled="#{not ForumTool.editMode}" onclick="updateGradeAssignment()" />
+					<h:outputLabel for="create_gradebook_item" value="#{msgs.perm_create_gradebook_item}" />
+				</h:panelGroup>
+
+				<h:panelGroup id="topic_existing_gradebook_group" layout="block" styleClass="row"
+					style="display:#{ForumTool.selectedTopic.createGradebookItem ? 'none' : 'block'}">
 				<f:subview id="non_group_view" rendered="#{!ForumTool.gradebookGroupEnabled}">
 					<h:panelGroup styleClass="gradeSelector itemAction actionItem">
 						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" onchange="updateGradeAssignment()" id="topic_assignments" disabled="#{not ForumTool.editMode}">
@@ -405,14 +404,20 @@
 					</sakai-multi-gradebook>
 					<h:inputHidden id="topic_assignments" value="#{ForumTool.selectedTopic.gradeAssign}" />
 				</f:subview>
+				</h:panelGroup>
+				<h:panelGroup layout="block" id="topic_gradebook_points_group" styleClass="mt-2"
+					style="display:#{ForumTool.selectedTopic.createGradebookItem ? 'block' : 'none'}">
+					<h:outputLabel for="topic_gradebook_points" value="#{msgs.perm_create_gradebook_points}" styleClass="me-2" />
+					<h:inputText id="topic_gradebook_points" value="#{ForumTool.selectedTopic.gradebookPoints}" size="6" maxlength="11" />
+				</h:panelGroup>
 			</h:panelGroup>
 
 			<h:panelGroup styleClass="displayMorePanel" style="display:none"></h:panelGroup>
 			<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none">
 				<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_topic_more}"/>
 			</h:panelGroup>
-			<h:panelGroup id="createTaskEmptyPanel" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}"></h:panelGroup>
-			<h:panelGroup id="createTaskGroup" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}">
+			<h:panelGroup id="createTaskEmptyPanel" style="display:#{ForumTool.selectedTopic.existingGradebookItemSelected ? 'block' : 'none'}"></h:panelGroup>
+			<h:panelGroup id="createTaskGroup" style="display:#{ForumTool.selectedTopic.existingGradebookItemSelected ? 'block' : 'none'}">
 				<h:selectBooleanCheckbox id="createTask" title="createTask" value="#{ForumTool.selectedTopic.createTask}"/>
 				<h:outputLabel for="createTask" value="#{msgs.perm_create_task_topic}" style="margin-left:5px"/>
 			</h:panelGroup>

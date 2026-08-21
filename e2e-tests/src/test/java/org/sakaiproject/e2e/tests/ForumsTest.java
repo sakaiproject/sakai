@@ -39,7 +39,7 @@ class ForumsTest extends SakaiUiTestBase {
     @Order(1)
     void createsSiteWithForums() {
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.forums"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.forums", "sakai\\.gradebookng"));
     }
 
     @Test
@@ -55,6 +55,8 @@ class ForumsTest extends SakaiUiTestBase {
             .click();
 
         page.locator("form input[type=\"text\"]:visible").first().fill(FORUM_TITLE);
+        page.getByLabel("Create new Gradebook item").check();
+        page.getByLabel("Maximum points:").fill("10");
         page.locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Create\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Create\"], .act button:has-text(\"Save\"), .act button:has-text(\"Create\"), .act input[value*=\"Save\"], .act input[value*=\"Create\"]")
             .first()
             .click(new Locator.ClickOptions().setForce(true));
@@ -67,6 +69,8 @@ class ForumsTest extends SakaiUiTestBase {
             .click();
 
         page.locator("form input[type=\"text\"]:visible").first().fill(TOPIC_TITLE);
+        page.getByLabel("Create new Gradebook item").check();
+        page.getByLabel("Maximum points:").fill("20");
         page.locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Create\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Create\"], .act button:has-text(\"Save\"), .act button:has-text(\"Create\"), .act input[value*=\"Save\"], .act input[value*=\"Create\"]")
             .first()
             .click(new Locator.ClickOptions().setForce(true));
@@ -90,5 +94,12 @@ class ForumsTest extends SakaiUiTestBase {
         }
 
         assertThat(page.getByText(TOPIC_TITLE).first()).isVisible();
+
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+        assertThat(page.getByRole(AriaRole.COLUMNHEADER,
+                new Page.GetByRoleOptions().setName(FORUM_TITLE).setExact(true))).isVisible();
+        assertThat(page.getByRole(AriaRole.COLUMNHEADER,
+                new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true))).isVisible();
     }
 }
