@@ -22,6 +22,9 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,12 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -52,8 +59,16 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FileNameUtils;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.springframework.web.client.HttpClientErrorException;
@@ -67,6 +82,7 @@ public class AuthorBean implements Serializable {
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;
   private static final ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+  private static final ResourceLoader authorFrontDoor = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorFrontDoorMessages");
   private String assessTitle;
   private String assessmentTemplateId; // added by daisyf - 11/1/04
   private String assessmentTypeId;
@@ -994,4 +1010,191 @@ public class AuthorBean implements Serializable {
 	public String getCurrentSiteId() {
 		return AgentFacade.getCurrentSiteId();
 	}
+
+  public String exportAllScoresCsvZip() {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    List<PublishedAssessmentFacade> assessWithSubmissions = getSelectedPublishedAssessmentsWithSubmissions();
+
+    if (assessWithSubmissions.isEmpty()) {
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      return null;
+    }
+
+    HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+    response.reset();
+    response.setHeader("Cache-Control", "no-store");
+    response.setContentType("application/zip");
+    response.setHeader("Content-disposition", "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(getDownloadZipFilename(), java.nio.charset.StandardCharsets.UTF_8));
+
+    try {
+      return exportAllScoresCsvZipBatch(assessWithSubmissions, response);
+    } catch (IOException e) {
+      log.warn("Could not generate bulk scores zip", e);
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, authorFrontDoor.getString("assessment_export_zip_error"), null));
+      return null;
+    }
+  }
+
+  private String exportAllScoresCsvZipBatch(List<PublishedAssessmentFacade> assessWithSubmissions, HttpServletResponse response) throws IOException {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+
+    String currentSiteId = AgentFacade.getCurrentSiteId();
+
+    List<String> assessmentIds = assessWithSubmissions.stream()
+        .map(a -> a.getPublishedAssessmentId().toString())
+        .collect(Collectors.toList());
+
+    if (assessmentIds.isEmpty()) {
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      return null;
+    }
+
+    Map useridMap = getUserIdMapForSite(currentSiteId, assessmentIds.get(0));
+    Map<String, PublishedAssessmentFacade> assessmentMap = batchLoadAssessments(assessmentIds);
+    Map<String, List> assessmentScoresMap = batchLoadAllScores(assessmentIds);
+
+    TotalScoresExportBean totalScoresExportBean = (TotalScoresExportBean) ContextUtil.lookupBean("totalScoresExportBean");
+    TotalScoreListener totalScoreListener = new TotalScoreListener();
+
+    int exportedCount = 0;
+    try (ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream(), StandardCharsets.UTF_8)) {
+      for (PublishedAssessmentFacade basicAssessment : assessWithSubmissions) {
+        String assessmentId = basicAssessment.getPublishedAssessmentId().toString();
+        PublishedAssessmentFacade assessment = assessmentMap.get(assessmentId);
+
+        if (assessment == null) {
+          continue;
+        }
+
+        List agentResults = processAssessmentScores(assessment, assessmentScoresMap.get(assessmentId), useridMap, totalScoreListener);
+
+        if (agentResults == null || agentResults.isEmpty()) {
+          continue;
+        }
+
+        ByteArrayOutputStream xlsxBuffer = new ByteArrayOutputStream();
+        totalScoresExportBean.writeWorkbookToStream(assessment.getTitle(), agentResults, xlsxBuffer);
+
+        ZipEntry zipEntry = new ZipEntry(getDownloadFileName(assessment.getTitle()));
+        zipOutputStream.putNextEntry(zipEntry);
+        zipOutputStream.write(xlsxBuffer.toByteArray());
+        zipOutputStream.closeEntry();
+        exportedCount++;
+      }
+      zipOutputStream.finish();
+    }
+
+    if (exportedCount == 0) {
+      facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, authorFrontDoor.getString("assessment_export_zip_no_data"), null));
+      return null;
+    }
+
+    facesContext.responseComplete();
+    return null;
+  }
+
+  private Map getUserIdMapForSite(String siteId, String firstAssessmentId) {
+    PublishedAssessmentFacade firstAssessment = publishedAssessmentService.getPublishedAssessment(firstAssessmentId);
+    if (firstAssessment != null) {
+      TotalScoresBean tempBean = new TotalScoresBean();
+      tempBean.setPublishedAssessment((PublishedAssessmentData) firstAssessment.getData());
+      return tempBean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER, siteId);
+    }
+    return new HashMap();
+  }
+
+  private Map<String, PublishedAssessmentFacade> batchLoadAssessments(List<String> assessmentIds) {
+    return assessmentIds.parallelStream()
+        .collect(Collectors.toConcurrentMap(
+            id -> id,
+            id -> {
+              try {
+                return publishedAssessmentService.getPublishedAssessment(id);
+              } catch (Exception e) {
+                log.warn("Failed to load assessment {}", id, e);
+                return null;
+              }
+            }
+        ))
+        .entrySet().stream()
+        .filter(entry -> entry.getValue() != null)
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue
+        ));
+  }
+
+  private Map<String, List> batchLoadAllScores(List<String> assessmentIds) {
+    GradingService gradingService = new GradingService();
+
+    return assessmentIds.parallelStream()
+        .collect(Collectors.toConcurrentMap(
+            id -> id,
+            id -> {
+              try {
+                List scores = gradingService.getTotalScores(id, TotalScoresBean.LAST_SUBMISSION, false);
+                return scores != null ? scores : new ArrayList();
+              } catch (Exception e) {
+                log.warn("Failed to load scores for assessment {}", id, e);
+                return new ArrayList();
+              }
+            }
+        ));
+  }
+
+  private List processAssessmentScores(PublishedAssessmentFacade assessment, List allScores, Map useridMap, TotalScoreListener totalScoreListener) {
+    try {
+      TotalScoresBean tempBean = new TotalScoresBean();
+      tempBean.setAssessmentGradingList(allScores);
+
+      List scores = new ArrayList();
+      List students_not_submitted = new ArrayList();
+
+      totalScoreListener.getFilteredList(tempBean, allScores, scores, students_not_submitted, useridMap);
+
+      if (scores.isEmpty() && students_not_submitted.isEmpty()) {
+        return null;
+      }
+
+      List agents = new ArrayList();
+      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      List agentUserIds = totalScoreListener.getAgentIds(useridMap);
+      Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
+
+      totalScoreListener.prepareAgentResult((PublishedAssessmentData) assessment.getData(), scores.iterator(), agents, userRoles);
+      totalScoreListener.prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
+
+      return agents;
+    } catch (Exception e) {
+      log.warn("Failed to process scores for assessment {}", assessment.getAssessmentId(), e);
+      return null;
+    }
+  }
+
+  private List<PublishedAssessmentFacade> getSelectedPublishedAssessmentsWithSubmissions() {
+    List<PublishedAssessmentFacade> result = new ArrayList<>();
+    if (allAssessments == null) {
+      return result;
+    }
+
+    for (Object assessmentObject : allAssessments) {
+      if (!(assessmentObject instanceof PublishedAssessmentFacade)) {
+        continue;
+      }
+      PublishedAssessmentFacade pubAssessmentFacade = (PublishedAssessmentFacade) assessmentObject;
+      if (pubAssessmentFacade.isSelected() && pubAssessmentFacade.getSubmittedCount() > 0) {
+        result.add(pubAssessmentFacade);
+      }
+    }
+
+    return result;
+  }
+
+  private String getDownloadZipFilename() {
+    return FileNameUtils.generateScoresZipFilename();
+  }
+
+  private String getDownloadFileName(String assessmentName) {
+    return FileNameUtils.generateScoresExcelFilenameForZip(assessmentName);
+  }
 }
