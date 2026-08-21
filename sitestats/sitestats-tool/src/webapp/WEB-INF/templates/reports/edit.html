@@ -4,7 +4,6 @@
 <body>
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('reports')}"></div>
-  <div th:replace="~{fragments/common :: messages}"></div>
   <h1 class="h3 mt-3" th:text="${reportForm.id > 0} ? #{report_edit} : #{report_new}">Edit report</h1>
 
   <div class="sak-banner-error mb-3" role="alert" th:if="${#lists.isEmpty(editorOptions.availableReportTypes)}">
