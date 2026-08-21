@@ -172,7 +172,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	private void deployToolToContentSites(Long toolKey, boolean isAdminRole, boolean isMaintainRole) {
+	@Override
+	protected void deployToolToContentSites(Long toolKey, boolean isAdminRole, boolean isMaintainRole) {
 		if (toolKey == null || !isAdminRole || !isMaintainRole) {
 			return;
 		}
