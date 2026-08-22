@@ -38,6 +38,8 @@ public interface ChatFunctions {
    public static final String CHAT_FUNCTION_DELETE_ANY = CHAT_FUNCTION_DELETE_PREFIX + "any";
    
    public static final String CHAT_FUNCTION_DELETE_CHANNEL = CHAT_FUNCTION_DELETE_PREFIX + "channel";
+   public static final String CHAT_FUNCTION_DELETE_OWN_CHANNEL = CHAT_FUNCTION_DELETE_PREFIX + "own.channel";
    public static final String CHAT_FUNCTION_NEW_CHANNEL = CHAT_FUNCTION_PREFIX + "new.channel";
    public static final String CHAT_FUNCTION_EDIT_CHANNEL = CHAT_FUNCTION_PREFIX + "revise.channel";
+   public static final String CHAT_FUNCTION_EDIT_OWN_CHANNEL = CHAT_FUNCTION_PREFIX + "revise.own.channel";
 }

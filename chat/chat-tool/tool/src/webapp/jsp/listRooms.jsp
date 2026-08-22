@@ -66,6 +66,12 @@
 				</h:column>
 				<h:column>
 					<f:facet name="header">
+						<h:outputText value="#{msgs.channel_created_by}" />
+					</f:facet>
+					<h:outputText value="#{channel.ownerDisplayName}" />
+				</h:column>
+				<h:column>
+					<f:facet name="header">
 						<h:outputText value="#{msgs.channel_description}" />
 					</f:facet>
 					<h:outputText value="#{channel.chatChannel.description}" />

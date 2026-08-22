@@ -545,7 +545,7 @@ public class ChatTool {
 
                }
            catch (PermissionException e) {
-               setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL});
+               setErrorMessage(PERMISSION_ERROR, new String[] {e.getLock()});
                return "";
            }
            else {
@@ -602,7 +602,7 @@ public class ChatTool {
          return PAGE_LIST_ROOMS;
       }
       catch (PermissionException e) {
-         setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL});
+         setErrorMessage(PERMISSION_ERROR, new String[] {e.getLock()});
          return "";
       }
    }
@@ -1176,6 +1176,19 @@ public class ChatTool {
          return message.getOwner();
       }
       return sender.getDisplayName(message.getChatChannel().getContext());
+   }
+
+   public String getChannelOwnerDisplayName(ChatChannel channel)
+   {
+      if (channel == null || StringUtils.isBlank(channel.getOwner())) {
+         return "";
+      }
+      try {
+         return userDirectoryService.getUser(channel.getOwner()).getDisplayName(channel.getContext());
+      } catch (UserNotDefinedException e) {
+         log.debug("Failed to find the owner of chat room [{}]", channel.getId(), e);
+         return channel.getOwner();
+      }
    }
 
    protected String getPastXDaysText(int x) {

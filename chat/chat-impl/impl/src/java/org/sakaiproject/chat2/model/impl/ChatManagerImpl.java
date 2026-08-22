@@ -178,14 +178,21 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         try {
 
             // register functions
-            if(functionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX).size() == 0) {
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, true);
-                functionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, true);
+            List<String> chatFunctions = List.of(
+                    ChatFunctions.CHAT_FUNCTION_READ,
+                    ChatFunctions.CHAT_FUNCTION_NEW,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_ANY,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_OWN,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL,
+                    ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL);
+            List<String> registeredChatFunctions = functionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX);
+            for (String chatFunction : chatFunctions) {
+                if (!registeredChatFunctions.contains(chatFunction)) {
+                    functionManager.registerFunction(chatFunction, true);
+                }
             }
 
             pollInterval = serverConfigurationService.getInt("chat.pollInterval", 5000);
@@ -277,6 +284,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         channel.setCreationDate(new Date());
         channel.setContext(context);
+        if (checkAuthz) {
+            channel.setOwner(sessionManager.getCurrentSessionUserId());
+        }
         channel.setTitle(title);
         channel.setPlacementDefaultChannel(placementDefaultChannel);
         if (placementDefaultChannel) {
@@ -295,8 +305,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (channel == null)
             return;
 
-        if (checkAuthz)
-            checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
+        if (checkAuthz && !getCanEdit(channel)) {
+            String function = isChannelOwner(channel)
+                    ? ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL
+                    : ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL;
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), function, channel.getContext());
+        }
 
         getHibernateTemplate().saveOrUpdate(channel);
     }
@@ -310,7 +324,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (channel == null)
             return;
 
-        checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
+        if (!getCanDelete(channel)) {
+            String function = isChannelOwner(channel)
+                    ? ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL
+                    : ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL;
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), function, channel.getContext());
+        }
+
         getHibernateTemplate().delete(getHibernateTemplate().merge(channel));
 
         sendDeleteChannel(channel);
@@ -587,7 +607,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public boolean getCanDelete(ChatChannel channel)
     {
-        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
+        if (channel == null) {
+            return false;
+        }
+        if (can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext())) {
+            return true;
+        }
+        return isChannelOwner(channel) && can(ChatFunctions.CHAT_FUNCTION_DELETE_OWN_CHANNEL, channel.getContext());
     }
 
     /**
@@ -595,7 +621,18 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public boolean getCanEdit(ChatChannel channel)
     {
-        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
+        if (channel == null) {
+            return false;
+        }
+        if (can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext())) {
+            return true;
+        }
+        return isChannelOwner(channel) && can(ChatFunctions.CHAT_FUNCTION_EDIT_OWN_CHANNEL, channel.getContext());
+    }
+
+    private boolean isChannelOwner(ChatChannel channel) {
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        return currentUserId != null && currentUserId.equals(channel.getOwner());
     }
 
     /**
