@@ -32,25 +32,25 @@ import java.util.Properties;
 
 import javax.portlet.PortletRequest;
 
-import org.apache.pluto.OptionalContainerServices;
-import org.apache.pluto.PortletContainerException;
-import org.apache.pluto.PortletWindow;
-import org.apache.pluto.internal.InternalPortletPreference;
-import org.apache.pluto.internal.impl.PortletPreferenceImpl;
-import org.apache.pluto.spi.optional.P3PAttributes;
-import org.apache.pluto.spi.optional.PortalAdministrationService;
-import org.apache.pluto.spi.optional.PortletEnvironmentService;
-import org.apache.pluto.spi.optional.PortletInfoService;
-import org.apache.pluto.spi.optional.PortletInvocationEvent;
-import org.apache.pluto.spi.optional.PortletInvocationListener;
-import org.apache.pluto.spi.optional.PortletInvokerService;
-import org.apache.pluto.spi.optional.PortletPreferencesService;
-import org.apache.pluto.spi.optional.PortletRegistryService;
-import org.apache.pluto.spi.optional.UserInfoService;
+import org.sakaiproject.pluto.OptionalContainerServices;
+import org.sakaiproject.pluto.PortletContainerException;
+import org.sakaiproject.pluto.PortletWindow;
+import org.sakaiproject.pluto.internal.InternalPortletPreference;
+import org.sakaiproject.pluto.internal.impl.PortletPreferenceImpl;
+import org.sakaiproject.pluto.spi.optional.P3PAttributes;
+import org.sakaiproject.pluto.spi.optional.PortalAdministrationService;
+import org.sakaiproject.pluto.spi.optional.PortletEnvironmentService;
+import org.sakaiproject.pluto.spi.optional.PortletInfoService;
+import org.sakaiproject.pluto.spi.optional.PortletInvocationEvent;
+import org.sakaiproject.pluto.spi.optional.PortletInvocationListener;
+import org.sakaiproject.pluto.spi.optional.PortletInvokerService;
+import org.sakaiproject.pluto.spi.optional.PortletPreferencesService;
+import org.sakaiproject.pluto.spi.optional.PortletRegistryService;
+import org.sakaiproject.pluto.spi.optional.UserInfoService;
 // This new service is added in Pluto 1.1.6 and later
 // https://issues.apache.org/jira/browse/PLUTO-489
 // http://jira.sakaiproject.org/browse/SAK-19011
-import org.apache.pluto.spi.optional.RequestAttributeService;
+import org.sakaiproject.pluto.spi.optional.RequestAttributeService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;

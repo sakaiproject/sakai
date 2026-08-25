@@ -1,0 +1,42 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.sakaiproject.pluto.descriptors.services;
+
+import org.sakaiproject.pluto.descriptors.portlet.PortletAppDD;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+ * Read services for Portlet Application configuration.
+ * This service reads the portlet.xml and converts it to a
+ * standard bean model. Write support was removed for the Sakai-frozen tree.
+ *
+ * @version $Id: PortletAppDescriptorService.java 157038 2005-03-11 03:44:40Z ddewolf $
+ * @since Mar 6, 2005
+ */
+public interface PortletAppDescriptorService {
+
+    /**
+     * Retrieve the PortletApp deployment descriptor
+     * (portlet.xml).
+     * @return Object representation of the descriptor.
+     * @throws IOException if an IO error occurs.
+     */
+    PortletAppDD read(InputStream in) throws IOException;
+}

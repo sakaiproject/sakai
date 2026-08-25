@@ -89,6 +89,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>pluto</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -178,6 +179,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>pluto</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
