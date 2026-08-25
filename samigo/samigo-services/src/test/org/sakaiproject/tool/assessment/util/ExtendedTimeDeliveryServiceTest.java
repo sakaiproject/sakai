@@ -105,6 +105,17 @@ public class ExtendedTimeDeliveryServiceTest {
         Assert.assertFalse(deliveryService.hasIncreasedTimeLimit());
     }
 
+    @Test
+    public void testDateOnlyExceptionIsNotAnIncrease() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, new Date(1000L), null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setDueDate(new Date(2000L));
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertFalse(deliveryService.hasIncreasedTimeLimit());
+    }
+
     private ExtendedTime buildExtendedTime(String groupId, String userId, Long publishedAssessmentId) {
         ExtendedTime extendedTime = new ExtendedTime();
         PublishedAssessmentData publishedAssessment = new PublishedAssessmentData();
