@@ -24,8 +24,8 @@ package org.sakaiproject.portal.render.portlet;
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 
-import org.apache.pluto.PortletWindow;
-import org.apache.pluto.PortletWindowID;
+import org.sakaiproject.pluto.PortletWindow;
+import org.sakaiproject.pluto.PortletWindowID;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
 /**
