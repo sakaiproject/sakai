@@ -808,7 +808,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 Site userSite = siteService.getSite(siteService.getUserSiteId(userId));
                 ToolConfiguration tc = userSite.getToolForCommonId("sakai.preferences");
                 if (tc != null) {
-                    ResourceLoader userResourceLoader = new ResourceLoader(userId, resourceLoader.getBaseName());
+                    ResourceLoader userResourceLoader = new ResourceLoader(resourceLoader.getBaseName());
+                    userResourceLoader.setContextLocale(userResourceLoader.getLocale(userId));
+
                     String url = serverConfigurationService.getPortalUrl() + "/site/" + userSite.getId() + "/tool/" + tc.getId();
                     String prefsLink = "<br /><br />" + userResourceLoader.getFormattedMessage("preferences_link_message", url);
                     return message + prefsLink;
