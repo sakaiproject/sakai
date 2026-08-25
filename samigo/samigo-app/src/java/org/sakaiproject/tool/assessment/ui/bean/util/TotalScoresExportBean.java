@@ -21,32 +21,30 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.util;
 
-import java.io.Serializable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.FileNameUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ManagedBean(name="totalScoresExportBean")
@@ -63,7 +61,21 @@ public class TotalScoresExportBean implements Serializable {
 	}
 
 	public void exportExcel(String assessmentName, List allAgents) {
-		// Now insert the header line
+		FacesContext faces = FacesContext.getCurrentInstance();
+		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
+		response.reset(); // Eliminate the added-on stuff
+		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0"); // New-style
+		writeDataToResponse(buildHeaderList(), allAgents, getDownloadFileName(assessmentName), response);
+		faces.responseComplete();
+	}
+
+	public void writeWorkbookToStream(String assessmentName, List agentResults, OutputStream out) throws IOException {
+		try (XSSFWorkbook workbook = getAsWorkbook(buildHeaderList(), agentResults)) {
+			workbook.write(out);
+		}
+	}
+
+	private List<String> buildHeaderList() {
 		List<String> headerList = new ArrayList<>();
 		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "first_name"));
 		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "uid"));
@@ -74,37 +86,22 @@ public class TotalScoresExportBean implements Serializable {
 		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "adj"));
 		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "final"));
 		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "comment"));
-
-		FacesContext faces = FacesContext.getCurrentInstance();
-		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-		response.reset();	// Eliminate the added-on stuff
-		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
-		writeDataToResponse(headerList, allAgents, getDownloadFileName(assessmentName), response);
-		faces.responseComplete();
+		return headerList;
 	}
 
 	private String getDownloadFileName(String assessmentName) {
-		Date now = new Date();
-		String dateFormat = "yyyyMMdd";
-		DateFormat df = new SimpleDateFormat(dateFormat);
-		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "assessment"));
-		if(StringUtils.trimToNull(assessmentName) != null) {
-			assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
-			fileName.append("-");
-			fileName.append(assessmentName);
-		}
-		fileName.append("-");
-		fileName.append(df.format(now));
-		return fileName.toString();
+		return FileNameUtils.generateScoresExcelFilename(assessmentName);
 	}
 
 	private void writeDataToResponse(List<String> headerList, List dataList, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xlsx");
+		response.setHeader("Content-disposition", "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(fileName, java.nio.charset.StandardCharsets.UTF_8));
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
-			getAsWorkbook(headerList, dataList).write(out);
+			try (XSSFWorkbook workbook = getAsWorkbook(headerList, dataList)) {
+				workbook.write(out);
+			}
 			out.flush();
 		} catch (IOException e) {
 			if (log.isErrorEnabled()) log.error(e.getMessage());
