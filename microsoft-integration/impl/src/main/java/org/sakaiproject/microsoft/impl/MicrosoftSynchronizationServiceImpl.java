@@ -561,8 +561,8 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 				//users will be removed first from channels
 				if (ss.getGroupSynchronizationsList() != null && ss.getGroupSynchronizationsList().size() > 0) {
 					int groupCounter = 0;
+					microsoftCommonService.getTeam(ss.getTeamId());
 					for (GroupSynchronization gs : ss.getGroupSynchronizationsList()) {
-						microsoftCommonService.getTeam(ss.getTeamId());
 						if (groupCounter < MAX_CHANNELS) {
 							SynchronizationStatus aux_status = runGroupSynchronizationForced(ss, gs, mappedSakaiUserId, mappedMicrosoftUserId);
 							if (aux_status == SynchronizationStatus.ERROR_GUEST && ret != SynchronizationStatus.ERROR) {
@@ -740,8 +740,8 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			//process all group synchronizations related
 			if (ss.getGroupSynchronizationsList() != null && ss.getGroupSynchronizationsList().size() > 0) {
 				int groupCounter = 0;
+				microsoftCommonService.getTeam(ss.getTeamId());
 				for (GroupSynchronization gs : ss.getGroupSynchronizationsList()) {
-					microsoftCommonService.getTeam(ss.getTeamId());
 					if (groupCounter < MAX_CHANNELS) {
 						SynchronizationStatus aux_status = runGroupSynchronization(ss, gs, guestUsers, mappedSakaiUserId, mappedMicrosoftUserId);
 						if (aux_status == SynchronizationStatus.ERROR_GUEST && ret != SynchronizationStatus.ERROR) {
