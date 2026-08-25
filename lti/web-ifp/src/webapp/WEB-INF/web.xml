@@ -19,7 +19,7 @@
 
   <servlet>
     <servlet-name>SakaiIFrame</servlet-name>
-    <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+    <servlet-class>org.sakaiproject.pluto.core.PortletServlet</servlet-class>
     <init-param>
     <param-name>portlet-name</param-name>
     <param-value>SakaiIFrame</param-value>
