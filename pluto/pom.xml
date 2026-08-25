@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>27-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <groupId>org.sakaiproject.pluto</groupId>
+    <artifactId>pluto</artifactId>
+    <packaging>pom</packaging>
+    <name>Sakai Pluto</name>
+    <description>Apache Pluto portlet container (vendored for Sakai)</description>
+    <url>https://portals.apache.org/pluto</url>
+
+    <!-- Resource-filtering properties used by pluto-container (Portlet 1.0 RI identity) -->
+    <properties>
+        <pluto.container.name>Pluto</pluto.container.name>
+        <javax.portlet.version.major>1</javax.portlet.version.major>
+        <javax.portlet.version.minor>0</javax.portlet.version.minor>
+    </properties>
+
+    <modules>
+        <module>pluto-descriptor-api</module>
+        <module>pluto-descriptor-impl</module>
+        <module>pluto-container</module>
+        <module>pluto-taglib</module>
+    </modules>
+
+    <!-- Pluto uses standard Maven source layout, not Sakai's src/java -->
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+    </build>
+</project>

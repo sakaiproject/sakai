@@ -59,11 +59,11 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>pluto-container</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>pluto-descriptor-api</artifactId>
         </dependency>
         <dependency>
