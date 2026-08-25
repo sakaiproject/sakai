@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -2350,23 +2351,24 @@ public class DeliveryActionListener implements ActionListener {
       long gradingId = determineCalcQGradingId(delivery);
       String agentId = determineCalcQAgentId(delivery, bean);
 
-      gradingService.getAnswersMap().clear();
-      gradingService.getAnswersMapValues().clear();
-      gradingService.getGlobalanswersMapValues().clear();
-      gradingService.getMainvariablesWithValues().clear();
+      Map<Integer, String> answersMap = new HashMap<>();
+      LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
+      LinkedHashMap<String, String> globalAnswersMapValues = new LinkedHashMap<>();
+      LinkedHashMap<String, String> mainVariablesWithValues = new LinkedHashMap<>();
 
-      List<List<String>> texts = gradingService.extractCalcQAnswersArray(gradingService.getAnswersMap(), gradingService.getAnswersMapValues(), gradingService.getGlobalanswersMapValues(), gradingService.getMainvariablesWithValues(), item, gradingId, agentId);
-      if (texts.get(0).isEmpty())
+      List<List<String>> texts = gradingService.extractCalcQAnswersArray(answersMap, answersMapValues, globalAnswersMapValues, mainVariablesWithValues, item, gradingId, agentId);
+      List<String> instructionSegments = texts.get(0);
+      if (instructionSegments.isEmpty())
       {
           log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
-          texts.set(0, Collections.singletonList(rb.get("calc.extract_text_error").toString()));
+          instructionSegments = new ArrayList<>(Collections.singletonList(rb.get("calc.extract_text_error").toString()));
+          texts.set(0, instructionSegments);
       }
-      gradingService.setTexts(texts.get(0));
 
       //changing solutions ex: {{w}} with numbers
-      gradingService.replaceSolutionOnFeedbackWithNumbers(gradingService.getAnswersMapValues(), item, texts);
+      gradingService.replaceSolutionOnFeedbackWithNumbers(answersMapValues, item, texts);
 
-      String questionText = gradingService.getTexts().get(0);
+      String questionText = instructionSegments.get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
       List<FinBean> fins = new ArrayList<FinBean>();
@@ -2393,14 +2395,15 @@ public class DeliveryActionListener implements ActionListener {
           AnswerIfc answer = iter.next();
           
           // Checks if the 'answer' object is a variable, a global variable or a real answer
-          if (StringUtils.isEmpty(gradingService.getAnswersMapValues().get(answer.getLabel()))) {
+          if (StringUtils.isEmpty(answersMapValues.get(answer.getLabel()))) {
               continue;
           }
 
           FinBean fbean = new FinBean();
           fbean.setItemContentsBean(bean);
           fbean.setAnswer(answer);
-          fbean.setText((String) gradingService.getTexts().toArray()[i++]);
+          fbean.setText( i < instructionSegments.size() ? instructionSegments.get(i) : "");
+          i++;
           fbean.setHasInput(Boolean.TRUE); // input box
 
           List<ItemGradingData> datas = bean.getItemGradingDataArray();
@@ -2418,7 +2421,7 @@ public class DeliveryActionListener implements ActionListener {
                       {
                           answer.setText("");
                       }
-                      fbean.setIsCorrect(gradingService.getCalcQResult(data, item, gradingService.getAnswersMap(), i));
+                      fbean.setIsCorrect(gradingService.getCalcQResult(data, item, answersMap, i));
                   }
               }
           }
@@ -2428,10 +2431,7 @@ public class DeliveryActionListener implements ActionListener {
       bean.setCalculatedQuestionAnswer(commaDelimitedCalcQuestionAnswers(item , delivery, bean));
 
       FinBean fbean = new FinBean();
-      if(gradingService.getTexts().toArray().length>i)
-          fbean.setText( (String) gradingService.getTexts().toArray()[i]);
-      else
-          fbean.setText("");
+      fbean.setText(i < instructionSegments.size() ? instructionSegments.get(i) : "");
       fbean.setHasInput(Boolean.FALSE);
       fins.add(fbean);
 
@@ -2955,22 +2955,21 @@ public class DeliveryActionListener implements ActionListener {
 	  String keysString = "";
 	  String answer = "";
 
-	gradingService.getAnswersMap().clear();
-	gradingService.getAnswersMapValues().clear();
-	gradingService.getGlobalanswersMapValues().clear();
-	gradingService.getMainvariablesWithValues().clear();
+	Map<Integer, String> answersMap = new HashMap<>();
+	LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
+	LinkedHashMap<String, String> globalAnswersMapValues = new LinkedHashMap<>();
+	LinkedHashMap<String, String> mainVariablesWithValues = new LinkedHashMap<>();
 
-	List<List<String>> texts = gradingService.extractCalcQAnswersArray(gradingService.getAnswersMap(), gradingService.getAnswersMapValues(), gradingService.getGlobalanswersMapValues(), gradingService.getMainvariablesWithValues(), item, gradingId, agentId);
-	gradingService.setTexts(texts.get(0));
+	List<List<String>> texts = gradingService.extractCalcQAnswersArray(answersMap, answersMapValues, globalAnswersMapValues, mainVariablesWithValues, item, gradingId, agentId);
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
-	while(answerSequence <= gradingService.getAnswersMap().size()) {
-		  answer = (String) gradingService.getAnswersMap().get(answerSequence);
+	while(answerSequence <= answersMap.size()) {
+		  answer = (String) answersMap.get(answerSequence);
 		  decimalPlaces = Integer.valueOf(answer.substring(answer.lastIndexOf(',')+1, answer.length()));
 		  answer = answer.substring(0, answer.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 		  // searching and replacing recursively global variables on the answer
-		  answer = gradingService.checkingEmptyGlobalVariables(answer, gradingService.getMainvariablesWithValues(), gradingService.getGlobalanswersMapValues());
+		  answer = gradingService.checkingEmptyGlobalVariables(answer, mainVariablesWithValues, globalAnswersMapValues);
 		  try {
 		      answer = gradingService.processFormulaIntoValue(answer, decimalPlaces);
 		  } catch (SamigoExpressionError e1) {
@@ -2988,7 +2987,7 @@ public class DeliveryActionListener implements ActionListener {
 	  }
 
 	  //changing solutions ex: {{w}} with numbers
-	  gradingService.replaceSolutionOnFeedbackWithNumbers(gradingService.getAnswersMapValues(), item, texts);
+	  gradingService.replaceSolutionOnFeedbackWithNumbers(answersMapValues, item, texts);
 
 	  return keysString;
   }
