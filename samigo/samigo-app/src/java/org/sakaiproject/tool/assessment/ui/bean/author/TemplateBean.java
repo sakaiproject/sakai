@@ -1004,8 +1004,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
   }
   
   public boolean getShowAssessmentTypes() {
-	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-	  return authorizationBean.isSuperUser() || ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
+	  return ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
   }
 
   public boolean isSecureDeliveryAvailable() {
