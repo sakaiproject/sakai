@@ -79,6 +79,27 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
+    void reportValidationDisplaysOneErrorBanner() {
+        openReportsAsInstructor();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).click();
+        page.getByLabel("Title").fill(REPORT_TITLE);
+        page.getByLabel("Period:").selectOption("when-custom");
+        page.locator("#when-from").fill("");
+        page.locator("#when-to").fill("");
+
+        Locator validationError = page.locator(".sak-banner-error[role='alert']");
+        for (String action : List.of("Save report", "Generate report")) {
+            page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName(Pattern.compile("^" + action + "$", Pattern.CASE_INSENSITIVE)))
+                .click();
+            assertThat(validationError).hasCount(1);
+            assertThat(validationError).containsText("Custom time period not defined");
+        }
+    }
+
+    @Test
+    @Order(4)
     void createsReportViaReportsFlow() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -156,7 +177,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void savesEditsCopiesExportsAndDeletesReport() {
         openReportsAsInstructor();
         page.getByRole(AriaRole.LINK,
@@ -204,7 +225,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void preferencesUseSpringForms() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -233,7 +254,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     void studentOwnStatisticsViewDoesNotRenderInstructorNavigation() {
         sakai.login("admin");
         String siteId = sakai.siteIdFromUrl(sakaiUrl);
@@ -255,7 +276,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     void adminRegistrationRendersServerWideReports() {
         sakai.login("admin");
         sakai.gotoPath("/portal/site/!admin/tool/!admin-1225");
