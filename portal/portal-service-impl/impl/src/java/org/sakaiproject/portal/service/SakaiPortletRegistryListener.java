@@ -28,13 +28,13 @@ import java.io.InputStream;
 
 import jakarta.servlet.ServletContext;
 
-import org.apache.pluto.PortletContainerException;
-import org.apache.pluto.core.PortletContextManager;
-import org.apache.pluto.descriptors.portlet.PortletAppDD;
-import org.apache.pluto.descriptors.portlet.PortletDD;
-import org.apache.pluto.internal.InternalPortletContext;
-import org.apache.pluto.spi.optional.PortletRegistryEvent;
-import org.apache.pluto.spi.optional.PortletRegistryListener;
+import org.sakaiproject.pluto.PortletContainerException;
+import org.sakaiproject.pluto.core.PortletContextManager;
+import org.sakaiproject.pluto.descriptors.portlet.PortletAppDD;
+import org.sakaiproject.pluto.descriptors.portlet.PortletDD;
+import org.sakaiproject.pluto.internal.InternalPortletContext;
+import org.sakaiproject.pluto.spi.optional.PortletRegistryEvent;
+import org.sakaiproject.pluto.spi.optional.PortletRegistryListener;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -55,7 +55,7 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.apache.pluto.spi.optional.PortletRegistryListener#portletApplicationRegistered(org.apache.pluto.spi.optional.PortletRegistryEvent)
+	 * @see org.sakaiproject.pluto.spi.optional.PortletRegistryListener#portletApplicationRegistered(org.sakaiproject.pluto.spi.optional.PortletRegistryEvent)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -153,7 +153,7 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.apache.pluto.spi.optional.PortletRegistryListener#portletApplicationRemoved(org.apache.pluto.spi.optional.PortletRegistryEvent)
+	 * @see org.sakaiproject.pluto.spi.optional.PortletRegistryListener#portletApplicationRemoved(org.sakaiproject.pluto.spi.optional.PortletRegistryEvent)
 	 */
 	public void portletApplicationRemoved(PortletRegistryEvent arg0)
 	{
