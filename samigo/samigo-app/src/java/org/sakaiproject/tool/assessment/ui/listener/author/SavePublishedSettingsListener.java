@@ -160,7 +160,7 @@ implements ActionListener
 		for (SelectItem item : existingGradebook) {
 			if (!item.getLabel().contains(assessmentSettings.getTitle()) &&
 				item.getLabel().split("\\(").length > 1 &&
-				assessmentSettings.getGradebookName().equals(item.getValue()) &&
+				Objects.equals(assessmentSettings.getGradebookName(), item.getValue()) &&
 				currentToolSession.getAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED") == null) {
 					error = true;
 					String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "addtogradebook.previouslyAssoc");
