@@ -477,6 +477,9 @@ public class DeliveryBean implements Serializable {
 
   private ExtendedTimeDeliveryService extendedTimeDeliveryService = null;
 
+  @Getter
+  private boolean itemTimersDisabled;
+
   @Getter @Setter
   private boolean showTimeWarning;
   @Getter @Setter
@@ -1848,11 +1851,20 @@ public class DeliveryBean implements Serializable {
 
   public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment) {
 	  this.publishedAssessment = publishedAssessment;
-	  //Setup extendedTimeDeliveryService
-	  if ((extendedTimeDeliveryService == null || StringUtils.isBlank(extendedTimeDeliveryService.getAgentId())) &&
-			  (publishedAssessment != null && publishedAssessment.getPublishedAssessmentId() != null)) {
+	  itemTimersDisabled = false;
+	  if (publishedAssessment == null || publishedAssessment.getPublishedAssessmentId() == null) {
+		  extendedTimeDeliveryService = null;
+		  return;
+	  }
+
+	  // Setup extendedTimeDeliveryService
+	  if (extendedTimeDeliveryService == null
+			  || StringUtils.isBlank(extendedTimeDeliveryService.getAgentId())
+			  || !Objects.equals(extendedTimeDeliveryService.getPublishedAssessmentId(), publishedAssessment.getPublishedAssessmentId())) {
 		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
 	  }
+
+	  itemTimersDisabled = extendedTimeDeliveryService.hasIncreasedTimeLimit();
   }
 
   public String doit() {

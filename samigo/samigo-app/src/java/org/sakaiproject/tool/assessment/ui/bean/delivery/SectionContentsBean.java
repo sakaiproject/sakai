@@ -107,7 +107,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
-  @Getter private boolean timedSection;
+  private boolean timedSection;
 
   @Getter @Setter private Integer numberToBeFixed;
   @Getter @Setter private Long poolIdToBeFixed;
@@ -510,6 +510,11 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return getCancelledItemsCount() > 1;
   }
 
+  public boolean isTimedSection() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    return timedSection && !delivery.isItemTimersDisabled();
+  }
+
   public String getTimeLimitString() {
     int seconds = Integer.parseInt(getTimeLimit());
     int hour = 0;
@@ -599,4 +604,3 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return delivery.samePage();
   }
 }
-

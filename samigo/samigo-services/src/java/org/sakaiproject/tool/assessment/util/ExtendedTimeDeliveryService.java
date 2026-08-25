@@ -49,6 +49,7 @@ public class ExtendedTimeDeliveryService {
 	private AuthzGroupService authzGroupService;
 
 	private boolean hasExtendedTime;
+	private Integer assessmentTimeLimit;
 	private Integer timeLimit;
 	private Date startDate;
 	private Date dueDate;
@@ -88,6 +89,7 @@ public class ExtendedTimeDeliveryService {
 		String pubId = publishedAssessmentId.toString();
 		siteId = publishedAssessmentService.getPublishedAssessmentSiteId(pubId);
 		PublishedAssessmentData pubData = publishedAssessmentService.getBasicInfoOfPublishedAssessment(pubId);
+		assessmentTimeLimit = pubData.getTimeLimit();
 
 		this.agentId = agentId;
 
@@ -114,6 +116,7 @@ public class ExtendedTimeDeliveryService {
 
 		this.publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
 		this.agentId = agentId;
+		this.assessmentTimeLimit = publishedAssessment.getTimeLimit();
 		applyExtendedTime(publishedAssessment, resolvedExtendedTime);
 	}
 
@@ -325,6 +328,14 @@ public class ExtendedTimeDeliveryService {
 
 	public boolean hasExtendedTime() {
 		return hasExtendedTime;
+	}
+
+	public boolean hasIncreasedTimeLimit() {
+		return hasExtendedTime
+				&& assessmentTimeLimit != null
+				&& assessmentTimeLimit > 0
+				&& timeLimit != null
+				&& timeLimit > assessmentTimeLimit;
 	}
 
 	public void setHasExtendedTime(boolean hasExtendedTime) {
