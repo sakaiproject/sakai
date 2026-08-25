@@ -166,16 +166,6 @@ public class GradingService
   
   private static final String NBSP = "&#160;";
 
-  @Getter @Setter
-  private List<String> texts;
-  @Getter @Setter
-  private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -961,6 +951,7 @@ public class GradingService
       Long itemId = (long)0;
       Long previousItemId = (long)0;
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
+      Map<Integer, String> calculatedAnswersMap = new HashMap<>();
       boolean imageMapAlreadyOk = true;
       boolean neededAllOk = false;
       for(ItemGradingData itemGrading: tempItemGradinglist){
@@ -1021,11 +1012,19 @@ public class GradingService
         		}
         	}
         }
+
+        if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId()) && calcQuestionAnswerSequence == 1) {
+        	calculatedAnswersMap = new HashMap<>();
+        	LinkedHashMap<String, String> calculatedAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedGlobalAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedMainVariablesWithValues = new LinkedHashMap<>();
+        	extractCalcQAnswersArray(calculatedAnswersMap, calculatedAnswersMapValues, calculatedGlobalAnswersMapValues, calculatedMainVariablesWithValues, item, data.getAssessmentGradingId(), agent);
+        }
         
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence);
+                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence, calculatedAnswersMap);
         }
         catch (FinFormatException e) {
         	log.warn("Fin Format Exception while processing response. ", e);
@@ -1388,7 +1387,7 @@ public class GradingService
                                        Long itemType, Map publishedItemTextHash, 
                                        Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
                                        Map publishedAnswerHash, boolean regrade,
-                                       int calcQuestionAnswerSequence) throws FinFormatException {
+                                       int calcQuestionAnswerSequence, Map<Integer, String> calculatedAnswersMap) throws FinFormatException {
     //double score = (double) 0;
     double initScore;
     double autoScore = (double) 0;
@@ -1493,7 +1492,6 @@ public class GradingService
       case 11: // FIN
     	  try {
     	      if (type == 15) {  // CALCULATED_QUESTION
-	              Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item, calcQuestionAnswerSequence);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
@@ -2813,21 +2811,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return hasGradingData;
   }
 
-
-  /**
-   * CALCULATED_QUESTION
-   * @param itemGrading
-   * @param item
-   * @return map of calc answers
-   */
-  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
-      // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
-      }
-      return answersMap;
-  }
-
   /**
    * extractCalculations() is a utility function for Calculated Questions.  It takes
    * one parameter, which is a block of text, and looks for any calculations
@@ -3222,11 +3205,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       List<String> instructionSegments = new ArrayList<>(0);
       List<String> correctFeedbackSegments = new ArrayList<>(0);
       List<String> incorrectFeedbackSegments = new ArrayList<>(0);
-
-      answerList.clear();
-      answerListValues.clear();
-      globalanswersMapValues.clear();
-      mainvariablesWithValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
