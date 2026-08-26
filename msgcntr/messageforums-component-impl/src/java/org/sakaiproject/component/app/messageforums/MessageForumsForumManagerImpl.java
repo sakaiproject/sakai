@@ -701,7 +701,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     public boolean isPublishToFaqEnabled() {
-        return serverConfigurationService.getBoolean(PUBLISH_TO_FAQ_ENABLED_PROPERTY, false);
+        return serverConfigurationService.getBoolean(PUBLISH_TO_FAQ_ENABLED_PROPERTY, true);
     }
 
     public DiscussionForum getFaqForumForArea(Area area) {

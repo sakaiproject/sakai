@@ -30,6 +30,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,16 +51,21 @@ public class MessageForumsForumManagerImplTest extends AbstractTransactionalJUni
     }
 
     @Test
-    public void publishToFaqIsDisabledByDefault() {
-        Assert.assertFalse(forumManager.isPublishToFaqEnabled());
-    }
-
-    @Test
-    public void publishToFaqCanBeEnabled() {
-        when(serverConfigurationService.getBoolean(MessageForumsForumManager.PUBLISH_TO_FAQ_ENABLED_PROPERTY, false))
+    public void publishToFaqIsEnabledByDefault() {
+        when(serverConfigurationService.getBoolean(MessageForumsForumManager.PUBLISH_TO_FAQ_ENABLED_PROPERTY, true))
                 .thenReturn(true);
 
         Assert.assertTrue(forumManager.isPublishToFaqEnabled());
+        verify(serverConfigurationService)
+                .getBoolean(MessageForumsForumManager.PUBLISH_TO_FAQ_ENABLED_PROPERTY, true);
+    }
+
+    @Test
+    public void publishToFaqCanBeDisabled() {
+        when(serverConfigurationService.getBoolean(MessageForumsForumManager.PUBLISH_TO_FAQ_ENABLED_PROPERTY, true))
+                .thenReturn(false);
+
+        Assert.assertFalse(forumManager.isPublishToFaqEnabled());
     }
 
     @Test
