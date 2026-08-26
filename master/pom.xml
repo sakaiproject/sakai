@@ -44,7 +44,6 @@
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>4.5.1</sakai.java.jwt.version>
     <sakai.jaxb.version>3.0.2</sakai.jaxb.version>
-    <sakai.jstl.version>3.0.1</sakai.jstl.version>
     <sakai.lombok.version>1.18.46</sakai.lombok.version>
     <sakai.lucene.version>9.12.3</sakai.lucene.version>
     <sakai.netty.version>4.1.131.Final</sakai.netty.version>
@@ -1021,11 +1020,6 @@
         <artifactId>jdom2</artifactId>
         <version>2.0.6.1</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${sakai.jstl.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.transaction</groupId>

@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 public class AssessmentPdfSnapshotBuilderTest {
 
