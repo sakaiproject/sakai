@@ -47,7 +47,6 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -55,11 +54,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -76,8 +73,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @Slf4j
 public class RemoveAssessmentListener implements ActionListener
 {
-    private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-    private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
     private SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
     private SiteService siteService = ComponentManager.get(SiteService.class);
@@ -185,9 +180,8 @@ public class RemoveAssessmentListener implements ActionListener
                 log.debug("assessmentId = {}", assessmentId);
 
                 try {
-                    publishedAssessmentService.removeAssessment(assessmentId, "remove");
+                    publishedAssessmentService.removeAssessmentAndExternalGradebookItem(assessmentId, siteId);
                     removedPublishedAssessmentIds.add(assessmentId);
-                    removeFromGradebook(assessmentId);
                 } catch (Exception e) {
                     log.error("Failed to remove published assessment {}", assessmentId, e);
                     continue;
@@ -273,22 +267,6 @@ public class RemoveAssessmentListener implements ActionListener
         }
 
         return true;
-    }
-
-    private void removeFromGradebook(String assessmentId) {
-        org.sakaiproject.grading.api.GradingService g = null;
-        if (integrated)
-        {
-            g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.grading.api.GradingService");
-        }
-        try {
-            if (!gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessmentId, g)) {
-                log.debug("Published assessment {} was not linked to the gradebook, nothing to remove", assessmentId);
-            }
-        } catch (Exception e) {
-            log.warn("Failed to remove gradebook item for published assessment {}", assessmentId, e);
-        }
     }
 
     private void collectGroupLockRemovals(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> assessmentIdsByGroupId) {
