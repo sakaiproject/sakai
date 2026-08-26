@@ -80,12 +80,12 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.portal</groupId>
@@ -146,6 +146,10 @@
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
 	    <dependency>
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
@@ -181,19 +185,8 @@
             <version>rc6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.myfaces.tomahawk</groupId>
-            <artifactId>tomahawk21</artifactId>
-            <version>1.1.14</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>jstl</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.sakaiproject.tomahawk</groupId>
+            <artifactId>tomahawk</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

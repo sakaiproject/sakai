@@ -29,21 +29,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.bluejoe2008</groupId>
-            <artifactId>elfinder-servlet-2</artifactId>
-            <version>1.2</version>
-            <classifier>classes</classifier>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-    <exclusion>
-     <groupId>jakarta.mail</groupId>
-     <artifactId>jakarta.mail-api</artifactId>
-    </exclusion>
-            </exclusions>
+            <groupId>org.sakaiproject.elfinder</groupId>
+            <artifactId>elfinder-servlet</artifactId>
+        </dependency>
+        <!-- SakaiTmbCommandExecutor uses org.springframework.http.HttpHeaders directly -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
     </dependencies>
 

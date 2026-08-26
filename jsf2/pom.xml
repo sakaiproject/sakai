@@ -60,12 +60,12 @@
             <dependency>
                 <groupId>jakarta.faces</groupId>
                 <artifactId>jakarta.faces-api</artifactId>
-                <version>{sakai.jakarta.faces-api.version}</version>
+                <version>${sakai.jakarta.faces-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>jakarta.faces</artifactId>
-                <version>{sakai.jakarta.faces.version}</version>
+                <version>${sakai.jakarta.faces.version}</version>
             </dependency>
     </dependencies>
     </dependencyManagement>

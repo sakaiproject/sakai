@@ -831,7 +831,7 @@
 
         <!-- hibernate -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -936,6 +936,11 @@
         <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
             <scope>compile</scope>
         </dependency>
         <!-- caching -->

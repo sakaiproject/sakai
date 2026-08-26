@@ -1,0 +1,1076 @@
+# Translation of kupu.pot to Polish
+# Piotr Furman <piotr.furman@webservice.pl>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: kupu 1.4.3\n"
+"POT-Creation-Date: 2009-11-14 16:53+0000\n"
+"PO-Revision-Date: 2007-11-30 17:05+0100\n"
+"Last-Translator: Piotr Furman <piotr.furman@webservice.pl>\n"
+"Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Code: pl\n"
+"Language-Name: Polish\n"
+"Preferred-Encodings: utf-8 latin2\n"
+"Domain: kupu\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+
+msgid "Call-out"
+msgstr ""
+
+msgid "Clear floats"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Current folder"
+msgstr ""
+
+# Styl tabeli
+#. Default: "Data"
+#: kupu/default/drawers.kupu:156
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:270
+msgid "Data"
+msgstr "Dane"
+
+msgid "Discreet"
+msgstr ""
+
+msgid "Even row"
+msgstr ""
+
+msgid "Fancy grid listing"
+msgstr ""
+
+msgid "Fancy listing"
+msgstr ""
+
+msgid "Fancy vertical listing"
+msgstr ""
+
+# Styl tekstu, tag <pre>
+#. Default: "Formatted"
+#: kupu/default/toolbar.kupu:84
+#, fuzzy
+msgid "Formatted"
+msgstr "Sformatowany"
+
+# Styl tabeli
+#. Default: "Grid"
+#: kupu/default/drawers.kupu:155
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:269
+msgid "Grid"
+msgstr "Siatka"
+
+msgid "Heading"
+msgstr ""
+
+#. Default: "Heading 1"
+#: kupu/default/toolbar.kupu:67
+msgid "Heading 1"
+msgstr "Nagłówek 1"
+
+#. Default: "Heading 2"
+#: kupu/default/toolbar.kupu:70
+msgid "Heading 2"
+msgstr "Nagłówek 2"
+
+#. Default: "Heading 3"
+#: kupu/default/toolbar.kupu:73
+msgid "Heading 3"
+msgstr "Nagłówek 3"
+
+#. Default: "Heading 4"
+#: kupu/default/toolbar.kupu:76
+msgid "Heading 4"
+msgstr "Nagłówek 4"
+
+#. Default: "Heading 5"
+#: kupu/default/toolbar.kupu:79
+msgid "Heading 5"
+msgstr "Nagłówek 5"
+
+#. Default: "Heading 6"
+#: kupu/default/toolbar.kupu:82
+msgid "Heading 6"
+msgstr "Nagłówek 6"
+
+msgid "Heading cell"
+msgstr ""
+
+msgid "Highlight"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Home"
+msgstr ""
+
+msgid "Invisible grid"
+msgstr ""
+
+# Styl tabeli
+#. Default: "Listing"
+#: kupu/default/drawers.kupu:154
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:268
+msgid "Listing"
+msgstr "Pozycje"
+
+msgid "Literal"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "My recent items"
+msgstr ""
+
+#. Default: "Normal paragraph"
+#: kupu/default/drawers.kupu:312
+#: kupu/default/toolbar.kupu:63
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:152
+msgid "Normal"
+msgstr "Normalny"
+
+msgid "Odd row"
+msgstr ""
+
+msgid "Page break (print only)"
+msgstr ""
+
+# Styl tabeli
+#. Default: "Plain"
+#: kupu/default/drawers.kupu:153
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:267
+#, fuzzy
+msgid "Plain"
+msgstr "Zwykła"
+
+msgid "Pull-quote"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Recent items"
+msgstr ""
+
+msgid "Subdued grid"
+msgstr ""
+
+msgid "Subheading"
+msgstr ""
+
+#. Default: "Anchors"
+#: kupu/default/drawers.kupu:289
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:359
+msgid "anchordrawer_title"
+msgstr "Kotwice"
+
+#. Default: "Add Column"
+#: kupu/default/toolboxes.kupu:139
+msgid "button_add_column"
+msgstr "Dodaj Kolumnę"
+
+#. Default: "Add Row"
+#: kupu/default/toolboxes.kupu:145
+msgid "button_add_row"
+msgstr "Dodaj Wiersz"
+
+#. Default: "Add Table"
+#: kupu/default/toolboxes.kupu:120
+msgid "button_add_table"
+msgstr "Dodaj Tabelę"
+
+#. Default: "Cancel"
+#: kupu/common/kupudrawers/drawer.xsl:139
+#: kupu/default/drawers.kupu:130
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:248
+msgid "button_cancel"
+msgstr "Anuluj"
+
+#. Default: "Fix Table"
+#: kupu/default/toolboxes.kupu:118
+msgid "button_fix_table"
+msgstr "Napraw Tabelę"
+
+#. Default: "Insert Image"
+#: kupu/default/toolboxes.kupu:81
+msgid "button_insert_image"
+msgstr "Wstaw Obraz"
+
+#. Default: "Make Link"
+#: kupu/default/toolboxes.kupu:50
+msgid "button_makelink"
+msgstr "Utwórz Odnośnik"
+
+#. Default: "Ok"
+#: kupu/common/kupudrawers/drawer.xsl:135
+#: kupu/default/drawers.kupu:127
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:247
+msgid "button_ok"
+msgstr "Ok"
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:79
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:206
+msgid "button_preview"
+msgstr "Podgląd"
+
+#. Default: "Reload"
+#: kupu/common/kupudrawers/drawer.xsl:143
+msgid "button_reload"
+msgstr "Przeładuj"
+
+#. Default: "Remove Column"
+#: kupu/default/toolboxes.kupu:141
+msgid "button_remove_column"
+msgstr "Usuń Kolumnę"
+
+#. Default: "Remove Row"
+#: kupu/default/toolboxes.kupu:147
+msgid "button_remove_row"
+msgstr "Usuń Wiersz"
+
+#. Default: "Remove Table"
+#: kupu/default/toolboxes.kupu:152
+msgid "button_remove_table"
+msgstr "Usuń Tabelę"
+
+#. Default: "Convert to HTML and edit with the visual editor"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:492
+#: kupu/plone/wysiwyg_support.kupu:77
+msgid "convert-to-kupu"
+msgstr "Konwertuj do HTML i edytuj przy użyciu edytora Kupu"
+
+#. Default: "Anchors are created for checked paragraphs and removed for unchecked paragraphs when you press Ok. Anchors in use on this page may not be deleted."
+#: kupu/default/drawers.kupu:345
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:411
+msgid "create_anchor_help"
+msgstr "Po kliknięciu OK zostaną utworzone kotwice dla zaznaczonych akapitów i usunięte dla pozostałych. Kotwice, które są wykorzystywane na tej stronie nie mogą zostać usunięte."
+
+#. Default: "Select a paragraph style then choose a paragraph and Ok to insert a link to that location."
+#: kupu/default/drawers.kupu:339
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:405
+msgid "create_anchor_link_help"
+msgstr "Wybierz styl akapitu i właściwy akapit a następnie kliknij OK, aby dowiązać do niego zaznaczony tekst."
+
+#. Default: "Select one or two paragraph styles, then Ok to insert a table of contents."
+#: kupu/default/drawers.kupu:342
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:408
+msgid "create_toc_help"
+msgstr "Wybierz jeden lub dwa style akapitów a następnie kliknij OK aby wstawić spis treści."
+
+#. Default: "You may use this box to insert custom snippets of HTML code. There is no guarantee that any code inserted in this way will be preserved when you save your edits. To select an existing object from IE click on the border, from Firefox double click it."
+#: kupu/default/drawers.kupu:115
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:235
+#, fuzzy
+msgid "custom_html_help"
+msgstr "Tu możesz wstawić własny fragment kodu HTML. Nie ma gwarancji, że kod wstawiony w ten sposób zostanie zachowany po zapisaniu zmian."
+
+#. Default: "Drawer"
+#: kupu/common/kupudrawers/drawer.xsl:31
+msgid "default_drawer_title"
+msgstr ""
+
+#. Default: "My recently edited items."
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:16
+msgid "descr_myitems"
+msgstr "Ostatnio edytowane elementy"
+
+#. Default: "Recently published items."
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:16
+msgid "descr_recentitems"
+msgstr "Ostatnio opublikowane elementy."
+
+#. Default: "Search results."
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:18
+msgid "descr_search_results"
+msgstr "Wyniki wyszukiwania."
+
+#. Default: "Current selection."
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:22
+msgid "descr_selected"
+msgstr "Obecny wybór"
+
+#. Default: "<em>...fetching anchors...</em>"
+#: kupu/common/kupudrawers/drawer.xsl:510
+msgid "fetching_anchors"
+msgstr "<em>...pobieranie kotwic...</em>"
+
+#. Default: "Edit with visual editor"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "force-kupu"
+msgstr "Edytuj z użyciem edytora HTML"
+
+#. Default: "HTML"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:506
+#: kupu/plone/wysiwyg_support.kupu:107
+msgid "format_html"
+msgstr "HTML"
+
+#. Default: "My Items"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:15
+msgid "heading_myitems"
+msgstr "Moje elementy"
+
+#. Default: "Recent Items"
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:15
+msgid "heading_recentitems"
+msgstr "Najnowsze Elementy"
+
+#. Default: "Selected"
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:21
+msgid "heading_selected"
+msgstr "Wybrany"
+
+#. Default: "If you are unsure of which format to use, just select Plain Text and type the document as you usually do."
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:497
+#: kupu/plone/wysiwyg_support.kupu:86
+msgid "help_format"
+msgstr "Jeśli nie jesteś pewien jakiego formatu użyć, wybierz Czysty Tekst i uzupełnij treść tak jak zwykle."
+
+#. Default: "Paste &lt;object&gt; or &lt;embed&gt; tag here:"
+#: kupu/default/drawers.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:227
+msgid "help_paste_here"
+msgstr "Wklej tutaj tag &lt;object&gt; lub &lt;embed&gt;:"
+
+#. Default: "Alignment"
+#: kupu/common/kupudrawers/drawer.xsl:355
+msgid "image_alignment"
+msgstr "Wyrównanie"
+
+#. Default: "Caption"
+#: kupu/common/kupudrawers/drawer.xsl:383
+msgid "imagedrawer_caption_label"
+msgstr "Podpis"
+
+# Sposob osadzenia obrazow, do lewej, prawej lub 'inline', czyli rowno z tekstem
+#. Default: "Inline"
+#: kupu/common/kupudrawers/drawer.xsl:370
+#, fuzzy
+msgid "imagedrawer_inline"
+msgstr "W tekście"
+
+#. Default: "Left"
+#: kupu/common/kupudrawers/drawer.xsl:363
+msgid "imagedrawer_left"
+msgstr "Do lewej"
+
+#. Default: "Right"
+#: kupu/common/kupudrawers/drawer.xsl:377
+msgid "imagedrawer_right"
+msgstr "Do prawej"
+
+#. Default: "(${width} by ${height})"
+#: kupu/common/kupudrawers/drawer.xsl:293
+#, fuzzy
+msgid "imagedrawer_size"
+msgstr "(${width} x ${height})"
+
+#. Default: "Size"
+#: kupu/common/kupudrawers/drawer.xsl:399
+msgid "imagedrawer_size_2"
+msgstr "Rozmiar"
+
+#. Default: "Style"
+#: kupu/common/kupudrawers/drawer.xsl:414
+msgid "imagedrawer_style"
+msgstr "Styl"
+
+#. Default: "Insert Image"
+#: kupu/common/kupudrawers/drawer.xsl:62
+msgid "imagedrawer_title"
+msgstr "Wstaw Obraz"
+
+#. Default: "Text equivalent"
+#: kupu/common/kupudrawers/drawer.xsl:435
+msgid "imagedrawer_upload_alt_text"
+msgstr "Tekst alternatywny"
+
+#. Default: "Description"
+#: kupu/common/kupudrawers/drawer.xsl:547
+msgid "imagedrawer_upload_desc_label"
+msgstr "Opis"
+
+#. Default: "Select an image from your computer and click ok to have it automatically uploaded to selected folder and inserted into the editor."
+#: kupu/common/kupudrawers/drawer.xsl:571
+msgid "imagedrawer_upload_instructions"
+msgstr "Wybierz obraz z Twojego komputera i kliknij OK aby automatycznie załadować go do określonego folderu i umieścić w edytorze."
+
+#. Default: "Upload image here..."
+#: kupu/common/kupudrawers/drawer.xsl:244
+msgid "imagedrawer_upload_link"
+msgstr "Załaduj obraz..."
+
+#. Default: "Title"
+#: kupu/common/kupudrawers/drawer.xsl:543
+msgid "imagedrawer_upload_title_label"
+msgstr "Tytuł"
+
+#. Default: "Upload to: ${folder}"
+#: kupu/common/kupudrawers/drawer.xsl:561
+#, fuzzy
+msgid "imagedrawer_upload_to_label"
+msgstr "Załaduj do: ${folder} <input id=\"kupu-upload-file\" name=\"node_prop_image\" size=\"20\" type=\"file\"/>"
+
+#. Default: "Search"
+#: kupu/common/kupudrawers/drawer.xsl:84
+msgid "kupudrawer_search"
+msgstr "Szukaj"
+
+#. Default: "Anchor"
+#: kupu/default/drawers.kupu:86
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:211
+msgid "label_anchor"
+msgstr "Kotwica"
+
+#. Default: "Col Align:"
+#: kupu/default/toolboxes.kupu:129
+msgid "label_col_align"
+msgstr "Wyrównanie kolumny:"
+
+#. Default: "Columns:"
+#: kupu/default/toolboxes.kupu:104
+msgid "label_columns"
+msgstr "Kolumny:"
+
+#. Default: "Create"
+#: kupu/default/toolboxes.kupu:113
+msgid "label_create"
+msgstr "Utwórz"
+
+#. Default: "Description:"
+#: kupu/default/toolboxes.kupu:26
+msgid "label_description"
+msgstr "Opis:"
+
+#. Default: "Format"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:495
+#: kupu/plone/wysiwyg_support.kupu:84
+msgid "label_format"
+msgstr "Format"
+
+#. Default: "Headings:"
+#: kupu/default/toolboxes.kupu:108
+msgid "label_headings"
+msgstr "Nagłówki:"
+
+#. Default: "Image class:"
+#: kupu/default/toolboxes.kupu:64
+msgid "label_image_class"
+msgstr "Klasa obrazu:"
+
+#. Default: "Insert image at the following URL:"
+#: kupu/default/toolboxes.kupu:73
+msgid "label_insert_image_url"
+msgstr "Wstaw obraz z tego adresu URL:"
+
+#. Default: "Link the highlighted text to this URL:"
+#: kupu/default/drawers.kupu:71
+#: kupu/default/toolboxes.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:199
+msgid "label_link_text"
+msgstr "Dowiąż zaznaczony tekst do tego odnośnika:"
+
+#. Default: "Links"
+#: kupu/default/toolboxes.kupu:35
+msgid "label_links"
+msgstr "Odnośniki"
+
+#. Default: "Numbering"
+#: kupu/default/drawers.kupu:316
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:382
+msgid "label_numbering"
+msgstr "Numerowanie"
+
+#. Default: "Rows:"
+#: kupu/default/toolboxes.kupu:101
+msgid "label_rows"
+msgstr "Wiersze:"
+
+#. Default: "Select a cleanup action:"
+#: kupu/default/toolboxes.kupu:178
+msgid "label_select_cleanup"
+msgstr "Wybierz sposób oczyszczania:"
+
+#. Default: "Table Class:"
+#: kupu/default/toolboxes.kupu:96
+msgid "label_table_class"
+msgstr "Klasa Tabeli:"
+
+#. Default: "Table style"
+#: kupu/default/drawers.kupu:308
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:374
+msgid "label_table_style"
+msgstr "Styl tabeli"
+
+#. Default: "Title:"
+#: kupu/default/toolboxes.kupu:24
+msgid "label_title"
+msgstr "Tytuł:"
+
+#. Default: "toggle all"
+#: kupu/default/drawers.kupu:323
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:389
+msgid "label_toggle_all"
+msgstr "zaznacz wszystkie"
+
+#. Default: "Link to anchor"
+#: kupu/common/kupudrawers/drawer.xsl:499
+msgid "linkdrawer_anchor"
+msgstr "Dowiąż do kotwicy"
+
+#. Default: "Name"
+#: kupu/common/kupudrawers/drawer.xsl:473
+msgid "linkdrawer_name_label"
+msgstr "Nazwa"
+
+#. Default: "Target"
+#: kupu/common/kupudrawers/drawer.xsl:480
+msgid "linkdrawer_target_label"
+msgstr "Cel"
+
+#. Default: "Insert Link"
+#: kupu/common/kupudrawers/drawer.xsl:63
+msgid "linkdrawer_title"
+msgstr "Wstaw Odnośnik"
+
+#. Default: "○"
+#: kupu/default/toolbar.kupu:28
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:168
+#: kupu/plone/toolbar.kupu:138
+msgid "list-circle"
+msgstr "○"
+
+#. Default: "1"
+#: kupu/default/toolbar.kupu:32
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:172
+#: kupu/plone/toolbar.kupu:142
+msgid "list-decimal"
+msgstr "1"
+
+#. Default: "●"
+#: kupu/default/toolbar.kupu:26
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:166
+#: kupu/plone/toolbar.kupu:136
+msgid "list-disc"
+msgstr "●"
+
+#. Default: "a"
+#: kupu/default/toolbar.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:176
+#: kupu/plone/toolbar.kupu:150
+msgid "list-loweralpha"
+msgstr "a"
+
+#. Default: "i"
+#: kupu/default/toolbar.kupu:36
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:174
+#: kupu/plone/toolbar.kupu:146
+msgid "list-lowerroman"
+msgstr "i"
+
+#. Default: "no bullet"
+#: kupu/default/toolbar.kupu:29
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:169
+#: kupu/plone/toolbar.kupu:139
+msgid "list-nobullet"
+msgstr "brak punktów"
+
+#. Default: "■"
+#: kupu/default/toolbar.kupu:27
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:167
+#: kupu/plone/toolbar.kupu:137
+msgid "list-square"
+msgstr "■"
+
+#. Default: "A"
+#: kupu/default/toolbar.kupu:38
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:175
+#: kupu/plone/toolbar.kupu:148
+msgid "list-upperalpha"
+msgstr "A"
+
+#. Default: "I"
+#: kupu/default/toolbar.kupu:34
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:173
+#: kupu/plone/toolbar.kupu:144
+msgid "list-upperroman"
+msgstr "I"
+
+#. Default: "Locate"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:21
+msgid "locate_content"
+msgstr "Znajdź"
+
+#. Default: "(optional 2nd style)"
+#: kupu/default/drawers.kupu:334
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:400
+msgid "opt_2nd_style"
+msgstr "(opcjonalnie drugi styl)"
+
+# Sposob osadzenia obrazow, do lewej, prawej lub 'inline', czyli rowno z tekstem
+#. Default: "Inline"
+#: kupu/default/toolboxes.kupu:67
+#, fuzzy
+msgid "opt_inline"
+msgstr "W tekście"
+
+#. Default: "Left"
+#: kupu/default/toolboxes.kupu:68
+msgid "opt_left"
+msgstr "Do lewej"
+
+#. Default: "Right"
+#: kupu/default/toolboxes.kupu:69
+msgid "opt_right"
+msgstr "Do prawej"
+
+#. Default: "top of page (default)"
+#: kupu/default/drawers.kupu:87
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:212
+msgid "opt_top_of_page"
+msgstr "góra strony (domyślnie)"
+
+#. Default: "Perform action"
+#: kupu/default/toolboxes.kupu:186
+msgid "perform_action"
+msgstr "Wykonaj akcję"
+
+#. Default: "[insert arbitrary HTML code here]"
+#: kupu/default/drawers.kupu:109
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:231
+msgid "placeholder_html_code"
+msgstr "[wstaw tu dowolny kod HTML]"
+
+#. Default: "Plain Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:509
+#: kupu/plone/wysiwyg_support.kupu:116
+msgid "plain_text"
+msgstr "Czysty Tekst"
+
+#. Default: "Structured Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:503
+#: kupu/plone/wysiwyg_support.kupu:98
+#, fuzzy
+msgid "structured_text"
+msgstr "Strukturalny tekst"
+
+#. Default: "Edit without visual editor"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "suppress-kupu"
+msgstr "Edytuj bez użycia edytora HTML"
+
+#. Default: "Embed external object"
+#: kupu/default/drawers.kupu:62
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:191
+msgid "tab_embed"
+msgstr "Wstaw zewnętrzny obiekt"
+
+#. Default: "Link to url"
+#: kupu/default/drawers.kupu:59
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:190
+msgid "tab_link"
+msgstr "Dowiąż do odnośnika"
+
+#. Default: "Link to anchor"
+#: kupu/default/drawers.kupu:292
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:362
+msgid "tab_link_anchor"
+msgstr "Dowiąż do kotwicy"
+
+#. Default: "Manage Anchors"
+#: kupu/default/drawers.kupu:295
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:363
+msgid "tab_manage_anchors"
+msgstr "Zarządzaj Kotwicami"
+
+#. Default: "Table of contents"
+#: kupu/default/drawers.kupu:298
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:364
+msgid "tab_toc"
+msgstr "Spis treści"
+
+#. Default: "Add"
+#: kupu/default/drawers.kupu:233
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:328
+msgid "tabledrawer_add_button"
+msgstr "Dodaj"
+
+#. Default: "Add Table"
+#: kupu/default/drawers.kupu:185
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:294
+msgid "tabledrawer_add_table_button"
+msgstr "Dodaj Tabelę"
+
+#. Default: "Current column alignment"
+#: kupu/default/drawers.kupu:215
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:316
+msgid "tabledrawer_alignment_label"
+msgstr "Wyrównanie kolumn"
+
+#. Default: "Center"
+#: kupu/default/drawers.kupu:222
+#: kupu/default/toolboxes.kupu:132
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:320
+msgid "tabledrawer_center_option"
+msgstr "Do środka"
+
+#. Default: "Table Class"
+#: kupu/default/drawers.kupu:150
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:264
+msgid "tabledrawer_class_label"
+msgstr "Klasa Tabeli"
+
+#. Default: "Close"
+#: kupu/default/drawers.kupu:277
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:352
+msgid "tabledrawer_close_button"
+msgstr "Zamknij"
+
+#. Default: "Column"
+#: kupu/default/drawers.kupu:230
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:326
+msgid "tabledrawer_column_label"
+msgstr "Kolumna"
+
+#. Default: "Columns"
+#: kupu/default/drawers.kupu:165
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:279
+msgid "tabledrawer_columns_label"
+msgstr "Kolumny"
+
+#. Default: "Fix"
+#: kupu/default/drawers.kupu:261
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:342
+msgid "tabledrawer_fix_button"
+msgstr "Napraw"
+
+#. Default: "Fix All Tables"
+#: kupu/default/drawers.kupu:189
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:295
+msgid "tabledrawer_fix_tables_button"
+msgstr "Napraw wszystkie tabele"
+
+#. Default: "Create Headings"
+#: kupu/default/drawers.kupu:176
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:286
+msgid "tabledrawer_headings_label"
+msgstr "Utwórz Nagłówki"
+
+#. Default: "Left"
+#: kupu/default/drawers.kupu:220
+#: kupu/default/toolboxes.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:319
+msgid "tabledrawer_left_option"
+msgstr "Do lewej"
+
+#. Default: "Remove"
+#: kupu/default/drawers.kupu:237
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:329
+msgid "tabledrawer_remove_button"
+msgstr "Usuń"
+
+#. Default: "Right"
+#: kupu/default/drawers.kupu:224
+#: kupu/default/toolboxes.kupu:133
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:321
+msgid "tabledrawer_right_option"
+msgstr "Do prawej"
+
+#. Default: "Row"
+#: kupu/default/drawers.kupu:244
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:333
+msgid "tabledrawer_row_label"
+msgstr "Wiersz"
+
+#. Default: "Rows"
+#: kupu/default/drawers.kupu:161
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:275
+msgid "tabledrawer_rows_label"
+msgstr "Wiersze"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:258
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:340
+msgid "tabledrawer_table_label"
+msgstr "Tabela"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:141
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:255
+msgid "tabledrawer_title"
+msgstr "Tabela"
+
+#. Default: "Kupu Editor Test Page"
+#: kupu/default/body.kupu:14
+msgid "testpage_title"
+msgstr "Strona Testowa Edytora Kupu"
+
+#. Default: "background color: alt-h"
+#: kupu/default/colorchooser.kupu:25
+#: kupu/plone/colorchooser.kupu:18
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:105
+msgid "title_back_color"
+msgstr "Kolor tła: Klawisz dostępu (Alt lub Ctrl) + H"
+
+#. Default: "Bold: Access key (Alt or Ctrl) + B"
+#: kupu/default/toolbar.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:94
+#: kupu/plone/toolbar.kupu:34
+msgid "title_bold"
+msgstr "Pogrubienie: Klawisz dostępu (Alt lub Ctrl) + B"
+
+#. Default: "Center justify: Access key (Alt or Ctrl) + C"
+#: kupu/default/toolbar.kupu:116
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:110
+#: kupu/plone/toolbar.kupu:61
+msgid "title_center"
+msgstr "Wyśrodkowanie: Klawisz dostępu (Alt lub Ctrl) + C"
+
+#. Default: "Check spelling"
+#: kupu/default/spellchecker.kupu:17
+msgid "title_check_spelling"
+msgstr "Sprawdź pisownię"
+
+#. Default: "Cleanup expressions"
+#: kupu/default/toolboxes.kupu:173
+#, fuzzy
+msgid "title_cleanup_expressions"
+msgstr "Akcje oczyszczania"
+
+#. Default: "Debug Log"
+#: kupu/default/toolboxes.kupu:164
+#, fuzzy
+msgid "title_debug_log"
+msgstr "Dziennik zdarzeń"
+
+#. Default: "Decrease quote level: Access key (Alt or Ctrl) + <"
+#: kupu/default/toolbar.kupu:148
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:126
+#: kupu/plone/toolbar.kupu:97
+msgid "title_decrease_quote"
+msgstr "Zmniejsz wcięcie: Klawisz dostępu (Alt lub Ctrl) + <"
+
+#. Default: "Definition list: Access key (Alt or Ctrl) + ="
+#: kupu/default/toolbar.kupu:140
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:122
+#: kupu/plone/toolbar.kupu:89
+msgid "title_deflist"
+msgstr "Lista definicji: Klawisz dostępu (Alt lub Ctrl) + ="
+
+#. Default: "External Link"
+#: kupu/default/drawers.kupu:54
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:186
+msgid "title_external_link"
+msgstr "Odnośnik zewnętrzny"
+
+#. Default: "reload current page using kupu to edit this field"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "title_force_kupu"
+msgstr "przeładuj stronę wykorzystując Kupu do edycji tego pola"
+
+#. Default: "Images"
+#: kupu/default/toolboxes.kupu:60
+msgid "title_images"
+msgstr "Obrazy"
+
+#. Default: "Increase quote level: Access key (Alt or Ctrl) + >"
+#: kupu/default/toolbar.kupu:151
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:127
+#: kupu/plone/toolbar.kupu:101
+msgid "title_increase_quote"
+msgstr "Zwiększ wcięcie: Klawisz dostępu (Alt lub Ctrl) + >"
+
+#. Default: "Insert anchors"
+#: kupu/default/drawers.kupu:31
+#: kupu/plone/drawers.kupu:35
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:134
+msgid "title_insert_anchors"
+msgstr "Wstaw kotwice"
+
+#. Default: "Insert external link"
+#: kupu/default/drawers.kupu:29
+#: kupu/plone/drawers.kupu:30
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:133
+msgid "title_insert_external_link"
+msgstr "Wstaw odnośnik zewnętrzny"
+
+#. Default: "Insert image"
+#: kupu/default/drawers.kupu:23
+#: kupu/plone/drawers.kupu:20
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:131
+msgid "title_insert_image"
+msgstr "Wstaw obraz"
+
+#. Default: "Insert internal link"
+#: kupu/default/drawers.kupu:27
+#: kupu/plone/drawers.kupu:25
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:132
+msgid "title_insert_internal_link"
+msgstr "Wstaw odnośnik wewnętrzny"
+
+#. Default: "Insert table"
+#: kupu/default/drawers.kupu:34
+#: kupu/plone/drawers.kupu:39
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:135
+msgid "title_insert_table"
+msgstr "Wstaw tabelę"
+
+#. Default: "Italic: Access key (Alt or Ctrl) + I"
+#: kupu/default/toolbar.kupu:94
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:95
+#: kupu/plone/toolbar.kupu:38
+msgid "title_italic"
+msgstr "Kursywa: Klawisz dostępu (Alt lub Ctrl) + I"
+
+#. Default: "Left justify: Access key (Alt or Ctrl) + L"
+#: kupu/default/toolbar.kupu:112
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:109
+#: kupu/plone/toolbar.kupu:57
+msgid "title_ljust"
+msgstr "Wyrównanie do lewej: Klawisz dostępu (Alt lub Ctrl) + L"
+
+#. Default: "Kupu 1.4"
+#: kupu/default/toolbar.kupu:55
+msgid "title_logo"
+msgstr "Kupu 1.4"
+
+#. Default: "Numbered list: Access key (Alt or Ctrl) + #"
+#: kupu/default/toolbar.kupu:128
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:116
+#: kupu/plone/toolbar.kupu:75
+msgid "title_numlist"
+msgstr "Lista numerowana: Klawisz dostępu (Alt lub Ctrl) + #"
+
+#. Default: "Properties"
+#: kupu/default/toolboxes.kupu:20
+msgid "title_properties"
+msgstr "Właściwości"
+
+#. Default: "Redo: Access key (Alt or Ctrl) + Y"
+#: kupu/default/toolbar.kupu:162
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:140
+#: kupu/plone/toolbar.kupu:114
+msgid "title_redo"
+msgstr "Ponów: Klawisz dostępu (Alt lub Ctrl) + Y"
+
+#. Default: "Remove image"
+#: kupu/default/toolbar.kupu:170
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:159
+#: kupu/plone/toolbar.kupu:157
+msgid "title_removeimage"
+msgstr "Usuń obraz"
+
+#. Default: "Remove link"
+#: kupu/default/toolbar.kupu:173
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:160
+#: kupu/plone/toolbar.kupu:161
+msgid "title_removelink"
+msgstr "Usuń odnośnik"
+
+#. Default: "Right justify: Access key (Alt or Ctrl) + R"
+#: kupu/default/toolbar.kupu:119
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:111
+#: kupu/plone/toolbar.kupu:65
+msgid "title_rjust"
+msgstr "Wyrównanie do prawej: Klawisz dostępu (Alt lub Ctrl) + R"
+
+#. Default: "Save"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:90
+#: kupu/plone/save.kupu:15
+msgid "title_save"
+msgstr "Zapisz"
+
+#. Default: "save: alt-s"
+#: kupu/default/save.kupu:14
+msgid "title_save_alts"
+msgstr "Zapisz: Klawisz dostępu (Alt lub Ctrl) + S"
+
+#. Default: "Check spelling"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:144
+#: kupu/plone/spellchecker.kupu:14
+msgid "title_spelling"
+msgstr "Sprawdź pisownię"
+
+#. Default: "Subscript: Access key (Alt or Ctrl) + -"
+#: kupu/default/toolbar.kupu:103
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:99
+#: kupu/plone/toolbar.kupu:46
+msgid "title_subscript"
+msgstr "Indeks dolny: Klawisz dostępu (Alt lub Ctrl) + -"
+
+#. Default: "Superscript: Access key (Alt or Ctrl) + +"
+#: kupu/default/toolbar.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:100
+#: kupu/plone/toolbar.kupu:49
+msgid "title_superscript"
+msgstr "Indeks górny: Klawisz dostępu (Alt lub Ctrl) + +"
+
+#. Default: "reload current page without kupu"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "title_suppress_kupu"
+msgstr "przeładuj stronę bez edytora Kupu"
+
+#. Default: "Tables"
+#: kupu/default/toolboxes.kupu:92
+msgid "title_tables"
+msgstr "Tabele"
+
+#. Default: "text color: alt-f"
+#: kupu/default/colorchooser.kupu:21
+#: kupu/plone/colorchooser.kupu:13
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:104
+msgid "title_text_color"
+msgstr "Kolor tekstu: Klawisz dostępu (Alt lub Ctrl) + F"
+
+#. Default: "Underline: Access key (Alt or Ctrl) + U"
+#: kupu/default/toolbar.kupu:96
+msgid "title_underline"
+msgstr "Podkreślenie: Klawisz dostępu (Alt lub Ctrl) + U"
+
+#. Default: "Undo: Access key (Alt or Ctrl) + Z"
+#: kupu/default/toolbar.kupu:159
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:139
+#: kupu/plone/toolbar.kupu:110
+msgid "title_undo"
+msgstr "Cofnij: Klawisz dostępu (Alt lub Ctrl) + Z"
+
+#. Default: "Unordered list: Access key (Alt or Ctrl) + *"
+#: kupu/default/toolbar.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:117
+#: kupu/plone/toolbar.kupu:79
+msgid "title_unorderedlist"
+msgstr "Lista nienumerowana: Klawisz dostępu (Alt lub Ctrl) + *"
+
+#. Default: "Zoom: Access key (Alt or Ctrl) + X"
+#: kupu/default/toolbar.kupu:47
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:86
+#: kupu/plone/toolbar.kupu:25
+msgid "title_zoom"
+msgstr "Powiększenie: Klawisz dostępu (Alt lub Ctrl) + X"
+
+#. Default: "Switch between visual editor and HTML view"
+#: kupu/default/sourceedit.kupu:23
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:148
+#: kupu/plone/sourceedit.kupu:18
+msgid "toggle_source_view"
+msgstr "Przełącz pomiędzy widokiem edytora i źródeł HTML"
+
+#. Default: "top of page (default)"
+#: kupu/common/kupudrawers/drawer.xsl:509
+msgid "top_of_page"
+msgstr "góra strony (domyślnie)"
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:216
+msgid "watermark_preview"
+msgstr "Podgląd"
+
