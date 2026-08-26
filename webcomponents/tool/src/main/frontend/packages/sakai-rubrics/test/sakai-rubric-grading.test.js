@@ -85,6 +85,62 @@ describe("sakai-rubric-grading tests", () => {
     expect(totalPoints.value).to.equal("4.8");
   });
 
+  it ("only marks changed fine-tuned points as adjusted", async () => {
+
+    const saveUrl = `/api/sites/${data.siteId}/rubric-evaluations`;
+    fetchMock.get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get(data.evaluationUrl, data.evaluation)
+      .post(saveUrl, ({ options }) => JSON.parse(options.body));
+
+    const el = await fixture(html`
+      <sakai-rubric-grading
+          site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}">
+      </sakai-rubric-grading>
+    `);
+
+    await waitUntil(() => el.querySelector("#rating-item-1"), "No rating rendered");
+
+    let saved = oneEvent(el, "rubric-ratings-changed");
+    el.querySelector("#rating-item-1").click();
+    await saved;
+
+    let request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    expect(request.criterionOutcomes.every(outcome => !outcome.pointsAdjusted)).to.be.true;
+
+    const fineTuneInput = el.querySelector(".fine-tune-points");
+    fineTuneInput.value = "0";
+    saved = oneEvent(el, "rubric-ratings-changed");
+    fineTuneInput.dispatchEvent(new Event("input"));
+    await saved;
+
+    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    expect(request.criterionOutcomes[0].points).to.equal(0);
+    expect(request.criterionOutcomes[0].pointsAdjusted).to.be.true;
+
+    fineTuneInput.value = "1";
+    saved = oneEvent(el, "rubric-ratings-changed");
+    fineTuneInput.dispatchEvent(new Event("input"));
+    await saved;
+
+    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    expect(request.criterionOutcomes[0].points).to.equal(1);
+    expect(request.criterionOutcomes[0].pointsAdjusted).to.be.false;
+
+    fineTuneInput.value = "1.8";
+    saved = oneEvent(el, "rubric-ratings-changed");
+    fineTuneInput.dispatchEvent(new Event("input"));
+    await saved;
+
+    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    expect(request.criterionOutcomes[0].points).to.equal(1.8);
+    expect(request.criterionOutcomes[0].pointsAdjusted).to.be.true;
+  });
+
   it ("calculates percentage totals correctly", async () => {
 
     fetchMock.get(data.rubric1Url, data.rubric1)
