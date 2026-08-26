@@ -16,16 +16,21 @@
 package org.sakaiproject.component.app.messageforums;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {MsgcntrTestConfiguration.class})
@@ -34,6 +39,28 @@ public class MessageForumsForumManagerImplTest extends AbstractTransactionalJUni
     @Autowired
     @Qualifier("org.sakaiproject.api.app.messageforums.MessageForumsForumManager")
     private MessageForumsForumManager forumManager;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
+
+    @Before
+    public void resetServerConfigurationService() {
+        reset(serverConfigurationService);
+    }
+
+    @Test
+    public void publishToFaqIsDisabledByDefault() {
+        Assert.assertFalse(forumManager.isPublishToFaqEnabled());
+    }
+
+    @Test
+    public void publishToFaqCanBeEnabled() {
+        when(serverConfigurationService.getBoolean(MessageForumsForumManager.PUBLISH_TO_FAQ_ENABLED_PROPERTY, false))
+                .thenReturn(true);
+
+        Assert.assertTrue(forumManager.isPublishToFaqEnabled());
+    }
 
     @Test
     public void getFaqForumForAreaReturnsNullWhenNoFaqForumExists() {
