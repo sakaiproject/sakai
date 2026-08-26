@@ -89,7 +89,7 @@ public class ExtendedTimeDeliveryService {
 		String pubId = publishedAssessmentId.toString();
 		siteId = publishedAssessmentService.getPublishedAssessmentSiteId(pubId);
 		PublishedAssessmentData pubData = publishedAssessmentService.getBasicInfoOfPublishedAssessment(pubId);
-		assessmentTimeLimit = pubData.getTimeLimit();
+		assessmentTimeLimit = publishedAssessment.getTimeLimit();
 
 		this.agentId = agentId;
 
