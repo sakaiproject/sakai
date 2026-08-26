@@ -340,11 +340,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     const crit = criteria.map(c => {
 
+      const hasPointOverride = c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined;
+      const points = hasPointOverride ? parseFloat(c.pointoverride) : c.selectedvalue;
+
       return {
         criterionId: c.id,
-        points: (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) ? parseFloat(c.pointoverride) : c.selectedvalue,
+        points,
         comments: c.comments,
-        pointsAdjusted: c.pointoverride !== c.selectedvalue,
+        pointsAdjusted: hasPointOverride && points !== parseFloat(c.selectedvalue),
         selectedRatingId: c.selectedRatingId
       };
     });
