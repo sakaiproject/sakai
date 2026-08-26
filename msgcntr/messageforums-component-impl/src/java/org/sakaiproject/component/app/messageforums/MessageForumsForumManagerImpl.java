@@ -709,8 +709,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return query.list().stream().findAny().orElse(null);
         };
 
-        DiscussionForum existingFaqForum = getHibernateTemplate().execute(hibernateCallback);
-        return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
+        return getHibernateTemplate().execute(hibernateCallback);
     }
 
     public DiscussionTopic getFaqTopicForForum(DiscussionForum faqForum) {
