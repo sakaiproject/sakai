@@ -1664,9 +1664,6 @@
   .mainList .edit-colHidden {
     display:none;
   }
-  #hide-items {
-    display: none;
-  }
   .pageList {
     padding: 0 10px;
     list-style:none;
@@ -1674,6 +1671,129 @@
   .pageList li {
     padding-left:5px;
   }
+
+  .page-picker-section {
+    padding-left: 0;
+  }
+
+  .page-picker-section-heading {
+    margin: $standard-spacing 0 calc(#{$standard-spacing} / 2);
+  }
+
+  .top-level-page {
+    margin-top: calc(#{$standard-spacing} / 2);
+    list-style-type: none;
+  }
+
+  .manage-pages-section {
+    max-inline-size: 52rem;
+  }
+
+  .manage-pages-section-header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: calc(#{$standard-spacing} / 2) $standard-spacing;
+  }
+
+  .manage-pages-section-header h3 {
+    margin-bottom: calc(#{$standard-spacing} / 2);
+  }
+
+  .removed-pages-section .instructionPanel {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+
+  .removed-pages-select-all {
+    min-block-size: 44px;
+  }
+
+  .removed-page {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: calc(#{$standard-spacing} / 2);
+    box-sizing: border-box;
+    min-block-size: 44px;
+    padding-block: 0;
+  }
+
+  .removed-page-delete-control {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .removed-page .page-picker-link {
+    flex: 1 1 18rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .page-picker-status {
+    display: inline-block;
+    width: 18px;
+    margin-inline-end: 3px;
+  }
+
+  .itemListToggle {
+    min-height: 44px;
+  }
+
+  #delete-pages-confirm-list {
+    max-height: 12rem;
+    margin-block-end: 0;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+  }
+
+  #delete-pages-dialog {
+    width: min(32rem, calc(100% - 2rem));
+    padding: 0;
+    color: var(--sakai-text-color-1);
+    background: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 0.5rem;
+  }
+
+  #delete-pages-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .delete-pages-dialog-header,
+  .delete-pages-dialog-footer {
+    display: flex;
+    align-items: center;
+    gap: calc(#{$standard-spacing} / 2);
+  }
+
+  .delete-pages-dialog-header {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--sakai-border-color);
+  }
+
+  .delete-pages-dialog-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .delete-pages-dialog-footer {
+    justify-content: flex-end;
+    border-top: 1px solid var(--sakai-border-color);
+  }
+
+  .page-item-requirement {
+    display: inline-block;
+    width: 18px;
+    margin-inline-start: 3px;
+  }
+
+  .page-item-icon {
+    position: relative;
+    margin-inline-end: 2px;
+  }
+
   .pageList img {
     vertical-align:middle;
   }
@@ -1682,7 +1802,6 @@
   }
   .itemList {
     padding-left: 0px;
-    display: none;
     list-style:none;
     background-color: var(--sakai-background-color-2);
     padding-bottom: 1.0em;

@@ -492,8 +492,7 @@
             </div>
             <div class="modal-footer">
               <button class="btn-primary" type="submit" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();"></button>
-              <a class="btn btn-secondary" id="subpage-choose" role="button" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-              <button class="btn btn-secondary" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
+              <a class="btn btn-secondary" id="subpage-choose" role="button" rsf:id="subpage-choose"><span rsf:id="msg=simplepage.page.chooser"></span></a>
               <button class="btn btn-secondary" type="submit" data-bs-dismiss="modal" rsf:id="cancel-subpage"></button>
             </div>
           </div>
@@ -1849,7 +1848,7 @@
               </form>
 
               <p class="shorttext required" style="margin-top: 1em">
-                <a role="button" href="#" id="subpage-choose" rsf:id="new-page-choose">
+                <a role="button" href="#" id="new-page-choose" rsf:id="new-page-choose">
                   <span rsf:id="msg=simplepage.lm_existing_page"></span>
                 </a>
               </p>
@@ -2404,6 +2403,12 @@
         <div rsf:id="errors:">
           <p rsf:id="error-message"></p>
         </div>
+      </div>
+    </div>
+
+    <div rsf:id="success-div" class="ui-widget sak-banner-success error-spacingabove error-nospcebelow" role="status">
+      <div rsf:id="successes:">
+        <p rsf:id="success-message"></p>
       </div>
     </div>
 

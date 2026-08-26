@@ -3,95 +3,78 @@
 <html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
 <script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
-<script>includeLatestJQuery('PagePicker.html');</script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.page.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
+  <div class="portletBody PagePicker" role="main">
+    <h2 rsf:id="site-dropdown-title"></h2>
+    <div id="sitePicker">
+      <form action="#" rsf:id="site-picker">
+        <input type="hidden" rsf:id="csrf2" />
+        <select rsf:id="pick-site">
+          <option rsf:id="pick-site-option:" />
+        </select>
+        <input type="submit" rsf:id="submitSite" />
+      </form>
+    </div>
 
-	<div class="portletBody PagePicker" role="application">
+    <h2 rsf:id="title"></h2>
+    <p rsf:id="onlyseen" class="instructionPanel"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
+    <p rsf:id="sharedpageexplanation" class="instructionPanel">
+      <span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"></span>
+      <span rsf:id="msg=simplepage.sharedpageexplanation"></span>
+    </p>
 
-		<div id="error" rsf:id="error" class="sak-banner-error below-link-help" role="alert"></div>
+    <form action="#" rsf:id="page-picker">
+      <input type="hidden" rsf:id="csrf" />
+      <span rsf:id="page-span"></span>
+      <ul id="active-pages" class="pageList">
+        <li rsf:id="active-page:">
+          <input type="radio" rsf:id="select" />
+          <a href="#" rsf:id="link" class="page-picker-link">
+            <span rsf:id="link-note" class="lb-offscreen"></span>
+            <span rsf:id="link-text"></span>
+          </a>
+          <span rsf:id="shared" class="page-picker-note small"></span>
+          <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+          <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+        </li>
+      </ul>
+      <section rsf:id="removed-section:" class="page-picker-section">
+          <h3 rsf:id="heading" class="page-picker-section-heading"></h3>
+          <ul id="removed-pages" class="pageList">
+            <li rsf:id="removed-page:">
+              <input type="radio" rsf:id="select" />
+              <a href="#" rsf:id="link" class="page-picker-link">
+                <span rsf:id="link-note" class="lb-offscreen"></span>
+                <span rsf:id="link-text"></span>
+              </a>
+              <span rsf:id="shared" class="page-picker-note small"></span>
+              <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+              <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+            </li>
+          </ul>
+      </section>
 
-		<div class="navIntraTool" rsf:id="return-div" role="navigation">
-                <a href="#" rsf:id="return"></a>
-		</div>
-		<h2 rsf:id="site-dropdown-title"></h2>
-		<div id="sitePicker">
-			<form action="#" rsf:id="site-picker" >
-				<input type="hidden" rsf:id="csrf2"/>
-				<select rsf:id="pick-site">
-					<option rsf:id="pick-site-option:" />
-				</select>
-				<input type="submit" rsf:id="submitSite" />
-			</form>
-		</div>
-        <h2 rsf:id="title"></h2>
-
-		<div rsf:id="deleteAlert" class="ui-widget">
-			<div class="instruction">
-				<p><span rsf:id="msg=simplepage.delete-message"></span></p>
-			</div>
-		</div>
-
-		<p rsf:id="sharedpageexplanation" class="instructionPanel">
-			<span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"> </span> <span rsf:id="msg=simplepage.sharedpageexplanation"> </span> 
-		</p>
-
-		<div rsf:id="hide-show-container">
-			<a href="#" id="show-items"><span rsf:id="msg=simplepage.page.showitems"></span></a>
-			<a href="#" id="hide-items"><span rsf:id="msg=simplepage.page.hideitems"></span></a>
-		</div>
-        <form action="#" rsf:id="page-picker">
-		<input type="hidden" rsf:id="csrf"/>
-		<span rsf:id="page-span"/>
-		<ul id="list" class="pageList" role="main">
-			<li rsf:id="page:">
-				<h5 rsf:id="heading" style="margin:20px -8px 10px;" ></h5>
-				<p rsf:id="chooseall">
-				  <input type="checkbox" id="chooseall"/> <span rsf:id="msg=simplepage.page.chooseall"></span><br/>
-			</p>
-                <input type="radio" rsf:id="select" />
-                <input type="checkbox" rsf:id="select-for-deletion" class="deletebox"/>
-                <span rsf:id="status-image" class="bi" style="display:inline-block; width:18px; margin-right:3px"></span>
-                <a href="#" rsf:id="link"><span rsf:id="link-note" class="lb-offscreen"></span><span rsf:id="link-text"></span></a><span rsf:id="shared" class="page-picker-note small"></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
-                <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle" aria-expanded="false"><span class="bi bi-caret-down-fill" aria-hidden="true"></span><span class="lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span></a></span>
-                <div rsf:id="itemListContainer" class="itemListContainer">
-                    <ul rsf:id="itemList" class="itemList" role="menu">
-                        <li rsf:id="item:">
-                            <div class="contentCol">
-								<span rsf:id="required-image" style="display:inline-block; width:18px; margin-left:3px"><span class="bi bi-asterisk small" aria-hidden="true"></span><span class="lb-offscreen" rsf:id="msg=simplepage.status.required"></span></span>
-                                <span rsf:id="not-required-image" class="bi invisible" style="display:inline-block; width:18px; margin-left:3px"></span>
-                                <span rsf:id="item-icon" aria-hidden="true" class="bi" style="position:relative; margin-right:2px"></span>
-                                <span rsf:id="name"></span>
-                                <span rsf:id="page1"></span>
-                            </div>
-                        </li>
-                    </ul>
-                </div> <!-- /itemListContainer -->
-			</li>
-		</ul>
-
-		<input type="hidden" rsf:id="item-id" id="item-id" />
-
-		<hr rsf:id="hr" />
-		<p rsf:id="options">
-		<input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
-		<label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
-		<input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
-		<label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
-		</p>
-		<p>
-		<input type="hidden" rsf:id="addBefore" />
-		<input type="submit" class="bold" rsf:id="submit" />
-		<input type="submit" rsf:id="cancel" />
-		</p>
-		</form>
-	</div>
-    <script src="/lessonbuilder-tool/js/page-picker.js"></script>
+      <input type="hidden" rsf:id="item-id" id="item-id" />
+      <hr rsf:id="hr" />
+      <p rsf:id="options">
+        <input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+        <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
+        <input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+        <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
+      </p>
+      <p>
+        <input type="hidden" rsf:id="addBefore" />
+        <input type="submit" class="bold" rsf:id="submit" />
+        <input type="submit" rsf:id="cancel" />
+      </p>
+    </form>
+  </div>
 </body>
 </html>
