@@ -1049,7 +1049,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
      */
     public static class EntityServletContext implements ServletContext {
 
-        public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "javax.servlet.context.tempdir";
+        public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
         private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
         private final String resourceBasePath;
         private String contextPath = "";
