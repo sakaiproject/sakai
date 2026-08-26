@@ -70,7 +70,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     if (this.forcePreview) {
       this.showRubricLightbox(this._rubricId);
     } else {
-      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId });
+      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId, "instructor": this.instructor });
     }
   }
 
