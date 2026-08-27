@@ -532,25 +532,27 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
 				boolean needToUpdate = false;
 
-				String assessmentDesc = assessmentFacade.getDescription();
+				String assessmentDesc = assessment.getDescription();
 				if(StringUtils.isNotBlank(assessmentDesc)){
 					log.debug("before migrate assessmentDesc: {}", assessmentDesc);
-					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					String migratedText = service.copyContentHostingAttachments(assessmentDesc, toContext);
+					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, migratedText);
 					log.debug("after migrate assessmentDesc: {}", assessmentDesc);
-					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
+					if(!assessmentDesc.equals(assessment.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
 						assessmentFacade.setDescription(assessmentDesc);
 					}
 				}
 
-				List sectionList = assessmentFacade.getSectionArray();
+				List sectionList = assessment.getSectionArray();
 				for(int i = 0; i < sectionList.size(); i++){
-					SectionFacade section = (SectionFacade) sectionList.get(i);
+					SectionData section = (SectionData) sectionList.get(i);
 					String sectionDesc = section.getDescription();
 					if(StringUtils.isNotBlank(sectionDesc)){
 						log.debug("before migrate sectionDesc: {}", sectionDesc);
-						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						String migratedText = service.copyContentHostingAttachments(sectionDesc, toContext);
+						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, migratedText);
 						log.debug("after migrate sectionDesc: {}", sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
