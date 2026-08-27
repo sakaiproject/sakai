@@ -700,6 +700,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return forum;
     }
 
+    public boolean isPublishToFaqEnabled() {
+        return serverConfigurationService.getBoolean(PUBLISH_TO_FAQ_ENABLED_PROPERTY, true);
+    }
+
     public DiscussionForum getFaqForumForArea(Area area) {
         HibernateCallback<DiscussionForum> hibernateCallback = (session) -> {
             Query<DiscussionForum> query = session.getNamedQuery(QUERY_FAQ_FORUMS);
@@ -709,8 +713,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return query.list().stream().findAny().orElse(null);
         };
 
-        DiscussionForum existingFaqForum = getHibernateTemplate().execute(hibernateCallback);
-        return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
+        return getHibernateTemplate().execute(hibernateCallback);
     }
 
     public DiscussionTopic getFaqTopicForForum(DiscussionForum faqForum) {
