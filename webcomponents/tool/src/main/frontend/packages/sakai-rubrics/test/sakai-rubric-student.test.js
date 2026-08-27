@@ -19,6 +19,7 @@ describe("sakai-rubric-student tests", () => {
       .get(data.rubric1Url, data.rubric1)
       .get(data.associationUrl, data.association)
       .get(data.evaluationUrl, data.evaluation)
+      .get(`${data.evaluationUrl}?isPeer=true`, data.evaluation)
       .get("*", 500);
   });
 
@@ -42,6 +43,7 @@ describe("sakai-rubric-student tests", () => {
 
     await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
     expect(el.querySelector("sakai-rubric-criterion-preview")).to.not.exist;
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.not.exist;
 
     await el.updateComplete;
     expect(el.querySelector("sakai-rubric-criterion-student")).to.exist;
@@ -60,5 +62,38 @@ describe("sakai-rubric-student tests", () => {
     await expect(el).to.be.accessible();
 
     await waitUntil(() => el.querySelector("sakai-rubric-criterion-preview"), "No sakai-rubric-criterion-preview created");
+  });
+
+  it ("shows summary views for instructors", async () => {
+
+    const el = await fixture(html`
+      <sakai-rubric-student site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}"
+          instructor>
+      </sakai-rubric-student>
+    `);
+
+    await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.exist;
+  });
+
+  it ("hides summary views for peer or self evaluation even when instructor is set", async () => {
+
+    const el = await fixture(html`
+      <sakai-rubric-student site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}"
+          instructor
+          is-peer-or-self>
+      </sakai-rubric-student>
+    `);
+
+    await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.not.exist;
   });
 });
