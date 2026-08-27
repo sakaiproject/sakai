@@ -264,6 +264,38 @@ public class PublishedAssessmentService extends AssessmentService{
 	    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	        removeAssessment(new Long(assessmentId), action);
   }
+
+  /**
+   * Move a published assessment to Trash and remove its externally maintained Gradebook item.
+   * Gradebook cleanup is best effort so an unavailable Gradebook does not prevent the assessment
+   * from being removed.
+   *
+   * @param assessmentId the published assessment id
+   * @param gradebookUid the root Gradebook uid for the assessment's site
+   */
+  public void removeAssessmentAndExternalGradebookItem(String assessmentId, String gradebookUid) {
+    removeAssessment(assessmentId, "remove");
+
+    try {
+      IntegrationContextFactory integrationContext = IntegrationContextFactory.getInstance();
+      if (integrationContext == null || !integrationContext.isIntegrated()) {
+        return;
+      }
+
+      org.sakaiproject.grading.api.GradingService gradingService
+          = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+              "org.sakaiproject.grading.api.GradingService");
+      GradebookServiceHelper gradebookServiceHelper = integrationContext.getGradebookServiceHelper();
+
+      if (!gradebookServiceHelper.removeExternalAssessment(gradebookUid, assessmentId, gradingService)) {
+        log.debug("Published assessment {} was not linked to gradebook {}, nothing to remove",
+            assessmentId, gradebookUid);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to remove gradebook item for published assessment {} from gradebook {}",
+          assessmentId, gradebookUid, e);
+    }
+  }
   
   public List<PublishedAssessmentFacade> getBasicInfoOfAllActivePublishedAssessments(String orderBy,boolean ascending) {
     String siteAgentId = AgentFacade.getCurrentSiteId();
