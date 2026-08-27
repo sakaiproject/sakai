@@ -448,7 +448,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                 log.debug("found {} published assessments in site: {}", publishedAssessmentList.size(), toContext);
                 for (PublishedAssessmentData publishedAssessment : publishedAssessmentList) {
                     log.debug("removing published assessment id = {}", publishedAssessment.getPublishedAssessmentId());
-                    publishedAssessmentService.removeAssessment(publishedAssessment.getPublishedAssessmentId().toString(), "remove");
+                    publishedAssessmentService.removeAssessmentAndExternalGradebookItem(
+                            publishedAssessment.getPublishedAssessmentId().toString(), toContext);
                 }
 			}
 		} catch (Exception e) {
