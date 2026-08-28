@@ -18,10 +18,12 @@
     <description>Apache MyFaces Tomahawk component library (vendored for Sakai, migrated to jakarta)</description>
     <url>https://myfaces.apache.org/tomahawk</url>
 
-    <properties>
-        <!-- sakai:deploy copies this jar to Tomcat shared/lib, as the pluto modules do -->
-        <deploy.target>shared</deploy.target>
-    </properties>
+    <!--
+      No deploy.target: unlike the Pluto container, Tomahawk is a JSF component library that
+      belongs in each consuming webapp's WEB-INF/lib, exactly as the upstream tomahawk21 jar
+      was used. Deploying it to shared as well would have Faces process its faces-config.xml
+      and TLDs twice.
+    -->
 
     <!--
         Upstream Tomahawk ships org.apache.myfaces.shared_tomahawk.* bundled alongside the
@@ -29,11 +31,15 @@
         splitting them. Dependencies are added with the source import - see README.md.
     -->
     <dependencies>
-        <!-- Jakarta Faces 3.0: the last spec version that retains JSP tag support -->
+        <!--
+          Tomahawk and Sakai's UIComponentTag-based tags both need Jakarta Faces 3.0, the last
+          spec version retaining JSP tag support. Tracks master's property rather than pinning
+          a literal, so this module follows the platform once master moves off Faces 4.
+        -->
         <dependency>
             <groupId>jakarta.faces</groupId>
             <artifactId>jakarta.faces-api</artifactId>
-            <version>3.0.0</version>
+            <version>${sakai.jakarta.faces-api.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,10 +110,17 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
         </dependency>
+        <!-- Only used by the captcha component; xmlParserAPIs would shadow the JDK's JAXP -->
         <dependency>
             <groupId>batik</groupId>
             <artifactId>batik-awt-util</artifactId>
             <version>1.6-1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xmlParserAPIs</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
