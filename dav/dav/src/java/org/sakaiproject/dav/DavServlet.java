@@ -824,19 +824,19 @@ public class DavServlet extends HttpServlet
 	{
 
 		// Are we being processed by a RequestDispatcher.include()?
-		if (request.getAttribute("javax.servlet.include.request_uri") != null)
+		if (request.getAttribute("jakarta.servlet.include.request_uri") != null)
 		{
-			String result = (String) request.getAttribute("javax.servlet.include.path_info");
-			if (result == null) result = (String) request.getAttribute("javax.servlet.include.servlet_path");
+			String result = (String) request.getAttribute("jakarta.servlet.include.path_info");
+			if (result == null) result = (String) request.getAttribute("jakarta.servlet.include.servlet_path");
 			if ((result == null) || (result.equals(""))) result = "/";
 			return (result);
 		}
 
 		// Are we being processed by a RequestDispatcher.forward()?
-		if (request.getAttribute("javax.servlet.forward.request_uri") != null)
+		if (request.getAttribute("jakarta.servlet.forward.request_uri") != null)
 		{
-			String result = (String) request.getAttribute("javax.servlet.forward.path_info");
-			if (result == null) result = (String) request.getAttribute("javax.servlet.forward.servlet_path");
+			String result = (String) request.getAttribute("jakarta.servlet.forward.path_info");
+			if (result == null) result = (String) request.getAttribute("jakarta.servlet.forward.servlet_path");
 			if ((result == null) || (result.equals(""))) result = "/";
 			return (result);
 		}
@@ -4312,10 +4312,10 @@ public class DavServlet extends HttpServlet
 		// Generating href element
 		generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 
-		String href = (String) req.getAttribute("javax.servlet.forward.servlet_path");
+		String href = (String) req.getAttribute("jakarta.servlet.forward.servlet_path");
 		if (href == null)
 		{
-			href = (String) req.getAttribute("javax.servlet.include.servlet_path");
+			href = (String) req.getAttribute("jakarta.servlet.include.servlet_path");
 		}
 		if (href == null)
 		{
