@@ -40,7 +40,7 @@ public class SLF4JLogChute implements LogChute {
         String name = (String) rs.getProperty(RUNTIME_LOG_SLF4J_LOGGER);
         if (StringUtils.isBlank(name)) {
             // lets try Sakai convention
-            ServletContext context = (ServletContext) rs.getApplicationAttribute("javax.servlet.ServletContext");
+            ServletContext context = (ServletContext) rs.getApplicationAttribute("jakarta.servlet.ServletContext");
             if (context != null) {
                 name = DEFAULT_LOGGER + "." + context.getServletContextName();
                 name = name.replace("-", ".");
