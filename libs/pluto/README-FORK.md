@@ -10,7 +10,7 @@ Ship a Sakai-owned build of the Pluto portlet container (Portlet 1.0 RI) from so
 
 ## What landed
 
-Top-level directory: `pluto/` (reactor module)
+Top-level directory: `libs/pluto/` (reactor module under `org.sakaiproject:libs`)
 
 Java packages: `org.sakaiproject.pluto.*`
 
@@ -40,6 +40,7 @@ Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` c
 9. **Rename packages** to `org.sakaiproject.pluto`; change Maven `groupId` to `org.sakaiproject.pluto`; wire `<module>pluto</module>` into the base reactor; deploy jars via `deploy.target=shared` (removed from `deploy/pom.xml` third-party list).
 10. **Freeze for Sakai-only use** — descriptor services are read-only (`portlet.xml` load); drop unused web.xml Castor stack, Maven site/assemble leftovers, and upstream portal-driver README. This tree will not track later Pluto releases.
 11. **Migrate to `jakarta.servlet`** for Tomcat 10, and **revert the `sak-pluto-*` artifact rename** back to the upstream `pluto-*` names — the `org.sakaiproject.pluto` groupId already disambiguates these coordinates from `org.apache.pluto`, so prefixing the artifactId was unnecessary.
+12. **Move under `libs/`** — relocated from the top-level `pluto/` to `libs/pluto/` and reparented from `org.sakaiproject:master` to the new `org.sakaiproject:libs` base POM, which collects third-party libraries forked into the Sakai tree. The `org.sakaiproject.pluto` groupId and all four artifactIds are unchanged, so `master/pom.xml` dependencyManagement and the portal modules needed no edits. Also fixed the parent `relativePath`, which still pointed at `../master/pom.xml` after the move and silently resolved master from `~/.m2` rather than the working tree.
 
 ## Intentional exceptions
 
@@ -51,7 +52,7 @@ Each jar module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` c
 
 ## How to build / deploy
 
-As part of a normal Sakai build (reactor includes `pluto` before `portal`):
+As part of a normal Sakai build (reactor includes `libs` before `portal`):
 
 ```bash
 mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
@@ -60,7 +61,7 @@ mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat
 Standalone from the vendored tree:
 
 ```bash
-cd pluto
+cd libs/pluto
 mvn clean install
 # optional: deploy just these jars
 mvn sakai:deploy -Dmaven.tomcat.home=/path/to/tomcat

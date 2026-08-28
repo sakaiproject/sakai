@@ -78,6 +78,7 @@
                 <module>kernel</module>
                 <module>lessonbuilder</module>
                 <module>library</module>
+                <module>libs</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -89,7 +90,6 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
-                <module>pluto</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -169,6 +169,7 @@
                 <module>kernel</module>
                 <module>lessonbuilder</module>
                 <module>library</module>
+                <module>libs</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -179,7 +180,6 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
-                <module>pluto</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
