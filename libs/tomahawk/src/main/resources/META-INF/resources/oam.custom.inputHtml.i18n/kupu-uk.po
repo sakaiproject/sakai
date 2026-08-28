@@ -1,0 +1,1057 @@
+# --- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+# SOME DESCRIPTIVE TITLE.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2009-11-14 16:53+0000\n"
+"PO-Revision-Date: 2008-04-18 15:37+0300\n"
+"Last-Translator: Olha <olha.pelishok@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: uk\n"
+"Language-Name: Ukranian\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: kupu\n"
+
+msgid "Call-out"
+msgstr ""
+
+msgid "Clear floats"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Current folder"
+msgstr ""
+
+#. Default: "Data"
+#: kupu/default/drawers.kupu:156
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:270
+msgid "Data"
+msgstr "Дані"
+
+msgid "Discreet"
+msgstr ""
+
+msgid "Even row"
+msgstr ""
+
+msgid "Fancy grid listing"
+msgstr ""
+
+msgid "Fancy listing"
+msgstr ""
+
+msgid "Fancy vertical listing"
+msgstr ""
+
+#. Default: "Formatted"
+#: kupu/default/toolbar.kupu:84
+msgid "Formatted"
+msgstr "Форматований"
+
+#. Default: "Grid"
+#: kupu/default/drawers.kupu:155
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:269
+msgid "Grid"
+msgstr "Сітка"
+
+msgid "Heading"
+msgstr ""
+
+#. Default: "Heading 1"
+#: kupu/default/toolbar.kupu:67
+msgid "Heading 1"
+msgstr "Заголовок 1"
+
+#. Default: "Heading 2"
+#: kupu/default/toolbar.kupu:70
+msgid "Heading 2"
+msgstr "Заголовок 2"
+
+#. Default: "Heading 3"
+#: kupu/default/toolbar.kupu:73
+msgid "Heading 3"
+msgstr "Заголовок 3"
+
+#. Default: "Heading 4"
+#: kupu/default/toolbar.kupu:76
+msgid "Heading 4"
+msgstr "Заголовок 4"
+
+#. Default: "Heading 5"
+#: kupu/default/toolbar.kupu:79
+msgid "Heading 5"
+msgstr "Заголовок 5"
+
+#. Default: "Heading 6"
+#: kupu/default/toolbar.kupu:82
+msgid "Heading 6"
+msgstr "Заголовок 6"
+
+msgid "Heading cell"
+msgstr ""
+
+msgid "Highlight"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Home"
+msgstr ""
+
+msgid "Invisible grid"
+msgstr ""
+
+#. Default: "Listing"
+#: kupu/default/drawers.kupu:154
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:268
+msgid "Listing"
+msgstr "Список"
+
+msgid "Literal"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "My recent items"
+msgstr ""
+
+#. Default: "Normal paragraph"
+#: kupu/default/drawers.kupu:312
+#: kupu/default/toolbar.kupu:63
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:152
+msgid "Normal"
+msgstr "Звичайний абзац"
+
+msgid "Odd row"
+msgstr ""
+
+msgid "Page break (print only)"
+msgstr ""
+
+#. Default: "Plain"
+#: kupu/default/drawers.kupu:153
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:267
+msgid "Plain"
+msgstr "Звичайний"
+
+msgid "Pull-quote"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Recent items"
+msgstr ""
+
+msgid "Subdued grid"
+msgstr ""
+
+msgid "Subheading"
+msgstr ""
+
+#. Default: "Anchors"
+#: kupu/default/drawers.kupu:289
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:359
+msgid "anchordrawer_title"
+msgstr "Якорі"
+
+#. Default: "Add Column"
+#: kupu/default/toolboxes.kupu:139
+msgid "button_add_column"
+msgstr "Додати стовпчик"
+
+#. Default: "Add Row"
+#: kupu/default/toolboxes.kupu:145
+msgid "button_add_row"
+msgstr "Додати рядок"
+
+#. Default: "Add Table"
+#: kupu/default/toolboxes.kupu:120
+msgid "button_add_table"
+msgstr "Додати таблицю"
+
+#. Default: "Cancel"
+#: kupu/common/kupudrawers/drawer.xsl:139
+#: kupu/default/drawers.kupu:130
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:248
+msgid "button_cancel"
+msgstr "Відмінити"
+
+#. Default: "Fix Table"
+#: kupu/default/toolboxes.kupu:118
+msgid "button_fix_table"
+msgstr "Закріпити таблицю"
+
+#. Default: "Insert Image"
+#: kupu/default/toolboxes.kupu:81
+msgid "button_insert_image"
+msgstr "Вставити зображення"
+
+#. Default: "Make Link"
+#: kupu/default/toolboxes.kupu:50
+msgid "button_makelink"
+msgstr "Зробити посилання"
+
+#. Default: "Ok"
+#: kupu/common/kupudrawers/drawer.xsl:135
+#: kupu/default/drawers.kupu:127
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:247
+msgid "button_ok"
+msgstr "Добре"
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:79
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:206
+msgid "button_preview"
+msgstr "Перегляд"
+
+#. Default: "Reload"
+#: kupu/common/kupudrawers/drawer.xsl:143
+msgid "button_reload"
+msgstr "Перезавантажити"
+
+#. Default: "Remove Column"
+#: kupu/default/toolboxes.kupu:141
+msgid "button_remove_column"
+msgstr "Видалити стопчик"
+
+#. Default: "Remove Row"
+#: kupu/default/toolboxes.kupu:147
+msgid "button_remove_row"
+msgstr "Видалити рядок"
+
+#. Default: "Remove Table"
+#: kupu/default/toolboxes.kupu:152
+msgid "button_remove_table"
+msgstr "Видалити таблицю"
+
+#. Default: "Convert to HTML and edit with the visual editor"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:492
+#: kupu/plone/wysiwyg_support.kupu:77
+msgid "convert-to-kupu"
+msgstr "Перейти до HTML та редагувати за допомогою візуального редактора"
+
+#. Default: "Anchors are created for checked paragraphs and removed for unchecked paragraphs when you press Ok. Anchors in use on this page may not be deleted."
+#: kupu/default/drawers.kupu:345
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:411
+msgid "create_anchor_help"
+msgstr "Якорі буде створено для вказаних абзаців і видалено для невказаних під час натискання Добре. Якорі, які вже є на сторінці, не буде знищено."
+
+#. Default: "Select a paragraph style then choose a paragraph and Ok to insert a link to that location."
+#: kupu/default/drawers.kupu:339
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:405
+msgid "create_anchor_link_help"
+msgstr "Виберіть стиль абзацу, а тоді абзац, натисніть Добре щоб вставити посилання до вибраного абзацу."
+
+#. Default: "Select one or two paragraph styles, then Ok to insert a table of contents."
+#: kupu/default/drawers.kupu:342
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:408
+msgid "create_toc_help"
+msgstr "Виберіть один чи кілька стилів абзацу, тоді натисніть Добре щоб вставити зміст."
+
+#. Default: "You may use this box to insert custom snippets of HTML code. There is no guarantee that any code inserted in this way will be preserved when you save your edits. To select an existing object from IE click on the border, from Firefox double click it."
+#: kupu/default/drawers.kupu:115
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:235
+msgid "custom_html_help"
+msgstr "Ви можете використовувати це поле для вставки окремих уривків HTML коду. Нема гарантії, що цей код буде збережено під час збереження ваших змін. Щоб вибрати існуючий об'єкт з IE клацніть на рамку, з Firefox - клацніть два рази."
+
+#. Default: "Drawer"
+#: kupu/common/kupudrawers/drawer.xsl:31
+msgid "default_drawer_title"
+msgstr "Вікно"
+
+#. Default: "My recently edited items."
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:16
+msgid "descr_myitems"
+msgstr "Мої недавні"
+
+#. Default: "Recently published items."
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:16
+msgid "descr_recentitems"
+msgstr "Недавно опубліковані"
+
+#. Default: "Search results."
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:18
+msgid "descr_search_results"
+msgstr "Результати пошуку."
+
+#. Default: "Current selection."
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:22
+msgid "descr_selected"
+msgstr "Поточне виділення."
+
+#. Default: "<em>...fetching anchors...</em>"
+#: kupu/common/kupudrawers/drawer.xsl:510
+msgid "fetching_anchors"
+msgstr "<em>...вибрати якори...</em>"
+
+#. Default: "Edit with visual editor"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "force-kupu"
+msgstr "Редагувати за допомогою візуального редактора"
+
+#. Default: "HTML"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:506
+#: kupu/plone/wysiwyg_support.kupu:107
+msgid "format_html"
+msgstr "HTML"
+
+#. Default: "My Items"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:15
+msgid "heading_myitems"
+msgstr "Мої"
+
+#. Default: "Recent Items"
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:15
+msgid "heading_recentitems"
+msgstr "Недавні"
+
+#. Default: "Selected"
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:21
+msgid "heading_selected"
+msgstr "Виділено"
+
+#. Default: "If you are unsure of which format to use, just select Plain Text and type the document as you usually do."
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:497
+#: kupu/plone/wysiwyg_support.kupu:86
+msgid "help_format"
+msgstr "Якщо Ви не впевнені, який формат використати, виберіть Звичайний текст і друкуйте документ як зазвичай."
+
+#. Default: "Paste &lt;object&gt; or &lt;embed&gt; tag here:"
+#: kupu/default/drawers.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:227
+msgid "help_paste_here"
+msgstr "Вставте сюди теґи &lt;object&gt; або &lt;embed&gt;:"
+
+#. Default: "Alignment"
+#: kupu/common/kupudrawers/drawer.xsl:355
+msgid "image_alignment"
+msgstr "Вирівнювання"
+
+#. Default: "Caption"
+#: kupu/common/kupudrawers/drawer.xsl:383
+msgid "imagedrawer_caption_label"
+msgstr "Підпис"
+
+#. Default: "Inline"
+#: kupu/common/kupudrawers/drawer.xsl:370
+msgid "imagedrawer_inline"
+msgstr "По середині"
+
+#. Default: "Left"
+#: kupu/common/kupudrawers/drawer.xsl:363
+msgid "imagedrawer_left"
+msgstr "Ліворуч"
+
+#. Default: "Right"
+#: kupu/common/kupudrawers/drawer.xsl:377
+msgid "imagedrawer_right"
+msgstr "Праворуч"
+
+#. Default: "(${width} by ${height})"
+#: kupu/common/kupudrawers/drawer.xsl:293
+msgid "imagedrawer_size"
+msgstr "( ${width} на ${height} )"
+
+#. Default: "Size"
+#: kupu/common/kupudrawers/drawer.xsl:399
+msgid "imagedrawer_size_2"
+msgstr "Розмір"
+
+#. Default: "Style"
+#: kupu/common/kupudrawers/drawer.xsl:414
+msgid "imagedrawer_style"
+msgstr "Стиль"
+
+#. Default: "Insert Image"
+#: kupu/common/kupudrawers/drawer.xsl:62
+msgid "imagedrawer_title"
+msgstr "Вставити зображення"
+
+#. Default: "Text equivalent"
+#: kupu/common/kupudrawers/drawer.xsl:435
+msgid "imagedrawer_upload_alt_text"
+msgstr "Текстовий еквівалент"
+
+#. Default: "Description"
+#: kupu/common/kupudrawers/drawer.xsl:547
+msgid "imagedrawer_upload_desc_label"
+msgstr "Опис"
+
+#. Default: "Select an image from your computer and click ok to have it automatically uploaded to selected folder and inserted into the editor."
+#: kupu/common/kupudrawers/drawer.xsl:571
+msgid "imagedrawer_upload_instructions"
+msgstr "Виберіть зображення на Вашому комп'ютері, яке бажаєте помістити у вибрану теку і натисніть Добре. Зображення буде автоматично збережено у вибраній теці і вставлено у редактор."
+
+#. Default: "Upload image here..."
+#: kupu/common/kupudrawers/drawer.xsl:244
+msgid "imagedrawer_upload_link"
+msgstr "Завантажити зображення сюди..."
+
+#. Default: "Title"
+#: kupu/common/kupudrawers/drawer.xsl:543
+msgid "imagedrawer_upload_title_label"
+msgstr "Заголовок"
+
+#. Default: "Upload to: ${folder}"
+#: kupu/common/kupudrawers/drawer.xsl:561
+msgid "imagedrawer_upload_to_label"
+msgstr "Завантажити у: ${folder}"
+
+#. Default: "Search"
+#: kupu/common/kupudrawers/drawer.xsl:84
+msgid "kupudrawer_search"
+msgstr "Пошук"
+
+#. Default: "Anchor"
+#: kupu/default/drawers.kupu:86
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:211
+msgid "label_anchor"
+msgstr "Якір"
+
+#. Default: "Col Align:"
+#: kupu/default/toolboxes.kupu:129
+msgid "label_col_align"
+msgstr "Вирівнювання стовпця:"
+
+#. Default: "Columns:"
+#: kupu/default/toolboxes.kupu:104
+msgid "label_columns"
+msgstr "Стовпці:"
+
+#. Default: "Create"
+#: kupu/default/toolboxes.kupu:113
+msgid "label_create"
+msgstr "Створити"
+
+#. Default: "Description:"
+#: kupu/default/toolboxes.kupu:26
+msgid "label_description"
+msgstr "Опис:"
+
+#. Default: "Format"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:495
+#: kupu/plone/wysiwyg_support.kupu:84
+msgid "label_format"
+msgstr "Формат"
+
+#. Default: "Headings:"
+#: kupu/default/toolboxes.kupu:108
+msgid "label_headings"
+msgstr "Заголовки:"
+
+#. Default: "Image class:"
+#: kupu/default/toolboxes.kupu:64
+msgid "label_image_class"
+msgstr "Клас зображення:"
+
+#. Default: "Insert image at the following URL:"
+#: kupu/default/toolboxes.kupu:73
+msgid "label_insert_image_url"
+msgstr "Вставити зображення по наступній URL:"
+
+#. Default: "Link the highlighted text to this URL:"
+#: kupu/default/drawers.kupu:71
+#: kupu/default/toolboxes.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:199
+msgid "label_link_text"
+msgstr "Зробити посилання виділеного тексту до цієї URL:"
+
+#. Default: "Links"
+#: kupu/default/toolboxes.kupu:35
+msgid "label_links"
+msgstr "Посилання"
+
+#. Default: "Numbering"
+#: kupu/default/drawers.kupu:316
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:382
+msgid "label_numbering"
+msgstr "Нумерація"
+
+#. Default: "Rows:"
+#: kupu/default/toolboxes.kupu:101
+msgid "label_rows"
+msgstr "Рядки:"
+
+#. Default: "Select a cleanup action:"
+#: kupu/default/toolboxes.kupu:178
+msgid "label_select_cleanup"
+msgstr "Вибрати дію очищення:"
+
+#. Default: "Table Class:"
+#: kupu/default/toolboxes.kupu:96
+msgid "label_table_class"
+msgstr "Клас таблиці"
+
+#. Default: "Table style"
+#: kupu/default/drawers.kupu:308
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:374
+msgid "label_table_style"
+msgstr "Стиль таблиці"
+
+#. Default: "Title:"
+#: kupu/default/toolboxes.kupu:24
+msgid "label_title"
+msgstr "Заголовок:"
+
+#. Default: "toggle all"
+#: kupu/default/drawers.kupu:323
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:389
+msgid "label_toggle_all"
+msgstr "вибрати всі"
+
+#. Default: "Link to anchor"
+#: kupu/common/kupudrawers/drawer.xsl:499
+msgid "linkdrawer_anchor"
+msgstr "Зробити посилання до якоря"
+
+#. Default: "Name"
+#: kupu/common/kupudrawers/drawer.xsl:473
+msgid "linkdrawer_name_label"
+msgstr "Ім'я"
+
+#. Default: "Target"
+#: kupu/common/kupudrawers/drawer.xsl:480
+msgid "linkdrawer_target_label"
+msgstr "Цільовий"
+
+#. Default: "Insert Link"
+#: kupu/common/kupudrawers/drawer.xsl:63
+msgid "linkdrawer_title"
+msgstr "Вставити посилання"
+
+#. Default: "○"
+#: kupu/default/toolbar.kupu:28
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:168
+#: kupu/plone/toolbar.kupu:138
+msgid "list-circle"
+msgstr "○"
+
+#. Default: "1"
+#: kupu/default/toolbar.kupu:32
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:172
+#: kupu/plone/toolbar.kupu:142
+msgid "list-decimal"
+msgstr "1"
+
+#. Default: "●"
+#: kupu/default/toolbar.kupu:26
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:166
+#: kupu/plone/toolbar.kupu:136
+msgid "list-disc"
+msgstr "●"
+
+#. Default: "a"
+#: kupu/default/toolbar.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:176
+#: kupu/plone/toolbar.kupu:150
+msgid "list-loweralpha"
+msgstr "а"
+
+#. Default: "i"
+#: kupu/default/toolbar.kupu:36
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:174
+#: kupu/plone/toolbar.kupu:146
+msgid "list-lowerroman"
+msgstr "i"
+
+#. Default: "no bullet"
+#: kupu/default/toolbar.kupu:29
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:169
+#: kupu/plone/toolbar.kupu:139
+msgid "list-nobullet"
+msgstr "без маркера"
+
+#. Default: "■"
+#: kupu/default/toolbar.kupu:27
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:167
+#: kupu/plone/toolbar.kupu:137
+msgid "list-square"
+msgstr "■"
+
+#. Default: "A"
+#: kupu/default/toolbar.kupu:38
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:175
+#: kupu/plone/toolbar.kupu:148
+msgid "list-upperalpha"
+msgstr "A"
+
+#. Default: "I"
+#: kupu/default/toolbar.kupu:34
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:173
+#: kupu/plone/toolbar.kupu:144
+msgid "list-upperroman"
+msgstr "I"
+
+#. Default: "Locate"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:21
+msgid "locate_content"
+msgstr "Розмістити"
+
+#. Default: "(optional 2nd style)"
+#: kupu/default/drawers.kupu:334
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:400
+msgid "opt_2nd_style"
+msgstr "(додатковий  2ий стиль)"
+
+#. Default: "Inline"
+#: kupu/default/toolboxes.kupu:67
+msgid "opt_inline"
+msgstr "По середині"
+
+#. Default: "Left"
+#: kupu/default/toolboxes.kupu:68
+msgid "opt_left"
+msgstr "Ліворуч"
+
+#. Default: "Right"
+#: kupu/default/toolboxes.kupu:69
+msgid "opt_right"
+msgstr "Праворуч"
+
+#. Default: "top of page (default)"
+#: kupu/default/drawers.kupu:87
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:212
+msgid "opt_top_of_page"
+msgstr "вершина сторінки (по замовчуванню)"
+
+#. Default: "Perform action"
+#: kupu/default/toolboxes.kupu:186
+msgid "perform_action"
+msgstr "Виконати дію"
+
+#. Default: "[insert arbitrary HTML code here]"
+#: kupu/default/drawers.kupu:109
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:231
+msgid "placeholder_html_code"
+msgstr "[вставити тут довільний HTML код]"
+
+#. Default: "Plain Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:509
+#: kupu/plone/wysiwyg_support.kupu:116
+msgid "plain_text"
+msgstr "Звичайний текст"
+
+#. Default: "Structured Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:503
+#: kupu/plone/wysiwyg_support.kupu:98
+msgid "structured_text"
+msgstr "Структурований текст"
+
+#. Default: "Edit without visual editor"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "suppress-kupu"
+msgstr "Редагувати за допомогою візуального редактора"
+
+#. Default: "Embed external object"
+#: kupu/default/drawers.kupu:62
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:191
+msgid "tab_embed"
+msgstr "Вставити зовнішній об'єкт"
+
+#. Default: "Link to url"
+#: kupu/default/drawers.kupu:59
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:190
+msgid "tab_link"
+msgstr "Створити посилання до url"
+
+#. Default: "Link to anchor"
+#: kupu/default/drawers.kupu:292
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:362
+msgid "tab_link_anchor"
+msgstr "Створити посилання до якоря"
+
+#. Default: "Manage Anchors"
+#: kupu/default/drawers.kupu:295
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:363
+msgid "tab_manage_anchors"
+msgstr "Управління якорями"
+
+#. Default: "Table of contents"
+#: kupu/default/drawers.kupu:298
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:364
+msgid "tab_toc"
+msgstr "Зміст"
+
+#. Default: "Add"
+#: kupu/default/drawers.kupu:233
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:328
+msgid "tabledrawer_add_button"
+msgstr "Додати"
+
+#. Default: "Add Table"
+#: kupu/default/drawers.kupu:185
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:294
+msgid "tabledrawer_add_table_button"
+msgstr "Додати таблицю"
+
+#. Default: "Current column alignment"
+#: kupu/default/drawers.kupu:215
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:316
+msgid "tabledrawer_alignment_label"
+msgstr "Вирівнювання стовпця"
+
+#. Default: "Center"
+#: kupu/default/drawers.kupu:222
+#: kupu/default/toolboxes.kupu:132
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:320
+msgid "tabledrawer_center_option"
+msgstr "По центру"
+
+#. Default: "Table Class"
+#: kupu/default/drawers.kupu:150
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:264
+msgid "tabledrawer_class_label"
+msgstr "Клас таблиці"
+
+#. Default: "Close"
+#: kupu/default/drawers.kupu:277
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:352
+msgid "tabledrawer_close_button"
+msgstr "Закрити"
+
+#. Default: "Column"
+#: kupu/default/drawers.kupu:230
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:326
+msgid "tabledrawer_column_label"
+msgstr "Стовпець"
+
+#. Default: "Columns"
+#: kupu/default/drawers.kupu:165
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:279
+msgid "tabledrawer_columns_label"
+msgstr "Стовпці"
+
+#. Default: "Fix"
+#: kupu/default/drawers.kupu:261
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:342
+msgid "tabledrawer_fix_button"
+msgstr "Закріпити"
+
+#. Default: "Fix All Tables"
+#: kupu/default/drawers.kupu:189
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:295
+msgid "tabledrawer_fix_tables_button"
+msgstr "Закріпити усі таблиці"
+
+#. Default: "Create Headings"
+#: kupu/default/drawers.kupu:176
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:286
+msgid "tabledrawer_headings_label"
+msgstr "Створити заголовки"
+
+#. Default: "Left"
+#: kupu/default/drawers.kupu:220
+#: kupu/default/toolboxes.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:319
+msgid "tabledrawer_left_option"
+msgstr "Ліворуч"
+
+#. Default: "Remove"
+#: kupu/default/drawers.kupu:237
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:329
+msgid "tabledrawer_remove_button"
+msgstr "Видалити"
+
+#. Default: "Right"
+#: kupu/default/drawers.kupu:224
+#: kupu/default/toolboxes.kupu:133
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:321
+msgid "tabledrawer_right_option"
+msgstr "Праворуч"
+
+#. Default: "Row"
+#: kupu/default/drawers.kupu:244
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:333
+msgid "tabledrawer_row_label"
+msgstr "Рядок"
+
+#. Default: "Rows"
+#: kupu/default/drawers.kupu:161
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:275
+msgid "tabledrawer_rows_label"
+msgstr "Рядки"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:258
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:340
+msgid "tabledrawer_table_label"
+msgstr "Таблиця"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:141
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:255
+msgid "tabledrawer_title"
+msgstr "Таблиця"
+
+#. Default: "Kupu Editor Test Page"
+#: kupu/default/body.kupu:14
+msgid "testpage_title"
+msgstr "Тестова сторінка редактора Kupu"
+
+#. Default: "background color: alt-h"
+#: kupu/default/colorchooser.kupu:25
+#: kupu/plone/colorchooser.kupu:18
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:105
+msgid "title_back_color"
+msgstr "колір фону: alt-h"
+
+#. Default: "Bold: Access key (Alt or Ctrl) + B"
+#: kupu/default/toolbar.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:94
+#: kupu/plone/toolbar.kupu:34
+msgid "title_bold"
+msgstr "Напівжирний: Клавіша доступу (Alt або Ctrl) + B"
+
+#. Default: "Center justify: Access key (Alt or Ctrl) + C"
+#: kupu/default/toolbar.kupu:116
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:110
+#: kupu/plone/toolbar.kupu:61
+msgid "title_center"
+msgstr "Вирівняти по центру: Клавіша доступу (Alt або Ctrl) + C"
+
+#. Default: "Check spelling"
+#: kupu/default/spellchecker.kupu:17
+msgid "title_check_spelling"
+msgstr "Перевірка правопису"
+
+#. Default: "Cleanup expressions"
+#: kupu/default/toolboxes.kupu:173
+msgid "title_cleanup_expressions"
+msgstr "Очистити дані"
+
+#. Default: "Debug Log"
+#: kupu/default/toolboxes.kupu:164
+msgid "title_debug_log"
+msgstr "Журнал виправлених помилок"
+
+#. Default: "Decrease quote level: Access key (Alt or Ctrl) + <"
+#: kupu/default/toolbar.kupu:148
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:126
+#: kupu/plone/toolbar.kupu:97
+msgid "title_decrease_quote"
+msgstr "Зменшити відступ: Клавіша доступу: (Alt або Ctrl) + <"
+
+#. Default: "Definition list: Access key (Alt or Ctrl) + ="
+#: kupu/default/toolbar.kupu:140
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:122
+#: kupu/plone/toolbar.kupu:89
+msgid "title_deflist"
+msgstr "Список визначень: Клавіша доступу (Alt або Ctrl) + ="
+
+#. Default: "External Link"
+#: kupu/default/drawers.kupu:54
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:186
+msgid "title_external_link"
+msgstr "Зовнішнє посилання"
+
+#. Default: "reload current page using kupu to edit this field"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "title_force_kupu"
+msgstr "перезавантажити поточну сторінку використовуючи kupu для редагування даного поля"
+
+#. Default: "Images"
+#: kupu/default/toolboxes.kupu:60
+msgid "title_images"
+msgstr "Зображення"
+
+#. Default: "Increase quote level: Access key (Alt or Ctrl) + >"
+#: kupu/default/toolbar.kupu:151
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:127
+#: kupu/plone/toolbar.kupu:101
+msgid "title_increase_quote"
+msgstr "Збільшити відступ: Клавіша доступу: (Alt або Ctrl) + >"
+
+#. Default: "Insert anchors"
+#: kupu/default/drawers.kupu:31
+#: kupu/plone/drawers.kupu:35
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:134
+msgid "title_insert_anchors"
+msgstr "Вставити якорі"
+
+#. Default: "Insert external link"
+#: kupu/default/drawers.kupu:29
+#: kupu/plone/drawers.kupu:30
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:133
+msgid "title_insert_external_link"
+msgstr "Вставити зовнішнє посилання"
+
+#. Default: "Insert image"
+#: kupu/default/drawers.kupu:23
+#: kupu/plone/drawers.kupu:20
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:131
+msgid "title_insert_image"
+msgstr "Вставити зображення"
+
+#. Default: "Insert internal link"
+#: kupu/default/drawers.kupu:27
+#: kupu/plone/drawers.kupu:25
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:132
+msgid "title_insert_internal_link"
+msgstr "Вставити внутрішнє посилання"
+
+#. Default: "Insert table"
+#: kupu/default/drawers.kupu:34
+#: kupu/plone/drawers.kupu:39
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:135
+msgid "title_insert_table"
+msgstr "Вставити таблицю"
+
+#. Default: "Italic: Access key (Alt or Ctrl) + I"
+#: kupu/default/toolbar.kupu:94
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:95
+#: kupu/plone/toolbar.kupu:38
+msgid "title_italic"
+msgstr "Курсив: Клавіша доступу (Alt або Ctrl) + I"
+
+#. Default: "Left justify: Access key (Alt or Ctrl) + L"
+#: kupu/default/toolbar.kupu:112
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:109
+#: kupu/plone/toolbar.kupu:57
+msgid "title_ljust"
+msgstr "Вирівняти по лівому краю: Клавіша доступу (Alt або Ctrl) + L"
+
+#. Default: "Kupu 1.4"
+#: kupu/default/toolbar.kupu:55
+msgid "title_logo"
+msgstr "Kupu 1.4"
+
+#. Default: "Numbered list: Access key (Alt or Ctrl) + #"
+#: kupu/default/toolbar.kupu:128
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:116
+#: kupu/plone/toolbar.kupu:75
+msgid "title_numlist"
+msgstr "Пронумерований список: Клавіша доступу (Alt або Ctrl) + #"
+
+#. Default: "Properties"
+#: kupu/default/toolboxes.kupu:20
+msgid "title_properties"
+msgstr "Властивості"
+
+#. Default: "Redo: Access key (Alt or Ctrl) + Y"
+#: kupu/default/toolbar.kupu:162
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:140
+#: kupu/plone/toolbar.kupu:114
+msgid "title_redo"
+msgstr "Повторити: Клавіша доступу (Alt or Ctrl) + Y"
+
+#. Default: "Remove image"
+#: kupu/default/toolbar.kupu:170
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:159
+#: kupu/plone/toolbar.kupu:157
+msgid "title_removeimage"
+msgstr "Видалити зображення"
+
+#. Default: "Remove link"
+#: kupu/default/toolbar.kupu:173
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:160
+#: kupu/plone/toolbar.kupu:161
+msgid "title_removelink"
+msgstr "Видалити посилання"
+
+#. Default: "Right justify: Access key (Alt or Ctrl) + R"
+#: kupu/default/toolbar.kupu:119
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:111
+#: kupu/plone/toolbar.kupu:65
+msgid "title_rjust"
+msgstr "Вирівняти по правому краю: Клавіша доступу (Alt або Ctrl) + R"
+
+#. Default: "Save"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:90
+#: kupu/plone/save.kupu:15
+msgid "title_save"
+msgstr "Зберегти"
+
+#. Default: "save: alt-s"
+#: kupu/default/save.kupu:14
+msgid "title_save_alts"
+msgstr "зберегти: alt-s"
+
+#. Default: "Check spelling"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:144
+#: kupu/plone/spellchecker.kupu:14
+msgid "title_spelling"
+msgstr "Перевірити правопис"
+
+#. Default: "Subscript: Access key (Alt or Ctrl) + -"
+#: kupu/default/toolbar.kupu:103
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:99
+#: kupu/plone/toolbar.kupu:46
+msgid "title_subscript"
+msgstr "Нижній індекс: Клавіша доступу (Alt або Ctrl) + -"
+
+#. Default: "Superscript: Access key (Alt or Ctrl) + +"
+#: kupu/default/toolbar.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:100
+#: kupu/plone/toolbar.kupu:49
+msgid "title_superscript"
+msgstr "Верхній індекс: Клавіша доступу (Alt або Ctrl) + +"
+
+#. Default: "reload current page without kupu"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "title_suppress_kupu"
+msgstr "перезавантажити поточну сторінку без kupu"
+
+#. Default: "Tables"
+#: kupu/default/toolboxes.kupu:92
+msgid "title_tables"
+msgstr "Таблиці"
+
+#. Default: "text color: alt-f"
+#: kupu/default/colorchooser.kupu:21
+#: kupu/plone/colorchooser.kupu:13
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:104
+msgid "title_text_color"
+msgstr "колір тексту: alt-f"
+
+#. Default: "Underline: Access key (Alt or Ctrl) + U"
+#: kupu/default/toolbar.kupu:96
+msgid "title_underline"
+msgstr "Підкреслення: Клавіша доступу (Alt або Ctrl) + U"
+
+#. Default: "Undo: Access key (Alt or Ctrl) + Z"
+#: kupu/default/toolbar.kupu:159
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:139
+#: kupu/plone/toolbar.kupu:110
+msgid "title_undo"
+msgstr "Повернути: Клавіша доступу (Alt or Ctrl) + Z"
+
+#. Default: "Unordered list: Access key (Alt or Ctrl) + *"
+#: kupu/default/toolbar.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:117
+#: kupu/plone/toolbar.kupu:79
+msgid "title_unorderedlist"
+msgstr "Невпорядкований список: Клавіша доступу (Alt або Ctrl) + *"
+
+#. Default: "Zoom: Access key (Alt or Ctrl) + X"
+#: kupu/default/toolbar.kupu:47
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:86
+#: kupu/plone/toolbar.kupu:25
+msgid "title_zoom"
+msgstr "Масштаб: Клавіша доступу (Alt or Ctrl) + X"
+
+#. Default: "Switch between visual editor and HTML view"
+#: kupu/default/sourceedit.kupu:23
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:148
+#: kupu/plone/sourceedit.kupu:18
+msgid "toggle_source_view"
+msgstr "Перехід від візуального редактора до HTML вигляду і навпаки"
+
+#. Default: "top of page (default)"
+#: kupu/common/kupudrawers/drawer.xsl:509
+msgid "top_of_page"
+msgstr "вершина сторінки (по замовчуванню)"
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:216
+msgid "watermark_preview"
+msgstr "Перегляд"
+

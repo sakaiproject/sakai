@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<script type="text/javascript" src="picklist.js"></script>
+	</head>
+	<body>
+		<span>PICKLIST TEST</span>
+	
+	<table border="0">
+      <tr>
+        <td><select size="4" multiple="true"
+          id="availableOptions" 
+          name="availableOptions">
+          <option value="option1">
+            option1
+          </option>
+
+          <option value="option3">
+            option3
+          </option>
+
+          <option value="option5">
+            option5
+          </option>
+
+          <option value="option7">
+            option7
+          </option>
+        </select> </td>
+
+        <td valign="top">
+         <button onclick="myfaces_picklist_addToSelected('availableOptions', 'selectedOptions')">
+            ></button> 
+        <br>
+         <button onclick="myfaces_picklist_removeFromSelected('availableOptions', 'selectedOptions')">
+            <</button> 
+        </td>
+
+        <td><select size="4" multiple="true"
+           id="selectedOptions" 
+           name="selectedOptions">
+          <option value="option2">
+            option2
+          </option>
+
+          <option value="option4">
+            option4
+          </option>
+        </select> </td>
+      </tr>
+    </table>
+	
+	</body>
+</html>

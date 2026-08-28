@@ -1,0 +1,70 @@
+/* ThemeMiniBlackMenu Style Sheet */
+
+.ThemeMiniBlackMenu,.ThemeMiniBlackSubMenuTable
+{
+	font-family:	verdana, arial, sans-serif;
+	font-size:	9px;
+	color:		white;
+	background-color:	black;
+
+	padding:	0;
+	border:		0;
+
+	cursor:		default;
+}
+
+.ThemeMiniBlackSubMenu
+{
+	position: absolute;
+	visibility: hidden;
+
+	/*
+	   Netscape/Mozilla renders borders by increasing
+	   their z-index.  The following line is necessary
+	   to cover any borders underneath
+	*/
+	z-index:        100;
+	border:		0;
+	padding:	0;
+}
+
+.ThemeMiniBlackSubMenuTable
+{
+	border-top:	1px solid white;
+}
+
+.ThemeMiniBlackSubMenuTable TD
+{
+	white-space:	nowrap;
+}
+
+.ThemeMiniBlackMainItem,.ThemeMiniBlackMainItemHover,.ThemeMiniBlackMainItemActive,
+.ThemeMiniBlackMenuItem,.ThemeMiniBlackMenuItemHover,.ThemeMiniBlackMenuItemActive
+{
+	white-space:	nowrap;
+}
+
+.ThemeMiniBlackMainItemHover,.ThemeMiniBlackMainItemActive,
+.ThemeMiniBlackMenuItemHover,.ThemeMiniBlackMenuItemActive
+{
+	color:		red;
+}
+
+.ThemeMiniBlackMenuSplit
+{
+	height:		1px;
+	margin-top:	1px;
+	margin-bottom:	1px;
+	overflow:	hidden;
+	background-color:	inherit;
+	border-top:	1px solid white;
+}
+
+.ThemeMiniBlackMenuVSplit
+{
+	width:		1px;
+	margin:		0px;
+	overflow:	hidden;
+	background-color:	inherit;
+	border-right:	1px solid white;
+}

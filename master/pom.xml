@@ -1143,10 +1143,15 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <!--
+        Portlet 1.0 (JSR 168) is what the vendored Pluto container implements. Portlet 3.0
+        adds methods typed on javax.servlet.http.Cookie / Part and javax.servlet.DispatcherType,
+        which do not exist on Tomcat 10+; there is no jakarta.portlet spec to migrate to.
+      -->
       <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
-        <version>3.0.1</version>
+        <version>1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

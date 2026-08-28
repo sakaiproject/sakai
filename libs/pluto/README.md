@@ -51,7 +51,7 @@ Steps 1–11 landed as a single squashed commit importing Pluto into the source 
 
 ## Intentional exceptions
 
-- **Portlet API 1.0** — Pluto is the Portlet 1.0 RI. Master manages `portlet-api` 3.0.1 for tools; container/taglib keep an explicit `portlet-api:1.0`.
+- **Portlet API 1.0** — Pluto is the Portlet 1.0 RI. Master now manages `portlet-api` at 1.0 tree-wide (it previously managed 3.0.1 for tools, forcing container/taglib to pin 1.0 explicitly; those pins are gone). Portlet 3.0 types methods on `javax.servlet.http.Cookie`/`Part`, which do not exist on Tomcat 10+, and there is no `jakarta.portlet` spec to migrate to.
 - **Portlet spec identity in filtered resources** — `javax.portlet.version.major=1` / `minor=0` for `environment.properties`.
 - **Read-only `portlet.xml` descriptors** — Sakai only loads portlet descriptors. Castor write/marshall, `xercesImpl`, and the unused web.xml descriptor API were removed (JDK JAXP is enough for unmarshall).
 - **Test-only deps not in master** — `jmock` 1.2.0.

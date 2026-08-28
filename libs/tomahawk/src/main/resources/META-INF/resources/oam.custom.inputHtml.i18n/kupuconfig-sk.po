@@ -1,0 +1,578 @@
+# Gettext Message File for kupu - Slovak Translation
+# Rastislav Mucha <rastislav.mucha@satronet.sk>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: kupu\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: 2009-07-11 22:09+0100\n"
+"Last-Translator: Rastislav Mucha <rasto@mrm.sk>\n"
+"Language-Team: slovak <www-fzki@uniag.sk>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Language-Code: sk\n"
+"Language-Name: Slovenčina\n"
+"Preferred-Encodings: utf-8 latin2\n"
+"Domain: kupuconfig\n"
+
+#. Default: "Action URLs"
+#: kupu/plone/resource_types.pt:158
+msgid "action_url_heading"
+msgstr "Akcie - URL"
+
+#. Default: "Allow captioned images"
+#: kupu/plone/kupu_config.pt:129
+msgid "allow_captioned_images"
+msgstr "Povoliť obrázky s popisom"
+
+#. Default: "Any tag"
+#: kupu/plone/kupu_config.pt:302
+msgid "any_tag"
+msgstr "Ľubovoľný tag"
+
+#. Default: "Authenticated member"
+#: kupu/plone/libraries.pt:161
+msgid "authenticated_member"
+msgstr "Autentifikovaný používateľ"
+
+#. Default: "The following variables are available in the TALES expressions:"
+#: kupu/plone/libraries.pt:133
+msgid "available_tales"
+msgstr "Vymenované premenné sú dostupné v TALES výrazoch:"
+
+#. Default: "Add"
+#: kupu/plone/libraries.pt:112
+msgid "button_add"
+msgstr "Pridať"
+
+#. Default: "Delete"
+#: kupu/plone/libraries.pt:74
+msgid "button_delete"
+msgstr "Odstrániť"
+
+#. Default: "Move Down"
+#: kupu/plone/libraries.pt:81
+msgid "button_move_down"
+msgstr "Presunúť nižšie"
+
+#. Default: "Move Up"
+#: kupu/plone/libraries.pt:78
+msgid "button_move_up"
+msgstr "Presunúť vyššie"
+
+#. Default: "Save"
+#: kupu/plone/libraries.pt:71
+msgid "button_save"
+msgstr "Uložiť"
+
+#. Default: "Set"
+#: kupu/plone/libraries.pt:128
+msgid "button_set"
+msgstr "Nastaviť"
+
+#. Default: "Fields which appear to currently support image captioning:"
+#: kupu/plone/kupu_config.pt:150
+msgid "caption_is_supported"
+msgstr "Políčka, ktoré by mali podporovať obrázky s popismi:"
+
+#. Default: "Fields which could support image captioning:"
+#: kupu/plone/kupu_config.pt:148
+msgid "caption_maybe_supported"
+msgstr "Políčka, ktoré by mohli podporovať obrázky s popismi:"
+
+#. Default: "Fields which use kupu but do not support image captioning:"
+#: kupu/plone/kupu_config.pt:153
+msgid "caption_not_supported"
+msgstr "Políčka, ktoré nepodporujú obrázky s popismi:"
+
+#. Default: "Select all items"
+#: kupu/plone/zmi_toolbar.pt:64
+msgid "check_select_all"
+msgstr "Vybrať všetko"
+
+#. Default: "classes"
+#: kupu/plone/resource_types.pt:224
+msgid "classes_subheading"
+msgstr "triedy"
+
+#. Default: "The folder the context object is located in"
+#: kupu/plone/libraries.pt:145
+msgid "context_folder"
+msgstr "Adresár v ktorom sa nachádza daný objekt"
+
+#. Default: "The URL of the folder the context object is located in"
+#: kupu/plone/libraries.pt:149
+msgid "context_folder_uri"
+msgstr "URL adresára v ktorom sa nachádza daný objekt"
+
+#. Default: "The current context object"
+#: kupu/plone/libraries.pt:137
+msgid "current_context"
+msgstr "Aktuálny kontext"
+
+#. Default: "The URL of the current context object"
+#: kupu/plone/libraries.pt:141
+msgid "current_context_url"
+msgstr "URL aktuálneho kontextu"
+
+#. Default: "specify a resource type to be used for reference fields with an empty list of allowed types"
+#: kupu/plone/resource_types.pt:121
+msgid "default_reference_resource"
+msgstr "špecifikujte typ zdroja používaný pre referenčné políčka bez priradeného zoznamu povolených typov"
+
+#. Default: "Default resource"
+#: kupu/plone/resource_types.pt:127
+msgid "default_resource_heading"
+msgstr "Štandardný zdroj"
+
+#. Default: "default scale"
+#: kupu/plone/resource_types.pt:214
+msgid "defscale_subheading"
+msgstr "prednastavená škála"
+
+#. Default: "fieldname"
+#: kupu/plone/resource_types.pt:205
+msgid "fieldname_subheading"
+msgstr "názov políčka"
+
+#. Default: "Flash"
+#: kupu/plone/resource_types.pt:240
+msgid "flash_option"
+msgstr "Flash"
+
+#. Default: "Global button visibility"
+#: kupu/plone/zmi_toolbar.pt:28
+msgid "global_button_visibility"
+msgstr "Globálna viditeľnosť tlačítok"
+
+#. Default: "Kupu Configuration"
+#: kupu/plone/kupu_config.pt:71
+msgid "heading_configuration"
+msgstr "Kupu - nastavenia"
+
+#. Default: "Default"
+#: kupu/plone/libraries.pt:121
+msgid "heading_default"
+msgstr "Štandardné hodnoty"
+
+#. Default: "Expression"
+#: kupu/plone/zmi_toolbar.pt:69
+msgid "heading_expression"
+msgstr "Výraz"
+
+#. Default: "Icon URI"
+#: kupu/plone/libraries.pt:106
+msgid "heading_icon_uri"
+msgstr "URI ikonky"
+
+#. Default: "ID"
+#: kupu/plone/libraries.pt:34
+msgid "heading_id"
+msgstr "ID"
+
+#. Default: "Kupu Libraries"
+#: kupu/plone/libraries.pt:9
+msgid "heading_kupu_libraries"
+msgstr "Kupu - knižnice"
+
+#. Default: "Kupu Resource Types"
+#: kupu/plone/resource_types.pt:8
+msgid "heading_kupu_resource_types"
+msgstr "Kupu - typy zdrojov"
+
+#. Default: "Source URI"
+#: kupu/plone/libraries.pt:102
+msgid "heading_source_uri"
+msgstr "URI zdroja"
+
+#. Default: "Title"
+#: kupu/plone/libraries.pt:40
+msgid "heading_title"
+msgstr "Názov"
+
+#. Default: "Kupu Toolbar Configuration"
+#: kupu/plone/zmi_toolbar.pt:20
+msgid "heading_toolbar_configuration"
+msgstr "Kupu Toolbar - nastavenia"
+
+#. Default: "URI"
+#: kupu/plone/libraries.pt:46
+msgid "heading_uri"
+msgstr "URI"
+
+#. Default: "Visible"
+#: kupu/plone/zmi_toolbar.pt:63
+msgid "heading_visible"
+msgstr "Viditeľné"
+
+#. Default: "use this entry to add a new resource"
+#: kupu/plone/resource_types.pt:54
+msgid "help_add_resource"
+msgstr "miesto na pridanie nového zdroja"
+
+#. Default: "When checked, the image drawer will include Original as an available size."
+#: kupu/plone/kupu_config.pt:229
+msgid "help_allow_original_image"
+msgstr "Aktivácia spôsobí, že pri vykresľovaní obrázkov bude k dispozícii aj ich originálna veľkosť."
+
+#. Default: "You may enter an expression to control the visibility of all buttons together. It should return a list of visible button ids, or None to leave all buttons visible. The visibility rules below are then applied to further filter out individual buttons. You might use this to restrict a particular class of users to a subset of kupu functions."
+#: kupu/plone/zmi_toolbar.pt:30
+msgid "help_button_visibility"
+msgstr "Dá sa vložiť výraz kontrolujúci viditeľnosť všetkých tlačítok spoločne. Mal by vracať zoznam id viditeľných tlačítok alebo None, ak majú byť vidieť všetky. Pravidlá pre viditeľnosť sú ďalej aplikované na filtrovanie jednotlivých tlačítok. Takýmto spôsobom môže byť určitým triedam používateľov regulovaný prístup k podmnožinám funkcií kupu."
+
+#. Default: "Enter a list of classnames to be excluded (one per line)"
+#: kupu/plone/kupu_config.pt:349
+msgid "help_class_blacklist"
+msgstr "List vylúčených názvov tried (jeden na riadok)"
+
+#. Default: "If you enable this option a transform to hide UIDs and support image captioning from client browsers will also be enabled"
+#: kupu/plone/kupu_config.pt:105
+msgid "help_enable_transform"
+msgstr "Transformácia skrývajúca UIDs a podporujúca popisy obrázkov v prehliadačoch návštevníkov bude týmto aktivovaná."
+
+#. Default: "When checked, Kupu's HTML view will display the filtered HTML which will be sent to the server. Uncheck this box to see the raw HTML generated by the browser."
+#: kupu/plone/kupu_config.pt:208
+msgid "help_filter_source"
+msgstr "Aktivovanie spôsobí, že Kupu zobrazí filtrované HTML, ktoré bude poslané na server. Deaktivujte ak chcete vidieť HTML generované prehliadačom."
+
+#. Default: "Control the global visibility of toolbar buttons from this screen. If no expression is entered, only checked buttons are visible. Enter an expression for finer control of visibility. Individual fields may also whitelist or blacklist buttons: see the field schema. <div>Values available in expressions includes 'field' as well as the usual names</div> <!-- object_url folder_url portal_url object folder portal nothing request modules member --> e.g. to restrict the drawer buttons to users with the appropriate permissions give imagelibdrawer-button and linklibdrawer-button the expression: <div> <code>python:member and member.has_permission('Kupu: Query libraries',portal)</code> </div>"
+#: kupu/plone/zmi_toolbar.pt:43
+msgid "help_global_visibility"
+msgstr "Kontrola globálnej viditeľnosti tlačítok panela nástrojov. Bez vloženého výrazu sú viditeľné len aktivované tlačítka. Jemnejšia kontrola viditeľnosti sa dosiahne vložením výrazu. Individuálne políčka múžu mať tiež zoznamy povolených a zakázaných tlačítok: viď. schéma políčok. <div>Povolené hodnoty vo výrazoch zahŕňajú 'field' spolu s obvyklými premennými</div> <!-- object_url folder_url portal_url object folder portal nothing request modules member --> napr. na povolenie vykresľovacích tlačítok len pre používateľov so zodpovedajúcimi oprávneniami vložte pre imagelibdrawer a linklibdrawer výraz: <div> <code>python:member and member.has_permission('Kupu: Query libraries',portal)</code> </div>"
+
+#. Default: "see image captioning documentation"
+#: kupu/plone/kupu_config.pt:109
+msgid "help_image_captioning_url"
+msgstr "viď. dokumentácia k popisom obrázkov"
+
+#. Default: "Images which are linked using UID based links may be automatically captioned."
+#: kupu/plone/kupu_config.pt:132
+msgid "help_image_uid_caption"
+msgstr "Obrázky prelinkované cez UID odkazy môžu mať automaticky pridané popisy."
+
+#. Default: "Links to objects on this site created by Kupu can use unique object ids so that the links remain valid even if the target object is renamed or moved elsewhere on the site."
+#: kupu/plone/kupu_config.pt:92
+msgid "help_link_uid"
+msgstr "Lokálne linky vytvorené v Kupu môžu používať unikátne identifikátory objektov, UIDs, čo umožní aby zostali platné aj po premenovaní alebo premiestnení cieľového objektu."
+
+#. Default: "Kupu can install a handler to warn before navigating away from a page where a form (even the non-Kupu fields) has been edited. Turn this off to prevent Kupu loading its own handler."
+#: kupu/plone/kupu_config.pt:189
+msgid "help_navigate_away"
+msgstr "S Kupu môže byť nainštalovaný ovládač varujúci pred opustením editovanej stránky s formulárom. Spomínaná vlastnosť sa dá deaktivovať tu."
+
+#. Default: "Enter a list of styles to appear in the style pulldown. Format is title|tag or title|tag|className, one per line."
+#: kupu/plone/kupu_config.pt:252
+msgid "help_paragraph_styles"
+msgstr "Zoznam štýlov paragrafov. Formát je title|tag alebo title|tag|className, vždy práve jedna kombinácia na riadok."
+
+#. Default: "Replace ATReferenceBrowser widget with a widget which uses Kupu's drawers instead of a popup window."
+#: kupu/plone/kupu_config.pt:171
+msgid "help_refbrowser"
+msgstr "Nahradiť ATReferenceBrowser widget za widget používajúci Kupu vykresľovače namiesto popup okna."
+
+#. Default: "Enter HTML tags and attributes to be removed when saving documents. (Uncheck to remove entries)"
+#: kupu/plone/kupu_config.pt:282
+msgid "help_remove_entities"
+msgstr "HTML tagy a atribúty odstraňované pri ukladaní dokumentov. (Deaktivujte na odstránenie položiek)"
+
+#. Default: "Enter a list of style elements to be permitted (one per line)"
+#: kupu/plone/kupu_config.pt:333
+msgid "help_style_whitelist"
+msgstr "Zoznam povolených elementov štýlu (vždy po jednom na riadok)"
+
+#. Default: "Enter a list of class names to be made available in the table drawer"
+#: kupu/plone/kupu_config.pt:241
+msgid "help_table_classes"
+msgstr "Zoznam názvov tried prístupných v menu pre tabuľky"
+
+#. Default: "A portal transform to hide the UIDs from client browsers is currently operating for the fields:"
+#: kupu/plone/kupu_config.pt:98
+msgid "help_transform_is_enabled"
+msgstr "Transformácia skrývajúca UIDs v prehliadačoch návštevníkov je aktivovaná pre polia:"
+
+#. Default: "If the transform does not enable itself automatically you may need to update your PortalTransforms product."
+#: kupu/plone/kupu_config.pt:112
+msgid "help_update_portal_transforms"
+msgstr "Ak sa transformácia neaktivuje automaticky, môže byť potrebné aktualizovať PortalTransforms produkt."
+
+#. Default: "Image"
+#: kupu/plone/resource_types.pt:237
+msgid "image_option"
+msgstr "Obrázok"
+
+#. Default: "Allow original size images"
+#: kupu/plone/kupu_config.pt:226
+msgid "label_allowOriginalImageSize"
+msgstr "Povoliť obrázky v originálnej veľkosti"
+
+#. Default: "Attributes"
+#: kupu/plone/kupu_config.pt:276
+msgid "label_attributes"
+msgstr "Atribúty"
+
+#. Default: "Class Blacklist"
+#: kupu/plone/kupu_config.pt:344
+msgid "label_class_blacklist"
+msgstr "Triedy na čiernom zozname"
+
+#. Default: "Filter HTML in source view"
+#: kupu/plone/kupu_config.pt:206
+msgid "label_filtersourceedit"
+msgstr "Filtrovať HTML v náhľade zdrojového kódu"
+
+#. Default: "Icon URI"
+#: kupu/plone/libraries.pt:58
+msgid "label_icon_uri"
+msgstr "URI ikonky"
+
+#. Default: "Install Kupu code to detect form changes"
+#: kupu/plone/kupu_config.pt:187
+msgid "label_install_kupu"
+msgstr "Kupu kód na detekciu zmien vo formulároch"
+
+#. Default: "Link using UIDs"
+#: kupu/plone/kupu_config.pt:89
+msgid "label_link_uid"
+msgstr "Linkovať použitím UIDs"
+
+#. Default: "Styles"
+#: kupu/plone/kupu_config.pt:251
+msgid "label_paragraph_styles"
+msgstr "Štýly paragrafov"
+
+#. Default: "Use Kupu Reference Browser"
+#: kupu/plone/kupu_config.pt:169
+msgid "label_refbrowser"
+msgstr "Kupu - prehliadač referencií"
+
+#. Default: "Source URI"
+#: kupu/plone/libraries.pt:52
+msgid "label_source_uri"
+msgstr "URI zdroja"
+
+#. Default: "Style Whitelist"
+#: kupu/plone/kupu_config.pt:329
+msgid "label_style_whitelist"
+msgstr "Zoznam povolených štýlov"
+
+#. Default: "Tables"
+#: kupu/plone/kupu_config.pt:240
+msgid "label_tables"
+msgstr "Tabuľky"
+
+#. Default: "Tags"
+#: kupu/plone/kupu_config.pt:275
+msgid "label_tags"
+msgstr "Tagy"
+
+#. Default: "Original Image Size"
+#: kupu/plone/kupu_config.pt:215
+msgid "legend_alloworiginalsize"
+msgstr "Originálna veľkosť obrázku"
+
+#. Default: "Button visibility"
+#: kupu/plone/zmi_toolbar.pt:42
+msgid "legend_button_visibility"
+msgstr "Viditeľnosť tlačítok"
+
+#. Default: "Captioning"
+#: kupu/plone/kupu_config.pt:123
+msgid "legend_caption"
+msgstr "Popisovanie"
+
+#. Default: "HTML View"
+#: kupu/plone/kupu_config.pt:197
+msgid "legend_filtersourceedit"
+msgstr "HTML náhľad"
+
+#. Default: "HTML Filter"
+#: kupu/plone/kupu_config.pt:262
+msgid "legend_html_filter"
+msgstr "HTML filter"
+
+#. Default: "Link options"
+#: kupu/plone/kupu_config.pt:80
+msgid "legend_link_options"
+msgstr "Odkaz - možnosti"
+
+#. Default: "Map resource types"
+#: kupu/plone/resource_types.pt:34
+msgid "legend_map_resource_types"
+msgstr "Mapa typov zdrojov"
+
+#. Default: "Reference Browser"
+#: kupu/plone/kupu_config.pt:160
+msgid "legend_refbrowser"
+msgstr "Prehliadač referencií"
+
+#. Default: "Styles"
+#: kupu/plone/kupu_config.pt:238
+msgid "legend_styles"
+msgstr "Štýly"
+
+#. Default: "Warn before losing changes"
+#: kupu/plone/kupu_config.pt:178
+msgid "legend_warning"
+msgstr "Varovanie pri riziku straty úprav"
+
+#. Default: "Loading kupu link maintenance..."
+#: kupu/plone/zmi_links.pt:27
+msgid "loading_links_tab"
+msgstr "Údržba odkazov v kupu..."
+
+#. Default: "Map resource types"
+#: kupu/plone/resource_types.pt:39
+msgid "map_resource_types"
+msgstr "Mapa typov zdrojov"
+
+#. Default: "New types"
+#: kupu/plone/resource_types.pt:101
+msgid "new_types_heading"
+msgstr "Nové typy"
+
+#. Default: "Normal&nbsp;image"
+#: kupu/plone/resource_types.pt:196
+msgid "normal_image"
+msgstr "Normálny obrázok"
+
+#. Default: "are not added to selection"
+#: kupu/plone/resource_types.pt:105
+msgid "opt_exclusive"
+msgstr "nie sú pridané do výberu"
+
+#. Default: "are added to selection"
+#: kupu/plone/resource_types.pt:109
+msgid "opt_inclusive"
+msgstr "sú pridané do výberu"
+
+#. Default: "Plone HTML filter control panel"
+#: kupu/plone/kupu_config.pt:269
+msgid "plone_filter_controlpanel"
+msgstr "Plone HTML filter - kontrolný panel"
+
+#. Default: "The portal object"
+#: kupu/plone/libraries.pt:153
+msgid "portal_object"
+msgstr "Objekt reprezentujúci portál"
+
+#. Default: "URL of the portal"
+#: kupu/plone/libraries.pt:157
+msgid "portal_object_url"
+msgstr "URL portálu"
+
+#. Default: "Portal Types"
+#: kupu/plone/resource_types.pt:73
+msgid "portal_types_heading"
+msgstr "Portálové typy"
+
+#. Default: "<code>Preview</code> is an expression to use for the preview image in the drawer [default is no preview]. <code>Normal image</code> is an expression to use for the normal view of a mediaobject [string:$object_url]. <code>Fieldname</code> is the name of the field to use for scaled variants of the mediaobject [image]. <code>Classes</code> is a list of classnames which may be selected when inserting the object as media. <code>Type</code> controls whether kupu inserts an img tag or an object tag to embed flash."
+#: kupu/plone/resource_types.pt:337
+msgid "preview_action_help"
+msgstr "<code>Náhľad</code> je výraz používaný pre náhľady na obrázky [štandardne je bez náhľadu]. <code>Normálny obrázok</code> je výraz pre normálny pohľad na mediálny objekt [string:$object_url]. <code>Názov políčka</code> je názvom políčka pre škálované varianty mediálneho objektu [image]. <code>Triedy</code> je zoznam názvov tried, ktoré môžu byť použité pri vkladaní objektu ako média. <code>Typ</code> kontroluje, či kupu použije img tag, alebo object tag pre flash."
+
+#. Default: "preview"
+#: kupu/plone/resource_types.pt:187
+msgid "preview_subheading"
+msgstr "náhľad"
+
+#. Default: "Request"
+#: kupu/plone/libraries.pt:165
+msgid "request"
+msgstr "Požiadavka"
+
+#. Default: "Resource"
+#: kupu/plone/resource_types.pt:65
+msgid "resource_heading"
+msgstr "Zdroj"
+
+#. Default: "(select type)"
+#: kupu/plone/resource_types.pt:257
+msgid "select_type"
+msgstr "(výber typu)"
+
+#. Default: "Config"
+#: kupu/plone/kupu_config.pt:30
+msgid "tab_config"
+msgstr "Konfigurácia"
+
+#. Default: "Documentation"
+#: kupu/plone/kupu_config.pt:48
+msgid "tab_documentation"
+msgstr "Dokumentácia"
+
+#. Default: "Libraries"
+#: kupu/plone/kupu_config.pt:36
+msgid "tab_libraries"
+msgstr "Knižnice"
+
+#. Default: "Links"
+#: kupu/plone/kupu_config.pt:54
+msgid "tab_links"
+msgstr "Odkazy"
+
+#. Default: "Resource Types"
+#: kupu/plone/kupu_config.pt:42
+msgid "tab_resourcetypes"
+msgstr "Typy zdrojov"
+
+#. Default: "Toolbar"
+#: kupu/plone/kupu_config.pt:60
+msgid "tab_toolbar"
+msgstr "Lišta nástrojov"
+
+#. Default: "In the form below, you may manage the list of drawer libraries for the Kupu editor. Each property of a library is dynamically expanded at execution time using TALES expressions. That way it is possible, to support libraries like <em>Current folder</em> or <em>My folder</em> very easily."
+#: kupu/plone/libraries.pt:11
+msgid "text_kupu_drawers"
+msgstr "Formulár na kontrolu vykresľovacích knižníc editora Kupu. Každá vlastnosť knižnice je dynamicky expandovaná pri vykonaní formou TALES výrazu. Takýmto spôsobom je možné ľahko podporovať knižnice ako <em>Aktuálny adresár</em> alebo <em>Môj adresár</em>."
+
+#. Default: "Libraries with ids that begin with an underscore will not display in the initial library list. <em>_search</em> will be used to set the icon and title for search results. The first $ character in the title will be replaced by the search string. <em>_selection</em> will be used to set the icon and title for the current selection."
+#: kupu/plone/libraries.pt:17
+msgid "text_kupu_drawers2"
+msgstr "Knižnice s podčiarkovníkom na začiatku id sa nezobrazia v počiatočnom zozname. <em>_search</em> sa použije na nastavenie ikonky a názvu výsledkov vyhľadávania. Prvý znak $ v názve, nadpise sa nahradí vyhľadávaným reťazcom. <em>_selection</em> sa použije na nastavenie ikonky a názvu aktuálneho výberu."
+
+#. Default: "The title string may contain html &lt;br&gt; tags to put a line break in the title (not the xhtml &lt;br/&gt; form), but otherwise tags are not interpreted."
+#: kupu/plone/libraries.pt:23
+msgid "text_kupu_drawers3"
+msgstr "Názov, nadpis môže obsahovať html &lt;br&gt; tagy na vloženie zlomu riadku (nie v xhtml &lt;br/&gt; forme), ale ináč tagy nie sú interpretované."
+
+#. Default: "While libraries provide abstract locations for objects of any type, Kupu distinguishes objects by resource type. For example, a user might request a library showing objects to link to or a library showing objects to be inserted into a document. The abstract location (library) might be the same, but the former library would contain documents, the latter images."
+#: kupu/plone/resource_types.pt:15
+msgid "text_resource_types"
+msgstr "Knižnice poskytujú abstraktné miesta pre objekty ľubovoľného typu. Kupu rozlišuje objekty podľa typu zdroja. Napr. používateľ môže požadovať knižnicu zobrazujúcu linkovateľné objekty alebo knižnicu zobrazujúcu objekty vkladateľné do dokumentu. Abstraktné umiestnenie (knižnica) môže byť rovnaké, ale prvá knižnica bude obsahovať dokumenty a druhá obrázky."
+
+#. Default: "This management screen allows you to define resource types using a list of portal types. A special resource type, <code>collection</code>, identifies portal types that are to be treated as collections. The resource type <code>containsanchors</code> is used to list types which may contain HTML anchors."
+#: kupu/plone/resource_types.pt:21
+msgid "text_resource_types2"
+msgstr "Tento formulár umožňuje definovať typy zdrojov pomocou zoznamu portálových typov. Špeciálny typ zdroja, <code>collection</code>, identifikuje portálové typy, ktoré majú byť spravované ako kolekcie. Typ zdroja <code>containsanchors</code> je zoznamom typov, ktoré môžu obsahovať HTML kotvy."
+
+#. Default: "Also on this screen are urls for each type which can be previewed as an image. The expression may use <code>object_url</code> and <code>portal_type</code>, but should not attempt to access the object directly. The resulting URL should ideally return an image no larger than 128 pixels square."
+#: kupu/plone/resource_types.pt:27
+msgid "text_resource_types3"
+msgstr "Na tejto stránke sú tiež URL pre každý typ, ktorý môže mať náhľad ako obrázok. Výraz môže využiť <code>object_url</code> a <code>portal_type</code>, ale nemal by sa pokúšať o priamy prístup k objektu. Výsledná URL by mala, v ideálnom prípade, vracať obrázok o veľkosti nanajvýš 128 pixelov na druhú."
+
+#. Default: "Type"
+#: kupu/plone/resource_types.pt:162
+msgid "type_heading"
+msgstr "Typ"
+
+#. Default: "type"
+#: kupu/plone/resource_types.pt:233
+msgid "type_subheading"
+msgstr "typ"
+
+#. Default: "URL"
+#: kupu/plone/resource_types.pt:163
+msgid "url_heading"
+msgstr "URL"
+
+#. Default: "Please use the ${plone_filter_controlpanel} to set filtering options."
+#: kupu/plone/kupu_config.pt:266
+msgid "use_plone_controlpanel"
+msgstr "Možnosti filtrovania sa nastavujú v: ${plone_filter_controlpanel}"
+
+#. Default: "Whole tag removed"
+#: kupu/plone/kupu_config.pt:305
+msgid "whole_tag_removed"
+msgstr "Bol odstránený celý tag"
+

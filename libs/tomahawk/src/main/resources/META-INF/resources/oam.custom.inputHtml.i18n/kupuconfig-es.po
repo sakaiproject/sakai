@@ -1,0 +1,579 @@
+# Translation of kupuconfig.pot to Spanish
+# Alberto Serrano <alb.serrano@gmail.com>, 2007-2008
+msgid ""
+msgstr ""
+"Project-Id-Version: Kupu\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: 2008-05-06 18:50+0000\n"
+"Last-Translator: Alberto Serrano <alb.serrano@gmail.com>\n"
+"Language-Team: Español <zope-es@aditel.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language-Code: es\n"
+"Language-Name: Español\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: kupuconfig\n"
+"X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
+
+#. Default: "Action URLs"
+#: kupu/plone/resource_types.pt:158
+msgid "action_url_heading"
+msgstr "URLs de Acción"
+
+#. Default: "Allow captioned images"
+#: kupu/plone/kupu_config.pt:129
+msgid "allow_captioned_images"
+msgstr "Permitir el uso de leyendas en imágenes"
+
+#. Default: "Any tag"
+#: kupu/plone/kupu_config.pt:302
+msgid "any_tag"
+msgstr "Cualquier etiqueta"
+
+#. Default: "Authenticated member"
+#: kupu/plone/libraries.pt:161
+msgid "authenticated_member"
+msgstr "Miembro autenticado"
+
+#. Default: "The following variables are available in the TALES expressions:"
+#: kupu/plone/libraries.pt:133
+msgid "available_tales"
+msgstr "Las siguientes variables están disponibles como expresiones TALES:"
+
+#. Default: "Add"
+#: kupu/plone/libraries.pt:112
+msgid "button_add"
+msgstr "Agregar"
+
+#. Default: "Delete"
+#: kupu/plone/libraries.pt:74
+msgid "button_delete"
+msgstr "Eliminar"
+
+#. Default: "Move Down"
+#: kupu/plone/libraries.pt:81
+msgid "button_move_down"
+msgstr "Bajar"
+
+#. Default: "Move Up"
+#: kupu/plone/libraries.pt:78
+msgid "button_move_up"
+msgstr "Subir"
+
+#. Default: "Save"
+#: kupu/plone/libraries.pt:71
+msgid "button_save"
+msgstr "Guardar"
+
+#. Default: "Set"
+#: kupu/plone/libraries.pt:128
+msgid "button_set"
+msgstr "Establecer"
+
+#. Default: "Fields which appear to currently support image captioning:"
+#: kupu/plone/kupu_config.pt:150
+msgid "caption_is_supported"
+msgstr "Campos que parecen soportar actualmente el uso de leyendas en imágenes:"
+
+#. Default: "Fields which could support image captioning:"
+#: kupu/plone/kupu_config.pt:148
+msgid "caption_maybe_supported"
+msgstr "Campos que podrían soportar el uso de leyendas en imágenes:"
+
+#. Default: "Fields which use kupu but do not support image captioning:"
+#: kupu/plone/kupu_config.pt:153
+msgid "caption_not_supported"
+msgstr "Campos utilizados por kupu pero que no soportan el uso de leyendas en imágenes:"
+
+#. Default: "Select all items"
+#: kupu/plone/zmi_toolbar.pt:64
+msgid "check_select_all"
+msgstr "Seleccionar todos los elementos"
+
+#. Default: "classes"
+#: kupu/plone/resource_types.pt:224
+msgid "classes_subheading"
+msgstr "clases"
+
+#. Default: "The folder the context object is located in"
+#: kupu/plone/libraries.pt:145
+msgid "context_folder"
+msgstr "La carpeta en la que el objeto de contexto está situado"
+
+#. Default: "The URL of the folder the context object is located in"
+#: kupu/plone/libraries.pt:149
+msgid "context_folder_uri"
+msgstr "El URL de la carpeta en la que el objeto de contexto está situado"
+
+#. Default: "The current context object"
+#: kupu/plone/libraries.pt:137
+msgid "current_context"
+msgstr "El objeto de contexto actual"
+
+#. Default: "The URL of the current context object"
+#: kupu/plone/libraries.pt:141
+msgid "current_context_url"
+msgstr "El URL del objeto de contexto actual"
+
+#. Default: "specify a resource type to be used for reference fields with an empty list of allowed types"
+#: kupu/plone/resource_types.pt:121
+msgid "default_reference_resource"
+msgstr "especifique un tipo de recurso para ser utilizado en los campos de referencia con una lista vacía de tipos permitidos"
+
+#. Default: "Default resource"
+#: kupu/plone/resource_types.pt:127
+msgid "default_resource_heading"
+msgstr "Recurso por defecto"
+
+#. Default: "default scale"
+#: kupu/plone/resource_types.pt:214
+msgid "defscale_subheading"
+msgstr "escala por defecto"
+
+#. Default: "fieldname"
+#: kupu/plone/resource_types.pt:205
+msgid "fieldname_subheading"
+msgstr "nombre de campo"
+
+#. Default: "Flash"
+#: kupu/plone/resource_types.pt:240
+msgid "flash_option"
+msgstr "Flash"
+
+#. Default: "Global button visibility"
+#: kupu/plone/zmi_toolbar.pt:28
+msgid "global_button_visibility"
+msgstr "Visibilidad global de botones"
+
+#. Default: "Kupu Configuration"
+#: kupu/plone/kupu_config.pt:71
+msgid "heading_configuration"
+msgstr "Configuración de Kupu"
+
+#. Default: "Default"
+#: kupu/plone/libraries.pt:121
+msgid "heading_default"
+msgstr "Por defecto"
+
+#. Default: "Expression"
+#: kupu/plone/zmi_toolbar.pt:69
+msgid "heading_expression"
+msgstr "Expresión"
+
+#. Default: "Icon URI"
+#: kupu/plone/libraries.pt:106
+msgid "heading_icon_uri"
+msgstr "URI de Icono"
+
+#. Default: "ID"
+#: kupu/plone/libraries.pt:34
+msgid "heading_id"
+msgstr "ID"
+
+#. Default: "Kupu Libraries"
+#: kupu/plone/libraries.pt:9
+msgid "heading_kupu_libraries"
+msgstr "Bibliotecas de Kupu"
+
+#. Default: "Kupu Resource Types"
+#: kupu/plone/resource_types.pt:8
+msgid "heading_kupu_resource_types"
+msgstr "Tipos de Recursos de Kupu"
+
+#. Default: "Source URI"
+#: kupu/plone/libraries.pt:102
+msgid "heading_source_uri"
+msgstr "URI Origen"
+
+#. Default: "Title"
+#: kupu/plone/libraries.pt:40
+msgid "heading_title"
+msgstr "Título"
+
+#. Default: "Kupu Toolbar Configuration"
+#: kupu/plone/zmi_toolbar.pt:20
+msgid "heading_toolbar_configuration"
+msgstr "Configuración de la Barra de Herramientas de Kupu"
+
+#. Default: "URI"
+#: kupu/plone/libraries.pt:46
+msgid "heading_uri"
+msgstr "URI"
+
+#. Default: "Visible"
+#: kupu/plone/zmi_toolbar.pt:63
+msgid "heading_visible"
+msgstr "Visible"
+
+#. Default: "use this entry to add a new resource"
+#: kupu/plone/resource_types.pt:54
+msgid "help_add_resource"
+msgstr "use esta entrada para agregar un nuevo recurso"
+
+#. Default: "When checked, the image drawer will include Original as an available size."
+#: kupu/plone/kupu_config.pt:229
+msgid "help_allow_original_image"
+msgstr "Si se marca, el diseñador de imágenes incluirá el Original como un tamaño disponible."
+
+#. Default: "You may enter an expression to control the visibility of all buttons together. It should return a list of visible button ids, or None to leave all buttons visible. The visibility rules below are then applied to further filter out individual buttons. You might use this to restrict a particular class of users to a subset of kupu functions."
+#: kupu/plone/zmi_toolbar.pt:30
+msgid "help_button_visibility"
+msgstr "Puede introducir una expresión para controlar la visibilidad de todos los botones globalmente. Debería devolver una lista de ids de botones, o Nada para dejar todos los botones visibles. Las siguientes reglas de visibilidad se aplicarán para filtrar los botones individuales. Puede utilizar esto para restringir a una clase particular de usuarios un subconjunto de las funciones de Kupu."
+
+#. Default: "Enter a list of classnames to be excluded (one per line)"
+#: kupu/plone/kupu_config.pt:349
+msgid "help_class_blacklist"
+msgstr "Introduzca una lista de nombres de clases a ser excluidos (uno por línea)"
+
+#. Default: "If you enable this option a transform to hide UIDs and support image captioning from client browsers will also be enabled"
+#: kupu/plone/kupu_config.pt:105
+msgid "help_enable_transform"
+msgstr "Si habilita esta opción, también se habilitará una transformación para ocultar los UIDs y soportar las leyendas en imágenes para los navegadores."
+
+#. Default: "When checked, Kupu's HTML view will display the filtered HTML which will be sent to the server. Uncheck this box to see the raw HTML generated by the browser."
+#: kupu/plone/kupu_config.pt:208
+msgid "help_filter_source"
+msgstr "Si se marca, la vista de HTML de Kupu mostrará el HTML filtrado que será enviado al servidor. Desmarque esta opción para ver el HTML en crudo generado por el navegador."
+
+#. Default: "Control the global visibility of toolbar buttons from this screen. If no expression is entered, only checked buttons are visible. Enter an expression for finer control of visibility. Individual fields may also whitelist or blacklist buttons: see the field schema. <div>Values available in expressions includes 'field' as well as the usual names</div> <!-- object_url folder_url portal_url object folder portal nothing request modules member --> e.g. to restrict the drawer buttons to users with the appropriate permissions give imagelibdrawer-button and linklibdrawer-button the expression: <div> <code>python:member and member.has_permission('Kupu: Query libraries',portal)</code> </div>"
+#: kupu/plone/zmi_toolbar.pt:43
+msgid "help_global_visibility"
+msgstr "Control de la visibilidad global de los botones de la barra de herramientas desde esta pantalla. Si no se introduce ninguna expresión, sólo los botones marcados serán visibles. Introduzca una expresión para un control más fino de la visibilidad. Los campos individuales también pueden permitir o denegar la visibilidad de botones: vea el esquema de campos. <div>Los valores disponibles en las expresiones incluyen 'field' así como otros nombres usuales</div><!-- object_url folder_url portal_url object folder portal nothing request modules member --> Por ejemplo, para restringir los botones del diseñador a usuarios con los permisos apropiados, asigne a imagelibdrawer-button y linklibdrawer-button la expresión: <div> <code>python:member and member.has_permission('Kupu: Query libraries',portal)</code> </div>"
+
+#. Default: "see image captioning documentation"
+#: kupu/plone/kupu_config.pt:109
+msgid "help_image_captioning_url"
+msgstr "vea la documentación sobre el uso de leyendas en imágenes"
+
+#. Default: "Images which are linked using UID based links may be automatically captioned."
+#: kupu/plone/kupu_config.pt:132
+msgid "help_image_uid_caption"
+msgstr "Las imágenes que están enlazadas utilizando enlaces basados en UID pueden tener leyendas automáticamente."
+
+#. Default: "Links to objects on this site created by Kupu can use unique object ids so that the links remain valid even if the target object is renamed or moved elsewhere on the site."
+#: kupu/plone/kupu_config.pt:92
+msgid "help_link_uid"
+msgstr "Los enlaces a objetos de este sitio creados por Kupu pueden utilizar ids únicos de objetos, de modo que los enlaces sigan siendo válidos aun si el objeto de destino ha sido renombrado o movido a otra parte del sitio."
+
+#. Default: "Kupu can install a handler to warn before navigating away from a page where a form (even the non-Kupu fields) has been edited. Turn this off to prevent Kupu loading its own handler."
+#: kupu/plone/kupu_config.pt:189
+msgid "help_navigate_away"
+msgstr "Kupu puede instalar un manejador para advertirle antes de salir de una página en la que un formulario (incluyendo los campos que no son de Kupu) ha sido editado. Deshabilite este comportamiento para evitar que Kupu cargue su propio manejador."
+
+#. Default: "Enter a list of styles to appear in the style pulldown. Format is title|tag or title|tag|className, one per line."
+#: kupu/plone/kupu_config.pt:252
+msgid "help_paragraph_styles"
+msgstr "Introduzca una lista de estilos de párrafo para que aparezcan en la lista desplegable de estilos. El formato es título|etiqueta o título|etiqueta|nombreClase, uno por línea."
+
+#. Default: "Replace ATReferenceBrowser widget with a widget which uses Kupu's drawers instead of a popup window."
+#: kupu/plone/kupu_config.pt:171
+msgid "help_refbrowser"
+msgstr "Reemplazar el control ATReferenceBrowser por otro control que utilice los diseñadores de Kupu en lugar de una ventana emergente."
+
+#. Default: "Enter HTML tags and attributes to be removed when saving documents. (Uncheck to remove entries)"
+#: kupu/plone/kupu_config.pt:282
+msgid "help_remove_entities"
+msgstr "Introduzca etiquetas HTML y atributos que deben ser quitados al guardar documentos. (Desmarque para quitar una entrada)"
+
+#. Default: "Enter a list of style elements to be permitted (one per line)"
+#: kupu/plone/kupu_config.pt:333
+msgid "help_style_whitelist"
+msgstr "Introduzca una lista de elementos de estilo a ser permitidos (uno por línea)"
+
+#. Default: "Enter a list of class names to be made available in the table drawer"
+#: kupu/plone/kupu_config.pt:241
+msgid "help_table_classes"
+msgstr "Introduzca una lista de nombres de clases a dejar disponibles en el diseñador de tablas"
+
+#. Default: "A portal transform to hide the UIDs from client browsers is currently operating for the fields:"
+#: kupu/plone/kupu_config.pt:98
+msgid "help_transform_is_enabled"
+msgstr "Actualmente, una transformación de portal para ocultar los UIDs de los navegadores cliente está operando para los siguientes campos:"
+
+#. Default: "If the transform does not enable itself automatically you may need to update your PortalTransforms product."
+#: kupu/plone/kupu_config.pt:112
+msgid "help_update_portal_transforms"
+msgstr "Si la transformación no se habilita a si misma automáticamente, es posible que necesite actualizar su producto PortalTransforms."
+
+#. Default: "Image"
+#: kupu/plone/resource_types.pt:237
+msgid "image_option"
+msgstr "Imagen"
+
+#. Default: "Allow original size images"
+#: kupu/plone/kupu_config.pt:226
+msgid "label_allowOriginalImageSize"
+msgstr "Permitir tamaños de imagen originales"
+
+#. Default: "Attributes"
+#: kupu/plone/kupu_config.pt:276
+msgid "label_attributes"
+msgstr "Atributos"
+
+#. Default: "Class Blacklist"
+#: kupu/plone/kupu_config.pt:344
+msgid "label_class_blacklist"
+msgstr "Lista de clases CSS no permitidas"
+
+#. Default: "Filter HTML in source view"
+#: kupu/plone/kupu_config.pt:206
+msgid "label_filtersourceedit"
+msgstr "Filtrar el código HTML en la vista de código fuente"
+
+#. Default: "Icon URI"
+#: kupu/plone/libraries.pt:58
+msgid "label_icon_uri"
+msgstr "URI de icono"
+
+#. Default: "Install Kupu code to detect form changes"
+#: kupu/plone/kupu_config.pt:187
+msgid "label_install_kupu"
+msgstr "Instalar el código de Kupu para detectar cambios en formularios"
+
+#. Default: "Link using UIDs"
+#: kupu/plone/kupu_config.pt:89
+msgid "label_link_uid"
+msgstr "Enlace mediante UIDs"
+
+#. Default: "Styles"
+#: kupu/plone/kupu_config.pt:251
+msgid "label_paragraph_styles"
+msgstr "Estilos"
+
+#. Default: "Use Kupu Reference Browser"
+#: kupu/plone/kupu_config.pt:169
+msgid "label_refbrowser"
+msgstr "Utilizar el Navegador de Referencias de Kupu"
+
+#. Default: "Source URI"
+#: kupu/plone/libraries.pt:52
+msgid "label_source_uri"
+msgstr "URI del origen"
+
+#. Default: "Style Whitelist"
+#: kupu/plone/kupu_config.pt:329
+msgid "label_style_whitelist"
+msgstr "Lista de estilos CSS permitidos"
+
+#. Default: "Tables"
+#: kupu/plone/kupu_config.pt:240
+msgid "label_tables"
+msgstr "Tablas"
+
+#. Default: "Tags"
+#: kupu/plone/kupu_config.pt:275
+msgid "label_tags"
+msgstr "Etiquetas"
+
+#. Default: "Original Image Size"
+#: kupu/plone/kupu_config.pt:215
+msgid "legend_alloworiginalsize"
+msgstr "Imagen en Tamaño Original"
+
+#. Default: "Button visibility"
+#: kupu/plone/zmi_toolbar.pt:42
+msgid "legend_button_visibility"
+msgstr "Visibilidad de botones"
+
+#. Default: "Captioning"
+#: kupu/plone/kupu_config.pt:123
+msgid "legend_caption"
+msgstr "Leyendas"
+
+#. Default: "HTML View"
+#: kupu/plone/kupu_config.pt:197
+msgid "legend_filtersourceedit"
+msgstr "Vista HTML"
+
+#. Default: "HTML Filter"
+#: kupu/plone/kupu_config.pt:262
+msgid "legend_html_filter"
+msgstr "Filtro HTML"
+
+#. Default: "Link options"
+#: kupu/plone/kupu_config.pt:80
+msgid "legend_link_options"
+msgstr "Opciones de enlaces"
+
+#. Default: "Map resource types"
+#: kupu/plone/resource_types.pt:34
+msgid "legend_map_resource_types"
+msgstr "Asociación de tipos de contenido"
+
+#. Default: "Reference Browser"
+#: kupu/plone/kupu_config.pt:160
+msgid "legend_refbrowser"
+msgstr "Navegador de Referencias"
+
+#. Default: "Styles"
+#: kupu/plone/kupu_config.pt:238
+msgid "legend_styles"
+msgstr "Estilos"
+
+#. Default: "Warn before losing changes"
+#: kupu/plone/kupu_config.pt:178
+msgid "legend_warning"
+msgstr "Avisar antes de perder los cambios"
+
+#. Default: "Loading kupu link maintenance..."
+#: kupu/plone/zmi_links.pt:27
+msgid "loading_links_tab"
+msgstr "Cargando enlace de mantenimiento de kupu..."
+
+#. Default: "Map resource types"
+#: kupu/plone/resource_types.pt:39
+msgid "map_resource_types"
+msgstr "Asociaciones de tipos de recursos"
+
+#. Default: "New types"
+#: kupu/plone/resource_types.pt:101
+msgid "new_types_heading"
+msgstr "Nuevos tipos"
+
+#. Default: "Normal&nbsp;image"
+#: kupu/plone/resource_types.pt:196
+msgid "normal_image"
+msgstr "Imagen&nbsp;normal"
+
+#. Default: "are not added to selection"
+#: kupu/plone/resource_types.pt:105
+msgid "opt_exclusive"
+msgstr "no son agregados a la selección"
+
+#. Default: "are added to selection"
+#: kupu/plone/resource_types.pt:109
+msgid "opt_inclusive"
+msgstr "son agregados a la selección"
+
+#. Default: "Plone HTML filter control panel"
+#: kupu/plone/kupu_config.pt:269
+msgid "plone_filter_controlpanel"
+msgstr "Panel de control de filtrado HTML de Plone"
+
+#. Default: "The portal object"
+#: kupu/plone/libraries.pt:153
+msgid "portal_object"
+msgstr "El objeto portal"
+
+#. Default: "URL of the portal"
+#: kupu/plone/libraries.pt:157
+msgid "portal_object_url"
+msgstr "URL del portal"
+
+#. Default: "Portal Types"
+#: kupu/plone/resource_types.pt:73
+msgid "portal_types_heading"
+msgstr "Tipos del Portal"
+
+#. Default: "<code>Preview</code> is an expression to use for the preview image in the drawer [default is no preview]. <code>Normal image</code> is an expression to use for the normal view of a mediaobject [string:$object_url]. <code>Fieldname</code> is the name of the field to use for scaled variants of the mediaobject [image]. <code>Classes</code> is a list of classnames which may be selected when inserting the object as media. <code>Type</code> controls whether kupu inserts an img tag or an object tag to embed flash."
+#: kupu/plone/resource_types.pt:337
+msgid "preview_action_help"
+msgstr "La <code>Vista Preliminar</code> es una expresión a usar para la vista preliminar de la imagen en el diseñador [por defecto no se utiliza]. <code>Imagen normal</code> es una expresión a usar para la vista normal de un objeto multimedia [string:$object_url]. <code>Nombre de campo</code> es el nombre del campo utilizado para las variantes a escala del objeto multimedia [imagen]. <code>Clases</code> es una lista de nombres de clases que pueden ser seleccionados al insertar el objeto. <code>Tipo</code> determina si Kupu inserta una etiqueta img o una etiqueta object para incrustar Flash."
+
+#. Default: "preview"
+#: kupu/plone/resource_types.pt:187
+msgid "preview_subheading"
+msgstr "vista preliminar"
+
+#. Default: "Request"
+#: kupu/plone/libraries.pt:165
+msgid "request"
+msgstr "Petición"
+
+#. Default: "Resource"
+#: kupu/plone/resource_types.pt:65
+msgid "resource_heading"
+msgstr "Recurso"
+
+#. Default: "(select type)"
+#: kupu/plone/resource_types.pt:257
+msgid "select_type"
+msgstr "(seleccionar tipo)"
+
+#. Default: "Config"
+#: kupu/plone/kupu_config.pt:30
+msgid "tab_config"
+msgstr "Configuración"
+
+#. Default: "Documentation"
+#: kupu/plone/kupu_config.pt:48
+msgid "tab_documentation"
+msgstr "Documentación"
+
+#. Default: "Libraries"
+#: kupu/plone/kupu_config.pt:36
+msgid "tab_libraries"
+msgstr "Bibliotecas"
+
+#. Default: "Links"
+#: kupu/plone/kupu_config.pt:54
+msgid "tab_links"
+msgstr "Enlaces"
+
+#. Default: "Resource Types"
+#: kupu/plone/kupu_config.pt:42
+msgid "tab_resourcetypes"
+msgstr "Tipos de recursos"
+
+#. Default: "Toolbar"
+#: kupu/plone/kupu_config.pt:60
+msgid "tab_toolbar"
+msgstr "Barra de herramientas"
+
+#. Default: "In the form below, you may manage the list of drawer libraries for the Kupu editor. Each property of a library is dynamically expanded at execution time using TALES expressions. That way it is possible, to support libraries like <em>Current folder</em> or <em>My folder</em> very easily."
+#: kupu/plone/libraries.pt:11
+msgid "text_kupu_drawers"
+msgstr "En el siguiente formulario, puede administrar la lista de bibliotecas para el diseñador del editor Kupu. Cada propiedad de una biblioteca es dinámicamente expandida en tiempo de ejecución utilizando expresiones TALES. De esta forma, es posible soportar bibliotecas como <em>Carpeta actual</em> o <em>Mi carpeta</em>, de forma muy sencilla."
+
+#. Default: "Libraries with ids that begin with an underscore will not display in the initial library list. <em>_search</em> will be used to set the icon and title for search results. The first $ character in the title will be replaced by the search string. <em>_selection</em> will be used to set the icon and title for the current selection."
+#: kupu/plone/libraries.pt:17
+msgid "text_kupu_drawers2"
+msgstr "Las bibliotecas con ids que empiezan con un subrayado no se mostrarán en la lista inicial de bibliotecas. <em>_search</em> se usará para establecer el icono y el título de resultados de búsqueda. El primer carácter $ en el título será reemplazado por la cadena de búsqueda. <em>_selection</em> se utilizará para establecer el icono y el título para la selección actual."
+
+#. Default: "The title string may contain html &lt;br&gt; tags to put a line break in the title (not the xhtml &lt;br/&gt; form), but otherwise tags are not interpreted."
+#: kupu/plone/libraries.pt:23
+msgid "text_kupu_drawers3"
+msgstr "El título puede contener las etiquetas de HTML &lt;br&gt; para introducir un salto de línea en el título (no en la forma XHTML &lt;br/&gt;). El resto de etiquetas no son interpretadas."
+
+#. Default: "While libraries provide abstract locations for objects of any type, Kupu distinguishes objects by resource type. For example, a user might request a library showing objects to link to or a library showing objects to be inserted into a document. The abstract location (library) might be the same, but the former library would contain documents, the latter images."
+#: kupu/plone/resource_types.pt:15
+msgid "text_resource_types"
+msgstr "Aunque que las bibliotecas proveen ubicaciones abstractas para los objetos de cualquier tipo, Kupu distingue los objetos por el tipo de recurso. Por ejemplo, un usuario puede pedir una biblioteca que muestre los objetos a enlazar o una biblioteca que muestre los objetos a ser insertados en un documento. La localización abstracta (biblioteca) puede ser la misma, pero la primera biblioteca puede contener documentos y la segunda imágenes."
+
+#. Default: "This management screen allows you to define resource types using a list of portal types. A special resource type, <code>collection</code>, identifies portal types that are to be treated as collections. The resource type <code>containsanchors</code> is used to list types which may contain HTML anchors."
+#: kupu/plone/resource_types.pt:21
+msgid "text_resource_types2"
+msgstr "Esta pantalla de administración le permite definir tipos de recursos usando una lista de tipos del portal. Un tipo de recurso especial, <code>colección</code>, identifica los tipos del portal que se tratarán como colecciones. El tipo de recurso <code>contenedor de anclas</code> se utiliza para listar tipos que pueden contener anclas HTML."
+
+#. Default: "Also on this screen are urls for each type which can be previewed as an image. The expression may use <code>object_url</code> and <code>portal_type</code>, but should not attempt to access the object directly. The resulting URL should ideally return an image no larger than 128 pixels square."
+#: kupu/plone/resource_types.pt:27
+msgid "text_resource_types3"
+msgstr "En esta pantalla también están los URLs para cada tipo que pueden ser vistos preliminarmente como imágenes. La expresión puede utilizar <code>object_url</code> y <code>portal_type</code>, pero no debería intentar acceder al objeto directamente. Lo ideal es que el URL resultante devuelva una imagen no mayor de 128 píxeles cuadrados."
+
+#. Default: "Type"
+#: kupu/plone/resource_types.pt:162
+msgid "type_heading"
+msgstr "Tipo"
+
+#. Default: "type"
+#: kupu/plone/resource_types.pt:233
+msgid "type_subheading"
+msgstr "tipo"
+
+#. Default: "URL"
+#: kupu/plone/resource_types.pt:163
+msgid "url_heading"
+msgstr "URL"
+
+#. Default: "Please use the ${plone_filter_controlpanel} to set filtering options."
+#: kupu/plone/kupu_config.pt:266
+msgid "use_plone_controlpanel"
+msgstr "Por favor, use el ${plone_filter_controlpanel} para establecer las opciones de filtrado."
+
+#. Default: "Whole tag removed"
+#: kupu/plone/kupu_config.pt:305
+msgid "whole_tag_removed"
+msgstr "Etiqueta eliminada por completo"
+

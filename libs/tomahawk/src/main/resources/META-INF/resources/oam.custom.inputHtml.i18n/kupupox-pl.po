@@ -1,0 +1,334 @@
+# Translation of kupupox.pot to Polish
+# Piotr Furman <piotr.furman@webservice.pl>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: kupu 1.4.3\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: 2007-11-30 17:05+0100\n"
+"Last-Translator: Piotr Furman <piotr.furman@webservice.pl>\n"
+"Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Code: pl\n"
+"Language-Name: Polish\n"
+"Preferred-Encodings: utf-8 latin2\n"
+"Domain: kupupox\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+
+#. Default: "Add column"
+#: kupu/common/kupu.pox:135
+msgid "Add column"
+msgstr "Dodaj kolumnę"
+
+#. Default: "Add row"
+#: kupu/common/kupu.pox:119
+msgid "Add row"
+msgstr "Dodaj wiersz"
+
+#. Default: "Add table"
+#: kupu/common/kupu.pox:111
+msgid "Add table"
+msgstr "Dodaj tabelę"
+
+#. Default: "Browser not supported!"
+#: kupu/common/kupu.pox:303
+msgid "Browser not supported!"
+msgstr "Twoja przeglądarka nie jest obsługiwana."
+
+#. Default: "Can only preview web urls"
+#: kupu/common/kupu.pox:231
+msgid "Can only preview web urls"
+msgstr "Podgląd działa tylko dla odnośników stron"
+
+#. Default: "Cleaning up HTML..."
+#: kupu/common/kupu.pox:447
+#, fuzzy
+msgid "Cleaning up HTML..."
+msgstr "Oczyszczanie kodu HTML..."
+
+#. Default: "Cleanup done, sending document to server"
+#: kupu/common/kupu.pox:271
+msgid "Cleanup done, sending document to server"
+msgstr "Zakończono oczyszczanie, wysyłka dokumentu na serwer"
+
+#. Default: "Color chosen"
+#: kupu/common/kupu.pox:55
+msgid "Color chosen"
+msgstr "Wybrano kolor"
+
+#. Default: "Copy"
+#: kupu/common/kupu.pox:39
+msgid "Copy"
+msgstr "Kopiuj"
+
+#. Default: "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:15
+msgid "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Kopiowanie przy użyciu JavaScript jest wyłączone w Twojej przeglądarce Mozilla ze względów bezpieczeństwa. Więcej informacji na stronie http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Could not set status bar message, check your browser\'s security settings."
+#: kupu/common/kupu.pox:191
+msgid "Could not set status bar message, check your browser\'s security settings."
+msgstr ""
+
+#. Default: "Couldn\'t set design mode. Kupu will not work on this browser."
+#: kupu/common/kupu.pox:335
+msgid "Couldn\'t set design mode. Kupu will not work on this browser."
+msgstr ""
+
+#. Default: "Create image"
+#: kupu/common/kupu.pox:103
+msgid "Create image"
+msgstr "Utwórz obraz"
+
+#. Default: "Create link"
+#: kupu/common/kupu.pox:95
+msgid "Create link"
+msgstr "Utwórz odnośnik"
+
+#. Default: "Cut"
+#: kupu/common/kupu.pox:31
+msgid "Cut"
+msgstr "Wytnij"
+
+#. Default: "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:7
+msgid "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Wycinanie przy użyciu JavaScript jest wyłączone w Twojej przeglądarce Mozilla ze względów bezpieczeństwa. Więcej informacji na stronie http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Delete Table"
+#: kupu/common/kupu.pox:151
+msgid "Delete Table"
+msgstr "Usuń tabelę"
+
+#. Default: "Delete column"
+#: kupu/common/kupu.pox:143
+msgid "Delete column"
+msgstr "Usuń kolumnę"
+
+#. Default: "Delete link"
+#: kupu/common/kupu.pox:87
+msgid "Delete link"
+msgstr "Usuń odnośnik"
+
+#. Default: "Delete row"
+#: kupu/common/kupu.pox:127
+msgid "Delete row"
+msgstr "Usuń wiersz"
+
+#. Default: "Discard changes? If you click OK, any changes you have made will be lost."
+#: kupu/common/kupu.pox:215
+msgid "Discard changes? If you click OK, any changes you have made will be lost."
+msgstr "Porzucić zmiany? Jeśli klikniesz OK wszystkie zmiany, które wprowadziłeś zostaną usunięte."
+
+#. Default: "Document saved"
+#: kupu/common/kupu.pox:327
+msgid "Document saved"
+msgstr "Zapisano dokument"
+
+#. Default: "Editor initialized"
+#: kupu/common/kupu.pox:423
+msgid "Editor initialized"
+msgstr "Edytor uruchomiony"
+
+#. Default: "Editor not initialized yet!"
+#: kupu/common/kupu.pox:295
+msgid "Editor not initialized yet!"
+msgstr "Edytor nie został jeszcze uruchomiony!"
+
+#. Default: "End node offset detected in a node without children!"
+#: kupu/common/kupu.pox:383
+msgid "End node offset detected in a node without children!"
+msgstr ""
+
+#. Default: "End offset out of range!"
+#: kupu/common/kupu.pox:399
+msgid "End offset out of range!"
+msgstr ""
+
+#. Default: "Error loading data, status ${status}"
+#: kupu/common/kupu.pox:463
+msgid "Error loading data, status ${status}"
+msgstr "Błąd podczas ładowania danych, status ${status}"
+
+#. Default: "Error loading translation (status ${status} ), falling back to english"
+#: kupu/common/kupu.pox:479
+msgid "Error loading translation (status ${status} ), falling back to english"
+msgstr "Błąd podczas ładowania tłumaczenia (status ${status}), powrót do wersji angielskiej"
+
+#. Default: "Error saving document"
+#: kupu/common/kupu.pox:319
+msgid "Error saving document"
+msgstr "Błąd podczas zapisywania dokumentu"
+
+#. Default: "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+#: kupu/common/kupu.pox:311
+msgid "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+msgstr ""
+
+#. Default: "Invalid table size"
+#: kupu/common/kupu.pox:159
+msgid "Invalid table size"
+msgstr "Nieprawidłowy rozmiar tabeli"
+
+#. Default: "No destination URL available!"
+#: kupu/common/kupu.pox:247
+msgid "No destination URL available!"
+msgstr "Adres URL przeznaczenia nie jest dostępny!"
+
+#. Default: "No element found in the config island!"
+#: kupu/common/kupu.pox:359
+msgid "No element found in the config island!"
+msgstr ""
+
+#. Default: "No head in document!"
+#: kupu/common/kupu.pox:63
+msgid "No head in document!"
+msgstr "Brak nagłówka w dokumencie!"
+
+#. Default: "No parentcolumn found!"
+#: kupu/common/kupu.pox:175
+msgid "No parentcolumn found!"
+msgstr ""
+
+#. Default: "No row to delete"
+#: kupu/common/kupu.pox:167
+msgid "No row to delete"
+msgstr "Brak wiersza do usunięcia"
+
+#. Default: "Not inside a definition list element!"
+#: kupu/common/kupu.pox:207
+msgid "Not inside a definition list element!"
+msgstr ""
+
+#. Default: "Not inside a row!"
+#: kupu/common/kupu.pox:223
+msgid "Not inside a row!"
+msgstr ""
+
+#. Default: "Not inside a table!"
+#: kupu/common/kupu.pox:183
+msgid "Not inside a table!"
+msgstr ""
+
+#. Default: "Not inside link"
+#: kupu/common/kupu.pox:79
+msgid "Not inside link"
+msgstr ""
+
+#. Default: "Offset out of document range"
+#: kupu/common/kupu.pox:407
+msgid "Offset out of document range"
+msgstr ""
+
+#. Default: "Paste"
+#: kupu/common/kupu.pox:47
+msgid "Paste"
+msgstr "Wklej"
+
+#. Default: "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:23
+msgid "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Wklejanie przy użyciu JavaScript jest wyłączone w Twojej przeglądarce Mozilla ze względów bezpieczeństwa. Więcej informacji na stronie http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Please wait while saving document..."
+#: kupu/common/kupu.pox:255
+#, fuzzy
+msgid "Please wait while saving document..."
+msgstr "Zaczekaj, zapisywanie dokumentu..."
+
+#. Default: "Properties modified"
+#: kupu/common/kupu.pox:71
+msgid "Properties modified"
+msgstr "Zmieniono właściwości"
+
+#. Default: "Request sent to server"
+#: kupu/common/kupu.pox:279
+msgid "Request sent to server"
+msgstr "Wysłano żądanie do serwera"
+
+#. Default: "Right click to copy link"
+#: kupu/common/kupu.pox:239
+msgid "Right click to copy link"
+msgstr "Skopiuj odnośnik prawym przyciskiem"
+
+#. Default: "Selection not inside the node!"
+#: kupu/common/kupu.pox:367
+msgid "Selection not inside the node!"
+msgstr ""
+
+#. Default: "Sending request to server"
+#: kupu/common/kupu.pox:287
+msgid "Sending request to server"
+msgstr "Wysyłanie żądania do serwera"
+
+#. Default: "Source edit tool initialized"
+#: kupu/common/kupu.pox:439
+msgid "Source edit tool initialized"
+msgstr "Edytor kodu źródłowego uruchomiony"
+
+#. Default: "Start node offset detected in a node without children!"
+#: kupu/common/kupu.pox:375
+msgid "Start node offset detected in a node without children!"
+msgstr ""
+
+#. Default: "Start offset out of range!"
+#: kupu/common/kupu.pox:391
+msgid "Start offset out of range!"
+msgstr ""
+
+#. Default: "Starting HTML cleanup"
+#: kupu/common/kupu.pox:263
+msgid "Starting HTML cleanup"
+msgstr "Rozpoczynanie oczyszczania HTML"
+
+#. Default: "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+#: kupu/common/kupu.pox:415
+msgid "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+msgstr ""
+
+#. Default: "There were no errors."
+#: kupu/common/kupu.pox:455
+msgid "There were no errors."
+msgstr "Nie było błędów"
+
+#. Default: "This feature requires pop-ups to be enabled on your browser!"
+#: kupu/common/kupu.pox:471
+#, fuzzy
+msgid "This feature requires pop-ups to be enabled on your browser!"
+msgstr "Ta funkcja wymaga włączenia wyskakujących okienek w Twojej przeglądarce!"
+
+#. Default: "Unsupported browser!"
+#: kupu/common/kupu.pox:343
+msgid "Unsupported browser!"
+msgstr "Nieobsługiwana przeglądarka!"
+
+#. Default: "View source"
+#: kupu/common/kupu.pox:199
+msgid "View source"
+msgstr "Podgląd źródła"
+
+#. Default: "You are leaving the editor. Do you want to save your changes?"
+#: kupu/common/kupu.pox:431
+msgid "You are leaving the editor. Do you want to save your changes?"
+msgstr "Opuszczasz edytor. Czy chcesz zachować wprowadzone zmiany?"
+
+#. Default: "click to fold"
+#: kupu/common/kupu.pox:495
+msgid "click to fold"
+msgstr ""
+
+#. Default: "click to unfold"
+#: kupu/common/kupu.pox:487
+msgid "click to unfold"
+msgstr ""
+
+#. Default: "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+#: kupu/common/kupu.pox:351
+msgid "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+msgstr ""
+

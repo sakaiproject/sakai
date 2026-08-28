@@ -1,0 +1,334 @@
+# Gettext Message File for kupu - Slovak Translation
+# Rastislav Mucha <rastislav.mucha@satronet.sk>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: kupu\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: 2009-07-11 22:22+0100\n"
+"Last-Translator: Rastislav Mucha <rasto@mrm.sk>\n"
+"Language-Team: slovak <www-fzki@uniag.sk>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Language-Code: sk\n"
+"Language-Name: Slovenčina\n"
+"Preferred-Encodings: utf-8 latin2\n"
+"Domain: kupupox\n"
+
+#. Default: "Add column"
+#: kupu/common/kupu.pox:135
+msgid "Add column"
+msgstr "Pridať stĺpec"
+
+#. Default: "Add row"
+#: kupu/common/kupu.pox:119
+msgid "Add row"
+msgstr "Pridať riadok"
+
+#. Default: "Add table"
+#: kupu/common/kupu.pox:111
+msgid "Add table"
+msgstr "Pridať tabuľku"
+
+#. Default: "Browser not supported!"
+#: kupu/common/kupu.pox:303
+msgid "Browser not supported!"
+msgstr "Nepodporovaný prehliadač!"
+
+#. Default: "Can only preview web urls"
+#: kupu/common/kupu.pox:231
+msgid "Can only preview web urls"
+msgstr "Náhľady sú dostupné len pre web-ové URL "
+
+#. Default: "Cleaning up HTML..."
+#: kupu/common/kupu.pox:447
+msgid "Cleaning up HTML..."
+msgstr "Čistenie HTML..."
+
+#. Default: "Cleanup done, sending document to server"
+#: kupu/common/kupu.pox:271
+msgid "Cleanup done, sending document to server"
+msgstr "Dokument bol vyčistený a je odosielaný na server"
+
+#. Default: "Color chosen"
+#: kupu/common/kupu.pox:55
+msgid "Color chosen"
+msgstr "Farba bola vybraná"
+
+#. Default: "Copy"
+#: kupu/common/kupu.pox:39
+msgid "Copy"
+msgstr "Kopírovať"
+
+#. Default: "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:15
+msgid "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Kopírovanie JavaScriptom je zablokované bezpečnostnými nastaveniami v Mozille. Viac informácií je k dispozícii na http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Could not set status bar message, check your browser\'s security settings."
+#: kupu/common/kupu.pox:191
+msgid "Could not set status bar message, check your browser\'s security settings."
+msgstr "Nebolo možné nastaviť informáciu v stavovom riadku. Skontrolujte nastavenia Vášho prehliadača."
+
+#. Default: "Couldn\'t set design mode. Kupu will not work on this browser."
+#: kupu/common/kupu.pox:335
+msgid "Couldn\'t set design mode. Kupu will not work on this browser."
+msgstr "Design mód nemohol byť aktivovaný. Kupu nebude fungovať v tomto prehliadači."
+
+#. Default: "Create image"
+#: kupu/common/kupu.pox:103
+msgid "Create image"
+msgstr "Vytvoriť obrázok"
+
+#. Default: "Create link"
+#: kupu/common/kupu.pox:95
+msgid "Create link"
+msgstr "Vytvoriť odkaz"
+
+#. Default: "Cut"
+#: kupu/common/kupu.pox:31
+msgid "Cut"
+msgstr "Vystrihnúť"
+
+#. Default: "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:7
+msgid "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Vystrihovanie JavaScriptom je zablokované bezpečnostnými nastaveniami v Mozille. Viac informácií je k dispozícii na http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Delete Table"
+#: kupu/common/kupu.pox:151
+msgid "Delete Table"
+msgstr "Odstrániť tabuľku"
+
+#. Default: "Delete column"
+#: kupu/common/kupu.pox:143
+msgid "Delete column"
+msgstr "Odstrániť stĺpec"
+
+#. Default: "Delete link"
+#: kupu/common/kupu.pox:87
+msgid "Delete link"
+msgstr "Odstrániť odkaz"
+
+#. Default: "Delete row"
+#: kupu/common/kupu.pox:127
+msgid "Delete row"
+msgstr "Odstrániť riadok"
+
+#. Default: "Discard changes? If you click OK, any changes you have made will be lost."
+#: kupu/common/kupu.pox:215
+msgid "Discard changes? If you click OK, any changes you have made will be lost."
+msgstr "Zahodiť zmeny? Kliknutím na OK zrušíte všetky zmeny."
+
+#. Default: "Document saved"
+#: kupu/common/kupu.pox:327
+msgid "Document saved"
+msgstr "Dokument bol uložený"
+
+#. Default: "Editor initialized"
+#: kupu/common/kupu.pox:423
+msgid "Editor initialized"
+msgstr "Editor bol inicializovaný"
+
+#. Default: "Editor not initialized yet!"
+#: kupu/common/kupu.pox:295
+msgid "Editor not initialized yet!"
+msgstr "Editor ešte nebol inicializovaný!"
+
+#. Default: "End node offset detected in a node without children!"
+#: kupu/common/kupu.pox:383
+msgid "End node offset detected in a node without children!"
+msgstr "Pozícia konca uzla sa vyskytla v bezdetnom uzle!"
+
+#. Default: "End offset out of range!"
+#: kupu/common/kupu.pox:399
+msgid "End offset out of range!"
+msgstr "Koncová pozícia je mimo rozsah!"
+
+#. Default: "Error loading data, status ${status}"
+#: kupu/common/kupu.pox:463
+msgid "Error loading data, status ${status}"
+msgstr "Chyba pri načítaní dát, stav: ${status}"
+
+#. Default: "Error loading translation (status ${status} ), falling back to english"
+#: kupu/common/kupu.pox:479
+msgid "Error loading translation (status ${status} ), falling back to english"
+msgstr "Problém pri načítaní prekladu (stav ${status} ), návrat do angličtiny"
+
+#. Default: "Error saving document"
+#: kupu/common/kupu.pox:319
+msgid "Error saving document"
+msgstr "Chyba pri ukladaní dokumentu"
+
+#. Default: "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+#: kupu/common/kupu.pox:311
+msgid ""
+"Error saving your data.\n"
+"Response status: ${status}.\n"
+"Check your server log for more information."
+msgstr ""
+"Chyba pri ukladaní dát.\n"
+"Stavový kód: ${status}.\n"
+"Viac informácií nájdete v logoch servera."
+
+#. Default: "Invalid table size"
+#: kupu/common/kupu.pox:159
+msgid "Invalid table size"
+msgstr "Nesprávna veľkosť tabuľky"
+
+#. Default: "No destination URL available!"
+#: kupu/common/kupu.pox:247
+msgid "No destination URL available!"
+msgstr "URL adresa cieľa nie je k dispozícii!"
+
+#. Default: "No element found in the config island!"
+#: kupu/common/kupu.pox:359
+msgid "No element found in the config island!"
+msgstr "Žiadny element v konfiguračnom ostrove!"
+
+#. Default: "No head in document!"
+#: kupu/common/kupu.pox:63
+msgid "No head in document!"
+msgstr "Dokument je bez hlavičky!"
+
+#. Default: "No parentcolumn found!"
+#: kupu/common/kupu.pox:175
+msgid "No parentcolumn found!"
+msgstr "Chýba rodičovský stĺpec! "
+
+#. Default: "No row to delete"
+#: kupu/common/kupu.pox:167
+msgid "No row to delete"
+msgstr "Chýba radok na vymazanie"
+
+#. Default: "Not inside a definition list element!"
+#: kupu/common/kupu.pox:207
+msgid "Not inside a definition list element!"
+msgstr "Mimo elementu definičného listu!"
+
+#. Default: "Not inside a row!"
+#: kupu/common/kupu.pox:223
+msgid "Not inside a row!"
+msgstr "Mimo riadku!"
+
+#. Default: "Not inside a table!"
+#: kupu/common/kupu.pox:183
+msgid "Not inside a table!"
+msgstr "Mimo tabuľky!"
+
+#. Default: "Not inside link"
+#: kupu/common/kupu.pox:79
+msgid "Not inside link"
+msgstr "Mimo odkazu!"
+
+#. Default: "Offset out of document range"
+#: kupu/common/kupu.pox:407
+msgid "Offset out of document range"
+msgstr "Pozícia mimo rozsah dokumentu"
+
+#. Default: "Paste"
+#: kupu/common/kupu.pox:47
+msgid "Paste"
+msgstr "Vložiť"
+
+#. Default: "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:23
+msgid "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Vkladanie JavaScriptom je zablokované bezpečnostnými nastaveniami v Mozille. Viac informácií je k dispozícii na http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Please wait while saving document..."
+#: kupu/common/kupu.pox:255
+msgid "Please wait while saving document..."
+msgstr "Počkajte na uloženie dokumentu..."
+
+#. Default: "Properties modified"
+#: kupu/common/kupu.pox:71
+msgid "Properties modified"
+msgstr "Vlastnosti boli zmenené"
+
+#. Default: "Request sent to server"
+#: kupu/common/kupu.pox:279
+msgid "Request sent to server"
+msgstr "Požiadavka bola odoslaná na server"
+
+#. Default: "Right click to copy link"
+#: kupu/common/kupu.pox:239
+msgid "Right click to copy link"
+msgstr "Link skopírujete pravým klikom"
+
+#. Default: "Selection not inside the node!"
+#: kupu/common/kupu.pox:367
+msgid "Selection not inside the node!"
+msgstr "Výber mimo uzla!"
+
+#. Default: "Sending request to server"
+#: kupu/common/kupu.pox:287
+msgid "Sending request to server"
+msgstr "Požiadavka sa odosiela na server"
+
+#. Default: "Source edit tool initialized"
+#: kupu/common/kupu.pox:439
+msgid "Source edit tool initialized"
+msgstr "Nástroj na editovanie zdrojového kódu bol inicializovaný"
+
+#. Default: "Start node offset detected in a node without children!"
+#: kupu/common/kupu.pox:375
+msgid "Start node offset detected in a node without children!"
+msgstr "Pozícia začiatku uzla sa vyskytla v bezdetnom uzle!"
+
+#. Default: "Start offset out of range!"
+#: kupu/common/kupu.pox:391
+msgid "Start offset out of range!"
+msgstr "Pozícia začiatku je mimo rozsah!"
+
+#. Default: "Starting HTML cleanup"
+#: kupu/common/kupu.pox:263
+msgid "Starting HTML cleanup"
+msgstr "Začiatok čistenia HTML"
+
+#. Default: "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+#: kupu/common/kupu.pox:415
+msgid "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+msgstr "Vyskytol sa inicializačný problém. Pravdepodobne nie sú dostupné XSLT alebo XML súbory. Ak toto nie je Kupu demo verzia, skontrolujte Vaše súbory alebo službu, ktorá ich poskytuje (chyba: ${error})."
+
+#. Default: "There were no errors."
+#: kupu/common/kupu.pox:455
+msgid "There were no errors."
+msgstr "Bez chýb."
+
+#. Default: "This feature requires pop-ups to be enabled on your browser!"
+#: kupu/common/kupu.pox:471
+msgid "This feature requires pop-ups to be enabled on your browser!"
+msgstr "Táto vlastnosť vyžaduje povolenie pop-up okien v prehliadači!"
+
+#. Default: "Unsupported browser!"
+#: kupu/common/kupu.pox:343
+msgid "Unsupported browser!"
+msgstr "Nepodporovaný prehliadač!"
+
+#. Default: "View source"
+#: kupu/common/kupu.pox:199
+msgid "View source"
+msgstr "Zobraziť zrojový kód"
+
+#. Default: "You are leaving the editor. Do you want to save your changes?"
+#: kupu/common/kupu.pox:431
+msgid "You are leaving the editor. Do you want to save your changes?"
+msgstr "Opúšťate editor. Chcete uložiť Vaše zmeny?"
+
+#. Default: "click to fold"
+#: kupu/common/kupu.pox:495
+msgid "click to fold"
+msgstr "kliknite na zabalenie"
+
+#. Default: "click to unfold"
+#: kupu/common/kupu.pox:487
+msgid "click to unfold"
+msgstr "kliknite na rozbalenie"
+
+#. Default: "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+#: kupu/common/kupu.pox:351
+msgid "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+msgstr "výnimka ${message} počas registrácie ovládača udalostí pre: element ${element}, udalosť ${event}, metóda ${method}"
+
