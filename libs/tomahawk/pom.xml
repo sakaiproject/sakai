@@ -26,7 +26,7 @@
     <!--
         Upstream Tomahawk ships org.apache.myfaces.shared_tomahawk.* bundled alongside the
         component classes in a single artifact; this module reproduces that shape rather than
-        splitting them. Dependencies are added with the source import - see README-FORK.md.
+        splitting them. Dependencies are added with the source import - see README.md.
     -->
     <dependencies>
     </dependencies>
