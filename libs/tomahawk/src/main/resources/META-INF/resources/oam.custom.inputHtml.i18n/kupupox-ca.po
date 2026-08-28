@@ -1,0 +1,335 @@
+# Translation of kupupox.pot to Catalan
+# Lídia Esparraguera <lidia.esparraguera@gmail.com>, 2007-2009
+# Adaptat a la guia d'estil de softcatalà, Recursos web:
+# A Softcatalà http://www.softcatala.org/wiki/Plone
+# Plone en català http://www.bogomips.net/plonecat/
+msgid ""
+msgstr ""
+"Project-Id-Version: Kupu\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: 2009-04-04 21:32+0100\n"
+"Last-Translator: Lidia Esparraguera <lidia@2tweb.com>\n"
+"Language-Team: Català <plone-cat@lists.plone.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Code: ca\n"
+"Language-Name: Catalan\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: kupu\n"
+"X-Is-Fallback-For: ca-ad ca-es ca-fr ca-it\n"
+
+#. Default: "Add column"
+#: kupu/common/kupu.pox:135
+msgid "Add column"
+msgstr "Afegeix columna"
+
+#. Default: "Add row"
+#: kupu/common/kupu.pox:119
+msgid "Add row"
+msgstr "Afegeix fila"
+
+#. Default: "Add table"
+#: kupu/common/kupu.pox:111
+msgid "Add table"
+msgstr "Afegeix taula"
+
+#. Default: "Browser not supported!"
+#: kupu/common/kupu.pox:303
+msgid "Browser not supported!"
+msgstr "Navegador no suportat!"
+
+#. Default: "Can only preview web urls"
+#: kupu/common/kupu.pox:231
+msgid "Can only preview web urls"
+msgstr "Només es poden previsualitzar els url de web"
+
+#. Default: "Cleaning up HTML..."
+#: kupu/common/kupu.pox:447
+msgid "Cleaning up HTML..."
+msgstr "Netejant l'HTML..."
+
+#. Default: "Cleanup done, sending document to server"
+#: kupu/common/kupu.pox:271
+msgid "Cleanup done, sending document to server"
+msgstr "S'ha finalitzat la neteja, envio el document al servidor"
+
+#. Default: "Color chosen"
+#: kupu/common/kupu.pox:55
+msgid "Color chosen"
+msgstr "Color escollit"
+
+#. Default: "Copy"
+#: kupu/common/kupu.pox:39
+msgid "Copy"
+msgstr "Copia"
+
+#. Default: "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:15
+msgid "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Copiar des de Javascript està deshabilitat en el vostre navegador Mozilla degut als paràmetres de seguretat. Per a més informació, llegiu http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Could not set status bar message, check your browser\'s security settings."
+#: kupu/common/kupu.pox:191
+msgid "Could not set status bar message, check your browser\'s security settings."
+msgstr "No s\'ha pogut establir el missatge de la barra d\'estat, comproveu la configuració de seguretat del vostre navegador."
+
+#. Default: "Couldn\'t set design mode. Kupu will not work on this browser."
+#: kupu/common/kupu.pox:335
+msgid "Couldn\'t set design mode. Kupu will not work on this browser."
+msgstr "No s\'ha pogut establir el mode disseny. Kupu no funcionarà en aquest navegador."
+
+#. Default: "Create image"
+#: kupu/common/kupu.pox:103
+msgid "Create image"
+msgstr "Crea un imatge"
+
+#. Default: "Create link"
+#: kupu/common/kupu.pox:95
+msgid "Create link"
+msgstr "Crea un enllaç"
+
+#. Default: "Cut"
+#: kupu/common/kupu.pox:31
+msgid "Cut"
+msgstr "Talla"
+
+#. Default: "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:7
+msgid "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Tallar des de Javascript està deshabilitat en el vostre navegador Mozilla degut als paràmetres de seguretat. Per a més informació, llegiu http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Delete Table"
+#: kupu/common/kupu.pox:151
+msgid "Delete Table"
+msgstr "Elimina la taula"
+
+#. Default: "Delete column"
+#: kupu/common/kupu.pox:143
+msgid "Delete column"
+msgstr "Elimina la columna"
+
+#. Default: "Delete link"
+#: kupu/common/kupu.pox:87
+msgid "Delete link"
+msgstr "Elimina l'enllaç"
+
+#. Default: "Delete row"
+#: kupu/common/kupu.pox:127
+msgid "Delete row"
+msgstr "Elimina la fila"
+
+#. Default: "Discard changes? If you click OK, any changes you have made will be lost."
+#: kupu/common/kupu.pox:215
+msgid "Discard changes? If you click OK, any changes you have made will be lost."
+msgstr "Voleu descartar els canvis? Si accepteu, es perdran els canvis que heu realitzat."
+
+#. Default: "Document saved"
+#: kupu/common/kupu.pox:327
+msgid "Document saved"
+msgstr "S'ha guardat el document"
+
+#. Default: "Editor initialized"
+#: kupu/common/kupu.pox:423
+msgid "Editor initialized"
+msgstr "S'ha inicialitzat l'editor"
+
+#. Default: "Editor not initialized yet!"
+#: kupu/common/kupu.pox:295
+msgid "Editor not initialized yet!"
+msgstr "Encara no s'ha inicialitzat l'editor!"
+
+#. Default: "End node offset detected in a node without children!"
+#: kupu/common/kupu.pox:383
+msgid "End node offset detected in a node without children!"
+msgstr "El node final de desfasament s'ha detectat en un node sense fills!"
+
+#. Default: "End offset out of range!"
+#: kupu/common/kupu.pox:399
+msgid "End offset out of range!"
+msgstr "Final de desfasament fora de rang!"
+
+#. Default: "Error loading data, status ${status}"
+#: kupu/common/kupu.pox:463
+msgid "Error loading data, status ${status}"
+msgstr "S'ha produït un error en carregar les dades, estat ${status}"
+
+#. Default: "Error loading translation (status ${status} ), falling back to english"
+#: kupu/common/kupu.pox:479
+msgid "Error loading translation (status ${status} ), falling back to english"
+msgstr "S'ha produït un error en carregar la traducció (estat ${status} ), s'utilitzarà l'anglès."
+
+#. Default: "Error saving document"
+#: kupu/common/kupu.pox:319
+msgid "Error saving document"
+msgstr "S'ha produït un error en desar el document"
+
+#. Default: "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+#: kupu/common/kupu.pox:311
+msgid "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+msgstr ""
+"S'ha produït un error en desar les vostres dades.\n"
+"Codi de resposta: ${status}.\n"
+"Comproveu el registre del vostre servidor per obtenir més informació."
+
+#. Default: "Invalid table size"
+#: kupu/common/kupu.pox:159
+msgid "Invalid table size"
+msgstr "La mida de la taula no és vàlida"
+
+#. Default: "No destination URL available!"
+#: kupu/common/kupu.pox:247
+msgid "No destination URL available!"
+msgstr "No hi ha cap URL de destinació disponible!"
+
+#. Default: "No element found in the config island!"
+#: kupu/common/kupu.pox:359
+msgid "No element found in the config island!"
+msgstr "No s'ha trobat cap element a la configuració!"
+
+#. Default: "No head in document!"
+#: kupu/common/kupu.pox:63
+msgid "No head in document!"
+msgstr "El document no té capçalera!"
+
+#. Default: "No parentcolumn found!"
+#: kupu/common/kupu.pox:175
+msgid "No parentcolumn found!"
+msgstr "No s'ha trobat la columna pare!"
+
+#. Default: "No row to delete"
+#: kupu/common/kupu.pox:167
+msgid "No row to delete"
+msgstr "No hi ha cap fila per a suprimir"
+
+#. Default: "Not inside a definition list element!"
+#: kupu/common/kupu.pox:207
+msgid "Not inside a definition list element!"
+msgstr "No és dins d'un element de definició de llista!"
+
+#. Default: "Not inside a row!"
+#: kupu/common/kupu.pox:223
+msgid "Not inside a row!"
+msgstr "No és dins d'una fila!"
+
+#. Default: "Not inside a table!"
+#: kupu/common/kupu.pox:183
+msgid "Not inside a table!"
+msgstr "No és dins d'una taula!"
+
+#. Default: "Not inside link"
+#: kupu/common/kupu.pox:79
+msgid "Not inside link"
+msgstr "No és dins l'enllaç"
+
+#. Default: "Offset out of document range"
+#: kupu/common/kupu.pox:407
+msgid "Offset out of document range"
+msgstr "Desfasament fora del rang de document"
+
+#. Default: "Paste"
+#: kupu/common/kupu.pox:47
+msgid "Paste"
+msgstr "Enganxa"
+
+#. Default: "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:23
+msgid "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "Enganxar des de Javascript està deshabilitat en el vostre navegador Mozilla degut als paràmetres de seguretat. Per a més informació, llegiu http://www.mozilla.org/editor/midasdemo/securityprefs.html (en anglès)"
+
+#. Default: "Please wait while saving document..."
+#: kupu/common/kupu.pox:255
+msgid "Please wait while saving document..."
+msgstr "Si us plau, espereu mentre es desa el document..."
+
+#. Default: "Properties modified"
+#: kupu/common/kupu.pox:71
+msgid "Properties modified"
+msgstr "S'han modificat les propietats"
+
+#. Default: "Request sent to server"
+#: kupu/common/kupu.pox:279
+msgid "Request sent to server"
+msgstr "S'ha enviat la petició al servidor"
+
+#. Default: "Right click to copy link"
+#: kupu/common/kupu.pox:239
+msgid "Right click to copy link"
+msgstr "Cliqueu el botó de la dreta per a copiar l'enllaç"
+
+#. Default: "Selection not inside the node!"
+#: kupu/common/kupu.pox:367
+msgid "Selection not inside the node!"
+msgstr "La selecció no és dins el node!"
+
+#. Default: "Sending request to server"
+#: kupu/common/kupu.pox:287
+msgid "Sending request to server"
+msgstr "S'està enviant la petició al servidor"
+
+#. Default: "Source edit tool initialized"
+#: kupu/common/kupu.pox:439
+msgid "Source edit tool initialized"
+msgstr "S'ha inicialitzat l'eina d'edició del codi font"
+
+#. Default: "Start node offset detected in a node without children!"
+#: kupu/common/kupu.pox:375
+msgid "Start node offset detected in a node without children!"
+msgstr "El node inicial de desfasament s'ha detectat en un node sense fills!"
+
+#. Default: "Start offset out of range!"
+#: kupu/common/kupu.pox:391
+msgid "Start offset out of range!"
+msgstr "Inici de desfasament fora de rang!"
+
+#. Default: "Starting HTML cleanup"
+#: kupu/common/kupu.pox:263
+msgid "Starting HTML cleanup"
+msgstr "S'està iniciant la neteja de l'HTML"
+
+#. Default: "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+#: kupu/common/kupu.pox:415
+msgid "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+msgstr "Hi ha hagut un problema en inicialitzar els calaixos. El més probable és que els fitxers XSLT o XML no estan disponibles. Si aquesta no és la versió de demostració de Kupu, comproveu els vostres fitxers o bé el servei que els proporciona (error: ${error})."
+
+#. Default: "There were no errors."
+#: kupu/common/kupu.pox:455
+msgid "There were no errors."
+msgstr "No s'han produït errors."
+
+#. Default: "This feature requires pop-ups to be enabled on your browser!"
+#: kupu/common/kupu.pox:471
+msgid "This feature requires pop-ups to be enabled on your browser!"
+msgstr "Aquesta característica requereix que el vostre navegador tingui habilitades les finestres emergents!"
+
+#. Default: "Unsupported browser!"
+#: kupu/common/kupu.pox:343
+msgid "Unsupported browser!"
+msgstr "Navegador no soportat!"
+
+#. Default: "View source"
+#: kupu/common/kupu.pox:199
+msgid "View source"
+msgstr "Mostra el codi font"
+
+#. Default: "You are leaving the editor. Do you want to save your changes?"
+#: kupu/common/kupu.pox:431
+msgid "You are leaving the editor. Do you want to save your changes?"
+msgstr "Esteu sortint de l'editor. Voleu desar els canvis?"
+
+#. Default: "click to fold"
+#: kupu/common/kupu.pox:495
+msgid "click to fold"
+msgstr "feu clic per plegar"
+
+#. Default: "click to unfold"
+#: kupu/common/kupu.pox:487
+msgid "click to unfold"
+msgstr "feu clic per desplegar"
+
+#. Default: "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+#: kupu/common/kupu.pox:351
+msgid "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+msgstr "excepció ${message} al registrar un gestor d'esdeveniments per a l'element ${element}, esdeveniment ${event}, mètode ${method}"
+

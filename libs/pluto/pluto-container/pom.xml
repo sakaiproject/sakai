@@ -35,14 +35,9 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
-        <!--
-          Keep Portlet API 1.0: this is the Portlet 1.0 RI. Sakai master manages
-          portlet-api 3.0.1 for tools; compiling this container against 3.0.1 fails.
-        -->
         <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
