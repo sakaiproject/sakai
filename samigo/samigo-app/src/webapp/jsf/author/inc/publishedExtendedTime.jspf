@@ -61,6 +61,9 @@
 	<h:panelGroup styleClass="form-group row col-md-12" layout="block">
                 <h:outputLabel id="newEntry-hoursHelpblock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info} #{assessmentSettingsMessages.assessment_timed_info_extra}" />
         </h:panelGroup>
+        <h:panelGroup rendered="#{publishedSettings.timedAssessment && publishedSettings.assessment.hasMultipleTimers() > 1}" styleClass="sak-banner-warn" layout="block">
+                <h:outputText value="#{assessmentSettingsMessages.extendedTimeTimerWarning}" />
+        </h:panelGroup>
         <h:panelGroup styleClass="form-group row mt-1" layout="block" rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}">
                 <h:outputLabel styleClass="col-md-2" for="newEntry-retract_date" value="#{assessmentSettingsMessages.late_accept_until}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
