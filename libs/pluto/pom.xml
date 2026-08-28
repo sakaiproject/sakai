@@ -5,9 +5,9 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
+        <artifactId>libs</artifactId>
         <version>27-SNAPSHOT</version>
-        <relativePath>../master/pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.sakaiproject.pluto</groupId>
