@@ -74,8 +74,8 @@
     <joda.time.version>2.14.2</joda.time.version>
     <sakai.weld.shaded.version>6.0.4.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
-    <sakai.jakarta.faces.version>4.1.9</sakai.jakarta.faces.version>
-    <sakai.jakarta.faces-api.version>4.1.2</sakai.jakarta.faces-api.version>
+    <sakai.jakarta.faces.version>3.0.5</sakai.jakarta.faces.version>
+    <sakai.jakarta.faces-api.version>3.0.0</sakai.jakarta.faces-api.version>
     <sakai.jakarta.el-api.version>6.0.1</sakai.jakarta.el-api.version>
     <sakai.jakarta.jstl-api.version>3.0.2</sakai.jakarta.jstl-api.version>
     <sakai.jakarta.servlet.jsp.jstl.version>3.0.1</sakai.jakarta.servlet.jsp.jstl.version>

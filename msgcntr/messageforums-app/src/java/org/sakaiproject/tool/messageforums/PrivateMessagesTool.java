@@ -93,6 +93,7 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
+import jakarta.el.ELContext;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.ApplicationFactory;
@@ -4030,8 +4031,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public Object lookupBean(String beanName) {
     ApplicationFactory applicationFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
 
-    return (Serializable) applicationFactory.getApplication().getVariableResolver()
-        .resolveVariable(FacesContext.getCurrentInstance(), beanName);
+    FacesContext context = FacesContext.getCurrentInstance();
+    ELContext elContext = context.getELContext();
+
+    return (Serializable) elContext.getELResolver()
+        .getValue(elContext, null, beanName);
   }
 
   public void processPvtMsgParentFolderMove(ValueChangeEvent event)

@@ -18,7 +18,9 @@ package org.sakaiproject.jsf2.util;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import jakarta.el.ELContext;
 import jakarta.el.MethodExpression;
+import jakarta.el.MethodInfo;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
@@ -159,8 +161,8 @@ public class TagUtil
     {
         FacesContext context = FacesContext.getCurrentInstance();
         Application app = context.getApplication();
-        ValueExpression vb = app.createValueBinding(value);
-        component.setValueBinding(name, vb);
+        ValueExpression vb = app.getExpressionFactory().createValueExpression(context.getELContext(), value, Object.class);
+        component.setValueExpression(name, vb);
     }
 
     /**
@@ -228,7 +230,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            MethodExpression mb = app.createMethodBinding(value, paramTypes);
+            MethodExpression mb = app.getExpressionFactory().createMethodExpression(context.getELContext(), value, Object.class, paramTypes);
             component.getAttributes().put(name, mb);
         }
     }
@@ -243,7 +245,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            return "" + app.createValueBinding(expression).getValue(context);
+            return "" + app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
         } else
         {
             return expression;
@@ -260,7 +262,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            Object r = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
             if (r == null)
             {
                 return null;
@@ -287,7 +289,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            Object r = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
             if (r == null)
             {
                 return null;
@@ -314,7 +316,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            Object r = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
             if (r == null)
             {
                 return null;
@@ -345,9 +347,14 @@ public class TagUtil
             this.result = result;
         }
 
-        public Object invoke(FacesContext context, Object params[])
+        public Object invoke(ELContext context, Object params[])
         {
             return result;
+        }
+
+        public MethodInfo getMethodInfo(ELContext context)
+        {
+            return new MethodInfo(result, String.class, new Class<?>[0]);
         }
 
         public String getExpressionString()
@@ -358,6 +365,31 @@ public class TagUtil
         public Class getType(FacesContext context)
         {
             return String.class;
+        }
+
+        public boolean isLiteralText()
+        {
+            return true;
+        }
+
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (!(obj instanceof ActionMethodBinding))
+            {
+                return false;
+            }
+
+            ActionMethodBinding other = (ActionMethodBinding) obj;
+            return result.equals(other.result);
+        }
+
+        public int hashCode()
+        {
+            return result.hashCode();
         }
     }
 }
