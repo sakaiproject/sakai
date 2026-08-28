@@ -114,6 +114,19 @@ public class ExtendedTimeDeliveryServiceTest {
         ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
 
         Assert.assertFalse(deliveryService.hasIncreasedTimeLimit());
+        Assert.assertFalse(deliveryService.shouldDisableItemTimers());
+    }
+
+    @Test
+    public void testNoTimeLimitDisablesItemTimers() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, null, null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setTimeHours(0);
+        extendedTime.setTimeMinutes(0);
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertTrue(deliveryService.shouldDisableItemTimers());
     }
 
     private ExtendedTime buildExtendedTime(String groupId, String userId, Long publishedAssessmentId) {

@@ -49,6 +49,7 @@ public class ExtendedTimeDeliveryService {
 	private AuthzGroupService authzGroupService;
 
 	private boolean hasExtendedTime;
+	private boolean hasTimeLimitOverride;
 	private Integer assessmentTimeLimit;
 	private Integer timeLimit;
 	private Date startDate;
@@ -225,6 +226,7 @@ public class ExtendedTimeDeliveryService {
 	private void applyExtendedTime(PublishedAssessmentFacade publishedAssessment, ExtendedTime extendedTime) {
 		this.hasExtendedTime = extendedTime != null;
 		if (this.hasExtendedTime) {
+			this.hasTimeLimitOverride = extendedTime.getTimeHours() != null || extendedTime.getTimeMinutes() != null;
 			int hours = extendedTime.getTimeHours() == null ? 0 : extendedTime.getTimeHours();
 			int minutes = extendedTime.getTimeMinutes() == null ? 0 : extendedTime.getTimeMinutes();
 			this.timeLimit = hours * MINS_IN_HOUR * SECONDS_IN_MIN + minutes * SECONDS_IN_MIN;
@@ -232,6 +234,7 @@ public class ExtendedTimeDeliveryService {
 			this.dueDate = extendedTime.getDueDate();
 			this.retractDate = extendedTime.getRetractDate();
 		} else {
+			this.hasTimeLimitOverride = false;
 			this.timeLimit = 0;
 			this.startDate = publishedAssessment.getStartDate();
 			this.dueDate = publishedAssessment.getDueDate();
@@ -336,6 +339,16 @@ public class ExtendedTimeDeliveryService {
 				&& assessmentTimeLimit > 0
 				&& timeLimit != null
 				&& timeLimit > assessmentTimeLimit;
+	}
+
+	public boolean shouldDisableItemTimers() {
+		return hasTimeLimitOverride
+				&& (hasIncreasedTimeLimit()
+				|| (hasExtendedTime
+						&& assessmentTimeLimit != null
+						&& assessmentTimeLimit > 0
+						&& timeLimit != null
+						&& timeLimit == 0));
 	}
 
 	public void setHasExtendedTime(boolean hasExtendedTime) {

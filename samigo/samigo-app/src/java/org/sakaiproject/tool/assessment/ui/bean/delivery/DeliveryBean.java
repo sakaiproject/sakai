@@ -1864,7 +1864,7 @@ public class DeliveryBean implements Serializable {
 		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
 	  }
 
-	  itemTimersDisabled = extendedTimeDeliveryService.hasIncreasedTimeLimit();
+	  itemTimersDisabled = extendedTimeDeliveryService.shouldDisableItemTimers();
   }
 
   public String doit() {
