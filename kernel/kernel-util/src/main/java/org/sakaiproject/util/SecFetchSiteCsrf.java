@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /** Same-origin validation for unsafe browser requests to Sakai tools. */
 public final class SecFetchSiteCsrf {

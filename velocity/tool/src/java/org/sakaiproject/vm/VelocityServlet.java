@@ -146,7 +146,7 @@ public class VelocityServlet extends HttpServlet {
                 (String) request.getAttribute("jakarta.servlet.include.servlet_path");
 
         if (templatePath == null) {
-            templatePath = (String) request.getAttribute("javax.servlet.include.servlet_path");
+            templatePath = (String) request.getAttribute("jakarta.servlet.include.servlet_path");
         }
 
         if (templatePath == null) {
