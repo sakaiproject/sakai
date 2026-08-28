@@ -2,6 +2,14 @@
 <h:panelGroup styleClass="samigo-subheading" layout="block">
     <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeNew}" />
 </h:panelGroup>
+<h:panelGroup styleClass="help-block info-text small" layout="block">
+    <h:outputText value="#{assessmentSettingsMessages.extendedTimeInstructionIntro}" />
+    <ul class="samigo-instruction-list mb-0">
+        <li><h:outputText value="#{assessmentSettingsMessages.extendedTimeInstructionDate}" /></li>
+        <li><h:outputText value="#{assessmentSettingsMessages.extendedTimeInstructionTime}" /></li>
+        <li><h:outputText value="#{assessmentSettingsMessages.extendedTimeInstructionMultiple}" /></li>
+    </ul>
+</h:panelGroup>
 <h:panelGroup styleClass="row" layout="block">
     <h:panelGroup styleClass="col-md-12" layout="block">
         <h:panelGroup styleClass="form-group row" layout="block">
@@ -59,7 +67,7 @@
                 </h:panelGroup>
         </h:panelGroup>
 	<h:panelGroup styleClass="form-group row col-md-12" layout="block">
-                <h:outputLabel id="newEntry-hoursHelpblock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info} #{assessmentSettingsMessages.assessment_timed_info_extra}" />
+                <h:outputText id="newEntry-hoursHelpblock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.extendedTimeTimedInfo}" />
         </h:panelGroup>
         <h:panelGroup rendered="#{publishedSettings.timedAssessment && publishedSettings.assessment.hasMultipleTimers() > 1}" styleClass="sak-banner-warn" layout="block">
                 <h:outputText value="#{assessmentSettingsMessages.extendedTimeTimerWarning}" />
@@ -73,7 +81,9 @@
         <h:panelGroup styleClass="form-group row col-md-12" layout="block">
                 <h:panelGroup rendered="#{not publishedSettings.editingExtendedTime}">
                     <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" id="extendedTimeAdd" action="#{publishedSettings.addExtendedTime}" />
-                    <h:outputLabel id="extendedTimeAddHelpBlock" styleClass="mt-2 help-block info-text small" value="#{assessmentSettingsMessages.extendedTimeInstruction}" />
+                    <h:panelGroup id="extendedTimeAddHelpBlock" styleClass="mt-2 help-block info-text small" layout="block">
+                        <h:outputText value="#{assessmentSettingsMessages.extendedTimeAddInstruction}" />
+                    </h:panelGroup>
                 </h:panelGroup>
                 <h:panelGroup rendered="#{publishedSettings.editingExtendedTime}">
                     <h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" />
