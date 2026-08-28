@@ -23,8 +23,8 @@ package org.sakaiproject.portal.render.portlet.services;
 
 import javax.portlet.PortalContext;
 
-import org.sakaiproject.pluto.RequiredContainerServices;
-import org.sakaiproject.pluto.spi.PortalCallbackService;
+import org.apache.pluto.RequiredContainerServices;
+import org.apache.pluto.spi.PortalCallbackService;
 
 /**
  * @author ddwolf
