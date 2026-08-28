@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">
+    <start>
+        <choice>
+            <ref name="libraries"/>
+            <ref name="library"/>
+            <ref name="collection"/>
+        </choice>
+    </start>
+    <define name="libraries">
+        <a:documentation>
+            The libraries element is the top level for the XML used in Kupu.
+            library elements which it contains are listed in the first column of the drawer.
+        </a:documentation>
+        <element name="libraries">
+            <zeroOrMore>
+                <ref name="library"/>
+            </zeroOrMore>
+        </element>
+    </define>
+    <define name="library">
+        <a:documentation> 
+            A library is static or dynamic collection of resources and collections defined at a top level.
+            Libraries have no parents from a UI perspective, where as the collection they represent might have a parent collection.
+            A library may be returned as a top-level element from a search or canned query.
+        </a:documentation>
+        <element name="library">
+            <interleave>
+                <ref name="commonToAllItems"/>
+                <choice>
+                    <ref name="collectionItems"/>
+                    <ref name="itemsSource"/>
+                </choice>
+            </interleave>
+        </element>
+    </define>
+    <define name="commonToAllItems">
+        <attribute name="id">
+            <!-- Must be unique among all libraries, resources and collections. -->
+            <data type="ID"/>
+        </attribute>
+        <optional>
+            <attribute name="class">
+                <data type="NMTOKENS"/>
+            </attribute>
+        </optional>
+        <optional>
+            <attribute name="selected">
+                <value>selected</value>
+            </attribute>
+        </optional>
+        <interleave>
+            <element name="uri">
+                <a:documentation>The url to use when linking to this object</a:documentation>
+                <data type="anyURI"/>
+            </element>
+            <element name="title">
+                <a:documentation>Title to display in properties pane</a:documentation>
+                <text/>
+            </element>
+            <optional>
+                <element name="label">
+                    <text/>
+                </element>
+            </optional>
+            <optional>
+                <element name="icon">
+                    <a:documentation>Icon to use in resource pane</a:documentation>
+                    <data type="anyURI"/>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+    <define name="collectionItems">
+        <a:documentation>A list of collections and resources with an optional upload button at the end.</a:documentation>
+        <element name="items">
+            <zeroOrMore>
+                <ref name="collectionItem"/>
+            </zeroOrMore>
+            <optional>
+                <element name="uploadbutton">
+                    <element name="uri">
+                        <data type="anyURI"/>
+                    </element>
+                </element>
+            </optional>
+        </element>
+    </define>
+    <define name="itemsSource">
+        <a:documentation>URI to retrieve the contents of the collection.</a:documentation>
+        <element name="src">
+            <text/>
+        </element>
+    </define>
+    <define name="collectionItem">
+        <choice>
+            <ref name="resource"/>
+            <ref name="collection"/>
+        </choice>
+    </define>
+    <define name="resource">
+        <a:documentation>A named and URI-locatable object with associated metadata, such as title, description, preview, size, etc.</a:documentation>
+        <element name="resource">
+            <interleave>
+                <ref name="commonToAllItems"/>
+                <ref name="extraResourceInfo"/>
+                <optional><a:documentation>src element only if the resource is also a collection</a:documentation><ref name="itemsSource"></ref></optional>
+            </interleave>
+        </element>
+    </define>
+    <define name="collection">
+        <a:documentation>
+            A static or dynamic collection of resources and collections, modelled after WebDAV collections.
+        </a:documentation>
+        <element name="collection">
+            <interleave>
+                <ref name="commonToAllItems"/>
+                <ref name="itemsSource"/>
+                <optional><ref name="breadcrumbs"></ref></optional>
+                <zeroOrMore>
+                    <ref name="collectionItems"/>
+                </zeroOrMore>
+            </interleave>
+        </element>
+    </define>
+    <define name="extraResourceInfo">
+        <interleave>
+            <optional>
+                <element name="preview">
+                    <data type="anyURI"/>
+                </element>
+            </optional>
+            <zeroOrMore>
+                <ref name="status"/>
+            </zeroOrMore>
+            <optional>
+                <element name="size">
+                    <ref name="sizeType"/>
+                </element>
+            </optional>
+            <optional>
+                <element name="type">
+                    <text/>
+                </element>
+            </optional>
+            <optional>
+                <element name="description">
+                    <text/>
+                </element>
+            </optional>
+            <optional>
+                <element name="height">
+                    <data type="positiveInteger"/>
+                </element>
+            </optional>
+            <optional>
+                <element name="width">
+                    <data type="positiveInteger"/>
+                </element>
+            </optional>
+            <optional>
+                <a:documentation>Set if this resource could contain anchors</a:documentation>
+                <element name="anchor">
+                    <empty/>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+    <define name="sizeType">
+        <data type="string">
+            <param name="pattern">[0-9]+([KkMmGgTt]?b)?</param>
+        </data>
+    </define>
+    <define name="status">
+        <element name="status">
+            <a:documentation>Additional text to display in drawer</a:documentation>
+            <attribute name="class">
+                <data type="NMTOKENS"></data>
+            </attribute>
+            <text/>
+        </element>
+    </define>
+    <define name="breadcrumbs">
+        <a:documentation>
+            The optional breadcrumbs element may be used to provide a breadcrumb bar at the top of the drawer.
+        </a:documentation>
+        <element name="breadcrumbs">
+            <optional>
+              <attribute name="class">
+                  <data type="NMTOKENS"></data>
+              </attribute>
+            </optional>
+            <zeroOrMore>
+                <element name="crumb">
+                    <attribute name="href">
+                        <data type="anyURI"/>
+                    </attribute>
+                </element>
+            </zeroOrMore>
+            <text/>
+        </element>
+    </define>
+</grammar>

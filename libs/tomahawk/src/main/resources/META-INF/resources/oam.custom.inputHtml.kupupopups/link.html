@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>Kupu link box</title>
+<script type="text/javascript">
+
+function changeType(element) {
+    if (element.value == "anchor") {
+        element.form.url.setAttribute("disabled", "disabled");
+        element.form.target.setAttribute("disabled", "disabled");
+    } else {
+        element.form.url.removeAttribute("disabled");
+        element.form.target.removeAttribute("disabled");
+    };
+};
+
+function saveLink() {
+    var f = document.getElementById('linkform');
+    var typeel = document.getElementById('anchorradio');
+    var linktype =  (typeel.checked || typeel.getAttribute('checked')) ? 'anchor' : 'link';
+    linktool.createLink(f.url.value, linktype, f.name.value, f.target.value);
+    window.close();
+};
+
+</script>
+<link type="text/css" rel="stylesheet" href="kupustyles.css" />
+</head>
+
+<body>
+<center>
+<form action="." method="POST" id="linkform">
+<h3>Link details:</h3>
+<table>
+<tr>
+<td>Type:</td>
+<td>
+<input type="radio" name="linktype" value="link" onclick="changeType(this)" checked="checked" />Link
+<input type="radio" name="linktype" id="anchorradio" value="anchor" onclick="changeType(this)" />Anchor
+</td>
+</tr>
+<tr>
+<td>Url:</td>
+<td><input type="text" name="url" value="http://" /></td>
+</tr>
+<tr>
+<td>Target:</td>
+<td><input type="text" name="target" value="_self" /></td>
+</tr>
+<tr>
+<td>Name:</td>
+<td><input type="text" name="name" /></td>
+</tr>
+</table>
+<input type="button" onclick="window.close()" value="Cancel" />
+<input type="button" onclick="saveLink()" value="Save link" />
+</form>
+</center>
+</body>
+</html>

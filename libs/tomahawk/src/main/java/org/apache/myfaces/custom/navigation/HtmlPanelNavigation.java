@@ -1,0 +1,517 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ * 
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.apache.myfaces.custom.navigation;
+
+import jakarta.el.ValueExpression;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.component.PartialStateHolder;
+import jakarta.faces.component.StateHolder;
+import org.apache.myfaces.component.AttachedDeltaWrapper;
+import jakarta.faces.component.UIComponent;
+
+
+// Generated from class org.apache.myfaces.custom.navigation.AbstractHtmlPanelNavigation.
+//
+// WARNING: This file was automatically generated. Do not edit it directly,
+//          or you will lose your changes.
+public class HtmlPanelNavigation extends org.apache.myfaces.custom.navigation.AbstractHtmlPanelNavigation
+{
+
+    static public final String COMPONENT_FAMILY =
+        "jakarta.faces.Panel";
+    static public final String COMPONENT_TYPE =
+        "org.apache.myfaces.HtmlPanelNavigation";
+    static public final String DEFAULT_RENDERER_TYPE = 
+        "org.apache.myfaces.Navigation";
+
+
+    public HtmlPanelNavigation()
+    {
+        setRendererType("org.apache.myfaces.Navigation");
+    }
+
+    public String getFamily()
+    {
+        return COMPONENT_FAMILY;
+    }
+
+
+    static private final java.util.Collection<String> CLIENT_EVENTS_LIST = 
+        java.util.Collections.unmodifiableCollection(
+            java.util.Arrays.asList(
+             "click"
+            , "dblclick"
+            , "keydown"
+            , "keypress"
+            , "keyup"
+            , "mousedown"
+            , "mousemove"
+            , "mouseout"
+            , "mouseover"
+            , "mouseup"
+        ));
+
+    public java.util.Collection<String> getEventNames()
+    {
+        return CLIENT_EVENTS_LIST;
+    }
+
+    @Override
+    public void addClientBehavior(String eventName, jakarta.faces.component.behavior.ClientBehavior behavior)
+    {
+        super.addClientBehavior(eventName, behavior);
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonEventConstants.markEvent(this, eventName);
+    }
+
+    
+    // Property: itemClass
+    public String getItemClass()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.itemClass);
+    }
+    
+    public void setItemClass(String itemClass)
+    {
+        getStateHelper().put(PropertyKeys.itemClass, itemClass ); 
+    }    
+    // Property: openItemClass
+    public String getOpenItemClass()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.openItemClass);
+    }
+    
+    public void setOpenItemClass(String openItemClass)
+    {
+        getStateHelper().put(PropertyKeys.openItemClass, openItemClass ); 
+    }    
+    // Property: activeItemClass
+    public String getActiveItemClass()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.activeItemClass);
+    }
+    
+    public void setActiveItemClass(String activeItemClass)
+    {
+        getStateHelper().put(PropertyKeys.activeItemClass, activeItemClass ); 
+    }    
+    // Property: separatorClass
+    public String getSeparatorClass()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.separatorClass);
+    }
+    
+    public void setSeparatorClass(String separatorClass)
+    {
+        getStateHelper().put(PropertyKeys.separatorClass, separatorClass ); 
+    }    
+    // Property: itemStyle
+    public String getItemStyle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.itemStyle);
+    }
+    
+    public void setItemStyle(String itemStyle)
+    {
+        getStateHelper().put(PropertyKeys.itemStyle, itemStyle ); 
+    }    
+    // Property: openItemStyle
+    public String getOpenItemStyle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.openItemStyle);
+    }
+    
+    public void setOpenItemStyle(String openItemStyle)
+    {
+        getStateHelper().put(PropertyKeys.openItemStyle, openItemStyle ); 
+    }    
+    // Property: activeItemStyle
+    public String getActiveItemStyle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.activeItemStyle);
+    }
+    
+    public void setActiveItemStyle(String activeItemStyle)
+    {
+        getStateHelper().put(PropertyKeys.activeItemStyle, activeItemStyle ); 
+    }    
+    // Property: separatorStyle
+    public String getSeparatorStyle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.separatorStyle);
+    }
+    
+    public void setSeparatorStyle(String separatorStyle)
+    {
+        getStateHelper().put(PropertyKeys.separatorStyle, separatorStyle ); 
+    }    
+    // Property: onclick
+    public String getOnclick()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onclick);
+    }
+    
+    public void setOnclick(String onclick)
+    {
+        getStateHelper().put(PropertyKeys.onclick, onclick ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONCLICK_PROP);
+    }    
+    // Property: ondblclick
+    public String getOndblclick()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.ondblclick);
+    }
+    
+    public void setOndblclick(String ondblclick)
+    {
+        getStateHelper().put(PropertyKeys.ondblclick, ondblclick ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONDBLCLICK_PROP);
+    }    
+    // Property: onkeydown
+    public String getOnkeydown()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onkeydown);
+    }
+    
+    public void setOnkeydown(String onkeydown)
+    {
+        getStateHelper().put(PropertyKeys.onkeydown, onkeydown ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONKEYDOWN_PROP);
+    }    
+    // Property: onkeypress
+    public String getOnkeypress()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onkeypress);
+    }
+    
+    public void setOnkeypress(String onkeypress)
+    {
+        getStateHelper().put(PropertyKeys.onkeypress, onkeypress ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONKEYPRESS_PROP);
+    }    
+    // Property: onkeyup
+    public String getOnkeyup()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onkeyup);
+    }
+    
+    public void setOnkeyup(String onkeyup)
+    {
+        getStateHelper().put(PropertyKeys.onkeyup, onkeyup ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONKEYUP_PROP);
+    }    
+    // Property: onmousedown
+    public String getOnmousedown()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onmousedown);
+    }
+    
+    public void setOnmousedown(String onmousedown)
+    {
+        getStateHelper().put(PropertyKeys.onmousedown, onmousedown ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONMOUSEDOWN_PROP);
+    }    
+    // Property: onmousemove
+    public String getOnmousemove()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onmousemove);
+    }
+    
+    public void setOnmousemove(String onmousemove)
+    {
+        getStateHelper().put(PropertyKeys.onmousemove, onmousemove ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONMOUSEMOVE_PROP);
+    }    
+    // Property: onmouseout
+    public String getOnmouseout()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onmouseout);
+    }
+    
+    public void setOnmouseout(String onmouseout)
+    {
+        getStateHelper().put(PropertyKeys.onmouseout, onmouseout ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONMOUSEOUT_PROP);
+    }    
+    // Property: onmouseover
+    public String getOnmouseover()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onmouseover);
+    }
+    
+    public void setOnmouseover(String onmouseover)
+    {
+        getStateHelper().put(PropertyKeys.onmouseover, onmouseover ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONMOUSEOVER_PROP);
+    }    
+    // Property: onmouseup
+    public String getOnmouseup()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.onmouseup);
+    }
+    
+    public void setOnmouseup(String onmouseup)
+    {
+        getStateHelper().put(PropertyKeys.onmouseup, onmouseup ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ONMOUSEUP_PROP);
+    }    
+    // Property: dir
+    public String getDir()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.dir);
+    }
+    
+    public void setDir(String dir)
+    {
+        getStateHelper().put(PropertyKeys.dir, dir ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.DIR_PROP);
+    }    
+    // Property: lang
+    public String getLang()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.lang);
+    }
+    
+    public void setLang(String lang)
+    {
+        getStateHelper().put(PropertyKeys.lang, lang ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.LANG_PROP);
+    }    
+    // Property: title
+    public String getTitle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.title);
+    }
+    
+    public void setTitle(String title)
+    {
+        getStateHelper().put(PropertyKeys.title, title ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.TITLE_PROP);
+    }    
+    // Property: datafld
+    public String getDatafld()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.datafld);
+    }
+    
+    public void setDatafld(String datafld)
+    {
+        getStateHelper().put(PropertyKeys.datafld, datafld ); 
+    }    
+    // Property: datasrc
+    public String getDatasrc()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.datasrc);
+    }
+    
+    public void setDatasrc(String datasrc)
+    {
+        getStateHelper().put(PropertyKeys.datasrc, datasrc ); 
+    }    
+    // Property: dataformatas
+    public String getDataformatas()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.dataformatas);
+    }
+    
+    public void setDataformatas(String dataformatas)
+    {
+        getStateHelper().put(PropertyKeys.dataformatas, dataformatas ); 
+    }    
+    // Property: bgcolor
+    public String getBgcolor()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.bgcolor);
+    }
+    
+    public void setBgcolor(String bgcolor)
+    {
+        getStateHelper().put(PropertyKeys.bgcolor, bgcolor ); 
+    }    
+    // Property: border
+    public int getBorder()
+    {
+        return (Integer) getStateHelper().eval(PropertyKeys.border, Integer.MIN_VALUE);
+    }
+    
+    public void setBorder(int border)
+    {
+        getStateHelper().put(PropertyKeys.border, border ); 
+    }    
+    // Property: cellpadding
+    public String getCellpadding()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.cellpadding);
+    }
+    
+    public void setCellpadding(String cellpadding)
+    {
+        getStateHelper().put(PropertyKeys.cellpadding, cellpadding ); 
+    }    
+    // Property: cellspacing
+    public String getCellspacing()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.cellspacing);
+    }
+    
+    public void setCellspacing(String cellspacing)
+    {
+        getStateHelper().put(PropertyKeys.cellspacing, cellspacing ); 
+    }    
+    // Property: frame
+    public String getFrame()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.frame);
+    }
+    
+    public void setFrame(String frame)
+    {
+        getStateHelper().put(PropertyKeys.frame, frame ); 
+    }    
+    // Property: rules
+    public String getRules()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.rules);
+    }
+    
+    public void setRules(String rules)
+    {
+        getStateHelper().put(PropertyKeys.rules, rules ); 
+    }    
+    // Property: summary
+    public String getSummary()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.summary);
+    }
+    
+    public void setSummary(String summary)
+    {
+        getStateHelper().put(PropertyKeys.summary, summary ); 
+    }    
+    // Property: width
+    public String getWidth()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.width);
+    }
+    
+    public void setWidth(String width)
+    {
+        getStateHelper().put(PropertyKeys.width, width ); 
+    }    
+    // Property: align
+    public String getAlign()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.align);
+    }
+    
+    public void setAlign(String align)
+    {
+        getStateHelper().put(PropertyKeys.align, align ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.ALIGN_PROP);
+    }    
+    // Property: style
+    public String getStyle()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.style);
+    }
+    
+    public void setStyle(String style)
+    {
+        getStateHelper().put(PropertyKeys.style, style ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.STYLE_PROP);
+    }    
+    // Property: styleClass
+    public String getStyleClass()
+    {
+        return (String) getStateHelper().eval(PropertyKeys.styleClass);
+    }
+    
+    public void setStyleClass(String styleClass)
+    {
+        getStateHelper().put(PropertyKeys.styleClass, styleClass ); 
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this,
+            org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.STYLECLASS_PROP);
+    }    
+
+    public void setValueBinding(String name, jakarta.faces.el.ValueBinding binding)
+    {
+        super.setValueBinding(name, binding);
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this, name);
+    }
+
+    public void setValueExpression(String name, ValueExpression expression)
+    {
+        super.setValueExpression(name, expression);
+        org.apache.myfaces.shared_tomahawk.renderkit.html.CommonPropertyConstants.markProperty(this, name);
+    }
+
+    protected enum PropertyKeys
+    {
+         itemClass
+        , openItemClass
+        , activeItemClass
+        , separatorClass
+        , itemStyle
+        , openItemStyle
+        , activeItemStyle
+        , separatorStyle
+        , onclick
+        , ondblclick
+        , onkeydown
+        , onkeypress
+        , onkeyup
+        , onmousedown
+        , onmousemove
+        , onmouseout
+        , onmouseover
+        , onmouseup
+        , dir
+        , lang
+        , title
+        , datafld
+        , datasrc
+        , dataformatas
+        , bgcolor
+        , border
+        , cellpadding
+        , cellspacing
+        , frame
+        , rules
+        , summary
+        , width
+        , align
+        , style
+        , styleClass
+    }
+
+ }
