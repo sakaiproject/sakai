@@ -1,0 +1,370 @@
+<?xml version="1.0" ?>
+<?oxygen RNGSchema="file:libraries.rng" type="xml"?>
+<collection id="collection-kupubuttons.xml">
+    <uri>kupudrawers/kupubuttons.xml</uri>
+    <icon>kupuimages/kupulibrary.png</icon>
+    <title>Kupu buttons</title>
+    <src>kupudrawers/kupubuttons.xml</src>
+    <items>
+        <resource id="smaller-text.png">
+            <uri>kupuimages/smaller-text.png</uri>
+            <title>smaller-text</title>
+            <description/>
+            <size>961</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="undo.png">
+            <uri>kupuimages/undo.png</uri>
+            <title>undo</title>
+            <description/>
+            <size>959</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="superscript.png">
+            <uri>kupuimages/superscript.png</uri>
+            <title>superscript</title>
+            <description/>
+            <size>961</size>
+            <height>20</height>
+            <width>19</width>
+        </resource>
+        <resource id="fonts.png">
+            <uri>kupuimages/fonts.png</uri>
+            <title>fonts</title>
+            <description/>
+            <size>953</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="cut.png">
+            <uri>kupuimages/cut.png</uri>
+            <title>cut</title>
+            <description/>
+            <size>975</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="save.png">
+            <uri>kupuimages/save.png</uri>
+            <title>save</title>
+            <description/>
+            <size>966</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="paste.png">
+            <uri>kupuimages/paste.png</uri>
+            <title>paste</title>
+            <description/>
+            <size>1004</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="justify-center.png">
+            <uri>kupuimages/justify-center.png</uri>
+            <title>justify-center</title>
+            <description/>
+            <size>934</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="larger-text.png">
+            <uri>kupuimages/larger-text.png</uri>
+            <title>larger-text</title>
+            <description/>
+            <size>959</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="view-source.png">
+            <uri>kupuimages/view-source.png</uri>
+            <title>view-source</title>
+            <description/>
+            <size>1045</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="definitionlist.png">
+            <uri>kupuimages/definitionlist.png</uri>
+            <title>definitionlist</title>
+            <description/>
+            <size>212</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="indent.png">
+            <uri>kupuimages/indent.png</uri>
+            <title>indent</title>
+            <description/>
+            <size>963</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="document.png">
+            <uri>kupuimages/document.png</uri>
+            <title>document</title>
+            <description/>
+            <size>390</size>
+            <height>16</height>
+            <width>16</width>
+        </resource>
+        <resource id="exthyperlink.png">
+            <uri>kupuimages/exthyperlink.png</uri>
+            <title>exthyperlink</title>
+            <description/>
+            <size>314</size>
+            <height>22</height>
+            <width>23</width>
+        </resource>
+        <resource id="background-color.png">
+            <uri>kupuimages/background-color.png</uri>
+            <title>background-color</title>
+            <description/>
+            <size>1005</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="size.png">
+            <uri>kupuimages/size.png</uri>
+            <title>size</title>
+            <description/>
+            <size>955</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="justify-right.png">
+            <uri>kupuimages/justify-right.png</uri>
+            <title>justify-right</title>
+            <description/>
+            <size>934</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="buttons.png">
+            <uri>kupuimages/buttons.png</uri>
+            <title>buttons</title>
+            <description/>
+            <size>3253</size>
+            <height>140</height>
+            <width>120</width>
+        </resource>
+        <resource id="subscript.png">
+            <uri>kupuimages/subscript.png</uri>
+            <title>subscript</title>
+            <description/>
+            <size>961</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="remove.png">
+            <uri>kupuimages/remove.png</uri>
+            <title>remove</title>
+            <description/>
+            <size>1298</size>
+            <height>22</height>
+            <width>23</width>
+        </resource>
+        <resource id="caret.png">
+            <uri>kupuimages/caret.png</uri>
+            <title>caret</title>
+            <description/>
+            <size>948</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="underline.png">
+            <uri>kupuimages/underline.png</uri>
+            <title>underline</title>
+            <description/>
+            <size>953</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="copy.png">
+            <uri>kupuimages/copy.png</uri>
+            <title>copy</title>
+            <description/>
+            <size>984</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="hr.png">
+            <uri>kupuimages/hr.png</uri>
+            <title>hr</title>
+            <description/>
+            <size>937</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="image.png">
+            <uri>kupuimages/image.png</uri>
+            <title>image</title>
+            <description/>
+            <size>1002</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="strikethrough.png">
+            <uri>kupuimages/strikethrough.png</uri>
+            <title>strikethrough</title>
+            <description/>
+            <size>963</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="format.png">
+            <uri>kupuimages/format.png</uri>
+            <title>format</title>
+            <description/>
+            <size>965</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="undo-disabled.png">
+            <uri>kupuimages/undo-disabled.png</uri>
+            <title>undo-disabled</title>
+            <description/>
+            <size>959</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="folder.png">
+            <uri>kupuimages/folder.png</uri>
+            <title>folder</title>
+            <description/>
+            <size>1126</size>
+            <height>16</height>
+            <width>16</width>
+        </resource>
+        <resource id="create-new.png">
+            <uri>kupuimages/create-new.png</uri>
+            <title>create-new</title>
+            <description/>
+            <size>951</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="unlink.png">
+            <uri>kupuimages/unlink.png</uri>
+            <title>unlink</title>
+            <description/>
+            <size>983</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="justify-full.png">
+            <uri>kupuimages/justify-full.png</uri>
+            <title>justify-full</title>
+            <description/>
+            <size>929</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="kupulibrary.png">
+            <uri>kupuimages/kupulibrary.png</uri>
+            <title>kupulibrary</title>
+            <description/>
+            <size>2094</size>
+            <height>32</height>
+            <width>32</width>
+        </resource>
+        <resource id="bold.png">
+            <uri>kupuimages/bold.png</uri>
+            <title>bold</title>
+            <description/>
+            <size>945</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="text-color.png">
+            <uri>kupuimages/text-color.png</uri>
+            <title>text-color</title>
+            <description/>
+            <size>988</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="unordered-list.png">
+            <uri>kupuimages/unordered-list.png</uri>
+            <title>unordered-list</title>
+            <description/>
+            <size>937</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="ordered-list.png">
+            <uri>kupuimages/ordered-list.png</uri>
+            <title>ordered-list</title>
+            <description/>
+            <size>957</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="redo-disabled.png">
+            <uri>kupuimages/redo-disabled.png</uri>
+            <title>redo-disabled</title>
+            <description/>
+            <size>959</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="outdent.png">
+            <uri>kupuimages/outdent.png</uri>
+            <title>outdent</title>
+            <description/>
+            <size>962</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="table.png">
+            <uri>kupuimages/table.png</uri>
+            <title>table</title>
+            <description/>
+            <size>952</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="justify-left.png">
+            <uri>kupuimages/justify-left.png</uri>
+            <title>justify-left</title>
+            <description/>
+            <size>932</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="redo.png">
+            <uri>kupuimages/redo.png</uri>
+            <title>redo</title>
+            <description/>
+            <size>959</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="italic.png">
+            <uri>kupuimages/italic.png</uri>
+            <title>italic</title>
+            <description/>
+            <size>965</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="link.png">
+            <uri>kupuimages/link.png</uri>
+            <title>link</title>
+            <description/>
+            <size>1030</size>
+            <height>20</height>
+            <width>20</width>
+        </resource>
+        <resource id="inthyperlink.png">
+            <uri>kupuimages/inthyperlink.png</uri>
+            <title>inthyperlink</title>
+            <description/>
+            <size>296</size>
+            <height>22</height>
+            <width>23</width>
+        </resource>
+    </items>
+</collection>
