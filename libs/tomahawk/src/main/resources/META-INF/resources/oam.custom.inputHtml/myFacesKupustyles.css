@@ -1,0 +1,279 @@
+/*****************************************************************************
+ *
+ * Kupu common styles
+ *
+ * Copyright (c) 2003-2005 Kupu Contributors. See CREDITS.txt
+ *
+ * Instead of customizing this file, it is recommended to add your own
+ * CSS file.  Feel free to use whole or parts of this for your own
+ * designs, but give credit where credit is due.
+ *
+ *****************************************************************************/
+
+/* $Id: kupustyles.css 289206 2005-09-15 11:31:53Z svieujot $ */
+
+.kupu-fulleditor, .kupu-toolboxes {
+  font-family: Verdana, "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: white;
+}
+
+div.kupu-fulleditor .kupu-fulleditor-zoomed {
+  height: 100%;
+  padding: 0px;
+}
+
+div.kupu-fulleditor .kupu-editorframe {
+   margin: 0px;
+   margin-right: 20em;
+   border: none;
+}
+
+div.kupu-fulleditor-zoomed {
+   z-index: 100;
+   margin: 0; border: none;
+   position: fixed;
+   top: 0; left: 0;
+   background-color: white;
+}
+
+* html div.kupu-fulleditor-zoomed {
+   position: absolute; /* IE */
+}
+
+div.kupu-fulleditor-zoomed .kupu-editor-iframe {
+  border: none;
+  margin: 0;
+}
+
+div.kupu-smalleditor .kupu-editorframe {
+  margin-right: 0.2em;
+}
+
+h1.kupu-toolbox-heading, h1.kupu-toolbox-heading-closed {
+  cursor: default;
+  background-image: url("#{resource['oam.custom.inputHtml.kupuimages:closed.png']}");
+  background-repeat: no-repeat;
+  background-position: left;
+}
+
+h1.kupu-toolbox-heading-opened {
+  cursor: default;
+  background-image: url("#{resource['oam.custom.inputHtml.kupuimages:opened.png']}");
+  background-repeat: no-repeat;
+  background-position: left;
+}
+
+div.kupu-sourcemode span.kupu-tb-buttongroup,
+body.kupu-fulleditor-zoomed select { display: none; }
+body.kupu-fulleditor-zoomed div.kupu-fulleditor-zoomed select { display: inline; }
+div.kupu-sourcemode select { display: none !IMPORTANT; }
+div.kupu-sourcemode span#kupu-logo,
+div.kupu-sourcemode span#kupu-zoom,
+div.kupu-sourcemode span#kupu-source { display: inline; }
+
+div.kupu-smalleditor {
+  font-family: Verdana, "Lucida Grande", Helvetica, Arial, sans-serif;
+  border: solid 3px ButtonHighlight;
+  margin: 0.2em;
+  height: 100%;
+}
+
+.kupu-tb {
+  padding: 3px;
+  margin-bottom: 0.4em;
+  background-color: ButtonFace;
+  border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+}
+
+.kupu-tb-buttons button {
+  color: ButtonText;
+  border: 1px solid ButtonFace;
+  margin-top: 0;
+  margin-left: 0;
+  height: 26px;
+  width: 26px;
+  background-repeat: no-repeat;
+}
+
+.kupu-tb-buttons button:hover {
+  cursor: default;
+  border: 1px solid;
+  border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+}
+
+.kupu-tb-buttons button:active {
+  border: 1px solid;
+  border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+}
+
+.kupu-tb-buttongroup {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+
+.kupu-bold {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:bold.png']}");}
+.kupu-bold-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:bold.png']}"); background-color: white;}
+.kupu-forecolor {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:text-color.png']}");}
+.kupu-hilitecolor {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:background-color.png']}");}
+
+.kupu-inthyperlink {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:inthyperlink.png']}");}
+.kupu-inthyperlink-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:inthyperlink.png']}"); background-color: white}
+.kupu-exthyperlink {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:exthyperlink.png']}");}
+.kupu-exthyperlink-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:exthyperlink.png']}"); background-color: white}
+
+.kupu-image {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:image.png']}");}
+.kupu-indent {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:indent.png']}");}
+.kupu-inserthorizontalrule {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:hr.png']}");}
+.kupu-insertorderedlist {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:ordered-list.png']}");}
+.kupu-insertunorderedlist {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:unordered-list.png']}");}
+.kupu-insertdefinitionlist {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:definitionlist.png']}");}
+.kupu-italic {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:italic.png']}");}
+.kupu-italic-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:italic.png']}"); background-color: white}
+.kupu-justifycenter {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:justify-center.png']}");}
+.kupu-justifyleft {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:justify-left.png']}");}
+.kupu-justifyright {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:justify-right.png']}");}
+button.kupu-logo {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:kupu_icon.gif']}");}
+.kupu-outdent {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:outdent.png']}");}
+.kupu-redo {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:redo.png']}");}
+.kupu-save {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:save.png']}");}
+.kupu-save-and-exit {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:exit.gif']}");}
+.kupu-space {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:space.gif']}");}
+.kupu-source {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:view-source.png']}");}
+.kupu-spellchecker {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:text-check.png']}");}
+.kupu-subscript {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:subscript.png']}");}
+.kupu-subscript-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:subscript.png']}"); background-color: white}
+.kupu-superscript {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:superscript.png']}");}
+.kupu-superscript-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:superscript.png']}"); background-color: white}
+.kupu-table {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:table.png']}");}
+.kupu-underline {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:underline.png']}");}
+.kupu-underline-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:underline.png']}"); background-color: white}
+.kupu-undo {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:undo.png']}");}
+.kupu-removelink {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:remove.png']}");}
+.kupu-removeimage {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:remove.png']}");}
+.kupu-zoom {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:zoom-in.gif']}");}
+.kupu-zoom-pressed {background-image: url("#{resource['oam.custom.inputHtml.kupuimages:zoom-out.gif']}");}
+
+.kupu-tb-buttons button.invisible { 
+  display: none;
+  /*visibility: hidden;*/
+}
+
+.kupu-tb-buttons button.visible { 
+  display: inline;
+}
+
+div.kupu-editorframe {
+  margin-left: 0.3em;
+  margin-bottom: 0.3em;
+  border: solid 2px ButtonFace;
+}
+
+iframe.kupu-editor-iframe {
+  height: 450px;
+  width: 99%;
+}
+
+textarea.kupu-editor-textarea {
+  height: 450px;
+  width: 99%;
+  display: none;
+}
+
+div.kupu-toolboxes {
+  float: right;	
+  border: solid 2px ButtonFace;
+  width: 19.4em;
+  margin-right: 0.3em;
+  margin-bottom: 0.3em;
+  font-size: 0.8em;
+}
+
+div.kupu-fulleditor-zoomed div.kupu-toolboxes {
+  display: none;
+}
+
+div.kupu-toolbox, div.kupu-toolbox-active {
+  margin-bottom: 1em;
+}
+
+div.kupu-toolbox h1, div.kupu-toolbox-active h1 {
+  text-align: center;
+  width: 100%;
+  background-color: ButtonFace;
+  margin-top: 0;
+  font-size: 1.1em;
+}
+
+div.kupu-toolbox-label, span.kupu-toolbox-searchterm, 
+input.wide, select.wide, textarea.wide, button.kupu-toolbox-action, 
+div.kupu-toolbox-results {
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.wide {
+  width: 95%;
+}
+
+div.kupu-toolbox-label {
+  margin-bottom: 0.4em;
+}
+
+.kupu-toolbox-buttons {
+  text-align: center;
+}
+
+.kupu-toolbox-buttons button {
+  width: 45%;
+}
+
+div.kupu-toolbox-results {
+  border: solid 2px ButtonFace;
+  margin-top: 0.8em;
+  text-decoration: underline;
+  padding: 0.2em;
+  display: none;
+}
+
+div.kupu-toolbox table.kupu-toolbox-addtable input, 
+div.kupu-toolbox-active table.kupu-toolbox-edittable input {
+  width: 20px;
+}
+
+div.kupu-toolbox-active {
+  background-color: ButtonFace;
+}
+
+.kupu-toolbox-editlink, .kupu-toolbox-edittable,
+.kupu-ulstyles, .kupu-olstyles {
+  display: none;
+}
+
+
+div#kupu-colorchooser {
+  position: absolute;
+  visibility: hidden;
+  border: solid black 1px;
+  background-color: white;
+  padding: 0.2em;
+  font-size: small;
+}
+
+.kupu-toolboxes input, .kupu-toolboxes select, .kupu-toolboxes textarea {
+  font-size: x-small;
+  font-family: Verdana, "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+div#kupu-fgcolorchooser div:hover {
+  /* border: outset 1px; */
+}
+
+div.kupu-drawer {
+   overflow: auto;
+}
+
+button.disabled {
+   opacity:0.5;
+   filter:alpha(opacity=50);
+}
