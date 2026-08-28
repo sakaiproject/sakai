@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>libs</artifactId>
+        <version>27-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>org.sakaiproject.tomahawk</groupId>
+    <artifactId>tomahawk</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Sakai Tomahawk</name>
+    <description>Apache MyFaces Tomahawk component library (vendored for Sakai, migrated to jakarta)</description>
+    <url>https://myfaces.apache.org/tomahawk</url>
+
+    <properties>
+        <!-- sakai:deploy copies this jar to Tomcat shared/lib, as the pluto modules do -->
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <!--
+        Upstream Tomahawk ships org.apache.myfaces.shared_tomahawk.* bundled alongside the
+        component classes in a single artifact; this module reproduces that shape rather than
+        splitting them. Dependencies are added with the source import - see README-FORK.md.
+    -->
+    <dependencies>
+    </dependencies>
+
+    <!-- Tomahawk keeps the standard Maven layout, not Sakai's src/java default -->
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+    </build>
+
+</project>
