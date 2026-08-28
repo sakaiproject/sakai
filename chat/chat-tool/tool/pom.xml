@@ -64,20 +64,8 @@
     </dependency>
 <!-- tomahawk tags are being used, so we have to pull them seperately -->
     <dependency>
-      <groupId>org.apache.myfaces.tomahawk</groupId>
-      <artifactId>tomahawk21</artifactId>
-      <version>1.1.14</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>jstl</artifactId>
-        </exclusion>
-      </exclusions>
+        <groupId>org.sakaiproject.tomahawk</groupId>
+        <artifactId>tomahawk</artifactId>
     </dependency>
     <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>
