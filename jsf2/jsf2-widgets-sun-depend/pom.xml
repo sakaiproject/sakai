@@ -27,8 +27,8 @@
             <artifactId>jsf2-widgets</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.myfaces.tomahawk</groupId>
-                    <artifactId>tomahawk21</artifactId>
+                    <groupId>org.sakaiproject.tomahawk</groupId>
+                    <artifactId>tomahawk</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

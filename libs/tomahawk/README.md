@@ -29,9 +29,24 @@ which was repackaged. Renaming would buy nothing and would break existing import
 Maven version: Sakai's platform version (currently `27-SNAPSHOT`), not upstream `1.1.14`,
 matching the Pluto convention.
 
-The module sets `<deploy.target>shared</deploy.target>` so `sakai:deploy` copies the jar to
-Tomcat `shared/lib`. `docker/tomcat/conf/context.xml` already lists `tomahawk*.jar` in its
-`tldScan` filter.
+Deliberately **no** `deploy.target`. Unlike the Pluto container, this is a JSF component
+library that belongs in each consuming webapp's `WEB-INF/lib`, which is exactly how the
+upstream `tomahawk21` jar was used — it never appeared in `deploy/pom.xml`. Deploying it to
+`shared` as well would have Faces process its `faces-config.xml` and TLDs twice.
+`docker/tomcat/conf/context.xml` already lists `tomahawk*.jar` in its `tldScan` filter, so the
+jar is scanned for TLDs where it lands.
+
+### Consumers
+
+Eleven modules previously depending on `org.apache.myfaces.tomahawk:tomahawk21:1.1.14` now
+depend on `org.sakaiproject.tomahawk:tomahawk` with the version managed in `master/pom.xml`:
+`chat-tool`, `help-tool`, `jsf2-widgets`, `messageforums-app`, `samigo-app`, `sections-app`,
+`signup/tool`, `syllabus-app`, `user-tool-prefs`, `userauditservice`, `usermembership`.
+
+Their `commons-logging` and `javax.servlet:jstl` exclusions were dropped — this fork pulls
+neither (it uses `jcl-over-slf4j` and the jakarta JSTL). Two *exclusions* of the old coordinate,
+in `jsf2-widgets-sun-depend` and `calendar-summary-tool`, were repointed at the new one so they
+keep excluding what they were meant to.
 
 ## Changes from upstream
 

@@ -72,8 +72,8 @@
             <artifactId>jsf2-widgets-sun-depend</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.myfaces.tomahawk</groupId>
-                    <artifactId>tomahawk21</artifactId>
+                    <groupId>org.sakaiproject.tomahawk</groupId>
+                    <artifactId>tomahawk</artifactId>
                 </exclusion>
             </exclusions>
             <type>pom</type>

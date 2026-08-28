@@ -1190,6 +1190,16 @@
         <version>${sakai.pluto.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!--
+        Sakai's vendored fork of Apache MyFaces Tomahawk 1.1.14, migrated to jakarta.
+        Compile scope: this is a JSF component library that belongs in each consuming
+        webapp's WEB-INF/lib, replacing org.apache.myfaces.tomahawk:tomahawk21.
+      -->
+      <dependency>
+        <groupId>org.sakaiproject.tomahawk</groupId>
+        <artifactId>tomahawk</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
       <!-- Job Scheduler deploys quartz to shared. -->
       <dependency>
         <groupId>org.quartz-scheduler</groupId>
