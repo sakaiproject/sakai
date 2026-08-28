@@ -27,10 +27,10 @@ import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.pluto.PortletWindow;
-import org.sakaiproject.pluto.spi.PortalCallbackService;
-import org.sakaiproject.pluto.spi.PortletURLProvider;
-import org.sakaiproject.pluto.spi.ResourceURLProvider;
+import org.apache.pluto.PortletWindow;
+import org.apache.pluto.spi.PortalCallbackService;
+import org.apache.pluto.spi.PortletURLProvider;
+import org.apache.pluto.spi.ResourceURLProvider;
 import org.sakaiproject.portal.render.portlet.services.state.EnhancedPortletStateEncoder;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
