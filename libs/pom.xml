@@ -20,6 +20,7 @@
     <modules>
         <module>pluto</module>
         <module>tomahawk</module>
+        <module>elfinder</module>
     </modules>
 
 </project>

@@ -1200,6 +1200,15 @@
         <artifactId>tomahawk</artifactId>
         <version>${sakai.version}</version>
       </dependency>
+      <!--
+        Sakai's vendored fork of the elfinder-servlet-2 Java backend for elFinder, migrated to
+        jakarta. Upstream (com.github.bluejoe2008:elfinder-servlet-2) has no jakarta build.
+      -->
+      <dependency>
+        <groupId>org.sakaiproject.elfinder</groupId>
+        <artifactId>elfinder-servlet</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
       <!-- Job Scheduler deploys quartz to shared. -->
       <dependency>
         <groupId>org.quartz-scheduler</groupId>
