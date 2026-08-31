@@ -99,8 +99,8 @@ public class UploadRenderer extends Renderer {
     }
 
     Object target;
-    ValueExpression binding = component.getValueBinding("target");
-    if (binding != null) target = binding.getValue(context);
+    ValueExpression binding = component.getValueExpression("target");
+    if (binding != null) target = binding.getValue(context.getELContext());
     else target = component.getAttributes().get("target");
 
     String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
@@ -188,7 +188,7 @@ public class UploadRenderer extends Renderer {
 
             if (part != null) part.write(filePath);
             if (fileItem != null) {
-                fileItem.write(new File(filePath));
+                fileItem.write(new File(filePath).toPath());
             }
         }
     }

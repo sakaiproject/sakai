@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.jsf2.util;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentELTag;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * This source file collects the dependencies of the Sakai tag library
  * on the JSF implementation into one place.
@@ -27,4 +32,82 @@ public class JSFDepends
 {
 	  public static class ButtonRenderer extends com.sun.faces.renderkit.html_basic.ButtonRenderer {}
 	  public static class CommandLinkRenderer extends com.sun.faces.renderkit.html_basic.CommandLinkRenderer {}
+
+	  @Getter
+	  @Setter
+	  public static class PanelGridTag extends UIComponentELTag
+	  {
+		  private String styleClass;
+		  private String style;
+		  private String columns;
+		  private String columnClasses;
+		  private String rowClasses;
+		  private String border;
+		  private String cellpadding;
+		  private String cellspacing;
+		  private String width;
+		  private String title;
+		  private String id;
+		  private String binding;
+		  private String rendered;
+
+		  @Override
+		  public String getComponentType()
+		  {
+			  return "javax.faces.PanelGrid";
+		  }
+
+		  @Override
+		  public String getRendererType()
+		  {
+			  return "javax.faces.Grid";
+		  }
+
+		  @Override
+		  protected void setProperties(UIComponent component)
+		  {
+			  super.setProperties(component);
+
+			  if (styleClass != null) {
+				  component.getAttributes().put("styleClass", styleClass);
+			  }
+			  if (style != null) {
+				  component.getAttributes().put("style", style);
+			  }
+			  if (columns != null) {
+				  component.getAttributes().put("columns", columns);
+			  }
+			  if (columnClasses != null) {
+				  component.getAttributes().put("columnClasses", columnClasses);
+			  }
+			  if (rowClasses != null) {
+				  component.getAttributes().put("rowClasses", rowClasses);
+			  }
+			  if (border != null) {
+				  component.getAttributes().put("border", border);
+			  }
+			  if (cellpadding != null) {
+				  component.getAttributes().put("cellpadding", cellpadding);
+			  }
+			  if (cellspacing != null) {
+				  component.getAttributes().put("cellspacing", cellspacing);
+			  }
+			  if (width != null) {
+				  component.getAttributes().put("width", width);
+			  }
+			  if (title != null) {
+				  component.getAttributes().put("title", title);
+			  }
+			  if (id != null) {
+				  component.setId(id);
+			  }
+			  if (binding != null) {
+				  component.setValueExpression("binding", getFacesContext().getApplication().getExpressionFactory()
+						  .createValueExpression(getFacesContext().getELContext(), binding, UIComponent.class));
+			  }
+			  if (rendered != null) {
+				  component.setRendered(Boolean.valueOf(rendered));
+			  }
+		  }
+	  }
 }

@@ -218,8 +218,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 		}
 		UIData data = (UIData) component;
 
-		ValueExpression msgsBinding = component.getValueBinding("value");
-		List msgBeanList = (List) msgsBinding.getValue(context);
+		ValueExpression msgsBinding = component.getValueExpression("value");
+		List msgBeanList = (List) msgsBinding.getValue(context.getELContext());
 
 		// Set up variables we will need
 		String columnClasses[] = getColumnClasses(data);

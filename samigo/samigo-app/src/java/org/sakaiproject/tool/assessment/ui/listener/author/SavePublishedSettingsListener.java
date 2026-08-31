@@ -44,7 +44,7 @@ import jakarta.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
