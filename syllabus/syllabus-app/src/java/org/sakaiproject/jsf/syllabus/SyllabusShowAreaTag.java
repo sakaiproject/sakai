@@ -66,8 +66,8 @@ public class SyllabusShowAreaTag extends UIComponentTag
       String attributeValue)
   {
     if (attributeValue == null) return;
-    if (UIComponentTag.isValueReference(attributeValue)) setValueBinding(
-        component, attributeName, attributeValue);
+    if (attributeValue.startsWith("#{") && attributeValue.endsWith("}"))
+      setValueBinding(component, attributeName, attributeValue);
     else
       component.getAttributes().put(attributeName, attributeValue);
   }
@@ -77,8 +77,8 @@ public class SyllabusShowAreaTag extends UIComponentTag
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
-    ValueExpression vb = app.createValueBinding(attributeValue);
-    component.setValueBinding(attributeName, vb);
+    ValueExpression ve = app.getExpressionFactory().createValueExpression(context.getELContext(), attributeValue, Object.class);
+    component.setValueExpression(attributeName, ve);
   }
 }
 

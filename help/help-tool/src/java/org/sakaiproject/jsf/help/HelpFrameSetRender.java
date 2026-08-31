@@ -107,8 +107,8 @@ public class HelpFrameSetRender extends Renderer
     writer.write("</FRAMESET>\n");
     
     Application app = context.getApplication();
-    ValueExpression binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
-    HelpManager manager  = (HelpManager) binding.getValue(context);    
+    ValueExpression binding = app.getExpressionFactory().createValueExpression(context.getELContext(), "#{Components['org.sakaiproject.api.app.help.HelpManager']}", HelpManager.class);
+    HelpManager manager = (HelpManager) binding.getValue(context.getELContext());
                   
     if(manager.getWelcomePage() == null) {
         if (welcomepage == DEFAULT_WELCOME_PAGE) {

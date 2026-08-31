@@ -6,16 +6,16 @@ import jakarta.faces.context.FacesContext;
 
 public class CustomSelectOneRadio extends UIInput {
 	public String returnValueBindingAsString(String attr) {
-		ValueExpression valueBinding = getValueBinding(attr);	
+		ValueExpression valueBinding = getValueExpression(attr);
 		if (valueBinding != null)
-			return (String)valueBinding.getValue(this.getFacesContext());
+			return (String)valueBinding.getValue(getFacesContext().getELContext());
 		else
 			return null;			
 	}
 	public String returnBooleanValueBindingAsString(String attr) {
-		ValueExpression valueBinding = getValueBinding(attr);	
+		ValueExpression valueBinding = getValueExpression(attr);
 		if (valueBinding != null)
-			return ((Boolean)valueBinding.getValue(this.getFacesContext())).toString();
+			return ((Boolean)valueBinding.getValue(getFacesContext().getELContext())).toString();
 		else
 			return null;			
 	}

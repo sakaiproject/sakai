@@ -29,7 +29,9 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
+import jakarta.el.ELContext;
 import jakarta.el.MethodExpression;
+import jakarta.el.MethodInfo;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
@@ -39,11 +41,16 @@ import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.webapp.UIComponentTag;
 
 public class Tags {
+
+    private static boolean isEL(String v) {
+      return v.startsWith("#{") && v.endsWith("}");
+    }
+
    public static void setString(UIComponent component, String attributeName,
          String attributeValue) {
       if (attributeValue == null)
          return;
-      if (UIComponentTag.isValueReference(attributeValue))
+      if (isEL(attributeValue))
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName, attributeValue);
@@ -52,7 +59,7 @@ public class Tags {
    public static void setInteger(UIComponent component,
          String attributeName, String attributeValue) {
       if (attributeValue == null) return;
-      if (UIComponentTag.isValueReference(attributeValue))
+      if (isEL(attributeValue))
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName,
@@ -62,7 +69,7 @@ public class Tags {
    public static void setDouble(UIComponent component,
          String attributeName, String attributeValue) {
       if (attributeValue == null) return;
-      if (UIComponentTag.isValueReference(attributeValue))
+      if (isEL(attributeValue))
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName,
@@ -72,7 +79,7 @@ public class Tags {
    public static void setBoolean(UIComponent component,
          String attributeName, String attributeValue) {
       if (attributeValue == null) return;
-      if (UIComponentTag.isValueReference(attributeValue))
+      if (isEL(attributeValue))
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName,
@@ -92,8 +99,8 @@ public class Tags {
          String attributeValue) {
       FacesContext context = FacesContext.getCurrentInstance();
       Application app = context.getApplication();
-      ValueExpression vb = app.createValueBinding(attributeValue);
-      component.setValueBinding(attributeName, vb);
+      ValueExpression ve = context.getApplication().getExpressionFactory().createValueExpression(context.getELContext(), attributeValue, Object.class);
+      component.setValueExpression(attributeName, ve);
    }
 
    public static void setActionListener(UIComponent component, String attributeValue) {
@@ -115,7 +122,7 @@ public class Tags {
 
    public static void setAction(UIComponent component, String attributeValue) {
       if (attributeValue == null) return;
-      if (UIComponentTag.isValueReference(attributeValue))
+      if (isEL(attributeValue))
          setMethodBinding(component, "action", attributeValue,
                new Class[] {});
       else {
@@ -130,30 +137,32 @@ public class Tags {
          String attributeValue, Class[] paramTypes) {
       if (attributeValue == null)
          return;
-      if (UIComponentTag.isValueReference(attributeValue)) {
+      if (isEL(attributeValue)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         MethodExpression mb = app.createMethodBinding(attributeValue, paramTypes);
+         MethodExpression mb = context.getApplication().getExpressionFactory().createMethodExpression(context.getELContext(), attributeValue, Object.class, paramTypes);
          component.getAttributes().put(attributeName, mb);
       }
    }
 
    public static String eval(String expression) {
       if (expression == null) return null;
-      if (UIComponentTag.isValueReference(expression)) {
+      if (isEL(expression)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         return "" + app.createValueBinding(expression).getValue(context);
+         ValueExpression ve = context.getApplication().getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class);
+         return "" + ve.getValue(context.getELContext());
       }
       else return expression;
    }
 
    public static Integer evalInteger(String expression) {
       if (expression == null) return null;
-      if (UIComponentTag.isValueReference(expression)) {
+      if (isEL(expression)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         Object r = app.createValueBinding(expression).getValue(context);
+         ValueExpression ve = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class);
+         Object r = ve.getValue(context.getELContext());
          if (r == null) return null;
          else if (r instanceof Integer) return (Integer) r;
          else return new Integer(r.toString());
@@ -163,10 +172,11 @@ public class Tags {
 
    public static Double evalDouble(String expression) {
       if (expression == null) return null;
-      if (UIComponentTag.isValueReference(expression)) {
+      if (isEL(expression)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         Object r = app.createValueBinding(expression).getValue(context);
+         ValueExpression ve = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class);
+         Object r = ve.getValue(context.getELContext());
          if (r == null) return null;
          else if (r instanceof Double) return (Double) r;
          else return new Double(r.toString());
@@ -176,10 +186,11 @@ public class Tags {
 
    public static Boolean evalBoolean(String expression) {
       if (expression == null) return null;
-      if (UIComponentTag.isValueReference(expression)) {
+      if (isEL(expression)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         Object r = app.createValueBinding(expression).getValue(context);
+         ValueExpression ve = app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class);
+         Object r = ve.getValue(context.getELContext());
          if (r == null) return null;
          else if (r instanceof Boolean) return (Boolean) r;
          else return Boolean.valueOf(r.toString());
@@ -197,5 +208,30 @@ public class Tags {
       }
       public String getExpressionString() { return result; }
       public Class getType(FacesContext context) { return String.class; }
+
+      @Override
+      public MethodInfo getMethodInfo(ELContext context) {
+        return null;
+      }
+
+      @Override
+      public Object invoke(ELContext context, Object[] params) {
+        return null;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        return false;
+      }
+
+      @Override
+      public int hashCode() {
+        return 0;
+      }
+
+      @Override
+      public boolean isLiteralText() {
+        return false;
+      }
    }
 }

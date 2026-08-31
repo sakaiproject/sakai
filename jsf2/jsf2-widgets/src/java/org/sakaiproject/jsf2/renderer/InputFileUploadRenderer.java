@@ -137,7 +137,7 @@ public class InputFileUploadRenderer extends Renderer
             File persistentFile = new File(dir, filename);
             try
             {
-                item.write(persistentFile);
+                item.write(persistentFile.toPath());
                 component.setSubmittedValue(persistentFile.getPath());
             }
             catch (Exception ex)

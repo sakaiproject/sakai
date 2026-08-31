@@ -23,9 +23,9 @@ public class AjaxPhaseListener implements PhaseListener {
 	public void afterPhase(PhaseEvent event) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		Application app = context.getApplication();
-		ValueExpression binding = app.createValueBinding("#{ForumTool}");
+		ValueExpression binding = app.getExpressionFactory().createValueExpression(context.getELContext(), "#{ForumTool}", DiscussionForumTool.class);
 		DiscussionForumTool forumTool = (DiscussionForumTool) binding
-				.getValue(context);
+				.getValue(context.getELContext());
 		Map requestParams = context.getExternalContext()
 				.getRequestParameterMap();
 
