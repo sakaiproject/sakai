@@ -29,7 +29,7 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.opensearch.version>2.19.5</sakai.opensearch.version>
-    <sakai.hibernate.version>6.6.54.Final</sakai.hibernate.version>
+    <sakai.hibernate.version>6.6.56.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpclient5.version>5.6.4</sakai.httpclient5.version>
@@ -436,6 +436,20 @@
         <artifactId>ignite-hibernate-ext</artifactId>
         <version>${sakai.ignite.hibernate.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -667,7 +681,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
         <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-        <version>3.2.0</version>
+        <version>${sakai.jackson.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -895,7 +909,7 @@
       </dependency>
       <!-- Logging Dependencies End -->
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${sakai.hibernate.version}</version>
         <scope>provided</scope>

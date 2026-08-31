@@ -33,7 +33,7 @@
             <version>${sakai.commons.lang3.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
     </dependencies>

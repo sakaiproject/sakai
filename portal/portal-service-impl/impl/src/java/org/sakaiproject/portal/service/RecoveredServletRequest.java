@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,12 +48,14 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 {
 
 	private SessionRequestHolder holder = null;
+	private ServletContext servletContext;
 
 	public RecoveredServletRequest(HttpServletRequest request,
 			SessionRequestHolder requestHolder)
 	{
 		super(request);
 		this.holder = requestHolder;
+		this.servletContext = request.getServletContext();
 	}
 
 	@Override
@@ -179,12 +182,6 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 	public boolean isRequestedSessionIdFromCookie()
 	{
 		return super.isRequestedSessionIdFromCookie();
-	}
-
-	@Override
-	public boolean isRequestedSessionIdFromURL()
-	{
-		return super.isRequestedSessionIdFromURL();
 	}
 
 	@Override
