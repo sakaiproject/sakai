@@ -2431,7 +2431,7 @@ public class DavServlet extends HttpServlet
 	    // dump all the name spaces and their prefix
 	    for (String namespace: spaces.keySet())
 		writer.write(" xmlns:" + spaces.get(namespace) + "=\"" + namespace + "\"");
-	    writer.write("><D:response><D:href>" + jakarta.servlet.http.HttpUtils.getRequestURL(req) + "</D:href>");
+	    writer.write("><D:response><D:href>" + req.getRequestURL() + "</D:href>");
 	    // now output properties, claiming we did it
 	    for (String pname: props) {
 		writer.write("<D:propstat><D:prop><" + pname + "/></D:prop><D:status>HTTP/1.1 201 OK</D:status></D:propstat>");
