@@ -62,8 +62,8 @@ public class ContextSensitiveTreeTag extends UIComponentTag
     FacesContext context = getFacesContext();
     if (value != null)
     {
-      ValueExpression vb = context.getApplication().createValueBinding(value);
-      component.setValueBinding("value", vb);
+      ValueExpression ve = context.getApplication().getExpressionFactory().createValueExpression(context.getELContext(), value, Object.class);
+      component.setValueExpression("value", ve);
     }
     if (var != null)
     {

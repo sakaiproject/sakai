@@ -148,7 +148,7 @@ public class PublishAssessmentListener
           }
 
           UIComponent eventSource = (UIComponent) ae.getSource();
-          ValueExpression vb = eventSource.getValueBinding("value");
+          ValueExpression vb = eventSource.getValueExpression("value");
 
           // We are coming from a different listener and being thrown over here. This helps determine where we are coming from
           // See ActionSelectListener

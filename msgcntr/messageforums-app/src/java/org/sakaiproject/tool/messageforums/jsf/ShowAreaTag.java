@@ -21,7 +21,7 @@
 package org.sakaiproject.tool.messageforums.jsf;
 
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.webapp.UIComponentTag;
+import jakarta.faces.webapp.UIComponentELTag;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.context.FacesContext;
@@ -31,11 +31,15 @@ import jakarta.faces.context.FacesContext;
  * @version $Id$
  * 
  */
-public class ShowAreaTag extends UIComponentTag
+public class ShowAreaTag extends UIComponentELTag
 {
   private String value;
   private String hideBorder;
   private String showInputTextArea;
+  
+  private static boolean isEL(String val) {
+    return val.startsWith("#{") && val.endsWith("}");
+  }
   
   public void setvalue(String value)
   {
@@ -108,7 +112,7 @@ public class ShowAreaTag extends UIComponentTag
       String attributeValue)
   {
     if (attributeValue == null) return;
-    if (UIComponentTag.isValueReference(attributeValue)) setValueBinding(
+    if (isEL(attributeValue)) setValueBinding(
         component, attributeName, attributeValue);
     else
       component.getAttributes().put(attributeName, attributeValue);
@@ -119,8 +123,8 @@ public class ShowAreaTag extends UIComponentTag
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
-    ValueExpression vb = app.createValueBinding(attributeValue);
-    component.setValueBinding(attributeName, vb);
+    ValueExpression vb = app.getExpressionFactory().createValueExpression(context.getELContext(), attributeValue, Object.class);
+    component.setValueExpression(attributeName, vb);
   }
 }
 

@@ -226,8 +226,8 @@ public class HierDataTableRender extends HtmlBasicRenderer
 
 		int currRowClass = 0;
 		boolean noArrows = "true".equals(data.getAttributes().get("noarrows"));
-		ValueExpression expandedBinding = component.getValueBinding("expanded");
-		boolean expanded = (expandedBinding != null && "true".equalsIgnoreCase((String) expandedBinding.getValue(context)));
+		ValueExpression expandedBinding = component.getValueExpression("expanded");
+		boolean expanded = (expandedBinding != null && "true".equalsIgnoreCase((String) expandedBinding.getValue(context.getELContext())));
 		// these variables will be used to track progress in the loops
 		Message currentThread = null;
 		boolean displayToggle = false;

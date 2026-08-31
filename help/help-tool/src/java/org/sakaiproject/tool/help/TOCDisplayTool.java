@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.help;
 
+import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
 import jakarta.faces.context.FacesContext;
 
@@ -43,10 +44,10 @@ public class TOCDisplayTool
     if (tableOfContents == null)
     {
       FacesContext facesContext = FacesContext.getCurrentInstance();
-      ELResolver resolver = facesContext.getApplication()
-          .getVariableResolver();
-      tableOfContents = ((TableOfContentsTool) resolver.resolveVariable(
-          facesContext, "TableOfContentsTool")).getTableOfContents();
+      ELContext elContext = facesContext.getELContext();
+      ELResolver resolver = facesContext.getApplication().getELResolver();
+      tableOfContents = ((TableOfContentsTool) resolver.getValue(
+          elContext, null, "TableOfContentsTool")).getTableOfContents();
     }
     return tableOfContents;
   }
