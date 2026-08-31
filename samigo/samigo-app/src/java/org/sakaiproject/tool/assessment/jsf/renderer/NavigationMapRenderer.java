@@ -167,10 +167,10 @@ public class NavigationMapRenderer extends Renderer
   private static Object get(FacesContext context, UIComponent component,
     String name)
   {
-    ValueExpression binding = component.getValueBinding(name);
+    ValueExpression binding = component.getValueExpression(name);
     if (binding != null)
     {
-      return binding.getValue(context);
+      return binding.getValue(context.getELContext());
     }
     else
     {

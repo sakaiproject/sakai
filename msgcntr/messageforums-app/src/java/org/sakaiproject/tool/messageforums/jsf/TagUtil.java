@@ -23,7 +23,9 @@ package org.sakaiproject.tool.messageforums.jsf;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import jakarta.el.ELContext;
 import jakarta.el.MethodExpression;
+import jakarta.el.MethodInfo;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
@@ -145,8 +147,8 @@ public class TagUtil
     {
         FacesContext context = FacesContext.getCurrentInstance();
         Application app = context.getApplication();
-        ValueExpression vb = app.createValueBinding(value);
-        component.setValueBinding(name, vb);
+        ValueExpression vb = app.getExpressionFactory().createValueExpression(context.getELContext(), value, Object.class);
+        component.setValueExpression(name, vb);
     }
 
     /**
@@ -213,7 +215,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            MethodExpression mb = app.createMethodBinding(value, paramTypes);
+            MethodExpression mb = app.getExpressionFactory().createMethodExpression(context.getELContext(), value, Object.class, paramTypes);
             component.getAttributes().put(name, mb);
         }
     }
@@ -228,7 +230,7 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            return "" + app.createValueBinding(expression).getValue(context);
+            return "" + app.getExpressionFactory().createValueExpression(context.getELContext(), expression, Object.class).getValue(context.getELContext());
         } else
         {
             return expression;
@@ -245,7 +247,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory().createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -272,7 +275,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory() .createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -299,7 +303,8 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            Object r = app.createValueBinding(expression).getValue(context);
+            ELContext elContext = context.getELContext();
+            Object r = app.getExpressionFactory() .createValueExpression(elContext, expression, Object.class) .getValue(elContext);
             if (r == null)
             {
                 return null;
@@ -330,7 +335,7 @@ public class TagUtil
             this.result = result;
         }
 
-        public Object invoke(FacesContext context, Object params[])
+        public Object invoke(ELContext context, Object params[])
         {
             return result;
         }
@@ -343,6 +348,26 @@ public class TagUtil
         public Class getType(FacesContext context)
         {
             return String.class;
+        }
+
+        @Override
+        public MethodInfo getMethodInfo(ELContext context) {
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean isLiteralText() {
+            return false;
         }
     }
 }

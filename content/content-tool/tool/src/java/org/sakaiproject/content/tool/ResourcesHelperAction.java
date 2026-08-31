@@ -46,6 +46,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletRequestContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -2033,8 +2036,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			org.apache.commons.fileupload.FileItem uploadFile = (org.apache.commons.fileupload.FileItem) request.getAttribute("file");
-			
+			org.apache.commons.fileupload2.core.FileItem uploadFile = null;
+
+			if (JakartaServletFileUpload.isMultipartContent(request)) {
+				JakartaServletFileUpload upload = new JakartaServletFileUpload();
+				JakartaServletRequestContext context = new JakartaServletRequestContext(request);
+
+				try {
+					List<org.apache.commons.fileupload2.core.FileItem> items = upload.parseRequest(context);
+					for (org.apache.commons.fileupload2.core.FileItem item : items) {
+						if (!item.isFormField()) {
+							uploadFile = item;
+							break;
+						}
+					}
+				} catch (FileUploadException e) {
+					log.warn("File upload parsing failed: {}", e);
+				}
+			}
+
 			if(uploadFile != null)
 			{
 				String contentType = uploadFile.getContentType();

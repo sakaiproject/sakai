@@ -18,12 +18,12 @@ package org.sakaiproject.jsf2.tag;
 import jakarta.el.ValueExpression;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.webapp.UIComponentTag;
+import jakarta.faces.webapp.UIComponentELTag;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class FlowStateTag extends UIComponentTag {
+public class FlowStateTag extends UIComponentELTag {
 	private String bean;
 
 	public void setBean(String bean) {
@@ -37,9 +37,9 @@ public class FlowStateTag extends UIComponentTag {
 		FacesContext context = getFacesContext();
 
 		if (bean != null) {
-			if (UIComponentTag.isValueReference(bean)) {
-				ValueExpression vb = context.getApplication().createValueBinding(bean);
-				component.setValueBinding("bean", vb);
+			if (bean.startsWith("#{") && bean.endsWith("}")) {
+				ValueExpression vb = context.getApplication().getExpressionFactory().createValueExpression(context.getELContext(), bean, Object.class);
+				component.setValueExpression("bean", vb);
 			} else {
 				log.error("Invalid expression " + bean);
 			}
