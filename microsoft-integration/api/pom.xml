@@ -29,7 +29,7 @@
 
 		<!-- third party dependencies -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 		<dependency>
