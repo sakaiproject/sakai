@@ -44,7 +44,7 @@ import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;

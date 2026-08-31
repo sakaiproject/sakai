@@ -53,16 +53,16 @@ public class RendererUtil
     public static void setAttribute(FacesContext context, UIComponent component, String name,
             Object value)
     {
-        ValueExpression binding = component.getValueBinding(name);
+        ValueExpression binding = component.getValueExpression(name);
         if (binding != null)
         {
             try
             {
-                binding.setValue(context, value);
+                binding.setValue(context.getELContext(), value);
             } catch (IllegalArgumentException e)
             {
                 // try setting the value as a String
-                binding.setValue(context, String.valueOf(value));
+                binding.setValue(context.getELContext(), String.valueOf(value));
             }
         } else
         {
@@ -86,9 +86,9 @@ public class RendererUtil
             return ret;
 
         // next check the value bindings
-        ValueExpression vb = component.getValueBinding(name);
+        ValueExpression vb = component.getValueExpression(name);
         if (vb != null)
-            ret = vb.getValue(context);
+            ret = vb.getValue(context.getELContext());
 
         return ret;
     }

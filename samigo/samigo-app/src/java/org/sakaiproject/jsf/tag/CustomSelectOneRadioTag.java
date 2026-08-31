@@ -1,15 +1,16 @@
 package org.sakaiproject.jsf.tag;
 
+import org.sakaiproject.jsf.component.CustomSelectOneRadio;
+
 import jakarta.el.ValueExpression;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.Application;
 import jakarta.faces.application.ApplicationFactory;
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.webapp.UIComponentTag;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentELTag;
 
-import org.sakaiproject.jsf.component.CustomSelectOneRadio;
-
-public class CustomSelectOneRadioTag extends UIComponentTag {
+public class CustomSelectOneRadioTag extends UIComponentELTag {
 
 	/* (non-Javadoc)
 	 * @see javax.faces.webapp.UIComponentTag#getComponentType()
@@ -222,125 +223,40 @@ public class CustomSelectOneRadioTag extends UIComponentTag {
 		value = string;
 	}
 
+	private void setAttr(UIComponent component, String attr, String val) {
+		if (val == null) return;
+		if (val.startsWith("#{") && val.endsWith("}")) {
+			component.setValueExpression(attr, createVE(val));
+		} else {
+			component.getAttributes().put(attr, val);
+		}
+	}
+
 	protected void setProperties(UIComponent component) {
 		super.setProperties(component);
 
 		CustomSelectOneRadio aCustomSelectOneRadio 
 			= (CustomSelectOneRadio) component;
 
-		if (name != null) {
-			if (isValueReference(name)) {
-				aCustomSelectOneRadio.setValueBinding("name", getValueBinding(name));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("name", name);
-			}
-		}
-
-		if (value != null) {
-			if (isValueReference(value)) {
-				aCustomSelectOneRadio.setValueBinding("value", getValueBinding(value));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("value", value);
-			}
-		}		
-		if (styleClass != null) {
-			if (isValueReference(styleClass)) {
-				aCustomSelectOneRadio.setValueBinding("styleClass", getValueBinding(styleClass));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("styleClass", styleClass);
-			}
-		}
-		if (style != null) {
-			if (isValueReference(style)) {
-				aCustomSelectOneRadio.setValueBinding("style", getValueBinding(style));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("style", style);
-			}
-		}
-		if (disabled != null) {
-			if (isValueReference(disabled)) {
-				aCustomSelectOneRadio.setValueBinding("disabled", getValueBinding(disabled));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("disabled", disabled);
-			}
-		}
-		if (itemLabel != null) {
-			if (isValueReference(itemLabel)) {
-				aCustomSelectOneRadio.setValueBinding("itemLabel", getValueBinding(itemLabel));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("itemLabel", itemLabel);
-			}
-		}
-		if (itemValue != null) {
-			if (isValueReference(itemValue)) {
-				aCustomSelectOneRadio.setValueBinding("itemValue", getValueBinding(itemValue));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("itemValue", itemValue);
-			}
-		}		
-		if (onClick != null) {
-			if (isValueReference(onClick)) {
-				aCustomSelectOneRadio.setValueBinding("onClick", getValueBinding(onClick));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("onClick", onClick);
-			}
-		}		
-		if (onMouseOver != null) {
-			if (isValueReference(onMouseOver)) {
-				aCustomSelectOneRadio.setValueBinding("onMouseOver", getValueBinding(onMouseOver));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("onMouseOver", onMouseOver);
-			}
-		}		
-		if (onMouseOut != null) {
-			if (isValueReference(onMouseOut)) {
-				aCustomSelectOneRadio.setValueBinding("onMouseOut", getValueBinding(onMouseOut));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("onMouseOut", onMouseOut);
-			}
-		}		
-		if (onFocus != null) {
-			if (isValueReference(onFocus)) {
-				aCustomSelectOneRadio.setValueBinding("onFocus", getValueBinding(onFocus));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("onFocus", onFocus);
-			}
-		}			
-		if (onBlur != null) {
-			if (isValueReference(onBlur)) {
-				aCustomSelectOneRadio.setValueBinding("onBlur", getValueBinding(onBlur));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("onBlur", onBlur);
-			}
-		}
-
-		if (overrideName != null) {
-			if (isValueReference(overrideName)) {
-				aCustomSelectOneRadio.setValueBinding("overrideName", getValueBinding(overrideName));
-			} else {
-				aCustomSelectOneRadio.getAttributes()
-					.put("overrideName", overrideName);
-			}
-		}		
+		setAttr(aCustomSelectOneRadio, "name",         name);
+		setAttr(aCustomSelectOneRadio, "value",        value);
+		setAttr(aCustomSelectOneRadio, "styleClass",   styleClass);
+		setAttr(aCustomSelectOneRadio, "style",        style);
+		setAttr(aCustomSelectOneRadio, "disabled",     disabled);
+		setAttr(aCustomSelectOneRadio, "itemLabel",    itemLabel);
+		setAttr(aCustomSelectOneRadio, "itemValue",    itemValue);
+		setAttr(aCustomSelectOneRadio, "onClick",      onClick);
+		setAttr(aCustomSelectOneRadio, "onMouseOver",  onMouseOver);
+		setAttr(aCustomSelectOneRadio, "onMouseOut",   onMouseOut);
+		setAttr(aCustomSelectOneRadio, "onFocus",      onFocus);
+		setAttr(aCustomSelectOneRadio, "onBlur",       onBlur);
+		setAttr(aCustomSelectOneRadio, "overrideName", overrideName);
 	}
-	public ValueExpression getValueBinding(String valueRef) {
-		ApplicationFactory af =
-			(ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
-		Application a = af.getApplication();
-
-		return (a.createValueBinding(valueRef));
+	
+	private ValueExpression createVE(String expr) {
+		FacesContext ctx = FacesContext.getCurrentInstance();
+		return ctx.getApplication().getExpressionFactory()
+			.createValueExpression(ctx.getELContext(), expr, Object.class);
 	}
 }
 

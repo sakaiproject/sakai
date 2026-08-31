@@ -53,9 +53,9 @@ public class FlowStateComponent extends UIComponentBase {
 
 	public PhaseAware getBean() {
 		PhaseAware bean = null;
-		ValueExpression vb = getValueBinding("bean");
+		ValueExpression vb = getValueExpression("bean");
 		if (vb != null) {
-			bean = (PhaseAware) vb.getValue(getFacesContext());
+			bean = (PhaseAware) vb.getValue(getFacesContext().getELContext());
 		}
 		if (log.isDebugEnabled()) log.debug("getBean " + bean);
 		return bean;
@@ -75,9 +75,9 @@ public class FlowStateComponent extends UIComponentBase {
 		Object values[] = (Object[])state;
 		super.restoreState(context, values[0]);
 		PhaseAware bean = (PhaseAware)values[1];
-		ValueExpression vb = getValueBinding("bean");
+		ValueExpression vb = getValueExpression("bean");
 		if (vb != null) {
-			vb.setValue(context, bean);
+			vb.setValue(context.getELContext(), bean);
 		}
 	}
 
