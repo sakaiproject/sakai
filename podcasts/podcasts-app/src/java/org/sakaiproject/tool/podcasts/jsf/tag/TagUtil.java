@@ -26,11 +26,11 @@ package org.sakaiproject.tool.podcasts.jsf.tag;
 
 import java.io.Serializable;
 
-import jakarta.el.MethodExpression;
-import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.el.MethodBinding;
+import jakarta.faces.el.ValueBinding;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.webapp.UIComponentTag;
@@ -144,7 +144,7 @@ public class TagUtil
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
-    ValueExpression vb = app.createValueBinding(attributeValue);
+    ValueBinding vb = app.createValueBinding(attributeValue);
     component.setValueBinding(attributeName, vb);
   }
 
@@ -190,9 +190,7 @@ public class TagUtil
     }
     else
     {
-      FacesContext context = FacesContext.getCurrentInstance();
-      Application app = context.getApplication();
-      MethodExpression mb = new ActionMethodBinding(attributeValue);
+      MethodBinding mb = new ActionMethodBinding(attributeValue);
       component.getAttributes().put("action", mb);
     }
   }
@@ -209,7 +207,7 @@ public class TagUtil
     {
       FacesContext context = FacesContext.getCurrentInstance();
       Application app = context.getApplication();
-      MethodExpression mb = app.createMethodBinding(attributeValue,
+      MethodBinding mb = app.createMethodBinding(attributeValue,
                          paramTypes);
       component.getAttributes().put(attributeName, mb);
     }
@@ -323,7 +321,7 @@ public class TagUtil
     }
   }
 
-  private static class ActionMethodBinding extends MethodExpression implements
+  private static class ActionMethodBinding extends MethodBinding implements
     Serializable
   {
     private String result;
