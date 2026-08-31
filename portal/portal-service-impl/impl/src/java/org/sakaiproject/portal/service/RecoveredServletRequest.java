@@ -182,12 +182,6 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 	}
 
 	@Override
-	public boolean isRequestedSessionIdFromUrl()
-	{
-		return super.isRequestedSessionIdFromURL();
-	}
-
-	@Override
 	public boolean isRequestedSessionIdFromURL()
 	{
 		return super.isRequestedSessionIdFromURL();
@@ -345,12 +339,6 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 	public BufferedReader getReader() throws IOException
 	{
 		return super.getReader();
-	}
-
-	@Override
-	public String getRealPath(String arg0)
-	{
-		return super.getRealPath(arg0);
 	}
 
 	@Override

@@ -9,8 +9,8 @@ package org.sakaiproject.site.util;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.util.SecFetchSiteCsrf;
 import org.springframework.web.servlet.HandlerInterceptor;
