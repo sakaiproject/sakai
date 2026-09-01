@@ -25,11 +25,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.orm.hibernate5.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate5.HibernateSystemException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
@@ -37,10 +37,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
-public class LockManagerImpl extends HibernateDaoSupport implements LockManager {
+public class LockManagerImpl implements LockManager {
+
+	@Setter private SessionFactory sessionFactory;
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#lockObject(java.lang.String, java.lang.String, java.lang.String, boolean)
 	 */
 	public void lockObject(String assetId, String qualifierId, String reason, boolean system)
@@ -52,12 +55,12 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 		newLock.setActive(true);
 		newLock.setReason(reason);
 		newLock.setSystem(true);
-		getHibernateTemplate().saveOrUpdate(newLock);
+		sessionFactory.getCurrentSession().saveOrUpdate(newLock);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#removeLock(java.lang.String, java.lang.String)
 	 */
 	public void removeLock(String assetId, String qualifierId)
@@ -65,17 +68,20 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 		Lock oldLock = findOrCreateLock(assetId, qualifierId, true);
 		oldLock.setActive(false);
 		oldLock.setDateRemoved(now());
-		getHibernateTemplate().saveOrUpdate(oldLock);
+		sessionFactory.getCurrentSession().saveOrUpdate(oldLock);
 	}
 
 	protected Lock findLock(String assetId, String qualifierId)
 	{
 		try
 		{
-			
-			return (Lock) safePopList(getHibernateTemplate().findByNamedQueryAndNamedParam("getLocks", new String[] {"asset", "qualifier"}, new Object[] { assetId, qualifierId }));
+			return (Lock) safePopList(sessionFactory.getCurrentSession()
+				.createNamedQuery("getLocks", org.sakaiproject.content.hbm.Lock.class)
+				.setParameter("asset", assetId)
+				.setParameter("qualifier", qualifierId)
+				.list());
 		}
-		catch (HibernateSystemException | HibernateObjectRetrievalFailureException e)
+		catch (HibernateException e)
 		{
 			log.debug("lock with assetId={} and qualifierId={} not found: {}", assetId, qualifierId, e.getMessage());
 			return null;
@@ -116,7 +122,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#getLocks(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -126,10 +132,12 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 		log.debug("getLocks({})", assetId);
 		try
 		{
-			
-			locks = (List<Lock>) getHibernateTemplate().findByNamedQueryAndNamedParam("getActiveAssets", "asset", assetId);
+			locks = (List<Lock>) (List<?>) sessionFactory.getCurrentSession()
+				.createNamedQuery("getActiveAssets", org.sakaiproject.content.hbm.Lock.class)
+				.setParameter("asset", assetId)
+				.list();
 		}
-		catch (HibernateObjectRetrievalFailureException e)
+		catch (HibernateException e)
 		{
 			log.error(e.getMessage());
 			throw new RuntimeException(e);
@@ -142,7 +150,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 	// TODO create a faster query (don't need all rows)
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#isLocked(java.lang.String)
 	 */
 	public boolean isLocked(String assetId)
@@ -154,7 +162,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#removeAllLocks(java.lang.String)
 	 */
 	public void removeAllLocks(String qualifier)
@@ -162,7 +170,8 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 		Collection<Lock> locks = getQualifierLocks(qualifier);
 		if (locks != null)
 		{
-			getHibernateTemplate().deleteAll(locks);
+			org.hibernate.Session session = sessionFactory.getCurrentSession();
+			locks.forEach(session::delete);
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -172,9 +181,12 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager 
 		log.debug("getLocks({})", qualifier);
 		try
 		{
-			locks = (List<Lock>) getHibernateTemplate().findByNamedQueryAndNamedParam("getActiveQualifierLocks", "qualifier", qualifier);
+			locks = (List<Lock>) (List<?>) sessionFactory.getCurrentSession()
+				.createNamedQuery("getActiveQualifierLocks", org.sakaiproject.content.hbm.Lock.class)
+				.setParameter("qualifier", qualifier)
+				.list();
 		}
-		catch (HibernateObjectRetrievalFailureException e)
+		catch (HibernateException e)
 		{
 			log.error(e.getMessage());
 			throw new RuntimeException(e);
