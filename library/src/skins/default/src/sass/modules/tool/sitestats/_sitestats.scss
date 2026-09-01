@@ -16,6 +16,16 @@
     padding: $standard-space-3x $standard-spacing;
   }
 
+  sakai-sitestats-widget-metrics {
+    display: block;
+  }
+
+  .sitestats-metrics-status {
+    padding: $standard-space-2x $standard-spacing;
+    background: var(--sakai-background-color-2);
+    border-block: 1px solid var(--sakai-border-color);
+  }
+
   .sitestats-metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));

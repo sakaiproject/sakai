@@ -223,7 +223,9 @@ public class WidgetMetricSupport {
 	SiteStatsReportView visitsByRoleView(String siteId, SiteStatsReportRequest request) {
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String title = context.message("overview_title_visits");
-		List<RoleVisitCount> counts = visitsByRole(siteId, dateFilter(safeRequest));
+		List<RoleVisitCount> counts = reportFactory.isIncompleteCustomRange(safeRequest)
+				? Collections.emptyList()
+				: visitsByRole(siteId, safeRequest);
 
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
@@ -255,7 +257,7 @@ public class WidgetMetricSupport {
 		return WidgetMetricValue.withPercentage(primary, change);
 	}
 
-	long visitCountForRole(String siteId, String roleId, String when) {
+	long visitCountForRole(String siteId, String roleId, SiteStatsReportRequest request) {
 		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_EVENTS);
@@ -263,7 +265,7 @@ public class WidgetMetricSupport {
 		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
 		params.setWho(ReportManager.WHO_ROLE);
 		params.setWhoRoleId(roleId);
-		params.setWhen(StringUtils.defaultIfBlank(when, ReportManager.WHEN_ALL));
+		reportFactory.applyWhen(params, request);
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_SITE));
 		return sumCounts(context.getReportManager().getReport(reportDef, true));
 	}
@@ -549,7 +551,7 @@ public class WidgetMetricSupport {
 		return report.getReportData() == null ? Collections.<Stat>emptyList() : report.getReportData();
 	}
 
-	private List<RoleVisitCount> visitsByRole(String siteId, String when) {
+	private List<RoleVisitCount> visitsByRole(String siteId, SiteStatsReportRequest request) {
 		List<RoleVisitCount> counts = new ArrayList<RoleVisitCount>();
 		try {
 			Site site = context.getSiteService().getSite(siteId);
@@ -561,7 +563,7 @@ public class WidgetMetricSupport {
 				if (role == null || role.getId() == null) {
 					continue;
 				}
-				counts.add(new RoleVisitCount(role.getId(), visitCountForRole(siteId, role.getId(), when)));
+				counts.add(new RoleVisitCount(role.getId(), visitCountForRole(siteId, role.getId(), request)));
 			}
 		} catch (IdUnusedException e) {
 			return counts;
@@ -671,10 +673,6 @@ public class WidgetMetricSupport {
 			return null;
 		}
 		return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
-	}
-
-	private String dateFilter(SiteStatsReportRequest request) {
-		return StringUtils.defaultIfBlank(request.getDate(), ReportManager.WHEN_ALL);
 	}
 
 	private SiteStatsTableColumn column(String key, String label, String type, String align) {

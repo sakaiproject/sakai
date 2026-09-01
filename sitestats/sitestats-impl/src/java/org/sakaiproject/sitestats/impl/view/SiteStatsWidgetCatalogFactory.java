@@ -8,12 +8,13 @@ package org.sakaiproject.sitestats.impl.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.Setter;
 
 public class SiteStatsWidgetCatalogFactory {
 
-	@Setter private SiteStatsWidgetDefinitionSupport support;
-	@Setter private List<SiteStatsWidgetDefinition> widgetDefinitions = new ArrayList<SiteStatsWidgetDefinition>();
+	@Setter @Getter private SiteStatsWidgetDefinitionSupport support;
+	@Setter @Getter private List<SiteStatsWidgetDefinition> widgetDefinitions = new ArrayList<SiteStatsWidgetDefinition>();
 
 	public SiteStatsWidgetCatalog create() {
 		for (SiteStatsWidgetDefinition definition : widgetDefinitions) {

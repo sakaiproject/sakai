@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.APIResponse;
@@ -57,7 +58,6 @@ class SiteStatsTest extends SakaiUiTestBase {
         sakai.toolClick("Statistics");
 
         Locator percentages = page.locator(".sitestats-metric-percentage");
-        assertTrue(percentages.count() > 0);
         assertThat(percentages.first()).containsText("%");
 
         Locator widgetTab = page.locator(
@@ -81,6 +81,11 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator visitsWidget = page.locator(".sitestats-widget")
             .filter(new Locator.FilterOptions().setHas(widgetTab));
         assertTrue(visitsWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        widgetTab.getByLabel("Period:").selectOption("when-custom");
+        assertThat(widgetTab.locator("[data-report-filter='whenFrom']")).isVisible();
+        assertThat(widgetTab.locator("[data-report-filter='whenTo']")).isVisible();
+        assertFalse(widgetTab.locator("[data-report-filter='whenFrom']").inputValue().isEmpty());
+        assertFalse(widgetTab.locator("[data-report-filter='whenTo']").inputValue().isEmpty());
         assertNoLegacyReportChartImages();
     }
 
@@ -102,6 +107,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHas(presenceTab))
             .locator(".sitestats-metric").first();
         assertThat(lastVisitMetric).isVisible();
+        assertThat(lastVisitMetric.locator(".sitestats-metric-primary")).not.toHaveText("");
         assertNoLegacyReportChartImages();
     }
 

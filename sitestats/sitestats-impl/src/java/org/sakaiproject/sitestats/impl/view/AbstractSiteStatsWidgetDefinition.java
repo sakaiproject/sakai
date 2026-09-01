@@ -88,7 +88,8 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 		return new WidgetTabSpec(widgetId, id, titleKey, Arrays.asList(filterIds), reportFactory);
 	}
 
-	protected WidgetTabSpec viewTabSpec(String widgetId, String id, String titleKey, WidgetReportViewFactory viewFactory, String... filterIds) {
+	protected WidgetTabSpec viewTabSpec(String widgetId, String id, String titleKey, WidgetReportViewFactory viewFactory,
+			String... filterIds) {
 		return new WidgetTabSpec(widgetId, id, titleKey, Arrays.asList(filterIds), null, viewFactory);
 	}
 
@@ -99,6 +100,16 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 
 	protected WidgetMetricSpec metricSpec(String widgetId, String id, String labelKey, String audience, BooleanSupplier available,
 			WidgetReportFactory reportFactory, WidgetMetricValueFactory valueFactory) {
-		return new WidgetMetricSpec(widgetId, id, labelKey, audience, available, reportFactory, valueFactory);
+		return new WidgetMetricSpec(widgetId, id, labelKey, audience, available, reportFactory, null, valueFactory);
+	}
+
+	protected WidgetMetricSpec viewMetricSpec(String widgetId, String id, String labelKey, String audience,
+			WidgetReportViewFactory viewFactory, WidgetMetricValueFactory valueFactory) {
+		return viewMetricSpec(widgetId, id, labelKey, audience, () -> true, viewFactory, valueFactory);
+	}
+
+	protected WidgetMetricSpec viewMetricSpec(String widgetId, String id, String labelKey, String audience, BooleanSupplier available,
+			WidgetReportViewFactory viewFactory, WidgetMetricValueFactory valueFactory) {
+		return new WidgetMetricSpec(widgetId, id, labelKey, audience, available, null, viewFactory, valueFactory);
 	}
 }
