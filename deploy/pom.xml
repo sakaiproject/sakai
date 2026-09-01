@@ -938,6 +938,11 @@
             <artifactId>jakarta.mail-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <!-- caching -->
         <dependency>
             <groupId>javax.cache</groupId>
