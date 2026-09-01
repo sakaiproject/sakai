@@ -1048,6 +1048,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.eclipse.angus</groupId>
+        <artifactId>angus-mail</artifactId>
+        <version>2.0.5</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>com.github.davidmoten</groupId>
         <artifactId>subethasmtp</artifactId>
         <version>5.2.8</version>
