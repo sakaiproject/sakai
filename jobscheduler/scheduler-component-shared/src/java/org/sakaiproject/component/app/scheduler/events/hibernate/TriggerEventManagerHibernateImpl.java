@@ -20,21 +20,22 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,8 +45,11 @@ import jakarta.persistence.criteria.Root;
  * To change this template use File | Settings | File Templates.
  */
 @Transactional
-public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implements TriggerEventManager
+public class TriggerEventManagerHibernateImpl implements TriggerEventManager
 {
+    @Setter
+    private SessionFactory sessionFactory;
+
     @Override
     @Transactional
     public TriggerEvent createTriggerEvent(TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message) {
@@ -65,9 +69,9 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
         event.setServerId(serverId);
 
         try {
-            getSessionFactory().getCurrentSession().save(event);
+            sessionFactory.getCurrentSession().save(event);
         } catch (HibernateException he) {
-            getSessionFactory().getCurrentSession().evict(event);
+            sessionFactory.getCurrentSession().evict(event);
             throw he;
         }
 
@@ -91,7 +95,7 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
 
     @Transactional(readOnly = true)
     public int getTriggerEventsSize(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types) {
-        final Session session = getSessionFactory().getCurrentSession();
+        final Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<TriggerEventHibernateImpl> root = cq.from(TriggerEventHibernateImpl.class);
@@ -117,7 +121,7 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
      * Internal search for events. Applies the sort and optionally the limit/offset.
      */
     protected List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types, Integer first, Integer size) {
-    	 final Session session = getSessionFactory().getCurrentSession();
+    	 final Session session = sessionFactory.getCurrentSession();
          CriteriaBuilder cb = session.getCriteriaBuilder();
          CriteriaQuery<TriggerEventHibernateImpl> cq = cb.createQuery(TriggerEventHibernateImpl.class);
          Root<TriggerEventHibernateImpl> root = cq.from(TriggerEventHibernateImpl.class);
@@ -155,7 +159,7 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
     @Transactional
     public void purgeEvents(Date before)
     {
-        getSessionFactory().getCurrentSession().getNamedQuery("purgeEventsBefore")
+        sessionFactory.getCurrentSession().getNamedQuery("purgeEventsBefore")
                 .setParameter("before", before)
                 .executeUpdate();
     }
