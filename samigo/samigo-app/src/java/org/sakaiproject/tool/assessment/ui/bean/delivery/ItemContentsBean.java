@@ -1760,6 +1760,10 @@ public class ItemContentsBean implements Serializable {
 	}
 	
 	public boolean isTimedQuestion() {
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		if (delivery.isItemTimersDisabled()) {
+			return false;
+		}
 		String value = itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
 		return (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
 	}
@@ -1770,7 +1774,7 @@ public class ItemContentsBean implements Serializable {
 	}
 	
 	public String getTimeLimit() {
-		return itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+		return isTimedQuestion() ? itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED) : Boolean.FALSE.toString();
 	}
 	
 	public String getTimeLimitString() {
@@ -1901,4 +1905,3 @@ public class ItemContentsBean implements Serializable {
 		return delivery.samePage();
 	}
 }
-
