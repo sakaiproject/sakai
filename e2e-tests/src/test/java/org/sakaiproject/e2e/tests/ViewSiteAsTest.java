@@ -21,6 +21,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,19 @@ class ViewSiteAsTest extends SakaiUiTestBase {
         String siteUrl = sakai.createProject("instructor1", List.of("sakai\\.announcements"));
 
         sakai.login("admin");
-        page.navigate(siteUrl);
+        // The test base URL can differ from the portal URL used in generated links.
+        Locator usernameInput = page.locator("input[name=\"eid\"], #eid").first();
+        if (usernameInput.isVisible()) {
+            usernameInput.fill("admin");
+            page.locator("input[name=\"pw\"], #pw").first().fill("admin");
+            page.locator("#submit, button[type=\"submit\"], input[type=\"submit\"]").first().click();
+            page.waitForLoadState();
+        }
+
+        URI portalUri = URI.create(page.url());
+        String configuredSiteUrl = portalUri.resolve(URI.create(siteUrl).getRawPath()).toString();
+        String adminSiteUrl = portalUri.resolve("/portal/site/!admin").toString();
+        page.navigate(configuredSiteUrl);
 
         Locator roleSwitcher = page.locator("#roleSwitch");
         assertThat(roleSwitcher).isVisible();
@@ -49,16 +62,16 @@ class ViewSiteAsTest extends SakaiUiTestBase {
 
         assertThat(page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit")).isVisible();
 
-        page.navigate("/portal/site/!admin");
+        page.navigate(adminSiteUrl);
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions()
                 .setName(Pattern.compile("^Site Unavailable$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
 
-        page.navigate(siteUrl);
+        page.navigate(configuredSiteUrl);
         page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit").click();
         page.waitForLoadState();
 
-        page.navigate("/portal/site/!admin");
+        page.navigate(adminSiteUrl);
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions()
                 .setName(Pattern.compile("^Administration Workspace$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
