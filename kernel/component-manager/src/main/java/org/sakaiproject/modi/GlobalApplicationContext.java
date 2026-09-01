@@ -59,7 +59,10 @@ public class GlobalApplicationContext {
     public static void destroyContext() {
         synchronized (lock) {
             if (context != null) {
-                context.stop();
+                if (context.isActive()) {
+                    context.stop();
+                }
+                context.close();
                 context = null;
             }
         }
