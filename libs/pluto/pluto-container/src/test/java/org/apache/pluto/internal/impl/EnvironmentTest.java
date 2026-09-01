@@ -35,7 +35,7 @@ public class EnvironmentTest extends PlutoTestCase {
         super.setUp();
         props = new Properties();
         InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("org/sakaiproject/pluto/environment.properties");
+                .getResourceAsStream("org/apache/pluto/environment.properties");
         assertNotNull("environment.properties missing from test classpath", in);
         try {
             props.load(in);
