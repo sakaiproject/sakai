@@ -157,6 +157,7 @@
 		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean"
 		  depends-on="org.sakaiproject.ignite.SakaiIgnite">
 		<property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+		<property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory"/>
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
@@ -184,9 +185,8 @@
 		</property>
 	</bean>
 
-	<!--  The "Global" Session Factory -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
-		  class="org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean">
+		  class="org.sakaiproject.springframework.orm.hibernate.HibernateSessionFactoryBean">
 		<property name="entityManagerFactory" ref="entityManagerFactory"/>
 	</bean>
 

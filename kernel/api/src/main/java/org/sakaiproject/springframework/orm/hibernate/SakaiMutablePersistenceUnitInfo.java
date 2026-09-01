@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.springframework.orm.hibernate;
 
+import jakarta.persistence.spi.ClassTransformer;
+
 import org.springframework.instrument.classloading.SimpleThrowawayClassLoader;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
@@ -22,5 +24,15 @@ public class SakaiMutablePersistenceUnitInfo extends MutablePersistenceUnitInfo 
     @Override
     public ClassLoader getNewTempClassLoader() {
         return new SimpleThrowawayClassLoader(this.getClassLoader());
+    }
+
+    /**
+     * No real {@link org.springframework.instrument.classloading.LoadTimeWeaver} is configured, since
+     * hibernate.enable_lazy_load_no_trans is set to use proxy-based lazy loading instead of bytecode
+     * transformation. Hibernate still registers a class transformer during bootstrap regardless, so this
+     * is a no-op rather than the superclass's default of throwing UnsupportedOperationException.
+     */
+    @Override
+    public void addTransformer(ClassTransformer classTransformer) {
     }
 }
