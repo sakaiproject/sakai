@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>   
    <!-- Project logic   -->
    <bean id="org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic"
        class="org.sakaiproject.acadtermmanage.logic.impl.AcademicSessionLogicImpl"
@@ -30,7 +31,8 @@
    
    <!-- Cache: ttl=1 hour -->
     <bean id="org.sakaiproject.acadtermmanage.sakai.academicsession_cache"
-        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+        lazy-init="true">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>

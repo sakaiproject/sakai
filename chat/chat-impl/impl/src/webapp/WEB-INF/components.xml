@@ -117,21 +117,4 @@
       <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
-    <bean id="ChatTool"
-      class="org.sakaiproject.chat2.tool.ChatTool"
-      scope="session">
-    <property name="chatManager"
-              ref="org.sakaiproject.chat2.model.ChatManager"/>
-    <property name="serverConfigurationService"
-              ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-    <property name="toolManager"
-              ref="org.sakaiproject.tool.api.ActiveToolManager"/>
-    <property name="userDirectoryService"
-              ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    <property name="sessionManager"
-              ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="siteService"
-              ref="org.sakaiproject.site.api.SiteService"/>
-</bean>
-
 </beans>
