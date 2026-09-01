@@ -26,7 +26,10 @@
        
        
        <!-- third party dependencies -->
-   
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context-support</artifactId>
+       </dependency>
       <dependency>
          <groupId>net.sf.ehcache</groupId>
          <artifactId>ehcache-core</artifactId>
