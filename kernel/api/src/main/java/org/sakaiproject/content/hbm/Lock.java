@@ -50,9 +50,9 @@ import lombok.ToString;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQueries({
-		@NamedQuery(name = "getLocks", query = "from Lock w where asset_id = :asset and qualifier_id = :qualifier"),
-		@NamedQuery(name = "getActiveAssets", query = "from Lock w where is_active is true and asset_id = :asset"),
-		@NamedQuery(name = "getActiveQualifierLocks", query = "from Lock w where is_active is true and qualifier_id = :qualifier")
+		@NamedQuery(name = "getLocks", query = "from Lock w where w.asset = :asset and w.qualifier = :qualifier"),
+		@NamedQuery(name = "getActiveAssets", query = "from Lock w where w.active is true and w.asset = :asset"),
+		@NamedQuery(name = "getActiveQualifierLocks", query = "from Lock w where w.active is true and w.qualifier = :qualifier")
 })
 
 @EqualsAndHashCode(of = "id")
