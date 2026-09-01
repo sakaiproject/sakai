@@ -49,6 +49,10 @@
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
