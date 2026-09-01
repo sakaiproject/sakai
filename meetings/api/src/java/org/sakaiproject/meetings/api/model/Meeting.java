@@ -87,7 +87,7 @@ public class Meeting {
     
     @OneToMany(mappedBy="meeting", cascade = CascadeType.ALL)
     private List<MeetingAttendee> attendees;
-    
+
     /**
      * Extract meeting ID from URL
      * @return meetingId

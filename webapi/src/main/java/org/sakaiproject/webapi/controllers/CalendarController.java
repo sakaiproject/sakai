@@ -98,7 +98,7 @@ public class CalendarController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/calendar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getSiteCalendar(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, Object> getSiteCalendar(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         checkSakaiSession();
 

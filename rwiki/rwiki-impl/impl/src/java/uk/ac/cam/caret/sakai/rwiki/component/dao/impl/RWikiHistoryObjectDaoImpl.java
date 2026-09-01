@@ -22,11 +22,10 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,9 +44,11 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
+public class RWikiHistoryObjectDaoImpl implements
 		RWikiHistoryObjectDao, ObjectProxy
 {
+	@Setter private SessionFactory sessionFactory;
+
 
 	private RWikiObjectContentDao contentDAO;
 
@@ -56,7 +57,7 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 	public void update(RWikiHistoryObject rwo) {
 		// should have already checked
 		RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
-		getHibernateTemplate().saveOrUpdate(impl);
+		sessionFactory.getCurrentSession().saveOrUpdate(impl);
 		// and remember to save the content
 		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
 		contentDAO.update(impl.getRWikiObjectContent());
@@ -84,14 +85,14 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			List<RWikiHistoryObject> found = (List<RWikiHistoryObject>) getHibernateTemplate().execute(session ->
-				session.createQuery(
-					"from RWikiHistoryObject where rwikiobjectid = :id and revision = :revision",
-					RWikiHistoryObject.class)
-					.setParameter("id", rwo.getRwikiobjectid())
-					.setParameter("revision", revision)
-					.list()
-			);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
+			cq.select(root).where(
+				cb.equal(root.get("rwikiobjectid"), rwo.getRwikiobjectid()),
+				cb.equal(root.get("revision"), revision));
+			List<RWikiHistoryObjectImpl> found = session.createQuery(cq).getResultList();
 
 			if (found.size() == 0)
 			{
@@ -128,19 +129,16 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<List<RWikiHistoryObject>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiHistoryObject> cq = cb.createQuery(RWikiHistoryObject.class);
-				Root<RWikiHistoryObject> root = cq.from(RWikiHistoryObject.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
 
-				cq.select(root)
-					.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
-					.orderBy(cb.asc(root.get("revision")));
+			cq.select(root)
+				.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
+				.orderBy(cb.asc(root.get("revision")));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = (List) getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -172,19 +170,16 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<List<RWikiHistoryObject>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiHistoryObject> cq = cb.createQuery(RWikiHistoryObject.class);
-				Root<RWikiHistoryObject> root = cq.from(RWikiHistoryObject.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
 
-				cq.select(root)
-					.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
-					.orderBy(cb.desc(root.get("revision")));
+			cq.select(root)
+				.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
+				.orderBy(cb.desc(root.get("revision")));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = (List) getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -233,24 +228,22 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 
 	public List getAll()
 	{
-		HibernateCallback<List<RWikiHistoryObject>> callback = session -> {
-			CriteriaBuilder cb = session.getCriteriaBuilder();
-			CriteriaQuery<RWikiHistoryObject> cq = cb.createQuery(RWikiHistoryObject.class);
-			Root<RWikiHistoryObject> root = cq.from(RWikiHistoryObject.class);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+		Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
 
-			cq.select(root).orderBy(cb.desc(root.get("version")));
+		cq.select(root).orderBy(cb.desc(root.get("version")));
 
-			return session.createQuery(cq).getResultList();
-		};
-
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
+		List found = session.createQuery(cq).getResultList();
+		return new ListProxy(found,
 				this);
 	}
 
 	@Transactional
 	public void updateObject(RWikiObject rwo)
 	{
-		getHibernateTemplate().saveOrUpdate(rwo);
+		sessionFactory.getCurrentSession().saveOrUpdate(rwo);
 	}
 
 }

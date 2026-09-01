@@ -20,21 +20,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class EventLogFacadeQueries extends HibernateDaoSupport implements EventLogFacadeQueriesAPI {
+public class EventLogFacadeQueries implements EventLogFacadeQueriesAPI {
+
+	@Setter private SessionFactory sessionFactory;
 
 	public void saveOrUpdateEventLog(EventLogFacade eventLog){
 		EventLogData data = (EventLogData)  eventLog.getData();
@@ -42,7 +49,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 		int retryCount = PersistenceService.getInstance().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(data);
+				sessionFactory.getCurrentSession().merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
 				log
@@ -53,83 +60,79 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 			}
 		}
 	}
-	
+
 	public List<EventLogData> getEventLogData(final Long assessmentGradingId) {
 
-		final HibernateCallback<List<EventLogData>> hcb = session -> {
-			Query q = session.createQuery(
-					"select eld from EventLogData as eld"
-							+ " where eld.processId = :id"
-							+ " order by eld.id desc");
-			q.setParameter("id", assessmentGradingId);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<EventLogData> cq = cb.createQuery(EventLogData.class);
+		Root<EventLogData> eld = cq.from(EventLogData.class);
 
-            return q.list();
-        };
-		List<EventLogData> list = getHibernateTemplate().execute(hcb);
+		cq.select(eld)
+			.where(cb.equal(eld.get("processId"), assessmentGradingId))
+			.orderBy(cb.desc(eld.get("id")));
+
+		List<EventLogData> list = session.createQuery(cq).getResultList();
 
 		ArrayList<EventLogData> eventLogList = new ArrayList<EventLogData>();
 		Map<String, User> userMap = new HashMap<String, User>();
 		for(EventLogData e : list) {
 			e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
 			eventLogList.add(e);
-		}		
+		}
 
 		return eventLogList;
 	}
 
 	public List<EventLogData> getDataBySiteId(final String siteId) {
 
-		final HibernateCallback<List<EventLogData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select eld from EventLogData as eld"
-                            + " where eld.siteId = :site"
-                            + " order by eld.assessmentId asc, eld.userEid asc"
-            );
-            q.setParameter("site", siteId);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<EventLogData> cq = cb.createQuery(EventLogData.class);
+		Root<EventLogData> eld = cq.from(EventLogData.class);
 
-            return q.list();
-        };
-		List<EventLogData> list = getHibernateTemplate().execute(hcb);
-		
+		cq.select(eld)
+			.where(cb.equal(eld.get("siteId"), siteId))
+			.orderBy(cb.asc(eld.get("assessmentId")), cb.asc(eld.get("userEid")));
+
+		List<EventLogData> list = session.createQuery(cq).getResultList();
+
 		ArrayList<EventLogData> eventLogDataList = new ArrayList<EventLogData>();
 		Map<String, User> userMap = new HashMap<String, User>();
 		for(EventLogData e : list) {
 			e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
 			eventLogDataList.add(e);
-		}		
+		}
 
 		return eventLogDataList;
 	}
-	
+
 	public List<EventLogData> getEventLogData(final String siteId, final Long assessmentId) {
-	   String query = "select eld from EventLogData as eld where eld.siteId = :site";
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<EventLogData> cq = cb.createQuery(EventLogData.class);
+		Root<EventLogData> eld = cq.from(EventLogData.class);
 
-	   if (assessmentId > -1) {
-	      query += " and eld.assessmentId = :id";
-	   }
-	   
-	   query += " order by eld.assessmentId asc, eld.userEid asc";
+		Predicate where = cb.equal(eld.get("siteId"), siteId);
 
-      final String hql = query;
-      final HibernateCallback<List<EventLogData>> hcb = session -> {
-         Query q = session.createQuery(hql);
-         q.setParameter("site", siteId);
-         if (assessmentId > -1) {
-            q.setParameter("id", assessmentId);
-         }
+		if (assessmentId > -1) {
+			where = cb.and(where, cb.equal(eld.get("assessmentId"), assessmentId));
+		}
 
-         return q.list();
-      };
-      List<EventLogData> list = getHibernateTemplate().execute(hcb);
-      
-      List<EventLogData> eventLogDataList = new ArrayList<EventLogData>();
-      Map<String, User> userMap = new HashMap<String, User>();
-      for(EventLogData e : list) {
-         e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
-         eventLogDataList.add(e);
-      }
+		cq.select(eld)
+			.where(where)
+			.orderBy(cb.asc(eld.get("assessmentId")), cb.asc(eld.get("userEid")));
 
-      return eventLogDataList;
+		List<EventLogData> list = session.createQuery(cq).getResultList();
+
+		List<EventLogData> eventLogDataList = new ArrayList<EventLogData>();
+		Map<String, User> userMap = new HashMap<String, User>();
+		for(EventLogData e : list) {
+			e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
+			eventLogDataList.add(e);
+		}
+
+		return eventLogDataList;
 	}
 
 	/**
@@ -155,20 +158,25 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 	   
 	   return display;
 	}
-	
-   public List<Object[]> getTitlesFromEventLogBySite(final String siteId) {
 
-      final HibernateCallback<List<Object[]>> hcb = session -> {
-         Query q = session.createQuery(
-                 "select distinct eld.assessmentId, eld.title from EventLogData as eld"
-                         + " where eld.siteId = :site"
-                         + " order by lower(eld.title) asc"
-         );
-         q.setParameter("site", siteId);
+	public List<Object[]> getTitlesFromEventLogBySite(final String siteId) {
 
-         return q.list();
-      };
-      List<Object[]> list = getHibernateTemplate().execute(hcb);
-      return list;
-   }
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<EventLogData> eld = cq.from(EventLogData.class);
+
+		cq.multiselect(cb.array(eld.get("assessmentId"), eld.get("title")))
+		.distinct(true)
+		.where(cb.equal(eld.get("siteId"), siteId))
+		.orderBy(cb.asc(cb.lower(eld.get("title"))));
+
+		List<Tuple> tuples = session.createQuery(cq).getResultList();
+
+		List<Object[]> result = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			result.add(t.toArray());
+		}
+		return result;
+	}
 }

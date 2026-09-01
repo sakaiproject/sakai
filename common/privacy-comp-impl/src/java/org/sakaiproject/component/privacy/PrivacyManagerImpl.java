@@ -33,10 +33,13 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,18 +60,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 @Slf4j
-public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyManager, AuthzGroupAdvisor
+public class PrivacyManagerImpl implements PrivacyManager, AuthzGroupAdvisor
 {
-	private static final String QUERY_BY_USERID_CONTEXTID_TYPEID = "findPrivacyByUserIdContextIdType";
-	private static final String QUERY_BY_DISABLED_USERID_CONTEXTID = "findDisabledPrivacyUserIdContextIdType";
-	private static final String QUERY_BY_CONTEXT_VIEWABLE_TYPE = "finalPrivacyByContextViewableType";
-	private static final String QUERY_BY_CONTEXT__TYPE = "finalPrivacyByContextType";
-	private static final String QUERY_BY_CONTEXT__TYPE_IDLIST = "finalPrivacyByContextTypeAndUserIds";
-	private static final String QUERY_BY_CONTEXT_VIEWABLE_TYPE_IDLIST = "finalPrivacyByContextViewableTypeUserList";
 	private static final String CONTEXT_ID = "contextId";
 	private static final String USER_ID = "userId";
 	private static final String RECORD_TYPE = "recordType";
 	private static final String VIEWABLE = "viewable";
+
+	@Setter private SessionFactory sessionFactory;
 
 	private PreferencesService preferencesService;
 	private AuthzGroupService authzGroupService;
@@ -549,15 +548,14 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			throw new IllegalArgumentException("Null Argument in getPrivacy");
 		}
 
-		HibernateCallback<PrivacyRecord> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
-            q.setParameter(CONTEXT_ID, contextId);
-            q.setParameter(USER_ID, userId);
-            q.setParameter(RECORD_TYPE, recordType);
-            return (PrivacyRecord) q.uniqueResult();
-        };
-
-		return getHibernateTemplate().execute(hcb);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<PrivacyRecord> cq = cb.createQuery(PrivacyRecord.class);
+		Root<PrivacyRecord> root = cq.from(PrivacyRecord.class);
+		cq.select(root).where(
+		    cb.equal(root.get(CONTEXT_ID), contextId),
+		    cb.equal(root.get(USER_ID), userId),
+		    cb.equal(root.get(RECORD_TYPE), recordType));
+		return sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
 
 	}
 
@@ -601,15 +599,14 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
       throw new IllegalArgumentException("Null Argument in getViewableStateList");
   	}
   	
-    HibernateCallback<List<PrivacyRecord>> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE);
-      q.setParameter(CONTEXT_ID, contextId);
-      q.setParameter(VIEWABLE, viewable);
-      q.setParameter(RECORD_TYPE, recordType);
-      return q.list();
-    };
-
-    return getHibernateTemplate().execute(hcb);
+    CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    CriteriaQuery<PrivacyRecord> cq = cb.createQuery(PrivacyRecord.class);
+    Root<PrivacyRecord> root = cq.from(PrivacyRecord.class);
+    cq.select(root).where(
+        cb.equal(root.get(CONTEXT_ID), contextId),
+        cb.equal(root.get(VIEWABLE), viewable),
+        cb.equal(root.get(RECORD_TYPE), recordType));
+    return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
   }
 
   private List<PrivacyRecord> getViewableStateList(final String contextId, final Boolean viewable, final String recordType, final List userIds)
@@ -619,16 +616,15 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
       throw new IllegalArgumentException("Null Argument in getViewableStateList");
   	}
   	
-    HibernateCallback<List<PrivacyRecord>> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE_IDLIST);
-      q.setParameter(CONTEXT_ID, contextId);
-      q.setParameter(VIEWABLE, viewable);
-      q.setParameter(RECORD_TYPE, recordType);
-      q.setParameterList("userIds", userIds);
-      return q.list();
-    };
-
-    return getHibernateTemplate().execute(hcb);
+    CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    CriteriaQuery<PrivacyRecord> cq = cb.createQuery(PrivacyRecord.class);
+    Root<PrivacyRecord> root = cq.from(PrivacyRecord.class);
+    cq.select(root).where(
+        cb.equal(root.get(CONTEXT_ID), contextId),
+        cb.equal(root.get(VIEWABLE), viewable),
+        cb.equal(root.get(RECORD_TYPE), recordType),
+        root.get(USER_ID).in(userIds));
+    return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
   }
 
   private List<PrivacyRecord> getPrivacyByContextAndType(final String contextId, final String recordType)
@@ -638,14 +634,13 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   		throw new IllegalArgumentException("Null Argument in getPrivacyByContextAndType");
   	}
 
-	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
-		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE);
-		  q.setParameter(CONTEXT_ID, contextId);
-		  q.setParameter(RECORD_TYPE, recordType);
-		  return q.list();
-	  };
-  	
-  	return getHibernateTemplate().execute(hcb);
+	  CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+	  CriteriaQuery<PrivacyRecord> cq = cb.createQuery(PrivacyRecord.class);
+	  Root<PrivacyRecord> root = cq.from(PrivacyRecord.class);
+	  cq.select(root).where(
+	      cb.equal(root.get(CONTEXT_ID), contextId),
+	      cb.equal(root.get(RECORD_TYPE), recordType));
+	  return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
   }
 
   private List<PrivacyRecord> getPrivacyByContextAndTypeAndUserIds(final String contextId, final String recordType, final List userIds)
@@ -655,26 +650,25 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   		throw new IllegalArgumentException("Null Argument in getPrivacyByContextAndTypeAndUserIds");
   	}
 
-	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
-		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE_IDLIST);
-		  q.setParameter(CONTEXT_ID, contextId);
-		  q.setParameter(RECORD_TYPE, recordType);
-		  q.setParameterList("userIds", userIds);
-		  q.setCacheable(true);
-		  return q.list();
-	  };
-  	
-  	return getHibernateTemplate().execute(hcb);
+	  CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+	  CriteriaQuery<PrivacyRecord> cq = cb.createQuery(PrivacyRecord.class);
+	  Root<PrivacyRecord> root = cq.from(PrivacyRecord.class);
+	  cq.select(root).where(
+	      cb.equal(root.get(CONTEXT_ID), contextId),
+	      cb.equal(root.get(RECORD_TYPE), recordType),
+	      root.get(USER_ID).in(userIds));
+	  return sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
   }
 
   private PrivacyRecord savePrivacyRecord(PrivacyRecord privacy)
   {
-    return (PrivacyRecord) getHibernateTemplate().merge(privacy);
+    return sessionFactory.getCurrentSession().merge(privacy);
   }
 
   private void removePrivacyObject(PrivacyRecord o)
   {
-    getHibernateTemplate().delete(getHibernateTemplate().merge(o));
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(session.merge(o));
   }
   
   private boolean checkPrivacyRecord(PrivacyRecord sysRecord, PrivacyRecord userRecord)

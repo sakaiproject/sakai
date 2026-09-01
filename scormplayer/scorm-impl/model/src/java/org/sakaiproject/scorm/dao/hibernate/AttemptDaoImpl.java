@@ -15,135 +15,133 @@
  */
 package org.sakaiproject.scorm.dao.hibernate;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+
+import lombok.Setter;
+
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.model.api.Attempt;
 
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
+public class AttemptDaoImpl implements AttemptDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public int count(final long contentPackageId, final String learnerId)
 	{
-		Long result = (Long) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("select count(a.id) from " + Attempt.class.getName() + " a where a.contentPackageId=:contentPackageId and a.learnerId=:learnerId")
-				.setParameter("contentPackageId", contentPackageId)
-				.setParameter("learnerId", learnerId)
-				.uniqueResult();
-
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> query = cb.createQuery(Long.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(cb.count(root.get("id"))).where(cb.equal(root.get("contentPackageId"), contentPackageId), cb.equal(root.get("learnerId"), learnerId));
+		Long result = session.createQuery(query).uniqueResult();
 		return result != null ? result.intValue() : 0;
 	}
 
 	@Override
 	public List<Attempt> find(long contentPackageId)
 	{
-		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + Attempt.class.getName() + " where contentPackageId=:cpid ")
-				.setParameter("cpid", contentPackageId)
-				.getResultList();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(root).where(cb.equal(root.get("contentPackageId"), contentPackageId));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public List<Attempt> find(long contentPackageId, String learnerId)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=:cpid and learnerId=:lid order by attemptNumber desc");
-		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cpid", contentPackageId)
-				.setParameter("lid", learnerId)
-				.getResultList();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(root).where(cb.equal(root.get("contentPackageId"), contentPackageId), cb.equal(root.get("learnerId"), learnerId));
+		query.orderBy(cb.desc(root.get("attemptNumber")));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public List<Attempt> find(String courseId, String learnerId)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=:cid and learnerId=:lid order by attemptNumber desc");
-		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cid", courseId)
-				.setParameter("lid", learnerId)
-				.getResultList();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(root).where(cb.equal(root.get("courseId"), courseId), cb.equal(root.get("learnerId"), learnerId));
+		query.orderBy(cb.desc(root.get("attemptNumber")));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public Attempt find(String courseId, String learnerId, long attemptNumber)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=:cid and learnerId=:lid and attemptNumber=:number ");
-		List<Attempt> r = (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cid", courseId)
-				.setParameter("lid", learnerId)
-				.setParameter("number", attemptNumber)
-				.getResultList();
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		return (Attempt) r.get(r.size() - 1);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(root).where(
+				cb.equal(root.get("courseId"), courseId),
+				cb.equal(root.get("learnerId"), learnerId),
+				cb.equal(root.get("attemptNumber"), attemptNumber));
+		List<Attempt> result = session.createQuery(query).getResultList();
+		return result.isEmpty() ? null : result.get(result.size() - 1);
 	}
 
 	@Override
 	public Attempt load(long id)
 	{
-		return (Attempt) getHibernateTemplate().load(Attempt.class, id);
+		return sessionFactory.getCurrentSession().getReference(Attempt.class, id);
 	}
 
 	@Override
 	public Attempt lookup(final long contentPackageId, final String learnerId, final long attemptNumber)
 	{
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			@Override
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				StringBuilder buffer = new StringBuilder();
-				buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=:contentPackageId and learnerId=:learnerId and attemptNumber=:attemptNumber");
-
-				Query query = session.createQuery(buffer.toString());
-				query.setParameter("contentPackageId", contentPackageId);
-				query.setParameter("learnerId", learnerId);
-				query.setParameter("attemptNumber", attemptNumber);
-
-				return query.uniqueResult();
-			}
-		};
-
-		Attempt attempt = (Attempt) getHibernateTemplate().execute(hcb);
-		return attempt;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		query.select(root).where(
+				cb.equal(root.get("contentPackageId"), contentPackageId),
+				cb.equal(root.get("learnerId"), learnerId),
+				cb.equal(root.get("attemptNumber"), attemptNumber));
+		return session.createQuery(query).uniqueResult();
 	}
 
 	@Override
 	public void save(Attempt attempt)
 	{
-		attempt.setLastModifiedDate(new Date());
-		getHibernateTemplate().saveOrUpdate(attempt);
+		attempt.setLastModifiedDate(Date.from(Instant.now()));
+		sessionFactory.getCurrentSession().merge(attempt);
 	}
 
 	@Override
 	public Attempt lookupNewest(long contentPackageId, String learnerId)
 	{
-		List<Attempt> result = (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + Attempt.class.getName() + " a where a.contentPackageId=:contentPackageId and a.learnerId=:learnerId" +
-						" and a.attemptNumber = (select max(a2.attemptNumber) from " + Attempt.class.getName() + " a2" +
-						" where a2.contentPackageId=:contentPackageId and a2.learnerId=:learnerId)")
-				.setParameter("contentPackageId", contentPackageId)
-				.setParameter("learnerId", learnerId)
-				.getResultList();
-
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Attempt> query = cb.createQuery(Attempt.class);
+		Root<Attempt> root = query.from(Attempt.class);
+		Subquery<Long> newestAttempt = query.subquery(Long.class);
+		Root<Attempt> newestRoot = newestAttempt.from(Attempt.class);
+		newestAttempt.select(cb.max(newestRoot.<Long>get("attemptNumber"))).where(
+				cb.equal(newestRoot.get("contentPackageId"), contentPackageId), cb.equal(newestRoot.get("learnerId"), learnerId));
+		query.select(root).where(cb.equal(root.get("contentPackageId"), contentPackageId),
+				cb.equal(root.get("learnerId"), learnerId), cb.equal(root.get("attemptNumber"), newestAttempt));
+		List<Attempt> result = session.createQuery(query).getResultList();
 		return result.isEmpty() ? null : result.get(0);
 	}
 }

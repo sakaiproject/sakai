@@ -15,51 +15,59 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
-import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Transactional
-public class SecureDeliveryFacadeQueries extends HibernateDaoSupport implements SecureDeliveryFacadeQueriesAPI {
+public class SecureDeliveryFacadeQueries implements SecureDeliveryFacadeQueriesAPI {
+
+  @Setter private SessionFactory sessionFactory;
 
   public List<SecureDeliveryData> getUrlsForAssessment(final Long assessmentId) {
 
-    HibernateCallback<List<SecureDeliveryData>> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_GET_URLS_FOR_ASSESSMENT);
-      q.setParameter("publishedId", assessmentId);
-      return q.list();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<SecureDeliveryData> cq = cb.createQuery(SecureDeliveryData.class);
+    Root<SecureDeliveryData> root = cq.from(SecureDeliveryData.class);
+    cq.where(cb.equal(root.get("publishedAssessmentId"), assessmentId));
 
-    return getHibernateTemplate().execute(hcb);
+    return session.createQuery(cq).list();
   }
 
   public List<SecureDeliveryData> getUrlsForAssessmentAndUser(final Long assessmentId, final String agentId) {
 
-    HibernateCallback<List<SecureDeliveryData>> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_GET_URLS_FOR_ASSESSMENT_AND_USER);
-      q.setParameter("publishedId", assessmentId);
-      q.setParameter("agentId", agentId);
-      return q.list();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<SecureDeliveryData> cq = cb.createQuery(SecureDeliveryData.class);
+    Root<SecureDeliveryData> root = cq.from(SecureDeliveryData.class);
+    cq.where(
+        cb.equal(root.get("publishedAssessmentId"), assessmentId),
+        cb.equal(root.get("agentId"), agentId));
 
-    return getHibernateTemplate().execute(hcb);
+    return session.createQuery(cq).list();
   }
 
   public void saveUrlsForAssessmentAndUser(Long assessmentId, String agentId, String instructorUrl, String studentUrl) {
+    Session session = sessionFactory.getCurrentSession();
     SecureDeliveryData sd = new SecureDeliveryData();
     sd.setPublishedAssessmentId(assessmentId);
     sd.setAgentId(agentId);
     sd.setInstructorUrl(instructorUrl);
     sd.setStudentUrl(studentUrl);
     sd.setCreatedDate(new Date());
-    getHibernateTemplate().save(sd);
+    session.merge(sd);
   }
 
 }

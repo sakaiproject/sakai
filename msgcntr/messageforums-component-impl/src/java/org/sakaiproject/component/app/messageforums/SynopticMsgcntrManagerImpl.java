@@ -27,22 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -64,12 +54,24 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
 @Transactional
-public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
+public class SynopticMsgcntrManagerImpl implements SynopticMsgcntrManager {
 
 	private static final String QUERY_WORKSPACE_SYNOPTIC_ITEMS = "findWorkspaceSynopticMsgcntrItems";
 	private static final String QUERY_SITE_SYNOPTIC_ITEMS = "findSiteSynopticMsgcntrItems";
@@ -93,6 +95,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	private SqlService sqlService;
 	private SecurityService securityService;
 	private SiteService siteService;
+	@Setter private SessionFactory sessionFactory;
 
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 
@@ -104,13 +107,16 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
     public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId) {
 
-        HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_WORKSPACE_SYNOPTIC_ITEMS);
-            q.setParameter("userId", userId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        List<SynopticMsgcntrItem> items = getHibernateTemplate().execute(hcb);
+        CriteriaQuery<SynopticMsgcntrItemImpl> cq = cb.createQuery(SynopticMsgcntrItemImpl.class);
+        Root<SynopticMsgcntrItemImpl> root = cq.from(SynopticMsgcntrItemImpl.class);
+
+        cq.select(root)
+          .where(cb.equal(root.get("userId"), userId));
+
+        List<SynopticMsgcntrItem> items = new ArrayList<>(session.createQuery(cq).getResultList());
 
         if (preferencesService.getSiteTitleDisplayPreference() == PreferencesService.USE_SITE_DESCRIPTION) {
 
@@ -134,18 +140,30 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		if(userIds == null || userIds.size() == 0){
 			return new ArrayList<SynopticMsgcntrItem>();
 		}
-		HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
-            List rtn = new ArrayList();
-            Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
-            q.setParameter("siteId", siteId);
-            for (int initIndex = 0; initIndex < userIds.size(); initIndex+=ORACLE_IN_CLAUSE_SIZE_LIMIT) {
-                q.setParameterList("userIds", userIds.subList(initIndex, Math.min(initIndex+ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size())));
-                rtn.addAll(q.list());
-            }
-            return rtn;
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 
-		return getHibernateTemplate().execute(hcb);
+		List<SynopticMsgcntrItem> results = new ArrayList<>();
+
+		for (int i = 0; i < userIds.size(); i += ORACLE_IN_CLAUSE_SIZE_LIMIT) {
+			List<String> subList = userIds.subList(i, Math.min(i + ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size()));
+
+			CriteriaQuery<SynopticMsgcntrItemImpl> cq = cb.createQuery(SynopticMsgcntrItemImpl.class);
+			Root<SynopticMsgcntrItemImpl> root = cq.from(SynopticMsgcntrItemImpl.class);
+
+			cq.select(root)
+				.where(
+					cb.and(
+						cb.equal(root.get("siteId"), siteId),
+						root.get("userId").in(subList)
+					)
+				);
+
+			List<SynopticMsgcntrItemImpl> batchResults = session.createQuery(cq).getResultList();
+			results.addAll(batchResults);
+		}
+
+		return results;
 	}
 
 	public SynopticMsgcntrItem createSynopticMsgcntrItem(String userId, String siteId, String siteTitle){
@@ -153,14 +171,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 
 	public List<SynopticMsgcntrItem> saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items){
+		Session session = sessionFactory.getCurrentSession();
+		List<SynopticMsgcntrItem> savedItems = new ArrayList<>();
 		for (SynopticMsgcntrItem item : items) {
-			item = getHibernateTemplate().merge(item);
+			SynopticMsgcntrItem mergedItem = session.merge(item);
+			savedItems.add(mergedItem);
 		}
-		return items;
+		return savedItems;
 	}
 
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item){
-		getHibernateTemplate().delete(getHibernateTemplate().merge(item));
+		Session session = sessionFactory.getCurrentSession();
+		session.remove(item);
 	}
 
 	public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
@@ -1271,14 +1293,16 @@ public class DecoratedForumInfo{
 	}
 
 	public void updateAllSiteTitles(final String siteId, final String siteTitle) {
-		HibernateCallback<Integer> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_UPDATE_ALL_SITE_TITLES);
-            q.setParameter("siteTitle", siteTitle);
-            q.setParameter("siteId", siteId);
-            return q.executeUpdate();
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 
-		getHibernateTemplate().execute(hcb);
+		CriteriaUpdate<SynopticMsgcntrItemImpl> criteriaUpdate = cb.createCriteriaUpdate(SynopticMsgcntrItemImpl.class);
+		Root<SynopticMsgcntrItemImpl> root = criteriaUpdate.from(SynopticMsgcntrItemImpl.class);
+
+		criteriaUpdate.set(root.get("siteTitle"), siteTitle)
+			.where(cb.equal(root.get("siteId"), siteId));
+
+		session.createQuery(criteriaUpdate).executeUpdate();
 	}
 
 	public void sendPrivateMessageDesktop(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {

@@ -53,7 +53,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
-			<artifactId>thymeleaf-spring5</artifactId>
+			<artifactId>thymeleaf-spring6</artifactId>
 		</dependency>
 		<!-- we are running a webapp in a servlet container so we need the servlet API -->
 		<dependency>

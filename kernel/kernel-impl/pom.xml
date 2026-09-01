@@ -195,6 +195,18 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jvnet.opendmk</groupId>
             <artifactId>jmxremote_optional</artifactId>
         </dependency>
@@ -226,6 +238,10 @@
         <dependency>
             <groupId>org.eclipse.angus</groupId>
             <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -331,16 +347,6 @@
             <groupId>com.carrotsearch</groupId>
             <artifactId>java-sizeof</artifactId>
             <version>0.0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>nl.martijndwars</groupId>
-            <artifactId>web-push</artifactId>
-            <version>5.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.84</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>

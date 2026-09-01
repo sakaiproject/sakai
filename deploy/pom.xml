@@ -770,6 +770,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-core</artifactId>
+            <version>2.0.0-M5</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -816,11 +822,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore-nio</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -883,8 +884,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -1026,6 +1027,16 @@
             <artifactId>jjwt-jackson</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>compile</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <scope>compile</scope>
+         </dependency>
     </dependencies>
 
 </project>
