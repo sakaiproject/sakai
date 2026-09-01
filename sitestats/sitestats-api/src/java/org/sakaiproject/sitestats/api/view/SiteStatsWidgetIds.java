@@ -31,10 +31,18 @@ public final class SiteStatsWidgetIds {
 	public static final String TAB_BY_PAGE = "bypage";
 
 	public static final String FILTER_DATE = "date";
+	public static final String FILTER_WHEN_FROM = "whenFrom";
+	public static final String FILTER_WHEN_TO = "whenTo";
 	public static final String FILTER_ROLE = "role";
 	public static final String FILTER_TOOL = "tool";
 	public static final String FILTER_RESOURCE_ACTION = "resourceAction";
 	public static final String FILTER_LESSON_ACTION = "lessonAction";
+	public static final String FILTER_THRESHOLD = "threshold";
+	public static final String FILTER_ITEM_TYPE = "itemType";
+
+	public static final String ITEM_TYPE_ALL = "all";
+	public static final String ITEM_TYPE_ASSIGNMENT = "assignment";
+	public static final String ITEM_TYPE_QUIZ = "quiz";
 
 	public static final String METRIC_VISITS_TOTAL = "visits-total";
 	public static final String METRIC_VISITS_UNIQUE = "visits-unique";

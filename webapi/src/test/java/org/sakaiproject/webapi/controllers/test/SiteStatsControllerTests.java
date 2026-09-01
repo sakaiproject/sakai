@@ -189,6 +189,30 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	}
 
 	@Test
+	public void getWidgetReportPassesExtendedFilters() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setWidgetId("visits");
+		view.setTabId("bydate");
+		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), any(SiteStatsReportRequest.class)))
+			.thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/visits/tabs/bydate"
+				+ "?date=when-custom&whenFrom=2026-06-01&whenTo=2026-06-30&itemType=assignment&threshold=70"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.widgetId", is("visits")));
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals("when-custom", request.getDate());
+		org.junit.Assert.assertEquals("2026-06-01", request.getWhenFrom());
+		org.junit.Assert.assertEquals("2026-06-30", request.getWhenTo());
+		org.junit.Assert.assertEquals("assignment", request.getItemType());
+		org.junit.Assert.assertEquals(Double.valueOf(70), request.getThreshold());
+	}
+
+	@Test
 	public void getWidgetReportMapsSecurityExceptionToForbidden() throws Exception {
 		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), any(SiteStatsReportRequest.class)))
 			.thenThrow(new SecurityException("forbidden"));

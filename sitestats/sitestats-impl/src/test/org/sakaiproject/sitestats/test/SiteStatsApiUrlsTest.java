@@ -51,6 +51,22 @@ public class SiteStatsApiUrlsTest {
 	}
 
 	@Test
+	public void widgetReportBuildsStableApiUrlWithCustomFilters() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_CUSTOM);
+		request.setWhenFrom("2026-06-01");
+		request.setWhenTo("2026-06-30");
+		request.setItemType("assignment");
+		request.setThreshold(Double.valueOf(70));
+
+		String url = SiteStatsApiUrls.widgetReport("site1", "grades", "bystudent", request);
+
+		assertEquals("/api/sites/site1/sitestats/widgets/grades/tabs/bystudent?include=table,chart&page=1&pageSize=50"
+				+ "&date=when-custom&whenFrom=2026-06-01&whenTo=2026-06-30&role=who-all&tool=all"
+				+ "&itemType=assignment&threshold=70.0", url);
+	}
+
+	@Test
 	public void widgetReportCanRequestOnlyTable() {
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setIncludeChart(false);

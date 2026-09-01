@@ -164,6 +164,7 @@ public class SiteStatsToolService {
     public OverviewResult overviewWithEndpoints(String requestedSiteId) {
         SiteStatsOverview overview = overview(requestedSiteId);
         Map<String, String> widgetEndpoints = new LinkedHashMap<String, String>();
+        Map<String, String> metricEndpoints = new LinkedHashMap<String, String>();
         Map<String, String> widgetHighlightsJson = new LinkedHashMap<String, String>();
         SiteStatsReportRequest reportRequest = new SiteStatsReportRequest();
         reportRequest.setIncludeTable(true);
@@ -171,6 +172,9 @@ public class SiteStatsToolService {
         ObjectMapper objectMapper = MapperFactory.createDefaultJsonMapper();
         for (SiteStatsWidget widget : overview.getWidgets()) {
             if (widget.isVisible()) {
+                if (!widget.getMetrics().isEmpty()) {
+                    metricEndpoints.put(widget.getId(), SiteStatsApiUrls.widgetMetrics(overview.getSiteId(), widget.getId()));
+                }
                 for (SiteStatsWidgetTab tab : widget.getTabs()) {
                     widgetEndpoints.put(widget.getId() + ":" + tab.getId(), SiteStatsApiUrls.widgetReport(
                             overview.getSiteId(), widget.getId(), tab.getId(), reportRequest));
@@ -184,7 +188,7 @@ public class SiteStatsToolService {
                 }
             }
         }
-        return new OverviewResult(overview, widgetEndpoints, widgetHighlightsJson);
+        return new OverviewResult(overview, widgetEndpoints, metricEndpoints, widgetHighlightsJson);
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
@@ -618,6 +622,7 @@ public class SiteStatsToolService {
     public static class OverviewResult {
         private final SiteStatsOverview overview;
         private final Map<String, String> widgetEndpoints;
+        private final Map<String, String> metricEndpoints;
         private final Map<String, String> widgetHighlightsJson;
     }
 

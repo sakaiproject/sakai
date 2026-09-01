@@ -95,18 +95,26 @@ public class SiteStatsController extends AbstractSakaiApiController {
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "50") int pageSize,
 			@RequestParam(required = false) String date,
+			@RequestParam(required = false) String whenFrom,
+			@RequestParam(required = false) String whenTo,
 			@RequestParam(required = false) String role,
 			@RequestParam(required = false) String tool,
 			@RequestParam(required = false) String resourceAction,
-			@RequestParam(required = false) String lessonAction) {
+			@RequestParam(required = false) String lessonAction,
+			@RequestParam(required = false) String itemType,
+			@RequestParam(required = false) Double threshold) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = request(include, page, pageSize);
 		request.setDate(date);
+		request.setWhenFrom(whenFrom);
+		request.setWhenTo(whenTo);
 		request.setRole(role);
 		request.setTool(tool);
 		request.setResourceAction(resourceAction);
 		request.setLessonAction(lessonAction);
+		request.setItemType(itemType);
+		request.setThreshold(threshold);
 		try {
 			return siteStatsViewService.getWidgetReport(siteId, widgetId, tabId, request);
 		} catch (SecurityException e) {

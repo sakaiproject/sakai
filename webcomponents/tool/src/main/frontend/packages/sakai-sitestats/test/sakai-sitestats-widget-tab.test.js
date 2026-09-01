@@ -14,7 +14,18 @@ describe("sakai-sitestats-widget-tab tests", () => {
     options: [
       { value: "when-all", label: "All" },
       { value: "when-last7days", label: "Last 7 days" },
+      { value: "when-custom", label: "Custom" },
     ],
+  }, {
+    id: "whenFrom",
+    label: "From:",
+    type: "date",
+    value: "2026-08-25",
+  }, {
+    id: "whenTo",
+    label: "To:",
+    type: "date",
+    value: "2026-09-01",
   } ];
 
   beforeEach(() => {
@@ -123,5 +134,131 @@ describe("sakai-sitestats-widget-tab tests", () => {
     expect(el.endpoint).to.equal(updatedEndpoint);
     expect(el.shadowRoot.querySelector("sakai-sitestats-report-panel").endpoint).to.equal(updatedEndpoint);
     await waitUntil(() => fetchMock.callHistory.called(updatedEndpoint));
+  });
+
+  it("shows custom date fields and appends whenFrom and whenTo", async () => {
+
+    fetchMock.get(endpoint, {});
+    fetchMock.get(/whenFrom=2026-08-25/, {});
+    fetchMock.get(/whenFrom=2026-01-01/, {});
+    const el = await fixture(html`
+      <sakai-sitestats-widget-tab .endpoint=${endpoint} .filters=${filters}>
+        <span slot="title">Visits</span>
+      </sakai-sitestats-widget-tab>
+    `);
+
+    await elementUpdated(el);
+    expect(el.shadowRoot.querySelector("[data-report-filter='whenFrom']")).to.not.exist;
+
+    const dateFilter = el.shadowRoot.querySelector("select");
+    dateFilter.value = "when-custom";
+    dateFilter.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+    await waitUntil(() => new URL(el.endpoint, "http://localhost").searchParams.get("whenFrom") === "2026-08-25");
+
+    const fromInput = el.shadowRoot.querySelector("[data-report-filter='whenFrom']");
+    const toInput = el.shadowRoot.querySelector("[data-report-filter='whenTo']");
+    expect(fromInput).to.exist;
+    expect(toInput).to.exist;
+    expect(fromInput.value).to.equal("2026-08-25");
+    expect(toInput.value).to.equal("2026-09-01");
+
+    fromInput.value = "2026-01-01";
+    fromInput.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+
+    const to = el.shadowRoot.querySelector("[data-report-filter='whenTo']");
+    to.value = "2026-06-30";
+    to.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+
+    const params = new URL(el.endpoint, "http://localhost").searchParams;
+    expect(params.get("date")).to.equal("when-custom");
+    expect(params.get("whenFrom")).to.equal("2026-01-01");
+    expect(params.get("whenTo")).to.equal("2026-06-30");
+  });
+
+  it("reveals slotted custom date fields that already have labels", async () => {
+
+    fetchMock.get(endpoint, {});
+    fetchMock.get(/date=when-custom/, {});
+    const el = await fixture(html`
+      <sakai-sitestats-widget-tab .endpoint=${endpoint}>
+        <span slot="title">Visits</span>
+        <div slot="filter" class="sitestats-widget-filter">
+          <label for="filter-date">Period:</label>
+          <select id="filter-date" data-report-filter="date">
+            <option value="when-all">All</option>
+            <option value="when-last7days">Last 7 days</option>
+            <option value="when-custom">Custom</option>
+          </select>
+        </div>
+        <div slot="filter" class="sitestats-widget-filter" hidden>
+          <label for="filter-whenFrom">From:</label>
+          <input id="filter-whenFrom" type="date" data-report-filter="whenFrom" value="2026-08-25">
+        </div>
+        <div slot="filter" class="sitestats-widget-filter" hidden>
+          <label for="filter-whenTo">To:</label>
+          <input id="filter-whenTo" type="date" data-report-filter="whenTo" value="2026-09-01">
+        </div>
+      </sakai-sitestats-widget-tab>
+    `);
+
+    const fromWrapper = el.querySelector("[data-report-filter='whenFrom']").closest("[slot='filter']");
+    expect(fromWrapper.hidden).to.be.true;
+
+    const dateFilter = el.querySelector("[data-report-filter='date']");
+    dateFilter.value = "when-custom";
+    dateFilter.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+    await waitUntil(() => new URL(el.endpoint, "http://localhost").searchParams.get("whenFrom") === "2026-08-25");
+
+    expect(fromWrapper.hidden).to.be.false;
+    expect(el.querySelector("label[for='filter-whenFrom']").textContent).to.equal("From:");
+    expect(el.querySelector("label[for='filter-whenTo']").textContent).to.equal("To:");
+    const params = new URL(el.endpoint, "http://localhost").searchParams;
+    expect(params.get("date")).to.equal("when-custom");
+    expect(params.get("whenFrom")).to.equal("2026-08-25");
+    expect(params.get("whenTo")).to.equal("2026-09-01");
+  });
+
+  it("loads no custom range when a slotted date is cleared", async () => {
+
+    fetchMock.get(endpoint, {});
+    fetchMock.get(/date=when-custom/, {});
+    const el = await fixture(html`
+      <sakai-sitestats-widget-tab .endpoint=${endpoint}>
+        <span slot="title">Visits</span>
+        <div slot="filter" class="sitestats-widget-filter">
+          <label for="filter-date">Period:</label>
+          <select id="filter-date" data-report-filter="date">
+            <option value="when-last7days">Last 7 days</option>
+            <option value="when-custom">Custom</option>
+          </select>
+        </div>
+        <div slot="filter" class="sitestats-widget-filter" hidden>
+          <input type="date" data-report-filter="whenFrom" value="2026-08-25">
+        </div>
+        <div slot="filter" class="sitestats-widget-filter" hidden>
+          <input type="date" data-report-filter="whenTo" value="2026-09-01">
+        </div>
+      </sakai-sitestats-widget-tab>
+    `);
+
+    const dateFilter = el.querySelector("[data-report-filter='date']");
+    dateFilter.value = "when-custom";
+    dateFilter.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+    await waitUntil(() => new URL(el.endpoint, "http://localhost").searchParams.get("whenFrom") === "2026-08-25");
+
+    const fromInput = el.querySelector("[data-report-filter='whenFrom']");
+    fromInput.value = "";
+    fromInput.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+    await elementUpdated(el);
+
+    const params = new URL(el.endpoint, "http://localhost").searchParams;
+    expect(params.get("date")).to.equal("when-custom");
+    expect(params.get("whenFrom")).to.equal(null);
+    expect(params.get("whenTo")).to.equal("2026-09-01");
   });
 });

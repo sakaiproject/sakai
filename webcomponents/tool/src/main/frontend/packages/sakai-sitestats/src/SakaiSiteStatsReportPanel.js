@@ -93,7 +93,7 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
         ? this.tr("failed_to_load_statistics", [ this._errorStatus ])
         : this._i18n.failed_to_load_statistics_unknown;
 
-      return html`<div class="alert alert-danger" role="alert">${message}</div>`;
+      return html`<div class="sak-banner-error" role="alert">${message}</div>`;
     }
 
     if (!this._report) {

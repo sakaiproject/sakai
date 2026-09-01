@@ -115,10 +115,16 @@ public final class SiteStatsApiUrls {
 
 		if (includeWidgetFilters) {
 			appendParam(endpoint, "date", request.getDate());
+			appendParam(endpoint, "whenFrom", request.getWhenFrom());
+			appendParam(endpoint, "whenTo", request.getWhenTo());
 			appendParam(endpoint, "role", request.getRole());
 			appendParam(endpoint, "tool", request.getTool());
 			appendParam(endpoint, "resourceAction", request.getResourceAction());
 			appendParam(endpoint, "lessonAction", request.getLessonAction());
+			appendParam(endpoint, "itemType", request.getItemType());
+			if (request.getThreshold() != null) {
+				appendParam(endpoint, "threshold", request.getThreshold().toString());
+			}
 		}
 	}
 

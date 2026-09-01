@@ -28,10 +28,14 @@ public class SiteStatsReportRequest implements Serializable {
 	private int page = 1;
 	private int pageSize = DEFAULT_PAGE_SIZE;
 	private String date = ReportManager.WHEN_LAST7DAYS;
+	private String whenFrom;
+	private String whenTo;
 	private String role = ReportManager.WHO_ALL;
 	private String tool = ReportManager.WHAT_EVENTS_ALLTOOLS;
 	private String resourceAction;
 	private String lessonAction;
+	private Double threshold;
+	private String itemType;
 
 	public SiteStatsReportRequest(SiteStatsReportRequest source) {
 		if (source != null) {
@@ -40,10 +44,14 @@ public class SiteStatsReportRequest implements Serializable {
 			setPage(source.page);
 			setPageSize(source.pageSize);
 			this.date = source.date;
+			this.whenFrom = source.whenFrom;
+			this.whenTo = source.whenTo;
 			this.role = source.role;
 			this.tool = source.tool;
 			this.resourceAction = source.resourceAction;
 			this.lessonAction = source.lessonAction;
+			this.threshold = source.threshold;
+			this.itemType = source.itemType;
 		}
 	}
 

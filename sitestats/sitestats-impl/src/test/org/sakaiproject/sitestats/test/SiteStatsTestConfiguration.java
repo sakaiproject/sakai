@@ -22,9 +22,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -62,7 +64,10 @@ import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory;
 import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.ViewFactoryFixtureWidgetDefinition;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEntityManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -272,6 +277,11 @@ public class SiteStatsTestConfiguration {
                     ((SiteStatsReportSummaryMapper) bean).setMessages(resourceLoader);
                 } else if (bean instanceof SiteStatsWidgetContext) {
                     ((SiteStatsWidgetContext) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsWidgetCatalogFactory) {
+                    SiteStatsWidgetCatalogFactory factory = (SiteStatsWidgetCatalogFactory) bean;
+                    List<SiteStatsWidgetDefinition> definitions = new ArrayList<>(factory.getWidgetDefinitions());
+                    definitions.add(new ViewFactoryFixtureWidgetDefinition());
+                    factory.setWidgetDefinitions(definitions);
                 }
                 return bean;
             }

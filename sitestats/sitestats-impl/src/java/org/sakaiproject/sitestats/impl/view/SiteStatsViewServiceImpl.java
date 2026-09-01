@@ -6,6 +6,8 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import lombok.Setter;
@@ -13,6 +15,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ServerWideReportManager;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
@@ -118,11 +121,12 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
-		SiteStatsReportView customView = siteStatsWidgetCatalog.getWidgetReportView(siteId, widgetId, tabId, safeRequest, userId);
-		if (customView != null) {
-			customView.setWidgetId(widgetId);
-			customView.setTabId(tabId);
-			return customView;
+		SiteStatsReportView view = siteStatsWidgetCatalog.getWidgetReportView(siteId, widgetId, tabId, safeRequest, userId);
+		if (view != null) {
+			return finishWidgetReportView(view, siteId, widgetId, tabId, null);
+		}
+		if (siteStatsWidgetCatalog.isIncompleteCustomRange(safeRequest)) {
+			return emptyWidgetReport(siteId, widgetId, tabId, safeRequest, userId);
 		}
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, tabId, null,
@@ -135,6 +139,10 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null;
+		SiteStatsReportView view = siteStatsWidgetCatalog.getWidgetMetricReportView(siteId, widgetId, metricId, userId);
+		if (view != null) {
+			return finishWidgetReportView(view, siteId, widgetId, null, metricId);
+		}
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, null, metricId,
 				"Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
@@ -183,6 +191,54 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		}
 		if (tableReport != null) {
 			view.setTable(siteStatsReportViewMapper.mapTable(tableReport, safeRequest, definition.getTitle()));
+		}
+		return view;
+	}
+
+	private SiteStatsReportView emptyWidgetReport(String siteId, String widgetId, String tabId,
+			SiteStatsReportRequest safeRequest, String userId) {
+		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(
+				siteId, widgetId, tabId, safeRequest, userId);
+		PrefsData prefsData = statsManager.getPreferences(siteId, false);
+		ReportDef baseDef = definition.getTableReportDef() != null
+				? definition.getTableReportDef()
+				: definition.getChartReportDef();
+		if (baseDef == null) {
+			throw new IllegalArgumentException("Unknown SiteStats widget report: " + widgetId + "/" + tabId);
+		}
+
+		Report empty = new Report();
+		empty.setReportDefinition(baseDef);
+		empty.setReportData(Collections.<Stat>emptyList());
+		empty.setReportGenerationDate(new Date());
+
+		SiteStatsReportView view = siteStatsReportViewMapper.mapReportShell(siteId, empty);
+		view.setTitle(definition.getTitle());
+		if (safeRequest.isIncludeChart() && definition.getChartReportDef() != null) {
+			Report chartReport = new Report();
+			chartReport.setReportDefinition(definition.getChartReportDef());
+			chartReport.setReportData(Collections.<Stat>emptyList());
+			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData, definition.getTitle(),
+					definition.getChartDatasetLabel()));
+		}
+		if (safeRequest.isIncludeTable() && definition.getTableReportDef() != null) {
+			Report tableReport = new Report();
+			tableReport.setReportDefinition(definition.getTableReportDef());
+			tableReport.setReportData(Collections.<Stat>emptyList());
+			view.setTable(siteStatsReportViewMapper.mapTable(tableReport, safeRequest, definition.getTitle()));
+		}
+		return finishWidgetReportView(view, siteId, widgetId, tabId, null);
+	}
+
+	private SiteStatsReportView finishWidgetReportView(SiteStatsReportView view, String siteId, String widgetId,
+			String tabId, String metricId) {
+		view.setSiteId(siteId);
+		view.setWidgetId(widgetId);
+		if (StringUtils.isNotBlank(tabId)) {
+			view.setTabId(tabId);
+		}
+		if (StringUtils.isNotBlank(metricId)) {
+			view.setMetricId(metricId);
 		}
 		return view;
 	}
