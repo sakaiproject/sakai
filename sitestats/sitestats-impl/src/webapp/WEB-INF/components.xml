@@ -260,6 +260,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"

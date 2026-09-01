@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.TimeZone;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,7 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 @Slf4j
@@ -172,7 +174,18 @@ public class WidgetMetricSupport {
 			locale = Locale.getDefault();
 		}
 		return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-				.format(Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate());
+				.format(Instant.ofEpochMilli(date.getTime()).atZone(localZoneId()).toLocalDate());
+	}
+
+	private ZoneId localZoneId() {
+		UserTimeService userTimeService = context.getUserTimeService();
+		if (userTimeService != null) {
+			TimeZone timeZone = userTimeService.getLocalTimeZone();
+			if (timeZone != null) {
+				return timeZone.toZoneId();
+			}
+		}
+		return ZoneId.systemDefault();
 	}
 
 	private LastVisit findLastVisit(String siteId, String userId) {
