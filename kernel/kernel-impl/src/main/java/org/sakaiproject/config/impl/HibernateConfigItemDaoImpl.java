@@ -28,9 +28,8 @@ import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
@@ -47,9 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements HibernateConfigItemDao {
+public class HibernateConfigItemDaoImpl implements HibernateConfigItemDao {
     private static String SAKAI_CONFIG_ITEM_SQL = "sakai_config_item";
     private SqlService sqlService;
+
+    @Setter private SessionFactory sessionFactory;
 
     private boolean autoDdl;
 
@@ -74,7 +75,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @Override
     public void create(HibernateConfigItem item) {
         if (item != null) {
-            currentSession().save(item);
+            sessionFactory.getCurrentSession().save(item);
         }
     }
 
@@ -87,7 +88,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return null;
         }
 
-        return (HibernateConfigItem) currentSession().get(HibernateConfigItem.class, id);
+        return (HibernateConfigItem) sessionFactory.getCurrentSession().get(HibernateConfigItem.class, id);
     }
 
     /* (non-Javadoc)
@@ -99,7 +100,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().update(item);
+        sessionFactory.getCurrentSession().update(item);
     }
 
     /* (non-Javadoc)
@@ -111,7 +112,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().delete(item);
+        sessionFactory.getCurrentSession().delete(item);
     }
 
     /* (non-Javadoc)
@@ -121,7 +122,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null) {
             return -1;
         }
-        Long count = currentSession()
+        Long count = sessionFactory.getCurrentSession()
             .createQuery("select count(*) from HibernateConfigItem where node = :node", Long.class)
             .setParameter("node", node)
             .uniqueResult();
@@ -137,7 +138,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null || name == null) {
             return -1;
         }
-        Long count = currentSession()
+        Long count = sessionFactory.getCurrentSession()
             .createQuery("select count(*) from HibernateConfigItem where node = :node and name = :name", Long.class)
             .setParameter("node", node)
             .setParameter("name", name)
@@ -171,7 +172,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().saveOrUpdate(item);
+        sessionFactory.getCurrentSession().saveOrUpdate(item);
     }
 
     /* (non-Javadoc)
@@ -201,7 +202,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             hql.append(" and secured = :secured");
         }
 
-        Query<HibernateConfigItem> query = currentSession()
+        Query<HibernateConfigItem> query = sessionFactory.getCurrentSession()
             .createQuery(hql.toString(), HibernateConfigItem.class)
                 .setParameter("node", node);
         if (name != null && !name.isEmpty()) {
@@ -243,7 +244,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             }
         }
 
-        Query<HibernateConfigItem> query = currentSession()
+        Query<HibernateConfigItem> query = sessionFactory.getCurrentSession()
             .createQuery(hql.toString(), HibernateConfigItem.class)
             .setParameter("node", node);
         if (onOrAfter != null) {
