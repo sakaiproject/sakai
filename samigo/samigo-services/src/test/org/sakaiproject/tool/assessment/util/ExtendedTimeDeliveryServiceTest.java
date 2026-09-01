@@ -83,6 +83,52 @@ public class ExtendedTimeDeliveryServiceTest {
         }
     }
 
+    @Test
+    public void testIncreasedTimeLimitIsDetected() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, null, null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setTimeMinutes(15);
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertTrue(deliveryService.hasIncreasedTimeLimit());
+    }
+
+    @Test
+    public void testEqualTimeLimitIsNotAnIncrease() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, null, null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setTimeMinutes(10);
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertFalse(deliveryService.hasIncreasedTimeLimit());
+    }
+
+    @Test
+    public void testDateOnlyExceptionIsNotAnIncrease() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, new Date(1000L), null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setDueDate(new Date(2000L));
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertFalse(deliveryService.hasIncreasedTimeLimit());
+        Assert.assertFalse(deliveryService.shouldDisableItemTimers());
+    }
+
+    @Test
+    public void testNoTimeLimitDisablesItemTimers() {
+        PublishedAssessmentFacade assessment = buildAssessment(100L, null, null, null, 600);
+        ExtendedTime extendedTime = buildExtendedTime(null, "student1", 100L);
+        extendedTime.setTimeHours(0);
+        extendedTime.setTimeMinutes(0);
+
+        ExtendedTimeDeliveryService deliveryService = new ExtendedTimeDeliveryService(assessment, "student1", extendedTime);
+
+        Assert.assertTrue(deliveryService.shouldDisableItemTimers());
+    }
+
     private ExtendedTime buildExtendedTime(String groupId, String userId, Long publishedAssessmentId) {
         ExtendedTime extendedTime = new ExtendedTime();
         PublishedAssessmentData publishedAssessment = new PublishedAssessmentData();
@@ -94,8 +140,13 @@ public class ExtendedTimeDeliveryServiceTest {
     }
 
     private PublishedAssessmentFacade buildAssessment(Long publishedAssessmentId, Date startDate, Date dueDate, Date retractDate) {
+        return buildAssessment(publishedAssessmentId, startDate, dueDate, retractDate, null);
+    }
+
+    private PublishedAssessmentFacade buildAssessment(Long publishedAssessmentId, Date startDate, Date dueDate, Date retractDate,
+            Integer timeLimit) {
         return new PublishedAssessmentFacade(publishedAssessmentId, "Assessment", "Entire Site",
                 startDate, dueDate, retractDate, null, null, null, null,
-                null, Boolean.TRUE, 1, null, PublishedAssessmentFacade.ACTIVE_STATUS, null, null);
+                null, Boolean.TRUE, 1, null, PublishedAssessmentFacade.ACTIVE_STATUS, null, timeLimit, null, null);
     }
 }
