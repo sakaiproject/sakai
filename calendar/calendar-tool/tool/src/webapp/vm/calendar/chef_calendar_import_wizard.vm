@@ -27,9 +27,6 @@
 			<p class="sak-banner-info">$tlang.getString("imp.mm.outlook")<br />
 			$tlang.getString("import.outlook.note")<br />
 
-		#elseif ($importWizardState == "ICAL_SELECT_FILE")
-			<p class="sak-banner-warn">$tlang.getString("imp.ical.todo")<br />
-
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
 				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
