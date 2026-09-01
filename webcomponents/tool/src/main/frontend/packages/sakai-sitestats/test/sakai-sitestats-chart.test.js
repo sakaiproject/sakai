@@ -53,7 +53,9 @@ describe("sakai-sitestats-chart tests", () => {
     expect(plugins.some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.true;
     const fallbackTable = el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden");
     expect(fallbackTable).to.exist;
-    expect(fallbackTable.hideCaption).to.be.true;
+    const figcaption = el.shadowRoot.querySelector("figcaption");
+    expect(figcaption.textContent).to.equal("Visits");
+    expect(figcaption.classList.contains("visually-hidden")).to.be.true;
   });
 
   it("uses Sakai theme variables for chart colors", async () => {

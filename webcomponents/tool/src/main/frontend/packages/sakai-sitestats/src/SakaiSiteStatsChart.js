@@ -78,12 +78,6 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         block-size: 100%;
       }
 
-      figcaption {
-        margin-block-start: 0.5rem;
-        color: var(--sakai-text-color-dimmed, #5f6773);
-        font-size: 0.9rem;
-      }
-
       .empty {
         border: 1px solid var(--sakai-border-color, #d8dde6);
         padding: 1rem;
@@ -140,10 +134,10 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         <div class=${useDepthEffect(this.chart) ? "chart-frame depth" : "chart-frame"}>
           <canvas aria-label="${chartLabel}" role="img"></canvas>
         </div>
-        ${this.chart.title ? html`<figcaption>${this.chart.title}</figcaption>` : nothing}
+        ${this.chart.title ? html`<figcaption class="visually-hidden">${this.chart.title}</figcaption>` : nothing}
       </figure>
       ${this.renderTableFallback && this._fallbackTable
-        ? html`<sakai-sitestats-table class="visually-hidden" .hideCaption=${true} .table=${this._fallbackTable}></sakai-sitestats-table>`
+        ? html`<sakai-sitestats-table class="visually-hidden" .table=${this._fallbackTable}></sakai-sitestats-table>`
         : nothing}
     `;
   }

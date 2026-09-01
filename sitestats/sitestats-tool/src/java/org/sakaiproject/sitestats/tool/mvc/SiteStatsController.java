@@ -153,10 +153,9 @@ public class SiteStatsController {
     @GetMapping("/reports/preview/{previewId}")
     public String preview(@PathVariable String previewId, @RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
-        if (!toolService.canViewPreview(authorizedSiteId, previewId)) {
-            throw new IllegalArgumentException("The report preview expired or is unavailable");
-        }
+        ReportDef report = toolService.previewReportDefinition(authorizedSiteId, previewId);
         commonModel(model, authorizedSiteId, "reports");
+        model.addAttribute("report", report);
         model.addAttribute("reportEndpoint", SiteStatsApiUrls.previewReport(authorizedSiteId, previewId, reportRequest()));
         model.addAttribute("previewId", previewId);
         model.addAttribute("preview", true);
