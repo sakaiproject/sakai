@@ -47,8 +47,8 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
 
       th {
         background: var(--sakai-background-color-2, #f5f7f9);
-        font-weight: 600;
         white-space: nowrap;
+        font-size: 0.9125rem;
       }
 
       td[data-align="end"],
@@ -70,8 +70,9 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
       }
 
       .empty {
+        font-size: 0.9125rem;
         border: 1px solid var(--sakai-border-color, #d8dde6);
-        padding: 1rem;
+        padding: 0.45rem 0.6rem;
         background: var(--sakai-background-color-2, #f8f9fb);
       }
 

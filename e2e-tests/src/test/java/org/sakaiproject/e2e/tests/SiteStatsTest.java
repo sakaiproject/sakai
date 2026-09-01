@@ -78,6 +78,27 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(9)
+    void presenceAccessWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator presenceTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/bydate']");
+        assertThat(presenceTab).hasCount(1);
+        presenceTab.locator("summary").click();
+
+        Locator reportPanel = presenceTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator lastVisitMetric = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(presenceTab))
+            .locator(".sitestats-metric").first();
+        assertThat(lastVisitMetric).isVisible();
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
     @Order(3)
     void reportValidationDisplaysOneErrorBanner() {
         openReportsAsInstructor();
@@ -261,7 +282,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         APIResponse permissionsResponse = page.request().post("/api/sites/" + siteId + "/permissions",
             RequestOptions.create().setForm(FormData.create()
                 .set("ref", "/site/" + siteId)
-                .set("Student:sitestats.view", "true")));
+                .set("Student:sitestats.view", "true")
+                .set("Student:sitestats.own", "true")));
         assertTrue(permissionsResponse.ok(),
             "Unable to grant student access to Statistics: HTTP " + permissionsResponse.status());
 
@@ -273,6 +295,10 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Overview$", Pattern.CASE_INSENSITIVE)))).isVisible();
         assertThat(page.getByRole(AriaRole.NAVIGATION,
             new Page.GetByRoleOptions().setName("SiteStats"))).hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-presence-access/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/']"))
+            .hasCount(0);
     }
 
     @Test

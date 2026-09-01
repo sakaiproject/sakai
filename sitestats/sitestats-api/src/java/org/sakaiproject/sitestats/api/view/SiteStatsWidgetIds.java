@@ -16,6 +16,8 @@ public final class SiteStatsWidgetIds {
 
 	public static final String WIDGET_VISITS = "visits";
 	public static final String WIDGET_STUDENT_VISITS = "student-visits";
+	public static final String WIDGET_PRESENCE_ACCESS = "presence-access";
+	public static final String WIDGET_STUDENT_PRESENCE_ACCESS = "student-presence-access";
 	public static final String WIDGET_ACTIVITY = "activity";
 	public static final String WIDGET_RESOURCES = "resources";
 	public static final String WIDGET_LESSONS = "lessons";
@@ -41,6 +43,18 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_STUDENT_VISITS_TOTAL = "student-visits-total";
 	public static final String METRIC_STUDENT_VISITS_AVERAGE_PRESENCE = "student-visits-average-presence";
 	public static final String METRIC_STUDENT_VISITS_PRESENCE = "student-visits-presence";
+	public static final String METRIC_PRESENCE_LAST_VISIT = "presence-last-visit";
+	public static final String METRIC_PRESENCE_NEVER_VISITED = "presence-never-visited";
+	public static final String METRIC_PRESENCE_AVERAGE = "presence-average";
+	public static final String METRIC_PRESENCE_TOTAL_7D = "presence-total-7d";
+	public static final String METRIC_PRESENCE_TOTAL_30D = "presence-total-30d";
+	public static final String METRIC_PRESENCE_TOTAL_365D = "presence-total-365d";
+	public static final String METRIC_STUDENT_PRESENCE_LAST_VISIT = "student-presence-last-visit";
+	public static final String METRIC_STUDENT_PRESENCE_AVERAGE = "student-presence-average";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL = "student-presence-total";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_7D = "student-presence-total-7d";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_30D = "student-presence-total-30d";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_365D = "student-presence-total-365d";
 	public static final String METRIC_ACTIVITY_EVENTS = "activity-events";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_TOOL = "activity-most-active-tool";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_USER = "activity-most-active-user";

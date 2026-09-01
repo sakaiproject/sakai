@@ -11,6 +11,7 @@
   }
 
   .sitestats-widget-title {
+    font-size: 1rem;
     margin: 0;
     padding: $standard-space-3x $standard-spacing;
   }
@@ -34,11 +35,12 @@
   }
 
   .sitestats-metric-primary {
-    font-size: 1.5rem;
     line-height: 1.25;
+    font-weight: 800;
   }
 
   .sitestats-metric-percentage {
+    font-size: 1rem;
     margin-inline-start: $standard-space;
     color: var(--sakai-text-color-dimmed);
   }

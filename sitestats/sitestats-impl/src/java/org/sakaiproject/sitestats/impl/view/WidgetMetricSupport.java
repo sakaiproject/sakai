@@ -5,22 +5,32 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SitePresence;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
@@ -86,9 +96,14 @@ public class WidgetMetricSupport {
 	}
 
 	long sitePresenceDuration(String siteId, List<String> userIds) {
+		return sitePresenceDuration(siteId, userIds, ReportManager.WHEN_ALL);
+	}
+
+	long sitePresenceDuration(String siteId, List<String> userIds, String when) {
 		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_PRESENCES);
+		params.setWhen(StringUtils.defaultIfBlank(when, ReportManager.WHEN_ALL));
 		params.setWho(userIds == null ? ReportManager.WHO_ALL : ReportManager.WHO_CUSTOM);
 		if (userIds != null) {
 			params.setWhoUserIds(userIds);
@@ -99,6 +114,135 @@ public class WidgetMetricSupport {
 			return 0;
 		}
 		return ((SitePresence) report.getReportData().get(0)).getDuration();
+	}
+
+	boolean presencesEnabled() {
+		return Boolean.TRUE.equals(context.getStatsManager().getEnableSitePresences());
+	}
+
+	WidgetMetricValue lastVisitValue(String siteId, String userId, boolean includeUserDetail) {
+		LastVisit visit = findLastVisit(siteId, userId);
+		if (visit == null) {
+			return WidgetMetricValue.of("-");
+		}
+		String primary = formatDate(visit.getDate());
+		if (includeUserDetail) {
+			return WidgetMetricValue.withDetail(primary, userTooltip(visit.getUserId()));
+		}
+		return WidgetMetricValue.of(primary);
+	}
+
+	WidgetMetricValue presenceDurationValue(String siteId, List<String> userIds, String when) {
+		if (!presencesEnabled()) {
+			return WidgetMetricValue.of("-");
+		}
+		return WidgetMetricValue.of(msToString(sitePresenceDuration(siteId, userIds, when)));
+	}
+
+	WidgetMetricValue averagePresencePerVisit(String siteId) {
+		if (!presencesEnabled()) {
+			return WidgetMetricValue.of("-");
+		}
+		long durationInMs = sitePresenceDuration(siteId, null);
+		Date firstPresenceDate = firstPresenceDate(siteId);
+		long totalVisits = context.getStatsManager().getTotalSiteVisits(siteId, firstPresenceDate, null);
+		double durationInMin = durationInMs == 0 || totalVisits == 0 ? 0
+				: Util.round((durationInMs / (double) totalVisits) / 1000 / 60, 1);
+		return WidgetMetricValue.of(durationInMin + " " + context.message("minutes_abbr"));
+	}
+
+	WidgetMetricValue averagePresencePerVisitForUser(String siteId, String userId) {
+		if (!presencesEnabled() || StringUtils.isBlank(userId)) {
+			return WidgetMetricValue.of("-");
+		}
+		long visits = context.getStatsManager().getTotalSiteVisitsForUser(siteId, userId);
+		if (visits == 0) {
+			return WidgetMetricValue.of("0");
+		}
+		long duration = sitePresenceDuration(siteId, Arrays.asList(userId));
+		return WidgetMetricValue.of(msToString(duration / visits));
+	}
+
+	String formatDate(Date date) {
+		if (date == null) {
+			return "-";
+		}
+		Locale locale = context.getMessages() == null ? Locale.getDefault() : context.getMessages().getLocale();
+		if (locale == null) {
+			locale = Locale.getDefault();
+		}
+		return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+				.format(Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate());
+	}
+
+	private LastVisit findLastVisit(String siteId, String userId) {
+		LastVisit fromTotals = lastVisitFromPresenceTotals(siteId, userId);
+		if (fromTotals != null) {
+			return fromTotals;
+		}
+		return lastVisitFromEvents(siteId, userId);
+	}
+
+	private LastVisit lastVisitFromPresenceTotals(String siteId, String userId) {
+		Map<String, SitePresenceTotal> totals = context.getStatsManager().getPresenceTotalsForSite(siteId);
+		if (totals == null || totals.isEmpty()) {
+			return null;
+		}
+		if (StringUtils.isNotBlank(userId)) {
+			SitePresenceTotal total = totals.get(userId);
+			if (total == null || total.getLastVisitTime() == null) {
+				return null;
+			}
+			return new LastVisit(userId, total.getLastVisitTime());
+		}
+		LastVisit latest = null;
+		for (SitePresenceTotal total : totals.values()) {
+			if (total.getLastVisitTime() == null) {
+				continue;
+			}
+			if (latest == null || total.getLastVisitTime().after(latest.getDate())) {
+				latest = new LastVisit(total.getUserId(), total.getLastVisitTime());
+			}
+		}
+		return latest;
+	}
+
+	private LastVisit lastVisitFromEvents(String siteId, String userId) {
+		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
+		ReportParams params = reportDef.getReportParams();
+		params.setWhat(ReportManager.WHAT_EVENTS);
+		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
+		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
+		if (StringUtils.isNotBlank(userId)) {
+			params.setWho(ReportManager.WHO_CUSTOM);
+			params.setWhoUserIds(Arrays.asList(userId));
+		} else {
+			params.setWho(ReportManager.WHO_ALL);
+		}
+		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER, StatsManager.T_LASTDATE));
+		params.setHowSort(true);
+		params.setHowSortBy(StatsManager.T_LASTDATE);
+		params.setHowSortAscending(false);
+		Report report = context.getReportManager().getReport(reportDef, true);
+		if (report.getReportData().isEmpty()) {
+			return null;
+		}
+		EventStat stat = (EventStat) report.getReportData().get(0);
+		if (stat.getDate() == null) {
+			return null;
+		}
+		return new LastVisit(stat.getUserId(), stat.getDate());
+	}
+
+	@Getter
+	private static class LastVisit {
+		private final String userId;
+		private final Date date;
+
+		LastVisit(String userId, Date date) {
+			this.userId = userId;
+			this.date = date;
+		}
 	}
 
 	Date firstPresenceDate(String siteId) {
