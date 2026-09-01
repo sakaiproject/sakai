@@ -67,6 +67,10 @@
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
