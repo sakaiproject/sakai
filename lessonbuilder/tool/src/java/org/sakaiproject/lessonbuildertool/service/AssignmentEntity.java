@@ -394,7 +394,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public boolean objectExists() {
 	if (assignment == null)
 	    assignment = getAssignment(id);
-	return assignment != null;
+	// a soft-deleted assignment is still returned by the service, but for Lessons
+	// it no longer exists: this makes it show as "deleted" rather than "not published"
+	return assignment != null && !assignment.getDeleted();
     }
 	
     public boolean notPublished(String ref) {
@@ -402,14 +404,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     }
 
     public boolean notPublished() {
+	// objectExists() already returns false for a missing or soft-deleted assignment
 	if (!objectExists())
 	    return true;
 
-	// this somewhat odd test for deleted is the one used in the Assignment code
-	if (!assignment.getDeleted() && !assignment.getDraft())
-	    return false;
-	else
-	    return true;
+	return assignment.getDraft();
     }
 
     // return the list of groups if the item is only accessible to specific groups
