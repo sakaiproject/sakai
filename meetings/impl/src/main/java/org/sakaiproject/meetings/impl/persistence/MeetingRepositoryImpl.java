@@ -19,6 +19,7 @@ import org.sakaiproject.meetings.api.persistence.MeetingRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,26 +79,32 @@ public class MeetingRepositoryImpl extends BasicSerializableRepository<Meeting, 
         CriteriaQuery<Meeting> query = criteriaBuilder.createQuery(Meeting.class);
         Root<Meeting> root = query.from(Meeting.class);
         Join<Meeting, MeetingAttendee> joinAttendees = root.join("attendees");
-        Predicate orClause = criteriaBuilder.disjunction();
+        List<Predicate> orPredicates = new ArrayList<>();
+
         if (userId != null) {
-            Predicate userRestriction = criteriaBuilder.and(
-                    criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.USER),
-                    criteriaBuilder.equal(joinAttendees.get("objectId"), userId));
-            orClause.getExpressions().add(userRestriction);
+            orPredicates.add(criteriaBuilder.and(
+                criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.USER),
+                criteriaBuilder.equal(joinAttendees.get("objectId"), userId)
+            ));
         }
         if (siteId != null) {
-            Predicate siteRestriction = criteriaBuilder.and(
-                    criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.SITE),
-                    criteriaBuilder.equal(joinAttendees.get("objectId"), siteId));
-            orClause.getExpressions().add(siteRestriction);
+            orPredicates.add(criteriaBuilder.and(
+                criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.SITE),
+                criteriaBuilder.equal(joinAttendees.get("objectId"), siteId)
+            ));
         }
         if (!CollectionUtils.isEmpty(groupIds)) {
-            Predicate groupRestriction = criteriaBuilder.and(
-                    criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.GROUP),
-                    joinAttendees.get("objectId").in(groupIds));
-            orClause.getExpressions().add(groupRestriction);
+            orPredicates.add(criteriaBuilder.and(
+                criteriaBuilder.equal(joinAttendees.get("type"), AttendeeType.GROUP),
+                joinAttendees.get("objectId").in(groupIds)
+            ));
         }
-        Predicate where = criteriaBuilder.and(criteriaBuilder.equal(root.get("siteId"), siteId), orClause);
+
+        Predicate orClause = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
+        Predicate where = criteriaBuilder.and(
+            criteriaBuilder.equal(root.get("siteId"), siteId),
+            orClause
+        );
         query.select(root).where(where);
 
         List<Meeting> ret = getCurrentSession().createQuery(query).getResultList();
