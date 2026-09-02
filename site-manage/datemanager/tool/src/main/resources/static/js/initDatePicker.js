@@ -204,18 +204,20 @@ DTMN.initUnsavedGuard = function() {
   });
 };
 
-// Cancel discards staged edits by reloading the tool from saved state — the page stays in
-// Date Manager rather than bouncing back to Site Info. A sessionStorage flag survives the
-// reload so the fresh page can briefly confirm that the changes were discarded.
+// Cancel abandons the staged edits and returns to the Site Info main page. Staged edits live
+// only in the page, so leaving the helper discards them; dropping the helper segment from the
+// URL hands control back to the host tool (Site Info).
 DTMN.initCancelRevert = function() {
   const cancelButton = document.getElementById("datemanager-cancel");
   cancelButton && cancelButton.addEventListener("click", function(e) {
     e.preventDefault();
+    // Clicking Cancel is already an explicit discard, so don't let the unsaved-changes guard
+    // second-guess the navigation away.
     DTMN.suppressUnsavedGuard = true;
-    if (DTMN.hasUnsavedChanges()) {
-      try { window.sessionStorage.setItem("dm-cancel-reverted", "1"); } catch (err) { /* storage unavailable */ }
-    }
-    window.location.reload();
+    const marker = "/sakai.datemanager.helper";
+    const href = window.location.href.replace(/#.*$/, "");
+    const idx = href.indexOf(marker);
+    window.location = idx === -1 ? href : href.substring(0, idx);
   }, false);
 
   let reverted = false;
