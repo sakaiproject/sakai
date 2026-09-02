@@ -167,7 +167,7 @@ public class MeetingServiceImplTest extends AbstractTransactionalJUnit4SpringCon
                 data2.setSiteId("site");
                 
                 Meeting ret2 = meetingService.createMeeting(data2);
-                Assert.assertNotNull(ret.getId());
+                Assert.assertNotNull(ret2.getId());
                 
                 Meeting test2 = meetingService.getMeeting(ret2.getId());
                 //should never reach this point
