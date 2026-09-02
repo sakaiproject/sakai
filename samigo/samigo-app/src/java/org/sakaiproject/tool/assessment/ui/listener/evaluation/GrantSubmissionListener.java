@@ -70,15 +70,25 @@ public class GrantSubmissionListener
     log.debug("GrantSubmission LISTENER.");
 
     TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-	String deletedStudentId = null;
-	// delivery.setSubmissionsRemaining(delivery.getSubmissionsRemaining() + 1);
 
 	String gradingIdParam = ContextUtil.lookupParam("gradingData");
-	Long gradingId = new Long(gradingIdParam);
 	String publishedAssessmentId = ContextUtil.lookupParam("publishedId");
 
-	GradingService gradingService = new GradingService();
-	AssessmentGradingData ag = (AssessmentGradingData) gradingService.load(gradingIdParam);  
+	deleteSubmission(totalScores, gradingIdParam, publishedAssessmentId, new GradingService(), eventTrackingService);
+  }
+
+  /**
+   * the single-submission soft delete, shared with the batch
+   * Delete Selected action: flips the grading row's status, prunes the
+   * page beans, renotifies the gradebook and posts the delete event.
+   */
+  static void deleteSubmission(TotalScoresBean totalScores, String gradingIdParam, String publishedAssessmentId,
+      GradingService gradingService, EventTrackingService eventTrackingService) {
+
+    String deletedStudentId = null;
+    Long gradingId = Long.valueOf(gradingIdParam);
+
+    AssessmentGradingData ag = (AssessmentGradingData) gradingService.load(gradingIdParam);
     gradingService.removeAssessmentGradingData(ag); // This will just flip the STATUS column, no hard deletes
 
     Collection agentList = totalScores.getAgents();
@@ -90,33 +100,29 @@ public class GrantSubmissionListener
     	}
     }
 
+    // drop the deleted row from the page's grading list without
+    // clearing it (the old code cleared the whole list, which corrupted the
+    // gradebook notification for every later student when this helper is
+    // looped for a bulk delete). notifyDeleteToGradebook re-queries the DB for
+    // the student's remaining submissions and only uses the record we pass to
+    // resolve the assessment id and, when the student has no submissions left,
+    // to null the gradebook — so pass exactly this student's just-deleted row
+    // with its score cleared. Behavior is identical for a single-row delete.
     List gradingList = totalScores.getAssessmentGradingList();
-    //Get the list of submission for this student
-    List deletedStudentGradingList = new ArrayList();
-    for(int i = 0; i < gradingList.size(); i++){
-    	if (((AssessmentGradingData)gradingList.get(i)).getAgentId().equals(deletedStudentId)) {
-    		deletedStudentGradingList.add(gradingList.get(i));
-    	}
+    if (gradingList != null) {
+        for (Iterator i = gradingList.iterator(); i.hasNext();) {
+            if (((AssessmentGradingData) i.next()).getAssessmentGradingId().equals(gradingId)) {
+                i.remove();
+            }
+        }
+        totalScores.setAssessmentGradingList(gradingList);
     }
-    //Need to do a check to see if this is the only submission for that student
-    if(deletedStudentGradingList.size() == 1){
-    	//if deleted the last one submission of this student, reset the grading data to have no grade and notify gradebook
-    	gradingList.clear();
-    	gradingList.add(deletedStudentGradingList.get(0));
-    	((AssessmentGradingData)gradingList.get(0)).setFinalScore(null);
-    }
-    else {
-	    for(int i = 0;i < gradingList.size();i++) {
-	    	if (((AssessmentGradingData)gradingList.get(i)).getAssessmentGradingId().equals(gradingId)) {
-	    		gradingList.remove(i);
-	    	}
-	    }
-    }
-
-    totalScores.setAssessmentGradingList(gradingList);
     totalScores.setAgents(agentList);
 
-    gradingService.notifyDeleteToGradebook(gradingList, totalScores.getPublishedAssessment(), deletedStudentId);
+    ag.setFinalScore(null);
+    List notifyList = new ArrayList();
+    notifyList.add(ag);
+    gradingService.notifyDeleteToGradebook(notifyList, totalScores.getPublishedAssessment(), deletedStudentId);
 
     // Now post an event so support teams know who deleted the submission
     eventTrackingService.post(

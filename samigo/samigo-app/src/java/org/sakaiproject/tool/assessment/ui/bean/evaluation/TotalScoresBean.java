@@ -22,8 +22,12 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -69,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -88,6 +94,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.time.api.UserTimeService;
 
 /* For evaluation: Total Scores backing bean. */
 @Slf4j
@@ -116,6 +123,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
   private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+  private static final UserTimeService userTimeService = (UserTimeService) ComponentManager.get(UserTimeService.class);
 
   private static final String SAK_PROP_DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
   private static final boolean SAK_PROP_DELETE_RESTRICTED_DEFAULT = false;
@@ -398,6 +406,109 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 		init();
 	}
 	
+  // batch actions bar inputs (transient)
+  private Boolean selectAll = Boolean.FALSE; // header checkbox; selection state lives per row
+  private String applyToSelectedScore;
+  private String bulkComment;
+  private String bulkCommentMode = "ONLY_EMPTY";
+  // which participants the unified "Apply" targets. Folds in the old
+  // "Apply This Score to No Submission" control (default keeps that behaviour).
+  // One of NO_SUBMISSION | WITH_SUBMISSIONS | SELECTED | ALL.
+  private String bulkApplyTarget = "NO_SUBMISSION";
+  // "Also email affected students" toggle that rides with Apply.
+  private Boolean bulkNotify = Boolean.FALSE;
+
+  public Boolean getSelectAll() { return selectAll; }
+  public void setSelectAll(Boolean selectAll) { this.selectAll = selectAll; }
+  public String getBulkApplyTarget() { return bulkApplyTarget; }
+  public void setBulkApplyTarget(String bulkApplyTarget) { this.bulkApplyTarget = bulkApplyTarget; }
+  public Boolean getBulkNotify() { return bulkNotify; }
+  public void setBulkNotify(Boolean bulkNotify) { this.bulkNotify = bulkNotify; }
+  // the out-of-range adjustment we last warned about; a matching
+  // re-submit is the instructor's "apply it anyway" confirmation.
+  private String bulkOverrideConfirmValue;
+  public String getBulkOverrideConfirmValue() { return bulkOverrideConfirmValue; }
+  public void setBulkOverrideConfirmValue(String bulkOverrideConfirmValue) { this.bulkOverrideConfirmValue = bulkOverrideConfirmValue; }
+
+  /** roster count of participants who have a real submission (for the Update hint) */
+  public int getSubmittedAgentCount() {
+    if (allAgents == null) return 0;
+    int count = 0;
+    for (Iterator i = allAgents.iterator(); i.hasNext();) {
+      AgentResults a = (AgentResults) i.next();
+      if (a.getAssessmentGradingId() != null
+          && !Long.valueOf(-1L).equals(a.getAssessmentGradingId())
+          && a.getSubmittedDate() != null) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /** roster count of participants with no submission (for the Update hint) */
+  public int getNoSubmissionAgentCount() {
+    if (allAgents == null) return 0;
+    return allAgents.size() - getSubmittedAgentCount();
+  }
+  public String getApplyToSelectedScore() { return applyToSelectedScore; }
+  public void setApplyToSelectedScore(String applyToSelectedScore) { this.applyToSelectedScore = applyToSelectedScore; }
+  public String getBulkComment() { return bulkComment; }
+  public void setBulkComment(String bulkComment) { this.bulkComment = bulkComment; }
+  public String getBulkCommentMode() { return bulkCommentMode; }
+  public void setBulkCommentMode(String bulkCommentMode) { this.bulkCommentMode = bulkCommentMode; }
+
+  // "email student: grading updated" — session-side cooldown and
+  // last-sent display; resets with the session (no schema change)
+  private static final Duration NOTIFY_COOLDOWN = Duration.ofMinutes(1);
+  private final Map<String, Instant> gradingNotifiedDates = new ConcurrentHashMap<>(); // session-scoped, read on render + written from the notify listener
+
+  /** true when the assessment's feedback settings let students see grading now */
+  public boolean getGradingNotifyAvailable() {
+    if (publishedAssessment == null || publishedAssessment.getAssessmentFeedback() == null) {
+      return false;
+    }
+    Integer delivery = publishedAssessment.getAssessmentFeedback().getFeedbackDelivery();
+    if (AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(delivery)
+        || AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION.equals(delivery)) {
+      return true;
+    }
+    if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(delivery)
+        && publishedAssessment.getAssessmentAccessControl() != null) {
+      Date feedbackDate = publishedAssessment.getAssessmentAccessControl().getFeedbackDate();
+      return feedbackDate != null && !feedbackDate.after(new Date());
+    }
+    return false;
+  }
+
+  public void markGradingNotified(String assessmentGradingId) {
+    gradingNotifiedDates.put(assessmentGradingId, Instant.now());
+  }
+
+  public boolean isNotifyCoolingDown(String assessmentGradingId) {
+    Instant sent = gradingNotifiedDates.get(assessmentGradingId);
+    return sent != null && Instant.now().isBefore(sent.plus(NOTIFY_COOLDOWN));
+  }
+
+  /** per-row cooldown state for the JSP, keyed by assessmentGradingId string */
+  public Map<String, Boolean> getNotifyCooldown() {
+    Map<String, Boolean> cooling = new HashMap<>();
+    gradingNotifiedDates.keySet().forEach(id -> cooling.put(id, isNotifyCoolingDown(id)));
+    return cooling;
+  }
+
+  /** per-row "Email last sent" text for the JSP, in the user's locale and zone */
+  public Map<String, String> getNotifyLastSent() {
+    Map<String, String> display = new HashMap<>();
+    if (gradingNotifiedDates.isEmpty()) {
+      return display;
+    }
+    // the Instant overload resolves the user's locale itself; the Date/Locale
+    // overload returns "" when handed a null locale
+    gradingNotifiedDates.forEach((id, sent) ->
+        display.put(id, userTimeService.dateTimeFormat(sent, FormatStyle.SHORT, FormatStyle.SHORT)));
+    return display;
+  }
+
   /**
    * get assessment name
    *

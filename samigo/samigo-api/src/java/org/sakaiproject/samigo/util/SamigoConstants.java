@@ -39,6 +39,8 @@ public final class SamigoConstants {
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME         = "template-assessmentAutoSubmitErrors.xml";
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER        = "sam.assessmentAvailableReminder";
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_FILE_NAME       = "template-assessmentAvailableReminder.xml";
+    public static final     String      EMAIL_TEMPLATE_GRADING_UPDATED                      = "sam.gradingUpdated";
+    public static final     String      EMAIL_TEMPLATE_GRADING_UPDATED_FILE_NAME            = "template-gradingUpdated.xml";
 
     /*
      * Events
@@ -58,6 +60,8 @@ public final class SamigoConstants {
 
     //Assessment scoring events
     public static final     String      EVENT_ASSESSMENT_TOTAL_SCORE_UPDATE                 = "sam.total.score.update";
+    /** instructor manually emailed a student that grading/comments changed */
+    public static final     String      EVENT_GRADING_UPDATED_NOTIFY                        = "sam.grading.updated.notify";
     public static final     String      EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE               = "sam.student.score.update";
     public static final     String      EVENT_ASSESSMENT_AUTO_GRADED                        = "sam.assessment.graded.auto";
     public static final     String      EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE              = "sam.question.score.update";
