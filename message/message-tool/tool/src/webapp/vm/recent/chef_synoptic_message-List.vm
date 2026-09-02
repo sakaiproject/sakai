@@ -13,6 +13,212 @@
 			</ul>
 			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert.message") $formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			#if ($motdCarouselEnabled)
+			#if (!$messages.isEmpty())
+				## This tool doesn't load Bootstrap by default, so it's pulled in explicitly
+				## here for the carousel's CSS/JS (data-bs-* behavior).
+				<link rel="stylesheet" href="/library/webjars/bootstrap/5.2.0/css/bootstrap.min.css$!{portalCdnQuery}" />
+				<script src="/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js$!{portalCdnQuery}"></script>
+				<style>
+					## The skin's .portletBody has a fixed margin-bottom: 3rem !important
+					## (library/src/skins/default/.../_base.scss) that collapses through <body>
+					## into <html>, inflating document.documentElement.scrollHeight by that same
+					## amount (measured live: 42px) regardless of actual content - wasted space
+					## under every slide. Scoped to this tool's body class (Mrphs-sakai-motd) so
+					## other tools sharing this same .vm (e.g. the synoptic "Recent" list) keep
+					## the skin's default margin.
+					body.Mrphs-sakai-motd .portletBody {
+						margin-bottom: 0 !important;
+					}
+					## Cap how tall a single message can push the iframe before it scrolls
+					## internally instead. Deliberately on the message body, not the iframe
+					## itself: the resize script measures content with getBoundingClientRect(),
+					## which already reports the clipped height once overflow is hidden behind
+					## a scrollbar here - so the cap only needs enforcing once, in CSS, and
+					## the existing resize logic naturally never grows the iframe past it.
+					#motdCarousel .carousel-item > .p-3 {
+						max-height: ${motdCarouselMaxHeight}px;
+						overflow-y: auto;
+					}
+				</style>
+				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval">
+					#if ($messages.size() > 1)
+						<div class="carousel-indicators">
+							#set ($motdIndex = 0)
+							#foreach ($item in $messages)
+								#set ($motdSlideNumber = $motdIndex + 1)
+								<button type="button" data-bs-target="#motdCarousel" data-bs-slide-to="$motdIndex" #if ($motdIndex == 0)class="active" aria-current="true"#end aria-label="$tlang.getFormattedMessage("motd.slide", $motdSlideNumber)"></button>
+								#set ($motdIndex = $motdIndex + 1)
+							#end
+						</div>
+					#end
+					<div class="carousel-inner">
+						#set ($motdIndex = 0)
+						#foreach ($item in $messages)
+							#set($counter = $counter + 1)
+							#set($props = $item.Properties)
+							<div class="carousel-item #if ($motdIndex == 0)active#end">
+								<div class="p-3">
+									#if ($showSubject)
+										#if ($props && !$props.isEmpty() && $props.getProperty("releaseDate"))
+											#set($releasedate = $props.getTimeProperty("releaseDate"))
+										#else
+											#set($releasedate= $item.Header.Date)
+										#end
+										<h3 class="textPanelHeader">$formattedText.escapeHtml($item.Header.Subject)</h3>
+										<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
+									#else
+										#set ($text=$item.Body)
+										<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
+									#end
+
+									#set ($size = 0)
+									#if (!$item.Header.Attachments.isEmpty())
+										#set ($size = $item.Header.Attachments.size())
+										<ul class="attachList indnt1">
+										#foreach ($attachment in $item.Header.Attachments)
+											#set ($aProps = $attachment.Properties)
+											#if (!$aProps)
+												#if ($size > 0) #set ($size = $size - 1) #end
+											#else
+												<li>
+													#if ($aProps.getBooleanProperty($aProps.NamePropIsCollection))
+														<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
+													#else
+														<img src = "#imageLink($contentTypeImageService.getContentTypeImage($aProps.getProperty($aProps.NamePropContentType)))" border="0" alt=""/>
+													#end
+													<a href="$attachment.Url" target="_blank">
+														$formattedText.escapeHtml($aProps.getPropertyFormatted("DAV:displayname"))</a>
+													#if (!$aProps.getBooleanProperty($aProps.NamePropIsCollection))
+														($aProps.getPropertyFormatted($aProps.NamePropContentLength))
+													#end
+												</li>
+											#end
+										#end
+										</ul>
+									#end
+								</div>
+							</div>
+							#set ($motdIndex = $motdIndex + 1)
+						#end
+					</div>
+					#if ($messages.size() > 1)
+						<button class="carousel-control-prev" type="button" data-bs-target="#motdCarousel" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.previous")</span>
+						</button>
+						<button class="carousel-control-next" type="button" data-bs-target="#motdCarousel" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.next")</span>
+						</button>
+					#end
+				</div>
+				<script>
+					## Each carousel slide can be a different height. The parent iframe is only
+					## auto-sized once, on body onload, so without this the frame is left at the
+					## first slide's height and later, taller slides get clipped with a scrollbar.
+					## This resizes the iframe itself rather than delegating to Sakai's
+					## setMainFrameHeight(): that helper computes body.offsetHeight + a fixed
+					## 40px cushion, and per-slide height needs recalculating on every carousel
+					## rotation anyway, which that helper never does on its own.
+					## window.name matches the iframe's id/name, letting us find it in the
+					## parent document without threading the placement id through the
+					## Velocity context.
+					(function () {
+						var motdCarousel = document.getElementById("motdCarousel");
+						if (!motdCarousel) {
+							return;
+						}
+						var motdResize = function () {
+							var frame;
+							try {
+								frame = parent.document.getElementById(window.name);
+							} catch (e) {
+								return;
+							}
+							if (!frame) {
+								return;
+							}
+							// document.documentElement.scrollHeight is NOT safe to use here: it's
+							// floored at the iframe's own current viewport height (clientHeight), so
+							// once the frame has been sized larger than the real content even once, it
+							// stops reporting the true content height and instead echoes back
+							// (viewport size - 1). Confirmed live: this turned into a runaway loop,
+							// each poll reading back its own last resize and adding the safety margin
+							// on top again, growing without bound. getBoundingClientRect().height is
+							// immune to that floor - it always reflects the actual rendered content,
+							// which is also why this only works now that the .portletBody margin
+							// override above is in place (a getBoundingClientRect() read does not
+							// pick up the skin's margin-bottom the way scrollHeight's margin-collapse
+							// did, so without the override this would have under-measured instead).
+							var contentHeight = document.documentElement.getBoundingClientRect().height;
+							// The iframe is box-sizing: border-box with vertical padding (from the
+							// skin's Mrphs-toolBody rule, measured live at 16px top + 16px bottom) -
+							// with border-box, frame.style.height sets the OUTER box including that
+							// padding, so setting it to exactly the content height leaves the actual
+							// inner viewport 32px short and a scrollbar appears. Read the real padding
+							// instead of hardcoding it in case the skin changes it.
+							var frameStyle = frame.ownerDocument.defaultView.getComputedStyle(frame);
+							var frameVerticalPadding = (parseFloat(frameStyle.paddingTop) || 0) + (parseFloat(frameStyle.paddingBottom) || 0);
+							var neededHeight = Math.ceil(contentHeight) + 10 + frameVerticalPadding;
+							var currentHeight = parseInt(frame.style.height, 10) || 0;
+							// Grow-only on purpose: shrinking on every rotation would make the whole
+							// page jump as everything below the widget slides up and down each time
+							// autoplay changes slide. Settling at the tallest slide's height once and
+							// staying there trades a little empty space under the shorter slides for
+							// a page that holds still. Safe now that contentHeight no longer feeds
+							// back into itself (see above) - before that fix this ratchet is what let
+							// one bad initial reading stick around uncorrected.
+							if (neededHeight > currentHeight) {
+								frame.style.height = neededHeight + "px";
+							}
+						};
+						motdResize();
+						// Sakai's own body-onload call to setMainFrameHeight() debounces itself
+						// by ~1s and can shrink the frame back down with its short formula after
+						// our initial resize, and things like web fonts finishing their swap can
+						// grow the real content further still. Left alone, an undersized frame
+						// from any of that would stick until the carousel's first rotation -
+						// which can be several seconds away - so the whole startup window is
+						// polled at short intervals instead of guessing one moment to recheck.
+						// Once the carousel's own slide events are flowing, they're enough on
+						// their own and the polling stops.
+						var motdStartupChecks = 0;
+						var motdStartupPoll = setInterval(function () {
+							motdResize();
+							motdStartupChecks++;
+							if (motdStartupChecks >= 8) {
+								clearInterval(motdStartupPoll);
+							}
+						}, 500);
+						// "slide" fires as the transition starts, but reading scrollHeight
+						// synchronously in that handler still reports the outgoing slide's height -
+						// the incoming item isn't laid out yet at that exact point. Measured in the
+						// live console: two short polls a little later, well before "slid" fires at
+						// the ~600ms-1s transition end, are enough to catch the grown height early
+						// and resize before the scrollbar has a chance to show. Resizing only on
+						// "slid" leaves the frame at the outgoing slide's height for the whole
+						// animation, showing a scrollbar whenever the incoming slide is taller.
+						motdCarousel.addEventListener("slide.bs.carousel", function () {
+							setTimeout(motdResize, 100);
+							setTimeout(motdResize, 300);
+						});
+						motdCarousel.addEventListener("slid.bs.carousel", function () {
+							motdResize();
+							// a second pass shortly after catches layout that's still settling
+							// (web fonts, transition remnants) when the first measurement runs
+							// too early
+							setTimeout(motdResize, 1300);
+						});
+					})();
+				</script>
+			#end
+		#else
+			## motd.carousel.enabled is off (the default) - same single-message markup
+			## sakai.motd has always used, so upgrading installs see no change until an
+			## admin opts in. items is capped to 1 in this case (SynopticMessageAction),
+			## so $messages never has more than one entry here regardless of the tool's
+			## configured items value.
 			<ul class="synopticList">
 			#foreach ($item in $messages)
 				<li>
@@ -27,8 +233,8 @@
 						<h3 class="textPanelHeader">$formattedText.escapeHtml($item.Header.Subject)</h3>
 						<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
-                        #set ($text=$item.Body)
-                        <div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
+						#set ($text=$item.Body)
+						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
 					#end
 
 					#set ($size = 0)
@@ -60,8 +266,9 @@
 				#if ($counter < $messages.size())
 					<hr/>
 				#end
-			#end	
+			#end
 			</ul>
+		#end
 		#end
 		#if ($toolId=="sakai.synoptic.discussion")
 			#if($menu)
