@@ -204,18 +204,13 @@ DTMN.initUnsavedGuard = function() {
   });
 };
 
-// Cancel abandons the staged edits and returns to the Site Info main page. Staged edits live
-// only in the page, so leaving the helper discards them; dropping the helper segment from the
-// URL hands control back to the host tool (Site Info).
+// Cancel discards the staged edits (they live only in the page) and returns to Site Info by
+// dropping the helper path segment below the tool placement.
 DTMN.initCancelRevert = function() {
   const cancelButton = document.getElementById("datemanager-cancel");
   cancelButton && cancelButton.addEventListener("click", function(e) {
     e.preventDefault();
-    // Clicking Cancel is already an explicit discard, so don't let the unsaved-changes guard
-    // second-guess the navigation away.
     DTMN.suppressUnsavedGuard = true;
-    // The helper is mounted one path segment below the tool placement; dropping that segment
-    // returns to the host tool (Site Info).
     const path = window.location.pathname.replace(/\/$/, "");
     window.location = path.substring(0, path.lastIndexOf("/"));
   }, false);
