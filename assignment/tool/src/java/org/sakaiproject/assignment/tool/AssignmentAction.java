@@ -7558,10 +7558,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // keep the history of assignment feed back text
                         String prevSubmittedDate = previousSubmissionDate == null
                                 ? prevGradedDate
-                                : DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
-                                        .withLocale(localeService.getLocaleForCurrentSiteAndUser())
-                                        .withZone(userTimeService.getLocalTimeZone().toZoneId())
-                                        .format(previousSubmissionDate);
+                                : userTimeService.dateTimeFormat(previousSubmissionDate, FormatStyle.LONG, FormatStyle.LONG);
                         String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
                         feedbackTextHistory = "<h4>" + prevSubmittedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
                         properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
