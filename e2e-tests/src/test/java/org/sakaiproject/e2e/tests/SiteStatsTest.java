@@ -170,6 +170,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/"));
         assertReportSummaryRendered();
         assertReportTableRenderedWithData();
+        assertThat(page.locator("main > div.d-flex.noprint a.btn-link")).hasCount(4);
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-chart canvas").first()).isVisible();
         page.waitForFunction(siteStatsCanvasHasPixelsScript());
         assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
