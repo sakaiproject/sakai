@@ -2227,6 +2227,20 @@ public class AssignmentAction extends PagedResourceActionII {
         return submissionAttachmentReferences;
     }
 
+    private String getSubmissionAttachmentHistory(AssignmentSubmission submission) {
+        String attachmentLinks = submission.getAttachments().stream()
+                .map(entityManager::newReference)
+                .filter(this::isVisibleAttachment)
+                .map(reference -> {
+                    String displayName = reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+                    return "<li><a href=\"" + formattedText.escapeHtml(reference.getUrl(), false) + "\">"
+                            + formattedText.escapeHtml(displayName) + "</a></li>";
+                })
+                .collect(Collectors.joining());
+
+        return StringUtils.isBlank(attachmentLinks) ? "" : "<ul>" + attachmentLinks + "</ul>";
+    }
+
     private boolean isVisibleAttachment(Reference r) {
         return r.getProperties() != null && !"true".equals(r.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
     }
@@ -7482,6 +7496,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         setResubmissionProperties(a, submission);
                     }
 
+                    boolean previouslySubmitted = submission.getSubmitted();
+
                     // update submission info after resubmission which prevents updating resubmission count for the first submission
                     submission.setUserSubmission(true);
                     submission.setSubmittedText(text);
@@ -7551,10 +7567,12 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     // following involves content, not grading, so always do on resubmit, not just if graded
-                    if (StringUtils.isNotBlank(submission.getFeedbackText())) {
-                        // keep the history of assignment feed back text
+                    // only archive attachments when an existing submission first becomes a resubmission
+                    String submissionAttachmentHistory = previouslySubmitted ? getSubmissionAttachmentHistory(submission) : "";
+                    // keep the previous submitted text and attachments together for submission history
+                    if (StringUtils.isNotBlank(submission.getFeedbackText()) || StringUtils.isNotBlank(submissionAttachmentHistory)) {
                         String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
-                        feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
+                        feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + StringUtils.trimToEmpty(submission.getFeedbackText()) + submissionAttachmentHistory + "</div>" + feedbackTextHistory;
                         properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
                     }
 
