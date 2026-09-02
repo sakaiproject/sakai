@@ -47,6 +47,8 @@ describe("sakai-sitestats-chart tests", () => {
     const plugins = el._chartInstance.config.plugins || [];
 
     expect(el.shadowRoot.querySelector(".chart-frame.depth")).to.exist;
+    const figure = el.shadowRoot.querySelector("figure");
+    expect(figure.firstElementChild).to.equal(figure.querySelector("figcaption"));
     expect(dataset.backgroundColor).to.contain("0.26");
     expect(dataset.borderWidth).to.equal(3);
     expect(el._chartInstance.config.options.layout.padding.top).to.equal(18);
