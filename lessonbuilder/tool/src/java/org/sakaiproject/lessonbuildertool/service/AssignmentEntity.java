@@ -396,7 +396,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	// a soft-deleted assignment is still returned by the service, but for Lessons
 	// it no longer exists: this makes it show as "deleted" rather than "not published"
-	return assignment != null && !assignment.getDeleted();
+	return assignment != null && !Boolean.TRUE.equals(assignment.getDeleted());
     }
 	
     public boolean notPublished(String ref) {

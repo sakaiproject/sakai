@@ -74,6 +74,13 @@ public class AssignmentEntityTest {
     }
 
     @Test
+    public void objectExists_isTrue_whenDeletedFlagNull() {
+        when(assignment.getDeleted()).thenReturn(null);   // DELETED column is nullable
+
+        assertTrue(entity.objectExists());
+    }
+
+    @Test
     public void notPublished_stillTrue_whenSoftDeleted() {
         when(assignment.getDeleted()).thenReturn(Boolean.TRUE);
 
