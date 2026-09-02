@@ -214,10 +214,10 @@ DTMN.initCancelRevert = function() {
     // Clicking Cancel is already an explicit discard, so don't let the unsaved-changes guard
     // second-guess the navigation away.
     DTMN.suppressUnsavedGuard = true;
-    const marker = "/sakai.datemanager.helper";
-    const href = window.location.href.replace(/#.*$/, "");
-    const idx = href.indexOf(marker);
-    window.location = idx === -1 ? href : href.substring(0, idx);
+    // The helper is mounted one path segment below the tool placement; dropping that segment
+    // returns to the host tool (Site Info).
+    const path = window.location.pathname.replace(/\/$/, "");
+    window.location = path.substring(0, path.lastIndexOf("/"));
   }, false);
 
   let reverted = false;
