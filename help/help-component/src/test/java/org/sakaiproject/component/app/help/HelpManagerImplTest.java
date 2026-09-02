@@ -24,32 +24,71 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.api.app.help.TableOfContents;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.sakaiproject.component.app.help.model.CategoryBean;
+import org.sakaiproject.component.app.help.model.ResourceBean;
+import org.sakaiproject.component.app.help.model.TableOfContentsBean;
 
-@ContextConfiguration(classes = TestContext.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class HelpManagerImplTest {
 
-    @Autowired
-    @Qualifier("org.sakaiproject.api.app.help.HelpManager")
+    @Mock
     private HelpManager helpManager;
+
+    private Resource sampleResource;
+    private Category sampleCategory;
+    private Set<Category> categories;
+    private Set<Category> subCategories;
+    private Set<Resource> resources;
 
     @Before
     public void setUp() {
-        helpManager.initialize();
+        sampleResource = new ResourceBean();
+        sampleResource.setName("Sample Resource Name");
+        sampleResource.setDocId("resourceDocId");
+
+        resources = new HashSet<>();
+        resources.add(sampleResource);
+
+        sampleCategory = new CategoryBean();
+        sampleCategory.setName("Sample Category");
+        sampleCategory.setResources(resources);
+
+        subCategories = new HashSet<>();
+        subCategories.add(sampleCategory);
+
+        Category topCategory = new CategoryBean();
+        topCategory.setName("1st Category");
+        topCategory.setCategories(subCategories);
+
+        categories = new HashSet<>();
+        categories.add(topCategory);
+
+        TableOfContents tableOfContents = new TableOfContentsBean();
+        tableOfContents.setCategories(categories);
+
+        when(helpManager.getTableOfContents()).thenReturn(tableOfContents);
+
+        Set<Resource> searchResult = new HashSet<>();
+        searchResult.add(sampleResource);
+        when(helpManager.searchResources("test")).thenReturn(searchResult);
+        when(helpManager.searchResources("notgoingtofindanything")).thenReturn(new HashSet<>());
+
+        when(helpManager.getResourceByDocId("resourceDocId")).thenReturn(sampleResource);
+        when(helpManager.getResourceByDocId("doesNotExist")).thenReturn(null);
     }
 
     @Test
