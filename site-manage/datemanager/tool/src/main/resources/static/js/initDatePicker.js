@@ -204,18 +204,15 @@ DTMN.initUnsavedGuard = function() {
   });
 };
 
-// Cancel discards staged edits by reloading the tool from saved state — the page stays in
-// Date Manager rather than bouncing back to Site Info. A sessionStorage flag survives the
-// reload so the fresh page can briefly confirm that the changes were discarded.
+// Cancel discards the staged edits (they live only in the page) and returns to Site Info by
+// dropping the helper path segment below the tool placement.
 DTMN.initCancelRevert = function() {
   const cancelButton = document.getElementById("datemanager-cancel");
   cancelButton && cancelButton.addEventListener("click", function(e) {
     e.preventDefault();
     DTMN.suppressUnsavedGuard = true;
-    if (DTMN.hasUnsavedChanges()) {
-      try { window.sessionStorage.setItem("dm-cancel-reverted", "1"); } catch (err) { /* storage unavailable */ }
-    }
-    window.location.reload();
+    const path = window.location.pathname.replace(/\/$/, "");
+    window.location = path.substring(0, path.lastIndexOf("/"));
   }, false);
 
   let reverted = false;
