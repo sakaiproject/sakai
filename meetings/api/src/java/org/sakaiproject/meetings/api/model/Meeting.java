@@ -87,7 +87,14 @@ public class Meeting {
     
     @OneToMany(mappedBy="meeting", cascade = CascadeType.ALL)
     private List<MeetingAttendee> attendees;
-    
+
+    public void setDescription(String description) {
+        if (description != null && description.length() > 4000) {
+            throw new IllegalArgumentException("Description cannot exceed 4000 characters");
+        }
+        this.description = description;
+    }
+
     /**
      * Extract meeting ID from URL
      * @return meetingId
