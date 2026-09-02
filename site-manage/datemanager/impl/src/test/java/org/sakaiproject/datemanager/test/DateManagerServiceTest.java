@@ -185,7 +185,11 @@ public class DateManagerServiceTest {
         String siteId = toolSession.getAttribute(DateManagerService.STATE_SITE_ID).toString();
 
         when(gradingService.currentUserHasEditPerm(siteId)).thenReturn(true);
-        when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
+        // Use a different user timezone to verify Gradebook's date-only server timezone.
+        ZoneId serverZone = ZoneId.systemDefault();
+        ZoneId userZone = LocalDate.parse("2025-05-16").atStartOfDay(serverZone).getOffset().equals(ZoneOffset.UTC)
+                ? ZoneId.of("America/New_York") : ZoneOffset.UTC;
+        when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone(userZone));
 
         Assignment assignment = Mockito.mock(Assignment.class);
         when(gradingService.getAssignment(siteId, siteId, 78L)).thenReturn(assignment);
@@ -195,7 +199,7 @@ public class DateManagerServiceTest {
             Assert.assertEquals(0, validation.getErrors().size());
             Assert.assertEquals(1, validation.getUpdates().size());
             DateManagerUpdate update = validation.getUpdates().get(0);
-            Assert.assertEquals(LocalDateTime.parse("2025-05-16T00:00:00").atZone(ZoneId.systemDefault()).toInstant(), update.getDueDate());
+            Assert.assertEquals(LocalDateTime.parse("2025-05-16T00:00:00").atZone(serverZone).toInstant(), update.getDueDate());
         } catch (Exception e) {
             Assert.fail(e.toString());
         }
@@ -210,7 +214,7 @@ public class DateManagerServiceTest {
             Assert.assertEquals(0, validation.getErrors().size());
             Assert.assertEquals(1, validation.getUpdates().size());
             DateManagerUpdate update = validation.getUpdates().get(0);
-            Assert.assertEquals(LocalDate.parse("2025-05-16").atStartOfDay(ZoneOffset.systemDefault()).toInstant(), update.getDueDate());
+            Assert.assertEquals(LocalDate.parse("2025-05-16").atStartOfDay(serverZone).toInstant(), update.getDueDate());
         } catch (Exception e) {
             Assert.fail(e.toString());
         }

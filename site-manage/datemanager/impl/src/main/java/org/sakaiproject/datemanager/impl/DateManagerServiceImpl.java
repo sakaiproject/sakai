@@ -822,7 +822,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 						} else {
 							date = LocalDate.parse(dueDateRaw, inputDateFormatter);
 						}
-						ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+						// Gradebook treats due dates as date-only values in the server timezone.
+						ZoneId zone = ZoneId.systemDefault();
 						dueDate = date.atStartOfDay(zone).toInstant();
 					} catch (DateTimeParseException e) {
 						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
