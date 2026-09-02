@@ -30,6 +30,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.apache.commons.collections4.comparators.NullComparator;
 import org.apache.commons.lang3.StringUtils;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -102,6 +104,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.SakaiCollators;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -116,7 +119,20 @@ import jakarta.persistence.criteria.Root;
 
 @Slf4j
 @Transactional
-public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
+public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQueriesAPI {
+
+	private SessionFactory sessionFactory;
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	protected Session getCurrentSession() {
+		if (sessionFactory == null) {
+			throw new DataAccessResourceFailureException("SessionFactory is null");
+		}
+		return sessionFactory.getCurrentSession();
+	}
 
     /**
      * Default empty Constructor
@@ -160,20 +176,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     ? " and a.forGrade = true"
                     : " and (a.forGrade = true or (a.forGrade = false and a.status = :noSubmission))";
 
-            final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                Query q = session.createQuery(
-                        "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
-                        " and a.status > :removed" +
-                        forGradeClause +
-                        " order by a.agentId asc, a.finalScore desc, a.submittedDate desc");
-                q.setParameter("id", publishedId);
-                q.setParameter("removed", AssessmentGradingData.REMOVED);
-                if (!getSubmittedOnly) {
-                    q.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
-                }
-                return q.list();
-            };
-            List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
+            Session session = getCurrentSession();
+
+            Query<AssessmentGradingData> query = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
+                    " and a.status > :removed" +
+                    forGradeClause +
+                    " order by a.agentId asc, a.finalScore desc, a.submittedDate desc",
+                    AssessmentGradingData.class);
+            query.setParameter("id", publishedId);
+            query.setParameter("removed", AssessmentGradingData.REMOVED);
+            if (!getSubmittedOnly) {
+                query.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
+            }
+            List<AssessmentGradingData> list = query.list();
+
             Map<Long, List<AssessmentGradingAttachment>> attachmentMap = getAssessmentGradingAttachmentMap(publishedId);
             for (AssessmentGradingData data : list) {
                 if (attachmentMap.get(data.getAssessmentGradingId()) != null) {
@@ -185,20 +202,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
             // last submission
             if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
-                final HibernateCallback<List<AssessmentGradingData>> hcb2 = session -> {
-                    Query q = session.createQuery(
-                            "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
-                            " and a.status > :removed" +
-                            forGradeClause +
-                            " order by a.agentId asc, a.submittedDate desc");
-                    q.setParameter("id", publishedId);
-                    q.setParameter("removed", AssessmentGradingData.REMOVED);
-                    if (!getSubmittedOnly) {
-                        q.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
-                    }
-                    return q.list();
-                };
-                list = getHibernateTemplate().execute(hcb2);
+                Query<AssessmentGradingData> q2 = session.createQuery(
+                        "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
+                        " and a.status > :removed" +
+                        forGradeClause +
+                        " order by a.agentId asc, a.submittedDate desc",
+                        AssessmentGradingData.class);
+                q2.setParameter("id", publishedId);
+                q2.setParameter("removed", AssessmentGradingData.REMOVED);
+                if (!getSubmittedOnly) {
+                    q2.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
+                }
+                list = q2.list();
             }
 
             if (which.equals(EvaluationModelIfc.ALL_SCORE.toString()) || which.equals(EvaluationModelIfc.AVERAGE_SCORE.toString())) {
@@ -218,38 +233,46 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         .values());
             }
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.toString(), e);
             return Collections.emptyList();
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<AssessmentGradingData> getAllSubmissions(final String publishedId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status",
+                    AssessmentGradingData.class);
             q.setParameter("id", Long.parseLong(publishedId));
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting all submissions for publishedId {}: {}", publishedId, e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public List<AssessmentGradingData> getAllAssessmentGradingData(final Long publishedId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status <> :status and a.status <> :removed order by a.agentId asc, a.submittedDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status <> :status and a.status <> :removed order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedId);
             q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
             q.setParameter("removed", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> list = q.list();
 
-        list.forEach(agd -> agd.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId())));
+            list.forEach(agd -> agd.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId())));
 
-        return list;
+            return list;
+        } catch (Exception e) {
+            log.warn("Error getting all assessment grading data for assessment {}: {}", publishedId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public Map<Long, List<ItemGradingData>> getItemScores(Long publishedId, final Long itemId, String which) {
@@ -264,48 +287,46 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public Map<Long, List<ItemGradingData>> getItemScores(final Long itemId, List<AssessmentGradingData> scores, boolean loadItemGradingAttachment) {
         try {
+            if (scores == null || scores.isEmpty()) {
+                return new HashMap<>();
+            }
+
             HashMap<Long, List<ItemGradingData>> map = new HashMap<>();
 
-            HibernateCallback<List<ItemGradingData>> hcb = session -> {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
-                Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+            Session session = getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
 
-                /** make list from AssessmentGradingData ids */
-                List<Long> gradingIdList = scores.stream()
-                        .map(AssessmentGradingData::getAssessmentGradingId)
-                        .collect(Collectors.toList());
+            /** make list from AssessmentGradingData ids */
+            List<Long> gradingIdList = scores.stream()
+                    .map(AssessmentGradingData::getAssessmentGradingId)
+                    .collect(Collectors.toList());
 
-                /** create or disjunctive expression for (in clauses) */
-                List<Predicate> inPredicates = new ArrayList<>();
-                for (int i = 0; i < gradingIdList.size(); i += 50) {
-                    List<Long> tempList = gradingIdList.subList(i, Math.min(i + 50, gradingIdList.size()));
-                    inPredicates.add(root.get("assessmentGradingId").in(tempList));
-                }
-                Predicate disjunction = cb.or(inPredicates.toArray(new Predicate[0]));
+            /** create or disjunctive expression for (in clauses) */
+            List<Predicate> inPredicates = new ArrayList<>();
+            for (int i = 0; i < gradingIdList.size(); i += 50) {
+                List<Long> tempList = gradingIdList.subList(i, Math.min(i + 50, gradingIdList.size()));
+                inPredicates.add(root.get("assessmentGradingId").in(tempList));
+            }
+            Predicate disjunction = cb.or(inPredicates.toArray(new Predicate[0]));
 
-                if (itemId.equals(Long.valueOf(0))) {
-                    cq.where(disjunction);
-                    //criteria.add(Expression.isNotNull("submittedDate"));
-                } else {
+            if (itemId.equals(Long.valueOf(0))) {
+                cq.where(disjunction);
+                //criteria.add(Expression.isNotNull("submittedDate"));
+            } else {
+                /** create logical and between the pubCriterion and the disjunction criterion */
+                //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
+                Predicate pubCriterion = cb.equal(root.get("publishedItemId"), itemId);
+                cq.where(cb.and(pubCriterion, disjunction));
+                //criteria.add(Expression.isNotNull("submittedDate"));
+            }
+            cq.orderBy(
+                cb.asc(root.get("agentId")),
+                cb.desc(root.get("submittedDate"))
+            );
 
-                    /** create logical and between the pubCriterion and the disjunction criterion */
-                    //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
-                    Predicate pubCriterion = cb.equal(root.get("publishedItemId"), itemId);
-                    cq.where(cb.and(pubCriterion, disjunction));
-                    //criteria.add(Expression.isNotNull("submittedDate"));
-                }
-                HibernateCriteriaBuilder hcb2 = (HibernateCriteriaBuilder) cb;
-                cq.orderBy(
-                    hcb2.asc(root.get("agentId"), false),
-                    hcb2.desc(root.get("submittedDate"), false)
-                );
-
-                return session.createQuery(cq).getResultList();
-                //large list cause out of memory error (java heap space)
-                //return criteria.setMaxResults(10000).list();
-            };
-            List<ItemGradingData> temp = getHibernateTemplate().execute(hcb);
+            List<ItemGradingData> temp = session.createQuery(cq).getResultList();
 
             Map<Long, Set<ItemGradingAttachment>> attachmentMap = new HashMap<>();
             if (loadItemGradingAttachment) {
@@ -335,7 +356,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             });
             return map;
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.toString(), e);
             return new HashMap<>();
         }
     }
@@ -350,20 +371,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
      */
     public Map<Long, List<ItemGradingData>> getLastItemGradingData(final Long publishedId, final String agentId) {
         try {
-            final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                // I am debating should I use (a.forGrade=false and a.status=NO_SUBMISSION) or attemptDate is not null
-                Query q = session.createQuery(
-                        "from AssessmentGradingData a where a.publishedAssessmentId = :id " +
-                                "and a.agentId = :agent and a.forGrade = :forgrade and a.status <> :status and a.status <> :removed " +
-                                "order by a.submittedDate DESC");
-                q.setParameter("id", publishedId);
-                q.setParameter("agent", agentId);
-                q.setParameter("forgrade", false);
-                q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-                q.setParameter("removed", AssessmentGradingData.REMOVED);
-                return q.list();
-            };
-            List<AssessmentGradingData> scores = getHibernateTemplate().execute(hcb);
+            Session session = getCurrentSession();
+            // I am debating should I use (a.forGrade=false and a.status=NO_SUBMISSION) or attemptDate is not null
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id " +
+                            "and a.agentId = :agent and a.forGrade = :forgrade and a.status <> :status and a.status <> :removed " +
+                            "order by a.submittedDate DESC",
+                    AssessmentGradingData.class);
+            q.setParameter("id", publishedId);
+            q.setParameter("agent", agentId);
+            q.setParameter("forgrade", false);
+            q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
+            q.setParameter("removed", AssessmentGradingData.REMOVED);
+            List<AssessmentGradingData> scores = q.list();
 
             if (scores.isEmpty()) {
                 return new HashMap<>();
@@ -385,7 +405,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
             return map;
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.toString(), e);
             return new HashMap<>();
         }
     }
@@ -413,41 +433,52 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public Map<Long, List<ItemGradingData>> getSubmitData(final Long publishedId, final String agentId, final Integer scoringoption, final Long assessmentGradingId) {
         try {
-            final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                log.debug("scoringoption = " + scoringoption);
-                if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)) {
-                    // last submission
-                    Query q;
-                    if (assessmentGradingId == null) {
-                        q = session.createQuery(
-                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate DESC");
-                        q.setParameter("id", publishedId);
-                        q.setParameter("agent", agentId);
-                        q.setParameter("forgrade", true);
-                        q.setParameter("status", AssessmentGradingData.REMOVED);
-                    } else {
-                        q = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId = :id");
-                        q.setParameter("id", assessmentGradingId);
-                    }
-                    return q.list();
+            if (publishedId == null || agentId == null || scoringoption == null) {
+                log.warn("getSubmitData called with null parameters");
+                return new HashMap<>();
+            }
+
+            Session session = getCurrentSession();
+            log.debug("scoringoption = " + scoringoption);
+
+            List<AssessmentGradingData> scores;
+            if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)) {
+                // last submission
+                if (assessmentGradingId == null) {
+                    Query<AssessmentGradingData> q = session.createQuery(
+                            "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate DESC",
+                            AssessmentGradingData.class);
+                    q.setParameter("id", publishedId);
+                    q.setParameter("agent", agentId);
+                    q.setParameter("forgrade", true);
+                    q.setParameter("status", AssessmentGradingData.REMOVED);
+                    scores = q.list();
                 } else {
-                    //highest submission
-                    Query q1 = null;
-                    if (assessmentGradingId == null) {
-                        q1 = session.createQuery(
-                                "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.finalScore DESC, a.submittedDate DESC");
-                        q1.setParameter("id", publishedId);
-                        q1.setParameter("agent", agentId);
-                        q1.setParameter("forgrade", true);
-                        q1.setParameter("status", AssessmentGradingData.REMOVED);
-                    } else {
-                        q1 = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId = :id");
-                        q1.setParameter("id", assessmentGradingId);
-                    }
-                    return q1.list();
+                    Query<AssessmentGradingData> q = session.createQuery(
+                            "from AssessmentGradingData a where a.assessmentGradingId = :id",
+                            AssessmentGradingData.class);
+                    q.setParameter("id", assessmentGradingId);
+                    scores = q.list();
                 }
-            };
-            List<AssessmentGradingData> scores = getHibernateTemplate().execute(hcb);
+            } else {
+                // highest submission
+                if (assessmentGradingId == null) {
+                    Query<AssessmentGradingData> q = session.createQuery(
+                            "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.finalScore DESC, a.submittedDate DESC",
+                            AssessmentGradingData.class);
+                    q.setParameter("id", publishedId);
+                    q.setParameter("agent", agentId);
+                    q.setParameter("forgrade", true);
+                    q.setParameter("status", AssessmentGradingData.REMOVED);
+                    scores = q.list();
+                } else {
+                    Query<AssessmentGradingData> q = session.createQuery(
+                            "from AssessmentGradingData a where a.assessmentGradingId = :id",
+                            AssessmentGradingData.class);
+                    q.setParameter("id", assessmentGradingId);
+                    scores = q.list();
+                }
+            }
 
             HashMap<Long, List<ItemGradingData>> map = new HashMap<>();
             if (scores.isEmpty()) {
@@ -473,7 +504,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
             return map;
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.toString(), e);
             return new HashMap<>();
         }
     }
@@ -482,10 +513,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().save(a);
+                Session session = getCurrentSession();
+                session.persist(a);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem adding assessmentGrading: " + e.getMessage());
+                log.warn("problem adding assessmentGrading: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -493,7 +525,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId) {
-        Number size = (Number) getHibernateTemplate().execute(session -> {
+        try {
+            Session session = getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<Long> cq = cb.createQuery(Long.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
@@ -504,9 +537,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 cb.equal(root.get("forGrade"), true)
             );
 
-            return session.createQuery(cq).uniqueResult();
-        });
-        return size.intValue();
+            Long size = session.createQuery(cq).uniqueResult();
+            return size != null ? size.intValue() : 0;
+        } catch (Exception e) {
+            log.warn("Error getting submission size for published assessment {}: {}", publishedAssessmentId, e.toString());
+            return 0;
+        }
     }
 
     public Long saveMedia(byte[] media, String mimeType) {
@@ -704,10 +740,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         while (retryCount > 0) {
             try {
                 saveMediaToContent(mediaData);
-                getHibernateTemplate().saveOrUpdate(mediaData);
+                Session session = getCurrentSession();
+                session.merge(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem saving media: " + e.getMessage());
+                log.warn("problem saving media: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -726,12 +763,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         while (retryCount > 0) {
             try {
                 MediaData mediaData = this.getMedia(mediaId);
+                if (mediaData == null) {
+                    log.warn("MediaData with id {} not found", mediaId);
+                    retryCount = 0;
+                    return;
+                }
                 mediaLocation = mediaData.getLocation();
                 mediaFilename = mediaData.getFilename();
-                getHibernateTemplate().delete(mediaData);
+                Session session = getCurrentSession();
+                session.remove(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("Problem deleting media with Id {}",  mediaId);
+                log.warn("Problem deleting media with Id {}", mediaId);
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -745,98 +788,136 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         if (itemGradingId != null) {
             ItemGradingData itemGradingData = getItemGrading(itemGradingId);
-            itemGradingData.setAutoScore(Double.valueOf(0));
-            saveItemGrading(itemGradingData);
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_DELETE, "itemGradingId=" + itemGradingData.getItemGradingId() + ", " + mediaFilename, null, true, NotificationService.NOTI_REQUIRED));
+            if (itemGradingData != null) {
+                itemGradingData.setAutoScore(Double.valueOf(0));
+                saveItemGrading(itemGradingData);
+                EventTrackingService.post(EventTrackingService.newEvent(
+                        SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_DELETE, 
+                        "itemGradingId=" + itemGradingData.getItemGradingId() + ", " + mediaFilename, 
+                        null, true, NotificationService.NOTI_REQUIRED));
+            }
         }
     }
 
     public MediaData getMedia(Long mediaId) {
 
-        MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
+        try {
+            Session session = getCurrentSession();
+            MediaData mediaData = session.get(MediaData.class, mediaId);
 
-        // Only try to read from Content Hosting if this isn't a link and
-        // there is no media content in the database
-        if (mediaData.getLocation() == null) {
-            mediaData.setContentResource(getMediaContentResource(mediaData));
+            if (mediaData == null) {
+                log.warn("MediaData with id {} not found", mediaId);
+                return null;
+            }
+
+            // Only try to read from Content Hosting if this isn't a link and
+            // there is no media content in the database
+            if (mediaData.getLocation() == null) {
+                mediaData.setContentResource(getMediaContentResource(mediaData));
+            }
+            return mediaData;
+        } catch (Exception e) {
+            log.warn("Error getting media with id {}: {}", mediaId, e.toString());
+            return null;
         }
-        return mediaData;
     }
 
     public List<MediaData> getMediaArray(final Long itemGradingId) {
         log.debug("*** itemGradingId =" + itemGradingId);
         List<MediaData> a = new ArrayList<>();
 
-        final HibernateCallback<List<MediaData>> hcb = session -> {
-            Query q = session.createQuery("from MediaData m where m.itemGradingData.itemGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<MediaData> q = session.createQuery(
+                    "from MediaData m where m.itemGradingData.itemGradingId = :id",
+                    MediaData.class);
             q.setParameter("id", itemGradingId);
-            return q.list();
-        };
-        List<MediaData> list = getHibernateTemplate().execute(hcb);
+            List<MediaData> list = q.list();
 
-        for (MediaData mediaData : list) {
-            mediaData.setContentResource(getMediaContentResource(mediaData));
-            a.add(mediaData);
+            for (MediaData mediaData : list) {
+                mediaData.setContentResource(getMediaContentResource(mediaData));
+                a.add(mediaData);
+            }
+            log.debug("*** no. of media = {}", a.size());
+            return a;
+        } catch (Exception e) {
+            log.warn("Error getting media array for item {}: {}", itemGradingId, e.toString());
+            return new ArrayList<>();
         }
-        log.debug("*** no. of media = {}", a.size());
-        return a;
     }
 
     public List<MediaData> getMediaArray2(final Long itemGradingId) {
         log.debug("*** itemGradingId =" + itemGradingId);
         List<MediaData> a = new ArrayList<>();
-        final HibernateCallback<List<MediaData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<MediaData> q = session.createQuery(
                     "select new MediaData(m.mediaId, m.filename, m.fileSize, m.duration, m.createdDate) " +
-                            " from MediaData m where m.itemGradingData.itemGradingId = :id");
+                            " from MediaData m where m.itemGradingData.itemGradingId = :id",
+                    MediaData.class);
             q.setParameter("id", itemGradingId);
-            return q.list();
-        };
-        List<MediaData> list = getHibernateTemplate().execute(hcb);
+            List<MediaData> list = q.list();
 
-        for (MediaData mediaData : list) {
-            mediaData.setContentResource(getMediaContentResource(mediaData));
-            a.add(mediaData);
+            for (MediaData mediaData : list) {
+                mediaData.setContentResource(getMediaContentResource(mediaData));
+                a.add(mediaData);
+            }
+            log.debug("*** no. of media = {}", a.size());
+            return a;
+        } catch (Exception e) {
+            log.warn("Error getting media array2 for item {}: {}", itemGradingId, e.toString());
+            return new ArrayList<>();
         }
-        log.debug("*** no. of media = {}", a.size());
-        return a;
     }
 
     public Map<Long, List<ItemGradingData>> getMediaItemGradingHash(final Long assessmentGradingId) {
         log.debug("*** assessmentGradingId = {}", assessmentGradingId);
         Map<Long, List<ItemGradingData>> map = new HashMap<>();
 
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
                     "select i from MediaData m, ItemGradingData i " +
                             "where m.itemGradingData.itemGradingId = i.itemGradingId " +
-                            "and i.assessmentGradingId = :id");
+                            "and i.assessmentGradingId = :id",
+                    ItemGradingData.class);
             q.setParameter("id", assessmentGradingId);
-            return q.list();
-        };
-        List<ItemGradingData> list = getHibernateTemplate().execute(hcb);
+            List<ItemGradingData> list = q.list();
 
-        for (ItemGradingData itemGradingData : list) {
-            List<ItemGradingData> al = new ArrayList<>();
-            al.add(itemGradingData);
-            // There might be duplicate. But we just overwrite it with the same itemGradingData
-            map.put(itemGradingData.getPublishedItemId(), al);
+            for (ItemGradingData itemGradingData : list) {
+                List<ItemGradingData> al = new ArrayList<>();
+                al.add(itemGradingData);
+                // There might be duplicate. But we just overwrite it with the same itemGradingData
+                map.put(itemGradingData.getPublishedItemId(), al);
+            }
+            log.debug("*** no. of media = {}", map.size());
+            return map;
+        } catch (Exception e) {
+            log.warn("Error getting media item grading hash for assessment {}: {}", assessmentGradingId, e.toString());
+            return new HashMap<>();
         }
-        log.debug("*** no. of media = {}", map.size());
-        return map;
     }
 
     public ArrayList getMediaArray(ItemGradingData item) {
-        ArrayList a = new ArrayList();
-        List list = getHibernateTemplate().findByNamedParam(
-                "from MediaData m where m.itemGradingData = :id", "id", item);
-        for (int i = 0; i < list.size(); i++) {
-            MediaData mediaData = (MediaData) list.get(i);
-            mediaData.setContentResource(getMediaContentResource(mediaData));
-            a.add(mediaData);
+        ArrayList<MediaData> a = new ArrayList<>();
+        try {
+            Session session = getCurrentSession();
+            Query<MediaData> q = session.createQuery(
+                    "from MediaData m where m.itemGradingData = :id",
+                    MediaData.class);
+            q.setParameter("id", item);
+            List<MediaData> list = q.list();
+
+            for (MediaData mediaData : list) {
+                mediaData.setContentResource(getMediaContentResource(mediaData));
+                a.add(mediaData);
+            }
+            log.debug("*** no. of media = {}", a.size());
+            return a;
+        } catch (Exception e) {
+            log.warn("Error getting media array for item: {}", e.toString());
+            return new ArrayList<>();
         }
-        log.debug("*** no. of media = {}", a.size());
-        return a;
     }
 
     public List<MediaData> getMediaArray(Long publishedId, final Long publishedItemId, String which) {
@@ -845,31 +926,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             final List<ItemGradingData> list = itemScores.get(publishedItemId);
             log.debug("list size list.size() = " + list.size());
 
-            HibernateCallback<List<MediaData>> hcb = session -> {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
-                Root<MediaData> root = cq.from(MediaData.class);
+            Session session = getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
+            Root<MediaData> root = cq.from(MediaData.class);
 
-                /** make list from AssessmentGradingData ids */
-                List<Long> itemGradingIdList = list.stream()
-                        .map(ItemGradingData::getItemGradingId)
-                        .collect(Collectors.toList());
+            /** make list from AssessmentGradingData ids */
+            List<Long> itemGradingIdList = list.stream()
+                    .map(ItemGradingData::getItemGradingId)
+                    .collect(Collectors.toList());
 
-                /** create or disjunctive expression for (in clauses) */
-                List<Predicate> inPredicates = new ArrayList<>();
-                for (int i = 0; i < itemGradingIdList.size(); i += 50) {
-                    List<Long> tempList = itemGradingIdList.subList(i, Math.min(i + 50, itemGradingIdList.size()));
-                    inPredicates.add(root.get("itemGradingData").get("itemGradingId").in(tempList));
-                }
-                cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
+            /** create or disjunctive expression for (in clauses) */
+            List<Predicate> inPredicates = new ArrayList<>();
+            for (int i = 0; i < itemGradingIdList.size(); i += 50) {
+                List<Long> tempList = itemGradingIdList.subList(i, Math.min(i + 50, itemGradingIdList.size()));
+                inPredicates.add(root.get("itemGradingData").get("itemGradingId").in(tempList));
+            }
+            cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
 
-                return session.createQuery(cq).getResultList();
-                //large list cause out of memory error (java heap space)
-                //return criteria.setMaxResults(10000).list();
-            };
+            List<MediaData> hbmList = session.createQuery(cq).getResultList();
 
             List<MediaData> a = new ArrayList<>();
-            List<MediaData> hbmList = getHibernateTemplate().execute(hcb);
             for (MediaData mediaData : hbmList) {
                 mediaData.setContentResource(getMediaContentResource(mediaData));
                 a.add(mediaData);
@@ -877,226 +954,295 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             return a;
 
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.toString(), e);
             return new ArrayList<>();
         }
     }
 
     public List<Long> getMediaConversionBatch() {
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NULL");
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NULL",
+                    Long.class);
             q.setMaxResults(10);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting media conversion batch: {}", e.toString()	);
+            return new ArrayList<>();
+        }
     }
 
     public boolean markMediaForConversion(final List<Long> mediaIds) {
-        final HibernateCallback<Integer> hcb = session -> {
-            Query q = session.createQuery("UPDATE MediaData SET location = 'CONVERTING' WHERE id in (:ids)");
+        try {
+            Session session = getCurrentSession();
+            Query<?> q = session.createQuery(
+                    "UPDATE MediaData SET location = 'CONVERTING' WHERE id in (:ids)");
             q.setParameterList("ids", mediaIds);
-            return q.executeUpdate();
-        };
-        return getHibernateTemplate().execute(hcb).equals(mediaIds.size());
+            int updatedCount = q.executeUpdate();
+            return updatedCount == mediaIds.size();
+        } catch (Exception e) {
+            log.warn("Error marking media for conversion: {}", e.toString());
+            return false;
+        }
     }
 
     public List<Long> getMediaWithDataAndLocation() {
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NOT NULL");
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NOT NULL",
+                    Long.class);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting media with data and location: {}", e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List<Long> getMediaInConversion() {
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery("SELECT id FROM MediaData WHERE location = 'CONVERTING'");
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "SELECT id FROM MediaData WHERE location = 'CONVERTING'",
+                    Long.class);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting media in conversion: {}", e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public ItemGradingData getLastItemGradingDataByAgent(final Long publishedItemId, final String agentId) {
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery("from ItemGradingData i where i.publishedItemId = :id and i.agentId = :agent");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.publishedItemId = :id and i.agentId = :agent",
+                    ItemGradingData.class);
             q.setParameter("id", publishedItemId);
             q.setParameter("agent", agentId);
-            return q.list();
-        };
-        List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
-        if (itemGradings.isEmpty()) {
+            q.setMaxResults(1);
+            List<ItemGradingData> itemGradings = q.list();
+            
+            if (itemGradings.isEmpty()) {
+                return null;
+            }
+            return itemGradings.get(0);
+        } catch (Exception e) {
+            log.warn("Error getting last item grading data for item {} and agent {}: {}", publishedItemId, agentId, e.toString());
             return null;
         }
-        return itemGradings.get(0);
     }
 
     public ItemGradingData getItemGradingData(final Long itemGradingId) {
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery("from ItemGradingData i where i.itemGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.itemGradingId = :id",
+                    ItemGradingData.class);
             q.setParameter("id", itemGradingId);
-            return q.list();
-        };
-        List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
-        if (itemGradings.isEmpty()) {
+            List<ItemGradingData> itemGradings = q.list();
+            
+            if (itemGradings.isEmpty()) {
+                return null;
+            }
+            return itemGradings.get(0);
+        } catch (Exception e) {
+            log.warn("Error getting item grading data for item {}: {}", itemGradingId, e.toString());
             return null;
         }
-        ;
-        return itemGradings.get(0);
     }
 
     public ItemGradingData getItemGradingData(final Long assessmentGradingId, final Long publishedItemId) {
         log.debug("****assessmentGradingId={}", assessmentGradingId);
         log.debug("****publishedItemId={}", publishedItemId);
 
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from ItemGradingData i where i.assessmentGradingId = :gradingid and i.publishedItemId = :itemid");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.assessmentGradingId = :gradingid and i.publishedItemId = :itemid",
+                    ItemGradingData.class);
             q.setParameter("gradingid", assessmentGradingId);
             q.setParameter("itemid", publishedItemId);
-            return q.list();
-        };
-        List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            List<ItemGradingData> itemGradings = q.list();
 
-        if (itemGradings.isEmpty()) {
+            if (itemGradings.isEmpty()) {
+                return null;
+            }
+            return itemGradings.get(0);
+        } catch (Exception e) {
+            log.warn("Error getting item grading data for assessment {} and item {}: {}", 
+                    assessmentGradingId, publishedItemId, e.toString());
             return null;
         }
-        return itemGradings.get(0);
     }
 
     public AssessmentGradingData load(Long id) {
         return load(id, true);
     }
 
-    public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
-        AssessmentGradingData gdata = (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class,
-                id);
-        Set<ItemGradingData> itemGradingSet = new HashSet();
+public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
+        try {
+            Session session = getCurrentSession();
+            AssessmentGradingData gdata = session.get(AssessmentGradingData.class, id);
 
-        // Get (ItemGradingId, ItemGradingData) pair
-        Map<Long, ItemGradingData> itemGradingMap = getItemGradingMap(gdata.getAssessmentGradingId());
-        if (itemGradingMap.keySet().size() > 0) {
-            Collection<ItemGradingData> itemGradingCollection = itemGradingMap.values();
-
-            if (loadGradingAttachment) {
-                // Get (ItemGradingId, ItemGradingAttachment) pair
-                Map<Long, Set<ItemGradingAttachment>> attachmentMap = getItemGradingAttachmentMap(itemGradingMap.keySet());
-
-                Iterator<ItemGradingData> iter = itemGradingCollection.iterator();
-                while (iter.hasNext()) {
-                    ItemGradingData itemGradingData = iter.next();
-                    if (attachmentMap.get(itemGradingData.getItemGradingId()) != null) {
-                        itemGradingData.setItemGradingAttachmentSet(attachmentMap.get(itemGradingData.getItemGradingId()));
-                    } else {
-                        itemGradingData.setItemGradingAttachmentSet(new HashSet<>());
-                    }
-                    itemGradingSet.add(itemGradingData);
-                }
-            } else {
-                itemGradingSet.addAll(itemGradingCollection);
+            if (gdata == null) {
+                log.warn("AssessmentGradingData with id {} not found", id);
+                return null;
             }
-        }
 
-        gdata.setItemGradingSet(itemGradingSet);
-        return gdata;
+            Set<ItemGradingData> itemGradingSet = new HashSet<>();
+
+            // Get (ItemGradingId, ItemGradingData) pair
+            Map<Long, ItemGradingData> itemGradingMap = getItemGradingMap(gdata.getAssessmentGradingId());
+            if (itemGradingMap.keySet().size() > 0) {
+                Collection<ItemGradingData> itemGradingCollection = itemGradingMap.values();
+
+                if (loadGradingAttachment) {
+                    // Get (ItemGradingId, ItemGradingAttachment) pair
+                    Map<Long, Set<ItemGradingAttachment>> attachmentMap = getItemGradingAttachmentMap(itemGradingMap.keySet());
+
+                    Iterator<ItemGradingData> iter = itemGradingCollection.iterator();
+                    while (iter.hasNext()) {
+                        ItemGradingData itemGradingData = iter.next();
+                        if (attachmentMap.get(itemGradingData.getItemGradingId()) != null) {
+                            itemGradingData.setItemGradingAttachmentSet(attachmentMap.get(itemGradingData.getItemGradingId()));
+                        } else {
+                            itemGradingData.setItemGradingAttachmentSet(new HashSet<>());
+                        }
+                        itemGradingSet.add(itemGradingData);
+                    }
+                } else {
+                    itemGradingSet.addAll(itemGradingCollection);
+                }
+            }
+
+            gdata.setItemGradingSet(itemGradingSet);
+            return gdata;
+        } catch (Exception e) {
+            log.warn("Error loading AssessmentGradingData with id {}: {}", id, e.toString());
+            return null;
+        }
     }
 
     public ItemGradingData getItemGrading(Long id) {
-        return (ItemGradingData) getHibernateTemplate().load(ItemGradingData.class, id);
+        try {
+            Session session = getCurrentSession();
+            return session.load(ItemGradingData.class, id);
+        } catch (Exception e) {
+            log.warn("Error getting item grading with id {}: {}", id, e.toString());
+            return null;
+        }
     }
 
     public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
         AssessmentGradingData ag = null;
         // don't pick the assessmentGradingData that is created by instructor entering comments/scores
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status not in (:status1, :status2) order by a.submittedDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status not in (:status1, :status2) order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", false);
             q.setParameter("status1", AssessmentGradingData.NO_SUBMISSION);
             q.setParameter("status2", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            ag = q.uniqueResult();
 
-        if (!assessmentGradings.isEmpty()) {
-            ag = assessmentGradings.get(0);
-            ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            if (ag != null) {
+                ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            }
+            return ag;
+        } catch (Exception e) {
+            log.warn("Error getting last saved assessment grading by agent for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return null;
         }
-        return ag;
     }
 
     public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString, Long assessmentGradingId) {
         AssessmentGradingData ag = null;
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-
-        if (assessmentGradingId == null) {
-            if (assessmentGradings.size() > 0) {
-                ag = assessmentGradings.get(0);
-            }
-        } else {
-            for (int i = 0; i < assessmentGradings.size(); i++) {
-                AssessmentGradingData agd = assessmentGradings.get(i);
-                if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
-                    ag = agd;
-                    ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
-                    break;
+            q.setMaxResults(1);
+            
+            if (assessmentGradingId == null) {
+                ag = q.uniqueResult();
+            } else {
+                List<AssessmentGradingData> assessmentGradings = q.list();
+                for (AssessmentGradingData agd : assessmentGradings) {
+                    if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
+                        ag = agd;
+                        ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
+                        break;
+                    }
                 }
             }
-        }
 
-        if (ag != null) {
-	        // get AssessmentGradingAttachments
-	        Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
-	        List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
-	        if (attachments != null) {
-	            ag.setAssessmentGradingAttachmentList(attachments);
-	        } else {
-	            ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
-	        }
-        }
+            if (ag != null) {
+                // get AssessmentGradingAttachments
+                Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+                List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
+                if (attachments != null) {
+                    ag.setAssessmentGradingAttachmentList(attachments);
+                } else {
+                    ag.setAssessmentGradingAttachmentList(new ArrayList<>());
+                }
+            }
 
-        return ag;
+            return ag;
+        } catch (Exception e) {
+            log.warn("Error getting last submitted assessment grading by agent for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return null;
+        }
     }
 
     public AssessmentGradingData getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
         AssessmentGradingData ag = null;
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.status > :status order by a.submittedDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.status > :status order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            ag = q.uniqueResult();
 
-        if (!assessmentGradings.isEmpty()) {
-            ag = assessmentGradings.get(0);
-            ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            if (ag != null) {
+                ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            }
+            return ag;
+        } catch (Exception e) {
+            log.warn("Error getting last assessment grading by agent for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return null;
         }
-        return ag;
     }
 
     public void saveItemGrading(ItemGradingData item) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().saveOrUpdate(item);
+                Session session = getCurrentSession();
+                session.merge(item);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem saving itemGrading: " + e.getMessage());
+                log.warn("problem saving itemGrading: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -1107,16 +1253,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         boolean success = false;
         while (retryCount > 0) {
             try {
-                if (assessment.getAssessmentGradingId() != null) {
-                    getHibernateTemplate().merge((AssessmentGradingData) assessment);
-                }
-                else {
-                    getHibernateTemplate().save((AssessmentGradingData) assessment);
-                }
+                Session session = getCurrentSession();
+                session.merge(assessment);
                 retryCount = 0;
-				success = true;
+                success = true;
             } catch (Exception e) {
-                log.warn("problem inserting/updating assessmentGrading: {}", e.getMessage());
+                log.warn("problem inserting/updating assessmentGrading: {}", e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -1124,115 +1266,146 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public List<Long> getAssessmentGradingIds(final Long publishedItemId) {
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select g.assessmentGradingId from ItemGradingData g where g.publishedItemId = :id");
+    	try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "select g.assessmentGradingId from ItemGradingData g where g.publishedItemId = :id",
+                    Long.class);
             q.setParameter("id", publishedItemId);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting assessment grading ids for published item {}: {}", publishedItemId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public AssessmentGradingData getHighestAssessmentGrading(final Long publishedAssessmentId, final String agentId) {
         AssessmentGradingData ag = null;
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "from AssessmentGradingData a where a.publishedAssessmentId = :id and " +
-                            " a.agentId = :agent and a.status > :status order by a.finalScore desc, a.submittedDate desc");
+                            " a.agentId = :agent and a.status > :status order by a.finalScore desc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            ag = q.uniqueResult();
 
-        if (!assessmentGradings.isEmpty()) {
-            ag = assessmentGradings.get(0);
-            ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            if (ag != null) {
+                ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+            }
+            return ag;
+        } catch (Exception e) {
+            log.warn("Error getting highest assessment grading for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentId, e.toString());
+            return null;
         }
-        return ag;
     }
 
     public AssessmentGradingData getHighestSubmittedAssessmentGrading(final Long publishedAssessmentId, final String agentId, Long assessmentGradingId) {
         AssessmentGradingData ag = null;
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and " +
-                            " a.forGrade = :forgrade and a.status > :status order by a.finalScore desc, a.submittedDate desc");
+                            " a.forGrade = :forgrade and a.status > :status order by a.finalScore desc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentId);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        if (assessmentGradingId == null) {
-            if (assessmentGradings.size() > 0) {
-                ag = assessmentGradings.get(0);
-            }
-        } else {
-            for (int i = 0; i < assessmentGradings.size(); i++) {
-                AssessmentGradingData agd = assessmentGradings.get(i);
-                if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
-                    ag = agd;
-                    ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
-                    break;
+            if (assessmentGradingId == null) {
+                if (!assessmentGradings.isEmpty()) {
+                    ag = assessmentGradings.get(0);
+                }
+            } else {
+                for (AssessmentGradingData agd : assessmentGradings) {
+                    if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
+                        ag = agd;
+                        ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
+                        break;
+                    }
                 }
             }
-        }
 
-        // get AssessmentGradingAttachments
-        List<AssessmentGradingAttachment> attachments = new ArrayList<AssessmentGradingAttachment>();
-        if (ag != null) {
-            Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
-            if (map != null && map.containsKey(ag.getAssessmentGradingId())) {
-                attachments = map.get(ag.getAssessmentGradingId());
+            // get AssessmentGradingAttachments
+            List<AssessmentGradingAttachment> attachments = new ArrayList<>();
+            if (ag != null) {
+                Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+                if (map != null && map.containsKey(ag.getAssessmentGradingId())) {
+                    attachments = map.get(ag.getAssessmentGradingId());
+                }
+                ag.setAssessmentGradingAttachmentList(attachments);
             }
-            ag.setAssessmentGradingAttachmentList(attachments);
+            return ag;
+        } catch (Exception e) {
+            log.warn("Error getting highest submitted assessment grading for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentId, e.toString());
+            return null;
         }
-        return ag;
     }
 
     public List getLastAssessmentGradingList(final Long publishedAssessmentId) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc");
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> query = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
+            query.setParameter("id", publishedAssessmentId);
+            query.setParameter("status", AssessmentGradingData.REMOVED);
+            List<AssessmentGradingData> assessmentGradings = query.list();
 
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(
+                            AssessmentGradingData::getAgentId, 
+                            p -> p, 
+                            (p, q) -> p,
+                            LinkedHashMap::new))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting last assessment grading list for assessment {}: {}", publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List getLastSubmittedAssessmentGradingList(final Long publishedAssessmentId) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+    	try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> query = session.createQuery(
                     "select a from AssessmentGradingData a left join fetch a.assessmentGradingAttachmentSet " +
-                            "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.submittedDate desc");
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+                            "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
+            query.setParameter("id", publishedAssessmentId);
+            query.setParameter("forgrade", true);
+            query.setParameter("status", AssessmentGradingData.REMOVED);
+            List<AssessmentGradingData> assessmentGradings = query.list();
 
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(
+                            AssessmentGradingData::getAgentId, 
+                            p -> p, 
+                            (p, q) -> p,
+                            LinkedHashMap::new))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting last submitted assessment grading list for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List getLastSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            HibernateCriteriaBuilder cb = (HibernateCriteriaBuilder) session.getCriteriaBuilder();
+        try {
+            Session session = getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
@@ -1249,39 +1422,55 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             );
 
             cq.orderBy(
-                cb.asc(root.get("agentId"), false),
-                cb.desc(root.get("submittedDate"), false)
+                cb.asc(root.get("agentId")),
+                cb.desc(root.get("submittedDate"))
             );
 
-            return session.createQuery(cq).getResultList();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(
+                            AssessmentGradingData::getAgentId, 
+                            p -> p, 
+                            (p, q) -> p,
+                            LinkedHashMap::new))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting last submitted or graded assessment grading list for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List<AssessmentGradingData> getHighestAssessmentGradingList(final Long publishedAssessmentId) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.finalScore desc");
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> query = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.finalScore desc",
+                    AssessmentGradingData.class);
+            query.setParameter("id", publishedAssessmentId);
+            query.setParameter("status", AssessmentGradingData.REMOVED);
+            List<AssessmentGradingData> assessmentGradings = query.list();
 
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(
+                            AssessmentGradingData::getAgentId, 
+                            p -> p, 
+                            (p, q) -> p,
+                            LinkedHashMap::new))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting highest assessment grading list for assessment {}: {}", publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
 
     public List<AssessmentGradingData> getHighestSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            HibernateCriteriaBuilder cb = (HibernateCriteriaBuilder) session.getCriteriaBuilder();
+        try {
+            Session session = getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
@@ -1299,18 +1488,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             );
 
             cq.orderBy(
-                cb.asc(root.get("agentId"), false),
-                cb.desc(root.get("finalScore"), false)
+                cb.asc(root.get("agentId")),
+                cb.desc(root.get("finalScore"))
             );
 
-            return session.createQuery(cq).getResultList();
-        };
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(
+                            AssessmentGradingData::getAgentId, 
+                            p -> p, 
+                            (p, q) -> p,
+                            LinkedHashMap::new))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting highest submitted or graded assessment grading list for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     // build a Hashmap (Long publishedItemId, ArrayList assessmentGradingIds)
@@ -1319,8 +1514,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public Map<Long, List<Long>> getLastAssessmentGradingByPublishedItem(final Long publishedAssessmentId) {
         Map<Long, List<Long>> h = new HashMap<>();
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "select new AssessmentGradingData(" +
                             " a.assessmentGradingId, p.itemId, " +
                             " a.agentId, a.finalScore, a.submittedDate) " +
@@ -1328,43 +1524,46 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
                             " a.publishedAssessmentId = :id and a.status > :status " +
-                            " order by a.agentId asc, a.submittedDate desc");
+                            " order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        String currentAgent = "";
-        Date submittedDate = null;
-        for (int i = 0; i < assessmentGradings.size(); i++) {
-            AssessmentGradingData g = assessmentGradings.get(i);
-            Long itemId = g.getPublishedItemId();
-            Long gradingId = g.getAssessmentGradingId();
-            log.debug("**** itemId=" + itemId + ", gradingId=" + gradingId + ", agentId=" + g.getAgentId() + ", score=" + g
-                    .getFinalScore());
-            if (i == 0) {
-                currentAgent = g.getAgentId();
-                submittedDate = g.getSubmittedDate();
-            }
-            if (currentAgent.equals(g.getAgentId())
-                    && ((submittedDate == null && g.getSubmittedDate() == null)
-                    || (submittedDate != null && submittedDate.equals(g.getSubmittedDate())))) {
-                List<Long> o = h.get(itemId);
-                if (o != null) {
-                    o.add(gradingId);
-                } else {
-                    List<Long> gradingIds = new ArrayList<>();
-                    gradingIds.add(gradingId);
-                    h.put(itemId, gradingIds);
+            String currentAgent = "";
+            Date submittedDate = null;
+            for (int i = 0; i < assessmentGradings.size(); i++) {
+                AssessmentGradingData g = assessmentGradings.get(i);
+                Long itemId = g.getPublishedItemId();
+                Long gradingId = g.getAssessmentGradingId();
+                log.debug("**** itemId=" + itemId + ", gradingId=" + gradingId + ", agentId=" + g.getAgentId() + ", score=" + g.getFinalScore());
+                if (i == 0) {
+                    currentAgent = g.getAgentId();
+                    submittedDate = g.getSubmittedDate();
+                }
+                if (currentAgent.equals(g.getAgentId())
+                        && ((submittedDate == null && g.getSubmittedDate() == null)
+                        || (submittedDate != null && submittedDate.equals(g.getSubmittedDate())))) {
+                    List<Long> o = h.get(itemId);
+                    if (o != null) {
+                        o.add(gradingId);
+                    } else {
+                        List<Long> gradingIds = new ArrayList<>();
+                        gradingIds.add(gradingId);
+                        h.put(itemId, gradingIds);
+                    }
+                }
+                if (!currentAgent.equals(g.getAgentId())) {
+                    currentAgent = g.getAgentId();
+                    submittedDate = g.getSubmittedDate();
                 }
             }
-            if (!currentAgent.equals(g.getAgentId())) {
-                currentAgent = g.getAgentId();
-                submittedDate = g.getSubmittedDate();
-            }
+            return h;
+        } catch (Exception e) {
+            log.warn("Error getting last assessment grading by published item for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new HashMap<>();
         }
-        return h;
     }
 
     // build a Hashmap (Long publishedItemId, ArrayList assessmentGradingIds)
@@ -1373,8 +1572,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public Map<Long, List<Long>> getHighestAssessmentGradingByPublishedItem(final Long publishedAssessmentId) {
         Map<Long, List<Long>> h = new HashMap<>();
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "select new AssessmentGradingData(" +
                             " a.assessmentGradingId, p.itemId, " +
                             " a.agentId, a.finalScore, a.submittedDate) " +
@@ -1382,118 +1582,154 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
                             " a.publishedAssessmentId = :id and a.status > :status " +
-                            " order by a.agentId asc, a.finalScore desc");
+                            " order by a.agentId asc, a.finalScore desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        String currentAgent = "";
-        Double finalScore = null;
-        for (int i = 0; i < assessmentGradings.size(); i++) {
-            AssessmentGradingData g = (AssessmentGradingData) assessmentGradings.get(i);
-            Long itemId = g.getPublishedItemId();
-            Long gradingId = g.getAssessmentGradingId();
-            log.debug("**** itemId=" + itemId + ", gradingId=" + gradingId + ", agentId=" + g.getAgentId() + ", score=" + g
-                    .getFinalScore());
-            if (i == 0) {
-                currentAgent = g.getAgentId();
-                finalScore = g.getFinalScore();
-            }
-            if (currentAgent.equals(g.getAgentId())
-                    && ((finalScore == null && g.getFinalScore() == null)
-                    || (finalScore != null && finalScore.equals(g.getFinalScore())))) {
-                List<Long> o = h.get(itemId);
-                if (o != null) {
-                    o.add(gradingId);
-                } else {
-                    List<Long> gradingIds = new ArrayList<>();
-                    gradingIds.add(gradingId);
-                    h.put(itemId, gradingIds);
+            String currentAgent = "";
+            Double finalScore = null;
+            for (int i = 0; i < assessmentGradings.size(); i++) {
+                AssessmentGradingData g = assessmentGradings.get(i);
+                Long itemId = g.getPublishedItemId();
+                Long gradingId = g.getAssessmentGradingId();
+                log.debug("**** itemId=" + itemId + ", gradingId=" + gradingId + ", agentId=" + g.getAgentId() + ", score=" + g.getFinalScore());
+                if (i == 0) {
+                    currentAgent = g.getAgentId();
+                    finalScore = g.getFinalScore();
+                }
+                if (currentAgent.equals(g.getAgentId())
+                        && ((finalScore == null && g.getFinalScore() == null)
+                        || (finalScore != null && finalScore.equals(g.getFinalScore())))) {
+                    List<Long> o = h.get(itemId);
+                    if (o != null) {
+                        o.add(gradingId);
+                    } else {
+                        List<Long> gradingIds = new ArrayList<>();
+                        gradingIds.add(gradingId);
+                        h.put(itemId, gradingIds);
+                    }
+                }
+                if (!currentAgent.equals(g.getAgentId())) {
+                    currentAgent = g.getAgentId();
+                    finalScore = g.getFinalScore();
                 }
             }
-            if (!currentAgent.equals(g.getAgentId())) {
-                currentAgent = g.getAgentId();
-                finalScore = g.getFinalScore();
-            }
+            return h;
+        } catch (Exception e) {
+            log.warn("Error getting highest assessment grading by published item for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new HashMap<>();
         }
-        return h;
     }
 
     public Set<ItemGradingData> getItemGradingSet(final Long assessmentGradingId) {
 
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery("from ItemGradingData i where i.assessmentGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.assessmentGradingId = :id",
+                    ItemGradingData.class);
             q.setParameter("id", assessmentGradingId);
-            return q.list();
-        };
-        List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
+            List<ItemGradingData> itemGradings = q.list();
 
-        return new HashSet<>(itemGradings);
+            return new HashSet<>(itemGradings);
+        } catch (Exception e) {
+            log.warn("Error getting item grading set for assessment {}: {}", assessmentGradingId, e.toString());
+            return new HashSet<>();
+        }
     }
 
     public Map<Long, ItemGradingData> getItemGradingMap(final Long assessmentGradingId) {
 
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery("from ItemGradingData i where i.assessmentGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.assessmentGradingId = :id",
+                    ItemGradingData.class);
             q.setParameter("id", assessmentGradingId);
-            return q.list();
-        };
+            List<ItemGradingData> itemGradingList = q.list();
 
-        List<ItemGradingData> itemGradingList = getHibernateTemplate().execute(hcb);
-
-        return itemGradingList.stream().collect(Collectors.toMap(ItemGradingData::getItemGradingId, p -> p));
+            return itemGradingList.stream()
+                    .collect(Collectors.toMap(
+                            ItemGradingData::getItemGradingId, 
+                            p -> p,
+                            (existing, replacement) -> existing));
+        } catch (Exception e) {
+            log.warn("Error getting item grading map for assessment {}: {}", assessmentGradingId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(final Long publishedAssessmentId) {
-        Map<Long, AssessmentGradingData> submissionDataMap = getAllSubmissions(publishedAssessmentId.toString()).stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(AssessmentGradingData::getAssessmentGradingId, a -> a));
+        try {
+            Map<Long, AssessmentGradingData> submissionDataMap = getAllSubmissions(publishedAssessmentId.toString()).stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(AssessmentGradingData::getAssessmentGradingId, a -> a));
 
-        final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+            Session session = getCurrentSession();
+            Query<ItemGradingData> q = session.createQuery(
                     "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) " +
                             " from ItemGradingData i, AssessmentGradingData a " +
                             " where i.assessmentGradingId = a.assessmentGradingId " +
                             " and a.publishedAssessmentId = :id " +
-                            " and a.forGrade = :forgrade and a.status > :status ");
+                            " and a.forGrade = :forgrade and a.status > :status",
+                    ItemGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<ItemGradingData> l = getHibernateTemplate().execute(hcb);
+            List<ItemGradingData> l = q.list();
 
-        return l.stream().filter(i -> Objects.nonNull(submissionDataMap.get(i.getAssessmentGradingId())))
-                .collect(Collectors.toMap(ItemGradingData::getItemGradingId, g -> submissionDataMap.get(g.getAssessmentGradingId())));
+            return l.stream()
+                    .filter(i -> Objects.nonNull(submissionDataMap.get(i.getAssessmentGradingId())))
+                    .collect(Collectors.toMap(
+                            ItemGradingData::getItemGradingId, 
+                            g -> submissionDataMap.get(g.getAssessmentGradingId())));
+        } catch (Exception e) {
+            log.warn("Error getting assessment grading by item grading id for assessment {}: {}", 
+                    publishedAssessmentId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public void deleteAll(Collection c) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                c.stream().filter(Objects::nonNull).map(getHibernateTemplate()::merge).forEach(getHibernateTemplate()::delete);
+                Session session = getCurrentSession();
+                c.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(entity -> {
+                        Object attached = session.merge(entity);
+                        session.remove(attached);
+                    });
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem inserting assessmentGrading: {}", e.toString());
+                log.warn("problem deleting entities: {}", e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
     }
 
     public void saveOrUpdateAll(Collection<ItemGradingData> c) {
-        int retryCount = persistenceHelper.getRetryCount();
-
         c.removeAll(Collections.singleton(null));
+        if (c.isEmpty()) {
+            return;
+        }
+
+        int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
+                Session session = getCurrentSession();
                 for (ItemGradingData itemGradingData : c) {
-                    getHibernateTemplate().merge(itemGradingData);
+                    if (itemGradingData != null) {
+                        session.merge(itemGradingData);
+                    }
                 }
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem inserting assessmentGrading: " + e.getMessage());
+                log.warn("problem inserting assessmentGrading: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
@@ -1501,53 +1737,64 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(final Long assessmentGradingId) {
 
-        final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select p from PublishedAssessmentData p, AssessmentGradingData a where a.publishedAssessmentId = p.publishedAssessmentId and a.assessmentGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<PublishedAssessmentData> q = session.createQuery(
+                    "select p from PublishedAssessmentData p, AssessmentGradingData a " +
+                            "where a.publishedAssessmentId = p.publishedAssessmentId and a.assessmentGradingId = :id",
+                    PublishedAssessmentData.class);
             q.setParameter("id", assessmentGradingId);
-            return q.list();
-        };
-        List<PublishedAssessmentData> pubList = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            List<PublishedAssessmentData> pubList = q.list();
 
-        if (pubList != null && !pubList.isEmpty()) {
-            return pubList.get(0);
+            if (pubList != null && !pubList.isEmpty()) {
+                return pubList.get(0);
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Error getting published assessment by assessment grading id {}: {}", assessmentGradingId, e.toString());
+            return null;
         }
-        return null;
     }
 
     public PublishedAssessmentIfc getPublishedAssessmentByPublishedItemId(final Long publishedItemId) {
 
-        final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select p from PublishedAssessmentData p, PublishedItemData i where p.publishedAssessmentId = i.section.assessment.publishedAssessmentId and i.itemId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<PublishedAssessmentData> q = session.createQuery(
+                    "select p from PublishedAssessmentData p, PublishedItemData i " +
+                            "where p.publishedAssessmentId = i.section.assessment.publishedAssessmentId and i.itemId = :id",
+                    PublishedAssessmentData.class);
             q.setParameter("id", publishedItemId);
-            return q.list();
-        };
-        List<PublishedAssessmentData> pubList = getHibernateTemplate().execute(hcb);
+            q.setMaxResults(1);
+            List<PublishedAssessmentData> pubList = q.list();
 
-        if (pubList != null && !pubList.isEmpty()) {
-            return pubList.get(0);
+            if (pubList != null && !pubList.isEmpty()) {
+                return pubList.get(0);
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Error getting published assessment by published item id {}: {}", publishedItemId, e.toString());
+            return null;
         }
-
-        return null;
     }
 
     public List<Integer> getLastItemGradingDataPosition(final Long assessmentGradingId, final String agentId) {
         List<Integer> position = new ArrayList<>();
         try {
-            final HibernateCallback<List<Integer>> hcb = session -> {
-                Query q = session.createQuery("select s.sequence " +
-                        " from ItemGradingData i, PublishedItemData pi, PublishedSectionData s " +
-                        " where i.agentId = :agent and i.assessmentGradingId = :id " +
-                        " and pi.itemId = i.publishedItemId " +
-                        " and pi.section.id = s.id " +
-                        " group by i.publishedItemId, s.sequence, pi.sequence " +
-                        " order by s.sequence desc , pi.sequence desc");
-                q.setParameter("agent", agentId);
-                q.setParameter("id", assessmentGradingId);
-                return q.list();
-            };
-            List<Integer> list = getHibernateTemplate().execute(hcb);
+            Session session = getCurrentSession();
+            Query<Integer> q = session.createQuery(
+                    "select s.sequence " +
+                            " from ItemGradingData i, PublishedItemData pi, PublishedSectionData s " +
+                            " where i.agentId = :agent and i.assessmentGradingId = :id " +
+                            " and pi.itemId = i.publishedItemId " +
+                            " and pi.section.id = s.id " +
+                            " group by i.publishedItemId, s.sequence, pi.sequence " +
+                            " order by s.sequence desc , pi.sequence desc",
+                    Integer.class);
+            q.setParameter("agent", agentId);
+            q.setParameter("id", assessmentGradingId);
+            List<Integer> list = q.list();
 
             if (list.isEmpty()) {
                 position.add(0);
@@ -1573,7 +1820,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
             return position;
         } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            log.warn(e.getMessage(), e.toString());
             position.add(0);
             position.add(0);
             return position;
@@ -1582,51 +1829,59 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public List<Long> getPublishedItemIds(final Long assessmentGradingId) {
 
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select i.publishedItemId from ItemGradingData i where i.assessmentGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "select i.publishedItemId from ItemGradingData i where i.assessmentGradingId = :id",
+                    Long.class);
             q.setParameter("id", assessmentGradingId);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting published item ids for assessment {}: {}", assessmentGradingId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List<Long> getItemGradingIds(final Long assessmentGradingId) {
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select i.itemGradingId from ItemGradingData i where i.assessmentGradingId = :id");
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "select i.itemGradingId from ItemGradingData i where i.assessmentGradingId = :id",
+                    Long.class);
             q.setParameter("id", assessmentGradingId);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting item grading ids for assessment {}: {}", assessmentGradingId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public Set<PublishedItemData> getItemSet(final Long publishedAssessmentId, final Long sectionId) {
 
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+
+            Query<Long> q1 = session.createQuery(
                     "select distinct p.itemId " +
                             "from PublishedItemData p, AssessmentGradingData a, ItemGradingData i " +
                             "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and p.section.id = :sectionid " +
                             "and i.assessmentGradingId = a.assessmentGradingId " +
-                            "and p.itemId = i.publishedItemId and a.status > :status ");
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("sectionid", sectionId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<Long> itemIds = getHibernateTemplate().execute(hcb);
+                            "and p.itemId = i.publishedItemId and a.status > :status",
+                    Long.class);
+            q1.setParameter("id", publishedAssessmentId);
+            q1.setParameter("forgrade", true);
+            q1.setParameter("sectionid", sectionId);
+            q1.setParameter("status", AssessmentGradingData.REMOVED);
+            List<Long> itemIds = q1.list();
 
-        if (itemIds.isEmpty()) {
-            return new HashSet<>();
-        }
-
-        final HibernateCallback<List<PublishedItemData>> hcb2 = session -> {
+            if (itemIds.isEmpty()) {
+                return new HashSet<>();
+            }
 
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<PublishedItemData> cq = cb.createQuery(PublishedItemData.class);
             Root<PublishedItemData> root = cq.from(PublishedItemData.class);
+            
             if (itemIds.size() > 1000) {
                 List<Predicate> inPredicates = new ArrayList<>();
                 for (int i = 0; i < itemIds.size(); i += 1000) {
@@ -1638,49 +1893,60 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 cq.where(root.get("itemId").in(itemIds));
             }
 
-            return session.createQuery(cq).getResultList();
-        };
-
-        List<PublishedItemData> publishedItems = getHibernateTemplate().execute(hcb2);
-
-        return new HashSet<>(publishedItems);
+            List<PublishedItemData> publishedItems = session.createQuery(cq).getResultList();
+            return new HashSet<>(publishedItems);
+            
+        } catch (Exception e) {
+            log.warn("Error getting item set for assessment {} and section {}: {}", 
+                    publishedAssessmentId, sectionId, e.toString());
+            return new HashSet<>();
+        }
     }
 
     public Long getTypeId(final Long itemGradingId) {
         Long typeId = Long.valueOf(-1);
 
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
                     "select p.typeId " +
                             "from PublishedItemData p, ItemGradingData i " +
                             "where i.itemGradingId = :id " +
-                            "and p.itemId = i.publishedItemId ");
+                            "and p.itemId = i.publishedItemId",
+                    Long.class);
             q.setParameter("id", itemGradingId);
-            return q.list();
-        };
-
-        List<Long> typeIds = getHibernateTemplate().execute(hcb);
-        if (typeIds != null) {
-            for (Long id : typeIds) {
-                typeId = id;
+            q.setMaxResults(1);
+            List<Long> typeIds = q.list();
+            
+            if (typeIds != null && !typeIds.isEmpty()) {
+                typeId = typeIds.get(0);
                 log.debug("typeId = {}", typeId);
+                return typeId;
             }
+            return typeId;
+        } catch (Exception e) {
+            log.warn("Error getting typeId for itemGradingId {}: {}", itemGradingId, e.toString());
+            return typeId;
         }
-        return typeId;
     }
 
     public List<AssessmentGradingData> getAllAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc");
+       try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting assessment grading by agent for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public List<ItemGradingData> getAllItemGradingDataForItemInGrading(final Long assesmentGradingId, final Long publishedItemId) {
@@ -1692,7 +1958,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             throw new IllegalArgumentException("publishedItemId cant' be null");
         }
 
-        return getHibernateTemplate().execute(session -> {
+        try {
+            Session session = getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
             Root<ItemGradingData> root = cq.from(ItemGradingData.class);
@@ -1701,105 +1968,125 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 cb.equal(root.get("publishedItemId"), publishedItemId)
             );
             return session.createQuery(cq).getResultList();
-        });
+        } catch (Exception e) {
+            log.warn("Error getting item grading data for assessment {} and item {}: {}", 
+                    assesmentGradingId, publishedItemId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(final String siteId) {
         Map<Long, Map<String, Integer>> siteSubmissionCountHash = new HashMap<>();
-        final HibernateCallback<List<Object[]>> hcb = session -> session.createQuery(
-                "select a.publishedAssessmentId, a.agentId, count(*) " +
-                        "from AssessmentGradingData a, AuthorizationData au  " +
-                        "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId and a.status > :status " +
-                        "group by a.publishedAssessmentId, a.agentId " +
-                        "order by a.publishedAssessmentId, a.agentId ")
-                .setParameter("forgrade", true)
-                .setParameter("fid", "OWN_PUBLISHED_ASSESSMENT")
-                .setParameter("agent", siteId)
-                .setParameter("status", AssessmentGradingData.REMOVED)
-                .setCacheable(true)
-                .list();
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
+                    "select a.publishedAssessmentId, a.agentId, count(*) " +
+                            "from AssessmentGradingData a, AuthorizationData au  " +
+                            "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId and a.status > :status " +
+                            "group by a.publishedAssessmentId, a.agentId " +
+                            "order by a.publishedAssessmentId, a.agentId",
+                    Object[].class);
+            q.setParameter("forgrade", true);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("agent", siteId);
+            q.setParameter("status", AssessmentGradingData.REMOVED);
+            q.setCacheable(true);
+            List<Object[]> countList = q.list();
+            
+            Map<String, Integer> numberSubmissionPerStudentHash = new HashMap<>();
+            Long lastPublishedAssessmentId = -1L;
 
-        List<Object[]> countList = getHibernateTemplate().execute(hcb);
-        Map<String, Integer> numberSubmissionPerStudentHash = new HashMap<>();
-        Long lastPublishedAssessmentId = -1L;
+            for (Object[] o : countList) {
+                Long publishedAssessmentId = (Long) o[0];
 
-        for (Object[] o : countList) {
-            Long publishedAssessmentid = (Long) o[0];
-
-            if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-                numberSubmissionPerStudentHash.put((String) o[1], ((Long) o[2]).intValue());
-            } else {
-                numberSubmissionPerStudentHash = new HashMap<>();
-                numberSubmissionPerStudentHash.put((String) o[1], ((Long) o[2]).intValue());
-                siteSubmissionCountHash.put(publishedAssessmentid, numberSubmissionPerStudentHash);
-                lastPublishedAssessmentId = publishedAssessmentid;
+                if (lastPublishedAssessmentId.equals(publishedAssessmentId)) {
+                    numberSubmissionPerStudentHash.put((String) o[1], ((Long) o[2]).intValue());
+                } else {
+                    numberSubmissionPerStudentHash = new HashMap<>();
+                    numberSubmissionPerStudentHash.put((String) o[1], ((Long) o[2]).intValue());
+                    siteSubmissionCountHash.put(publishedAssessmentId, numberSubmissionPerStudentHash);
+                    lastPublishedAssessmentId = publishedAssessmentId;
+                }
             }
-        }
 
-        return siteSubmissionCountHash;
+            return siteSubmissionCountHash;
+        } catch (Exception e) {
+            log.warn("Error getting site submission count hash for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, Map<String, Long>> getSiteInProgressCountHash(final String siteId) {
         Map<Long, Map<String, Long>> siteInProgressCountHash = new HashMap<>();
-        final HibernateCallback<List<Object[]>> hcb = session -> session.createQuery(
-                "select a.publishedAssessmentId, a.agentId, count(*) " +
-                        "from AssessmentGradingData a, AuthorizationData au  " +
-                        "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent " +
-                        "and a.publishedAssessmentId = au.qualifierId and (a.status = :status1 or a.status = :status2) " +
-                        "group by a.publishedAssessmentId, a.agentId " +
-                        "order by a.publishedAssessmentId, a.agentId ")
-                .setParameter("forgrade", false)
-                .setParameter("fid", "OWN_PUBLISHED_ASSESSMENT")
-                .setParameter("agent", siteId)
-                .setParameter("status1", AssessmentGradingData.IN_PROGRESS)
-                .setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED)
-                .setCacheable(true)
-                .list();
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
+                    "select a.publishedAssessmentId, a.agentId, count(*) " +
+                            "from AssessmentGradingData a, AuthorizationData au  " +
+                            "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent " +
+                            "and a.publishedAssessmentId = au.qualifierId and (a.status = :status1 or a.status = :status2) " +
+                            "group by a.publishedAssessmentId, a.agentId " +
+                            "order by a.publishedAssessmentId, a.agentId",
+                    Object[].class);
+            q.setParameter("forgrade", false);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("agent", siteId);
+            q.setParameter("status1", AssessmentGradingData.IN_PROGRESS);
+            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED);
+            q.setCacheable(true);
+            List<Object[]> countList = q.list();
+            
+            Map<String, Long> numberInProgressPerStudentHash = new HashMap<>();
+            Long lastPublishedAssessmentId = -1L;
+            for (Object[] o : countList) {
+                Long publishedAssessmentId = (Long) o[0];
 
-        List<Object[]> countList = getHibernateTemplate().execute(hcb);
-        Map<String, Long> numberInProgressPerStudentHash = new HashMap<>();
-        Long lastPublishedAssessmentId = -1l;
-        for (Object[] o : countList) {
-            Long publishedAssessmentid = (Long) o[0];
-
-            if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-                numberInProgressPerStudentHash.put((String) o[1], (Long) o[2]);
-            } else {
-                numberInProgressPerStudentHash = new HashMap<>();
-                numberInProgressPerStudentHash.put((String) o[1], (Long) o[2]);
-                siteInProgressCountHash.put(publishedAssessmentid, numberInProgressPerStudentHash);
-                lastPublishedAssessmentId = publishedAssessmentid;
+                if (lastPublishedAssessmentId.equals(publishedAssessmentId)) {
+                    numberInProgressPerStudentHash.put((String) o[1], (Long) o[2]);
+                } else {
+                    numberInProgressPerStudentHash = new HashMap<>();
+                    numberInProgressPerStudentHash.put((String) o[1], (Long) o[2]);
+                    siteInProgressCountHash.put(publishedAssessmentId, numberInProgressPerStudentHash);
+                    lastPublishedAssessmentId = publishedAssessmentId;
+                }
             }
-        }
 
-        return siteInProgressCountHash;
+            return siteInProgressCountHash;
+        } catch (Exception e) {
+            log.warn("Error getting site in-progress count hash for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public int getActualNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
 
-        final HibernateCallback<List<Long>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
                     "select count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
                             " where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade " +
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate and a.status > :status");
+                            " and a.submittedDate > s.createdDate and a.status > :status",
+                    Long.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<Long> countList = getHibernateTemplate().execute(hcb);
-        if (countList != null && !countList.isEmpty()) {
-            return Math.toIntExact(countList.get(0));
+            Long count = q.uniqueResult();
+            
+            return count != null ? Math.toIntExact(count) : 0;
+        } catch (Exception e) {
+            log.warn("Error getting actual number retake for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return 0;
         }
-        return 0;
     }
 
     public Map<Long, Map<String, Long>> getSiteActualNumberRetakeHash(final String siteId) {
         Map<Long, Map<String, Long>> actualNumberRetakeHash = new HashMap<>();
-        final HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
                     "select a.publishedAssessmentId, a.agentId, count(*) " +
                             " from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au, PublishedAssessmentData p " +
                             " where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId" +
@@ -1808,175 +2095,223 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " and a.publishedAssessmentId = p.publishedAssessmentId" +
                             " and p.status != 2 and a.status > :astatus" +
                             " group by a.publishedAssessmentId, a.agentId" +
-                            " order by a.publishedAssessmentId");
+                            " order by a.publishedAssessmentId",
+                    Object[].class);
             q.setParameter("forgrade", true);
             q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
             q.setParameter("astatus", AssessmentGradingData.REMOVED);
             q.setParameter("agent", siteId);
-            return q.list();
-        };
-        List<Object[]> countList = getHibernateTemplate().execute(hcb);
-        Map<String, Long> actualNumberRetakePerStudentHash = new HashMap<>();
-        Long lastPublishedAssessmentId = -1l;
-        for (Object[] o : countList) {
-            Long publishedAssessmentid = (Long) o[0];
+            List<Object[]> countList = q.list();
+            
+            Map<String, Long> actualNumberRetakePerStudentHash = new HashMap<>();
+            Long lastPublishedAssessmentId = -1L;
+            for (Object[] o : countList) {
+                Long publishedAssessmentId = (Long) o[0];
 
-            if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-                actualNumberRetakePerStudentHash.put((String) o[1], (Long) o[2]);
-            } else {
-                actualNumberRetakePerStudentHash = new HashMap();
-                actualNumberRetakePerStudentHash.put((String) o[1], (Long) o[2]);
-                actualNumberRetakeHash.put(publishedAssessmentid, actualNumberRetakePerStudentHash);
-                lastPublishedAssessmentId = publishedAssessmentid;
+                if (lastPublishedAssessmentId.equals(publishedAssessmentId)) {
+                    actualNumberRetakePerStudentHash.put((String) o[1], (Long) o[2]);
+                } else {
+                    actualNumberRetakePerStudentHash = new HashMap<>();
+                    actualNumberRetakePerStudentHash.put((String) o[1], (Long) o[2]);
+                    actualNumberRetakeHash.put(publishedAssessmentId, actualNumberRetakePerStudentHash);
+                    lastPublishedAssessmentId = publishedAssessmentId;
+                }
             }
-        }
 
-        return actualNumberRetakeHash;
+            return actualNumberRetakeHash;
+        } catch (Exception e) {
+            log.warn("Error getting site actual number retake hash for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, Integer> getActualNumberRetakeHash(final String agentIdString) {
         Map<Long, Integer> actualNumberRetakeHash = new HashMap<>();
-        final HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
                     "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
                             " where a.agentId = :agent and a.forGrade = :forgrade " +
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
                             " and a.submittedDate > s.createdDate and a.status > :status" +
-                            " group by a.publishedAssessmentId");
+                            " group by a.publishedAssessmentId",
+                    Object[].class);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<Object[]> countList = getHibernateTemplate().execute(hcb);
-        for (Object[] o : countList) {
-            Long l = (Long) o[1];
-            actualNumberRetakeHash.put((Long) o[0], l.intValue());
+            List<Object[]> countList = q.list();
+            
+            for (Object[] o : countList) {
+                actualNumberRetakeHash.put((Long) o[0], ((Number) o[1]).intValue());
+            }
+            return actualNumberRetakeHash;
+        } catch (Exception e) {
+            log.warn("Error getting actual number retake hash for agent {}: {}", agentIdString, e.toString());
+            return new HashMap<>();
         }
-        return actualNumberRetakeHash;
     }
 
     public List<StudentGradingSummaryData> getStudentGradingSummaryData(final Long publishedAssessmentId, final String agentIdString) {
-        final HibernateCallback<List<StudentGradingSummaryData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<StudentGradingSummaryData> q = session.createQuery(
                     "select s " +
                             "from StudentGradingSummaryData s " +
-                            "where s.publishedAssessmentId = :id and s.agentId = :agent");
+                            "where s.publishedAssessmentId = :id and s.agentId = :agent",
+                    StudentGradingSummaryData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting student grading summary data for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public int getNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
-        final HibernateCallback<List<Integer>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<Integer> q = session.createQuery(
                     "select s.numberRetake " +
                             "from StudentGradingSummaryData s " +
-                            "where s.publishedAssessmentId = :id and s.agentId = :agent");
+                            "where s.publishedAssessmentId = :id and s.agentId = :agent",
+                    Integer.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
-            return q.list();
-        };
-        List<Integer> numberRetakeList = getHibernateTemplate().execute(hcb);
-
-        if (!numberRetakeList.isEmpty()) {
-            return numberRetakeList.get(0);
+            q.setMaxResults(1);
+            Integer result = q.uniqueResult();
+            
+            return result != null ? result : 0;
+        } catch (Exception e) {
+            log.warn("Error getting number retake for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return 0;
         }
-        return 0;
     }
 
     public Map<Long, StudentGradingSummaryData> getNumberRetakeHash(final String agentIdString) {
-        Map<Long, StudentGradingSummaryData> h = new HashMap<>();
-        final HibernateCallback<List<StudentGradingSummaryData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<StudentGradingSummaryData> q = session.createQuery(
                     "select s " +
                             "from StudentGradingSummaryData s " +
-                            "where s.agentId = :agent");
+                            "where s.agentId = :agent",
+                    StudentGradingSummaryData.class);
             q.setParameter("agent", agentIdString);
-            return q.list();
-        };
-        List<StudentGradingSummaryData> numberRetakeList = getHibernateTemplate().execute(hcb);
-        return numberRetakeList.stream()
-                .collect(Collectors.toMap(StudentGradingSummaryData::getPublishedAssessmentId, Function.identity(), (oldValue, newValue) -> newValue));
+            List<StudentGradingSummaryData> numberRetakeList = q.list();
+            
+            return numberRetakeList.stream()
+                    .collect(Collectors.toMap(
+                            StudentGradingSummaryData::getPublishedAssessmentId,
+                            Function.identity(),
+                            (oldValue, newValue) -> newValue,
+                            HashMap::new
+                    ));
+        } catch (Exception e) {
+            log.warn("Error getting number retake hash for agent {}: {}", agentIdString, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, Map<String, Integer>> getSiteNumberRetakeHash(final String siteId) {
         Map<Long, Map<String, Integer>> siteNumberRetakeHash = new HashMap<>();
-        final HibernateCallback<List<StudentGradingSummaryData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<StudentGradingSummaryData> q = session.createQuery(
                     "select s " +
                             "from StudentGradingSummaryData s, AuthorizationData au " +
                             "where au.functionId = :fid and au.agentIdString = :agent " +
                             "and s.publishedAssessmentId = au.qualifierId " +
-                            "order by s.publishedAssessmentId, s.agentId");
+                            "order by s.publishedAssessmentId, s.agentId",
+                    StudentGradingSummaryData.class);
             q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
             q.setParameter("agent", siteId);
-            return q.list();
-        };
-        List<StudentGradingSummaryData> countList = getHibernateTemplate().execute(hcb);
-        Long lastPublishedAssessmentId = -1l;
-        Map<String, Integer> numberRetakePerStudentHash = null;
-        for (StudentGradingSummaryData s : countList) {
-            Long publishedAssessmentid = s.getPublishedAssessmentId();
+            List<StudentGradingSummaryData> countList = q.list();
 
-            if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-                numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
-            } else {
-                numberRetakePerStudentHash = new HashMap<>();
-                numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
-                siteNumberRetakeHash.put(publishedAssessmentid, numberRetakePerStudentHash);
-                lastPublishedAssessmentId = publishedAssessmentid;
+            Long lastPublishedAssessmentId = -1L;
+            Map<String, Integer> numberRetakePerStudentHash = null;
+            for (StudentGradingSummaryData s : countList) {
+                Long publishedAssessmentId = s.getPublishedAssessmentId();
+
+                if (lastPublishedAssessmentId.equals(publishedAssessmentId)) {
+                    numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
+                } else {
+                    numberRetakePerStudentHash = new HashMap<>();
+                    numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
+                    siteNumberRetakeHash.put(publishedAssessmentId, numberRetakePerStudentHash);
+                    lastPublishedAssessmentId = publishedAssessmentId;
+                }
             }
-        }
 
-        return siteNumberRetakeHash;
+            return siteNumberRetakeHash;
+        } catch (Exception e) {
+            log.warn("Error getting site number retake hash for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().saveOrUpdate(studentGradingSummaryData);
+                Session session = getCurrentSession();
+                session.merge(studentGradingSummaryData);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem saving studentGradingSummaryData: " + e.getMessage());
+                log.warn("problem saving studentGradingSummaryData: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
     }
 
     public int getLateSubmissionsNumberByAgentId(final Long publishedAssessmentId, final String agentIdString, final Date dueDate) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.submittedDate > :submitted and a.status > :status");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.submittedDate > :submitted and a.status > :status",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", true);
             q.setParameter("submitted", dueDate);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        return assessmentGradings.size();
+            return assessmentGradings.size();
+        } catch (Exception e) {
+            log.warn("Error getting late submissions count for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return 0;
+        }
     }
 
     public List<AssessmentGradingData> getAllOrderedSubmissions(final String publishedId) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+       try {
+            Long id;
+            try {
+                id = Long.parseLong(publishedId);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid publishedId format: {}", publishedId);
+                return new ArrayList<>();
+            }
+            
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "from AssessmentGradingData a " +
                             "where a.publishedAssessmentId = :id and (a.forGrade = :forgrade1 or (a.forGrade = :forgrade2 and a.status = :status and a.finalScore <> 0)) " +
-                            "order by a.agentId ASC, a.submittedDate");
-            q.setParameter("id", Long.parseLong(publishedId));
+                            "order by a.agentId ASC, a.submittedDate",
+                    AssessmentGradingData.class);
+            q.setParameter("id", id);
             q.setParameter("forgrade1", true);
             q.setParameter("forgrade2", false);
             q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting all ordered submissions for publishedId {}: {}", publishedId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage,
@@ -2936,20 +3271,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingData data) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent " +
                             "and a.forGrade = :forgrade and a.status = :status " +
-                            "order by a.submittedDate desc");
+                            "order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", data.getPublishedAssessmentId());
             q.setParameter("agent", data.getAgentId());
             q.setParameter("forgrade", false);
             q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-        if (!assessmentGradings.isEmpty()) {
-            deleteAll(assessmentGradings);
+            List<AssessmentGradingData> assessmentGradings = q.list();
+            
+            if (!assessmentGradings.isEmpty()) {
+                deleteAll(assessmentGradings);
+            }
+        } catch (Exception e) {
+            log.warn("Error removing unsubmitted assessment grading data for agent {}: {}", data.getAgentId(), e.toString());
         }
     }
 
@@ -2960,51 +3299,63 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public boolean getHasGradingData(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status");
+         try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-        return !assessmentGradings.isEmpty();
+            q.setMaxResults(1);
+            return !q.list().isEmpty();
+         } catch (Exception e) {
+            log.warn("Error checking if assessment {} has grading data: {}", publishedAssessmentId, e.toString());
+            return false;
+        }
     }
 
     public List<Boolean> getHasGradingDataAndHasSubmission(final Long publishedAssessmentId) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc");
+    	try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-        // first element represents hasGradingData
-        // second element represents hasSubmission
-        List<Boolean> al = new ArrayList<>();
-        if (assessmentGradings.size() == 0) {
-            al.add(Boolean.FALSE); // no gradingData
-            al.add(Boolean.FALSE); // no submission
-        } else {
-            al.add(Boolean.TRUE); // yes gradingData
-            String currentAgent = "";
-            boolean hasSubmission = false;
-            for (AssessmentGradingData adata : assessmentGradings) {
-                if (!currentAgent.equals(adata.getAgentId())) {
-                    if (adata.getForGrade()) {
-                        al.add(Boolean.TRUE); // has submission
-                        hasSubmission = true;
-                        break;
+            List<AssessmentGradingData> assessmentGradings = q.list();
+            
+            // first element represents hasGradingData
+            // second element represents hasSubmission
+            List<Boolean> al = new ArrayList<>();
+            if (assessmentGradings.isEmpty()) {
+                al.add(Boolean.FALSE); // no gradingData
+                al.add(Boolean.FALSE); // no submission
+            } else {
+                al.add(Boolean.TRUE); // yes gradingData
+                String currentAgent = "";
+                boolean hasSubmission = false;
+                for (AssessmentGradingData adata : assessmentGradings) {
+                    if (!currentAgent.equals(adata.getAgentId())) {
+                        if (adata.getForGrade()) {
+                            al.add(Boolean.TRUE); // has submission
+                            hasSubmission = true;
+                            break;
+                        }
+                        currentAgent = adata.getAgentId();
                     }
-                    currentAgent = adata.getAgentId();
+                }
+                if (!hasSubmission) {
+                    al.add(Boolean.FALSE); // no submission
                 }
             }
-            if (!hasSubmission) {
-                al.add(Boolean.FALSE);// no submission
-            }
+            return al;
+        } catch (Exception e) {
+            log.warn("Error getting has grading data and has submission for assessment {}: {}", publishedAssessmentId, e.toString());
+            List<Boolean> errorResult = new ArrayList<>();
+            errorResult.add(Boolean.FALSE);
+            errorResult.add(Boolean.FALSE);
+            return errorResult;
         }
-        return al;
     }
 
 
@@ -3021,45 +3372,52 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         StringBuilder bindVar = new StringBuilder(filename);
         bindVar.append("%");
 
-        Object[] values = {itemGradingId, agentId, bindVar.toString()};
-        List list = getHibernateTemplate().findByNamedParam(
-                "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
-                new String[]{"id", "agent", "file"},
-                new Object[]{itemGradingId, agentId, bindVar.toString()});
-        if (list.isEmpty()) {
-            return filename;
-        }
-
-        HashSet hs = new HashSet();
-        Iterator iter = list.iterator();
-        String name;
-        // Only add the filename which
-        // 1. with no extension because the newly updated one has no extention
-        // 2. name is same to filename or name like filename(...
-        // For example, if the filename is ab. We only want ab, ab(1), ab(2)... and don't want abc to be in
-        while (iter.hasNext()) {
-            name = ((String) iter.next()).trim();
-            if (!name.contains(".") && (name.equals(filename) || name.startsWith(filename + "("))) {
-                hs.add(name);
+        try {
+            Session session = getCurrentSession();
+            Query<String> q = session.createQuery(
+                    "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
+                    String.class);
+            q.setParameter("id", itemGradingId);
+            q.setParameter("agent", agentId);
+            q.setParameter("file", bindVar.toString());
+            List<String> list = q.list();
+            
+            if (list.isEmpty()) {
+                return filename;
             }
-        }
 
-        if (hs.isEmpty()) {
-            return filename;
-        }
-
-        StringBuilder testName = new StringBuilder(filename);
-        int i = 1;
-        while (true) {
-            if (!hs.contains(testName.toString())) {
-                return testName.toString();
-            } else {
-                i++;
-                testName = new StringBuilder(filename);
-                testName.append("(");
-                testName.append(i);
-                testName.append(")");
+            HashSet<String> hs = new HashSet<>();
+            // Only add the filename which
+            // 1. with no extension because the newly updated one has no extention
+            // 2. name is same to filename or name like filename(...
+            // For example, if the filename is ab. We only want ab, ab(1), ab(2)... and don't want abc to be in
+            for (String name : list) {
+                name = name.trim();
+                if (!name.contains(".") && (name.equals(filename) || name.startsWith(filename + "("))) {
+                    hs.add(name);
+                }
             }
+
+            if (hs.isEmpty()) {
+                return filename;
+            }
+
+            StringBuilder testName = new StringBuilder(filename);
+            int i = 1;
+            while (true) {
+                if (!hs.contains(testName.toString())) {
+                    return testName.toString();
+                } else {
+                    i++;
+                    testName = new StringBuilder(filename);
+                    testName.append("(");
+                    testName.append(i);
+                    testName.append(")");
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error getting filename without extension for item {} and agent {}: {}", itemGradingId, agentId, e.toString());
+            return filename;
         }
     }
 
@@ -3069,45 +3427,52 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         bindVar.append("%");
         bindVar.append(filename.substring(dotIndex));
 
-        List list = getHibernateTemplate().findByNamedParam(
-                "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
-                new String[]{"id", "agent", "file"},
-                new Object[]{itemGradingId, agentId, bindVar.toString()});
-        if (list.isEmpty()) {
-            return filename;
-        }
-
-        HashSet hs = new HashSet();
-        Iterator iter = list.iterator();
-        String name;
-        int nameLenght;
-        String extension = filename.substring(dotIndex);
-        int extensionLength = extension.length();
-        while (iter.hasNext()) {
-            name = ((String) iter.next()).trim();
-            if ((name.equals(filename) || name.startsWith(filenameWithoutExtension + "("))) {
-                nameLenght = name.length();
-                hs.add(name.substring(0, nameLenght - extensionLength));
+        try {
+            Session session = getCurrentSession();
+            Query<String> q = session.createQuery(
+                    "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
+                    String.class);
+            q.setParameter("id", itemGradingId);
+            q.setParameter("agent", agentId);
+            q.setParameter("file", bindVar.toString());
+            List<String> list = q.list();
+            
+            if (list.isEmpty()) {
+                return filename;
             }
-        }
 
-        if (hs.isEmpty()) {
-            return filename;
-        }
-
-        StringBuffer testName = new StringBuffer(filenameWithoutExtension);
-        int i = 1;
-        while (true) {
-            if (!hs.contains(testName.toString())) {
-                testName.append(extension);
-                return testName.toString();
-            } else {
-                i++;
-                testName = new StringBuffer(filenameWithoutExtension);
-                testName.append("(");
-                testName.append(i);
-                testName.append(")");
+            HashSet<String> hs = new HashSet<>();
+            String extension = filename.substring(dotIndex);
+            int extensionLength = extension.length();
+            
+            for (String name : list) {
+                name = name.trim();
+                if ((name.equals(filename) || name.startsWith(filenameWithoutExtension + "("))) {
+                    hs.add(name.substring(0, name.length() - extensionLength));
+                }
             }
+
+            if (hs.isEmpty()) {
+                return filename;
+            }
+
+            StringBuilder testName = new StringBuilder(filenameWithoutExtension);
+            int i = 1;
+            while (true) {
+                if (!hs.contains(testName.toString())) {
+                    testName.append(extension);
+                    return testName.toString();
+                } else {
+                    i++;
+                    testName = new StringBuilder(filenameWithoutExtension);
+                    testName.append("(");
+                    testName.append(i);
+                    testName.append(")");
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error getting filename with extension for item {} and agent {}: {}", itemGradingId, agentId, e.toString());
+            return filename;
         }
     }
 
@@ -3118,118 +3483,142 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         Set<Long> updatedAssessmentIds = new LinkedHashSet<>();
         Set<Long> needResubmitAssessmentIds = new LinkedHashSet<>();
 
-        List<Object[]> results = (List<Object[]>) getHibernateTemplate()
-                .findByNamedParam(
-                        "select distinct a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
-                                " where a.agentId = :agent and az.agentIdString = :site and az.functionId = :fid " +
-                                " and az.qualifierId=a.publishedAssessmentId and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) " +
-                                " order by a.status",
-                        new String[]{"agent", "site", "fid", "forgrade", "status1", "status2"},
-                        new Object[]{agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingData.ASSESSMENT_UPDATED, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT});
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
+                    "select distinct a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
+                            " where a.agentId = :agent and az.agentIdString = :site and az.functionId = :fid " +
+                            " and az.qualifierId = a.publishedAssessmentId and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) " +
+                            " order by a.status",
+                    Object[].class);
+            q.setParameter("agent", agentId);
+            q.setParameter("site", siteId);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("forgrade", false);
+            q.setParameter("status1", AssessmentGradingData.ASSESSMENT_UPDATED);
+            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+            List<Object[]> results = q.list();
 
-        if (results != null) {
-            for (Object[] row : results) {
-                Long assessmentId = (Long) row[0];
-                Integer status = (Integer) row[1];
+            if (results != null) {
+                for (Object[] row : results) {
+                    Long assessmentId = (Long) row[0];
+                    Integer status = (Integer) row[1];
 
-                if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(status)) {
-                    updatedAssessmentIds.remove(assessmentId);
-                    needResubmitAssessmentIds.add(assessmentId);
-                } else if (AssessmentGradingData.ASSESSMENT_UPDATED.equals(status)
-                        && !needResubmitAssessmentIds.contains(assessmentId)){
-                    updatedAssessmentIds.add(assessmentId);
+                    if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(status)) {
+                        updatedAssessmentIds.remove(assessmentId);
+                        needResubmitAssessmentIds.add(assessmentId);
+                    } else if (AssessmentGradingData.ASSESSMENT_UPDATED.equals(status)
+                            && !needResubmitAssessmentIds.contains(assessmentId)) {
+                        updatedAssessmentIds.add(assessmentId);
+                    }
                 }
             }
+
+            List<Set<Long>> finalList = new ArrayList<>(2);
+            finalList.add(needResubmitAssessmentIds);
+            finalList.add(updatedAssessmentIds);
+            return finalList;
+        } catch (Exception e) {
+            log.warn("Error getting updated assessment list for agent {} and site {}: {}", agentId, siteId, e.toString());
+            List<Set<Long>> emptyList = new ArrayList<>(2);
+            emptyList.add(needResubmitAssessmentIds);
+            emptyList.add(updatedAssessmentIds);
+            return emptyList;
         }
-
-        List<Set<Long>> finalList = new ArrayList<>(2);
-        finalList.add(needResubmitAssessmentIds);
-        finalList.add(updatedAssessmentIds);
-
-        return finalList;
     }
 
     public List getSiteNeedResubmitList(String siteId) {
-        List list = getHibernateTemplate()
-                .findByNamedParam(
-                        "select distinct a.publishedAssessmentId from AssessmentGradingData a, AuthorizationData au " +
-                                "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                                "and a.forGrade = :forgrade and a.status = :status",
-                        new String[]{"fid", "site", "forgrade", "status"},
-                        new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT});
-        return list;
+    	try {
+            Session session = getCurrentSession();
+            Query<Long> q = session.createQuery(
+                    "select distinct a.publishedAssessmentId from AssessmentGradingData a, AuthorizationData au " +
+                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
+                            "and a.forGrade = :forgrade and a.status = :status",
+                    Long.class);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("site", siteId);
+            q.setParameter("forgrade", false);
+            q.setParameter("status", AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+            return q.list();
+        } catch (Exception e) {
+            log.warn("Error getting site need resubmit list for site {}: {}", siteId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     @Override
     public int autoSubmitAssessments() {
         java.util.Date currentTime = new java.util.Date();
-
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-
-		Query query = session.createQuery("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
-						" a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
-						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
-						" from AssessmentGradingData a, PublishedAccessControl c " +
-						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
-						" and a.status not in (:status) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-						" and a.attemptDate is not null " +
-						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
-	    
-		query.setParameter("currentTime",currentTime);
-		query.setParameterList("status", Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION) );
-		query.setTimeout(300);
-
-		List<AssessmentGradingData> list = query.list();
-
-        Iterator<AssessmentGradingData> iter = list.iterator();
-        String lastAgentId = "";
-        Long lastPublishedAssessmentId = 0L;
-        PublishedAssessmentFacade assessment = null;
-        AssessmentGradingData adata = null;
-        Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap();
-
-
-        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-
-        boolean updateGrades = IntegrationContextFactory.getInstance() != null;
-        AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
         int failures = 0;
-        
-        while (iter.hasNext()) {
 
-            try {
-                adata = (AssessmentGradingData) iter.next();
+        try {
+            Session session = getCurrentSession();
 
-                if (!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
-                    assessment = publishedAssessmentService.getPublishedAssessmentQuick(adata.getPublishedAssessmentId().toString());
-                }
+            Query<AssessmentGradingData> query = session.createQuery(
+                    "select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
+                            " a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
+                            " a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
+                            " from AssessmentGradingData a, PublishedAccessControl c " +
+                            " where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
+                            " and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
+                            " and a.status not in (:status) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
+                            " and a.attemptDate is not null " +
+                            " order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId",
+                    AssessmentGradingData.class);
 
-                // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
-                if (!success) {
+            query.setParameter("currentTime", currentTime);
+            query.setParameterList("status", Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION));
+            query.setTimeout(300);
+
+            List<AssessmentGradingData> list = query.list();
+
+            Iterator<AssessmentGradingData> iter = list.iterator();
+            String lastAgentId = "";
+            Long lastPublishedAssessmentId = 0L;
+            PublishedAssessmentFacade assessment = null;
+            AssessmentGradingData adata = null;
+            Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap<>();
+
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            boolean updateGrades = IntegrationContextFactory.getInstance() != null;
+            AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
+
+            while (iter.hasNext()) {
+                try {
+                    adata = iter.next();
+
+                    if (!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
+                        assessment = publishedAssessmentService.getPublishedAssessmentQuick(adata.getPublishedAssessmentId().toString());
+                    }
+
+                    // this call happens in a separate transaction, so a rollback only affects this iteration
+                    boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, 
+                            lastAgentId, lastPublishedAssessmentId, sectionSetMap);
+                    if (!success) {
+                        ++failures;
+                    }
+
+                    lastPublishedAssessmentId = adata.getPublishedAssessmentId();
+                    lastAgentId = adata.getAgentId();
+                } catch (Exception e) {
                     ++failures;
+                    if (adata != null) {
+                        log.error("Error while auto submitting assessment grade data id: " + adata.getAssessmentGradingId(), e);
+                    } else {
+                        log.error(e.getMessage(), e);
+                    }
+                } finally {
+                    adata = null;
                 }
+            }
 
-                lastPublishedAssessmentId = adata.getPublishedAssessmentId();
-                lastAgentId = adata.getAgentId();
-            } catch (Exception e) {
-                ++failures;
-                if (adata != null) {
-                    log.error("Error while auto submitting assessment grade data id: " + adata.getAssessmentGradingId(),
-                            e);
-                } else {
-                    log.error(e.getMessage(), e);
-                }
-            }
-            finally {
-                adata = null;
-            }
+            return failures;
+        } catch (Exception e) {
+            log.error("Error in autoSubmitAssessments: {}", e.toString(), e);
+            return failures;
         }
-
-        return failures;
     }
-    
+
     private String makeHeader(String section, int sectionNumber, String question, String headerType, int questionNumber, String pool, String poolName) {
         StringBuilder sb = new StringBuilder(section);
         sb.append(" ");
@@ -3324,89 +3713,136 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public void removeItemGradingAttachment(Long attachmentId) {
-        ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) getHibernateTemplate()
-                .load(ItemGradingAttachment.class, attachmentId);
-        ItemGradingData itemGrading = itemGradingAttachment.getItemGrading();
-        // String resourceId = assessmentAttachment.getResourceId();
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
+                Session session = getCurrentSession();
+                ItemGradingAttachment itemGradingAttachment = session.get(ItemGradingAttachment.class, attachmentId);
+                
+                if (itemGradingAttachment == null) {
+                    log.warn("ItemGradingAttachment with ID {} not found", attachmentId);
+                    retryCount = 0;
+                    return;
+                }
+
+                ItemGradingData itemGrading = itemGradingAttachment.getItemGrading();
+                // String resourceId = assessmentAttachment.getResourceId();
+
                 if (itemGrading != null) {
                     Set<ItemGradingAttachment> set = itemGrading.getItemGradingAttachmentSet();
-                    set.remove(itemGradingAttachment);
-                    getHibernateTemplate().delete(itemGradingAttachment);
-                    retryCount = 0;
+                    if (set != null && set.contains(itemGradingAttachment)) {
+                        set.remove(itemGradingAttachment);
+                        session.merge(itemGrading);
+                    }
                 }
+                
+                session.remove(itemGradingAttachment);
+                retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem delete assessmentAttachment: "
-                        + e.getMessage());
-                retryCount = persistenceHelper.retryDeadlock(e,
-                        retryCount);
+                log.warn("problem delete assessmentAttachment: " + e.toString());
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
     }
 
     public void removeAssessmentGradingAttachment(Long attachmentId) {
-        AssessmentGradingAttachment assessmentGradingAttachment = (AssessmentGradingAttachment) getHibernateTemplate()
-                .load(AssessmentGradingAttachment.class, attachmentId);
-        AssessmentGradingData assessmentGrading = assessmentGradingAttachment.getAssessmentGrading();
-        // String resourceId = assessmentAttachment.getResourceId();
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                if (assessmentGrading != null) {
-                    Set set = assessmentGrading.getAssessmentGradingAttachmentSet();
-                    set.remove(assessmentGradingAttachment);
-                    getHibernateTemplate().delete(assessmentGradingAttachment);
+                Session session = getCurrentSession();
+                AssessmentGradingAttachment assessmentGradingAttachment = session.get(AssessmentGradingAttachment.class, attachmentId);
+                
+                if (assessmentGradingAttachment == null) {
+                    log.warn("AssessmentGradingAttachment with ID {} not found", attachmentId);
                     retryCount = 0;
+                    return;
                 }
+
+                AssessmentGradingData assessmentGrading = assessmentGradingAttachment.getAssessmentGrading();
+                // String resourceId = assessmentAttachment.getResourceId();
+
+                if (assessmentGrading != null) {
+                    Set<AssessmentGradingAttachment> set = assessmentGrading.getAssessmentGradingAttachmentSet();
+                    if (set != null && set.contains(assessmentGradingAttachment)) {
+                        set.remove(assessmentGradingAttachment);
+                        session.merge(assessmentGrading);
+                    }
+                }
+                
+                session.remove(assessmentGradingAttachment);
+                retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem delete assessmentAttachment: "
-                        + e.getMessage());
-                retryCount = persistenceHelper.retryDeadlock(e,
-                        retryCount);
+                log.warn("problem delete assessmentAttachment: " + e.toString());
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
     }
 
     public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
-        for (AttachmentIfc attachment : list) {
-            getHibernateTemplate().saveOrUpdate(attachment);
+        try {
+            Session session = getCurrentSession();
+            for (AttachmentIfc attachment : list) {
+                if (attachment != null) {
+                    session.merge(attachment);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error saving or updating attachments: {}", e.toString());
+            throw new DataAccessResourceFailureException("Failed to save or update attachments", e);
         }
     }
 
     public HashMap getInProgressCounts(String siteId) {
-        List list = getHibernateTemplate().findByNamedParam(
-                "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, AuthorizationData au " +
-                        "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                        "and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) group by a.publishedAssessmentId",
-                new String[]{"fid", "site", "forgrade", "status1", "status2"},
-                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, false, AssessmentGradingData.IN_PROGRESS, AssessmentGradingData.ASSESSMENT_UPDATED});
-        Iterator iter = list.iterator();
-        HashMap inProgressCountsMap = new HashMap();
-        while (iter.hasNext()) {
-            Object o[] = (Object[]) iter.next();
-            inProgressCountsMap.put(o[0], o[1]);
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
+                    "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, AuthorizationData au " +
+                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
+                            "and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) group by a.publishedAssessmentId",
+                    Object[].class);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("site", siteId);
+            q.setParameter("forgrade", false);
+            q.setParameter("status1", AssessmentGradingData.IN_PROGRESS);
+            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED);
+            List<Object[]> list = q.list();
+            
+            HashMap<Long, Long> inProgressCountsMap = new HashMap<>();
+            for (Object[] o : list) {
+                inProgressCountsMap.put((Long) o[0], (Long) o[1]);
+            }
+            return inProgressCountsMap;
+        } catch (Exception e) {
+            log.warn("Error getting in-progress counts for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
         }
-        return inProgressCountsMap;
     }
 
     public HashMap getSubmittedCounts(String siteId) {
-        List list = getHibernateTemplate().findByNamedParam(
-                "select a.publishedAssessmentId, count(distinct a.agentId) " +
-                        "from AssessmentGradingData a, AuthorizationData au, PublishedAssessmentData p " +
-                        "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                        "and a.forGrade = :forgrade and a.status > :status and a.publishedAssessmentId = p.publishedAssessmentId and " +
-                        "(p.lastNeedResubmitDate is null or a.submittedDate >= p.lastNeedResubmitDate) group by a.publishedAssessmentId",
-                new String[]{"fid", "site", "forgrade", "status"},
-                new Object[]{"OWN_PUBLISHED_ASSESSMENT", siteId, true, AssessmentGradingData.REMOVED});
-        Iterator iter = list.iterator();
-        HashMap startedCountsMap = new HashMap();
-        while (iter.hasNext()) {
-            Object o[] = (Object[]) iter.next();
-            startedCountsMap.put(o[0], o[1]);
+        try {
+            Session session = getCurrentSession();
+            Query<Object[]> q = session.createQuery(
+                    "select a.publishedAssessmentId, count(distinct a.agentId) " +
+                            "from AssessmentGradingData a, AuthorizationData au, PublishedAssessmentData p " +
+                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
+                            "and a.forGrade = :forgrade and a.status > :status and a.publishedAssessmentId = p.publishedAssessmentId and " +
+                            "(p.lastNeedResubmitDate is null or a.submittedDate >= p.lastNeedResubmitDate) group by a.publishedAssessmentId",
+                    Object[].class);
+            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+            q.setParameter("site", siteId);
+            q.setParameter("forgrade", true);
+            q.setParameter("status", AssessmentGradingData.REMOVED);
+            List<Object[]> list = q.list();
+            
+            HashMap<Long, Long> startedCountsMap = new HashMap<>();
+            for (Object[] o : list) {
+                startedCountsMap.put((Long) o[0], (Long) o[1]);
+            }
+            return startedCountsMap;
+        } catch (Exception e) {
+            log.warn("Error getting submitted counts for site {}: {}", siteId, e.toString());
+            return new HashMap<>();
         }
-        return startedCountsMap;
     }
 
     public void completeItemGradingData(AssessmentGradingData assessmentGradingData) {
@@ -3527,62 +3963,68 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public Double getAverageSubmittedAssessmentGrading(final Long publishedAssessmentId, final String agentId) {
         double averageScore = 0.0;
-        AssessmentGradingData ag = null;
-
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by  a.submittedDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentId);
             q.setParameter("forgrade", true);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        if (!assessmentGradings.isEmpty()) {
-            AssessmentGradingData agd;
-            Double cumulativeScore = 0D;
-            Iterator i = assessmentGradings.iterator();
+            if (!assessmentGradings.isEmpty()) {
+                Double cumulativeScore = 0D;
+                for (AssessmentGradingData agd : assessmentGradings) {
+                    if (agd.getFinalScore() != null) {
+                        cumulativeScore += agd.getFinalScore();
+                    }
+                }
+                averageScore = cumulativeScore / assessmentGradings.size();
 
-            while (i.hasNext()) {
-                agd = (AssessmentGradingData) i.next();
-                cumulativeScore += agd.getFinalScore();
+                DecimalFormat df = new DecimalFormat("0.##");
+                DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+                dfs.setDecimalSeparator('.');
+                df.setDecimalFormatSymbols(dfs);
+
+                averageScore = Double.valueOf(df.format(averageScore));
             }
-            averageScore = cumulativeScore / assessmentGradings.size();
-
-            DecimalFormat df = new DecimalFormat("0.##");
-            DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-            dfs.setDecimalSeparator('.');
-            df.setDecimalFormatSymbols(dfs);
-
-            averageScore = new Double(df.format((double) averageScore));
+            return averageScore;
+        } catch (Exception e) {
+            log.warn("Error getting average submitted assessment grading for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentId, e.toString());
+            return 0.0;
         }
-        return averageScore;
     }
 
     public List<AssessmentGradingData> getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId) {
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.finalScore desc");
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> query = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.finalScore desc",
+                    AssessmentGradingData.class);
+            query.setParameter("id", publishedAssessmentId);
+            query.setParameter("forgrade", true);
+            query.setParameter("status", AssessmentGradingData.REMOVED);
+            List<AssessmentGradingData> assessmentGradings = query.list();
 
-        return new ArrayList<>(assessmentGradings.stream()
-                .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
-                .values());
+            return new ArrayList<>(assessmentGradings.stream()
+                    .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
+                    .values());
+        } catch (Exception e) {
+            log.warn("Error getting highest submitted assessment grading list for assessment {}: {}", publishedAssessmentId, e.toString());
+            return new ArrayList<>();
+        }
     }
 
     public Map<Long, List<Long>> getAverageAssessmentGradingByPublishedItem(final Long publishedAssessmentId) {
         Map<Long, List<Long>> h = new HashMap<>();
 
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
                     "select new AssessmentGradingData(" +
                             " a.assessmentGradingId, p.itemId, " +
                             " a.agentId, a.finalScore, a.submittedDate) " +
@@ -3590,94 +4032,113 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " PublishedItemData p where " +
                             " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
                             " a.publishedAssessmentId = :id and a.status > :status" +
-                            " order by a.agentId asc, a.submittedDate desc"
-            );
+                            " order by a.agentId asc, a.submittedDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
+            List<AssessmentGradingData> assessmentGradings = q.list();
 
-        List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
-
-        String currentAgent = "";
-        Date submittedDate = null;
-        for (int i = 0; i < assessmentGradings.size(); i++) {
-            AssessmentGradingData g = assessmentGradings.get(i);
-            Long itemId = g.getPublishedItemId();
-            Long gradingId = g.getAssessmentGradingId();
-            if (i == 0) {
-                currentAgent = g.getAgentId();
-                submittedDate = g.getSubmittedDate();
-            }
-            if (currentAgent.equals(g.getAgentId())
-                    && ((submittedDate == null && g.getSubmittedDate() == null)
-                    || (submittedDate != null && submittedDate.equals(g.getSubmittedDate())))) {
-                List<Long> o = h.get(itemId);
-                if (o != null) {
-                    o.add(gradingId);
-                } else {
-                    List<Long> gradingIds = new ArrayList<>();
-                    gradingIds.add(gradingId);
-                    h.put(itemId, gradingIds);
+            String currentAgent = "";
+            Date submittedDate = null;
+            for (int i = 0; i < assessmentGradings.size(); i++) {
+                AssessmentGradingData g = assessmentGradings.get(i);
+                Long itemId = g.getPublishedItemId();
+                Long gradingId = g.getAssessmentGradingId();
+                if (i == 0) {
+                    currentAgent = g.getAgentId();
+                    submittedDate = g.getSubmittedDate();
+                }
+                if (currentAgent.equals(g.getAgentId())
+                        && ((submittedDate == null && g.getSubmittedDate() == null)
+                        || (submittedDate != null && submittedDate.equals(g.getSubmittedDate())))) {
+                    List<Long> o = h.get(itemId);
+                    if (o != null) {
+                        o.add(gradingId);
+                    } else {
+                        List<Long> gradingIds = new ArrayList<>();
+                        gradingIds.add(gradingId);
+                        h.put(itemId, gradingIds);
+                    }
+                }
+                if (!currentAgent.equals(g.getAgentId())) {
+                    currentAgent = g.getAgentId();
+                    submittedDate = g.getSubmittedDate();
                 }
             }
-            if (!currentAgent.equals(g.getAgentId())) {
-                currentAgent = g.getAgentId();
-                submittedDate = g.getSubmittedDate();
-            }
+            return h;
+        } catch (Exception e) {
+            log.warn("Error getting average assessment grading by published item for assessment {}: {}", publishedAssessmentId, e.toString());
+            return new HashMap<>();
         }
-        return h;
     }
 
     private Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMap(final Set itemGradingIds) {
 
-        final HibernateCallback<List<ItemGradingAttachment>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from ItemGradingAttachment a where a.itemGrading.itemGradingId in (:itemGradingIds)");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingAttachment> q = session.createQuery(
+                    "from ItemGradingAttachment a where a.itemGrading.itemGradingId in (:itemGradingIds)",
+                    ItemGradingAttachment.class);
             q.setParameterList("itemGradingIds", itemGradingIds);
-            return q.list();
-        };
-        Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(getHibernateTemplate().execute(hcb));
-        return processItemGradingAttachment(itemGradingAttachmentList);
+            List<ItemGradingAttachment> list = q.list();
+            Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(list);
+            return processItemGradingAttachment(itemGradingAttachmentList);
+        } catch (Exception e) {
+            log.warn("Error getting item grading attachment map for itemGradingIds: {}", e.toString());
+            return new HashMap<>();
+        }
     }
 
     private Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMap(final Long publishedItemId) {
 
-        final HibernateCallback<List<ItemGradingAttachment>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select a from ItemGradingAttachment a where a.itemGrading.publishedItemId = :publishedItemId ");
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingAttachment> q = session.createQuery(
+                    "select a from ItemGradingAttachment a where a.itemGrading.publishedItemId = :publishedItemId",
+                    ItemGradingAttachment.class);
             q.setParameter("publishedItemId", publishedItemId);
-            return q.list();
-        };
-        Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<>(getHibernateTemplate().execute(hcb));
-        return processItemGradingAttachment(itemGradingAttachmentSet);
+            List<ItemGradingAttachment> list = q.list();
+            Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<>(list);
+            return processItemGradingAttachment(itemGradingAttachmentSet);
+        } catch (Exception e) {
+            log.warn("Error getting item grading attachment map for publishedItemId {}: {}", publishedItemId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, List<AssessmentGradingAttachment>> getAssessmentGradingAttachmentMap(final Long pubAssessmentId) {
 
-        final HibernateCallback<List<AssessmentGradingAttachment>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select a from AssessmentGradingAttachment a where a.assessmentGrading.publishedAssessmentId = :pubAssessmentId ");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingAttachment> q = session.createQuery(
+                    "select a from AssessmentGradingAttachment a where a.assessmentGrading.publishedAssessmentId = :pubAssessmentId",
+                    AssessmentGradingAttachment.class);
             q.setParameter("pubAssessmentId", pubAssessmentId);
-            return q.list();
-        };
-        List<AssessmentGradingAttachment> assessmentGradingAttachmentList = getHibernateTemplate().execute(hcb);
-        return processAssessmentGradingAttachment(assessmentGradingAttachmentList);
+            List<AssessmentGradingAttachment> assessmentGradingAttachmentList = q.list();
+            return processAssessmentGradingAttachment(assessmentGradingAttachmentList);
+        } catch (Exception e) {
+            log.warn("Error getting assessment grading attachment map for assessment {}: {}", pubAssessmentId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     public Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMapByAssessmentGradingId(final Long assessmentGradingId) {
 
-        final HibernateCallback<List<ItemGradingAttachment>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<ItemGradingAttachment> q = session.createQuery(
                     "select a from ItemGradingAttachment a, ItemGradingData i " +
                             "where a.itemGrading.itemGradingId = i.itemGradingId " +
-                            "and i.assessmentGradingId = :assessmentGradingId");
+                            "and i.assessmentGradingId = :assessmentGradingId",
+                    ItemGradingAttachment.class);
             q.setParameter("assessmentGradingId", assessmentGradingId);
-            return q.list();
-        };
-
-        Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(getHibernateTemplate().execute(hcb));
-        return processItemGradingAttachment(itemGradingAttachmentList);
+            List<ItemGradingAttachment> list = q.list();
+            Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(list);
+            return processItemGradingAttachment(itemGradingAttachmentList);
+        } catch (Exception e) {
+            log.warn("Error getting item grading attachment map for assessment grading {}: {}", assessmentGradingId, e.toString());
+            return new HashMap<>();
+        }
     }
 
     private Map<Long, Set<ItemGradingAttachment>> processItemGradingAttachment(Set<ItemGradingAttachment> itemGradingAttachmentSet) {
@@ -3751,45 +4212,57 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public List<AssessmentGradingData> getUnSubmittedAssessmentGradingDataList(final Long publishedAssessmentId, final String agentIdString) {
-        final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.attemptDate desc");
+        try {
+            Session session = getCurrentSession();
+            Query<AssessmentGradingData> q = session.createQuery(
+                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.attemptDate desc",
+                    AssessmentGradingData.class);
             q.setParameter("id", publishedAssessmentId);
             q.setParameter("agent", agentIdString);
             q.setParameter("forgrade", false);
             q.setParameter("status", AssessmentGradingData.REMOVED);
             return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        } catch (Exception e) {
+            log.warn("Error getting unsubmitted assessment grading data list for assessment {} and agent {}: {}", 
+                    publishedAssessmentId, agentIdString, e.toString());
+            return new ArrayList<>();
+        }
     }
-    
+
     public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId) {
-        final HibernateCallback<List<SectionGradingData>> hcb = session -> {
-            Query q = session.createQuery(
+        try {
+            Session session = getCurrentSession();
+            Query<SectionGradingData> q = session.createQuery(
                     "from SectionGradingData s where " +
                         "s.assessmentGradingId = :assessmentGradingId " +
                         "and s.publishedSectionId = :sectionId " +
-                        "and s.agentId = :agent");
+                        "and s.agentId = :agent",
+                    SectionGradingData.class);
             q.setParameter("assessmentGradingId", assessmentGradingId);
             q.setParameter("sectionId", sectionId);
             q.setParameter("agent", agentId);
-            return q.list();
-        };
-        List<SectionGradingData> sectionGradings = getHibernateTemplate().execute(hcb);
-        if (sectionGradings.isEmpty()) {
+            List<SectionGradingData> sectionGradings = q.list();
+            
+            if (sectionGradings.isEmpty()) {
+                return null;
+            }
+            return sectionGradings.get(0);
+        } catch (Exception e) {
+            log.warn("Error getting section grading data for assessment {}, section {} and agent {}: {}", 
+                    assessmentGradingId, sectionId, agentId, e.toString());
             return null;
         }
-        return sectionGradings.get(0);
     }
 
     public void saveSectionGrading(SectionGradingData item) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().saveOrUpdate(item);
+                Session session = getCurrentSession();
+                session.merge(item);
                 retryCount = 0;
             } catch (Exception e) {
-                log.warn("problem saving sectionGrading: " + e.getMessage());
+                log.warn("problem saving sectionGrading: " + e.toString());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
