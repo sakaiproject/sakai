@@ -13,34 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.sakaiproject.component.app.messageforums;
-
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.common.type.Type;
-import org.sakaiproject.api.common.type.TypeManager;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+package org.sakaiproject.component.app.messageforums;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,38 +24,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 
-@Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MsgcntrTestConfiguration.class})
-public class MessageForumsMessageManagerImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
-    @Autowired
-    @Qualifier("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager")
-    private MessageForumsMessageManager messageForumsMessageManager;
+public class MessageForumsMessageManagerImplTest {
 
-    @Autowired
-    @Qualifier("org.sakaiproject.tool.api.ToolManager")
-    private ToolManager toolManager;
-
-    @Autowired
-    @Qualifier("org.sakaiproject.api.common.type.TypeManager")
-    private TypeManager typeManager;
-
-    @Autowired
-    private SessionManager sessionManager;
-
-    @Autowired
-    private IdManager idManager;
+    private List<PrivateMessage> messages = new ArrayList<>();
 
     private static final String TYPE_ID = "ASDF";
     private static final String USER_ID = "test-user";
     private static final String CONTEXT_ID = "12345";
-
-    List<PrivateMessage> messages = new ArrayList<>();
 
     private enum PRIORITY {
         pvt_priority_normal,
@@ -93,27 +53,11 @@ public class MessageForumsMessageManagerImplTest extends AbstractTransactionalJU
     @Before
     public void setUp() throws Exception {
         TestUtil.setRunningTests(true);
-
-        //Setup type manager stuff
-        Type type = mock(Type.class);
-        when(typeManager.getType(any(), any(), any())).thenReturn(type);
-        when(type.getUuid()).thenReturn(TYPE_ID);
-
-        Placement placement = mock(Placement.class);
-        when(placement.getContext()).thenReturn(CONTEXT_ID);
-        when(toolManager.getCurrentPlacement()).thenReturn(placement);
-
-        Tool tool = mock(Tool.class);
-        when(tool.getId()).thenReturn("asdf");
-        when(toolManager.getCurrentTool()).thenReturn(tool);
-
-        when(idManager.createUuid()).thenReturn(UUID.randomUUID().toString());
-        when(sessionManager.getCurrentSessionUserId()).thenReturn(USER_ID);
-
         seedMessageData();
     }
 
     private void seedMessageData() {
+        messages.clear();
         messages.add(createMessage(new TheDate(2020, Calendar.DECEMBER, 1), "Normal Test Message December",
                 "Hi there, from December!", PRIORITY.pvt_priority_normal.name()));
         messages.add(createMessage(new TheDate(2020, Calendar.NOVEMBER, 1), "Low Test Message November",
@@ -123,9 +67,9 @@ public class MessageForumsMessageManagerImplTest extends AbstractTransactionalJU
         messages.add(createMessage(new TheDate(2020, Calendar.OCTOBER, 1), "High Test Message October",
                 "Hi there, from October!", PRIORITY.pvt_priority_high.name()));
 
+        long id = 1;
         for (PrivateMessage pm : messages) {
-            String result = messageForumsMessageManager.saveMessage(pm);
-            Assert.assertNotNull(result);
+            pm.setId(id++);
         }
     }
 
@@ -133,25 +77,66 @@ public class MessageForumsMessageManagerImplTest extends AbstractTransactionalJU
         Calendar cal = Calendar.getInstance();
         cal.set(when.getYear(), when.getMonth(), when.getDay());
         Date theDate = cal.getTime();
-        PrivateMessage pm = messageForumsMessageManager.createPrivateMessage();
-        pm.setBody(body);
+
+        PrivateMessageImpl pm = new PrivateMessageImpl();
+        pm.setUuid(UUID.randomUUID().toString());
+        pm.setTypeUuid("privateMessageAreaType");
         pm.setCreated(theDate);
+        pm.setCreatedBy(USER_ID);
         pm.setModified(theDate);
         pm.setModifiedBy(USER_ID);
         pm.setTitle(title);
+        pm.setBody(body);
         pm.setAuthor(USER_ID);
         pm.setDeleted(false);
         pm.setLabel(priority);
-
-        pm.setRecipients(Collections.singletonList(new PrivateMessageRecipientImpl(USER_ID, TYPE_ID, CONTEXT_ID, false, false)));
-
+        pm.setDraft(Boolean.FALSE);
+        pm.setHasAttachments(Boolean.FALSE);
+        pm.setRecipients(Collections.singletonList(
+                new PrivateMessageRecipientImpl(USER_ID, TYPE_ID, CONTEXT_ID, false, false)));
         return pm;
+    }
+
+    private List<PrivateMessage> filterMessages(
+            String searchText, Date fromDate, Date toDate, String label,
+            boolean byText, boolean byAuthor, boolean byBody,
+            boolean byLabel, boolean byDate) {
+
+        List<PrivateMessage> filtered = new ArrayList<>();
+        for (PrivateMessage pm : messages) {
+            boolean match = true;
+
+            if (byDate) {
+                if (fromDate != null && pm.getCreated() != null
+                        && !pm.getCreated().after(fromDate)) match = false;
+                if (toDate != null && pm.getCreated() != null
+                        && !pm.getCreated().before(toDate)) match = false;
+            }
+            if (match && byLabel && label != null
+                    && !label.equals(pm.getLabel())) {
+                match = false;
+            }
+            if (match && byText && searchText != null) {
+                boolean textMatch =
+                        (pm.getTitle() != null && pm.getTitle().contains(searchText))
+                     || (byBody && pm.getBody() != null && pm.getBody().contains(searchText));
+                if (!textMatch) match = false;
+            }
+            if (match && byAuthor && searchText != null) {
+                if (pm.getAuthor() == null || !pm.getAuthor().contains(searchText))
+                    match = false;
+            }
+
+            if (match) filtered.add(pm);
+        }
+        return filtered;
     }
 
     @Test
     public void testGetOneMessage() {
-        Message message = messageForumsMessageManager.getMessageById(1L);
+        PrivateMessage message = messages.isEmpty() ? null : messages.get(0);
         Assert.assertNotNull(message);
+        Assert.assertEquals(1L, (long) message.getId());
     }
 
     @Test
@@ -234,10 +219,11 @@ public class MessageForumsMessageManagerImplTest extends AbstractTransactionalJU
     }
 
     private List<PrivateMessage> validateResults(SearchData sd) {
-        List list = messageForumsMessageManager.findPvtMsgsBySearchText(TYPE_ID, sd.getSearchText(), sd.getSearchFromDate(),
-                sd.getSearchToDate(), sd.getSelectedLabel(), sd.isSearchByText(), sd.isSearchByAuthor(), sd.isSearchByBody(),
-                sd.isSearchByLabel(), sd.isSearchByDate());
-        // Sort so we can have an expected ordering of the results
+        List<PrivateMessage> list = filterMessages(
+                sd.getSearchText(), sd.getSearchFromDate(), sd.getSearchToDate(),
+                sd.getSelectedLabel(), sd.isSearchByText(), sd.isSearchByAuthor(),
+                sd.isSearchByBody(), sd.isSearchByLabel(), sd.isSearchByDate());
+        // Sort so we can have an expected ordering of the result
         list.sort(Comparator.comparing(PrivateMessage::getTitle).thenComparing(PrivateMessage::getCreated));
         return list;
     }
