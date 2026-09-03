@@ -221,6 +221,7 @@ public class SiteStatsController {
         SiteStatsToolService.EventDetailsResult result = toolService.eventDetails(siteId, eventId);
         commonModel(model, result.getSiteId(), "useractivity");
         model.addAttribute("eventDetails", result);
+        model.addAttribute("userActivityForm", userActivityForm);
         return "user-activity-details";
     }
 
