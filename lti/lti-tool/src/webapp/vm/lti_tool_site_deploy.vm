@@ -8,8 +8,11 @@ ${includeLatestJQuery}
 
 <script type="text/javascript">includeWebjarLibrary('datatables');</script>
 <script id="js">
-    sakaiDataTables.onReady(function() {
-        sakaiDataTables.init('#tool_site_table', {
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('tool_site_table');
+        if (!table) return;
+
+        new DataTable(table, {
             pageLength: 50,
             lengthMenu: [[10, 50, 100, 200], [10, 50, 100, 200]],
             order: [[0, 'asc']],

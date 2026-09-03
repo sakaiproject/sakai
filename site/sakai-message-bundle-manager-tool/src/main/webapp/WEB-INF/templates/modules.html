@@ -50,8 +50,8 @@
           </table>
           <script>includeWebjarLibrary('datatables');</script>
           <script th:inline="javascript">
-            sakaiDataTables.onReady(function () {
-              sakaiDataTables.init('#modulesTable', {
+            document.addEventListener('DOMContentLoaded', function () {
+              new DataTable(document.getElementById('modulesTable'), {
                 order: [],
                 columnDefs: [{
                   targets: 'no-sort',

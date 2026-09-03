@@ -37,8 +37,9 @@
 
     <!--JAVASCRIPT -->
     <script>includeWebjarLibrary('datatables');</script>
+    <script src="/samigo-app/js/sortHelper.js"></script>
     <script>
-        sakaiDataTables.onReady(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const viewAllText = <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />;
             const language = {
                 search: <h:outputText value="'#{dataTablesMessages.search}'" />,
@@ -67,50 +68,42 @@
                 stateDuration: -1
             };
 
-            const selectTable = sakaiDataTables.initIfNotEmpty('selectIndexForm:selectTable', {
-                ...commonOptions,
-                order: [[2, "asc"]],
-                columns: [
-                    { orderable: true, searchable: true, type: "span" },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: true, type: "num" },
-                ],
-            });
-
-            if (selectTable) {
-                sakaiDataTables.attachSearch(selectTable, {
-                    input: "#selectIndexForm\\:selectTable_filter input",
-                    tableId: "selectIndexForm:selectTable",
+            const selectTableElement = document.getElementById('selectIndexForm:selectTable');
+            if (selectTableElement?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(selectTableElement, {
+                    ...commonOptions,
+                    order: [[2, "asc"]],
+                    columns: [
+                        { orderable: true, searchable: true, type: "natural-ci", orderDataType: "dom-span" },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: true, type: "natural-ci", orderDataType: "dom-span" },
+                    ],
                 });
             }
 
             const displayAllAssessments = document.querySelector("#selectIndexForm\\:reviewTable .displayAllAssessments");
-            const reviewTable = sakaiDataTables.initIfNotEmpty('selectIndexForm:reviewTable', {
-                ...commonOptions,
-                order: displayAllAssessments ? [[6, "desc"]] : [],
-                paging: false,
-                ordering: false,
-                info: false,
-                columns: displayAllAssessments ? [
-                    { orderable: true, searchable: true },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: true },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: true }
-                ] : [
-                    { orderable: true, searchable: true },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: false },
-                    { orderable: true, searchable: true }
-                ],
-            });
-
-            if (reviewTable) {
-                sakaiDataTables.attachSearch(reviewTable, {
-                    input: "#selectIndexForm\\:reviewTable_filter input",
-                    tableId: "selectIndexForm:reviewTable",
+            const reviewTableElement = document.getElementById('selectIndexForm:reviewTable');
+            if (reviewTableElement?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(reviewTableElement, {
+                    ...commonOptions,
+                    order: displayAllAssessments ? [[6, "desc"]] : [],
+                    paging: false,
+                    ordering: false,
+                    info: false,
+                    columns: displayAllAssessments ? [
+                        { orderable: true, searchable: true },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: true },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: true }
+                    ] : [
+                        { orderable: true, searchable: true },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: false },
+                        { orderable: true, searchable: true }
+                    ],
                 });
             }
         });

@@ -13,12 +13,12 @@
 		// Clear the table if the tool has been reset
 		// Unfortunatly resetting the state requres creating a temporary instance
 		if ("$!resetTableState" != "false") {
-			const tempDatatable = sakaiDataTables.init(table);
+			const tempDatatable = new DataTable(table);
 			tempDatatable.state.clear();
 			tempDatatable.destroy();
 		}
 
-		const datatable = sakaiDataTables.init(table, datatablesConfig);
+		const datatable = new DataTable(table, datatablesConfig);
 
 		// Move view selectr to table slot
 		document.querySelector(".dt-header-slot")

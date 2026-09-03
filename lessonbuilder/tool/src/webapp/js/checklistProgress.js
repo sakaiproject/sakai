@@ -2,7 +2,7 @@
 
     checklistProgress.init = function () {
         document.querySelectorAll(".checklistProgressTable").forEach(table => {
-            sakaiDataTables.init(table, {
+            new DataTable(table, {
                 order: [[0, "asc"]],
                 paging: false,
                 info: false,

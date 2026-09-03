@@ -18,7 +18,7 @@
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('datatables');</script>
 		<script>
-				sakaiDataTables.onReady(function() {
+				document.addEventListener('DOMContentLoaded', function() {
 						const menuLink = document.getElementById('messagesMainMenuLink');
 						const menuLinkSpan = menuLink?.closest('span');
 						if (menuLinkSpan) {
@@ -31,15 +31,19 @@
 						</f:verbatim>
 
 						// Initialize DataTables for search results
-						sakaiDataTables.init('prefs_pvt_form:pvtmsgs', {
-							"paging": false,
-							"info": false,
-							"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
-						});
+						const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');
+						if (messagesTable) {
+							new DataTable(messagesTable, {
+								"paging": false,
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
 
 						// Initialize DataTables for threaded view if it exists
-						if (document.getElementById("prefs_pvt_form:threaded_pvtmsgs")) {
-							sakaiDataTables.init('prefs_pvt_form:threaded_pvtmsgs', {
+						const threadedMessagesTable = document.getElementById("prefs_pvt_form:threaded_pvtmsgs");
+						if (threadedMessagesTable) {
+							new DataTable(threadedMessagesTable, {
 								"paging": false,
 								"info": false,
 								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order

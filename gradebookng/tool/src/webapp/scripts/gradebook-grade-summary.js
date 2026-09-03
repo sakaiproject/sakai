@@ -310,7 +310,7 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  if (!table) return;
+  if (!table || !table.querySelector("tbody td:not(:empty)")) return;
 
   table.querySelectorAll("td, th").forEach(node => {
     let sortValue = node.textContent.trim();
@@ -325,14 +325,11 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
     node.setAttribute("data-order", sortValue);
   });
 
-  sakaiDataTables.initIfNotEmpty(table, {
+  new DataTable(table, {
     paging: false,
     info: false,
     searching: false,
-    order: [],
-    columnDefs: [
-      { targets: "_all", type: "sakai-data-order" }
-    ]
+    order: []
   });
 };
 

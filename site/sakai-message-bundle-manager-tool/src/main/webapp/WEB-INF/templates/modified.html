@@ -35,8 +35,8 @@
       </table>
       <script>includeWebjarLibrary('datatables');</script>
       <script th:inline="javascript">
-        sakaiDataTables.onReady(function () {
-          sakaiDataTables.init('#modifiedTable', {
+        document.addEventListener('DOMContentLoaded', function () {
+          new DataTable(document.getElementById('modifiedTable'), {
             order: [],
             columnDefs: [{
               targets: 'no-sort',

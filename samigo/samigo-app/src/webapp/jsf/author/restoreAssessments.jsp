@@ -11,20 +11,21 @@
         <body onload="<%= request.getAttribute("html.body.onload") %>">
           <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
+            <script src="/samigo-app/js/sortHelper.js"></script>
             <script>
-                sakaiDataTables.onReady(function() {
+                document.addEventListener('DOMContentLoaded', function() {
                     const tableElement = document.getElementById("restoreAssessmentsForm:deletedAssessmentsTable");
                     const notEmptyTableTd = tableElement?.querySelector("td:not(:empty)");
                     if (notEmptyTableTd) {
-                        const table = sakaiDataTables.init(tableElement, {
+                        const table = new DataTable(tableElement, {
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                             "pageLength": 20,
                             "order": [[0, "desc"]],
                             "columns": [
-                                {"orderable": true, "searchable": true, "type": "span"},
+                                {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
                                 {"orderable": true, "searchable": true},
-                                {"orderable": true, "searchable": true, "type": "num"},
+                                {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
                                 {"orderable": false, "searchable": false}
                             ],
                             "language": {
@@ -52,10 +53,6 @@
                             "stateDuration": -1
                         });
 
-                        sakaiDataTables.attachSearch(table, {
-                            input: "#restoreAssessmentsForm\\:deletedAssessmentsTable_filter input",
-                            tableId: "restoreAssessmentsForm:deletedAssessmentsTable",
-                        });
                     }
 
                     tableElement?.addEventListener("change", event => {

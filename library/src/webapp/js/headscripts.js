@@ -682,7 +682,6 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library, options = {}) {
-	let psp = (window.portal && window.portal.pageScriptPath) ? window.portal.pageScriptPath : '/library/js/';
 	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
@@ -694,9 +693,18 @@ function includeWebjarLibrary(library, options = {}) {
 
 	switch (library) {
 		case 'datatables':
+			libraryVersion = "3.0.3";
+			document.write(`<script src="${webjars}/datatables.net/${libraryVersion}/js/dataTables.min.js${ver}"></script>`);
+			document.write(`<script src="${webjars}/datatables.net-bs5/${libraryVersion}/js/dataTables.bootstrap5.min.js${ver}"></script>`);
+			document.write(`<script src="${webjars}/datatables.net-plugins/3.0.2/sorting/natural.js${ver}"></script>`);
+			document.write(`<script src="${webjars}/datatables.net-plugins/3.0.2/sorting/any-number.js${ver}"></script>`);
+			document.write(`<script src="${webjars}/datatables.net-plugins/3.0.2/sorting/custom-data-source/dom-checkbox.js${ver}"></script>`);
+			document.write(`<link rel="stylesheet" href="${webjars}/datatables.net-bs5/${libraryVersion}/css/dataTables.bootstrap5.min.css${ver}"></link>`);
+			break;
 		case 'datatables-rowgroup':
-			includeWebjarLoader('datatables', library, psp, webjars, ver);
-			return;
+			libraryVersion = "2.0.0";
+			document.write(`<script src="${webjars}/datatables.net-rowgroup/${libraryVersion}/js/dataTables.rowGroup.min.js${ver}"></script>`);
+			break;
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
@@ -808,29 +816,6 @@ function includeWebjarLibrary(library, options = {}) {
 	cssReferences.forEach( (cssReference) => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
 
 }
-
-function includeWebjarLoader(loader, library, psp, webjars, ver) {
-	const args = JSON.stringify({ library, psp, webjars, ver });
-	const scriptId = `webjar-loader-${loader}`;
-	if (!window.sakaiWebjarLoaders?.[loader] && !document.getElementById(scriptId)) {
-		document.write(`<script id="${scriptId}" src="${psp}webjar-loaders/${loader}.js${ver}"></script>`);
-	}
-	document.write(`<script>
-		(function() {
-			const loader = ${JSON.stringify(loader)};
-			const args = ${args};
-			const runLoader = function() {
-				window.sakaiWebjarLoaders[loader](args);
-			};
-			if (window.sakaiWebjarLoaders?.[loader]) {
-				runLoader();
-			} else {
-				document.getElementById(${JSON.stringify(scriptId)})?.addEventListener("load", runLoader, { once: true });
-			}
-		}());
-	</script>`);
-}
-
 // Ensures consistent theming across all Sakai pages by dynamically loading a theme
 // switcher script, which applies a user or system-preferred theme class to the document
 if (!window.themeClassInit) {

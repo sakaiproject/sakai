@@ -46,18 +46,21 @@ SynMainLite.setupTableHeaders = function (){
 
 SynMainLite.setupTableParsers = function (){
 	var columns = [
-		{ type: "sakai-checkbox" }
+		{ orderDataType: "dom-checkbox" }
 	];
 
 	if (!messagesDisabled) {
-		columns.push({ type: "sakai-any-number" });
+		columns.push({ type: "any-number" });
 	}
 	if (!forumsDisabled) {
-		columns.push({ type: "sakai-any-number" });
+		columns.push({ type: "any-number" });
 	}
-	columns.push({ type: "sakai-html-text" });
+	columns.push({ type: "html" });
 
-	sakaiDataTables.initIfNotEmpty(".workspaceTable", {
+	const table = document.querySelector(".workspaceTable");
+	if (!table?.querySelector("tbody td:not(:empty)")) return;
+
+	new DataTable(table, {
 		paging: false,
 		info: false,
 		searching: false,

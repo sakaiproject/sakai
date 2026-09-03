@@ -39,7 +39,7 @@
     <script>includeWebjarLibrary('datatables');</script>
 
     <script>
-        sakaiDataTables.onReady(function() {
+        document.addEventListener('DOMContentLoaded', function() {
 
             const menuLink = document.getElementById('messagesMainMenuLink');
             const menuLinkSpan = menuLink?.closest('span');
@@ -48,7 +48,9 @@
                 menuLinkSpan.textContent = menuLink.textContent;
             }
 
-            sakaiDataTables.initIfNotEmpty('prefs_pvt_form:pvtmsgs', {
+            const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');
+            if (messagesTable?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(messagesTable, {
                     "paging": false,
                     "info": false,
                     "order": [[4, "desc"]],
@@ -81,7 +83,11 @@
                         }
                     }
                 });
-            sakaiDataTables.initIfNotEmpty('prefs_pvt_form:threaded_pvtmsgs', {
+            }
+
+            const threadedMessagesTable = document.getElementById('prefs_pvt_form:threaded_pvtmsgs');
+            if (threadedMessagesTable?.querySelector('tbody td:not(:empty)')) {
+                new DataTable(threadedMessagesTable, {
                     "paging": false,
                     "order": [[4, "desc"]],
                     "info": false,
@@ -114,6 +120,7 @@
                         }
                     }
                 });
+            }
 
             <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
                 initTagSelector("prefs_pvt_form");

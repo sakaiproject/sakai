@@ -65,13 +65,16 @@
             }
             generateTable(window.GbComparisonData);
 
-            sakaiDataTables.init(".studentGradesComparison-TableContainer table", {
+            const table = document.querySelector(".studentGradesComparison-TableContainer table");
+            if (!table) return;
+
+            new DataTable(table, {
               paging: false,
               info: false,
               searching: false,
               order: [],
               columnDefs: [
-                { targets: "_all", type: "sakai-html-text" }
+                { targets: "_all", type: "html" }
               ]
             });
         </script>

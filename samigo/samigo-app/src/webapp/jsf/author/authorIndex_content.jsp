@@ -39,8 +39,9 @@
     <script>includeWebjarLibrary('datatables');</script>
     <script>includeWebjarLibrary('bootstrap-multiselect');</script>
     <script src="/samigo-app/js/info.js"></script>
+    <script src="/samigo-app/js/sortHelper.js"></script>
     <script>
-        sakaiDataTables.onReady(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const pageLengthStorageKey = `samigo-pageLength-${portal.user.id}`;
 
             function getPageLength() {
@@ -57,22 +58,22 @@
             const assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
             if (notEmptyTableTd) {
-                const table = sakaiDataTables.init(tableElement, {
+                const table = new DataTable(tableElement, {
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
                     "order": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
-                        {"orderable": true, "searchable": true, "type": "span"},
+                        {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
                         {"orderable": false, "searchable": false},
                         {"orderable": true, "searchable": false},
                         {"orderable": true, "searchable": false},
                         {"orderable": true, "searchable": false},
                         {"orderable": true, "searchable": false},
-                        {"orderable": true, "searchable": true, "type": "num"},
-                        {"orderable": true, "searchable": true, "type": "num"},
+                        {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
+                        {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
                         {"orderable": true, "searchable": false},
-                        {"orderable": true, "searchable": true, "type": "num"},
+                        {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
                         {"orderable": false, "searchable": false},
                     ],
                     "language": {
@@ -102,7 +103,7 @@
 
                 let spanClassName = "";
                 let filterGroups = [];
-                const assessmentFilter = function (settings, searchData, rowIndex) {
+                const assessmentFilter = function (searchData, rowData, rowIndex) {
                     const row = table.row(rowIndex).node();
                     const cells = row ? Array.from(row.cells) : [];
                     let showBySpan = true;
@@ -129,11 +130,7 @@
                     return showBySpan && showByGroups;
                 };
 
-                sakaiDataTables.attachSearch(table, {
-                    input: "#authorIndexForm\\:coreAssessments_filter input",
-                    tableId: "authorIndexForm:coreAssessments",
-                    filter: assessmentFilter,
-                });
+                table.search.fixed("assessment-filter", assessmentFilter);
 
                 function filterBy() {
                     table.draw();

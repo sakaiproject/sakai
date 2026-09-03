@@ -35,7 +35,7 @@ function setupDataTable(tableId, dataTableConfig) {
         },
     };
 
-    const dataTable = sakaiDataTables.init(table, {
+    const dataTable = new DataTable(table, {
         ...dataTableConfig,
         pageLength,
         initComplete(settings) {

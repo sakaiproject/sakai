@@ -12,15 +12,9 @@
           var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
         </script>
         <script>
-          sakaiDataTables.onReady(() => {
+          document.addEventListener('DOMContentLoaded', () => {
             const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
-            const dataTable = setupDataTable("eventLogId:eventLogTable", dataTableConfig);
-            if (dataTable) {
-              sakaiDataTables.attachSearch(dataTable, {
-                input: "#eventLogId\\:eventLogTable_filter input",
-                tableId: "eventLogId:eventLogTable",
-              });
-            }
+            setupDataTable("eventLogId:eventLogTable", dataTableConfig);
           });
         </script>
         <%@ include file="/js/delivery.js" %>

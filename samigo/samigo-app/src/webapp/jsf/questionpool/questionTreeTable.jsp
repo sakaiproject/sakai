@@ -187,19 +187,14 @@
   </t:dataTable>
 
 <script>
-    sakaiDataTables.onReady(function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const dataTableConfig = JSON.parse('<h:outputText value="#{questionpool.dataTableConfig.json}" />');
 
         const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
         dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
 
         const dataTable = setupDataTable("editform:questionpool-questions", dataTableConfig);
-        sakaiDataTables.attachSearch(dataTable, {
-            input: "#editform\\:questionpool-questions_filter input",
-            tableId: "editform:questionpool-questions",
-        });
-
-        dataTable.on( 'draw.dt', function () {
+        dataTable?.on( 'draw.dt', function () {
             checkUpdate();
         });
     });

@@ -13,21 +13,10 @@ window.assignments.byStudent = {};
 window.assignments.byStudent.datatablesConfig = {
   dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
   stateSave: true,
-  initComplete() {
-    window.sakaiDataTables.attachSearch(this.api(), {
-      input: '#assignmentsByStudent_filter input',
-      tableId: 'assignmentsByStudent',
-      persistState: true,
-    });
-  },
   columnDefs: [
     {
       orderable: false,
       targets: "no-sort",
-    },
-    {
-      targets: "_all",
-      type: "sakai-data-order",
     },
   ],
   rowGroup: {
