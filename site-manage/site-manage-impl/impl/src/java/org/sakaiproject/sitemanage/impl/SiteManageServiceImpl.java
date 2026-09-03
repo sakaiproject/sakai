@@ -162,9 +162,9 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
-			// Tracks only whether importToolsIntoSite returned without throwing. Per-producer
-            // failures inside transferCopyEntities are logged and swallowed there, so a partial
-            // import can still be reported as completed; aggregating that status is a separate concern.
+			// Reflects only that importToolsIntoSite returned without throwing. transferCopyEntities
+            // logs and swallows individual EntityProducer failures, so a partial import still
+            // counts as succeeded here.
             boolean importSucceeded = false;
 			try {
                 log.info("Started Site Import for the site {}", id);
