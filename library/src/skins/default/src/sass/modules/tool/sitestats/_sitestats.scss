@@ -45,6 +45,13 @@
     color: var(--sakai-text-color-dimmed);
   }
 
+  .sitestats-highlights {
+    display: block;
+    width: 100%;
+    padding: $standard-space-2x $standard-spacing;
+    border-block-end: 1px solid var(--sakai-border-color);
+  }
+
   .sitestats-widget-tab {
     + .sitestats-widget-tab {
       border-block-start: 1px solid var(--sakai-border-color);

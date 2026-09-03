@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_AL
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_ACTIVITY_MOST_ACTIVE_TOOL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_LESSONS_PAGES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_AVERAGE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_BOUNCE_RATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_LAST_VISIT;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_NEVER_VISITED;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_TOTAL_7D;
@@ -26,10 +28,16 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUD
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_AVERAGE_PRESENCE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_PRESENCE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TRAFFIC_TREND;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_AVERAGE_PRESENCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_ENROLLED_USERS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TRAFFIC_TREND;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_UNIQUE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_USERS_WITHOUT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_USERS_WITH_VISITS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_ROLE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
@@ -54,6 +62,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -119,6 +128,13 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		Site site = site(SITE_ID, "Site A", "Instructor");
 		when(site.getUsers()).thenReturn(new HashSet<String>(Arrays.asList(USER_ID, OTHER_USER_ID)));
+		when(site.getMembers()).thenReturn(new HashSet<Member>(Arrays.asList(mock(Member.class), mock(Member.class))));
+		when(site.getUsersHasRole(anyString())).thenAnswer(invocation -> {
+			if ("Instructor".equals(invocation.getArgument(0))) {
+				return new HashSet<String>(Arrays.asList(USER_ID));
+			}
+			return new HashSet<String>();
+		});
 		when(siteService.siteReference(SITE_ID)).thenReturn(SITE_REF);
 		when(siteService.getSite(SITE_ID)).thenReturn(site);
 		when(siteService.isUserSite(SITE_ID)).thenReturn(false);
@@ -263,7 +279,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	}
 
 	@Test
-	public void presenceAccessWidgetReportsLastVisitAndPresenceTotals() {
+	public void presenceAccessWidgetReportsEngagementMetrics() {
 		Date lastVisit = Date.valueOf("2026-06-17");
 		db.insertObject(presenceTotal(SITE_ID, USER_ID, lastVisit, 3));
 		db.insertObject(presenceStat(SITE_ID, USER_ID, new java.util.Date(), 120000L));
@@ -272,11 +288,13 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
 
-		assertTrue(metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_LAST_VISIT).getSnapshot().getPrimary()
-				.contains("2026"));
-		assertEquals("1", metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_NEVER_VISITED).getSnapshot().getPrimary());
-		assertEquals("2 minutes_abbr 0 seconds_abbr",
+		assertEquals("2 minutes_abbr",
 				metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_7D).getSnapshot().getPrimary());
+		assertEquals("2 minutes_abbr",
+				metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_AVERAGE).getSnapshot().getPrimary());
+		assertEquals("1 / 1", metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_BOUNCE_RATE).getSnapshot().getPrimary());
+		assertEquals(Integer.valueOf(100),
+				metric(overview, WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_BOUNCE_RATE).getSnapshot().getPercentage());
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_ALL);
@@ -291,6 +309,39 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	}
 
 	@Test
+	public void trafficWidgetReportsUniqueVisitorsAndVisitsByRole() {
+		Date lastVisit = Date.valueOf("2026-06-17");
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT, StatsManager.SITEVISIT_EVENTID,
+				lastVisit, 3));
+
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+
+		assertEquals("1", metric(overview, WIDGET_VISITS, METRIC_VISITS_UNIQUE).getSnapshot().getPrimary());
+		assertEquals("1 / 2", metric(overview, WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getSnapshot().getPrimary());
+		assertEquals(Integer.valueOf(50),
+				metric(overview, WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getSnapshot().getPercentage());
+		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
+
+		db.insertObject(visitStat(SITE_ID, Date.valueOf(java.time.LocalDate.now()), 2, 1));
+		overview = service.getOverview(SITE_ID);
+		assertEquals(1, widget(overview, WIDGET_VISITS).getHighlights().size());
+		assertEquals(30, widget(overview, WIDGET_VISITS).getHighlights().get(0).getDatasets().get(0).getPoints().size());
+		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().get(0).isCompact());
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView byRole = service.getWidgetReport(SITE_ID, WIDGET_VISITS, TAB_BY_ROLE, request);
+		assertEquals(WIDGET_VISITS, byRole.getWidgetId());
+		assertEquals(TAB_BY_ROLE, byRole.getTabId());
+		assertNotNull(byRole.getChart());
+		assertFalse(byRole.getChart().getDatasets().isEmpty());
+		assertEquals("Instructor", byRole.getChart().getDatasets().get(0).getPoints().get(0).getLabel());
+		assertEquals(Long.valueOf(3), byRole.getChart().getDatasets().get(0).getPoints().get(0).getY());
+		assertEquals(1, byRole.getTable().getTotalRows());
+		assertEquals("Instructor", byRole.getTable().getRows().get(0).getCells().get("role").getDisplay());
+	}
+
+	@Test
 	public void studentPresenceAccessWidgetUsesCurrentUserLastVisit() {
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 		Date lastVisit = Date.valueOf("2026-06-17");
@@ -301,7 +352,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		assertTrue(metric(overview, WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_LAST_VISIT)
 				.getSnapshot().getPrimary().contains("2026"));
-		assertEquals("1 minutes_abbr 0 seconds_abbr",
+		assertEquals("1 minutes_abbr",
 				metric(overview, WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_7D)
 						.getSnapshot().getPrimary());
 
@@ -327,21 +378,26 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	@Test
 	public void visitAndPresenceWidgetsDoNotDuplicateVisitOrPresenceMetrics() {
 		List<String> visitIds = metricIds(service.getWidgetMetrics(SITE_ID, WIDGET_VISITS));
+		assertTrue(visitIds.contains(METRIC_VISITS_TRAFFIC_TREND));
+		assertTrue(visitIds.contains(METRIC_VISITS_UNIQUE));
+		assertTrue(visitIds.contains(METRIC_VISITS_USERS_WITH_VISITS));
 		assertFalse(visitIds.contains(METRIC_VISITS_USERS_WITHOUT_VISITS));
 		assertFalse(visitIds.contains(METRIC_VISITS_AVERAGE_PRESENCE));
 		assertFalse(visitIds.contains(METRIC_PRESENCE_LAST_VISIT));
 		assertFalse(visitIds.contains(METRIC_PRESENCE_AVERAGE));
+		assertFalse(visitIds.contains(METRIC_VISITS_ENROLLED_USERS));
 
 		List<String> presenceIds = metricIds(service.getWidgetMetrics(SITE_ID, WIDGET_PRESENCE_ACCESS));
-		assertTrue(presenceIds.contains(METRIC_PRESENCE_LAST_VISIT));
-		assertTrue(presenceIds.contains(METRIC_PRESENCE_NEVER_VISITED));
 		assertTrue(presenceIds.contains(METRIC_PRESENCE_AVERAGE));
+		assertTrue(presenceIds.contains(METRIC_PRESENCE_BOUNCE_RATE));
+		assertFalse(presenceIds.contains(METRIC_PRESENCE_LAST_VISIT));
+		assertFalse(presenceIds.contains(METRIC_PRESENCE_NEVER_VISITED));
 		assertFalse(presenceIds.contains(METRIC_VISITS_TOTAL));
 
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 
 		List<String> studentVisitIds = metricIds(service.getWidgetMetrics(SITE_ID, WIDGET_STUDENT_VISITS));
-		assertEquals(Arrays.asList(METRIC_STUDENT_VISITS_TOTAL), studentVisitIds);
+		assertEquals(Arrays.asList(METRIC_STUDENT_VISITS_TOTAL, METRIC_STUDENT_VISITS_TRAFFIC_TREND), studentVisitIds);
 		assertFalse(studentVisitIds.contains(METRIC_STUDENT_VISITS_AVERAGE_PRESENCE));
 		assertFalse(studentVisitIds.contains(METRIC_STUDENT_VISITS_PRESENCE));
 
@@ -463,6 +519,15 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 			}
 		}
 		throw new AssertionError("Missing filter " + widgetId + "/" + tabId + "/" + filterId);
+	}
+
+	private SiteStatsWidget widget(SiteStatsOverview overview, String widgetId) {
+		for (SiteStatsWidget widget : overview.getWidgets()) {
+			if (widgetId.equals(widget.getId())) {
+				return widget;
+			}
+		}
+		throw new AssertionError("Missing widget " + widgetId);
 	}
 
 	private SiteStatsWidgetMetric metric(SiteStatsOverview overview, String widgetId, String metricId) {

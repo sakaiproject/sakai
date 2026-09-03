@@ -6,26 +6,27 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_ENROLLED_USERS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ROLE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_VISITS_LAST_30_DAYS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_TRAFFIC_TREND;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_UNIQUE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_VISITS_USERS_WITH_VISITS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_ROLE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ROLE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 
 public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 
@@ -36,16 +37,20 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 						tabSpec(WIDGET_VISITS, TAB_BY_DATE, "overview_tab_bydate", this::visitsByDateDefinition,
 								FILTER_DATE, FILTER_ROLE),
 						tabSpec(WIDGET_VISITS, TAB_BY_USER, "overview_tab_byuser", this::visitsByUserDefinition,
-								FILTER_DATE, FILTER_ROLE)),
+								FILTER_DATE, FILTER_ROLE),
+						viewTabSpec(WIDGET_VISITS, TAB_BY_ROLE, "overview_tab_byrole", this::visitsByRoleView,
+								FILTER_DATE)),
 				metrics(
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_TOTAL, "overview_title_visits_sum", AUDIENCE_ALL,
 								this::visitsTotalMetricDefinition, this::visitsTotalValue),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_UNIQUE, "overview_title_unique_visits_sum", AUDIENCE_ALL,
-								this::visitsTotalMetricDefinition, this::visitsUniqueValue),
-						metricSpec(WIDGET_VISITS, METRIC_VISITS_ENROLLED_USERS, "overview_title_enrolled_users_sum", AUDIENCE_ALL,
-								null, this::visitsEnrolledUsersValue),
+								this::visitsUniqueMetricDefinition, this::visitsUniqueValue),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS, "overview_title_enrolled_users_with_visits_sum", AUDIENCE_ALL,
-								this::visitsUsersWithVisitsMetricDefinition, this::visitsUsersWithVisitsValue)));
+								this::visitsUsersWithVisitsMetricDefinition, this::visitsUsersWithVisitsValue),
+						metricSpec(WIDGET_VISITS, METRIC_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend", AUDIENCE_ALL,
+								this::visitsTotalMetricDefinition, this::visitsTrafficTrendValue)),
+				highlights(highlightSpec(HIGHLIGHT_VISITS_LAST_30_DAYS, "overview_title_visits_last30days",
+						this::visitsLast30DaysChart)));
 	}
 
 	private WidgetReportDefinition visitsByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -110,6 +115,14 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 	}
 
 	private WidgetReportDefinition visitsUsersWithVisitsMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
+		return visitsByUserTableDefinition(siteId, "overview_title_enrolled_users_with_visits_sum");
+	}
+
+	private WidgetReportDefinition visitsUniqueMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
+		return visitsByUserTableDefinition(siteId, "overview_title_unique_visits_sum");
+	}
+
+	private WidgetReportDefinition visitsByUserTableDefinition(String siteId, String titleKey) {
 		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_VISITS);
@@ -118,7 +131,11 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 		params.setHowSort(false);
 		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(message("overview_title_enrolled_users_with_visits_sum"), null, reportDef);
+		return new WidgetReportDefinition(message(titleKey), null, reportDef);
+	}
+
+	private SiteStatsReportView visitsByRoleView(String siteId, SiteStatsReportRequest request, String userId) {
+		return metricSupport().visitsByRoleView(siteId, request);
 	}
 
 	private WidgetMetricValue visitsTotalValue(String siteId, String userId) {
@@ -126,32 +143,18 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 	}
 
 	private WidgetMetricValue visitsUniqueValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteUniqueVisits(siteId)));
-	}
-
-	private WidgetMetricValue visitsEnrolledUsersValue(String siteId, String userId) {
-		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteUsers(siteId)));
+		return metricSupport().uniqueVisitsValue(siteId);
 	}
 
 	private WidgetMetricValue visitsUsersWithVisitsValue(String siteId, String userId) {
-		Set<String> siteUsers = siteUsers(siteId);
-		Set<String> usersWithVisits = usersWithVisits(siteId);
-		int count = 0;
-		for (String siteUser : siteUsers) {
-			if (usersWithVisits.contains(siteUser)) {
-				count++;
-			}
-		}
-		return WidgetMetricValue.withPercentage(String.valueOf(count), (int) metricSupport().percent(count, siteUsers.size()));
+		return metricSupport().membersVisitedValue(siteId);
 	}
 
-	private Set<String> siteUsers(String siteId) {
-		Set<String> users = statsManager().getSiteUsers(siteId);
-		return users == null ? Collections.<String>emptySet() : users;
+	private WidgetMetricValue visitsTrafficTrendValue(String siteId, String userId) {
+		return metricSupport().trafficTrendValue(siteId, null);
 	}
 
-	private Set<String> usersWithVisits(String siteId) {
-		Set<String> users = statsManager().getUsersWithVisits(siteId);
-		return users == null ? new HashSet<String>() : users;
+	private SiteStatsChart visitsLast30DaysChart(String siteId, String userId) {
+		return metricSupport().last30DaysVisitsChart(siteId, null);
 	}
 }

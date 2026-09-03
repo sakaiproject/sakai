@@ -28,6 +28,10 @@
           </dd>
         </div>
       </dl>
+      <sakai-sitestats-highlights class="sitestats-highlights"
+                                  th:if="${widgetHighlightsJson.containsKey(widget.id)}"
+                                  th:attr="charts=${widgetHighlightsJson.get(widget.id)}">
+      </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"
                                   th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)},

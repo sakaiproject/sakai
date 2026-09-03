@@ -68,6 +68,7 @@ public class SiteStatsController {
         commonModel(model, result.getOverview().getSiteId(), "overview");
         model.addAttribute("overview", result.getOverview());
         model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
+        model.addAttribute("widgetHighlightsJson", result.getWidgetHighlightsJson());
         return "overview";
     }
 

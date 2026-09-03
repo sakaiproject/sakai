@@ -74,6 +74,13 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator table = reportPanel.locator("sakai-sitestats-table table");
         assertThat(table).isVisible();
         assertThat(reportPanel.locator("sakai-sitestats-chart")).hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/byrole']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/tabs/']"))
+            .hasCount(0);
+        Locator visitsWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(widgetTab));
+        assertTrue(visitsWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }
 
@@ -298,6 +305,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-presence-access/']"))
             .hasCount(1);
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/']"))
             .hasCount(0);
     }
 

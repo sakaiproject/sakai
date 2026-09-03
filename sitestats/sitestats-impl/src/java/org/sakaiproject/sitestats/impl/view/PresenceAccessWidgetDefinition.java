@@ -19,9 +19,9 @@ package org.sakaiproject.sitestats.impl.view;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ROLE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_PRESENCE_LAST_30_DAYS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_AVERAGE;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_LAST_VISIT;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_NEVER_VISITED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_BOUNCE_RATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_TOTAL_30D;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_TOTAL_365D;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PRESENCE_TOTAL_7D;
@@ -30,14 +30,12 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_USER
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_PRESENCE_ACCESS;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
 public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
@@ -49,21 +47,21 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 				tabs(
 						tabSpec(WIDGET_PRESENCE_ACCESS, TAB_BY_DATE, "overview_tab_bydate", this::presenceByDateDefinition,
 								FILTER_DATE, FILTER_ROLE),
-						tabSpec(WIDGET_PRESENCE_ACCESS, TAB_BY_USER, "overview_tab_byuser", this::lastVisitByUserDefinition,
+						tabSpec(WIDGET_PRESENCE_ACCESS, TAB_BY_USER, "overview_tab_byuser", this::presenceByUserDefinition,
 								FILTER_DATE, FILTER_ROLE)),
 				metrics(
-						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_LAST_VISIT, "overview_title_last_visit", AUDIENCE_ALL,
-								this::lastVisitMetricDefinition, this::lastVisitValue),
-						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_NEVER_VISITED, "overview_title_never_accessed",
-								AUDIENCE_ALL, this::neverVisitedMetricDefinition, this::neverVisitedValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_AVERAGE, "overview_title_presence_time_avg", AUDIENCE_ALL,
 								this::presencesEnabled, this::averagePresenceMetricDefinition, this::averagePresenceValue),
+						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate", AUDIENCE_ALL,
+								this::presencesEnabled, this::bounceRateMetricDefinition, this::bounceRateValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_7D, "overview_title_presence_last7days", AUDIENCE_ALL,
 								this::presencesEnabled, this::presence7dMetricDefinition, this::presence7dValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_30D, "overview_title_presence_last30days", AUDIENCE_ALL,
 								this::presencesEnabled, this::presence30dMetricDefinition, this::presence30dValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_365D, "overview_title_presence_last365days", AUDIENCE_ALL,
-								this::presencesEnabled, this::presence365dMetricDefinition, this::presence365dValue)));
+								this::presencesEnabled, this::presence365dMetricDefinition, this::presence365dValue)),
+				highlights(highlightSpec(HIGHLIGHT_PRESENCE_LAST_30_DAYS, "overview_title_presence_last30days",
+						this::presencesEnabled, this::presenceLast30DaysChart)));
 	}
 
 	private WidgetReportDefinition presenceByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -77,50 +75,20 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 		return new WidgetReportDefinition(message("overview_title_presence_access"), reportDef, reportDef);
 	}
 
-	private WidgetReportDefinition lastVisitByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef table = lastVisitByUserReport(siteId, request);
+	private WidgetReportDefinition presenceByUserDefinition(String siteId, SiteStatsReportRequest request, String userId) {
 		ReportDef chart = reportFactory().presenceBase(siteId, request);
 		ReportParams chartParams = chart.getReportParams();
-		chartParams.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
+		chartParams.setHowTotalsBy(reportFactory().dateTotals(request, StatsManager.T_USER));
 		reportFactory().applyDateGrouping(chartParams, request, false);
 		chartParams.setHowSortBy(StatsManager.T_DURATION);
 		chartParams.setHowChartType(StatsManager.CHARTTYPE_PIE);
 		chartParams.setHowChartSource(StatsManager.T_USER);
 		chartParams.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
+		ReportDef table = new ReportDef(chart, siteId);
+		table.getReportParams().setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
+		table.getReportParams().setHowSortBy(StatsManager.T_DURATION);
 		return new WidgetReportDefinition(message("overview_title_presence_access"),
 				message("overview_title_presence_access"), chart, table);
-	}
-
-	private ReportDef lastVisitByUserReport(String siteId, SiteStatsReportRequest request) {
-		ReportDef reportDef = reportFactory().baseReportDef(siteId);
-		ReportParams params = reportDef.getReportParams();
-		params.setWhat(ReportManager.WHAT_EVENTS);
-		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
-		reportFactory().applyRoleFilter(params, request);
-		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER, StatsManager.T_LASTDATE));
-		params.setHowSortBy(StatsManager.T_LASTDATE);
-		params.setHowSortAscending(false);
-		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return reportDef;
-	}
-
-	private WidgetReportDefinition lastVisitMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = lastVisitByUserReport(siteId, new SiteStatsReportRequest());
-		reportDef.getReportParams().setWhen(ReportManager.WHEN_ALL);
-		return new WidgetReportDefinition(message("overview_title_last_visit"), null, reportDef);
-	}
-
-	private WidgetReportDefinition neverVisitedMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
-		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
-		ReportParams params = reportDef.getReportParams();
-		params.setWhat(ReportManager.WHAT_VISITS);
-		params.setWhen(ReportManager.WHEN_ALL);
-		params.setWho(ReportManager.WHO_NONE);
-		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
-		params.setHowSort(false);
-		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(message("overview_title_never_accessed"), null, reportDef);
 	}
 
 	private WidgetReportDefinition averagePresenceMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -138,6 +106,19 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 		params.setHowChartSeriesSource(StatsManager.T_NONE);
 		params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
 		return new WidgetReportDefinition(message("overview_title_presence_time_avg"), reportDef, reportDef);
+	}
+
+	private WidgetReportDefinition bounceRateMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
+		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
+		ReportParams params = reportDef.getReportParams();
+		params.setWhat(ReportManager.WHAT_PRESENCES);
+		params.setWhen(ReportManager.WHEN_ALL);
+		params.setWho(ReportManager.WHO_ALL);
+		params.setHowTotalsBy(Arrays.asList(StatsManager.T_DATE, StatsManager.T_USER));
+		params.setHowSortBy(StatsManager.T_DURATION);
+		params.setHowSortAscending(true);
+		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+		return new WidgetReportDefinition(message("overview_title_bounce_rate"), null, reportDef);
 	}
 
 	private WidgetReportDefinition presenceRangeMetricDefinition(String siteId, String when, String titleKey) {
@@ -168,24 +149,12 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 		return presenceRangeMetricDefinition(siteId, ReportManager.WHEN_LAST365DAYS, "overview_title_presence_last365days");
 	}
 
-	private WidgetMetricValue lastVisitValue(String siteId, String userId) {
-		return metricSupport().lastVisitValue(siteId, null, true);
-	}
-
-	private WidgetMetricValue neverVisitedValue(String siteId, String userId) {
-		Set<String> siteUsers = siteUsers(siteId);
-		Set<String> usersWithVisits = usersWithVisits(siteId);
-		int count = 0;
-		for (String siteUser : siteUsers) {
-			if (!usersWithVisits.contains(siteUser)) {
-				count++;
-			}
-		}
-		return WidgetMetricValue.withPercentage(String.valueOf(count), (int) metricSupport().percent(count, siteUsers.size()));
-	}
-
 	private WidgetMetricValue averagePresenceValue(String siteId, String userId) {
 		return metricSupport().averagePresencePerVisit(siteId);
+	}
+
+	private WidgetMetricValue bounceRateValue(String siteId, String userId) {
+		return metricSupport().bounceRateValue(siteId, null);
 	}
 
 	private WidgetMetricValue presence7dValue(String siteId, String userId) {
@@ -200,17 +169,11 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 		return metricSupport().presenceDurationValue(siteId, null, ReportManager.WHEN_LAST365DAYS);
 	}
 
+	private SiteStatsChart presenceLast30DaysChart(String siteId, String userId) {
+		return metricSupport().last30DaysPresenceChart(siteId, null);
+	}
+
 	private boolean presencesEnabled() {
 		return metricSupport().presencesEnabled();
-	}
-
-	private Set<String> siteUsers(String siteId) {
-		Set<String> users = statsManager().getSiteUsers(siteId);
-		return users == null ? Collections.<String>emptySet() : users;
-	}
-
-	private Set<String> usersWithVisits(String siteId) {
-		Set<String> users = statsManager().getUsersWithVisits(siteId);
-		return users == null ? new HashSet<String>() : users;
 	}
 }

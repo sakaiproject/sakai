@@ -23,10 +23,13 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_PRESENCE_LAST_30_DAYS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_AVERAGE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_BOUNCE_RATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_LAST_VISIT;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_TOTAL_30D;
@@ -48,6 +51,8 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 								AUDIENCE_OWN, null, this::studentLastVisitValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_AVERAGE, "overview_title_presence_time_avg",
 								AUDIENCE_OWN, this::presencesEnabled, null, this::studentAveragePresenceValue),
+						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate",
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentBounceRateValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL, "overview_title_presence_time",
 								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresenceTotalValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_7D, "overview_title_presence_last7days",
@@ -55,7 +60,9 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_30D, "overview_title_presence_last30days",
 								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence30dValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_365D, "overview_title_presence_last365days",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence365dValue)));
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence365dValue)),
+				highlights(highlightSpec(HIGHLIGHT_PRESENCE_LAST_30_DAYS, "overview_title_presence_last30days",
+						this::presencesEnabled, this::studentPresenceLast30DaysChart)));
 	}
 
 	private WidgetReportDefinition studentPresenceByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -80,6 +87,13 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 		return metricSupport().averagePresencePerVisitForUser(siteId, userId);
 	}
 
+	private WidgetMetricValue studentBounceRateValue(String siteId, String userId) {
+		if (StringUtils.isBlank(userId)) {
+			return WidgetMetricValue.of("-");
+		}
+		return metricSupport().bounceRateValue(siteId, Arrays.asList(userId));
+	}
+
 	private WidgetMetricValue studentPresenceTotalValue(String siteId, String userId) {
 		return studentPresenceValue(siteId, userId, ReportManager.WHEN_ALL);
 	}
@@ -101,6 +115,13 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 			return WidgetMetricValue.of("-");
 		}
 		return metricSupport().presenceDurationValue(siteId, Arrays.asList(userId), when);
+	}
+
+	private SiteStatsChart studentPresenceLast30DaysChart(String siteId, String userId) {
+		if (StringUtils.isBlank(userId)) {
+			return metricSupport().last30DaysPresenceChart(siteId, null);
+		}
+		return metricSupport().last30DaysPresenceChart(siteId, Arrays.asList(userId));
 	}
 
 	private boolean presencesEnabled() {
