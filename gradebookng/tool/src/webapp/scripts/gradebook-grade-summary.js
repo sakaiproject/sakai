@@ -239,7 +239,6 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 
 GradebookGradeSummary.prototype.setupModalPrint = function() {
     var self = this;
-    self.setupTableSorting();
 
     var $button = this.$content.find(".gb-summary-print");
     $button.off("click").on("click", function() {
@@ -310,7 +309,7 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  if (!table || !table.querySelector("tbody td:not(:empty)")) return;
+  if (!table || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
 
   table.querySelectorAll("td, th").forEach(node => {
     let sortValue = node.textContent.trim();
