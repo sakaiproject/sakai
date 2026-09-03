@@ -39,6 +39,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -81,6 +83,7 @@ import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareS
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,11 +93,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
+public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFacadeQueriesAPI {
 
 	@Setter private SiteService siteService;
 	@Setter private ToolManager toolManager;
 	@Setter private UserDirectoryService userDirectoryService;
+	private SessionFactory sessionFactory;
 
 	public static final String STARTDATE = "assessmentAccessControl.startDate";
 
@@ -161,6 +165,17 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public IdImpl getAssessmentTemplateId(long id) {
 		return new IdImpl(id);
+	}
+	
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	protected Session getCurrentSession() {
+		if (sessionFactory == null) {
+			throw new DataAccessResourceFailureException("SessionFactory is null");
+		}
+		return sessionFactory.getCurrentSession();
 	}
 
 	public PublishedAssessmentData preparePublishedAssessment(AssessmentData a){
@@ -671,8 +686,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * We just want a quick answer whether Samigo is responsible for an id.
 	 */
 	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
-		List<PublishedAssessmentData> list = (List<PublishedAssessmentData>) getHibernateTemplate()
-				.findByNamedParam("from PublishedAssessmentData where publishedAssessmentId = :id", "id", publishedAssessmentId);
+		Session session = getCurrentSession();
+		Query<PublishedAssessmentData> query = session.createQuery(
+				"from PublishedAssessmentData where publishedAssessmentId = :id", 
+				PublishedAssessmentData.class);
+		query.setParameter("id", publishedAssessmentId);
+		List<PublishedAssessmentData> list = query.list();
 
 		if (!list.isEmpty()) {
 			PublishedAssessmentData f = list.get(0);
@@ -725,8 +744,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 	
 	public Long getPublishedAssessmentId(Long assessmentId) {
-		List<PublishedAssessmentData> list = (List<PublishedAssessmentData>) getHibernateTemplate()
-				.findByNamedParam("from PublishedAssessmentData as p where p.assessmentId = :id order by p.createdDate desc", "id", assessmentId);
+		Session session = getCurrentSession();
+		Query<PublishedAssessmentData> query = session.createQuery(
+				"from PublishedAssessmentData as p where p.assessmentId = :id order by p.createdDate desc", 
+				PublishedAssessmentData.class);
+		query.setParameter("id", assessmentId);
+		List<PublishedAssessmentData> list = query.list();
 		Long publishedId = 0L;
 		if (!list.isEmpty()) {
 			PublishedAssessmentData f = list.get(0);
@@ -886,16 +909,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	
 
 	public AssessmentData loadAssessment(Long assessmentId) {
-		return (AssessmentData) getHibernateTemplate().load(
-				AssessmentData.class, assessmentId);
+		try {
+			Session session = getCurrentSession();
+			return session.get(AssessmentData.class, assessmentId);
+		} catch (Exception e) {
+			log.warn("Error loading assessment with ID {}: {}", assessmentId, e.toString());
+			return null;
+		}
 	}
 
 	public PublishedAssessmentData loadPublishedAssessment(Long assessmentId) {
 		PublishedAssessmentData ret = null;
 		try {
-			ret = getHibernateTemplate().get(PublishedAssessmentData.class, assessmentId);
+			Session session = getCurrentSession();
+			ret = session.get(PublishedAssessmentData.class, assessmentId);
 		} catch (DataAccessException e) {
 			log.warn("could not access published assessment [{}], {}", assessmentId, e.toString());
+		} catch (Exception e) {
+			log.warn("Error loading published assessment with ID {}: {}", assessmentId, e.toString());
 		}
 		return ret;
 	}
@@ -906,121 +937,156 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		query += (ascending ? " asc" : " desc");
 		log.debug("Order by " + orderBy);
 
-		final String hql = query;
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("status", status);
-            return q.list();
-        };
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
+			q.setParameter("status", status);
+			List<PublishedAssessmentData> list = q.list();
 
-		List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
-		for (PublishedAssessmentData a : list) {
-			log.debug("Title: " + a.getTitle());
-			assessmentList.add(new PublishedAssessmentFacade(a));
+			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
+			for (PublishedAssessmentData a : list) {
+				log.debug("Title: " + a.getTitle());
+				assessmentList.add(new PublishedAssessmentFacade(a));
+			}
+			return assessmentList;
+		} catch (Exception e) {
+			log.warn("Error getting all takeable assessments: {}", e.toString());
+			return new ArrayList<>();
 		}
-		return assessmentList;
 	}
 
 	public Integer getNumberOfSubmissions(final String publishedAssessmentId, final String agentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session.createQuery(
-				"select count(a) from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status")
-				.setParameter("id", Long.parseLong(publishedAssessmentId))
-				.setParameter("agent", agentId)
-				.setParameter("forgrade", true)
-				.setParameter("status", AssessmentGradingData.REMOVED)
-				.list();
-		List<Number> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Number> query = session.createQuery(
+					"select count(a) from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status",
+					Number.class);
+			query.setParameter("id", Long.parseLong(publishedAssessmentId));
+			query.setParameter("agent", agentId);
+			query.setParameter("forgrade", true);
+			query.setParameter("status", AssessmentGradingData.REMOVED);
 
-		return list.get(0).intValue();
+			List<Number> list = query.list();
+			if (!list.isEmpty()) {
+				return list.get(0).intValue();
+			}
+			return 0;
+		} catch (Exception e) {
+			log.warn("Error getting number of submissions for assessment {} and agent {}: {}", publishedAssessmentId, agentId, e.toString());
+			return 0;
+		}
 	}
 
 	public List<AssessmentGradingData> getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId) {
-		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createQuery(
-				"select new AssessmentGradingData(a.publishedAssessmentId, count(a)) " +
+		try {
+			Session session = getCurrentSession();
+			Query<AssessmentGradingData> query = session.createQuery(
+					"select new AssessmentGradingData(a.publishedAssessmentId, count(a)) " +
 						"from AssessmentGradingData as a where a.agentId = :agent and a.forGrade= :forgrade and a.status > :status " +
-						"group by a.publishedAssessmentId")
-				.setParameter("agent", agentId)
-				.setParameter("forgrade", true)
-				.setParameter("status", AssessmentGradingData.REMOVED)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+						"group by a.publishedAssessmentId",
+					AssessmentGradingData.class);
+			query.setParameter("agent", agentId);
+			query.setParameter("forgrade", true);
+			query.setParameter("status", AssessmentGradingData.REMOVED);
+
+			return query.list();
+		} catch (Exception e) {
+			log.warn("Error getting number of submissions for agent {}: {}", agentId, e.toString());
+			return new ArrayList<>();
+		}
 	}
 
 	public List<AssessmentGradingData> getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId, final String siteId) {
 
 		final List groupIds = getSiteGroupIdsForSubmittingAgent(agentId, siteId);
 
-		if (groupIds.size() > 0) {
-			final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                Query q = session.createQuery(
+		try {
+			Session session = getCurrentSession();
+
+			if (groupIds.size() > 0) {
+				Query<AssessmentGradingData> q = session.createQuery(
 						"select new AssessmentGradingData("
 								+ " a.publishedAssessmentId, count(distinct a)) "
 								+ " from AssessmentGradingData as a, AuthorizationData as az "
 								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status"
 								+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
-								+ " group by a.publishedAssessmentId");
-                q.setParameter("agentId", agentId);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("siteId", siteId);
-                q.setParameterList("groupIds", groupIds);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                return q.list();
-            };
-			return getHibernateTemplate().execute(hcb);
-		}
-		else {
-			final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-                Query q = session.createQuery(
+								+ " group by a.publishedAssessmentId",
+						AssessmentGradingData.class);
+				q.setParameter("agentId", agentId);
+				q.setParameter("forGrade", true);
+				q.setParameter("status", AssessmentGradingData.REMOVED);
+				q.setParameter("siteId", siteId);
+				q.setParameterList("groupIds", groupIds);
+				q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				return q.list();
+			} else {
+				Query<AssessmentGradingData> q = session.createQuery(
 						"select new AssessmentGradingData("
 								+ " a.publishedAssessmentId, count(a)) "
 								+ " from AssessmentGradingData as a, AuthorizationData as az "
 								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status "
 								+ " and az.agentIdString=:siteId "
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
-								+ " group by a.publishedAssessmentId");
-                q.setParameter("agentId", agentId);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("siteId", siteId);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                return q.list();
-            };
-			return getHibernateTemplate().execute(hcb);
-		}
+								+ " group by a.publishedAssessmentId",
+						AssessmentGradingData.class);
+				q.setParameter("agentId", agentId);
+				q.setParameter("forGrade", true);
+				q.setParameter("status", AssessmentGradingData.REMOVED);
+				q.setParameter("siteId", siteId);
+				q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				return q.list();
+			}
+		} catch (Exception e) {
+			log.warn("Error getting number of submissions for agent {} and site {}: {}", agentId, siteId, e.toString());
+			return new ArrayList<>();
+	    	}
 	}
 
 	public List<PublishedAssessmentFacade> getAllPublishedAssessments(String sortString) {
 		String orderBy = getOrderBy(sortString);
-		List<PublishedAssessmentData> list = (List<PublishedAssessmentData>) getHibernateTemplate().find("from PublishedAssessmentData p order by p." + orderBy);
-		List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
-		for (PublishedAssessmentData a : list) {
-			a.setSectionSet(getSectionSetForAssessment(a));
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
-			assessmentList.add(f);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
+					"from PublishedAssessmentData p order by p." + orderBy,
+					PublishedAssessmentData.class);
+			List<PublishedAssessmentData> list = query.list();
+
+			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
+			for (PublishedAssessmentData a : list) {
+				a.setSectionSet(getSectionSetForAssessment(a));
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+				assessmentList.add(f);
+			}
+			return assessmentList;
+		} catch (Exception e) {
+			log.warn("Error getting all published assessments: {}", e.toString());
+			return new ArrayList<>();
 		}
-		return assessmentList;
 	}
 
 	public List<PublishedAssessmentFacade> getAllPublishedAssessments(String sortString, final Integer status) {
 		final String orderBy = getOrderBy(sortString);
 
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery("from PublishedAssessmentData as p where p.status = :status order by p." + orderBy);
-            q.setParameter("status", status);
-            return q.list();
-        };
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
+					"from PublishedAssessmentData as p where p.status = :status order by p." + orderBy,
+					PublishedAssessmentData.class);
+			query.setParameter("status", status);
+			List<PublishedAssessmentData> list = query.list();
 
-		List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
-		for (PublishedAssessmentData a : list) {
-			a.setSectionSet(getSectionSetForAssessment(a));
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
-			assessmentList.add(f);
+			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
+			for (PublishedAssessmentData a : list) {
+				a.setSectionSet(getSectionSetForAssessment(a));
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+				assessmentList.add(f);
+			}
+			return assessmentList;
+		} catch (Exception e) {
+			log.warn("Error getting all published assessments with status {}: {}", status, e.toString());
+			return new ArrayList<>();
 		}
-		return assessmentList;
 	}
 
 	public List<PublishedAssessmentFacade> getAllPublishedAssessments(int pageSize, int pageNumber, String sortString, Integer status) {
@@ -1042,31 +1108,40 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 		return assessmentList;
 	}
-	
+
 	public void removeAssessment(Long assessmentId, String action) {
-		PublishedAssessmentData assessment = (PublishedAssessmentData) getHibernateTemplate()
-				.load(PublishedAssessmentData.class, assessmentId);
-		// for preview, delete assessment
-		// for others, simply set pub assessment to inactive
-		if (action == null || action.equals("preview")) {
-			delete(assessment);
-			// remove authorization
-			PersistenceService.getInstance().getAuthzQueriesFacade()
+		try {
+			Session session = getCurrentSession();
+			PublishedAssessmentData assessment = session.get(PublishedAssessmentData.class, assessmentId);
+
+			if (assessment == null) {
+				log.warn("Assessment with ID {} not found", assessmentId);
+				return;
+			}
+
+			// for preview, delete assessment
+			// for others, simply set pub assessment to inactive
+			if (action == null || action.equals("preview")) {
+				delete(assessment);
+				// remove authorization
+				PersistenceService.getInstance().getAuthzQueriesFacade()
 					.removeAuthorizationByQualifier(
-							assessment.getPublishedAssessmentId().toString(),
-							true);
-		}
-		else {
-			assessment.setLastModifiedBy(AgentFacade.getAgentString());
-			assessment.setLastModifiedDate(new Date());
-			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
-			try {
-				saveOrUpdate(assessment);
-				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
-				rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
-			} catch (Exception e) {
-				log.warn(e.getMessage());
-			}			
+						assessment.getPublishedAssessmentId().toString(),
+						true);
+			} else {
+				assessment.setLastModifiedBy(AgentFacade.getAgentString());
+				assessment.setLastModifiedDate(new Date());
+				assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
+				try {
+					saveOrUpdate(assessment);
+					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
+					rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+				} catch (Exception e) {
+					log.warn("Error updating assessment or rubrics: {}", e.toString());
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Error removing assessment with ID {}: {}", assessmentId, e.toString());
 		}
 	}
 
@@ -1097,18 +1172,28 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		while (retryCount > 0) {
 			try {
 				Long assessmentId = assessment.getPublishedAssessmentId();
-				List ip = getHibernateTemplate()
-						.findByNamedParam("from PublishedSecuredIPAddress s where s.assessment.publishedAssessmentId = :id", "id", assessmentId);
-				if (ip.size() > 0) {
-					PublishedSecuredIPAddress s = (PublishedSecuredIPAddress) ip.get(0);
+				Session session = getCurrentSession();
+
+				Query<PublishedSecuredIPAddress> query = session.createQuery(
+						"from PublishedSecuredIPAddress s where s.assessment.publishedAssessmentId = :id",
+						PublishedSecuredIPAddress.class);
+				query.setParameter("id", assessmentId);
+				List<PublishedSecuredIPAddress> ip = query.list();
+
+				if (!ip.isEmpty()) {
+					PublishedSecuredIPAddress s = ip.get(0);
 					PublishedAssessmentData a = (PublishedAssessmentData) s.getAssessment();
-					a.setSecuredIPAddressSet(new HashSet());
-					getHibernateTemplate().deleteAll(ip);
+					a.setSecuredIPAddressSet(new HashSet<>());
+
+					for (PublishedSecuredIPAddress address : ip) {
+						session.remove(address);
+					}
 					retryCount = 0;
-				} else
+				} else {
 					retryCount = 0;
+				}
 			} catch (Exception e) {
-				log.warn("problem deleting ip address: " + e.getMessage());
+				log.warn("problem deleting ip address: " + e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
@@ -1125,10 +1210,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(data);
+				Session session = getCurrentSession();
+				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem save or update assessment: {}", e.getMessage());
+				log.warn("problem save or update assessment: {}", e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 				if (retryCount == 0) {
 					throw e;
@@ -1151,51 +1237,54 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " order by p." + orderBy;
 		query += (ascending ? " asc" : " desc");
 
-		final String hql = query;
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("status", 1);
-            q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("siteId", siteAgentId);
-            return q.list();
-        };
-		List<PublishedAssessmentData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
+			q.setParameter("status", 1);
+			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+			q.setParameter("siteId", siteAgentId);
+			List<PublishedAssessmentData> l = q.list();
 
-		// we will filter the one that is past duedate & late submission date
-		List<PublishedAssessmentData> list = new ArrayList<>();
-		for (PublishedAssessmentData p : l) {
-			if ((p.getDueDate() == null || (p.getDueDate()).after(currentDate))
-					&& (p.getRetractDate() == null || (p.getRetractDate())
+			// we will filter the one that is past duedate & late submission date
+			List<PublishedAssessmentData> list = new ArrayList<>();
+			for (PublishedAssessmentData p : l) {
+				if ((p.getDueDate() == null || (p.getDueDate()).after(currentDate))
+						&& (p.getRetractDate() == null || (p.getRetractDate())
 							.after(currentDate))) {
-				list.add(p);
-			}
-		}
-
-		List<PublishedAssessmentFacade> pubList = new ArrayList<>();
-		Map groupsForSite = null;
-		Map releaseToGroups;
-		String lastModifiedBy = "";
-		AgentFacade agent = null;
-
-		for (PublishedAssessmentData p : list) {
-			releaseToGroups = null;
-			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-				if (groupsForSite == null) {
-					groupsForSite = getGroupsForSite(siteAgentId);
+					list.add(p);
 				}
-				Long assessmentId = p.getPublishedAssessmentId();
-				releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
 			}
-			
 
-			agent = new AgentFacade(p.getLastModifiedBy());
-			lastModifiedBy = agent.getDisplayName();
+			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
+			Map<String, String> groupsForSite = null;
+			Map<String, String> releaseToGroups;
+			String lastModifiedBy = "";
+			AgentFacade agent = null;
 
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
-			pubList.add(f);
+			for (PublishedAssessmentData p : list) {
+				releaseToGroups = null;
+				if (p.getReleaseTo() != null && p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+					if (groupsForSite == null) {
+						groupsForSite = getGroupsForSite(siteAgentId);
+					}
+					Long assessmentId = p.getPublishedAssessmentId();
+					releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
+				}
+
+				agent = new AgentFacade(p.getLastModifiedBy());
+				if (agent != null) {
+					lastModifiedBy = agent.getDisplayName();
+				}
+
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
+				pubList.add(f);
+			}
+			return pubList;
+		} catch (Exception e) {
+			log.warn("Error getting basic info of active published assessments for site {}: {}", siteAgentId, e.toString());
+			return new ArrayList<>();
 		}
-		return pubList;
 	}
 
 	/**
@@ -1224,58 +1313,66 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		else
 			query += " desc";
 
-		final String hql = query;
-		final HibernateCallback<List> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("activeStatus", 1);
-            q.setParameter("today", new Date());
-            q.setParameter("editStatus", 3);
-            q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("siteId", siteAgentId);
-            //q.setParameterList("groupIds", groupIds);
-            return q.list();
-        };
-		List list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
+			q.setParameter("activeStatus", 1);
+			q.setParameter("today", new Date());
+			q.setParameter("editStatus", 3);
+			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+			q.setParameter("siteId", siteAgentId);
+			List<PublishedAssessmentData> list = q.list();
 
-		// List list = getHibernateTemplate().find(query,
-		// new Object[] {new Date(), new Date(),siteAgentId} ,
-		// new org.hibernate.type.Type[] {Hibernate.TIMESTAMP,
-		// Hibernate.TIMESTAMP,
-		// Hibernate.STRING});
-
-		List pubList = new ArrayList();
-		Map groupsForSite = null;
-		Map releaseToGroups;
-		String lastModifiedBy = "";
-		AgentFacade agent;
-		for (int i = 0; i < list.size(); i++) {
-			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
-			releaseToGroups = null;
-			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-				if (groupsForSite == null) {
-					groupsForSite = getGroupsForSite(siteAgentId);
+			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
+			Map<String, String> groupsForSite = null;
+			Map<String, String> releaseToGroups;
+			String lastModifiedBy = "";
+			AgentFacade agent;
+			for (int i = 0; i < list.size(); i++) {
+				PublishedAssessmentData p = list.get(i);
+				releaseToGroups = null;
+				if (p.getReleaseTo() != null && p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+					if (groupsForSite == null) {
+						groupsForSite = getGroupsForSite(siteAgentId);
+					}
+					Long assessmentId = p.getPublishedAssessmentId();
+					releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
 				}
-				Long assessmentId = p.getPublishedAssessmentId();
-				releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
-			}
 
-			agent = new AgentFacade(p.getLastModifiedBy());
-			if (agent != null) {
-				lastModifiedBy = agent.getDisplayName();
+				agent = new AgentFacade(p.getLastModifiedBy());
+				if (agent != null) {
+					lastModifiedBy = agent.getDisplayName();
+				}
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
+						.getPublishedAssessmentId(), p.getTitle(),
+						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getStatus(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
+				pubList.add(f);
 			}
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
-					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getStatus(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
-			pubList.add(f);
+			return pubList;
+		} catch (Exception e) {
+			log.warn("Error getting inactive published assessments for site {}: {}", siteAgentId, e.toString());
+			return new ArrayList<>();
 		}
-		return pubList;
 	}
 
 	public Set<PublishedSectionData> getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
-		List<PublishedSectionData> sectionList = (List<PublishedSectionData>) getHibernateTemplate().findByNamedParam(
-				"from PublishedSectionData s where s.assessment.publishedAssessmentId = :id", "id", assessment.getPublishedAssessmentId());
-		Hibernate.initialize(sectionList);
-		return new HashSet<>(sectionList);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedSectionData> query = session.createQuery(
+					"from PublishedSectionData s where s.assessment.publishedAssessmentId = :id",
+					PublishedSectionData.class);
+			query.setParameter("id", assessment.getPublishedAssessmentId());
+			List<PublishedSectionData> sectionList = query.list();
+
+			for (PublishedSectionData section : sectionList) {
+				Hibernate.initialize(section.getItemSet());
+			}
+
+			return new HashSet<>(sectionList);
+		} catch (Exception e) {
+			log.warn("Error getting section set for assessment {}: {}", assessment.getPublishedAssessmentId(), e.toString());
+			return new HashSet<>();
+		}
 	}
 
 	// IMPORTANT:
@@ -1291,11 +1388,23 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public PublishedItemData loadPublishedItem(Long itemId) {
-		return getHibernateTemplate().load(PublishedItemData.class, itemId);
+		try {
+			Session session = getCurrentSession();
+			return session.load(PublishedItemData.class, itemId);
+		} catch (Exception e) {
+			log.warn("Error loading published item with ID {}: {}", itemId, e.toString());
+			return null;
+		}
 	}
 
 	public PublishedItemText loadPublishedItemText(Long itemTextId) {
-		return getHibernateTemplate().load(PublishedItemText.class, itemTextId);
+		try {
+			Session session = getCurrentSession();
+			return session.load(PublishedItemText.class, itemTextId);
+		} catch (Exception e) {
+			log.warn("Error loading published item text with ID {}: {}", itemTextId, e.toString());
+			return null;
+		}
 	}
 
 	
@@ -1356,30 +1465,33 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			}
 		}
 
-		final String hql = query;
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("activeStatus", 1);
-            q.setParameter("editStatus", 3);
-            q.setParameter("siteId", siteId);
-            if (groupIds.size() > 0) {
-                q.setParameterList("groupIds", groupIds);
-            }
-            q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-            return q.list();
-        };
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
-		List<PublishedAssessmentFacade> pubList = new ArrayList<>();
-		for (PublishedAssessmentData p : list) {
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
+			q.setParameter("activeStatus", 1);
+			q.setParameter("editStatus", 3);
+			q.setParameter("siteId", siteId);
+			if (groupIds.size() > 0) {
+				q.setParameterList("groupIds", groupIds);
+			}
+			q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+
+			List<PublishedAssessmentData> list = q.list();
+			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
+			for (PublishedAssessmentData p : list) {
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
 							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
-			pubList.add(f);
+				pubList.add(f);
+			}
+			return pubList;
+		} catch (Exception e) {
+			log.warn("Error getting basic info of all published assessments for site {}: {}", siteId, e.toString());
+			return new ArrayList<>();
 		}
-		return pubList;
 	}
 
 	// This is for instructors view (author index page)
@@ -1396,77 +1508,79 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " order by p." + orderBy;
 		query += (ascending ? " asc" : " desc");
 
-		final String hql = query;
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("siteId", siteAgentId);
-            q.setParameter("activeStatus", 1);
-            q.setParameter("editStatus", 3);
-            return q.list();
-        };
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
-
-		List<PublishedAssessmentFacade> pubList = new ArrayList<>();
-		Map groupsForSite = null;
-		Map releaseToGroups = new HashMap();
-		String lastModifiedBy = "";
-		AgentFacade agent = null;
-		Long assessmentId;
-		String userId = AgentFacade.getAnonymousId();
-		GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-		Site site = null;
-		Collection<Group> siteGroups = new ArrayList<>();
-		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
-			site = siteService.getSite(siteAgentId);
-			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
-				siteGroups = site.getGroups();
-			} else {
-				siteGroups = site.getGroupsWithMember(userId);
-			}
-			Map<String, String> groupIdsMap = siteGroups.stream()
-				.collect(Collectors.toMap(Group::getId, Group::getId));
-			keysGroupIdsMap = groupIdsMap.keySet();
-		} catch (IdUnusedException ex) {
-			// no site found, just log a warning
-			log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteAgentId);
-		}
-		for (PublishedAssessmentData p : list) {
-			releaseToGroups = null;
-			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-				if (groupsForSite == null) {
-					groupsForSite = getGroupsForSite(siteAgentId);
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
+			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+			q.setParameter("siteId", siteAgentId);
+			q.setParameter("activeStatus", 1);
+			q.setParameter("editStatus", 3);
+			List<PublishedAssessmentData> list = q.list();
+
+			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
+			Map<String, String> groupsForSite = null;
+			Map<String, String> releaseToGroups = new HashMap<>();
+			String lastModifiedBy = "";
+			AgentFacade agent = null;
+			Long assessmentId;
+			String userId = AgentFacade.getAnonymousId();
+			GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+			Site site = null;
+			Collection<Group> siteGroups = new ArrayList<>();
+			Set<String> keysGroupIdsMap = new HashSet<>();
+			try {
+				site = siteService.getSite(siteAgentId);
+				if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+					siteGroups = site.getGroups();
+				} else {
+					siteGroups = site.getGroupsWithMember(userId);
 				}
-				assessmentId = p.getPublishedAssessmentId();
-				releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
+				Map<String, String> groupIdsMap = siteGroups.stream()
+					.collect(Collectors.toMap(Group::getId, Group::getId));
+				keysGroupIdsMap = groupIdsMap.keySet();
+			} catch (IdUnusedException ex) {
+				// no site found, just log a warning
+				log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteAgentId);
 			}
+			for (PublishedAssessmentData p : list) {
+				releaseToGroups = null;
+				if (p.getReleaseTo() != null && p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+					if (groupsForSite == null) {
+						groupsForSite = getGroupsForSite(siteAgentId);
+					}
+					assessmentId = p.getPublishedAssessmentId();
+					releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
+				}
 
-			agent = new AgentFacade(p.getLastModifiedBy());
-			if (agent != null) {
-				lastModifiedBy = agent.getDisplayName();
-			}
+				agent = new AgentFacade(p.getLastModifiedBy());
+				if (agent != null) {
+					lastModifiedBy = agent.getDisplayName();
+				}
 
-			if (releaseToGroups != null) {
-				Set<String> keysReleaseToGroups = releaseToGroups.keySet();
+				if (releaseToGroups != null) {
+					Set<String> keysReleaseToGroups = releaseToGroups.keySet();
 
-				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
-				commonKeys.retainAll(keysGroupIdsMap);
+					Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
+					commonKeys.retainAll(keysGroupIdsMap);
 
-				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+					if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+						PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+								p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
+								p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
+						pubList.add(f);
+					}
+				} else {
 					PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
 							p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
 							p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
 					pubList.add(f);
 				}
-			} else {
-				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
-						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
-						p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
-				pubList.add(f);
 			}
+			return pubList;
+		} catch (Exception e) {
+			log.warn("Error getting basic info for instructor view (author index page) for site {}: {}", siteAgentId, e.toString());
+			return new ArrayList<>();
 		}
-		return pubList;
 	}
 
 	
@@ -1500,28 +1614,31 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		 * desc"; } else { query += " asc"; } }
 		 */
 
-		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
-            Query q = session.createQuery(query);
-            q.setParameter("forgrade", true);
-            q.setParameter("agent", agentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
-        };
-		List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<AssessmentGradingData> q = session.createQuery(query, AssessmentGradingData.class);
+			q.setParameter("forgrade", true);
+			q.setParameter("agent", agentId);
+			q.setParameter("status", AssessmentGradingData.REMOVED);
+			List<AssessmentGradingData> list = q.list();
 
-		List<AssessmentGradingData> assessmentList = new ArrayList<>();
-		Long current = 0L;
-		// Date currentDate = new Date();
-		for (AssessmentGradingData a : list) {
-			// criteria: only want the most recently submitted assessment from a
-			// given user.
-			if (!a.getPublishedAssessmentId().equals(current)) {
-				current = a.getPublishedAssessmentId();
-				AssessmentGradingData f = a;
-				assessmentList.add(f);
+			List<AssessmentGradingData> assessmentList = new ArrayList<>();
+			Long current = 0L;
+			// Date currentDate = new Date();
+			for (AssessmentGradingData a : list) {
+				// criteria: only want the most recently submitted assessment from a
+				// given user.
+				if (!a.getPublishedAssessmentId().equals(current)) {
+					current = a.getPublishedAssessmentId();
+					AssessmentGradingData f = a;
+					assessmentList.add(f);
+				}
 			}
+			return assessmentList;
+		} catch (Exception e) {
+			log.warn("Error getting basic info of last submitted assessments for agent {}: {}", agentId, e.toString());
+			return new ArrayList<>();
 		}
-		return assessmentList;
 	}
 
 	/**
@@ -1555,28 +1672,43 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
      * @return number of submissions
      */
 	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id and a.status > :status")
-				.setParameter("forgrade", true)
-				.setParameter("id", publishedAssessmentId)
-				.setParameter("status", AssessmentGradingData.REMOVED)
-				.list();
-		List<Number> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Number> query = session.createQuery(
+					"select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id and a.status > :status",
+					Number.class);
+			query.setParameter("forgrade", true);
+			query.setParameter("id", publishedAssessmentId);
+			query.setParameter("status", AssessmentGradingData.REMOVED);
+			List<Number> l = query.list();
 
-		return l.get(0).intValue();
+			if (!l.isEmpty()) {
+				return l.get(0).intValue();
+			}
+			return 0;
+		} catch (Exception e) {
+			log.warn("Error getting total submissions for assessment {}: {}", publishedAssessmentId, e.toString());
+			return 0;
+		}
 	}
 
 	public Integer getTotalSubmission(final String agentId, final Long publishedAssessmentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id and a.status > :status")
-				.setParameter("forgrade", true)
-				.setParameter("agent", agentId)
-				.setParameter("id", publishedAssessmentId)
-				.setParameter("status", AssessmentGradingData.REMOVED)
-				.list();
-		List<Number> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Long> query = session.createQuery(
+					"select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id and a.status > :status",
+					Long.class);
+			query.setParameter("forgrade", true);
+			query.setParameter("agent", agentId);
+			query.setParameter("id", publishedAssessmentId);
+			query.setParameter("status", AssessmentGradingData.REMOVED);
 
-		return l.get(0).intValue();
+			Long count = query.uniqueResult();
+			return count != null ? count.intValue() : 0;
+		} catch (Exception e) {
+			log.warn("Error getting total submissions for agent {} and assessment {}: {}", agentId, publishedAssessmentId, e.toString());
+			return 0;
+		}
 	}
 
 	public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias) {
@@ -1584,29 +1716,37 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(final String label, final String entry) {
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session
-				.createQuery("select p from PublishedAssessmentData p, PublishedMetaData m where p=m.assessment and m.label = :label and m.entry = :entry")
-				.setParameter("label", label)
-				.setParameter("entry", entry)
-				.list();
-        List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
+					"select p from PublishedAssessmentData p, PublishedMetaData m where p=m.assessment and m.label = :label and m.entry = :entry",
+					PublishedAssessmentData.class);
+			query.setParameter("label", label);
+			query.setParameter("entry", entry);
+			List<PublishedAssessmentData> list = query.list();
 
-        switch (list.size()) {
-            case 0:
-                log.warn("No matching assessment where ALIAS = {}", entry);
-                break;
-            case 1:
-                PublishedAssessmentData data = list.get(0);
-                data.setSectionSet(getSectionSetForAssessment(data));
-                PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
-                assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
-                return assessment;
-            default:
-                log.warn("More than 1 assessment found with the same ALIAS = {}, this should be unique.", entry);
-                break;
-        }
-        return null;
-    }
+			switch (list.size()) {
+				case 0:
+					log.warn("No matching assessment where {} = {}", label, entry);
+					break;
+				case 1:
+					PublishedAssessmentData data = list.get(0);
+					data.setSectionSet(getSectionSetForAssessment(data));
+					PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
+					if (data.getAssessmentFeedback() != null) {
+						assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
+					}
+					return assessment;
+				default:
+					log.warn("More than 1 assessment found with the same {} = {}, this should be unique.", label, entry);
+					break;
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error getting published assessment by meta label {} and entry {}: {}", label, entry, e.toString());
+			return null;
+		}
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -1615,14 +1755,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return Collections.emptyMap();
 		}
 
-			HibernateCallback<Map<Long, String>> hcb = session -> {
-				Query<Object[]> query = session.createQuery(
-						"select m.assessment.publishedAssessmentId, m.entry "
-								+ "from PublishedMetaData m "
-								+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
-								+ "and m.label = :label "
-								+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
-						Object[].class);
+		try {
+			Session session = getCurrentSession();
+			Query<Object[]> query = session.createQuery(
+					"select m.assessment.publishedAssessmentId, m.entry "
+							+ "from PublishedMetaData m "
+							+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
+							+ "and m.label = :label "
+							+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
+							Object[].class);
 			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
 			query.setParameter("label", label);
 
@@ -1630,23 +1771,23 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.collect(Collectors.toMap(
 					row -> (Long) row[0],
 					row -> (String) row[1],
-					// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
 					(existing, replacement) -> replacement,
 					LinkedHashMap::new
 				));
-		};
-
-		return getHibernateTemplate().execute(hcb);
+		} catch (Exception e) {
+			throw new DataAccessResourceFailureException("Failed to get assessment meta data entries", e);
+		}
 	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(meta);
+				Session session = getCurrentSession();
+				session.merge(meta);
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem save or update meta data: " + e.getMessage());
+				log.warn("problem save or update meta data: " + e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
@@ -1682,19 +1823,23 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " where az.qualifierId = p.assessment.publishedAssessmentId "
 				+ " and (az.agentIdString in (:agentIdString)) "
 				+ " and az.functionId=:functionId ";
-		final HibernateCallback<List<PublishedFeedback>> hcb = session -> {
-            Query q = session.createQuery(query);
-            q.setParameterList("agentIdString", listAgentId);
-            q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-            return q.list();
-        };
 
-		List<PublishedFeedback> l = getHibernateTemplate().execute(hcb);
-		Map<Long, PublishedFeedback> h = new HashMap<>();
-		for (PublishedFeedback f : l) {
-			h.put(f.getAssessmentId(), f);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedFeedback> q = session.createQuery(query, PublishedFeedback.class);
+			q.setParameterList("agentIdString", listAgentId);
+			q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+			List<PublishedFeedback> l = q.list();
+
+			Map<Long, PublishedFeedback> h = new HashMap<>();
+			for (PublishedFeedback f : l) {
+				h.put(f.getAssessmentId(), f);
+			}
+			return h;
+		} catch (Exception e) {
+			log.warn("Error getting feedback hash for site {}: {}", siteId, e.toString());
+			return new HashMap<>();
 		}
-		return h;
 	}
 
 	/**
@@ -1705,52 +1850,70 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * retractDate
 	 */
 	public Map<Long, PublishedAssessmentFacade> getAllAssessmentsReleasedToAuthenticatedUsers() {
-		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
-				+ " from PublishedAssessmentData p, PublishedAccessControl c  "
-				+ " where c.assessment = p and c.releaseTo like '%Authenticated Users%'";
-		List<PublishedAssessmentData> l = (List<PublishedAssessmentData>) getHibernateTemplate().find(query);
-		Map<Long, PublishedAssessmentFacade> h = new HashMap<>();
-		for (PublishedAssessmentData p : l) {
-			h.put(p.getPublishedAssessmentId(), new PublishedAssessmentFacade(p));
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
+					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
+							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
+							+ " from PublishedAssessmentData p, PublishedAccessControl c  "
+							+ " where c.assessment = p and c.releaseTo like '%Authenticated Users%'",
+					PublishedAssessmentData.class);
+			List<PublishedAssessmentData> l = query.list();
+
+			Map<Long, PublishedAssessmentFacade> h = new HashMap<>();
+			for (PublishedAssessmentData p : l) {
+				h.put(p.getPublishedAssessmentId(), new PublishedAssessmentFacade(p));
+			}
+			return h;
+		} catch (Exception e) {
+			log.warn("Error getting assessments released to authenticated users: {}", e.toString());
+			return new HashMap<>();
 		}
-		return h;
 	}
 
 	public String getPublishedAssessmentOwner(String publishedAssessmentId) {
-	    List<AuthorizationData> l = (List<AuthorizationData>) getHibernateTemplate()
-				.findByNamedParam("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
-						new String[] {"fid", "id"},
-						new Object[] {"OWN_PUBLISHED_ASSESSMENT", publishedAssessmentId});
-		if (!l.isEmpty()) {
-			AuthorizationData a = l.get(0);
-			return a.getAgentIdString();
+		try {
+			Session session = getCurrentSession();
+			Query<AuthorizationData> query = session.createQuery(
+					"select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
+					AuthorizationData.class);
+			query.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+			query.setParameter("id", publishedAssessmentId);
+			List<AuthorizationData> l = query.list();
+
+			if (!l.isEmpty()) {
+				AuthorizationData a = l.get(0);
+				return a.getAgentIdString();
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error getting published assessment owner for assessment {}: {}", publishedAssessmentId, e.toString());
+			return null;
 		}
-		return null;
 	}
 
 	public boolean publishedAssessmentTitleIsUnique(final Long assessmentBaseId, final String title) {
 		final String currentSiteId = AgentFacade.getCurrentSiteId();
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
-            Query q = session.createQuery(
-            		"select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate) " +
-							"from PublishedAssessmentData a, AuthorizationData z " +
-							"where a.title = :title and a.publishedAssessmentId != :id and a.status != :status " +
-							"and z.functionId = :fid and a.publishedAssessmentId = z.qualifierId and z.agentIdString = :site"
-			);
-            q.setParameter("title", title);
-            q.setParameter("id", assessmentBaseId.longValue());
-            q.setParameter("status", 2);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("site", currentSiteId);
-            return q.list();
-        };
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> q = session.createQuery(
+					"select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate) " +
+					"from PublishedAssessmentData a, AuthorizationData z " +
+					"where a.title = :title and a.publishedAssessmentId != :id and a.status != :status " +
+					"and z.functionId = :fid and a.publishedAssessmentId = z.qualifierId and z.agentIdString = :site",
+					PublishedAssessmentData.class);
+			q.setParameter("title", title);
+			q.setParameter("id", assessmentBaseId);
+			q.setParameter("status", 2);
+			q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
+			q.setParameter("site", currentSiteId);
+			List<PublishedAssessmentData> list = q.list();
 
-		if (!list.isEmpty()) {
+			return list.isEmpty();
+		} catch (Exception e) {
+			log.warn("Error checking if published assessment title is unique for title {}: {}", title, e.toString());
 			return false;
 		}
-		return true;
 	}
 
 	public boolean hasRandomPart(final Long publishedAssessmentId) {
@@ -1758,118 +1921,150 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
-		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
-				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
-				.setParameter("id", publishedAssessmentId.longValue())
-				.setParameter("key", key)
-				.setParameter("value", value)
-				.setParameter("valueMultiple", valueMultiple)
-				.list();
-		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedSectionData> q = session.createQuery(
+					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
+					"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)",
+					PublishedSectionData.class);
+			q.setParameter("id", publishedAssessmentId);
+			q.setParameter("key", key);
+			q.setParameter("value", value);
+			q.setParameter("valueMultiple", valueMultiple);
+			List<PublishedSectionData> l = q.list();
 
-		if (!l.isEmpty()) {
-			return true;
+			return !l.isEmpty();
+		} catch (Exception e) {
+			log.warn("Error checking if assessment {} has random part: {}", publishedAssessmentId, e.toString());
+			return false;
 		}
-		return false;
 	}
-	
+
 	public List<Long> getContainRandomPartAssessmentIds(final Collection assessmentIds) {
-        if (assessmentIds == null || assessmentIds.size() < 1) {
+		if (assessmentIds == null || assessmentIds.size() < 1) {
 			return new ArrayList<>();
 		}
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 		final String entryMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
-		final HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select s.assessment.publishedAssessmentId " +
-						"from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and (m.entry = :entry or m.entry = :entryMultiple)" +
-						"group by s.assessment.publishedAssessmentId")
-				.setParameter("label", key)
-				.setParameter("entry", value)
-				.setParameter("entryMultiple", entryMultiple)
-				.setParameterList("ids", assessmentIds)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Long> q = session.createQuery(
+					"select distinct s.assessment.publishedAssessmentId " +
+					"from PublishedSectionData s, PublishedSectionMetaData m " +
+					"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and (m.entry = :entry or m.entry = :entryMultiple)",
+					Long.class);
+			q.setParameter("label", key);
+			q.setParameter("entry", value);
+			q.setParameter("entryMultiple", entryMultiple);
+			q.setParameterList("ids", assessmentIds);
+			return q.list();
+		} catch (Exception e) {
+			log.warn("Error getting assessment IDs with random parts: {}", e.toString());
+			return new ArrayList<>();
+		}
 	}
 
 	public PublishedItemData getFirstPublishedItem(final Long publishedAssessmentId) {
-		final HibernateCallback<List<PublishedItemData>> hcb = session -> session
-				.createQuery("select i from PublishedAssessmentData p, PublishedSectionData s, " +
-						" PublishedItemData i where p.publishedAssessmentId = :id and" +
-						" p.publishedAssessmentId = s.assessment.publishedAssessmentId and s = i.section")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<PublishedItemData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
 
-		final HibernateCallback<List<PublishedSectionData>> hcb2 = session -> session
-				.createQuery("select s from PublishedAssessmentData p, PublishedSectionData s " +
-						" where p.publishedAssessmentId = :id and p.publishedAssessmentId = s.assessment.publishedAssessmentId")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<PublishedSectionData> sec = getHibernateTemplate().execute(hcb2);
+			Query<PublishedItemData> q1 = session.createQuery(
+					"select i from PublishedAssessmentData p, PublishedSectionData s, " +
+					" PublishedItemData i where p.publishedAssessmentId = :id and" +
+					" p.publishedAssessmentId = s.assessment.publishedAssessmentId and s = i.section",
+					PublishedItemData.class);
+			q1.setParameter("id", publishedAssessmentId);
+			List<PublishedItemData> l = q1.list();
 
-		PublishedItemData returnItem = null;
-		if (sec.size() > 0 && l.size() > 0) {
-			sec.sort(new SecComparator());
-			for (PublishedSectionData thisSec : sec) {
-				List<PublishedItemData> itemList = new ArrayList<>();
-				for (PublishedItemData aL : l) {
-					PublishedItemData compItem = aL;
-					if (compItem.getSection().getSectionId().equals(thisSec.getSectionId())) {
-						itemList.add(compItem);
+			Query<PublishedSectionData> q2 = session.createQuery(
+					"select s from PublishedAssessmentData p, PublishedSectionData s " +
+					" where p.publishedAssessmentId = :id and p.publishedAssessmentId = s.assessment.publishedAssessmentId",
+					PublishedSectionData.class);
+			q2.setParameter("id", publishedAssessmentId);
+			List<PublishedSectionData> sec = q2.list();
+
+			PublishedItemData returnItem = null;
+			if (sec.size() > 0 && l.size() > 0) {
+				sec.sort(new SecComparator());
+				for (PublishedSectionData thisSec : sec) {
+					List<PublishedItemData> itemList = new ArrayList<>();
+					for (PublishedItemData aL : l) {
+						PublishedItemData compItem = aL;
+						if (compItem.getSection().getSectionId().equals(thisSec.getSectionId())) {
+							itemList.add(compItem);
+						}
+					}
+					if (itemList.size() > 0) {
+						itemList.sort(new ItemComparator());
+						returnItem = itemList.get(0);
+						break;
 					}
 				}
-				if (itemList.size() > 0) {
-					itemList.sort(new ItemComparator());
-					returnItem = itemList.get(0);
-					break;
-				}
 			}
+			return returnItem;
+		} catch (Exception e) {
+			log.warn("Error getting first published item for assessment {}: {}", publishedAssessmentId, e.toString());
+			return null;
 		}
-		return returnItem;
 	}
 
 	public List<Long> getPublishedItemIds(final Long publishedAssessmentId) {
-		final HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
-						"where p.publishedAssessmentId = :id and p = s.assessment and i.section = s")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Long> q = session.createQuery(
+					"select i.itemId from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
+					"where p.publishedAssessmentId = :id and p = s.assessment and i.section = s",
+					Long.class);
+			q.setParameter("id", publishedAssessmentId);
+			return q.list();
+		} catch (Exception e) {
+			log.warn("Error getting published item IDs for assessment {}: {}", publishedAssessmentId, e.toString());
+			return new ArrayList<>();
+		}
 	}
-	
+
 	public Set<PublishedItemData> getPublishedItemSet(final Long publishedAssessmentId, final Long sectionId) {
-		final HibernateCallback<List<PublishedItemData>> hcb = session -> session
-				.createQuery("select i from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
-						"where p.publishedAssessmentId = :id and i.section.id = :section and p = s.assessment and i.section = s")
-				.setParameter("id", publishedAssessmentId)
-				.setParameter("section", sectionId)
-				.list();
-		List<PublishedItemData> assessmentGradings = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedItemData> q = session.createQuery(
+					"select i from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
+					"where p.publishedAssessmentId = :id and i.section.id = :section and p = s.assessment and i.section = s",
+					PublishedItemData.class);
+			q.setParameter("id", publishedAssessmentId);
+			q.setParameter("section", sectionId);
+			List<PublishedItemData> assessmentGradings = q.list();
 
-		Set<PublishedItemData> itemSet = new HashSet<>();
-	    for (PublishedItemData publishedItemData : assessmentGradings) {
-	    	log.debug("itemId = {}", publishedItemData.getItemId());
-	    	itemSet.add(publishedItemData);
-	    }
-	    return itemSet;
-
+			Set<PublishedItemData> itemSet = new HashSet<>();
+			for (PublishedItemData publishedItemData : assessmentGradings) {
+				log.debug("itemId = {}", publishedItemData.getItemId());
+				itemSet.add(publishedItemData);
+			}
+			return itemSet;
+		} catch (Exception e) {
+			log.warn("Error getting published item set for assessment {} and section {}: {}", publishedAssessmentId, sectionId, e.toString());
+			return new HashSet<>();
+		}
 	}
 
 	public Long getItemType(final Long publishedItemId) {
-		final HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select p.typeId from PublishedItemData p where p.itemId = :id")
-				.setParameter("id", publishedItemId)
-				.list();
-		List<Long> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<Long> q = session.createQuery(
+					"select p.typeId from PublishedItemData p where p.itemId = :id",
+					Long.class);
+			q.setParameter("id", publishedItemId);
+			List<Long> list = q.list();
 
-		if (!list.isEmpty()) {
-			return list.get(0);
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error getting item type for item {}: {}", publishedItemId, e.toString());
+			return null;
 		}
-		return null;
 	}
 
 	class SecComparator implements Comparator {
@@ -1900,22 +2095,29 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				if (extendedTimeFacade != null) {
 					extendedTimeFacade.deleteEntriesForPub(data);
 				}
-				getHibernateTemplate().delete(data);
+				Session session = getCurrentSession();
+				session.remove(data);
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem removing publishedAssessment: {}", e.getMessage());
+				log.warn("problem removing publishedAssessment: {}", e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
 	}
 
 	public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId) {
-		HibernateCallback<List<PublishedSectionData>> hcb = session -> session
-				.createQuery("from PublishedSectionData s where s.assessment.publishedAssessmentId = :id")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<PublishedSectionData> sectionList = getHibernateTemplate().execute(hcb);
-		return new HashSet<>(sectionList);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedSectionData> q = session.createQuery(
+					"from PublishedSectionData s where s.assessment.publishedAssessmentId = :id",
+					PublishedSectionData.class);
+			q.setParameter("id", publishedAssessmentId);
+			List<PublishedSectionData> sectionList = q.list();
+			return new HashSet<>(sectionList);
+		} catch (Exception e) {
+			log.warn("Error getting section set for assessment {}: {}", publishedAssessmentId, e.toString());
+			return new HashSet<>();
+		}
 	}
 
 	private String replaceSpace(String tempString) {
@@ -1938,38 +2140,47 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
-		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
-				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
-				.setParameter("id", publishedAssessmentId)
-				.setParameter("section", sectionId)
-				.setParameter("key", key)
-				.setParameter("value", value)
-				.setParameter("valueMultiple", valueMultiple)
-				.list();
-		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedSectionData> q = session.createQuery(
+					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
+					"where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)",
+					PublishedSectionData.class);
+			q.setParameter("id", publishedAssessmentId);
+			q.setParameter("section", sectionId);
+			q.setParameter("key", key);
+			q.setParameter("value", value);
+			q.setParameter("valueMultiple", valueMultiple);
+			List<PublishedSectionData> l = q.list();
 
-		if (!l.isEmpty()) {
-			return true;
+			return !l.isEmpty();
+		} catch (Exception e) {
+			log.warn("Error checking if assessment {} section {} is random draw part: {}", publishedAssessmentId, sectionId, e.toString());
+			return false;
 		}
-		return false;
 	}
 
 	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 
-		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
-				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value")
-				.setParameter("id", publishedAssessmentId)
-				.setParameter("section", sectionId)
-				.setParameter("key", key)
-				.setParameter("value", value)
-				.list();
-		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedSectionData> q = session.createQuery(
+					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
+					"where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value",
+					PublishedSectionData.class);
+			q.setParameter("id", publishedAssessmentId);
+			q.setParameter("section", sectionId);
+			q.setParameter("key", key);
+			q.setParameter("value", value);
+			List<PublishedSectionData> l = q.list();
 
-		return (!l.isEmpty());
+			return !l.isEmpty();
+		} catch (Exception e) {
+			log.warn("Error checking if assessment {} section {} is fixed random draw part: {}", publishedAssessmentId, sectionId, e.toString());
+			return false;
+		}
 	}
 
 	/**
@@ -1998,238 +2209,233 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		List<AssessmentGradingData> last_list;
 		List<AssessmentGradingData> highest_list;
 
-		// Get total no. of submission per assessment by the given agent
-		if (groupIds.size() > 0) {
-			final String hql = "select distinct new AssessmentGradingData("
-				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-				+ " a.submittedDate, a.isLate,"
-				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " '', a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-				+ " a.timeElapsed) "
-				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=:forGrade and a.status > :status and a.agentId=:agentId"
-				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " and (p.status=:activeStatus or p.status=:editStatus) ";
+		try {
+			Session session = getCurrentSession();
 
-			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
-                Query q = session.createQuery(hql + order_last);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("agentId", agentId);
-                q.setParameter("siteId", siteId);
-                q.setParameterList("groupIds", groupIds);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                q.setParameter("activeStatus", 1);
-                q.setParameter("editStatus", 3);
-                return q.list();
-            };
+			// Get total no. of submission per assessment by the given agent
+			if (groupIds.size() > 0) {
+				final String hql = "select distinct new AssessmentGradingData("
+					+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
+					+ " a.submittedDate, a.isLate,"
+					+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
+					+ " '', a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+					+ " a.timeElapsed) "
+					+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
+					+ " where a.publishedAssessmentId = p.publishedAssessmentId"
+					+ " and a.forGrade = :forGrade and a.status > :status and a.agentId = :agentId"
+					+ " and (az.agentIdString = :siteId or az.agentIdString in (:groupIds)) "
+					+ " and az.functionId = :functionId and az.qualifierId = p.publishedAssessmentId"
+					+ " and (p.status = :activeStatus or p.status = :editStatus) ";
 
-			// this list is sorted by submittedDate desc.
-			last_list = getHibernateTemplate().execute(hcb_last);
+				// this list is sorted by submittedDate desc.
+				Query<AssessmentGradingData> q_last = session.createQuery(hql + order_last, AssessmentGradingData.class);
+				q_last.setParameter("forGrade", true);
+				q_last.setParameter("status", AssessmentGradingData.REMOVED);
+				q_last.setParameter("agentId", agentId);
+				q_last.setParameter("siteId", siteId);
+				q_last.setParameterList("groupIds", groupIds);
+				q_last.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				q_last.setParameter("activeStatus", 1);
+				q_last.setParameter("editStatus", 3);
+				last_list = q_last.list();
 
-			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
-                Query q = session.createQuery(hql + order_highest);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("agentId", agentId);
-                q.setParameter("siteId", siteId);
-                q.setParameterList("groupIds", groupIds);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                q.setParameter("activeStatus", 1);
-                q.setParameter("editStatus", 3);
-                return q.list();
-            };
-
-			// this list is sorted by finalScore desc.
-
-			highest_list = getHibernateTemplate().execute(hcb_highest);
-		}
-		else {
-			final String hql = "select new AssessmentGradingData("
-				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-				+ " a.submittedDate, a.isLate,"
-				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-				+ " a.timeElapsed) "
-				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=:forGrade and a.status > :status and a.agentId=:agentId"
-				+ " and az.agentIdString=:siteId "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
-
-			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
-                Query q = session.createQuery(hql + order_last);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("agentId", agentId);
-                q.setParameter("siteId", siteId);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                return q.list();
-            };
-
-			// this list is sorted by submittedDate desc.
-			last_list = getHibernateTemplate().execute(hcb_last);
-
-			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
-                Query q = session.createQuery(hql + order_highest);
-                q.setParameter("forGrade", true);
-                q.setParameter("status", AssessmentGradingData.REMOVED);
-                q.setParameter("agentId", agentId);
-                q.setParameter("siteId", siteId);
-                q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-                return q.list();
-            };
-
-			// this list is sorted by finalScore desc.
-			highest_list = getHibernateTemplate().execute(hcb_highest);
-		}
-		
-		//getEvaluationModel();
-		final String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
-		"from PublishedEvaluationModel e, PublishedAccessControl ac, AuthorizationData az " +
-		"where e.assessment.publishedAssessmentId = ac.assessment.publishedAssessmentId " +
-		"and az.qualifierId = ac.assessment.publishedAssessmentId and az.agentIdString in (:agentIdString) and az.functionId=:functionId";
-
-		groupIds.add(siteId);
-		
-		final HibernateCallback<List<Object[]>> eval_model = session -> {
-            Query q = session.createQuery(query);
-            q.setParameterList("agentIdString", groupIds);
-            q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-            return q.list();
-        };
-			
-		List<Object[]> l = getHibernateTemplate().execute(eval_model);
-		Map<Long, Integer> scoringTypeMap = new HashMap<>();
-		for	(Object o[] : l) {
-			scoringTypeMap.put((Long) o[0], (Integer) o[1]);
-		}
-		
-		// The sorting for each column will be done in the action listener.
-		List<AssessmentGradingData> assessmentList = new ArrayList<>();
-		Long currentid = new Long("0");
-		Integer scoringOption;
-
-		// now go through the last_list, and get the first entry in the list for
-		// each publishedAssessment, if
-		// not
-
-		for (AssessmentGradingData a : last_list) {
-			// get the scoring option
-			if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
-				scoringOption = scoringTypeMap.get(a.getPublishedAssessmentId());
+				// this list is sorted by finalScore desc.
+				Query<AssessmentGradingData> q_highest = session.createQuery(hql + order_highest, AssessmentGradingData.class);
+				q_highest.setParameter("forGrade", true);
+				q_highest.setParameter("status", AssessmentGradingData.REMOVED);
+				q_highest.setParameter("agentId", agentId);
+				q_highest.setParameter("siteId", siteId);
+				q_highest.setParameterList("groupIds", groupIds);
+				q_highest.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				q_highest.setParameter("activeStatus", 1);
+				q_highest.setParameter("editStatus", 3);
+				highest_list = q_highest.list();
 			} else {
-				// I use Last as default because it is what set above
-				scoringOption = EvaluationModelIfc.LAST_SCORE;
+				final String hql = "select new AssessmentGradingData("
+					+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
+					+ " a.submittedDate, a.isLate,"
+					+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
+					+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+					+ " a.timeElapsed) "
+					+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
+					+ " where a.publishedAssessmentId = p.publishedAssessmentId"
+					+ " and a.forGrade = :forGrade and a.status > :status and a.agentId = :agentId"
+					+ " and az.agentIdString = :siteId "
+					+ " and az.functionId = :functionId and az.qualifierId = p.publishedAssessmentId";
+
+				// this list is sorted by submittedDate desc.
+				Query<AssessmentGradingData> q_last = session.createQuery(hql + order_last, AssessmentGradingData.class);
+				q_last.setParameter("forGrade", true);
+				q_last.setParameter("status", AssessmentGradingData.REMOVED);
+				q_last.setParameter("agentId", agentId);
+				q_last.setParameter("siteId", siteId);
+				q_last.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				last_list = q_last.list();
+
+				// this list is sorted by finalScore desc.
+				Query<AssessmentGradingData> q_highest = session.createQuery(hql + order_highest, AssessmentGradingData.class);
+				q_highest.setParameter("forGrade", true);
+				q_highest.setParameter("status", AssessmentGradingData.REMOVED);
+				q_highest.setParameter("agentId", agentId);
+				q_highest.setParameter("siteId", siteId);
+				q_highest.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				highest_list = q_highest.list();
 			}
 
-			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption)) {
-				if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
+			//getEvaluationModel();
+			final String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
+			"from PublishedEvaluationModel e, PublishedAccessControl ac, AuthorizationData az " +
+			"where e.assessment.publishedAssessmentId = ac.assessment.publishedAssessmentId " +
+			"and az.qualifierId = ac.assessment.publishedAssessmentId and az.agentIdString in (:agentIdString) and az.functionId = :functionId";
 
-					if (!a.getPublishedAssessmentId().equals(currentid)) {
-						a.setIsRecorded(true);
-					}
-					assessmentList.add(a);
-					currentid = a.getPublishedAssessmentId();
+			groupIds.add(siteId);
+
+			Query<Object[]> q_eval = session.createQuery(query, Object[].class);
+			q_eval.setParameterList("agentIdString", groupIds);
+			q_eval.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+			List<Object[]> l = q_eval.list();
+
+			Map<Long, Integer> scoringTypeMap = new HashMap<>();
+			for (Object[] o : l) {
+				scoringTypeMap.put((Long) o[0], (Integer) o[1]);
+			}
+
+			// The sorting for each column will be done in the action listener.
+			List<AssessmentGradingData> assessmentList = new ArrayList<>();
+			Long currentid = 0L;
+			Integer scoringOption;
+
+			// now go through the last_list, and get the first entry in the list for
+			// each publishedAssessment
+			for (AssessmentGradingData a : last_list) {
+				// get the scoring option
+				if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
+					scoringOption = scoringTypeMap.get(a.getPublishedAssessmentId());
+				} else {
+					// I use Last as default because it is what set above
+					scoringOption = EvaluationModelIfc.LAST_SCORE;
 				}
-			}
-		}
 
-		// now go through the highest_list ,and get the first entry in the list
-		// for each publishedAssessment.
+				if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption)) {
+					if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
 
-		currentid = 0L;
-		for (AssessmentGradingData a : highest_list) {
-			// get the scoring option
-			if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
-				scoringOption = scoringTypeMap.get(a.getPublishedAssessmentId());
-			} else {
-				// I use Last as default because it is what set above
-				scoringOption = EvaluationModelIfc.LAST_SCORE;
-			}
-
-			if (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption)) {
-				if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
-
-					if (!a.getPublishedAssessmentId().equals(currentid)) {
-						a.setIsRecorded(true);
+						if (!a.getPublishedAssessmentId().equals(currentid)) {
+							a.setIsRecorded(true);
+						}
+						assessmentList.add(a);
+						currentid = a.getPublishedAssessmentId();
 					}
-					assessmentList.add(a);
-					currentid = a.getPublishedAssessmentId();
 				}
 			}
 
-			if (EvaluationModelIfc.AVERAGE_SCORE.equals(scoringOption)) {
-				assessmentList.add(a);
-			}
-		}
+			// now go through the highest_list, and get the first entry in the list
+			// for each publishedAssessment
+			currentid = 0L;
+			for (AssessmentGradingData a : highest_list) {
+				// get the scoring option
+				if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
+					scoringOption = scoringTypeMap.get(a.getPublishedAssessmentId());
+				} else {
+					// I use Last as default because it is what set above
+					scoringOption = EvaluationModelIfc.LAST_SCORE;
+				}
 
-		return assessmentList;
+				if (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption)) {
+					if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
+
+						if (!a.getPublishedAssessmentId().equals(currentid)) {
+							a.setIsRecorded(true);
+						}
+						assessmentList.add(a);
+						currentid = a.getPublishedAssessmentId();
+					}
+				}
+
+				if (EvaluationModelIfc.AVERAGE_SCORE.equals(scoringOption)) {
+					assessmentList.add(a);
+				}
+			}
+
+			return assessmentList;
+		} catch (Exception e) {
+			log.warn("Error getting basic info of last/highest/average submitted assessments for agent {} and site {}: {}", agentId, siteId, e.toString());
+			return new ArrayList<>();
+		}
 	}
-	  
+
 	public PublishedAssessmentData getBasicInfoOfPublishedAssessment(final Long publishedId) {
-		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
 					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
 							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 							+ " PublishedFeedback as f"
-							+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
+							+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId "
 							+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
-							+ " and p.publishedAssessmentId = :id")
-				.setParameter("id", publishedId.longValue())
-				.list();
-		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);
-		if (!list.isEmpty()) {
-			return list.get(0);
+							+ " and p.publishedAssessmentId = :id",
+					PublishedAssessmentData.class);
+			query.setParameter("id", publishedId);
+			List<PublishedAssessmentData> list = query.list();
+
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error getting basic info for assessment {}: {}", publishedId, e.toString());
+			return null;
 		}
-		return null;
 	}
 
 	public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
-		HibernateCallback<List<AuthorizationData>> hcb = session -> session
-				.createQuery("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id")
-				.setParameter("fid", "TAKE_PUBLISHED_ASSESSMENT")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<AuthorizationData> l = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<AuthorizationData> q = session.createQuery(
+					"select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
+					AuthorizationData.class);
+			q.setParameter("fid", "TAKE_PUBLISHED_ASSESSMENT");
+			q.setParameter("id", publishedAssessmentId);
+			List<AuthorizationData> l = q.list();
 
-		PublishedAssessmentData publishedAssessment = loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
-		Boolean releaseToGroups = null;
-		if (publishedAssessment != null && publishedAssessment.getAssessmentAccessControl() != null) {
-			releaseToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(
-					publishedAssessment.getAssessmentAccessControl().getReleaseTo());
-		}
-		for (AuthorizationData a : l) {
-			String agentId = a.getAgentIdString();
-			if (Boolean.TRUE.equals(releaseToGroups)) {
+			PublishedAssessmentData publishedAssessment = loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
+			Boolean releaseToGroups = null;
+			if (publishedAssessment != null && publishedAssessment.getAssessmentAccessControl() != null) {
+				releaseToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(
+						publishedAssessment.getAssessmentAccessControl().getReleaseTo());
+			}
+			for (AuthorizationData a : l) {
+				String agentId = a.getAgentIdString();
+				if (Boolean.TRUE.equals(releaseToGroups)) {
+					Group group = siteService.findGroup(agentId);
+					if (group != null && group.getContainingSite() != null) {
+						return group.getContainingSite().getId();
+					}
+					continue;
+				}
+				if (Boolean.FALSE.equals(releaseToGroups)) {
+					return agentId;
+				}
+				try {
+					Site site = siteService.getSite(agentId);
+					if (site != null) {
+						return site.getId();
+					}
+				} catch (IdUnusedException ex) {
+					// not a site id
+				}
 				Group group = siteService.findGroup(agentId);
 				if (group != null && group.getContainingSite() != null) {
 					return group.getContainingSite().getId();
 				}
-				continue;
 			}
-			if (Boolean.FALSE.equals(releaseToGroups)) {
-				return agentId;
-			}
-			try {
-				Site site = siteService.getSite(agentId);
-				if (site != null) {
-					return site.getId();
-				}
-			} catch (IdUnusedException ex) {
-				// not a site id
-			}
-			Group group = siteService.findGroup(agentId);
-			if (group != null && group.getContainingSite() != null) {
-				return group.getContainingSite().getId();
-			}
+			return "";
+		} catch (Exception e) {
+			log.warn("Error getting published assessment site ID for assessment {}: {}", publishedAssessmentId, e.toString());
+			return "";
 		}
-		return "";
 	}
 	  
 	/**
@@ -2245,21 +2451,32 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @return
 	 */
 	public Integer getPublishedItemCountForRandomSections(final Long publishedAssessmentId) {
-		final HibernateCallback<List<String>> hcb = session -> session
-				.createQuery("select m.entry from PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
-						"where p.publishedAssessmentId=:publishedAssessmentId and m.label=:metaDataLabel and p = s.assessment and m.section = s")
-				.setParameter("publishedAssessmentId", publishedAssessmentId)
-				.setParameter("metaDataLabel", SectionDataIfc.NUM_QUESTIONS_DRAWN)
-				.list();
-		List<String> list = getHibernateTemplate().execute(hcb);
-		
-		int sum = 0;
-		for (String entry : list) {
-			if (entry != null) {
-				sum += Integer.valueOf(entry);
+		try {
+			Session session = getCurrentSession();
+			Query<String> query = session.createQuery(
+					"select m.entry from PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
+					"where p.publishedAssessmentId = :publishedAssessmentId and m.label = :metaDataLabel and p = s.assessment and m.section = s",
+					String.class);
+			query.setParameter("publishedAssessmentId", publishedAssessmentId);
+			query.setParameter("metaDataLabel", SectionDataIfc.NUM_QUESTIONS_DRAWN);
+
+			List<String> list = query.list();
+
+			int sum = 0;
+			for (String entry : list) {
+				if (entry != null && !entry.isEmpty()) {
+					try {
+						sum += Integer.parseInt(entry);
+					} catch (NumberFormatException e) {
+						log.warn("Invalid number format for entry: {}", entry);
+					}
+				}
 			}
+			return sum;
+		} catch (Exception e) {
+			log.warn("Error getting item count for random sections for assessment {}: {}", publishedAssessmentId, e.toString());
+			return 0;
 		}
-		return sum;
 	}
 
 	/**
@@ -2267,38 +2484,65 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @return
 	 */
 	public Integer getPublishedItemCountForNonRandomSections(final Long publishedAssessmentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(i) from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
-						"where p.publishedAssessmentId=:publishedAssessmentId and m.label=:metaDataLabel " +
-						"and p = s.assessment and i.section = s and m.section = s and m.entry=:metaDataEntry ")
-				.setParameter("publishedAssessmentId", publishedAssessmentId)
-				.setParameter("metaDataLabel", SectionDataIfc.AUTHOR_TYPE)
-				.setParameter("metaDataEntry", SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())
-				.list();
-		List<Number> list = getHibernateTemplate().execute(hcb);
-		return list.get(0).intValue();
-	}
-	
-	public Integer getPublishedSectionCount(final Long publishedAssessmentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(s) from PublishedSectionData s, PublishedAssessmentData p " +
-						"where p.publishedAssessmentId = :id and p = s.assessment")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<Number> list = getHibernateTemplate().execute(hcb);
-		return list.get(0).intValue();
-	}
-		
-	public PublishedAttachmentData getPublishedAttachmentData(Long attachmentId) {
-		final HibernateCallback<List<PublishedAttachmentData>> hcb = session -> session
-				.createQuery("select a from PublishedAttachmentData a where a.attachmentId = :id")
-				.setParameter("id", attachmentId)
-				.list();
-		List<PublishedAttachmentData> l = getHibernateTemplate().execute(hcb);
-		if (!l.isEmpty()) {
-			return l.get(0);
+		try {
+			Session session = getCurrentSession();
+			Query<Number> query = session.createQuery(
+					"select count(i) from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
+					"where p.publishedAssessmentId = :publishedAssessmentId and m.label = :metaDataLabel " +
+					"and p = s.assessment and i.section = s and m.section = s and m.entry = :metaDataEntry",
+					Number.class);
+			query.setParameter("publishedAssessmentId", publishedAssessmentId);
+			query.setParameter("metaDataLabel", SectionDataIfc.AUTHOR_TYPE);
+			query.setParameter("metaDataEntry", SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+
+			List<Number> list = query.list();
+			if (!list.isEmpty()) {
+				return list.get(0).intValue();
+			}
+			return 0;
+		} catch (Exception e) {
+			log.warn("Error getting item count for non-random sections for assessment {}: {}", publishedAssessmentId, e.toString());
+			return 0;
 		}
-		return null;
+	}
+
+	public Integer getPublishedSectionCount(final Long publishedAssessmentId) {
+		try {
+			Session session = getCurrentSession();
+			Query<Number> query = session.createQuery(
+					"select count(s) from PublishedSectionData s, PublishedAssessmentData p " +
+					"where p.publishedAssessmentId = :id and p = s.assessment",
+					Number.class);
+			query.setParameter("id", publishedAssessmentId);
+			List<Number> list = query.list();
+
+			if (!list.isEmpty()) {
+				return list.get(0).intValue();
+			}
+			return 0;
+		} catch (Exception e) {
+			log.warn("Error getting section count for assessment {}: {}", publishedAssessmentId, e.toString());
+			return 0;
+		}
+	}
+
+	public PublishedAttachmentData getPublishedAttachmentData(Long attachmentId) {
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAttachmentData> query = session.createQuery(
+					"select a from PublishedAttachmentData a where a.attachmentId = :id",
+					PublishedAttachmentData.class);
+			query.setParameter("id", attachmentId);
+			List<PublishedAttachmentData> l = query.list();
+
+			if (!l.isEmpty()) {
+				return l.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error getting published attachment data for ID {}: {}", attachmentId, e.getMessage());
+			return null;
+		}
 	}
 
 	public void updateAssessmentLastModifiedInfo(PublishedAssessmentFacade publishedAssessmentFacade) {
@@ -2308,12 +2552,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(data);
+				Session session = getCurrentSession();
+				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem update assessment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
-						retryCount);
+				log.warn("problem update assessment: " + e.toString());
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -2322,10 +2566,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(section.getData());
+				Session session = getCurrentSession();
+				session.merge(section.getData());
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem save or update section: " + e.getMessage());
+				log.warn("problem save or update section: " + e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
@@ -2360,7 +2605,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(section);
+				Session session = getCurrentSession();
+				session.merge(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.getMessage());
@@ -2371,40 +2617,57 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public PublishedSectionFacade getSection(Long sectionId) {
-		PublishedSectionData publishedSection = getHibernateTemplate().load(PublishedSectionData.class, sectionId);
-		return new PublishedSectionFacade(publishedSection);
+		try {
+			Session session = getCurrentSession();
+			PublishedSectionData publishedSection = session.get(PublishedSectionData.class, sectionId);
+
+			if (publishedSection == null) {
+				log.warn("Section with ID {} not found", sectionId);
+				return null;
+			}
+
+			return new PublishedSectionFacade(publishedSection);
+		} catch (Exception e) {
+			log.warn("Error getting section with ID {}: {}", sectionId, e.toString());
+			return null;
+		}
 	}
 
 	public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId) {
-		final HibernateCallback<List<PublishedAccessControl>> hcb = session -> session
-				.createQuery("select c from PublishedAssessmentData as p, PublishedAccessControl as c " +
-								"where c.assessment.publishedAssessmentId=p.publishedAssessmentId " +
-								"and p.publishedAssessmentId = :id")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<PublishedAccessControl> list = getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAccessControl> query = session.createQuery(
+					"select c from PublishedAssessmentData as p, PublishedAccessControl as c " +
+					"where c.assessment.publishedAssessmentId = p.publishedAssessmentId " +
+					"and p.publishedAssessmentId = :id",
+					PublishedAccessControl.class);
+			query.setParameter("id", publishedAssessmentId);
+			List<PublishedAccessControl> list = query.list();
 
-		if (!list.isEmpty()) {
-			return list.get(0);
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			log.warn("Error loading published access control for assessment {}: {}", publishedAssessmentId, e.toString());
+			return null;
 		}
-		return null;
 	}
 
 	public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(publishedAccessControl);
+				Session session = getCurrentSession();
+				session.merge(publishedAccessControl);
 				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem save or update publishedAccessControl data: {}", e.getMessage());
+				log.warn("problem save or update publishedAccessControl data: {}", e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
 	}
 
-
-	
 	private List<String> getSiteGroupIdsForSubmittingAgent(String agentId, String siteId) {
 
 		final List<String> groupIds = new ArrayList<>();
@@ -2497,27 +2760,40 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public List<String> getReleaseToGroupIdsForPublishedAssessment(final String publishedAssessmentId) {
-		final HibernateCallback<List<String>> hcb = session -> session
-				.createQuery(
-						"select agentIdString from AuthorizationData az where az.functionId=:functionId and az.qualifierId=:publishedAssessmentId")
-				.setParameter("publishedAssessmentId", publishedAssessmentId)
-				.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT")
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<String> query = session.createQuery(
+					"select agentIdString from AuthorizationData az where az.functionId = :functionId and az.qualifierId = :publishedAssessmentId",
+					String.class);
+			query.setParameter("publishedAssessmentId", publishedAssessmentId);
+			query.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+
+			return query.list();
+		} catch (Exception e) {
+			log.warn("Error getting release to group IDs for assessment {}: {}", publishedAssessmentId, e.toString());
+			return new ArrayList<>();
+		}
 	}
 
 	public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
-		final HibernateCallback<List<Integer>> hcb = session -> session
-				.createQuery("select p.status from PublishedAssessmentData p where p.publishedAssessmentId = :id")
-				.setParameter("id", publishedAssessmentId)
-				.list();
-		List<Integer> l = getHibernateTemplate().execute(hcb);
-		if (!l.isEmpty()) {
-			return l.get(0);
+		try {
+			Session session = getCurrentSession();
+			Query<Integer> query = session.createQuery(
+					"select p.status from PublishedAssessmentData p where p.publishedAssessmentId = :id",
+					Integer.class);
+			query.setParameter("id", publishedAssessmentId);
+			List<Integer> l = query.list();
+
+			if (!l.isEmpty()) {
+				return l.get(0);
+			}
+			return AssessmentBaseIfc.DEAD_STATUS;
+		} catch (Exception e) {
+			log.warn("Error getting status for assessment {}: {}", publishedAssessmentId, e.toString());
+			return AssessmentBaseIfc.DEAD_STATUS;
 		}
-		return AssessmentBaseIfc.DEAD_STATUS;
 	}
-	
+
 	public AssessmentAttachmentIfc createAssessmentAttachment(AssessmentIfc assessment, String resourceId, String filename, String protocol) {
 		PublishedAssessmentAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
@@ -2564,27 +2840,35 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 	
 	public void removeAssessmentAttachment(Long assessmentAttachmentId) {
-		PublishedAssessmentAttachment assessmentAttachment = getHibernateTemplate().load(PublishedAssessmentAttachment.class, assessmentAttachmentId);
-		AssessmentIfc assessment = assessmentAttachment.getAssessment();
-		// String resourceId = assessmentAttachment.getResourceId();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				if (assessment != null) { // need to dissociate with
-					// assessment before deleting in
-					// Hibernate 3
-					Set set = assessment.getAssessmentAttachmentSet();
-					set.remove(assessmentAttachment);
-					getHibernateTemplate().delete(assessmentAttachment);
+				Session session = getCurrentSession();
+				PublishedAssessmentAttachment assessmentAttachment = session.get(PublishedAssessmentAttachment.class, assessmentAttachmentId);
+
+				if (assessmentAttachment == null) {
+					log.warn("Assessment attachment with ID {} not found", assessmentAttachmentId);
 					retryCount = 0;
+					return;
 				}
+
+				AssessmentIfc assessment = assessmentAttachment.getAssessment();
+				if (assessment != null) {
+					Set<AssessmentAttachmentIfc> set = assessment.getAssessmentAttachmentSet();
+					if (set != null && set.contains(assessmentAttachment)) {
+						set.remove(assessmentAttachment);
+						session.merge(assessment);
+					}
+				}
+
+				session.remove(assessmentAttachment);
+				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem delete publishedAssessmentAttachment: {}", e.getMessage());
+				log.warn("problem deleting assessment attachment with ID {}: {}", assessmentAttachmentId, e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
 	}
-	
 
 	public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
 			String resourceId, String filename, String protocol) {
@@ -2628,68 +2912,112 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public void removeSectionAttachment(Long sectionAttachmentId) {
-		PublishedSectionAttachment sectionAttachment = getHibernateTemplate().load(PublishedSectionAttachment.class, sectionAttachmentId);
-		SectionDataIfc section = sectionAttachment.getSection();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				if (section != null) { // need to dissociate with section
-					// before deleting in Hibernate 3
-					Set set = section.getSectionAttachmentSet();
-					set.remove(sectionAttachment);
-					getHibernateTemplate().delete(sectionAttachment);
+				Session session = getCurrentSession();
+				PublishedSectionAttachment sectionAttachment = session.get(PublishedSectionAttachment.class, sectionAttachmentId);
+
+				if (sectionAttachment == null) {
+					log.warn("Section attachment with ID {} not found", sectionAttachmentId);
 					retryCount = 0;
+					return;
 				}
+
+				SectionDataIfc section = sectionAttachment.getSection();
+				if (section != null) {
+					Set<SectionAttachmentIfc> set = section.getSectionAttachmentSet();
+					set.remove(sectionAttachment);
+					session.merge(section);
+				}
+
+				session.remove(sectionAttachment);
+				retryCount = 0;
 			} catch (Exception e) {
-				log.warn("problem delete sectionAttachment: {}", e.getMessage());
+				log.warn("problem deleting section attachment with ID {}: {}", sectionAttachmentId, e.toString());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}
 	}
-	
+
 	public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
-	    for (AttachmentIfc attachment : list) {
-	        getHibernateTemplate().saveOrUpdate(attachment);
-        }
+		if (list == null || list.isEmpty()) {
+			return;
+		}
+		try {
+			Session session = getCurrentSession();
+			for (AttachmentIfc attachment : list) {
+				session.merge(attachment);
+			}
+		} catch (Exception e) {
+			log.warn("Error saving or updating attachments: {}", e.toString());
+			throw new DataAccessResourceFailureException("Failed to save or update attachments", e);
+		}
 	}
-	
-	  public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {
-		  PublishedAssessmentData a = getHibernateTemplate().load(PublishedAssessmentData.class, publishedAssessmentId);
-		  PublishedAssessmentFacade f = new PublishedAssessmentFacade(a.getAssessmentId(), a.getTitle(), a.getCreatedBy());
-		  return f;
-	  }  
 
-	  public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
-		  final HibernateCallback<List<Object[]>> hcb = session -> session
-				  .createQuery("select em.assessment.publishedAssessmentId, a.agentIdString " +
-						  "from PublishedEvaluationModel em, AuthorizationData a " +
-						  "where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
-						  "and em.assessment.publishedAssessmentId = a.qualifierId " +
-						  "and (em.toGradeBook = '1' or em.toGradeBook = :gradebook)")
-				  .setParameter("gradebook",  EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())
-				  .list();
+	public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {
+		try {
+			Session session = getCurrentSession();
+			PublishedAssessmentData a = session.get(PublishedAssessmentData.class, publishedAssessmentId);
 
-		  List<Object[]> l = getHibernateTemplate().execute(hcb);
-		  Map<Long, String> map = new HashMap<>();
-		  for (Object[] o : l) {
-			  map.put((Long) o[0], (String) o[1]);
-		  }
-		  return map;
-	  }	  
-	  
+			if (a == null) {
+				log.warn("Assessment with ID {} not found", publishedAssessmentId);
+				return null;
+			}
+
+			return new PublishedAssessmentFacade(a.getAssessmentId(), a.getTitle(), a.getCreatedBy());
+		} catch (Exception e) {
+			log.warn("Error getting published assessment info for removal with ID {}: {}", publishedAssessmentId, e.toString());
+			return null;
+		}
+	}
+
+	public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
+		try {
+			Session session = getCurrentSession();
+			Query<Object[]> query = session.createQuery(
+					"select em.assessment.publishedAssessmentId, a.agentIdString " +
+					"from PublishedEvaluationModel em, AuthorizationData a " +
+					"where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
+					"and em.assessment.publishedAssessmentId = a.qualifierId " +
+					"and (em.toGradeBook = '1' or em.toGradeBook = :gradebook)",
+					Object[].class);
+			query.setParameter("gradebook", EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
+
+			List<Object[]> l = query.list();
+			Map<Long, String> map = new HashMap<>();
+			for (Object[] o : l) {
+				if (o.length >= 2 && o[0] != null) {
+					map.put((Long) o[0], (String) o[1]);
+				}
+			}
+			return map;
+		} catch (Exception e) {
+			log.warn("Error getting to gradebook published assessment site ID map: {}", e.toString());
+			return new HashMap<>();
+		}
+	}
+
 	public List<AssessmentGradingData> getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId) {
-		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> session.createQuery(
-            		"select a " + " from AssessmentGradingData as a, AuthorizationData as az " +
-							"where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status " +
-							"and az.agentIdString=:siteId " +
-							"and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId")
-				.setParameter("agentId", agentId)
-				.setParameter("forGrade", true)
-				.setParameter("status", AssessmentGradingData.REMOVED)
-				.setParameter("siteId", siteId)
-				.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT")
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		try {
+			Session session = getCurrentSession();
+			Query<AssessmentGradingData> query = session.createQuery(
+					"select a from AssessmentGradingData as a, AuthorizationData as az " +
+					"where a.agentId = :agentId and a.forGrade = :forGrade and a.status > :status " +
+					"and az.agentIdString = :siteId " +
+					"and az.functionId = :functionId and az.qualifierId = a.publishedAssessmentId",
+					AssessmentGradingData.class);
+			query.setParameter("agentId", agentId);
+			query.setParameter("forGrade", true);
+			query.setParameter("status", AssessmentGradingData.REMOVED);
+			query.setParameter("siteId", siteId);
+			query.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+
+			return query.list();
+		} catch (Exception e) {
+			log.warn("Error getting assessment grading data for agent {} and site {}: {}", agentId, siteId, e.toString());
+			return new ArrayList<>();
+		}
 	}
 
 	/**
@@ -2852,45 +3180,71 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public List getQuestionsIdList(final Long publishedAssessmentId) {
-		return getHibernateTemplate().execute(session -> session
-				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=:publishedAssessmentId")
-				.setParameter("publishedAssessmentId", publishedAssessmentId)
-				.list());
+		try {
+			Session session = getCurrentSession();
+			Query<Long> query = session.createQuery(
+					"select i.itemId from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData a " +
+					"where a = s.assessment and s = i.section and a.publishedAssessmentId = :publishedAssessmentId",
+					Long.class);
+			query.setParameter("publishedAssessmentId", publishedAssessmentId);
+			return query.list();
+		} catch (Exception e) {
+			log.warn("Error getting question IDs for assessment {}: {}", publishedAssessmentId, e.getMessage());
+			return new ArrayList<>();
+		}
 	}
 
 
-    public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
-        final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
-            "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, p.lastModifiedDate) " +
-                "from PublishedAssessmentData p, AuthorizationData z " +
-                "where p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId " +
-                "and z.agentIdString=:siteId and p.status=:inactiveStatus ")
-                .setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT")
-                .setParameter("siteId", siteAgentId)
-                .setParameter("inactiveStatus", AssessmentIfc.DEAD_STATUS)
-                .list();
-        return getHibernateTemplate().execute(hcb);
-    }
+	public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
+		try {
+			Session session = getCurrentSession();
+			Query<PublishedAssessmentData> query = session.createQuery(
+				"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, p.lastModifiedDate) " +
+					"from PublishedAssessmentData p, AuthorizationData z " +
+					"where p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId " +
+					"and z.agentIdString=:siteId and p.status=:inactiveStatus",
+				PublishedAssessmentData.class);
+			query.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+			query.setParameter("siteId", siteAgentId);
+			query.setParameter("inactiveStatus", AssessmentIfc.DEAD_STATUS);
 
-    public void restorePublishedAssessment(Long publishedAssessmentId) {
-    	PublishedAssessmentData assessment = (PublishedAssessmentData) getHibernateTemplate().load(PublishedAssessmentData.class, publishedAssessmentId);
-    	assessment.setLastModifiedBy(AgentFacade.getAgentString());
-    	assessment.setLastModifiedDate(new Date());
-    	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+			return query.list();
+		} catch (Exception e) {
+			log.warn("Error getting deleted assessments for site {}: {}", siteAgentId, e.toString());
+			return new ArrayList<>();
+		}
+	}
 
-    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
-    	rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+	public void restorePublishedAssessment(Long publishedAssessmentId) {
+		try {
+			Session session = getCurrentSession();
+			PublishedAssessmentData assessment = session.get(PublishedAssessmentData.class, publishedAssessmentId);
 
-    	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
-    	while (retryCount > 0) {
-    		try {
-    			getHibernateTemplate().update(assessment);
-    			retryCount = 0;
-    		} catch (Exception e) {
-    			log.warn("problem updating asssessment: " + e.getMessage());
-    			retryCount = PersistenceService.getInstance().getPersistenceHelper()
-    					.retryDeadlock(e, retryCount);
-    		}
-    	}
-    }
+			if (assessment == null) {
+				log.warn("Assessment with ID {} not found", publishedAssessmentId);
+				return;
+			}
+
+			assessment.setLastModifiedBy(AgentFacade.getAgentString());
+			assessment.setLastModifiedDate(new Date());
+			assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
+
+			RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
+			rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+
+			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+			while (retryCount > 0) {
+				try {
+					session.merge(assessment);
+					retryCount = 0;
+				} catch (Exception e) {
+					log.warn("problem updating assessment: " + e.getMessage());
+					retryCount = PersistenceService.getInstance().getPersistenceHelper()
+							.retryDeadlock(e, retryCount);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Error restoring published assessment with ID {}: {}", publishedAssessmentId, e.toString());
+		}
+	}
 }

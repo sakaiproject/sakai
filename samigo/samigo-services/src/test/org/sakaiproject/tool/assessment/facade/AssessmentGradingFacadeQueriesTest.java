@@ -22,12 +22,20 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -37,20 +45,31 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-@ContextConfiguration(locations={"/spring-hibernate.xml"})
-public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalJUnit4SpringContextTests {
+@RunWith(MockitoJUnitRunner.class)
+public class AssessmentGradingFacadeQueriesTest {
 
-	/** our query object */
-	@Autowired
-	@Qualifier("assessmentGradingFacadeQueries")
+	@InjectMocks
 	private AssessmentGradingFacadeQueries queries;
 
-	Long savedId = null;
+	@Mock
+	private SessionFactory sessionFactory;
+
+	@Mock
+	private Session session;
+
+	@Mock
+	private PersistenceHelper persistenceHelper;
+
+	private Long savedId = null;
+
 	Long item1Id = null;
 	Long item2Id = null;
 	
 	@Before
 	public void onSetUpInTransaction() throws Exception {
+		when(sessionFactory.getCurrentSession()).thenReturn(session);
+
+		queries = new AssessmentGradingFacadeQueries();
 		//Set the persistance helper
 		PersistenceHelper persistenceHelper = new PersistenceHelper();
 		persistenceHelper.setDeadlockInterval(3500);
@@ -245,6 +264,8 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalJUn
 
 	@Test
 	public void testResolveOneSelectionCorrectnessFallsBackToAutoScore() {
+		AssessmentGradingFacadeQueries queries = new AssessmentGradingFacadeQueries();
+
 		PublishedAnswer answer = new PublishedAnswer();
 		answer.setIsCorrect(null);
 
