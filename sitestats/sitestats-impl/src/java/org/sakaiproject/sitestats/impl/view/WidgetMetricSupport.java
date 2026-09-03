@@ -85,24 +85,21 @@ public class WidgetMetricSupport {
 		String hoursAbbr = context.message("hours_abbr");
 		String minsAbbr = context.message("minutes_abbr");
 		String secsAbbr = context.message("seconds_abbr");
+		List<String> parts = new ArrayList<>();
 		if (hours >= 48) {
-			long days = hours / 24;
-			long remainingHours = hours % 24;
-			if (remainingHours == 0) {
-				return days + " " + daysAbbr;
-			}
-			return days + " " + daysAbbr + " " + remainingHours + " " + hoursAbbr;
+			parts.add((hours / 24) + " " + daysAbbr);
+			hours = hours % 24;
 		}
 		if (hours > 0) {
-			if (mins == 0) {
-				return hours + " " + hoursAbbr;
-			}
-			return hours + " " + hoursAbbr + " " + mins + " " + minsAbbr;
+			parts.add(hours + " " + hoursAbbr);
 		}
 		if (mins > 0) {
-			return mins + " " + minsAbbr;
+			parts.add(mins + " " + minsAbbr);
 		}
-		return secs + " " + secsAbbr;
+		if (secs > 0 || parts.isEmpty()) {
+			parts.add(secs + " " + secsAbbr);
+		}
+		return String.join(" ", parts);
 	}
 
 	String userDisplayId(String userId) {
@@ -213,7 +210,10 @@ public class WidgetMetricSupport {
 		List<LocalDate> days = sparklineDays(zone);
 		Map<LocalDate, Long> values = new HashMap<LocalDate, Long>();
 		for (SitePresence row : presenceRows(siteId, userIds, ReportManager.WHEN_LAST30DAYS)) {
-			addDayValue(values, toLocalDate(row.getDate(), zone), Math.max(0L, row.getDuration() / 60000L));
+			addDayValue(values, toLocalDate(row.getDate(), zone), Math.max(0L, row.getDuration()));
+		}
+		for (Map.Entry<LocalDate, Long> entry : values.entrySet()) {
+			entry.setValue(Long.valueOf(entry.getValue().longValue() / 60000L));
 		}
 		return compactDailyChart(context.message("overview_title_presence_last30days"), StatsManager.T_DURATION,
 				context.message("overview_title_presence_time"), days, values, zone);
@@ -357,11 +357,11 @@ public class WidgetMetricSupport {
 		return WidgetMetricValue.of(msToString(sitePresenceDuration(siteId, userIds, when)));
 	}
 
-	WidgetMetricValue averagePresencePerVisit(String siteId) {
+	WidgetMetricValue medianPresencePerVisit(String siteId) {
 		return medianPresenceValue(siteId, null);
 	}
 
-	WidgetMetricValue averagePresencePerVisitForUser(String siteId, String userId) {
+	WidgetMetricValue medianPresencePerVisitForUser(String siteId, String userId) {
 		if (StringUtils.isBlank(userId)) {
 			return WidgetMetricValue.of("-");
 		}

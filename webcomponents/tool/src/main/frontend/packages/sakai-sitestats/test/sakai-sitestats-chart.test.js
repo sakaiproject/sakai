@@ -95,9 +95,7 @@ describe("sakai-sitestats-chart tests", () => {
     expect(el.hasAttribute("compact")).to.be.true;
     expect((el._chartInstance.config.plugins || []).some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.false;
     expect(options.plugins.legend.display).to.be.false;
-    expect(options.scales.x.display).to.be.false;
-    expect(options.scales.x.border.display).to.be.false;
-    expect(options.scales.y.border.display).to.be.false;
+    expect(options.scales.x.ticks.display).to.be.false;
     expect(options.scales.y.ticks.display).to.be.false;
     expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
   });

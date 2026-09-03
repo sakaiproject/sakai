@@ -50,7 +50,7 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_LAST_VISIT, "overview_title_last_visit_own",
 								AUDIENCE_OWN, null, this::studentLastVisitValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_AVERAGE, "overview_title_presence_time_avg",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentAveragePresenceValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentMedianPresenceValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate",
 								AUDIENCE_OWN, this::presencesEnabled, null, this::studentBounceRateValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL, "overview_title_presence_time",
@@ -83,8 +83,8 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 		return metricSupport().lastVisitValue(siteId, userId, false);
 	}
 
-	private WidgetMetricValue studentAveragePresenceValue(String siteId, String userId) {
-		return metricSupport().averagePresencePerVisitForUser(siteId, userId);
+	private WidgetMetricValue studentMedianPresenceValue(String siteId, String userId) {
+		return metricSupport().medianPresencePerVisitForUser(siteId, userId);
 	}
 
 	private WidgetMetricValue studentBounceRateValue(String siteId, String userId) {

@@ -51,7 +51,7 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 								FILTER_DATE, FILTER_ROLE)),
 				metrics(
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_AVERAGE, "overview_title_presence_time_avg", AUDIENCE_ALL,
-								this::presencesEnabled, this::averagePresenceMetricDefinition, this::averagePresenceValue),
+								this::presencesEnabled, this::medianPresenceMetricDefinition, this::medianPresenceValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate", AUDIENCE_ALL,
 								this::presencesEnabled, this::bounceRateMetricDefinition, this::bounceRateValue),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_7D, "overview_title_presence_last7days", AUDIENCE_ALL,
@@ -91,7 +91,7 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 				message("overview_title_presence_access"), chart, table);
 	}
 
-	private WidgetReportDefinition averagePresenceMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
+	private WidgetReportDefinition medianPresenceMetricDefinition(String siteId, SiteStatsReportRequest request, String userId) {
 		ReportDef reportDef = reportFactory().baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_PRESENCES);
@@ -149,8 +149,8 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 		return presenceRangeMetricDefinition(siteId, ReportManager.WHEN_LAST365DAYS, "overview_title_presence_last365days");
 	}
 
-	private WidgetMetricValue averagePresenceValue(String siteId, String userId) {
-		return metricSupport().averagePresencePerVisit(siteId);
+	private WidgetMetricValue medianPresenceValue(String siteId, String userId) {
+		return metricSupport().medianPresencePerVisit(siteId);
 	}
 
 	private WidgetMetricValue bounceRateValue(String siteId, String userId) {
