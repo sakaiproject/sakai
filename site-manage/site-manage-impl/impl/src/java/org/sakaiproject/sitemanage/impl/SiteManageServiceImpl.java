@@ -162,20 +162,23 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
-			boolean importSucceeded = false;
+			// Tracks only whether importToolsIntoSite returned without throwing. Per-producer
+            // failures inside transferCopyEntities are logged and swallowed there, so a partial
+            // import can still be reported as completed; aggregating that status is a separate concern.
+            boolean importSucceeded = false;
 			try {
                 log.info("Started Site Import for the site {}", id);
                 importToolsIntoSite(site, existingTools, importTools, toolItemMap, toolOptions, cleanup);
                 importSucceeded = true;
                 log.info("Finished Site Import for the site {}", id);
             } catch (Exception e) {
-                log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
+                log.warn("Site Import Task encountered an exception for site {}", id, e);
             } finally {
                 currentSiteImports.remove(id);
             }
 
             // Only signal completion (email and the site.import.end event that drives the bullhorn)
-            // when the import actually finished; a failed import must not be reported as completed.
+            // when the import ran without throwing; a hard failure must not be reported as completed.
             if (importSucceeded) {
                 if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
                     userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
