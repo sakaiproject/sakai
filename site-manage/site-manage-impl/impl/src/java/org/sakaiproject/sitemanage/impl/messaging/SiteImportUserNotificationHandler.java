@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2003-2024 The Apereo Foundation
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Raises a bullhorn (portal) notification for the user who started a site import once the
- * background import thread has finished, so the initiator gets feedback even when email
- * notification is disabled or they have no email address configured. The displayed text is
- * built by the sakai-notifications web component from the site title.
- *
- * @see org.sakaiproject.sitemanage.impl.SiteManageServiceImpl#importToolsIntoSiteThread
+ * Notifies the user who started a background site import once it finishes, so they get
+ * feedback even when email notification is unavailable. The displayed text is built by the
+ * sakai-notifications web component from the site title.
  */
 @Slf4j
 public class SiteImportUserNotificationHandler extends AbstractUserNotificationHandler {
 
-    /** Common id of the Site Info tool, from which imports are launched. */
     private static final String SITE_INFO_TOOL_ID = "sakai.siteinfo";
 
     @Autowired private SiteService siteService;
@@ -62,7 +58,6 @@ public class SiteImportUserNotificationHandler extends AbstractUserNotificationH
 
         try {
             Site site = siteService.getSite(siteId);
-            // from == to: the notification goes back to whoever started the import.
             return Optional.of(List.of(new UserNotificationData(
                     userId, userId, siteId, site.getTitle(), site.getUrl(), SITE_INFO_TOOL_ID, false, null)));
         } catch (IdUnusedException idue) {
