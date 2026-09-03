@@ -1,15 +1,18 @@
 (function () {
   "use strict";
 
+  const DATATABLES_VERSION = "3.0.3";
+  const ROWGROUP_VERSION = "2.0.0";
+
   const configs = {
     datatables: {
-      version: "3.0.0-beta.2",
+      version: DATATABLES_VERSION,
       js: [
-        "/js/dataTables.min.js",
-        "/js/dataTables.bootstrap5.min.js",
+        `/datatables.net/${DATATABLES_VERSION}/js/dataTables.min.js`,
+        `/datatables.net-bs5/${DATATABLES_VERSION}/js/dataTables.bootstrap5.min.js`,
       ],
       css: [
-        "/css/dataTables.bootstrap5.min.css",
+        `/datatables.net-bs5/${DATATABLES_VERSION}/css/dataTables.bootstrap5.min.css`,
       ],
       after({ psp, ver }) {
         writeScript(`${psp}sakai-datatables.js${ver}`);
@@ -17,9 +20,9 @@
       },
     },
     "datatables-rowgroup": {
-      version: "2.0.0-beta.1",
+      version: ROWGROUP_VERSION,
       js: [
-        "/js/dataTables.rowGroup.min.js",
+        `/datatables.net-rowgroup/${ROWGROUP_VERSION}/js/dataTables.rowGroup.min.js`,
       ],
       css: [],
     },
@@ -48,8 +51,8 @@
 
     logLibrary(library, config.version);
 
-    config.js.forEach(jsReference => writeScript(`${webjars}/${library}/${config.version}${jsReference}${ver}`));
-    config.css.forEach(cssReference => writeStylesheet(`${webjars}/${library}/${config.version}${cssReference}${ver}`));
+    config.js.forEach(jsReference => writeScript(`${webjars}${jsReference}${ver}`));
+    config.css.forEach(cssReference => writeStylesheet(`${webjars}${cssReference}${ver}`));
     config.after?.({ psp, ver });
   }
 
