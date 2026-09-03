@@ -478,7 +478,8 @@ public class SiteStatsToolService {
             events = detailedEventsManager.getDetailedEvents(tracking,
                     new PagingParams(offset, PAGE_SIZE), new SortingParams("eventDate", true)).stream()
                     .map(event -> new ActivityEvent(event.getId(), eventName(event.getEventId()), event.getEventRef(),
-                            event.getEventDate().toInstant().toString(), formatTimestamp(event.getEventDate())))
+                            event.getEventDate().toInstant().toString(), formatTimestamp(event.getEventDate()),
+                            detailedEventsManager.isResolvable(event.getEventId())))
                     .collect(Collectors.toList());
             statsManager.logEvent(new UserId(form.getUserId()), StatsManager.LOG_ACTION_TRACK, siteId, false);
         }
@@ -661,6 +662,7 @@ public class SiteStatsToolService {
         private final String reference;
         private final String timestamp;
         private final String displayTimestamp;
+        private final boolean resolvable;
     }
 
     @Getter
