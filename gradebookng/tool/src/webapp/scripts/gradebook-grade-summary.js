@@ -309,7 +309,7 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  if (!table || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
+  if (!table || table.tBodies.length > 1 || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
 
   table.querySelectorAll("td, th").forEach(node => {
     let sortValue = node.textContent.trim();
