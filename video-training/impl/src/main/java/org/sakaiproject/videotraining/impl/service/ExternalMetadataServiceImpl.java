@@ -51,7 +51,7 @@ public class ExternalMetadataServiceImpl implements ExternalMetadataService {
     }
 
     @Override
-    public String extractYoutubeVideoId(String url) {
+    public String extractVideoId(String url) {
         ExternalVideoProviderStrategy provider = resolveProvider(url);
         if (provider == null) {
             return null;
@@ -60,7 +60,7 @@ public class ExternalMetadataServiceImpl implements ExternalMetadataService {
     }
 
     @Override
-    public boolean syncYoutubePrivacy(String url, VideoPublicationStatus publicationStatus, VideoVisibilityScope visibilityScope) {
+    public boolean syncPrivacy(String url, VideoPublicationStatus publicationStatus, VideoVisibilityScope visibilityScope) {
         ExternalVideoProviderStrategy provider = resolveProvider(url);
         if (provider == null) {
             return false;

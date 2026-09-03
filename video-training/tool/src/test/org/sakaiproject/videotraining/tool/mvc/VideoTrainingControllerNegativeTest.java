@@ -96,7 +96,7 @@ public class VideoTrainingControllerNegativeTest {
         when(uploadService.isValidNativeUpload(anyString(), anyString(), anyBoolean())).thenReturn(true);
         when(messageSource.getMessage(anyString(), nullable(Object[].class), any(Locale.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(externalMetadataService.extractYoutubeVideoId(anyString())).thenReturn("dQw4w9WgXcQ");
+        when(externalMetadataService.extractVideoId(anyString())).thenReturn("dQw4w9WgXcQ");
         when(externalMetadataService.retrieveVideoProvider(anyString())).thenReturn("YouTube");
         when(externalMetadataService.fetch(anyString())).thenReturn(new org.sakaiproject.videotraining.api.model.MetadataFetchResult("Title test", "Description test"));
 
