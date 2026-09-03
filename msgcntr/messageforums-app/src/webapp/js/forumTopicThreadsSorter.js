@@ -22,32 +22,32 @@
 		return parseInt(padding, 10) || 0;
 	}
 
-	function cellText(row, columnIndex) {
-		return (row.cells[columnIndex]?.textContent || "").trim().toLocaleLowerCase();
+	function cellText(row, columnIndex, locale) {
+		return (row.cells[columnIndex]?.textContent || "").trim().toLocaleLowerCase(locale);
 	}
 
-	function cellNumber(row, columnIndex) {
-		const text = cellText(row, columnIndex);
+	function cellNumber(row, columnIndex, locale) {
+		const text = cellText(row, columnIndex, locale);
 		const number = parseFloat(text.replace(/[^0-9.-]/g, ""));
 		return Number.isNaN(number) ? 0 : number;
 	}
 
-	function rowKey(row, columnIndex) {
-		const text = cellText(row, columnIndex);
-		const number = cellNumber(row, columnIndex);
+	function rowKey(row, columnIndex, locale) {
+		const text = cellText(row, columnIndex, locale);
+		const number = cellNumber(row, columnIndex, locale);
 		return text && /^[-+]?[\d,.]+$/.test(text) ? number : text;
 	}
 
-	function compareRows(columnIndex, ascending) {
+	function compareRows(columnIndex, ascending, locale) {
 		return function(left, right) {
-			const leftValue = rowKey(left, columnIndex);
-			const rightValue = rowKey(right, columnIndex);
+			const leftValue = rowKey(left, columnIndex, locale);
+			const rightValue = rowKey(right, columnIndex, locale);
 			let result = 0;
 
 			if (typeof leftValue === "number" && typeof rightValue === "number") {
 				result = leftValue - rightValue;
 			} else {
-				result = String(leftValue).localeCompare(String(rightValue), undefined, { numeric: true });
+				result = String(leftValue).localeCompare(String(rightValue), locale, { numeric: true });
 			}
 
 			return ascending ? result : -result;
@@ -73,7 +73,7 @@
 		return groups;
 	}
 
-	function descendantsByThread(descendants, columnIndex, ascending) {
+	function descendantsByThread(descendants, columnIndex, ascending, locale) {
 		const result = [];
 		const childGroups = [];
 		let currentChildGroup = null;
@@ -87,13 +87,13 @@
 			}
 		});
 
-		childGroups.sort((left, right) => compareRows(columnIndex, ascending)(left.child, right.child));
+		childGroups.sort((left, right) => compareRows(columnIndex, ascending, locale)(left.child, right.child));
 		childGroups.forEach(group => result.push(group.child, ...group.children));
 
 		return result;
 	}
 
-	function sortTable(table, columnIndex, ascending) {
+	function sortTable(table, columnIndex, ascending, locale) {
 		const tbody = table.tBodies[0];
 		if (!tbody) return;
 
@@ -104,17 +104,17 @@
 		const sortedRows = [];
 
 		if (sortFlat) {
-			sortedRows.push(...rows.sort(compareRows(columnIndex, ascending)));
+			sortedRows.push(...rows.sort(compareRows(columnIndex, ascending, locale)));
 		} else {
 			const groups = buildGroups(rows).sort((left, right) =>
-				compareRows(columnIndex, ascending)(left.parent, right.parent));
+				compareRows(columnIndex, ascending, locale)(left.parent, right.parent));
 
 			groups.forEach(group => {
 				sortedRows.push(group.parent);
 				if (sortByThread) {
-					sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending));
+					sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending, locale));
 				} else {
-					sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending)));
+					sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending, locale)));
 				}
 			});
 		}
@@ -148,10 +148,11 @@
 		});
 	}
 
-	function init(table) {
+	function init(table, userLocale) {
 		if (!table?.tHead?.rows.length) return;
 
 		const headers = Array.from(table.tHead.rows[0].cells);
+		const locale = userLocale.replaceAll("_", "-");
 		let expanded = true;
 
 		headers.forEach((header, columnIndex) => {
@@ -164,6 +165,7 @@
 						? event.target
 						: header.querySelector("img");
 					toggleThreadVisibility(table, expanded, imageObj);
+					header.setAttribute("aria-expanded", String(expanded));
 
 					if (parent?.document?.querySelector("iframe.portletMainIframe") && window.mySetMainFrameHeight) {
 						mySetMainFrameHeight(parent.document.querySelector("iframe.portletMainIframe").id);
@@ -172,6 +174,7 @@
 				header.querySelector("a")?.remove();
 				header.tabIndex = 0;
 				header.setAttribute("role", "button");
+				header.setAttribute("aria-expanded", "true");
 				header.addEventListener("click", toggleThreads);
 				header.addEventListener("keydown", event => {
 					if (event.key === "Enter" || event.key === " " || event.keyCode === 13 || event.keyCode === 32) {
@@ -191,7 +194,7 @@
 				const ascending = header.dataset.sortDirection !== "asc";
 				header.dataset.sortDirection = ascending ? "asc" : "desc";
 				setSortClasses(header, ascending);
-				sortTable(table, columnIndex, ascending);
+				sortTable(table, columnIndex, ascending, locale);
 			});
 		});
 	}

@@ -21,6 +21,7 @@
 -->
 
 <script>includeWebjarLibrary('datatables');</script>
+<script src="/samigo-app/js/sortHelper.js"></script>
 <script src="/samigo-app/js/dataTables.js"></script>
 
 <div class="table-responsive">
@@ -192,6 +193,7 @@
 
         const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
         dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
+        dataTableConfig['autoWidth'] = false;
 
         const dataTable = setupDataTable("editform:questionpool-questions", dataTableConfig);
         dataTable?.on( 'draw.dt', function () {

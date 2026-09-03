@@ -260,12 +260,14 @@ public class EventLogListener implements ActionListener, ValueChangeListener {
                             .orderable(true)
                             .searchable(true)
                             .type(DataTableColumn.TYPE_NUM)
+                            .orderDataType(DataTableColumn.ORDER_DATA_TYPE_DOM_SPAN)
                             .build());
                     // DATE SUBMITTED
                     add(DataTableColumn.builder()
                             .orderable(true)
                             .searchable(true)
                             .type(DataTableColumn.TYPE_NUM)
+                            .orderDataType(DataTableColumn.ORDER_DATA_TYPE_DOM_SPAN)
                             .build());
                     // DURATION
                     add(DataTableColumn.builder()

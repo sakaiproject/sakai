@@ -8,6 +8,7 @@
       <head><%= request.getAttribute("html.head") %>
         <title><h:outputText value="EventLog"/></title>
         <script>includeWebjarLibrary('datatables');</script>
+        <script src="/samigo-app/js/sortHelper.js"></script>
         <script>
           var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
         </script>

@@ -28,10 +28,12 @@ public class DataTableColumn {
     public static final String TYPE_NUM = "num";
     public static final String TYPE_ANY_NUM = "any-number";
     public static final String TYPE_IP_ADDRESS = "ip-address";
+    public static final String ORDER_DATA_TYPE_DOM_SPAN = "dom-span";
 
 
     private String targets;
     private Boolean orderable;
     private Boolean searchable;
     private String type;
+    private String orderDataType;
 }

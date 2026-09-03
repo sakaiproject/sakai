@@ -28,7 +28,7 @@
 		<script>
  		jQuery(document).ready(function(){
  			//sort forum threads
-			sakaiForumThreadsSorter.init(document.getElementById('msgForum:messagesInHierDataTable'));
+			sakaiForumThreadsSorter.init(document.getElementById('msgForum:messagesInHierDataTable'), '<h:outputText value="#{ForumTool.userLocale}" />');
 			//add handles to list for thread operat
 			instrumentThreads('msgForum\\:messagesInHierDataTable');
 

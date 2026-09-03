@@ -3372,6 +3372,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 						DataTableColumn.builder()
 								.targets("columnDate")
 								.type(DataTableColumn.TYPE_NUM)
+								.orderDataType(DataTableColumn.ORDER_DATA_TYPE_DOM_SPAN)
 								.build(),
 						// ALL
 						DataTableColumn.builder()
