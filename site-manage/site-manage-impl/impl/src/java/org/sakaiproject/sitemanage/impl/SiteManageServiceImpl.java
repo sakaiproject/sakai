@@ -162,9 +162,11 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
+			boolean importSucceeded = false;
 			try {
                 log.info("Started Site Import for the site {}", id);
                 importToolsIntoSite(site, existingTools, importTools, toolItemMap, toolOptions, cleanup);
+                importSucceeded = true;
                 log.info("Finished Site Import for the site {}", id);
             } catch (Exception e) {
                 log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
@@ -172,10 +174,14 @@ public class SiteManageServiceImpl implements SiteManageService {
                 currentSiteImports.remove(id);
             }
 
-            if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
-                userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
+            // Only signal completion (email and the site.import.end event that drives the bullhorn)
+            // when the import actually finished; a failed import must not be reported as completed.
+            if (importSucceeded) {
+                if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
+                    userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
+                }
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
             }
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 
             // clear any sakai related state from the thread before returning it
             threadLocalManager.clear();

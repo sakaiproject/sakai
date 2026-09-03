@@ -141,6 +141,7 @@ describe("sakai-notifications tests", () => {
     await waitUntil(() => el._i18n);
     await el.loadNotifications();
     await waitUntil(() => el._filteredNotifications.get("site")?.length);
+    await elementUpdated(el);
 
     expect(el._filteredNotifications.get("site")[0].title).to.equal('Import completed for "Biology 101"');
 
