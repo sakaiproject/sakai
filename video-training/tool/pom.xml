@@ -80,6 +80,7 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <!-- Test dependencies -->
+        <!-- Worth to migrate the jupiter dependency into master and use it inside e2e too? -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -89,21 +90,19 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.3.27</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
-            <version>2.7.18</version>
             <scope>test</scope>
         </dependency>
+        <!-- Worth to migrate the jupiter dependency into master and use it inside e2e too? -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

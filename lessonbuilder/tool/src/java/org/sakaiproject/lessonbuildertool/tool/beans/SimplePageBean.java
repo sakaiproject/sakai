@@ -3829,7 +3829,7 @@ public class SimplePageBean {
 					ref = existing.getReference();
 				}
 
-				if ((existing == null) || !ref.equals(selectedEntity)) {
+				if ((existing == null) || !StringUtils.equals(ref, selectedEntity)) {
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
 					i.setDescription(selectedObject.getDescription());
