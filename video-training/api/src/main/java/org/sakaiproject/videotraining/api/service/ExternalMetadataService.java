@@ -26,7 +26,7 @@ public interface ExternalMetadataService {
 
     String retrieveVideoProvider(String url);
 
-    String extractYoutubeVideoId(String url);
+    String extractVideoId(String url);
 
-    boolean syncYoutubePrivacy(String url, VideoPublicationStatus publicationStatus, VideoVisibilityScope visibilityScope);
+    boolean syncPrivacy(String url, VideoPublicationStatus publicationStatus, VideoVisibilityScope visibilityScope);
 }

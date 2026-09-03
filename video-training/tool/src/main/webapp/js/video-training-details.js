@@ -160,9 +160,17 @@
 			showOverlay();
 
             let targetUrl = window.location.href;
-            if (videoElement.dataset.portalUrl) {
-                targetUrl = videoElement.dataset.portalUrl;
-            } else if (window.self !== window.top) {
+            const portalUrlCandidate = videoElement.dataset.portalUrl;
+			if (portalUrlCandidate) {
+				try {
+					const parsed = new URL(portalUrlCandidate, window.location.href);
+					if (parsed.origin === window.location.origin) {
+						targetUrl = parsed.href;
+					}
+				} catch (e) {
+					console.warn("VTM: Invalid portal URL provided.");
+				}
+			} else if (window.self !== window.top) {
                 try {
                     const parentUrl = window.parent.location.href;
                     if (parentUrl.includes('/portal/site/')) {

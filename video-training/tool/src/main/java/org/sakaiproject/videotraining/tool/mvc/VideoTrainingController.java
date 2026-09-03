@@ -2553,7 +2553,7 @@ public class VideoTrainingController {
         }
         normalized = normalized.replace("&amp;", "&");
 
-        String youtubeVideoId = externalMetadataService.extractYoutubeVideoId(normalized);
+        String youtubeVideoId = externalMetadataService.extractVideoId(normalized);
         if (StringUtils.isNotBlank(youtubeVideoId)) {
             return "https://www.youtube.com/embed/" + youtubeVideoId;
         }
