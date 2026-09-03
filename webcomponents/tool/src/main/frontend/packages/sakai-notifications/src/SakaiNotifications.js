@@ -244,7 +244,7 @@ export class SakaiNotifications extends SakaiElement {
   _decorateSiteImportNotification(noti) {
 
     if (noti.event === "site.import.end") {
-      noti.title = this._i18n.site_import_completed.replace("{0}", noti.siteTitle);
+      noti.title = this._i18n.site_import_completed.replace("{0}", () => noti.siteTitle);
     }
   }
 
