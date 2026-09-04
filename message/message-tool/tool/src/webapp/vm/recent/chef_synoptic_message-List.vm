@@ -53,18 +53,69 @@
 					#motdCarousel .carousel-control-next {
 						width: 2.5rem;
 					}
+					## Bootstrap's default opacity for these icons is 0.5, which is a known
+					## WCAG 1.4.11 (Non-text Contrast) risk - a semi-transparent icon can drop
+					## below the required 3:1 contrast depending on what's behind it. Raise it
+					## via Bootstrap's own CSS variable rather than fighting the opacity rule
+					## directly.
+					#motdCarousel {
+						--bs-carousel-control-opacity: 0.9;
+					}
+					## Row of indicator dots + toggle button, centered as a group, immediately
+					## next to each other rather than spread across the full width.
+					.motd-carousel-toggle-wrap {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						gap: 0.5rem;
+					}
+					## Reset Bootstrap's absolute bottom-of-carousel positioning now that the
+					## dots are a normal flex item here instead, and give them an explicit
+					## color: their default (white, 0.5 opacity; black only once .active) was
+					## tuned to sit on top of a colored message background, not the plain
+					## background out here.
+					.motd-carousel-toggle-wrap .carousel-indicators {
+						position: static;
+						margin: 0;
+					}
+					.motd-carousel-toggle-wrap .carousel-indicators [data-bs-target] {
+						background-color: #adb5bd;
+						opacity: 1;
+					}
+					.motd-carousel-toggle-wrap .carousel-indicators [data-bs-target].active {
+						background-color: #333;
+					}
+					## Filled circle rather than a bare icon - a circle with its own fill color
+					## keeps the icon's contrast (WCAG 1.4.11) consistent regardless of which
+					## color a given message's background happens to be, instead of depending
+					## on the icon alone standing out against whatever's behind it. Sized a bit
+					## larger than the bare-icon version for visibility, well past the
+					## ~24x24px minimum (WCAG 2.5.8).
+					.motd-carousel-toggle {
+						background-color: #e9ecef;
+						border: 0;
+						border-radius: 50%;
+						width: 2rem;
+						height: 2rem;
+						padding: 0;
+						line-height: 0;
+						cursor: pointer;
+					}
+					.motd-carousel-toggle-icon {
+						display: inline-block;
+						width: 1rem;
+						height: 1rem;
+						background-repeat: no-repeat;
+						background-position: center;
+						background-size: contain;
+						background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3crect x='4' y='2' width='3' height='12'/%3e%3crect x='9' y='2' width='3' height='12'/%3e%3c/svg%3e");
+					}
+					.motd-carousel-toggle[aria-pressed="true"] .motd-carousel-toggle-icon {
+						background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3cpath d='M4 2l10 6-10 6z'/%3e%3c/svg%3e");
+					}
 				</style>
-				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval">
-					#if ($messages.size() > 1)
-						<div class="carousel-indicators">
-							#set ($motdIndex = 0)
-							#foreach ($item in $messages)
-								#set ($motdSlideNumber = $motdIndex + 1)
-								<button type="button" data-bs-target="#motdCarousel" data-bs-slide-to="$motdIndex" #if ($motdIndex == 0)class="active" aria-current="true"#end aria-label="$tlang.getFormattedMessage("motd.slide", $motdSlideNumber)"></button>
-								#set ($motdIndex = $motdIndex + 1)
-							#end
-						</div>
-					#end
+				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval"
+					aria-roledescription="carousel" aria-label="$tlang.getString("motd.carousel.label")">
 					<div class="carousel-inner">
 						#set ($motdIndex = 0)
 						#foreach ($item in $messages)
@@ -126,6 +177,31 @@
 						</button>
 					#end
 				</div>
+				#if ($messages.size() > 1)
+					## Normal document flow, not absolutely positioned over the carousel like
+					## the arrows were - WCAG 2.2.2 (Pause, Stop, Hide) requires a way to stop
+					## content that moves on its own for more than 5 seconds, and Bootstrap
+					## only pauses on pointer hover, leaving keyboard/screen-reader users with
+					## no way to stop the rotation. The indicator dots moved down here too:
+					## Bootstrap positions them absolutely at the bottom of #motdCarousel's own
+					## box, which is pinned to the tallest slide seen (see the resize script
+					## below) - so for the slide that height actually came from, they sat right
+					## on top of its last line of text with no room reserved for them.
+					<div class="motd-carousel-toggle-wrap">
+						<div class="carousel-indicators">
+							#set ($motdIndex = 0)
+							#foreach ($item in $messages)
+								#set ($motdSlideNumber = $motdIndex + 1)
+								<button type="button" data-bs-target="#motdCarousel" data-bs-slide-to="$motdIndex" #if ($motdIndex == 0)class="active" aria-current="true"#end aria-label="$tlang.getFormattedMessage("motd.slide", $motdSlideNumber)"></button>
+								#set ($motdIndex = $motdIndex + 1)
+							#end
+						</div>
+						<button id="motdCarouselToggle" type="button" class="motd-carousel-toggle" aria-pressed="false">
+							<span class="motd-carousel-toggle-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.pause")</span>
+						</button>
+					</div>
+				#end
 				<script>
 					## Each carousel slide can be a different height. The parent iframe is only
 					## auto-sized once, on body onload, so without this the frame is left at the
@@ -239,6 +315,30 @@
 							// too early
 							setTimeout(motdResize, 1300);
 						});
+						// WCAG 2.2.2 (Pause, Stop, Hide): Bootstrap only pauses the carousel on
+						// pointer hover, which keyboard and screen-reader users can't trigger -
+						// this is the only way those users have to stop the rotation.
+						var motdToggle = document.getElementById("motdCarouselToggle");
+						if (motdToggle) {
+							var motdInstance = bootstrap.Carousel.getOrCreateInstance(motdCarousel);
+							var motdToggleLabel = motdToggle.querySelector(".visually-hidden");
+							var motdPaused = false;
+							motdToggle.addEventListener("click", function () {
+								motdPaused = !motdPaused;
+								if (motdPaused) {
+									motdInstance.pause();
+								} else {
+									motdInstance.cycle();
+								}
+								// The icon itself swaps via CSS off this same attribute (see the
+								// [aria-pressed="true"] rule above) - only the screen-reader-only
+								// label needs updating here.
+								motdToggle.setAttribute("aria-pressed", String(motdPaused));
+								if (motdToggleLabel) {
+									motdToggleLabel.textContent = motdPaused ? "$tlang.getString("motd.play")" : "$tlang.getString("motd.pause")";
+								}
+							});
+						}
 					})();
 				</script>
 			#end
