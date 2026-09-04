@@ -100,6 +100,9 @@
 		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
 	</bean>
 
+	<bean id="org.sakaiproject.messaging.api.UserNotificationHandler.siteImport"
+		  class="org.sakaiproject.sitemanage.impl.messaging.SiteImportUserNotificationHandler"/>
+
 	<!--  Hibernate persistence -->
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.siteSetupQuestion"

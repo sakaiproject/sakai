@@ -117,6 +117,39 @@ describe("sakai-notifications tests", () => {
     expect(siteTitleOccurrences).to.equal(1);
   });
 
+  it ("decorates site import completion notifications", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    const siteImportNotification = {
+      event: "site.import.end",
+      from: "instructor1",
+      fromDisplayName: "Instructor Example",
+      formattedEventDate: "15 Oct, 2025",
+      id: "noti-site-import",
+      siteTitle: "Biology 101",
+      title: "Biology 101",
+      url: "http://example.com/portal/site/site-1",
+    };
+
+    setRoutes([siteImportNotification]);
+
+    const el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.loadNotifications();
+    await waitUntil(() => el._filteredNotifications.get("site")?.length);
+    await elementUpdated(el);
+
+    expect(el._filteredNotifications.get("site")[0].title).to.equal('Import completed for "Biology 101"');
+
+    const siteAccordion = document.getElementById("site-accordion");
+    expect(siteAccordion).to.exist;
+    expect(siteAccordion.querySelectorAll("li.toast").length).to.equal(1);
+  });
+
   it ("skips user photo fetch when notification has no fromUser", async () => {
 
     window.Notification = { permission: "granted" };

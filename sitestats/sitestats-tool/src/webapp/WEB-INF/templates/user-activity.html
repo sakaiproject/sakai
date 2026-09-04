@@ -67,7 +67,10 @@
           <td class="text-break" th:text="${event.reference}"></td>
           <td>
             <a th:if="${event.resolvable}"
-               th:href="@{/useractivity/events/{id}(id=${event.id},siteId=${siteId})}"
+               th:href="@{/useractivity/events/{id}(id=${event.id},siteId=${siteId},
+                   userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},
+                   startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},
+                   page=${userActivityForm.page})}"
                th:text="#{de_resultsTable_detailsLink}">View details</a>
           </td>
         </tr>
