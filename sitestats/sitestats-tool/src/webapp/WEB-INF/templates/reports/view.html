@@ -5,8 +5,8 @@
 <main class="portletBody container-fluid">
   <div th:replace="~{fragments/common :: menu('reports')}"></div>
   <div th:replace="~{fragments/common :: messages}"></div>
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-    <h1 class="h3 mb-0" th:text="${preview} ? #{sitestats_report_preview} : ${report.title}">Report</h1>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 my-3">
+    <h1 class="h3 mb-0" th:text="${report.title}">Report</h1>
     <button id="print-report" type="button" class="btn btn-link noprint"
             th:text="#{report_print}">Print report</button>
   </div>

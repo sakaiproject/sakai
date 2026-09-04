@@ -219,8 +219,10 @@ public class SiteStatsToolService {
         return new CopiedReport(saveReport(report.getSiteId(), form), report.getSiteId());
     }
 
-    public boolean canViewPreview(String requestedSiteId, String previewId) {
-        return reportExportService.canExportPreviewReport(reportSite(requestedSiteId), previewId);
+    public ReportDef previewReportDefinition(String requestedSiteId, String previewId) {
+        String siteId = reportSite(requestedSiteId);
+        ReportDef report = reportAccessService.previewReportDefinition(siteId, previewId);
+        return new ReportDef(report, siteId);
     }
 
     public ReportDef buildReport(String requestedSiteId, SiteStatsReportForm form) {
