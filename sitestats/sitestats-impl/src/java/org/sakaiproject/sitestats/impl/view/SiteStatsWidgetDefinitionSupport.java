@@ -7,6 +7,7 @@ package org.sakaiproject.sitestats.impl.view;
 
 import lombok.Setter;
 
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
@@ -35,6 +36,10 @@ public class SiteStatsWidgetDefinitionSupport {
 		return context.getEventRegistryService();
 	}
 
+	public SiteService getSiteService() {
+		return context.getSiteService();
+	}
+
 	public WidgetFilterCatalog getFilterCatalog() {
 		return filterCatalog;
 	}
@@ -45,6 +50,10 @@ public class SiteStatsWidgetDefinitionSupport {
 
 	public WidgetMetricSupport getMetricSupport() {
 		return metricSupport;
+	}
+
+	public SiteStatsWidgetContext getContext() {
+		return context;
 	}
 
 	public String message(String key) {

@@ -82,7 +82,24 @@ describe("sakai-sitestats-chart tests", () => {
     expect(el._chartInstance.data.datasets[0].backgroundColor).to.contain("rgba(10, 20, 30, 0.26)");
     expect(options.plugins.legend.labels.color).to.equal("rgb(220, 230, 240)");
     expect(options.scales.x.ticks.color).to.equal("rgb(150, 160, 170)");
+    expect(options.scales.x.border.color).to.equal("rgb(70, 80, 90)");
+    expect(options.scales.y.border.color).to.equal("rgb(70, 80, 90)");
     expect(options.scales.x.grid.color).to.equal("rgba(70, 80, 90, 0.55)");
+  });
+
+  it("renders a short chart without value labels in compact mode", async () => {
+
+    const compactChart = { ...chart, compact: true, itemLabelsVisible: false };
+    const el = await fixture(html`<sakai-sitestats-chart compact .chart=${compactChart} .renderTableFallback=${false}></sakai-sitestats-chart>`);
+    await waitUntil(() => el._chartInstance);
+
+    const options = siteStatsChartOptions(compactChart, siteStatsChartTheme(el), false, true);
+    expect(el.hasAttribute("compact")).to.be.true;
+    expect((el._chartInstance.config.plugins || []).some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.false;
+    expect(options.plugins.legend.display).to.be.false;
+    expect(options.scales.x.ticks.display).to.be.false;
+    expect(options.scales.y.ticks.display).to.be.false;
+    expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
   });
 
   it("resolves chart theme aliases through browser CSS", async () => {

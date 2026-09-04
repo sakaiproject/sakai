@@ -15,6 +15,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -28,6 +29,7 @@ public class SiteStatsWidgetContext {
 	@Setter private SiteService siteService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private UserTimeService userTimeService;
 
 	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 

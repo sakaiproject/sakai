@@ -12,7 +12,7 @@
   </div>
   <div class="sitestats-widgets" th:if="${!#lists.isEmpty(overview.widgets)}">
     <section class="sitestats-widget" th:each="widget : ${overview.widgets}" th:if="${widget.visible}">
-      <h2 class="h4 sitestats-widget-title" th:text="${widget.title}">Report</h2>
+      <h2 class="sitestats-widget-title" th:text="${widget.title}">Report</h2>
       <dl class="sitestats-metrics" th:if="${!#lists.isEmpty(widget.metrics)}">
         <div class="sitestats-metric" th:each="metric : ${widget.metrics}"
              th:title="${metric.snapshot.detail != metric.snapshot.primary ? metric.snapshot.detail : null}">
@@ -28,6 +28,10 @@
           </dd>
         </div>
       </dl>
+      <sakai-sitestats-highlights class="sitestats-highlights"
+                                  th:if="${widgetHighlightsJson.containsKey(widget.id)}"
+                                  th:attr="charts=${widgetHighlightsJson.get(widget.id)}">
+      </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"
                                   th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)},

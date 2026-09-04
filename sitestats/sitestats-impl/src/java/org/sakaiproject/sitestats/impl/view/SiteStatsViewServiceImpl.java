@@ -118,6 +118,12 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
+		SiteStatsReportView customView = siteStatsWidgetCatalog.getWidgetReportView(siteId, widgetId, tabId, safeRequest, userId);
+		if (customView != null) {
+			customView.setWidgetId(widgetId);
+			customView.setTabId(tabId);
+			return customView;
+		}
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, tabId, null,
 				"Unknown SiteStats widget report: " + widgetId + "/" + tabId);
