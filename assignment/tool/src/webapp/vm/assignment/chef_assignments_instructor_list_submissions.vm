@@ -587,7 +587,8 @@ function printView(url) {
 												evaluated-item-id="$!item.getId().getAssessorUserId()"
 												entity-id="$assignment.Id"
 												evaluated-item-owner-id="$!submitterId"
-												instructor="true">
+												instructor="true"
+												is-peer-or-self>
 											</sakai-rubric-student-button>
 											#end
 											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))

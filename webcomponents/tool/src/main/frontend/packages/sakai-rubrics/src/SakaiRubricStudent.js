@@ -111,7 +111,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
           </h3>
         ` : nothing }
 
-        ${this.instructor ? html`
+        ${this.instructor && !this.isPeerOrSelf ? html`
           <select @change=${this._viewSelected} class="mb-3"
               aria-label="${this._i18n.rubric_view_selection_title}"
               title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
