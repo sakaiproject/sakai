@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.videotraining</groupId>
         <artifactId>video-training</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Video Training Tool Module (video-training-tool)</name>

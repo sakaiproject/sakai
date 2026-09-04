@@ -97,6 +97,7 @@ public class YoutubeProviderStrategy implements ExternalVideoProviderStrategy {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Accept", "application/json")
+                    .timeout(Duration.ofSeconds(15))
                     .GET()
                     .build();
 

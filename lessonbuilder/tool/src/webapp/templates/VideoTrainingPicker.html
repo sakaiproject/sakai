@@ -8,7 +8,7 @@
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
-<title>Video Training</title>
+<title th:text="#{video.training.title}">Video Training</title>
 </head>
 <body rsf:id="scr=sakai-body">
 	<div class="portletBody">
@@ -24,7 +24,7 @@
 			</div>
 		</div>
 
-		<h2>Video Training</h2>
+		<h2 th:text="#{video.training.title}">Video Training</h2>
 
 		<form action="#" rsf:id="video-training-picker">
 			<input type="hidden" rsf:id="csrf"/>
@@ -40,7 +40,7 @@
 							<span class="bi bi-play-btn-fill" style="font-size:1.5rem;"></span>
 						</div>
 					</div>
-					<span href="#" rsf:id="link" target="_blank" class="fw-semibold text-decoration-none"></span>
+					<a href="#" rsf:id="link" target="_blank" class="fw-semibold text-decoration-none"></a>
 				</div>
 			</div>
 
