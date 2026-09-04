@@ -159,20 +159,21 @@ public class MeetingServiceImplTest extends AbstractTransactionalJUnit4SpringCon
         Meeting test = meetingService.getMeeting(ret.getId());
         Assert.assertNotNull(test.getId());
         
-        Assert.assertThrows(Exception.class,
-            ()->{
-                Meeting data2 = new Meeting();
-                data2.setTitle("Test Long 2");
-                data2.setDescription(RandomStringUtils.randomAlphabetic(4001));
-                data2.setSiteId("site");
-                
-                Meeting ret2 = meetingService.createMeeting(data2);
-                Assert.assertNotNull(ret2.getId());
-                
-                Meeting test2 = meetingService.getMeeting(ret2.getId());
-                //should never reach this point
-                Assert.assertNull(test2.getId());
-        });
+        Meeting data2 = new Meeting();
+        data2.setTitle("Test Long 2");
+        String longDescription = RandomStringUtils.randomAlphabetic(4001);
+        data2.setDescription(longDescription);
+        data2.setSiteId("site");
+        
+        Meeting ret2 = meetingService.createMeeting(data2);
+        Assert.assertNotNull(ret2.getId());
+        
+        Meeting test2 = meetingService.getMeeting(ret2.getId());
+        Assert.assertNotNull(test2.getId());
+        
+        Assert.assertNotNull(test2.getDescription());
+        Assert.assertEquals(4000, test2.getDescription().length());
+        Assert.assertEquals(longDescription.substring(0, 4000), test2.getDescription());
     }
     
     @Test
