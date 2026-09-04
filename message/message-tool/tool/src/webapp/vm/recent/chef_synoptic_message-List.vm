@@ -75,11 +75,16 @@
 					## tuned to sit on top of a colored message background, not the plain
 					## background out here. items can go up to 200 (see sakai.motd.xml), so
 					## the strip needs to be able to shrink and scroll rather than overflow
-					## the widget and push the toggle button off to the side.
+					## the widget and push the toggle button off to the side. flex-grow is
+					## deliberately 0, not 1: growing to fill the row is what actually caused
+					## the overflow fix to break centering for the common case of just a few
+					## dots, by claiming all the row's space instead of just its own content
+					## width - shrink-only still lets it give way and scroll once there
+					## really isn't room, without doing that every time.
 					.motd-carousel-toggle-wrap .carousel-indicators {
 						position: static;
 						margin: 0;
-						flex: 1 1 0;
+						flex: 0 1 auto;
 						min-width: 0;
 						overflow-x: auto;
 						justify-content: flex-start;
