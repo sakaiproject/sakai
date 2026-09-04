@@ -81,6 +81,12 @@ export class SakaiNotifications extends SakaiElement {
     }
   }
 
+  firstUpdated() {
+
+    // Load on mount so the push subscription is created before the bell is ever opened.
+    this.loadNotifications();
+  }
+
   loadNotifications() {
     return this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
@@ -115,7 +121,7 @@ export class SakaiNotifications extends SakaiElement {
 
     console.debug("registerForNotifications");
 
-    pushSetupComplete.then(() => {
+    pushSetupComplete.then(async () => {
 
       this._pushEnabled = true;
 
@@ -129,6 +135,12 @@ export class SakaiNotifications extends SakaiElement {
         this._fireLoadedEvent();
         this._filterIntoToolNotifications();
       });
+
+      // Subscribe if permission was granted outside the in-app prompt (e.g. browser settings).
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration && !(await registration.pushManager.getSubscription())) {
+        callSubscribeIfPermitted();
+      }
     })
     .catch(error => {
 
@@ -190,6 +202,8 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateMessageNotification(decorated);
     } else if (toolEventPrefix === "lessonbuilder") {
       this._decorateLessonsCommentNotification(decorated);
+    } else if (toolEventPrefix === "site") {
+      this._decorateSiteImportNotification(decorated);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(decorated);
     }
@@ -237,6 +251,13 @@ export class SakaiNotifications extends SakaiElement {
   _decorateLessonsCommentNotification(noti) {
 
     noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
+  }
+
+  _decorateSiteImportNotification(noti) {
+
+    if (noti.event === "site.import.end") {
+      noti.title = this._i18n.site_import_completed.replace("{0}", () => noti.siteTitle);
+    }
   }
 
   _decorateTestNotification(noti) {
