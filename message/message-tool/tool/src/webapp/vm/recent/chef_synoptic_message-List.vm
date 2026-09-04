@@ -13,6 +13,412 @@
 			</ul>
 			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert.message") $formattedText.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			#if ($motdCarouselEnabled)
+			#if (!$messages.isEmpty())
+				## This tool doesn't load Bootstrap by default, so it's pulled in explicitly
+				## here for the carousel's CSS/JS (data-bs-* behavior).
+				<link rel="stylesheet" href="/library/webjars/bootstrap/5.2.0/css/bootstrap.min.css$!{portalCdnQuery}" />
+				<script src="/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js$!{portalCdnQuery}"></script>
+				<style>
+					## The skin's .portletBody has a fixed margin-bottom: 3rem !important
+					## (library/src/skins/default/.../_base.scss) that collapses through <body>
+					## into <html>, inflating document.documentElement.scrollHeight by that same
+					## amount (measured live: 42px) regardless of actual content - wasted space
+					## under every slide. Scoped to this tool's body class (Mrphs-sakai-motd) so
+					## other tools sharing this same .vm (e.g. the synoptic "Recent" list) keep
+					## the skin's default margin.
+					body.Mrphs-sakai-motd .portletBody {
+						margin-bottom: 0 !important;
+					}
+					## Cap how tall a single message can push the iframe before it scrolls
+					## internally instead. Deliberately on the message body, not the iframe
+					## itself: the resize script measures content with getBoundingClientRect(),
+					## which already reports the clipped height once overflow is hidden behind
+					## a scrollbar here - so the cap only needs enforcing once, in CSS, and
+					## the existing resize logic naturally never grows the iframe past it.
+					#motdCarousel .carousel-item > .p-3 {
+						max-height: ${motdCarouselMaxHeight}px;
+						overflow-y: auto;
+						## Bootstrap's default prev/next controls are a 15%-wide, full-height
+						## clickable zone with no background, sized for full-width hero
+						## carousels. On this narrow widget that's a large chunk of each side,
+						## and message text can wrap directly underneath the icon with nothing
+						## to set it apart - reported as a legibility problem (T&L feedback).
+						## Padding matches the shrunk control width below so text never flows
+						## under the icon. !important because .p-3 itself is Bootstrap's own
+						## padding:1rem!important utility class (Bootstrap 5's utility API
+						## generates !important on all of them by default) - a plain
+						## padding-left/right here silently loses to that regardless of
+						## selector specificity. Confirmed live: without !important this was
+						## never actually taking effect, just never yet caught by content
+						## short enough to not reach the edges either way.
+						padding-left: 2.5rem !important;
+						padding-right: 2.5rem !important;
+					}
+					#motdCarousel .carousel-control-prev,
+					#motdCarousel .carousel-control-next {
+						width: 2.5rem;
+					}
+					## Bootstrap's default opacity for these icons is 0.5, which is a known
+					## WCAG 1.4.11 (Non-text Contrast) risk - a semi-transparent icon can drop
+					## below the required 3:1 contrast depending on what's behind it. Raise it
+					## via Bootstrap's own CSS variable rather than fighting the opacity rule
+					## directly.
+					#motdCarousel {
+						--bs-carousel-control-opacity: 0.9;
+					}
+					## Row of indicator dots + toggle button, centered as a group, immediately
+					## next to each other rather than spread across the full width.
+					.motd-carousel-toggle-wrap {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						gap: 0.5rem;
+					}
+					## Reset Bootstrap's absolute bottom-of-carousel positioning now that the
+					## dots are a normal flex item here instead, and give them an explicit
+					## color: their default (white, 0.5 opacity; black only once .active) was
+					## tuned to sit on top of a colored message background, not the plain
+					## background out here. items can go up to 200 (see sakai.motd.xml), so
+					## the strip needs to be able to shrink and scroll rather than overflow
+					## the widget and push the toggle button off to the side. flex-grow is
+					## deliberately 0, not 1: growing to fill the row is what actually caused
+					## the overflow fix to break centering for the common case of just a few
+					## dots, by claiming all the row's space instead of just its own content
+					## width - shrink-only still lets it give way and scroll once there
+					## really isn't room, without doing that every time.
+					.motd-carousel-toggle-wrap .carousel-indicators {
+						position: static;
+						margin: 0;
+						flex: 0 1 auto;
+						min-width: 0;
+						overflow-x: auto;
+						justify-content: flex-start;
+					}
+					.motd-carousel-toggle-wrap .carousel-indicators [data-bs-target] {
+						background-color: #adb5bd;
+						opacity: 1;
+					}
+					.motd-carousel-toggle-wrap .carousel-indicators [data-bs-target].active {
+						background-color: #333;
+					}
+					## Filled circle rather than a bare icon - a circle with its own fill color
+					## keeps the icon's contrast (WCAG 1.4.11) consistent regardless of which
+					## color a given message's background happens to be, instead of depending
+					## on the icon alone standing out against whatever's behind it. Sized a bit
+					## larger than the bare-icon version for visibility, well past the
+					## ~24x24px minimum (WCAG 2.5.8).
+					.motd-carousel-toggle {
+						background-color: #e9ecef;
+						border: 0;
+						border-radius: 50%;
+						width: 2rem;
+						height: 2rem;
+						padding: 0;
+						line-height: 0;
+						cursor: pointer;
+					}
+					.motd-carousel-toggle-icon {
+						display: inline-block;
+						width: 1rem;
+						height: 1rem;
+						background-repeat: no-repeat;
+						background-position: center;
+						background-size: contain;
+						background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3crect x='4' y='2' width='3' height='12'/%3e%3crect x='9' y='2' width='3' height='12'/%3e%3c/svg%3e");
+					}
+					.motd-carousel-toggle[aria-pressed="true"] .motd-carousel-toggle-icon {
+						background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3cpath d='M4 2l10 6-10 6z'/%3e%3c/svg%3e");
+					}
+				</style>
+				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval"
+					data-bs-pause="false"
+					aria-roledescription="carousel" aria-label="$tlang.getString("motd.carousel.label")">
+					<div class="carousel-inner">
+						#set ($motdIndex = 0)
+						#foreach ($item in $messages)
+							#set($counter = $counter + 1)
+							#set($props = $item.Properties)
+							<div class="carousel-item #if ($motdIndex == 0)active#end">
+								<div class="p-3">
+									#if ($showSubject)
+										#if ($props && !$props.isEmpty() && $props.getProperty("releaseDate"))
+											#set($releasedate = $props.getTimeProperty("releaseDate"))
+										#else
+											#set($releasedate= $item.Header.Date)
+										#end
+										<h3 class="textPanelHeader">$formattedText.escapeHtml($item.Header.Subject)</h3>
+										<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
+									#else
+										#set ($text=$item.Body)
+										<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
+									#end
+
+									#set ($size = 0)
+									#if (!$item.Header.Attachments.isEmpty())
+										#set ($size = $item.Header.Attachments.size())
+										<ul class="attachList indnt1">
+										#foreach ($attachment in $item.Header.Attachments)
+											#set ($aProps = $attachment.Properties)
+											#if (!$aProps)
+												#if ($size > 0) #set ($size = $size - 1) #end
+											#else
+												<li>
+													#if ($aProps.getBooleanProperty($aProps.NamePropIsCollection))
+														<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
+													#else
+														<img src = "#imageLink($contentTypeImageService.getContentTypeImage($aProps.getProperty($aProps.NamePropContentType)))" border="0" alt=""/>
+													#end
+													<a href="$attachment.Url" target="_blank">
+														$formattedText.escapeHtml($aProps.getPropertyFormatted("DAV:displayname"))</a>
+													#if (!$aProps.getBooleanProperty($aProps.NamePropIsCollection))
+														($aProps.getPropertyFormatted($aProps.NamePropContentLength))
+													#end
+												</li>
+											#end
+										#end
+										</ul>
+									#end
+								</div>
+							</div>
+							#set ($motdIndex = $motdIndex + 1)
+						#end
+					</div>
+					#if ($messages.size() > 1)
+						<button class="carousel-control-prev" type="button" data-bs-target="#motdCarousel" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.previous")</span>
+						</button>
+						<button class="carousel-control-next" type="button" data-bs-target="#motdCarousel" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.next")</span>
+						</button>
+					#end
+				</div>
+				#if ($messages.size() > 1)
+					## Normal document flow, not absolutely positioned over the carousel like
+					## the arrows were - WCAG 2.2.2 (Pause, Stop, Hide) requires a way to stop
+					## content that moves on its own for more than 5 seconds, and Bootstrap
+					## only pauses on pointer hover, leaving keyboard/screen-reader users with
+					## no way to stop the rotation. The indicator dots moved down here too:
+					## Bootstrap positions them absolutely at the bottom of #motdCarousel's own
+					## box, which is pinned to the tallest slide seen (see the resize script
+					## below) - so for the slide that height actually came from, they sat right
+					## on top of its last line of text with no room reserved for them.
+					<div class="motd-carousel-toggle-wrap">
+						<div class="carousel-indicators">
+							#set ($motdIndex = 0)
+							#foreach ($item in $messages)
+								#set ($motdSlideNumber = $motdIndex + 1)
+								<button type="button" data-bs-target="#motdCarousel" data-bs-slide-to="$motdIndex" #if ($motdIndex == 0)class="active" aria-current="true"#end aria-label="$tlang.getFormattedMessage("motd.slide", $motdSlideNumber)"></button>
+								#set ($motdIndex = $motdIndex + 1)
+							#end
+						</div>
+						<button id="motdCarouselToggle" type="button" class="motd-carousel-toggle" aria-pressed="false">
+							<span class="motd-carousel-toggle-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">$tlang.getString("motd.pause")</span>
+						</button>
+					</div>
+				#end
+				<script>
+					## Each carousel slide can be a different height. The parent iframe is only
+					## auto-sized once, on body onload, so without this the frame is left at the
+					## first slide's height and later, taller slides get clipped with a scrollbar.
+					## This resizes the iframe itself rather than delegating to Sakai's
+					## setMainFrameHeight(): that helper computes body.offsetHeight + a fixed
+					## 40px cushion, and per-slide height needs recalculating on every carousel
+					## rotation anyway, which that helper never does on its own.
+					## window.name matches the iframe's id/name, letting us find it in the
+					## parent document without threading the placement id through the
+					## Velocity context.
+					(function () {
+						var motdCarousel = document.getElementById("motdCarousel");
+						if (!motdCarousel) {
+							return;
+						}
+						var motdResize = function () {
+							var frame;
+							try {
+								frame = parent.document.getElementById(window.name);
+							} catch (e) {
+								return;
+							}
+							if (!frame) {
+								return;
+							}
+							// document.documentElement.scrollHeight is NOT safe to use here: it's
+							// floored at the iframe's own current viewport height (clientHeight), so
+							// once the frame has been sized larger than the real content even once, it
+							// stops reporting the true content height and instead echoes back
+							// (viewport size - 1). Confirmed live: this turned into a runaway loop,
+							// each poll reading back its own last resize and adding the safety margin
+							// on top again, growing without bound. getBoundingClientRect().height is
+							// immune to that floor - it always reflects the actual rendered content,
+							// which is also why this only works now that the .portletBody margin
+							// override above is in place (a getBoundingClientRect() read does not
+							// pick up the skin's margin-bottom the way scrollHeight's margin-collapse
+							// did, so without the override this would have under-measured instead).
+							var contentHeight = document.documentElement.getBoundingClientRect().height;
+							// The iframe is box-sizing: border-box with vertical padding (from the
+							// skin's Mrphs-toolBody rule, measured live at 16px top + 16px bottom) -
+							// with border-box, frame.style.height sets the OUTER box including that
+							// padding, so setting it to exactly the content height leaves the actual
+							// inner viewport 32px short and a scrollbar appears. Read the real padding
+							// instead of hardcoding it in case the skin changes it.
+							var frameStyle = frame.ownerDocument.defaultView.getComputedStyle(frame);
+							var frameVerticalPadding = (parseFloat(frameStyle.paddingTop) || 0) + (parseFloat(frameStyle.paddingBottom) || 0);
+							var neededHeight = Math.ceil(contentHeight) + 10 + frameVerticalPadding;
+							var currentHeight = parseInt(frame.style.height, 10) || 0;
+							// Grow-only on purpose: shrinking on every rotation would make the whole
+							// page jump as everything below the widget slides up and down each time
+							// autoplay changes slide. Settling at the tallest slide's height once and
+							// staying there trades a little empty space under the shorter slides for
+							// a page that holds still. Safe now that contentHeight no longer feeds
+							// back into itself (see above) - before that fix this ratchet is what let
+							// one bad initial reading stick around uncorrected.
+							if (neededHeight > currentHeight) {
+								frame.style.height = neededHeight + "px";
+							}
+							// Bootstrap's prev/next controls and the indicator dots are positioned
+							// absolutely (top:0/bottom:0) relative to #motdCarousel's own box, which
+							// by default is only as tall as the active slide - so they visually
+							// re-center on every rotation as shorter and taller messages take turns
+							// being active, even though the outer iframe itself stays put at the
+							// tallest height seen (T&L feedback: this read as the controls "dancing").
+							// Pin #motdCarousel's own height to the tallest slide seen so far too,
+							// with the same grow-only, compare-against-real-current-value approach as
+							// the iframe above (and for the same reason: min-height already enforces
+							// a floor on getBoundingClientRect(), so this reads back what's really
+							// rendered, not a stale local memory of "tallest ever").
+							var carouselHeight = Math.ceil(motdCarousel.getBoundingClientRect().height);
+							var carouselMinHeight = parseInt(motdCarousel.style.minHeight, 10) || 0;
+							if (carouselHeight > carouselMinHeight) {
+								motdCarousel.style.minHeight = carouselHeight + "px";
+							}
+						};
+						motdResize();
+						// Sakai's own body-onload call to setMainFrameHeight() debounces itself
+						// by ~1s and can shrink the frame back down with its short formula after
+						// our initial resize, and things like web fonts finishing their swap can
+						// grow the real content further still. Left alone, an undersized frame
+						// from any of that would stick until the carousel's first rotation -
+						// which can be several seconds away - so the whole startup window is
+						// polled at short intervals instead of guessing one moment to recheck.
+						// Once the carousel's own slide events are flowing, they're enough on
+						// their own and the polling stops.
+						var motdStartupChecks = 0;
+						var motdStartupPoll = setInterval(function () {
+							motdResize();
+							motdStartupChecks++;
+							if (motdStartupChecks >= 8) {
+								clearInterval(motdStartupPoll);
+							}
+						}, 500);
+						// "slide" fires as the transition starts, but reading scrollHeight
+						// synchronously in that handler still reports the outgoing slide's height -
+						// the incoming item isn't laid out yet at that exact point. Measured in the
+						// live console: two short polls a little later, well before "slid" fires at
+						// the ~600ms-1s transition end, are enough to catch the grown height early
+						// and resize before the scrollbar has a chance to show. Resizing only on
+						// "slid" leaves the frame at the outgoing slide's height for the whole
+						// animation, showing a scrollbar whenever the incoming slide is taller.
+						motdCarousel.addEventListener("slide.bs.carousel", function () {
+							setTimeout(motdResize, 100);
+							setTimeout(motdResize, 300);
+						});
+						// Bootstrap looks up its indicator dots with
+						// querySelector(".carousel-indicators", motdCarousel) - since they now
+						// live outside #motdCarousel's own box, grouped with the pause button
+						// below instead of overlapping the message text like they used to,
+						// Bootstrap never finds them and stops updating which dot has the "active" class
+						// and aria-current after a rotation. Clicking a dot to jump to a slide
+						// still works either way - that's handled by a separate, document-wide
+						// delegated click listener that doesn't care where the dot lives - only
+						// the active-dot highlighting needs doing by hand here.
+						var motdIndicators = document.querySelectorAll(".motd-carousel-toggle-wrap .carousel-indicators [data-bs-slide-to]");
+						var motdSyncIndicators = function () {
+							if (!motdIndicators.length) {
+								return;
+							}
+							var activeItem = motdCarousel.querySelector(".carousel-item.active");
+							var activeIndex = activeItem ? Array.prototype.indexOf.call(activeItem.parentNode.children, activeItem) : -1;
+							motdIndicators.forEach(function (indicator, index) {
+								var isActive = index === activeIndex;
+								indicator.classList.toggle("active", isActive);
+								if (isActive) {
+									indicator.setAttribute("aria-current", "true");
+								} else {
+									indicator.removeAttribute("aria-current");
+								}
+							});
+						};
+						motdCarousel.addEventListener("slid.bs.carousel", function () {
+							motdResize();
+							motdSyncIndicators();
+							// a second pass shortly after catches layout that's still settling
+							// (web fonts, transition remnants) when the first measurement runs
+							// too early
+							setTimeout(motdResize, 1300);
+						});
+						// WCAG 2.2.2 (Pause, Stop, Hide): Bootstrap only pauses the carousel on
+						// pointer hover, which keyboard and screen-reader users can't trigger -
+						// this is the only way those users have to stop the rotation.
+						// data-bs-pause="false" above turns off Bootstrap's own hover-triggered
+						// pause/resume, so this button is the only thing that pauses or resumes
+						// on its own - but Bootstrap has a second, separate resume path that
+						// setting doesn't cover: clicking the prev/next arrows or an indicator
+						// dot calls Carousel._maybeEnableCycle() no matter what, which silently
+						// restarts the interval whenever data-bs-ride is set at all - checked
+						// directly in the shipped bootstrap.min.js, it only looks at that, never
+						// at data-bs-pause. Re-asserting pause() in the slid handler below
+						// whenever the user has us paused undoes that unconditional restart -
+						// but _maybeEnableCycle() itself, when called mid-transition (which a
+						// click always is), doesn't call cycle() immediately either: it defers
+						// to a one-time listener on this exact same "slid" event, registered at
+						// click time - later than our own listener below, added once at page
+						// load. Listeners run in registration order, so without the setTimeout
+						// that one fires after ours and undoes our pause() right back. Deferring
+						// ours by a tick runs it after every same-tick "slid" listener,
+						// including that one, instead of racing it.
+						var motdToggle = document.getElementById("motdCarouselToggle");
+						if (motdToggle) {
+							var motdInstance = bootstrap.Carousel.getOrCreateInstance(motdCarousel);
+							var motdToggleLabel = motdToggle.querySelector(".visually-hidden");
+							var motdPaused = false;
+							motdCarousel.addEventListener("slid.bs.carousel", function () {
+								if (motdPaused) {
+									setTimeout(function () {
+										if (motdPaused) {
+											motdInstance.pause();
+										}
+									}, 0);
+								}
+							});
+							motdToggle.addEventListener("click", function () {
+								motdPaused = !motdPaused;
+								if (motdPaused) {
+									motdInstance.pause();
+								} else {
+									motdInstance.cycle();
+								}
+								// The icon itself swaps via CSS off this same attribute (see the
+								// [aria-pressed="true"] rule above) - only the screen-reader-only
+								// label needs updating here.
+								motdToggle.setAttribute("aria-pressed", String(motdPaused));
+								if (motdToggleLabel) {
+									motdToggleLabel.textContent = motdPaused ? "$tlang.getString("motd.play")" : "$tlang.getString("motd.pause")";
+								}
+							});
+						}
+					})();
+				</script>
+			#end
+		#else
+			## motd.carousel.enabled is off (the default) - same single-message markup
+			## sakai.motd has always used, so upgrading installs see no change until an
+			## admin opts in. items is capped to 1 in this case (SynopticMessageAction),
+			## so $messages never has more than one entry here regardless of the tool's
+			## configured items value.
 			<ul class="synopticList">
 			#foreach ($item in $messages)
 				<li>
@@ -27,8 +433,8 @@
 						<h3 class="textPanelHeader">$formattedText.escapeHtml($item.Header.Subject)</h3>
 						<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
-                        #set ($text=$item.Body)
-                        <div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
+						#set ($text=$item.Body)
+						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
 					#end
 
 					#set ($size = 0)
@@ -60,8 +466,9 @@
 				#if ($counter < $messages.size())
 					<hr/>
 				#end
-			#end	
+			#end
 			</ul>
+		#end
 		#end
 		#if ($toolId=="sakai.synoptic.discussion")
 			#if($menu)
