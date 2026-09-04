@@ -53,10 +53,10 @@
                     <input type="hidden" name="size" th:value="${size}">
                     <input type="hidden" name="sortBy" th:value="${sortBy}">
                     <input type="hidden" name="sortDir" th:value="${sortDir}">
-                    <button type="submit" name="viewMode" value="cards" class="btn vt-icon-toggle" th:classappend="${isCardsView} ? 'btn-primary' : 'btn-outline-secondary'" title="Cards view" aria-label="Cards view">
+                    <button type="submit" name="viewMode" value="cards" class="btn vt-icon-toggle" th:classappend="${isCardsView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.cards}" th:aria-label="#{video.training.view.cards}">
                         <span class="bi bi-grid"></span>
                     </button>
-                    <button type="submit" name="viewMode" value="table" class="btn vt-icon-toggle" th:classappend="${isTableView} ? 'btn-primary' : 'btn-outline-secondary'" title="Table view" aria-label="Table view">
+                    <button type="submit" name="viewMode" value="table" class="btn vt-icon-toggle" th:classappend="${isTableView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.table}" th:aria-label="#{video.training.view.table}">
                         <span class="bi bi-view-list"></span>
                     </button>
                 </form>
@@ -120,7 +120,7 @@
 <div class="offcanvas offcanvas-start" tabindex="-1" id="categorySidebar" aria-labelledby="categorySidebarLabel" th:if="${!#lists.isEmpty(categoryTree)}">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="categorySidebarLabel" th:text="#{video.training.categories.title}">Categories</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" th:aria-label="#{video.training.categories.close}"></button>
     </div>
     <div class="offcanvas-body">
         <div class="vt-category-sidebar">

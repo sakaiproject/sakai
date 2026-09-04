@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/common :: head(${title})}"></head>
 <body class="Mrphs-toolBody sakai-video-training">
 <div class="Mrphs-sakai-video-training portletBody sakai-video-training vt-page-shell">
@@ -65,7 +65,7 @@
 
         <div class="vt-category-node" th:each="root : ${categoryTree}" th:attr="data-category-id=${root.id},data-has-children=${!#lists.isEmpty(root.children)}">
             <div class="vt-category-row">
-                <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" aria-label="Drag category">
+                <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" th:aria-label="#{video.training.categories.drag}">
                     <span class="bi bi-grip-vertical" aria-hidden="true"></span>
                 </button>
                 <div class="vt-category-row-main">
@@ -94,7 +94,7 @@
             <div class="vt-category-children">
                 <div class="vt-category-node" th:each="child : ${root.children}" th:attr="data-category-id=${child.id},data-has-children=${!#lists.isEmpty(child.children)}">
                     <div class="vt-category-row">
-                        <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" aria-label="Drag category">
+                        <button class="btn btn-sm btn-link vt-category-drag-handle" type="button" th:aria-label="#{video.training.categories.drag}">
                             <span class="bi bi-grip-vertical" aria-hidden="true"></span>
                         </button>
                         <div class="vt-category-row-main">
@@ -138,7 +138,7 @@
                 <form method="post" th:action="@{/categories}" id="vt-category-modal-form">
                     <div class="modal-header">
                         <h2 class="modal-title h5" id="vtCategoryModalLabel" th:text="#{video.training.categories.edit}">Edit category</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" th:aria-label="#{video.training.categories.close}"></button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="id" id="vt-category-modal-id">
