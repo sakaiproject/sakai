@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lti13;
+package org.sakaiproject.lti13.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -160,6 +160,28 @@ public class LTI13TokenRequestValidatorTest {
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
 		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
 				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, claims, CLIENT_ID));
+	}
+
+	@Test
+	public void validateClientAssertionReplayReplacesExpiredEntryAndRejectsImmediateReplay() {
+		Cache cache = new ConcurrentMapCache("test");
+
+		// Seed the cache with an already-expired replay entry for this jti.
+		Claims expired = validClaims("jti-1");
+		expired.setExpiration(new Date(System.currentTimeMillis()
+				- LTI13TokenRequestValidator.CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS
+				- 5_000L));
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, expired, CLIENT_ID));
+
+		// A fresh assertion reusing the same jti is accepted, but must refresh the entry.
+		Claims fresh = validClaims("jti-1");
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.OK,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, fresh, CLIENT_ID));
+
+		// An immediate replay of the fresh assertion is now rejected within the new window.
+		assertSame(LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED,
+				LTI13TokenRequestValidator.validateClientAssertionReplay(cache, fresh, CLIENT_ID));
 	}
 
 	@Test

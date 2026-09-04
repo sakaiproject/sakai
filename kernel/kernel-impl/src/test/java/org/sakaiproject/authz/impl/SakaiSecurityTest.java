@@ -28,8 +28,11 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.lti.api.LTIToolPermissionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -55,6 +58,8 @@ public class SakaiSecurityTest {
     @Mock private MemoryService memoryService;
     @Mock private ServerConfigurationService serverConfigurationService;
     @Mock private EventTrackingService eventTrackingService;
+    @Mock private SessionManager sessionManager;
+    @Mock private Session session;
 
 
     private SakaiSecurity sakaiSecurity;
@@ -68,6 +73,7 @@ public class SakaiSecurityTest {
         sakaiSecurity.setMemoryService(memoryService);
         sakaiSecurity.setServerConfigurationService(serverConfigurationService);
         sakaiSecurity.setEventTrackingService(eventTrackingService);
+        sakaiSecurity.setSessionManager(sessionManager);
 
         // Always return default
         when(serverConfigurationService.getString(anyString(), anyString())).thenAnswer(invocation -> invocation.getArgument(1));
@@ -147,5 +153,4 @@ public class SakaiSecurityTest {
 
         assertThat(flushed, containsInAnyOrder("unlock@1@@function@/site/1", "unlock@2@@function@/site/1"));
     }
-
 }
