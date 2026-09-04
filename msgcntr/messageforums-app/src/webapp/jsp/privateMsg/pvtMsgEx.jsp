@@ -16,38 +16,40 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
+		<script>includeWebjarLibrary('datatables');</script>
 		<script>
-				$(document).ready(function() {
-						var menuLink = $('#messagesMainMenuLink');
-						var menuLinkSpan = menuLink.closest('span');
-						menuLinkSpan.addClass('current');
-						menuLinkSpan.html(menuLink.text());
+				document.addEventListener('DOMContentLoaded', function() {
+						const menuLink = document.getElementById('messagesMainMenuLink');
+						const menuLinkSpan = menuLink?.closest('span');
+						if (menuLinkSpan) {
+							menuLinkSpan.classList.add('current');
+							menuLinkSpan.textContent = menuLink.textContent;
+						}
 
 						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
 							initTagSelector("prefs_pvt_form");
 						</f:verbatim>
-				});
-		</script>
-		<script>includeWebjarLibrary('datatables');</script>
 
-		<script>
-			$(document).ready(function() {
-				// Initialize DataTables for search results
-				$("#prefs_pvt_form\\:pvtmsgs").DataTable({
-					"paging": false,
-					"info": false,
-					"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
-				});
-				
-				// Initialize DataTables for threaded view if it exists
-				if ($("#prefs_pvt_form\\:threaded_pvtmsgs").length > 0) {
-					$("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
-						"paging": false,
-						"info": false,
-						"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
+						// Initialize DataTables for search results
+						const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');
+						if (messagesTable) {
+							new DataTable(messagesTable, {
+								"paging": false,
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
+
+						// Initialize DataTables for threaded view if it exists
+						const threadedMessagesTable = document.getElementById("prefs_pvt_form:threaded_pvtmsgs");
+						if (threadedMessagesTable) {
+							new DataTable(threadedMessagesTable, {
+								"paging": false,
+								"info": false,
+								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
+							});
+						}
 					});
-				}
-			});
 		</script>
 
 		<h:form id="prefs_pvt_form">

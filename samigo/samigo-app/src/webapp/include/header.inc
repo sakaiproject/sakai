@@ -9,7 +9,6 @@
       // and then add Samigo's own tool-specific CSS file to it.
       String head = (String) request.getAttribute("sakai.html.head");
       head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
-      head += "<script>includeWebjarLibrary(\"jquery.tablesorter\", { includeCss: true });</script>\n";
       head += "<script src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
       request.setAttribute("html.head", head);
@@ -27,7 +26,6 @@
          "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssPropertiesSkin(skinFolder) + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<script src=\"/library/js/headscripts.js\"></script>\n" +
          "<script>includeLatestJQuery(\"Samigo\");</script>\n" +
-         "<script>includeWebjarLibrary(\"jquery.tablesorter\", { includeCss: true });</script>\n" +
          "<script>includeWebjarLibrary(\"qtip2\", { includeCss: true });</script>\n" +
          "<script>includeWebjarLibrary(\"bootstrap\");</script>\n" +
          "<script src=\"/samigo-app/js/samigo-global.js\"></script>\n");

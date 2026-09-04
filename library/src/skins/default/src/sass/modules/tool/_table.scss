@@ -369,6 +369,12 @@ table{
 	border-bottom: 1px solid var(--sakai-border-color);
 }
 
+.#{$namespace}html .sakai-datatables-filter-row td {
+	background-color: var(--sakai-background-color-2);
+	border-bottom: 1px solid var(--sakai-border-color);
+	color: var(--sakai-text-color-1);
+}
+
 .#{$namespace}html .tablesorter th,
 .#{$namespace}html .tablesorter thead td {
 	border-bottom: 2px solid var(--sakai-border-color);
