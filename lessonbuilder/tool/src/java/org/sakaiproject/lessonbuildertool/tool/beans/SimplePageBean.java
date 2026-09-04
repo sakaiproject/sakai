@@ -94,6 +94,8 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.PagePromotionService;
+import org.sakaiproject.lessonbuildertool.service.PagePromotionService.PagePromotionResult;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.DeleteResult;
 import org.sakaiproject.lessonbuildertool.service.RemovedPageService.OperationStatus;
@@ -481,6 +483,7 @@ public class SimplePageBean {
     @Setter private LessonsAccess lessonsAccess;
     @Setter private LessonBuilderAccessService lessonBuilderAccessService;
     @Setter private RemovedPageService removedPageService;
+    @Setter private PagePromotionService pagePromotionService;
     @Getter @Setter private MessageLocator messageLocator;
     @Setter private HttpServletResponse httpServletResponse;
     @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
@@ -4907,7 +4910,7 @@ public class SimplePageBean {
 			itemNow.setAttribute(CHECKLIST_ITEMS,null);
 			update(itemNow);	//finish writing break before subpages
 			for(int count=1; count<=pageSubpageCount; count++){
-				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
+				pageNow = addPage(pageSubpageTitle + ' ' + count, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
 				pageNow.setTopParent(getCurrentPage().getPageId());
 				update(pageNow);	//save revised page data
@@ -5098,7 +5101,7 @@ public class SimplePageBean {
 			
 			while (numPages > 0) {
 				String title = prefix + Integer.toString(start) + suffix;
-				addPage(title, null, copyPage, (numPages == 1));  // only save the last time
+				addPage(title, copyPage, (numPages == 1));  // only save the last time
 				numPages--;
 				start++;
 			}
@@ -5115,19 +5118,23 @@ public class SimplePageBean {
 		    return "permission-failed";
 		if (!checkCsrf())
 		    return "permission-failed";
-		
-		SimplePage target = getPage(Long.valueOf(selectedEntity));
-		if(target != null)
-			addPage(target.getTitle(), target.getPageId(), false, true);
-		
-		return "success";
+
+		PagePromotionResult result = pagePromotionService.promote(selectedEntity, getCurrentSiteId());
+		currentSite = null;
+		if (result == PagePromotionResult.SUCCESS) {
+			setTopRefresh();
+			return "success";
+		}
+
+		setErrMessage(messageLocator.getMessage("simplepage.page-promotion-failed"));
+		return "failure";
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
-		return addPage(title, null, copyCurrent, true);
+		return addPage(title, copyCurrent, true);
 	}
 	
-        public SimplePage addPage(String title, Long pageId, boolean copyCurrent, boolean doSave) {
+	private SimplePage addPage(String title, boolean copyCurrent, boolean doSave) {
 
 		Site site = getCurrentSite();
 		SitePage sitePage = site.addPage();
@@ -5135,28 +5142,13 @@ public class SimplePageBean {
 		ToolConfiguration tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
 		String toolId = tool.getPageId();
 		
-		SimplePage page;
-		
-		if(pageId == null) {
-			page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
-			saveItem(page);
-		}else {
-			page = getPage(pageId);
-			page.setToolId(toolId);
-			page.setParent(null);
-			page.setTopParent(null);
-			update(page);
-			title = page.getTitle();
-		}
+		SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
+		saveItem(page);
 
 		tool.setTitle(title);
 		
-		// Does the top-level page item already exist, as in the case of adding a pre-existing page? If so, don't create another item.
-		SimplePageItem existingTop = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(page.getPageId()));
-		if (existingTop == null) {
-			SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
-			saveItem(item);
-		}
+		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
+		saveItem(item);
 
 		sitePage.setTitle(title);
 		sitePage.setTitleCustom(true);
