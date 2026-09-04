@@ -39,6 +39,19 @@
 					#motdCarousel .carousel-item > .p-3 {
 						max-height: ${motdCarouselMaxHeight}px;
 						overflow-y: auto;
+						## Bootstrap's default prev/next controls are a 15%-wide, full-height
+						## clickable zone with no background, sized for full-width hero
+						## carousels. On this narrow widget that's a large chunk of each side,
+						## and message text can wrap directly underneath the icon with nothing
+						## to set it apart - reported as a legibility problem (T&L feedback).
+						## Padding matches the shrunk control width below so text never flows
+						## under the icon.
+						padding-left: 2.5rem;
+						padding-right: 2.5rem;
+					}
+					#motdCarousel .carousel-control-prev,
+					#motdCarousel .carousel-control-next {
+						width: 2.5rem;
 					}
 				</style>
 				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval">
@@ -171,6 +184,22 @@
 							// one bad initial reading stick around uncorrected.
 							if (neededHeight > currentHeight) {
 								frame.style.height = neededHeight + "px";
+							}
+							// Bootstrap's prev/next controls and the indicator dots are positioned
+							// absolutely (top:0/bottom:0) relative to #motdCarousel's own box, which
+							// by default is only as tall as the active slide - so they visually
+							// re-center on every rotation as shorter and taller messages take turns
+							// being active, even though the outer iframe itself stays put at the
+							// tallest height seen (T&L feedback: this read as the controls "dancing").
+							// Pin #motdCarousel's own height to the tallest slide seen so far too,
+							// with the same grow-only, compare-against-real-current-value approach as
+							// the iframe above (and for the same reason: min-height already enforces
+							// a floor on getBoundingClientRect(), so this reads back what's really
+							// rendered, not a stale local memory of "tallest ever").
+							var carouselHeight = Math.ceil(motdCarousel.getBoundingClientRect().height);
+							var carouselMinHeight = parseInt(motdCarousel.style.minHeight, 10) || 0;
+							if (carouselHeight > carouselMinHeight) {
+								motdCarousel.style.minHeight = carouselHeight + "px";
 							}
 						};
 						motdResize();
