@@ -333,6 +333,19 @@
 			<artifactId>dompurify</artifactId>
 			<version>3.4.6</version>
 		</dependency>
+		<!-- Used in the Video Training tool -->
+		<dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>plyr</artifactId>
+            <version>3.7.8</version>
+            <scope>runtime</scope>
+        </dependency>
+		<dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>hls.js</artifactId>
+            <version>1.5.15</version>
+            <scope>runtime</scope>
+        </dependency>
 	</dependencies>
 	<profiles>
 		<profile>
