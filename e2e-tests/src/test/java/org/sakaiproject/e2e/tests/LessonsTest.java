@@ -83,14 +83,11 @@ class LessonsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Lessons");
 
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click(new Locator.ClickOptions().setForce(true));
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Subpage")).click(new Locator.ClickOptions().setForce(true));
-        page.locator("#subpage-title:visible").fill("Promote Me");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create")).click(new Locator.ClickOptions().setForce(true));
+        addSubpage("Promote Me");
 
         sakai.toolClick("Lessons");
         openAddMorePages();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+        chooseExistingPageForSiteNavigation();
 
         Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
         assertThat(lessonsRadio).isDisabled();
@@ -103,7 +100,7 @@ class LessonsTest extends SakaiUiTestBase {
             .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
 
         openAddMorePages();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+        chooseExistingPageForSiteNavigation();
         Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
         assertThat(subpageRadio).isEnabled();
         subpageRadio.check();
@@ -114,9 +111,35 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(page.locator(".itemclass[role=main]")).isVisible();
     }
 
+    private void addSubpage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.locator("#subpage-title").fill(title);
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
+
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+    }
+
     private void openAddMorePages() {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add More Pages")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true)).click();
+        assertThat(page.locator("#new-page-dialog")).isVisible();
+    }
+
+    private void chooseExistingPageForSiteNavigation() {
+        page.locator("#new-page-dialog").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
     }
 
     private void useSelectedItem() {
