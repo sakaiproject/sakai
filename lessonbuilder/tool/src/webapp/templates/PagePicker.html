@@ -13,20 +13,26 @@
 <body rsf:id="scr=sakai-body">
   <div class="portletBody PagePicker" role="main">
     <h2 rsf:id="site-dropdown-title"></h2>
-    <div id="sitePicker">
-      <form action="#" rsf:id="site-picker">
+    <div id="sitePicker" class="page-picker-site">
+      <form action="#" rsf:id="site-picker" class="page-picker-site-form">
         <input type="hidden" rsf:id="csrf2" />
-        <select rsf:id="pick-site">
+        <select rsf:id="pick-site" class="form-select page-picker-site-select">
           <option rsf:id="pick-site-option:" />
         </select>
-        <input type="submit" rsf:id="submitSite" />
+        <input type="submit" rsf:id="submitSite" class="btn btn-secondary" />
       </form>
     </div>
 
-    <h2 rsf:id="title"></h2>
-    <p rsf:id="onlyseen" class="instructionPanel"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
-    <p rsf:id="sharedpageexplanation" class="instructionPanel">
-      <span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"></span>
+    <div class="page-header">
+      <h1 rsf:id="title"></h1>
+    </div>
+
+    <p rsf:id="onlyseen" class="sak-banner-info"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
+    <p rsf:id="sharedpageexplanation" class="sak-banner-info">
+      <span class="badge rounded-pill text-bg-info page-picker-badge">
+        <span class="bi bi-copy" aria-hidden="true"></span>
+        <span rsf:id="msg=simplepage.sharedpage.label"></span>
+      </span>
       <span rsf:id="msg=simplepage.sharedpageexplanation"></span>
     </p>
 
@@ -34,45 +40,65 @@
       <input type="hidden" rsf:id="csrf" />
       <span rsf:id="page-span"></span>
       <ul id="active-pages" class="pageList">
-        <li rsf:id="active-page:">
-          <input type="radio" rsf:id="select" />
-          <a href="#" rsf:id="link" class="page-picker-link">
-            <span rsf:id="link-note" class="lb-offscreen"></span>
-            <span rsf:id="link-text"></span>
-          </a>
-          <span rsf:id="shared" class="page-picker-note small"></span>
-          <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
-          <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+        <li rsf:id="active-page:" class="page-picker-item">
+          <div class="page-picker-row">
+            <input type="radio" rsf:id="select" class="form-check-input page-picker-select" />
+            <div class="page-picker-content">
+              <span class="page-picker-title">
+                <span rsf:id="page-icon" class="bi page-picker-page-icon" aria-hidden="true"></span>
+                <a href="#" rsf:id="link" class="page-picker-link">
+                  <span rsf:id="link-note" class="lb-offscreen"></span>
+                  <span rsf:id="link-text"></span>
+                  <span class="bi bi-box-arrow-up-right page-picker-preview-icon" aria-hidden="true"></span>
+                </a>
+              </span>
+              <span class="page-picker-meta"><span rsf:id="shared" class="badge rounded-pill text-bg-info page-picker-badge"><span class="bi bi-copy" aria-hidden="true"></span><span rsf:id="shared-text"></span></span><span rsf:id="release" class="page-picker-release"><span rsf:id="release-icon" class="bi" aria-hidden="true"></span><span rsf:id="release-text"></span></span></span>
+              <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+              <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+            </div>
+          </div>
         </li>
       </ul>
       <section rsf:id="removed-section:" class="page-picker-section">
-          <h3 rsf:id="heading" class="page-picker-section-heading"></h3>
+          <h3 rsf:id="heading" class="page-picker-section-heading h4"></h3>
           <ul id="removed-pages" class="pageList">
-            <li rsf:id="removed-page:">
-              <input type="radio" rsf:id="select" />
-              <a href="#" rsf:id="link" class="page-picker-link">
-                <span rsf:id="link-note" class="lb-offscreen"></span>
-                <span rsf:id="link-text"></span>
-              </a>
-              <span rsf:id="shared" class="page-picker-note small"></span>
-              <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
-              <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+            <li rsf:id="removed-page:" class="page-picker-item">
+              <div class="page-picker-row">
+                <input type="radio" rsf:id="select" class="form-check-input page-picker-select" />
+                <div class="page-picker-content">
+                  <span class="page-picker-title">
+                    <span rsf:id="page-icon" class="bi page-picker-page-icon" aria-hidden="true"></span>
+                    <a href="#" rsf:id="link" class="page-picker-link">
+                      <span rsf:id="link-note" class="lb-offscreen"></span>
+                      <span rsf:id="link-text"></span>
+                      <span class="bi bi-box-arrow-up-right page-picker-preview-icon" aria-hidden="true"></span>
+                    </a>
+                  </span>
+                  <span class="page-picker-meta"><span rsf:id="shared" class="badge rounded-pill text-bg-info page-picker-badge"><span class="bi bi-copy" aria-hidden="true"></span><span rsf:id="shared-text"></span></span><span rsf:id="release" class="page-picker-release"><span rsf:id="release-icon" class="bi" aria-hidden="true"></span><span rsf:id="release-text"></span></span></span>
+                  <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+                  <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+                </div>
+              </div>
             </li>
           </ul>
       </section>
 
       <input type="hidden" rsf:id="item-id" id="item-id" />
-      <hr rsf:id="hr" />
-      <p rsf:id="options">
-        <input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
-        <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
-        <input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
-        <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
-      </p>
-      <p>
+      <hr rsf:id="hr" class="page-picker-separator" />
+      <div rsf:id="options" class="page-picker-options">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+          <label class="form-check-label" for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+          <label class="form-check-label" for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+        </div>
+      </div>
+      <p class="act">
         <input type="hidden" rsf:id="addBefore" />
-        <input type="submit" class="bold" rsf:id="submit" />
-        <input type="submit" rsf:id="cancel" />
+        <input type="submit" class="btn btn-primary" rsf:id="submit" />
+        <input type="submit" class="btn btn-secondary" rsf:id="cancel" />
       </p>
     </form>
   </div>

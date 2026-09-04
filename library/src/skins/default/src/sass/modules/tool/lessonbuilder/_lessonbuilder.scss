@@ -1680,13 +1680,176 @@
     margin: $standard-spacing 0 calc(#{$standard-spacing} / 2);
   }
 
-  .top-level-page {
-    margin-top: calc(#{$standard-spacing} / 2);
-    list-style-type: none;
+  .PagePicker,
+  .ManagePages {
+    .manage-pages-item-actions {
+      margin: 0 0 $standard-spacing 0;
+    }
+
+    .pageList {
+      padding: 0;
+      margin: 0 0 $standard-spacing;
+      border: 1px solid var(--sakai-border-color);
+      border-radius: var(--bs-border-radius);
+      background: var(--sakai-background-color-1);
+      overflow: hidden;
+    }
+
+    .page-picker-item {
+      --page-level: 0;
+      display: block;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-block-end: 1px solid var(--sakai-border-color);
+
+      &:last-child {
+        border-block-end: 0;
+      }
+    }
+
+    .page-picker-item-nested + .top-level-page,
+    .top-level-page + .top-level-page {
+      border-block-start: 2px solid var(--sakai-border-color);
+    }
+
+    .top-level-page {
+      background: var(--sakai-background-color-2);
+    }
+
+    .page-picker-item-disabled {
+      color: var(--sakai-text-color-dimmed);
+    }
+
+    .page-picker-row {
+      display: flex;
+      align-items: center;
+      gap: calc(#{$standard-spacing} / 2);
+      box-sizing: border-box;
+      min-block-size: 2.5rem;
+      padding-block: calc(#{$standard-spacing} / 4);
+      padding-inline: $standard-spacing;
+    }
+
+    .page-picker-select,
+    .page-picker-status,
+    .removed-page-delete-control {
+      flex: 0 0 auto;
+      margin: 0;
+    }
+
+    .page-picker-content {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: calc(#{$standard-spacing} / 4) calc(#{$standard-spacing} / 2);
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-inline-start: calc(var(--page-level) * 1.5rem);
+      position: relative;
+    }
+
+    .page-picker-item-nested .page-picker-content::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: calc(0.5rem + (var(--page-level) - 1) * 1.5rem);
+      top: 0;
+      height: 60%;
+      width: 0.75rem;
+      border-block-end: 1px solid var(--sakai-border-color);
+      border-inline-start: 1px solid var(--sakai-border-color);
+    }
+
+    .page-picker-title {
+      display: flex;
+      align-items: center;
+      gap: calc(#{$standard-spacing} / 4);
+      flex: 1 1 14rem;
+      min-width: 0;
+    }
+
+    .page-picker-page-icon {
+      flex: 0 0 1.25rem;
+      color: var(--sakai-text-color-dimmed);
+      text-align: center;
+    }
+
+    .top-level-page .page-picker-page-icon {
+      color: var(--sakai-text-color-1);
+    }
+
+    .page-picker-link {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      display: flex;
+      align-items: center;
+    }
+
+    .top-level-page .page-picker-link {
+      font-weight: 600;
+    }
+
+    .page-picker-preview-icon {
+      margin-inline-start: 0.25rem;
+      font-size: 0.75em;
+      opacity: 0.7;
+    }
+
+    .page-picker-meta:empty {
+      display: none;
+    }
+
+    .page-picker-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: calc(#{$standard-spacing} / 4);
+      flex: 0 1 auto;
+    }
+
+    .page-picker-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 500;
+    }
+
+    .page-picker-release-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--sakai-text-color-dimmed);
+      font-size: 0.875em;
+    }
   }
 
-  .manage-pages-section {
-    max-inline-size: 52rem;
+  .PagePicker {
+    margin-top: $standard-spacing;
+
+    .page-picker-site-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: calc(#{$standard-spacing} / 2);
+      margin-block-end: $standard-spacing;
+    }
+
+    .page-picker-site-select {
+      max-inline-size: 24rem;
+    }
+
+    .page-picker-separator {
+      margin-block: $standard-spacing;
+      border: 0;
+      border-block-start: 1px solid var(--sakai-border-color);
+    }
+
+    .page-picker-options {
+      display: flex;
+      flex-direction: column;
+      gap: calc(#{$standard-spacing} / 4);
+      margin-block-end: $standard-spacing;
+    }
   }
 
   .manage-pages-section-header {
@@ -1700,45 +1863,53 @@
     margin-bottom: calc(#{$standard-spacing} / 2);
   }
 
-  .removed-pages-section .instructionPanel {
-    box-sizing: border-box;
-    inline-size: 100%;
-    max-inline-size: none;
+  .ManagePages {
+    .itemListToggle {
+      flex: 0 0 auto;
+    }
+
+    .page-picker-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      margin: 0;
+    }
+
+    .itemListContainer {
+      padding-inline-start: calc(#{$standard-spacing} + 1.25rem + #{$standard-spacing} / 2 + var(--page-level, 0) * 1.5rem);
+    }
+  }
+
+  .removed-pages-section {
+    .sak-banner-info {
+      box-sizing: border-box;
+      inline-size: 100%;
+      max-inline-size: none;
+    }
+
+    .pageList {
+      border: none;
+      border-radius: 0;
+    }
+
+    .page-picker-item {
+      border: none;
+    }
+
+    .page-picker-row {
+      padding: 0;
+      min-height: 1.5rem;
+    }
   }
 
   .removed-pages-select-all {
-    min-block-size: 44px;
-  }
-
-  .removed-page {
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: calc(#{$standard-spacing} / 2);
-    box-sizing: border-box;
-    min-block-size: 44px;
-    padding-block: 0;
+    min-block-size: 36px;
   }
 
   .removed-page-delete-control {
     display: inline-flex;
     align-items: center;
-  }
-
-  .removed-page .page-picker-link {
-    flex: 1 1 18rem;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .page-picker-status {
-    display: inline-block;
-    width: 18px;
-    margin-inline-end: 3px;
-  }
-
-  .itemListToggle {
-    min-height: 44px;
   }
 
   #delete-pages-confirm-list {
@@ -1754,7 +1925,7 @@
     color: var(--sakai-text-color-1);
     background: var(--sakai-background-color-1);
     border: 1px solid var(--sakai-border-color);
-    border-radius: 0.5rem;
+    border-radius: var(--bs-border-radius);
   }
 
   #delete-pages-dialog::backdrop {
@@ -1797,15 +1968,11 @@
   .pageList img {
     vertical-align:middle;
   }
-  .itemListContainer {
-    padding-top: 5px;
-  }
   .itemList {
     padding-left: 0px;
     list-style:none;
-    background-color: var(--sakai-background-color-2);
-    padding-bottom: 1.0em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0;
+    padding-bottom: calc(#{$standard-spacing} / 2);
     li {
       display: flex;
     }
@@ -2224,9 +2391,6 @@
   .portletBody {
     margin-top:2px;
   }
-  .PagePicker {
-    margin-top:12px;
-  }   
   /* 800 is when the left margin collapses */
   @media only screen and (max-width: 800px) {
     .Mrphs-container--toolTitleNav {
