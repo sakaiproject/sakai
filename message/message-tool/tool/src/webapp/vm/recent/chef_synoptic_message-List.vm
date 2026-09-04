@@ -45,9 +45,15 @@
 						## and message text can wrap directly underneath the icon with nothing
 						## to set it apart - reported as a legibility problem (T&L feedback).
 						## Padding matches the shrunk control width below so text never flows
-						## under the icon.
-						padding-left: 2.5rem;
-						padding-right: 2.5rem;
+						## under the icon. !important because .p-3 itself is Bootstrap's own
+						## padding:1rem!important utility class (Bootstrap 5's utility API
+						## generates !important on all of them by default) - a plain
+						## padding-left/right here silently loses to that regardless of
+						## selector specificity. Confirmed live: without !important this was
+						## never actually taking effect, just never yet caught by content
+						## short enough to not reach the edges either way.
+						padding-left: 2.5rem !important;
+						padding-right: 2.5rem !important;
 					}
 					#motdCarousel .carousel-control-prev,
 					#motdCarousel .carousel-control-next {
