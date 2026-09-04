@@ -68,10 +68,12 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     public Meeting createMeeting(Meeting meetingData) {
+        setDescription(meetingData);
         return meetingRepository.save(meetingData);
     }
 
     public void updateMeeting(Meeting meetingData) {
+        setDescription(meetingData);
         meetingRepository.update(meetingData);
     }
 
@@ -113,5 +115,12 @@ public class MeetingServiceImpl implements MeetingService {
     public void removeMeetingProperty(Meeting meeting, String property) {
     	meetingPropertyRepository.deletePropertyByMeetingIdAndName(meeting.getId(), property);
     }
-	
+
+    private void setDescription(Meeting meetingData) {
+        String description = meetingData.getDescription();
+        if (description != null && description.length() > 4000) {
+            log.warn("Meeting description exceeds 4000 characters. It will be truncated.");
+            meetingData.setDescription(description.substring(0, 4000));
+        }
+    }
 }
