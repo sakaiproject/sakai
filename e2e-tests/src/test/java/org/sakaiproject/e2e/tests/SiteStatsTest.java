@@ -129,19 +129,14 @@ class SiteStatsTest extends SakaiUiTestBase {
     @Test
     @Order(4)
     void createsReportViaReportsFlow() {
-        sakai.login("instructor1");
-        page.navigate(sakaiUrl);
-        sakai.toolClick("Statistics");
-
-        page.locator(".navIntraTool a, .navIntraTool button, a, button")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reports$", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        openReportsAsInstructor();
 
         Locator addReportLink = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).first();
-        addReportLink.click(new Locator.ClickOptions().setForce(true));
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE)));
+        addReportLink.click();
 
         Locator activity = page.getByLabel("Activity:");
+        assertThat(activity).isVisible();
         assertThat(activity.locator("option[value='what-resources']")).hasCount(0);
         assertThat(page.locator("#event-options")).isHidden();
         activity.selectOption("what-events");
@@ -198,6 +193,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/"));
         assertReportSummaryRendered();
         assertReportTableRenderedWithData();
+        assertThat(page.locator("main > div.d-flex.noprint a.btn-link")).hasCount(4);
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-chart canvas").first()).isVisible();
         page.waitForFunction(siteStatsCanvasHasPixelsScript());
         assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
