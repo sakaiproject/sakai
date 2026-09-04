@@ -290,6 +290,17 @@ public interface DiscussionForumManager
   public DiscussionTopic createTopic(DiscussionForum forum);
 
   /**
+   * Creates Gradebook items for the supplied targets.
+   *
+   * @param siteId the site containing the Gradebooks
+   * @param requests the target Gradebooks and item titles
+   * @param points the localized maximum-points value
+   * @return the new item ids in request order
+   * @throws GradebookItemCreationException when the item values are invalid
+   */
+  public List<Long> createGradebookItems(String siteId, List<GradebookItemCreationRequest> requests, String points);
+
+  /**
    * Save a forum. If this is a new forum, assumes current context is available.
    * @param forum
    */

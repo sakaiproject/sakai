@@ -43,6 +43,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.messageforums.DiscussionForumTool;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -67,6 +68,8 @@ public class DiscussionTopicBean
   private List accessorList = null;
   private List<DecoratedAttachment> attachList = new ArrayList<>();
   private String gradeAssign;
+  @Getter @Setter private boolean createGradebookItem;
+  @Getter @Setter private String gradebookPoints;
   private Boolean nonePermission = null;
   private boolean sorted = false;
   @Getter @Setter private boolean createTask = false;
@@ -953,6 +956,10 @@ public class DiscussionTopicBean
   public void setGradeAssign(String gradeAssign)
   {
     this.gradeAssign = gradeAssign;
+  }
+
+  public boolean isExistingGradebookItemSelected() {
+    return DiscussionForumTool.isExistingGradebookItemSelected(createGradebookItem, gradeAssign);
   }
 
 	public boolean getNonePermission()

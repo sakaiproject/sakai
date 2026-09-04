@@ -65,6 +65,9 @@ import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams.TopicEvent;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.GradebookItemCreationException;
+import org.sakaiproject.api.app.messageforums.ui.GradebookItemCreationException.Reason;
+import org.sakaiproject.api.app.messageforums.ui.GradebookItemCreationRequest;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -87,6 +90,14 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradebookException;
+import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -99,6 +110,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,6 +145,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private EventTrackingService eventTrackingService;
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
+  @Setter private GradingService gradingService;
+  @Setter private LocaleService localeService;
   @Setter private UIPermissionsManager uiPermissionsManager;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
@@ -1107,6 +1121,36 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     flagAreaCacheForClearing(forum);
     return topic;
+  }
+
+  @Override
+  public List<Long> createGradebookItems(String siteId, List<GradebookItemCreationRequest> requests, String pointsText) {
+    Double points = localeService.parseDouble(pointsText);
+    if (points == null || points <= 0 || !Double.isFinite(points)) {
+      throw new GradebookItemCreationException(Reason.INVALID_POINTS);
+    }
+
+    List<Long> assignmentIds = new ArrayList<>();
+    try {
+      for (GradebookItemCreationRequest request : requests) {
+        Gradebook gradebook = gradingService.getGradebook(request.getGradebookUid(), siteId);
+        Assignment assignment = new Assignment();
+        assignment.setName(request.getTitle());
+        assignment.setPoints(points);
+        assignment.setReleased(true);
+        assignment.setCounted(Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType()));
+        assignmentIds.add(gradingService.addAssignment(request.getGradebookUid(), siteId, assignment));
+      }
+      return assignmentIds;
+    } catch (AssignmentHasIllegalPointsException e) {
+      throw new GradebookItemCreationException(Reason.INVALID_POINTS, e);
+    } catch (ConflictingAssignmentNameException e) {
+      throw new GradebookItemCreationException(Reason.DUPLICATE_NAME, e);
+    } catch (InvalidGradeItemNameException e) {
+      throw new GradebookItemCreationException(Reason.INVALID_NAME, e);
+    } catch (GradebookException e) {
+      throw new GradebookItemCreationException(Reason.UNAVAILABLE, e);
+    }
   }
 
   /*

@@ -38,6 +38,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.messageforums.DiscussionForumTool;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Getter;
@@ -59,6 +60,8 @@ public class DiscussionForumBean
   private List<String> contributorsList = null;
   private List<String> accessorList = null;
   private String gradeAssign;
+  private boolean createGradebookItem;
+  private String gradebookPoints;
   private Boolean nonePermission = null;
   private boolean createTask = false;
   
@@ -92,6 +95,10 @@ public class DiscussionForumBean
     this.forumManager = forumManager;
     this.userTimeService = userTimeService;
     datetimeFormat = ourDateFormat();
+  }
+
+  public boolean isExistingGradebookItemSelected() {
+    return DiscussionForumTool.isExistingGradebookItemSelected(createGradebookItem, gradeAssign);
   }
 
     /**

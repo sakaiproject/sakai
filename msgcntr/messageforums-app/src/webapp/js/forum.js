@@ -4,6 +4,57 @@ function setPanelId(thisid)
   panelId = thisid;
 }
 
+function updateGradebookItemControls({
+  assignmentsId,
+  createCheckboxId,
+  defaultGradebookItem,
+  existingItemsId,
+  pointsGroupId,
+  pointsId,
+  taskGroupId,
+  taskEmptyPanelId
+}) {
+  const assignments = document.getElementById(assignmentsId);
+  const createCheckbox = document.getElementById(createCheckboxId);
+  const existingItems = document.getElementById(existingItemsId);
+  const pointsGroup = document.getElementById(pointsGroupId);
+  const points = document.getElementById(pointsId);
+  const creatingItem = createCheckbox?.checked === true;
+
+  if (existingItems) {
+    existingItems.style.display = creatingItem ? "none" : "";
+  }
+  if (pointsGroup) {
+    pointsGroup.style.display = creatingItem ? "block" : "none";
+  }
+  if (points) {
+    points.required = creatingItem;
+  }
+  if (createCheckbox) {
+    createCheckbox.setAttribute("aria-expanded", creatingItem.toString());
+    createCheckbox.setAttribute("aria-controls", `${pointsGroupId} ${existingItemsId}`);
+  }
+
+  const existingItemSelected = !creatingItem && Boolean(assignments?.value)
+    && assignments.value !== defaultGradebookItem;
+  document.querySelectorAll("sakai-rubric-association").forEach(association => {
+    if (existingItemSelected) {
+      association.setAttribute("entity-id", assignments.value);
+    }
+    association.style.display = existingItemSelected ? "inline" : "none";
+  });
+
+  const showTaskControls = existingItemSelected && Boolean(document.querySelector("sakai-tasks"));
+  const taskGroup = document.getElementById(taskGroupId);
+  if (taskGroup) {
+    taskGroup.style.display = showTaskControls ? "inline" : "none";
+  }
+  const taskEmptyPanel = taskEmptyPanelId && document.getElementById(taskEmptyPanelId);
+  if (taskEmptyPanel) {
+    taskEmptyPanel.style.display = showTaskControls ? "inline" : "none";
+  }
+}
+
 
 function showHideDivBlock(hideDivisionNo, context)
 {
