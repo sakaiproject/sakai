@@ -216,7 +216,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
 
-        assertThat(page.getByRole(AriaRole.STATUS)).containsText(
+        assertThat(page.locator(".sak-banner-success")).containsText(
             "Report '" + SAVED_REPORT_TITLE + "' saved successfully");
         assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(SAVED_REPORT_TITLE))).isVisible();
