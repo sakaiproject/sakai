@@ -191,6 +191,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private LessonEntity assignmentEntity;
 	private LessonEntity bltiEntity;
 	private LessonEntity scormEntity;
+	private LessonEntity videoTrainingEntity;
 	private GradebookIfc gradebookIfc;
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
 	private MessageSource messageSource;
@@ -2744,6 +2745,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		scormEntity = (LessonEntity)e;
 	}
 
+	public void setVideoTrainingEntity (LessonEntity e) {
+		videoTrainingEntity = (LessonEntity)e;
+	}
+
 	public void setGradebookIfc(GradebookIfc g) {
 		gradebookIfc = g;
 	}
@@ -3085,6 +3090,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		simplePageBean.setQuizEntity(quizEntity);
 		simplePageBean.setAssignmentEntity(assignmentEntity);
 		simplePageBean.setBltiEntity(bltiEntity);
+		simplePageBean.setVideoTrainingEntity(videoTrainingEntity);
 		simplePageBean.setGradebookIfc(gradebookIfc);
 		simplePageBean.setCurrentSiteId(siteId);
 		return simplePageBean;

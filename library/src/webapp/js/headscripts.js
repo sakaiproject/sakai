@@ -808,6 +808,15 @@ function includeWebjarLibrary(library, options = {}) {
 			libraryVersion = "2.2.2";
 			jsReferences.push('/jquery.MultiFile.min.js');
 			break;
+		case 'plyr':
+			libraryVersion = "3.7.8";
+			jsReferences.push('/dist/plyr.polyfilled.js');
+			cssReferences.push('/dist/plyr.css');
+			break;
+		case 'hls.js':
+			libraryVersion = "1.5.15";
+			jsReferences.push('/dist/hls.min.js');
+			break;
 		default:
 			if (library.endsWith(".js")) {
 				document.write('\x3Cscript src="' + webjars + '/' + library + ver + '">' + '\x3C/script>');

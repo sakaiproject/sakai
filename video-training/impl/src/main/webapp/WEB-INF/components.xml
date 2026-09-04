@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.videoTraining" class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingVideo</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingProcessJob</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingOAuthCredentials</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingAnalyticsEvent</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingCategory</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingLessonLink</value>
+                <value>org.sakaiproject.videotraining.api.model.VideoTrainingUserVideoPreference</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.util.ContentResourceHelper" class="org.sakaiproject.videotraining.api.util.ContentResourceHelper">
+        <constructor-arg ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingVideoRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingVideoRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingAnalyticsEventRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingAnalyticsEventRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingProcessJobRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingProcessJobRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingOAuthCredentialsRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingOAuthCredentialsRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingCategoryRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingCategoryRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingLessonLinkRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingLessonLinkRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.repository.VideoTrainingUserVideoPreferenceRepository" class="org.sakaiproject.videotraining.impl.repository.VideoTrainingUserVideoPreferenceRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.service.VideoTrainingService" class="org.sakaiproject.videotraining.impl.service.VideoTrainingServiceImpl" init-method="init">
+        <property name="videoRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingVideoRepository"/>
+        <property name="analyticsEventRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingAnalyticsEventRepository"/>
+        <property name="categoryRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingCategoryRepository"/>
+        <property name="lessonLinkRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingLessonLinkRepository"/>
+        <property name="userVideoPreferenceRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingUserVideoPreferenceRepository"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentResourceHelper" ref="org.sakaiproject.videotraining.api.util.ContentResourceHelper"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="externalProviderRegistry" ref="org.sakaiproject.videotraining.api.service.ExternalProviderRegistry"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.service.ProcessJobService" class="org.sakaiproject.videotraining.impl.service.ProcessJobServiceImpl">
+        <property name="processJobRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingProcessJobRepository"/>
+        <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry" class="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry" init-method="afterPropertiesSet"/>
+
+    <alias name="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry" alias="org.sakaiproject.videotraining.api.service.ExternalProviderRegistry"/>
+
+    <bean id="org.sakaiproject.videotraining.impl.strategy.YoutubeProviderStrategy" class="org.sakaiproject.videotraining.impl.strategy.YoutubeProviderStrategy">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="credentialsService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingOAuthCredentialsService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.service.VideoTrainingOAuthCredentialsService" class="org.sakaiproject.videotraining.impl.service.VideoTrainingOAuthCredentialsServiceImpl">
+        <property name="credentialsRepository" ref="org.sakaiproject.videotraining.impl.repository.VideoTrainingOAuthCredentialsRepository"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.service.VideoTrainingUploadService" class="org.sakaiproject.videotraining.impl.service.VideoTrainingUploadServiceImpl">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentResourceHelper" ref="org.sakaiproject.videotraining.api.util.ContentResourceHelper"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="oauthCredentialsService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingOAuthCredentialsService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.videotraining.api.service.ExternalMetadataService" class="org.sakaiproject.videotraining.impl.service.ExternalMetadataServiceImpl">
+        <constructor-arg ref="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry" />
+    </bean>
+
+    <bean id="VideoTrainingSynchronizationJob" class="org.sakaiproject.videotraining.impl.job.VideoTrainingSynchronizationJob">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="providerRegistry" ref="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry"/>
+        <property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
+    </bean>
+
+    <bean id="HlsTranscodingJob" class="org.sakaiproject.videotraining.impl.job.HlsTranscodingJob">
+        <property name="processJobService" ref="org.sakaiproject.videotraining.api.service.ProcessJobService"/>
+        <property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
+        <property name="uploadService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingUploadService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="ExternalUploadJob" class="org.sakaiproject.videotraining.impl.job.ExternalUploadJob">
+        <property name="processJobService" ref="org.sakaiproject.videotraining.api.service.ProcessJobService"/>
+        <property name="providerRegistry" ref="org.sakaiproject.videotraining.impl.service.ExternalProviderRegistry"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.VideoTrainingSynchronizationJob" class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper" init-method="init">
+        <property name="beanId" value="VideoTrainingSynchronizationJob"/>
+        <property name="jobName" value="Video Training Synchronization Job"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+    </bean>
+
+</beans>
