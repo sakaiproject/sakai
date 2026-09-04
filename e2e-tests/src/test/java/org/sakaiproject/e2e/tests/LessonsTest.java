@@ -108,7 +108,11 @@ class LessonsTest extends SakaiUiTestBase {
 
         sakai.toolClick("Promote Me");
         assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
-        assertThat(page.locator(".itemclass[role=main]")).isVisible();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        assertThat(moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true))).isVisible();
     }
 
     private void addSubpage(String title) {
