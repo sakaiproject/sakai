@@ -6,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
     <link media="all" href="/library/skin/default-skin/tool.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <title th:text="${title}">Video Training</title>
     <script src="/library/js/headscripts.js"></script>
     <script src="/library/js/spinner.js"></script>
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script>includeWebjarLibrary('plyr');</script>
 </head>
 
 <div th:fragment="jQuery">
