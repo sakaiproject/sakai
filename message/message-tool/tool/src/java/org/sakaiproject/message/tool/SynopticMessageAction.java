@@ -647,6 +647,15 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 	 */
 	public void doUpdate(RunData data, Context context)
 	{
+		// ignore if not allowed - addOptionsMenu() only uses this to decide whether to
+		// show the "Options" link, so without this check here doUpdate() could be
+		// invoked directly (bypassing the UI) to change the tool's configuration
+		// regardless of permissions
+		if (!allowedToOptions())
+		{
+			return;
+		}
+
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
