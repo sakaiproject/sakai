@@ -289,6 +289,16 @@ public class DateManagerServiceImpl implements DateManagerService {
         return userDate.format(outputDatePickerFormat);
 	}
 
+	private ZoneId getGradebookZoneId() {
+		// Gradebook treats due dates as date-only values in the server timezone.
+		return ZoneId.systemDefault();
+	}
+
+	private String formatToGradebookDateFormat(Date date) {
+		if (date == null) return "";
+		return date.toInstant().atZone(getGradebookZoneId()).format(outputDatePickerFormat);
+	}
+
 	@Override
 	public JSONArray getAssignmentsForContext(String siteId) {
 		JSONArray jsonAssignments = new JSONArray();
@@ -772,7 +782,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					JSONObject gobj = new JSONObject();
 					gobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, gbitem.getId());
 					gobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, gbitem.getName());
-					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToUserDateFormat(gbitem.getDueDate()));
+					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToGradebookDateFormat(gbitem.getDueDate()));
 					gobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 					gobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 					gobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
@@ -822,8 +832,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						} else {
 							date = LocalDate.parse(dueDateRaw, inputDateFormatter);
 						}
-						// Gradebook treats due dates as date-only values in the server timezone.
-						ZoneId zone = ZoneId.systemDefault();
+						ZoneId zone = getGradebookZoneId();
 						dueDate = date.atStartOfDay(zone).toInstant();
 					} catch (DateTimeParseException e) {
 						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
@@ -2083,7 +2092,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						date = LocalDate.parse(columns[2], inputDateFormatter);
 					}
 					columns[2] = date.format(outputDateFormatter);
-					ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+					ZoneId zone = getGradebookZoneId();
 					if (gbitem.getDueDate() != null) {
 						changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
 					} else {
