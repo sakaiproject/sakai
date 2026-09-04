@@ -126,10 +126,17 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		when(user.getDisplayName()).thenReturn("User A");
 		when(user.getSortName()).thenReturn("User A");
 		when(userDirectoryService.getUser(USER_ID)).thenReturn(user);
+		User otherUser = mock(User.class);
+		when(otherUser.getDisplayId()).thenReturn(OTHER_USER_ID);
+		when(otherUser.getDisplayName()).thenReturn("User B");
+		when(otherUser.getSortName()).thenReturn("User B");
+		when(userDirectoryService.getUser(OTHER_USER_ID)).thenReturn(otherUser);
 
 		Site site = site(SITE_ID, "Site A", "Instructor");
 		when(site.getUsers()).thenReturn(new HashSet<String>(Arrays.asList(USER_ID, OTHER_USER_ID)));
 		when(site.getMembers()).thenReturn(new HashSet<Member>(Arrays.asList(mock(Member.class), mock(Member.class))));
+		when(site.getUsersIsAllowed(SiteService.SECURE_UPDATE_SITE))
+				.thenReturn(new HashSet<String>(Arrays.asList(USER_ID)));
 		when(site.getUsersHasRole(anyString())).thenAnswer(invocation -> {
 			if ("Instructor".equals(invocation.getArgument(0))) {
 				return new HashSet<String>(Arrays.asList(USER_ID));
@@ -183,7 +190,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertFalse(hasWidget(overview, WIDGET_VISITS));
 		assertFalse(hasWidget(overview, WIDGET_PRESENCE_ACCESS));
 		assertNotNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL).getSnapshot());
-		assertNotNull(metric(overview, WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_LAST_VISIT).getSnapshot());
+		assertNotNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_PRESENCE_LAST_VISIT).getSnapshot());
 	}
 
 	@Test
@@ -365,8 +372,6 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertEquals("1 / 2", metric(overview, WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getSnapshot().getPrimary());
 		assertEquals(Integer.valueOf(50),
 				metric(overview, WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getSnapshot().getPercentage());
-		assertTrue(metric(overview, WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT).getSnapshot().getPrimary().contains("2026"));
-		assertEquals("User A", metric(overview, WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT).getSnapshot().getDetail());
 		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
 
 		db.insertObject(visitStat(SITE_ID, Date.valueOf(java.time.LocalDate.now()), 2, 1));
@@ -386,11 +391,24 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertEquals(Long.valueOf(3), byRole.getChart().getDatasets().get(0).getPoints().get(0).getY());
 		assertEquals(1, byRole.getTable().getTotalRows());
 		assertEquals("Instructor", byRole.getTable().getRows().get(0).getCells().get("role").getDisplay());
+	}
+
+	@Test
+	public void lastVisitMetricIgnoresUsersWhoCanUpdateTheSite() {
+		db.insertObject(eventStat(SITE_ID, USER_ID, FakeData.TOOL_CHAT, StatsManager.SITEVISIT_EVENTID,
+				Date.valueOf("2026-06-20"), 2));
+		db.insertObject(eventStat(SITE_ID, OTHER_USER_ID, FakeData.TOOL_CHAT, StatsManager.SITEVISIT_EVENTID,
+				Date.valueOf("2026-06-17"), 1));
+
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+
+		assertTrue(metric(overview, WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT).getSnapshot().getPrimary().contains("2026"));
+		assertEquals("User B", metric(overview, WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT).getSnapshot().getDetail());
 
 		SiteStatsReportView lastVisitReport = service.getWidgetMetricReport(SITE_ID, WIDGET_VISITS,
 				METRIC_PRESENCE_LAST_VISIT, new SiteStatsReportRequest());
 		assertNotNull(lastVisitReport.getTable());
-		assertTrue(lastVisitReport.getTable().getTotalRows() >= 1);
+		assertEquals(1, lastVisitReport.getTable().getTotalRows());
 	}
 
 	@Test
@@ -402,7 +420,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
 
-		assertTrue(metric(overview, WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_LAST_VISIT)
+		assertTrue(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_PRESENCE_LAST_VISIT)
 				.getSnapshot().getPrimary().contains("2026"));
 		assertEquals("1 minutes_abbr",
 				metric(overview, WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_7D)

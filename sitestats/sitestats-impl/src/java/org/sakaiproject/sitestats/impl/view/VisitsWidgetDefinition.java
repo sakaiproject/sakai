@@ -48,7 +48,7 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 								this::visitsUniqueMetricDefinition, this::visitsUniqueValue),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS, "overview_title_enrolled_users_with_visits_sum", AUDIENCE_ALL,
 								this::visitsUsersWithVisitsMetricDefinition, this::visitsUsersWithVisitsValue),
-						metricSpec(WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT, "overview_title_last_visit", AUDIENCE_ALL,
+						metricSpec(WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT, "overview_title_last_student_visit", AUDIENCE_ALL,
 								this::lastVisitMetricDefinition, this::lastVisitValue),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend", AUDIENCE_ALL,
 								this::visitsTotalMetricDefinition, this::visitsTrafficTrendValue)),
@@ -144,13 +144,14 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
 		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
 		params.setWhen(ReportManager.WHEN_ALL);
-		params.setWho(ReportManager.WHO_ALL);
+		params.setWho(ReportManager.WHO_CUSTOM);
+		params.setWhoUserIds(metricSupport().learnersWithoutSiteUpdate(siteId));
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER, StatsManager.T_LASTDATE));
 		params.setHowSort(true);
 		params.setHowSortBy(StatsManager.T_LASTDATE);
 		params.setHowSortAscending(false);
 		params.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
-		return new WidgetReportDefinition(message("overview_title_last_visit"), null, reportDef);
+		return new WidgetReportDefinition(message("overview_title_last_student_visit"), null, reportDef);
 	}
 
 	private SiteStatsReportView visitsByRoleView(String siteId, SiteStatsReportRequest request, String userId) {

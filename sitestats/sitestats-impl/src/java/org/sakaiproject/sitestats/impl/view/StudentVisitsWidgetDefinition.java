@@ -8,6 +8,7 @@ package org.sakaiproject.sitestats.impl.view;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_VISITS_LAST_30_DAYS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_LAST_VISIT;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TRAFFIC_TREND;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
@@ -32,6 +33,8 @@ public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefini
 				metrics(
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL, "overview_title_visits_sum", AUDIENCE_OWN,
 								this::studentVisitsByDateDefinition, this::studentVisitsTotalValue),
+						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_PRESENCE_LAST_VISIT, "overview_title_last_visit",
+								AUDIENCE_OWN, null, this::studentLastVisitValue),
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend",
 								AUDIENCE_OWN, this::studentVisitsByDateDefinition, this::studentTrafficTrendValue)),
 				highlights(highlightSpec(HIGHLIGHT_VISITS_LAST_30_DAYS, "overview_title_visits_last30days",
@@ -56,6 +59,10 @@ public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefini
 
 	private WidgetMetricValue studentVisitsTotalValue(String siteId, String userId) {
 		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteVisitsForUser(siteId, userId)));
+	}
+
+	private WidgetMetricValue studentLastVisitValue(String siteId, String userId) {
+		return metricSupport().lastVisitValue(siteId, userId, false);
 	}
 
 	private WidgetMetricValue studentTrafficTrendValue(String siteId, String userId) {

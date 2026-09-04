@@ -30,7 +30,6 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_PRESENCE_LAST_30_DAYS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_AVERAGE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_BOUNCE_RATE;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_LAST_VISIT;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_TOTAL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_TOTAL_30D;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_TOTAL_365D;
@@ -47,8 +46,6 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 				tabs(tabSpec(WIDGET_STUDENT_PRESENCE_ACCESS, TAB_BY_DATE, "overview_tab_bydate",
 						this::studentPresenceByDateDefinition, FILTER_DATE)),
 				metrics(
-						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_LAST_VISIT, "overview_title_last_visit_own",
-								AUDIENCE_OWN, null, this::studentLastVisitValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_AVERAGE, "overview_title_presence_time_avg",
 								AUDIENCE_OWN, this::presencesEnabled, null, this::studentMedianPresenceValue),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate",
@@ -77,10 +74,6 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 		params.setHowChartSource(StatsManager.T_DATE);
 		params.setHowChartSeriesSource(StatsManager.T_NONE);
 		return new WidgetReportDefinition(message("overview_title_presence_access"), reportDef, reportDef);
-	}
-
-	private WidgetMetricValue studentLastVisitValue(String siteId, String userId) {
-		return metricSupport().lastVisitValue(siteId, userId, false);
 	}
 
 	private WidgetMetricValue studentMedianPresenceValue(String siteId, String userId) {

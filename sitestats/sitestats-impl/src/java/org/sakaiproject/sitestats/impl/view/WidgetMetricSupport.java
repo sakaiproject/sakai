@@ -57,6 +57,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsTableCell;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableColumn;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableRow;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -415,49 +416,72 @@ public class WidgetMetricSupport {
 	}
 
 	private LastVisit findLastVisit(String siteId, String userId) {
-		LastVisit fromTotals = lastVisitFromPresenceTotals(siteId, userId);
+		if (StringUtils.isNotBlank(userId)) {
+			LastVisit fromTotals = lastVisitFromPresenceTotals(siteId, Collections.singleton(userId));
+			if (fromTotals != null) {
+				return fromTotals;
+			}
+			return lastVisitFromEvents(siteId, Arrays.asList(userId));
+		}
+		List<String> learners = learnersWithoutSiteUpdate(siteId);
+		if (learners.isEmpty()) {
+			return null;
+		}
+		LastVisit fromTotals = lastVisitFromPresenceTotals(siteId, new HashSet<String>(learners));
 		if (fromTotals != null) {
 			return fromTotals;
 		}
-		return lastVisitFromEvents(siteId, userId);
+		return lastVisitFromEvents(siteId, learners);
 	}
 
-	private LastVisit lastVisitFromPresenceTotals(String siteId, String userId) {
+	List<String> learnersWithoutSiteUpdate(String siteId) {
+		try {
+			Site site = context.getSiteService().getSite(siteId);
+			Set<String> members = site.getUsers();
+			if (members == null || members.isEmpty()) {
+				return Collections.emptyList();
+			}
+			Set<String> learners = new HashSet<String>(members);
+			Set<String> updaters = site.getUsersIsAllowed(SiteService.SECURE_UPDATE_SITE);
+			if (updaters != null) {
+				learners.removeAll(updaters);
+			}
+			return new ArrayList<String>(learners);
+		} catch (IdUnusedException e) {
+			log.debug("Cannot resolve site members without update permission for {}", siteId, e);
+			return Collections.emptyList();
+		}
+	}
+
+	private LastVisit lastVisitFromPresenceTotals(String siteId, Set<String> userIds) {
 		Map<String, SitePresenceTotal> totals = context.getStatsManager().getPresenceTotalsForSite(siteId);
-		if (totals == null || totals.isEmpty()) {
+		if (totals == null || totals.isEmpty() || userIds == null || userIds.isEmpty()) {
 			return null;
 		}
-		if (StringUtils.isNotBlank(userId)) {
-			SitePresenceTotal total = totals.get(userId);
-			if (total == null || total.getLastVisitTime() == null) {
-				return null;
-			}
-			return new LastVisit(userId, total.getLastVisitTime());
-		}
 		LastVisit latest = null;
-		for (SitePresenceTotal total : totals.values()) {
-			if (total.getLastVisitTime() == null) {
+		for (String id : userIds) {
+			SitePresenceTotal total = totals.get(id);
+			if (total == null || total.getLastVisitTime() == null) {
 				continue;
 			}
 			if (latest == null || total.getLastVisitTime().after(latest.getDate())) {
-				latest = new LastVisit(total.getUserId(), total.getLastVisitTime());
+				latest = new LastVisit(id, total.getLastVisitTime());
 			}
 		}
 		return latest;
 	}
 
-	private LastVisit lastVisitFromEvents(String siteId, String userId) {
+	private LastVisit lastVisitFromEvents(String siteId, List<String> userIds) {
+		if (userIds == null || userIds.isEmpty()) {
+			return null;
+		}
 		ReportDef reportDef = reportFactory.baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();
 		params.setWhat(ReportManager.WHAT_EVENTS);
 		params.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
 		params.setWhatEventIds(Arrays.asList(StatsManager.SITEVISIT_EVENTID));
-		if (StringUtils.isNotBlank(userId)) {
-			params.setWho(ReportManager.WHO_CUSTOM);
-			params.setWhoUserIds(Arrays.asList(userId));
-		} else {
-			params.setWho(ReportManager.WHO_ALL);
-		}
+		params.setWho(ReportManager.WHO_CUSTOM);
+		params.setWhoUserIds(userIds);
 		params.setHowTotalsBy(Arrays.asList(StatsManager.T_USER, StatsManager.T_LASTDATE));
 		params.setHowSort(true);
 		params.setHowSortBy(StatsManager.T_LASTDATE);
