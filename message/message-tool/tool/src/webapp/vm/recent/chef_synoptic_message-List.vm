@@ -73,10 +73,16 @@
 					## dots are a normal flex item here instead, and give them an explicit
 					## color: their default (white, 0.5 opacity; black only once .active) was
 					## tuned to sit on top of a colored message background, not the plain
-					## background out here.
+					## background out here. items can go up to 200 (see sakai.motd.xml), so
+					## the strip needs to be able to shrink and scroll rather than overflow
+					## the widget and push the toggle button off to the side.
 					.motd-carousel-toggle-wrap .carousel-indicators {
 						position: static;
 						margin: 0;
+						flex: 1 1 0;
+						min-width: 0;
+						overflow-x: auto;
+						justify-content: flex-start;
 					}
 					.motd-carousel-toggle-wrap .carousel-indicators [data-bs-target] {
 						background-color: #adb5bd;
@@ -115,6 +121,7 @@
 					}
 				</style>
 				<div id="motdCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="$motdCarouselInterval"
+					data-bs-pause="false"
 					aria-roledescription="carousel" aria-label="$tlang.getString("motd.carousel.label")">
 					<div class="carousel-inner">
 						#set ($motdIndex = 0)
@@ -308,8 +315,35 @@
 							setTimeout(motdResize, 100);
 							setTimeout(motdResize, 300);
 						});
+						// Bootstrap looks up its indicator dots with
+						// querySelector(".carousel-indicators", motdCarousel) - since they now
+						// live outside #motdCarousel's own box, grouped with the pause button
+						// below instead of overlapping the message text like they used to,
+						// Bootstrap never finds them and stops updating which dot has the "active" class
+						// and aria-current after a rotation. Clicking a dot to jump to a slide
+						// still works either way - that's handled by a separate, document-wide
+						// delegated click listener that doesn't care where the dot lives - only
+						// the active-dot highlighting needs doing by hand here.
+						var motdIndicators = document.querySelectorAll(".motd-carousel-toggle-wrap .carousel-indicators [data-bs-slide-to]");
+						var motdSyncIndicators = function () {
+							if (!motdIndicators.length) {
+								return;
+							}
+							var activeItem = motdCarousel.querySelector(".carousel-item.active");
+							var activeIndex = activeItem ? Array.prototype.indexOf.call(activeItem.parentNode.children, activeItem) : -1;
+							motdIndicators.forEach(function (indicator, index) {
+								var isActive = index === activeIndex;
+								indicator.classList.toggle("active", isActive);
+								if (isActive) {
+									indicator.setAttribute("aria-current", "true");
+								} else {
+									indicator.removeAttribute("aria-current");
+								}
+							});
+						};
 						motdCarousel.addEventListener("slid.bs.carousel", function () {
 							motdResize();
+							motdSyncIndicators();
 							// a second pass shortly after catches layout that's still settling
 							// (web fonts, transition remnants) when the first measurement runs
 							// too early
@@ -318,11 +352,37 @@
 						// WCAG 2.2.2 (Pause, Stop, Hide): Bootstrap only pauses the carousel on
 						// pointer hover, which keyboard and screen-reader users can't trigger -
 						// this is the only way those users have to stop the rotation.
+						// data-bs-pause="false" above turns off Bootstrap's own hover-triggered
+						// pause/resume, so this button is the only thing that pauses or resumes
+						// on its own - but Bootstrap has a second, separate resume path that
+						// setting doesn't cover: clicking the prev/next arrows or an indicator
+						// dot calls Carousel._maybeEnableCycle() no matter what, which silently
+						// restarts the interval whenever data-bs-ride is set at all - checked
+						// directly in the shipped bootstrap.min.js, it only looks at that, never
+						// at data-bs-pause. Re-asserting pause() in the slid handler below
+						// whenever the user has us paused undoes that unconditional restart -
+						// but _maybeEnableCycle() itself, when called mid-transition (which a
+						// click always is), doesn't call cycle() immediately either: it defers
+						// to a one-time listener on this exact same "slid" event, registered at
+						// click time - later than our own listener below, added once at page
+						// load. Listeners run in registration order, so without the setTimeout
+						// that one fires after ours and undoes our pause() right back. Deferring
+						// ours by a tick runs it after every same-tick "slid" listener,
+						// including that one, instead of racing it.
 						var motdToggle = document.getElementById("motdCarouselToggle");
 						if (motdToggle) {
 							var motdInstance = bootstrap.Carousel.getOrCreateInstance(motdCarousel);
 							var motdToggleLabel = motdToggle.querySelector(".visually-hidden");
 							var motdPaused = false;
+							motdCarousel.addEventListener("slid.bs.carousel", function () {
+								if (motdPaused) {
+									setTimeout(function () {
+										if (motdPaused) {
+											motdInstance.pause();
+										}
+									}, 0);
+								}
+							});
 							motdToggle.addEventListener("click", function () {
 								motdPaused = !motdPaused;
 								if (motdPaused) {
