@@ -964,15 +964,44 @@ public abstract class BaseLTIService implements LTIService {
 			return rb.getString("error.transfer.bad.tools");
 		}
 
-		return transferToolContentLinksDao(currentTool, newTool, siteId, isAdmin(siteId));
+		boolean isAdminRole = isAdmin(siteId);
+		if (isAdminRole && StringUtils.isNotBlank((String) new_tool.get(LTI_SITE_ID))) {
+			return rb.getString("error.transfer.site.tool");
+		}
+
+		Object retval = transferToolContentLinksDao(currentTool, newTool, siteId, isAdminRole);
+		if ( !(retval instanceof String) && isAdminRole ) {
+			deployStealthToolAfterTransfer(new_tool, newTool);
+		}
+		return retval;
 	}
 
 	public Object transferToolContentLinksDao(Long currentTool, Long newTool)
 	{
 		boolean isAdminRole = true;
 		String siteId = null;
-		return transferToolContentLinksDao(currentTool, newTool, siteId, isAdminRole);
+		Map<String, Object> new_tool = getToolDao(newTool, siteId, isAdminRole);
+		if ( new_tool == null ) {
+			return rb.getString("error.transfer.bad.tools");
+		}
+		if ( StringUtils.isNotBlank((String) new_tool.get(LTI_SITE_ID)) ) {
+			return rb.getString("error.transfer.site.tool");
+		}
+		Object retval = transferToolContentLinksDao(currentTool, newTool, siteId, isAdminRole);
+		if ( !(retval instanceof String) ) {
+			deployStealthToolAfterTransfer(new_tool, newTool);
+		}
+		return retval;
 	}
+
+	protected void deployStealthToolAfterTransfer(Map<String, Object> destinationTool, Long newTool) {
+		Long visible = LTIUtil.toLongNull(destinationTool.get(LTI_VISIBLE));
+		if ( Long.valueOf(LTIService.LTI_VISIBLE_STEALTH).equals(visible) ) {
+			deployToolToContentSites(newTool, true, true);
+		}
+	}
+
+	protected abstract void deployToolToContentSites(Long toolKey, boolean isAdminRole, boolean isMaintainRole);
 
 	protected abstract Object transferToolContentLinksDao(Long currentTool, Long newTool, String siteId, boolean isAdminRole);
 
