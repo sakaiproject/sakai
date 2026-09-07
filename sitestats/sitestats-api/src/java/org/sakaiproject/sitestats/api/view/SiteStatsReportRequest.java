@@ -36,6 +36,8 @@ public class SiteStatsReportRequest implements Serializable {
 	private String lessonAction;
 	private Double threshold;
 	private String itemType;
+	private String group;
+	private String item;
 
 	public SiteStatsReportRequest(SiteStatsReportRequest source) {
 		if (source != null) {
@@ -52,6 +54,8 @@ public class SiteStatsReportRequest implements Serializable {
 			this.lessonAction = source.lessonAction;
 			this.threshold = source.threshold;
 			this.itemType = source.itemType;
+			this.group = source.group;
+			this.item = source.item;
 		}
 	}
 

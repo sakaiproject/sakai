@@ -92,12 +92,25 @@
             <artifactId>sakai-assignment-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-api</artifactId>
         </dependency>
         <dependency>
           <groupId>org.sakaiproject.samigo</groupId>
           <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-hibernate</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.msgcntr</groupId>

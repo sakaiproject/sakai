@@ -27,6 +27,7 @@ final class PrefsXmlParser {
 		setFloat(root, "chartTransparency", prefsData::setChartTransparency);
 		setBoolean(root, "itemLabelsVisible", prefsData::setItemLabelsVisible);
 		setBoolean(root, "useAllTools", prefsData::setUseAllTools);
+		prefsData.setGradesThreshold(XmlElementReader.optionalDouble(root, "gradesThreshold"));
 
 		Element toolEventsDef = XmlElementReader.getDirectChild(root, "toolEventsDef");
 		if(toolEventsDef != null) {

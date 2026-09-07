@@ -69,6 +69,7 @@ public class SiteStatsController {
         model.addAttribute("overview", result.getOverview());
         model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
         model.addAttribute("metricEndpoints", result.getMetricEndpoints());
+        model.addAttribute("highlightEndpoints", result.getHighlightEndpoints());
         model.addAttribute("widgetHighlightsJson", result.getWidgetHighlightsJson());
         return "overview";
     }
@@ -183,6 +184,7 @@ public class SiteStatsController {
         commonModel(model, result.getSiteId(), "preferences");
         model.addAttribute("preferencesForm", result.getForm());
         model.addAttribute("tools", result.getTools());
+        model.addAttribute("defaultGradesThreshold", result.getDefaultGradesThreshold());
         model.addAttribute("chartTransparencyChoices", Arrays.asList(
                 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f));
         return "preferences";

@@ -38,6 +38,8 @@ public interface StatsManager {
 	public final static String			SEPARATOR					= "/";
 	public final static String			SITEVISIT_EVENTID			= "pres.begin";
 	public final static String			SITEVISITEND_EVENTID		= "pres.end";
+	public final static String			GRADES_THRESHOLD_PROPERTY	= "sitestats.grades.threshold";
+	public final static double			DEFAULT_GRADES_THRESHOLD	= 50d;
 	public final static String			LOGIN_EVENTID				= "user.login";
 	public final static String			CONTAINER_LOGIN_EVENTID		= "user.login.container";
 	public final static String			LOGOUT_EVENTID				= "user.logout";
@@ -171,6 +173,16 @@ public interface StatsManager {
 	public PrefsData getPreferences(String siteId, boolean includeUnselected);
 	/** Sets SiteStats preferences for a specific site. */
 	public boolean setPreferences(String siteId, PrefsData prefsdata);
+	/**
+	 * Grade completion threshold for a site: preferences, then the site property
+	 * {@link #GRADES_THRESHOLD_PROPERTY}, then sakai.properties, then {@link #DEFAULT_GRADES_THRESHOLD}.
+	 */
+	public double getGradesThreshold(String siteId);
+	/**
+	 * Fallback threshold when site preferences do not set one: site property
+	 * {@link #GRADES_THRESHOLD_PROPERTY}, then sakai.properties, then {@link #DEFAULT_GRADES_THRESHOLD}.
+	 */
+	public double getDefaultGradesThreshold(String siteId);
 	
 	
 	// ################################################################

@@ -165,6 +165,7 @@ public class SiteStatsToolService {
         SiteStatsOverview overview = overview(requestedSiteId);
         Map<String, String> widgetEndpoints = new LinkedHashMap<String, String>();
         Map<String, String> metricEndpoints = new LinkedHashMap<String, String>();
+        Map<String, String> highlightEndpoints = new LinkedHashMap<String, String>();
         Map<String, String> widgetHighlightsJson = new LinkedHashMap<String, String>();
         SiteStatsReportRequest reportRequest = new SiteStatsReportRequest();
         reportRequest.setIncludeTable(true);
@@ -179,6 +180,9 @@ public class SiteStatsToolService {
                     widgetEndpoints.put(widget.getId() + ":" + tab.getId(), SiteStatsApiUrls.widgetReport(
                             overview.getSiteId(), widget.getId(), tab.getId(), reportRequest));
                 }
+                if (widget.isHighlightsConfigured()) {
+                    highlightEndpoints.put(widget.getId(), SiteStatsApiUrls.widgetHighlights(overview.getSiteId(), widget.getId()));
+                }
                 if (widget.getHighlights() != null && !widget.getHighlights().isEmpty()) {
                     try {
                         widgetHighlightsJson.put(widget.getId(), objectMapper.writeValueAsString(widget.getHighlights()));
@@ -188,7 +192,7 @@ public class SiteStatsToolService {
                 }
             }
         }
-        return new OverviewResult(overview, widgetEndpoints, metricEndpoints, widgetHighlightsJson);
+        return new OverviewResult(overview, widgetEndpoints, metricEndpoints, highlightEndpoints, widgetHighlightsJson);
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
@@ -420,8 +424,10 @@ public class SiteStatsToolService {
         form.setUseAllTools(preferences.isUseAllTools());
         form.setItemLabelsVisible(preferences.isItemLabelsVisible());
         form.setChartTransparency(preferences.getChartTransparency());
+        form.setGradesThreshold(preferences.getGradesThreshold());
         form.setSelectedEventIds(new ArrayList<String>(preferences.getToolEventsStringList()));
-        return new PreferencesResult(siteId, form, activityDefinitionTools(preferences));
+        return new PreferencesResult(siteId, form, activityDefinitionTools(preferences),
+                statsManager.getDefaultGradesThreshold(siteId));
     }
 
     public List<ActivityDefinitionTool> activityDefinitionTools(PrefsData preferences) {
@@ -441,6 +447,7 @@ public class SiteStatsToolService {
         preferences.setUseAllTools(form.isUseAllTools());
         preferences.setItemLabelsVisible(form.isItemLabelsVisible());
         preferences.setChartTransparency(form.getChartTransparency());
+        preferences.setGradesThreshold(validPreferenceThreshold(form.getGradesThreshold()));
         Set<String> selectedEvents = new HashSet<String>(form.getSelectedEventIds());
         for (ToolInfo tool : preferences.getToolEventsDef()) {
             boolean toolSelected = false;
@@ -456,6 +463,13 @@ public class SiteStatsToolService {
                     "sitestats_error_preferences_save",
                     "Preferences could not be saved for site " + siteId);
         }
+    }
+
+    private Double validPreferenceThreshold(Double threshold) {
+        if (threshold == null || threshold.doubleValue() < 0) {
+            return null;
+        }
+        return threshold;
     }
 
     public UserActivityResult userActivity(String requestedSiteId, UserActivityForm form) {
@@ -623,6 +637,7 @@ public class SiteStatsToolService {
         private final SiteStatsOverview overview;
         private final Map<String, String> widgetEndpoints;
         private final Map<String, String> metricEndpoints;
+        private final Map<String, String> highlightEndpoints;
         private final Map<String, String> widgetHighlightsJson;
     }
 
@@ -707,6 +722,7 @@ public class SiteStatsToolService {
         private final String siteId;
         private final PreferencesForm form;
         private final List<ActivityDefinitionTool> tools;
+        private final double defaultGradesThreshold;
     }
 
     @Getter
@@ -716,6 +732,7 @@ public class SiteStatsToolService {
         private boolean useAllTools;
         private boolean itemLabelsVisible;
         private float chartTransparency = 1.0f;
+        private Double gradesThreshold;
         private List<String> selectedEventIds = new ArrayList<String>();
 
         public void setListToolEventsOnlyAvailableInSite(boolean value) { this.listToolEventsOnlyAvailableInSite = value; }
@@ -723,6 +740,7 @@ public class SiteStatsToolService {
         public void setUseAllTools(boolean value) { this.useAllTools = value; }
         public void setItemLabelsVisible(boolean value) { this.itemLabelsVisible = value; }
         public void setChartTransparency(float value) { this.chartTransparency = value; }
+        public void setGradesThreshold(Double value) { this.gradesThreshold = value; }
         public void setSelectedEventIds(List<String> value) {
             this.selectedEventIds = value == null ? new ArrayList<String>() : value;
         }

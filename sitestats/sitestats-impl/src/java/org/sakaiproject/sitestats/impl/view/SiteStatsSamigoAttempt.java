@@ -16,11 +16,29 @@
 
 package org.sakaiproject.sitestats.impl.view;
 
-import org.sakaiproject.sitestats.api.view.SiteStatsChart;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import java.time.Instant;
 
-@FunctionalInterface
-interface WidgetHighlightFactory {
+import lombok.Getter;
 
-	SiteStatsChart build(String siteId, String userId, SiteStatsReportRequest request);
+@Getter
+public class SiteStatsSamigoAttempt {
+
+	private final String userId;
+	private final Instant submittedDate;
+	private final boolean submitted;
+	private final boolean late;
+	private final boolean graded;
+
+	public SiteStatsSamigoAttempt(String userId, Instant submittedDate, boolean submitted, boolean late) {
+		this(userId, submittedDate, submitted, late, false);
+	}
+
+	public SiteStatsSamigoAttempt(String userId, Instant submittedDate, boolean submitted, boolean late,
+			boolean graded) {
+		this.userId = userId;
+		this.submittedDate = submittedDate;
+		this.submitted = submitted;
+		this.late = late;
+		this.graded = graded;
+	}
 }

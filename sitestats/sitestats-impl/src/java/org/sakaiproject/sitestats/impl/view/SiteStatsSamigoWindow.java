@@ -16,11 +16,18 @@
 
 package org.sakaiproject.sitestats.impl.view;
 
-import org.sakaiproject.sitestats.api.view.SiteStatsChart;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import java.time.Instant;
 
-@FunctionalInterface
-interface WidgetHighlightFactory {
+import lombok.Getter;
 
-	SiteStatsChart build(String siteId, String userId, SiteStatsReportRequest request);
+@Getter
+public class SiteStatsSamigoWindow {
+
+	private final Instant dueDate;
+	private final Instant closeDate;
+
+	public SiteStatsSamigoWindow(Instant dueDate, Instant closeDate) {
+		this.dueDate = dueDate;
+		this.closeDate = closeDate != null ? closeDate : dueDate;
+	}
 }
