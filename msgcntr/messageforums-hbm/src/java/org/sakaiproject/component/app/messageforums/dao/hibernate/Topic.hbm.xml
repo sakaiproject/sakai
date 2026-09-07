@@ -335,7 +335,7 @@
 		    where topic in ( :topicList ) and
 		    membershipItem.name in ( :membershipList ) and
 		    pl.moderatePostings = true and
-		    membershipItem.permissionLevel = pl.id
+		    membershipItem.permissionLevel.id = pl.id
 		]]>
   </query>
   

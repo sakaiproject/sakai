@@ -55,11 +55,11 @@
  -->
  
   	<query name="findRanksByContextIdBasedOnNumPost">
-		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 2 order by us.title]]>
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = '2' order by us.title]]>
 	</query>
  
   	<query name="findRanksByContextIdBasedOnIndiv">
-		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 1 order by us.title]]>
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = '1' order by us.title]]>
 	</query>
   
    	<query name="findRanksByContextIdUserID">
@@ -71,7 +71,7 @@
 	</query>
  
   	<query name="findRanksByContextIdOrderByMinPostDesc">
-		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 2 order by us.minPosts desc]]>
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = '2' order by us.minPosts desc]]>
 	</query>
  
  
