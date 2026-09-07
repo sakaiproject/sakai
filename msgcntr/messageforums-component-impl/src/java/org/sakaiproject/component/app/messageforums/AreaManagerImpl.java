@@ -20,21 +20,14 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.util.Date;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
-import org.hibernate.collection.spi.PersistentSet;
-import org.hibernate.query.Query;
-import org.sakaiproject.api.app.messageforums.OpenForum;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.collection.spi.PersistentSet;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -43,6 +36,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
@@ -58,9 +52,16 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Transactional
-public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
+public class AreaManagerImpl implements AreaManager {
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
     private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
@@ -77,6 +78,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     @Setter private SiteService siteService;
     @Setter private ToolManager toolManager;
     @Setter private MessageForumsTypeManager typeManager;
+    @Setter private SessionFactory sessionFactory;
 
     private ResourceLoader rb;
     private Boolean DEFAULT_AUTO_MARK_READ = false;
@@ -238,6 +240,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
     
     public Area saveArea(Area area, String currentUser){
+        Session session = sessionFactory.getCurrentSession();
         area.setModified(new Date());
         area.setModifiedBy(currentUser);
         
@@ -265,7 +268,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         // the area will always be available. 
         area.setAvailability(true); 
         
-        area = getHibernateTemplate().merge(area);
+        area = session.merge(area);
 
         log.debug("saveArea executed with areaId: {}", area.getId());
 
@@ -273,7 +276,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public void deleteArea(Area area) {
-        getHibernateTemplate().delete(area);
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(area);
         log.debug("deleteArea executed with areaId: {}", area.getId());
     }
 
@@ -294,13 +298,23 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     
     public Area getAreaByContextIdAndTypeId(final String contextId, final String typeId) {
         log.debug("getAreaByContextIdAndTypeId executing for current user: {}", getCurrentUser());
-        HibernateCallback<Area> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
-            q.setParameter("contextId", contextId);
-            q.setParameter("typeId", typeId);
-            return (Area) q.uniqueResult();
-        };
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AreaImpl> cq = cb.createQuery(AreaImpl.class);
+
+        Root<AreaImpl> area = cq.from(AreaImpl.class);
+        area.fetch("membershipItemSet", JoinType.LEFT);
+        area.fetch("hiddenGroups", JoinType.LEFT);
+
+        cq.select(area)
+          .distinct(true)
+          .where(cb.and(
+              cb.equal(area.get("contextId"), contextId),
+              cb.equal(area.get("typeUuid"), typeId)
+          ));
+
+        return session.createQuery(cq).uniqueResult();
     }
     
     private String getNextUuid() {
