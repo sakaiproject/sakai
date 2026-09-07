@@ -32,18 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
-import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -54,18 +46,25 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.app.messageforums.UserStatistics;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.exception.LockedException;
@@ -78,11 +77,25 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
+public class MessageForumsMessageManagerImpl implements MessageForumsMessageManager {
 
     //private static final String QUERY_BY_MESSAGE_ID = "findMessageById";
     //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";
@@ -126,6 +139,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private SiteService siteService;
     
     private ToolManager toolManager;
+    
+    @Getter
+    @Setter
+    private SessionFactory sessionFactory;
     
     public void init() {
        log.info("init()");
@@ -189,14 +206,40 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
     	}	
         
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites");
-             q.setParameterList("siteList", siteList);
-             q.setParameter("userId", getCurrentUser());
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> messages = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = messages.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
 
-        return getHibernateTemplate().execute(hcb);
+        Subquery<Long> subquery = cq.subquery(Long.class);
+        Root<DBMembershipItemImpl> dbmi = subquery.from(DBMembershipItemImpl.class);
+        Join<DBMembershipItemImpl, TopicImpl> dbmiTopic = dbmi.join("topic");
+        subquery.select(dbmiTopic.get("id")).distinct(true)
+                .where(cb.equal(dbmiTopic, topic));
+
+        Predicate approvedOrOwner = cb.or(
+            cb.isTrue(messages.get("approved")),
+            cb.equal(messages.get("createdBy"), getCurrentUser())
+        );
+
+        Predicate topicNotInSubquery = cb.not(topic.get("id").in(subquery));
+
+        cq.select(cb.array(area.get("contextId"), cb.count(messages)))
+          .where(
+              area.get("contextId").in(siteList),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.isFalse(messages.get("draft")),
+              cb.isFalse(messages.get("deleted")),
+              approvedOrOwner,
+              topicNotInSubquery
+           )
+           .groupBy(area.get("contextId"));
+
+        return session.createQuery(cq).list();
     }
     
     /**
@@ -209,15 +252,45 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             log.error("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites failed with null site list.");
             throw new IllegalArgumentException("Null Argument");
     	}	
-        
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites");
-             q.setParameterList("siteList", siteList);
-             q.setParameter("userId", getCurrentUser());
-            return q.list();
-        };
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> messages = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = messages.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+
+        Subquery<Long> subquery = cq.subquery(Long.class);
+        Root<DBMembershipItemImpl> dbmi = subquery.from(DBMembershipItemImpl.class);
+        Join<DBMembershipItemImpl, TopicImpl> dbmiTopic = dbmi.join("topic");
+        subquery.select(dbmiTopic.get("id")).distinct(true)
+                .where(cb.equal(dbmiTopic, topic));
+
+        Predicate approvedOrOwner = cb.or(
+                cb.isTrue(messages.get("approved")),
+                cb.equal(messages.get("createdBy"), getCurrentUser())
+        );
+
+        Predicate topicNotInSubquery = cb.not(topic.get("id").in(subquery));
+
+        cq.select(cb.array(area.get("contextId"), cb.count(messages)))
+          .where(
+              area.get("contextId").in(siteList),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.isFalse(messages.get("draft")),
+              cb.isFalse(messages.get("deleted")),
+              cb.equal(us.get("userId"), getCurrentUser()),
+              cb.isTrue(us.get("read")),
+              cb.equal(messages.get("id"), us.get("messageId")),
+              approvedOrOwner,
+              topicNotInSubquery
+          )
+          .groupBy(area.get("contextId"));
+
+        return session.createQuery(cq).list();
     }
     
     /**
@@ -229,16 +302,41 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             log.error("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId failed with null site list.");
             throw new IllegalArgumentException("Null Argument");
     	}	
-        
-    	HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId");
-             q.setParameterList("siteList", siteList);
-             q.setParameterList("roleList", roleList);
-             q.setParameter("userId", getCurrentUser());
-            return q.list();
-        };
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> messages = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = messages.join("topic");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+        Predicate approvedOrOwner = cb.or(
+                cb.isTrue(messages.get("approved")),
+                cb.equal(messages.get("createdBy"), getCurrentUser())
+        );
+
+        Predicate readAndAllowed = cb.and(
+                cb.isTrue(pl.get("read")),
+                cb.or(cb.isTrue(pl.get("moderatePostings")), approvedOrOwner)
+        );
+
+        cq.select(cb.array(area.get("contextId"), membershipItem.get("name"), cb.count(messages)))
+          .where(
+              area.get("contextId").in(siteList),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.isFalse(messages.get("draft")),
+              cb.isFalse(messages.get("deleted")),
+              membershipItem.get("name").in(roleList),
+              cb.equal(membershipItem.get("permissionLevel").get("id"), pl.get("id")),
+              readAndAllowed
+          )
+          .groupBy(area.get("contextId"), membershipItem.get("name"));
+
+        return session.createQuery(cq).list();
     }
 
     /**
@@ -251,25 +349,50 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
     	}	
         
-    	HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName");
-             q.setParameterList("siteList", siteList);
-             q.setParameterList("roleList", roleList);
-             q.setParameter("userId", getCurrentUser());
-             q.setParameter("customTypeUuid", typeManager.getCustomLevelType());
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+        String userId = getCurrentUser();
+        String customTypeUuid = typeManager.getCustomLevelType();
+
+        cq.select(cb.array(area.get("contextId"), membershipItem.get("name"), cb.count(message)))
+          .where(
+              area.get("contextId").in(siteList),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              membershipItem.get("name").in(roleList),
+              cb.notEqual(pl.get("typeUuid"), customTypeUuid),
+              cb.equal(pl.get("name"), membershipItem.get("permissionLevelName")),
+              cb.isTrue(pl.get("read")),
+              cb.or(
+                  cb.isTrue(pl.get("moderatePostings")),
+                  cb.isTrue(message.get("approved")),
+                  cb.equal(message.get("createdBy"), userId)
+              )
+          )
+          .groupBy(area.get("contextId"), membershipItem.get("name"));
+
+        return session.createQuery(cq).getResultList();
     }
-    
+
     /**
      * FOR SYNOPTIC TOOL:
      * 		Returns the count of read discussion forum messages grouped by site
      */
     public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList) {
         
-    	HibernateCallback<List> hcb = session -> {
+        /*HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
@@ -277,7 +400,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             return q.list();
         };
         
-        return getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);*/
+
+        return null;
     }
 
     /**
@@ -285,8 +410,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * 		Returns the count of read discussion forum messages grouped by site
      */
     public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList) {
-        
-    	HibernateCallback<List> hcb = session -> {
+
+        /*HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
@@ -295,7 +420,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             return q.list();
         };
         
-        return getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);*/
+
+        return null;
     }
     
     /**
@@ -304,17 +431,46 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * 		Used by sites that are grouped
      */
     public List findDiscussionForumMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList) {
-        
-    	HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumMessageCountsForGroupedSitesByTopic");
-            q.setParameterList("siteList", siteList);
-            q.setParameterList("roleList", roleList);
-            q.setParameter("userId", getCurrentUser());
-            q.setParameter("customTypeUuid", typeManager.getCustomLevelType());
-            return q.list();
-        };
-        
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+        String userId = getCurrentUser();
+        String customTypeUuid = typeManager.getCustomLevelType();
+
+        cq.select(cb.array(area.get("contextId"), topic.get("id"), membershipItem.get("name"), cb.count(message)))
+          .where(
+              area.get("contextId").in(siteList),
+              membershipItem.get("name").in(roleList),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.or(
+                  cb.and(
+                      cb.notEqual(pl.get("typeUuid"), customTypeUuid),
+                      cb.equal(pl.get("name"), membershipItem.get("permissionLevelName"))
+                  ),
+                  cb.equal(membershipItem.get("permissionLevel").get("id"), pl.get("id"))
+              ),
+              cb.isTrue(pl.get("read")),
+              cb.or(
+                  cb.isTrue(pl.get("moderatePostings")),
+                  cb.isTrue(message.get("approved")),
+                  cb.equal(message.get("createdBy"), userId)
+              )
+          )
+          .groupBy(area.get("contextId"), topic.get("id"), membershipItem.get("name"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     /**
@@ -323,17 +479,49 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * 		Used by sites that are grouped
      */
     public List findDiscussionForumReadMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList) {
-        
-    	HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForGroupedSitesByTopic");
-            q.setParameterList("siteList", siteList);
-            q.setParameterList("roleList", roleList);
-            q.setParameter("userId", getCurrentUser());
-            q.setParameter("customTypeUuid", typeManager.getCustomLevelType());
-            return q.list();
-        };
-        
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+        String userId = getCurrentUser();
+        String customTypeUuid = typeManager.getCustomLevelType();
+
+        cq.select(cb.array(area.get("contextId"), topic.get("id"), membershipItem.get("name"), cb.count(message)))
+          .where(
+              area.get("contextId").in(siteList),
+              membershipItem.get("name").in(roleList),
+              cb.equal(us.get("userId"), userId),
+              cb.isTrue(us.get("read")),
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.isFalse(message.get("deleted")),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(topic.get("draft")),
+              cb.or(
+                  cb.and(
+                      cb.notEqual(pl.get("typeUuid"), customTypeUuid),
+                      cb.equal(pl.get("name"), membershipItem.get("permissionLevelName"))
+                  ),
+                  cb.equal(membershipItem.get("permissionLevel").get("id"), pl.get("id"))
+              ),
+              cb.isTrue(pl.get("read")),
+              cb.or(
+                  cb.isTrue(pl.get("moderatePostings")),
+                  cb.isTrue(message.get("approved")),
+                  cb.equal(message.get("createdBy"), userId)
+              )
+          )
+          .groupBy(area.get("contextId"), topic.get("id"), membershipItem.get("name"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     /**
@@ -351,14 +539,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         log.debug("findAuthoredMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
         				" and userId: " + userId);
 
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_COUNT_BY_AUTHORED);
-            q.setParameter("topicId", topicId);
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+
+        cq.select(cb.count(message))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(message.get("createdBy"), userId)
+          );
+
+        return session.createQuery(cq).uniqueResult().intValue();
     }
     
     public int findAuthoredMessageCountForStudent(final String userId) {
@@ -368,41 +563,73 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	}
     	
     	if (log.isDebugEnabled()) log.debug("findAuthoredMessageCountForStudentInSite executing with userId: " + userId);
-    	
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessageCountForStudent");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
 
-        return getHibernateTemplate().execute(hcb).intValue();
+    	Session session = sessionFactory.getCurrentSession();
+    	CriteriaBuilder cb = session.getCriteriaBuilder();
+    	CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+    	Root<MessageImpl> message = cq.from(MessageImpl.class);
+    	Join<MessageImpl, TopicImpl> topic = message.join("topic");
+    	Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+    	Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+    	cq.select(cb.count(message))
+    	  .where(
+    	      cb.equal(area.get("contextId"), getContextId()),
+    	      cb.isFalse(message.get("draft")),
+    	      cb.isFalse(message.get("deleted")),
+    	      cb.equal(message.get("createdBy"), userId)
+    	  );
+
+    	return session.createQuery(cq).uniqueResult().intValue();
     }
 
     public List<Object[]> findAuthoredNewMessageCountForAllStudents() {
         if (log.isDebugEnabled()) log.debug("findAuthoredNewMessageCountForAllStudents executing");
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudents");
-                    q.setParameter("contextId", getContextId());
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.isNull(message.get("inReplyTo"))
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List<Object[]> findAuthoredRepliesMessageCountForAllStudents() {
         if (log.isDebugEnabled()) log.debug("findAuthoredRepliesMessageCountForAllStudents executing");
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudents");
-                    q.setParameter("contextId", getContextId());
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.isNotNull(message.get("inReplyTo"))
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     /*
@@ -411,28 +638,61 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public List<Message> findAuthoredMessagesForStudent(final String studentId) {
       if (log.isDebugEnabled()) log.debug("findReadMessagesForCurrentStudent()");
-      
-      HibernateCallback<List<Message>> hcb = session -> {
-          Query q = session.getNamedQuery("findAuthoredMessagesForStudent");
-          q.setParameter("contextId", getContextId());
-          q.setParameter("userId", studentId);
-          return q.list();
-      };
-      
-      return getHibernateTemplate().execute(hcb);
+
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+
+      Root<MessageImpl> message = cq.from(MessageImpl.class);
+      Fetch<MessageImpl, TopicImpl> topicFetch = message.fetch("topic");
+      Fetch<TopicImpl, OpenForumImpl> openForumFetch = topicFetch.fetch("openForum");
+
+      Join<MessageImpl, TopicImpl> topic = (Join<MessageImpl, TopicImpl>) topicFetch;
+      Join<TopicImpl, OpenForumImpl> openForum = (Join<TopicImpl, OpenForumImpl>) openForumFetch;
+      Join<OpenForumImpl, AreaImpl> area = openForum.join("area");
+
+      cq.select(message)
+        .where(
+            cb.equal(area.get("contextId"), getContextId()),
+            cb.equal(message.get("createdBy"), studentId),
+            cb.isFalse(message.get("draft")),
+            cb.isFalse(message.get("deleted"))
+        )
+        .orderBy(cb.desc(message.get("created")));
+
+      return (List<Message>) (List<?>) session.createQuery(cq).getResultList();
     }
     
     public List<UserStatistics> findAuthoredStatsForStudent(final String studentId) {
         if (log.isDebugEnabled()) log.debug("findAuthoredStatsForStudent()");
         
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredStatsForStudent");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("userId", studentId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(
+                forum.get("title"),
+                topic.get("title"),
+                message.get("created"),
+                message.get("title"),
+                message.get("id"),
+                topic.get("id"),
+                forum.get("id")))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.equal(message.get("createdBy"), studentId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        List<Object[]> results = session.createQuery(cq).getResultList();
+
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-        List<Object[]> results = getHibernateTemplate().execute(hcb);
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
       			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -444,28 +704,60 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<Message> findAuthoredMessagesForStudentByTopicId(final String studentId, final Long topicId) {
     	if (log.isDebugEnabled()) log.debug("findReadMessagesForCurrentStudentByTopicId()");
 
-    	HibernateCallback<List<Message>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessagesForStudentByTopicId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("userId", studentId);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
 
-    	return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Fetch<MessageImpl, TopicImpl> topicFetch = message.fetch("topic");
+        Fetch<TopicImpl, OpenForumImpl> openForumFetch = topicFetch.fetch("openForum");
+
+        Join<MessageImpl, TopicImpl> topic = (Join<MessageImpl, TopicImpl>) topicFetch;
+        Join<TopicImpl, OpenForumImpl> openForum = (Join<TopicImpl, OpenForumImpl>) openForumFetch;
+        Join<OpenForumImpl, AreaImpl> area = openForum.join("area");
+
+        cq.select(message)
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.equal(message.get("createdBy"), studentId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(topic.get("id"), topicId)
+          )
+          .orderBy(cb.desc(message.get("created")));
+
+        return (List<Message>) (List<?>) session.createQuery(cq).getResultList();
     }
 
     public List<UserStatistics> findAuthoredStatsForStudentByTopicId(final String studentId, final Long topicId) {
     	if (log.isDebugEnabled()) log.debug("findAuthoredStatsForStudentByTopicId()");
 
-    	HibernateCallback hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredStatsForStudentByTopicId");
-            q.setParameter("topicId", topicId);
-            q.setParameter("userId", studentId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(
+                forum.get("title"),
+                topic.get("title"),
+                message.get("created"),
+                message.get("title"),
+                message.get("id"),
+                topic.get("id"),
+                forum.get("id")))
+          .where(
+              cb.equal(topic.get("id"), topicId),
+              cb.equal(message.get("createdBy"), studentId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        List<Object[]> results = session.createQuery(cq).getResultList();
+
     	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-    	List<Object[]> results = (List<Object[]>)getHibernateTemplate().execute(hcb);
     	for(Object[] result : results){
     		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
     				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -477,28 +769,60 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<Message> findAuthoredMessagesForStudentByForumId(final String studentId, final Long forumId) {
     	if (log.isDebugEnabled()) log.debug("findAuthoredMessagesForStudentByForumId()");
 
-    	HibernateCallback<List<Message>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessagesForStudentByForumId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("userId", studentId);
-            q.setParameter("forumId", forumId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
 
-    	return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Fetch<MessageImpl, TopicImpl> topicFetch = message.fetch("topic");
+        Fetch<TopicImpl, OpenForumImpl> openForumFetch = topicFetch.fetch("openForum");
+
+        Join<MessageImpl, TopicImpl> topic = (Join<MessageImpl, TopicImpl>) topicFetch;
+        Join<TopicImpl, OpenForumImpl> openForum = (Join<TopicImpl, OpenForumImpl>) openForumFetch;
+        Join<OpenForumImpl, AreaImpl> area = openForum.join("area");
+
+        cq.select(message)
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.equal(message.get("createdBy"), studentId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(openForum.get("id"), forumId)
+          )
+          .orderBy(cb.desc(message.get("created")));
+
+        return (List<Message>) (List<?>) session.createQuery(cq).getResultList();
     }
     
     public List<UserStatistics> findAuthoredStatsForStudentByForumId(final String studentId, final Long topicId) {
     	if (log.isDebugEnabled()) log.debug("findAuthoredStatsForStudentByForumId()");
 
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredStatsForStudentByForumId");
-            q.setParameter("forumId", topicId);
-            q.setParameter("userId", studentId);
-            return q.list();
-        };
+    	Session session = sessionFactory.getCurrentSession();
+    	CriteriaBuilder cb = session.getCriteriaBuilder();
+    	CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+    	Root<MessageImpl> message = cq.from(MessageImpl.class);
+    	Join<MessageImpl, TopicImpl> topic = message.join("topic");
+    	Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+    	cq.select(cb.array(
+    	        forum.get("title"),
+    	        topic.get("title"),
+    	        message.get("created"),
+    	        message.get("title"),
+    	        message.get("id"),
+    	        topic.get("id"),
+    	        forum.get("id")))
+    	  .where(
+    	      cb.equal(forum.get("id"), topicId),
+    	      cb.equal(message.get("createdBy"), studentId),
+    	      cb.isFalse(message.get("draft")),
+    	      cb.isFalse(message.get("deleted"))
+    	  );
+
+    	List<Object[]> results = session.createQuery(cq).getResultList();
+
     	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-    	List<Object[]> results = getHibernateTemplate().execute(hcb);
     	for(Object[] result : results){
     		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
     				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -509,88 +833,160 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public List<Object[]> findAuthoredMessageCountForAllStudents() {
     	if (log.isDebugEnabled()) log.debug("findAuthoredMessageCountForAllStudents executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudents");
-            q.setParameter("contextId", getContextId());
-            return q.list();
-        };
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId) {
     	if (log.isDebugEnabled()) log.debug("findAuthoredMessageCountForAllStudentsByTopicId executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByTopicId");
-            q.setParameter("topicId", topicId);
-            q.setParameter("contextId", getContextId());
-            return q.list();
-        };
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(topic.get("id"), topicId)
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId) {
     	if (log.isDebugEnabled()) log.debug("findAuthoredMessageCountForAllStudentsByForumId executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByForumId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("forumId", forumId);
-            return q.list();
-        };
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(forum.get("id"), forumId)
+           )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
+
     }
 
     public List<Object[]> findAuthoredNewMessageCountForAllStudentsByTopicId(final Long topicId) {
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByTopicId");
-                    q.setParameter("topicId", topicId);
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(topic.get("id"), topicId),
+              cb.isNull(message.get("inReplyTo"))
+           )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List<Object[]> findAuthoredNewMessageCountForAllStudentsByForumId(final Long forumId) {
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByForumId");
-                    q.setParameter("forumId", forumId);
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(forum.get("id"), forumId),
+              cb.isNull(message.get("inReplyTo"))
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByTopicId(final Long topicId) {
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByTopicId");
-                    q.setParameter("topicId", topicId);
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(topic.get("id"), topicId),
+              cb.isNotNull(message.get("inReplyTo"))
+           )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByForumId(final Long forumId) {
 
-        HibernateCallback<List<Object[]>> hcb =
-                session -> {
-                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByForumId");
-                    q.setParameter("forumId", forumId);
-                    return q.list();
-                };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        return getHibernateTemplate().execute(hcb);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(message.get("createdBy"), cb.count(message)))
+          .where(
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(forum.get("id"), forumId),
+              cb.isNotNull(message.get("inReplyTo"))
+          )
+          .groupBy(message.get("createdBy"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public int findReadMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
@@ -603,14 +999,24 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         log.debug("findReadMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
         				" and userId: " + userId);
 
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
-            q.setParameter("topicId", topicId);
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+
+        cq.select(cb.count(message))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.equal(us.get("userId"), userId),
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.isTrue(us.get("read")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        return session.createQuery(cq).uniqueResult().intValue();
     }
     
     public int findReadMessageCountForStudent(final String userId) {
@@ -621,14 +1027,27 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
     	if (log.isDebugEnabled()) log.debug("findReadMessageCountForStudent executing with userId: " + userId);
     	
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery("findReadMessageCountForStudent");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
+    	Session session = sessionFactory.getCurrentSession();
+    	CriteriaBuilder cb = session.getCriteriaBuilder();
+    	CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+    	Root<MessageImpl> message = cq.from(MessageImpl.class);
+    	Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+    	Join<MessageImpl, TopicImpl> topic = message.join("topic");
+    	Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+    	Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+    	cq.select(cb.count(message))
+    	  .where(
+    	      cb.equal(message.get("id"), us.get("messageId")),
+    	      cb.equal(area.get("contextId"), getContextId()),
+    	      cb.equal(us.get("userId"), userId),
+    	      cb.isTrue(us.get("read")),
+    	      cb.isFalse(message.get("draft")),
+    	      cb.isFalse(message.get("deleted"))
+    	  );
+
+    	return session.createQuery(cq).uniqueResult().intValue();
     }
     
     /*
@@ -637,15 +1056,38 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public List<UserStatistics> findReadStatsForStudent(final String studentId) {
       if (log.isDebugEnabled()) log.debug("findReadStatsForStudent()");
-      
-      HibernateCallback<List<Object[]>> hcb = session -> {
-          Query q = session.getNamedQuery("findReadStatsForStudent");
-          q.setParameter("contextId", getContextId());
-          q.setParameter("userId", studentId);
-          return q.list();
-      };
+
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+      Root<MessageImpl> message = cq.from(MessageImpl.class);
+      Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+      Join<MessageImpl, TopicImpl> topic = message.join("topic");
+      Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+      Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+      cq.select(cb.array(
+              forum.get("title"),
+              topic.get("title"),
+              message.get("created"),
+              message.get("title"),
+              message.get("id"),
+              topic.get("id"),
+              forum.get("id")
+          ))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.equal(us.get("userId"), studentId),
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.isTrue(us.get("read")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          );
+
+      List<Object[]> results = session.createQuery(cq).getResultList();
+
       List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-      List<Object[]> results = getHibernateTemplate().execute(hcb);
       for(Object[] result : results){
     	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
     			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -657,14 +1099,36 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<UserStatistics> findReadStatsForStudentByTopicId(final String studentId, final Long topicId) {
     	if (log.isDebugEnabled()) log.debug("findReadStatsForStudentByTopicId()");
 
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findReadStatsForStudentByTopicId");
-            q.setParameter("userId", studentId);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(
+                forum.get("title"),
+                topic.get("title"),
+                message.get("created"),
+                message.get("title"),
+                message.get("id"),
+                topic.get("id"),
+                forum.get("id")
+            ))
+            .where(
+                cb.equal(topic.get("id"), topicId),
+                cb.equal(us.get("userId"), studentId),
+                cb.equal(message.get("id"), us.get("messageId")),
+                cb.isTrue(us.get("read")),
+                cb.isFalse(message.get("draft")),
+                cb.isFalse(message.get("deleted"))
+            );
+
+        List<Object[]> results = session.createQuery(cq).getResultList();
+
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-        List<Object[]> results = getHibernateTemplate().execute(hcb);
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
       			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -676,14 +1140,35 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<UserStatistics> findReadStatsForStudentByForumId(final String studentId, final Long forumId) {
     	if (log.isDebugEnabled()) log.debug("findReadStatsForStudentByForumId()");
 
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findReadStatsForStudentByForumId");
-            q.setParameter("userId", studentId);
-            q.setParameter("forumId", forumId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(
+                forum.get("title"),
+                topic.get("title"),
+                message.get("created"),
+                message.get("title"),
+                message.get("id"),
+                topic.get("id"),
+                forum.get("id")
+            ))
+            .where(
+                cb.equal(forum.get("id"), forumId),
+                cb.equal(us.get("userId"), studentId),
+                cb.equal(message.get("id"), us.get("messageId")),
+                cb.isTrue(us.get("read")),
+                cb.isFalse(message.get("draft")),
+                cb.isFalse(message.get("deleted"))
+            );
+
+        List<Object[]> results = session.createQuery(cq).getResultList();
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
-        List<Object[]> results = getHibernateTemplate().execute(hcb);
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
       			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
@@ -693,41 +1178,83 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
     
     public List<Object[]> findReadMessageCountForAllStudents() {
-    	if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsInSite executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findReadMessageCountForAllStudents");
-            q.setParameter("contextId", getContextId());
-            return q.list();
-        };
+        if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsInSite executing");
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(us.get("userId"), cb.count(message)))
+          .where(
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isTrue(us.get("read")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+           )
+          .groupBy(us.get("userId"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public List<Object[]> findReadMessageCountForAllStudentsByTopicId(final Long topicId) {
-    	if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsByTopicId executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByTopicId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsByTopicId executing");
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(us.get("userId"), cb.count(message)))
+          .where(
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isTrue(us.get("read")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.equal(topic.get("id"), topicId)
+           )
+          .groupBy(us.get("userId"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public List<Object[]> findReadMessageCountForAllStudentsByForumId(final Long forumId) {
-    	if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsByForumId executing");
-    	
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByForumId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("forumId", forumId);
-            return q.list();
-        };
+        if (log.isDebugEnabled()) log.debug("findReadMessageCountForAllStudentsByForumId executing");
 
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(us.get("userId"), cb.count(message)))
+          .where(
+               cb.equal(message.get("id"), us.get("messageId")),
+               cb.equal(area.get("contextId"), getContextId()),
+               cb.isTrue(us.get("read")),
+               cb.isFalse(message.get("draft")),
+               cb.isFalse(message.get("deleted")),
+               cb.equal(forum.get("id"), forumId)
+               )
+          .groupBy(us.get("userId"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     /**
@@ -741,14 +1268,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findViewableMessageCountByTopicIdByUserId with topicId: {}, userId: {}", topicId, userId);
 
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
-            q.setParameter("topicId", topicId);
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+        cq.select(cb.count(message))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.or(
+                  cb.isTrue(message.get("approved")),
+                  cb.equal(message.get("createdBy"), userId)
+              )
+          );
+
+        return session.createQuery(cq).uniqueResult().intValue();
     }
 
     /**
@@ -762,14 +1298,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID_BY_USERS);
-            q.setParameter("topicId", topicId);
-            q.setParameterList("userIds", userIds);
-            return q.getResultList();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-        List<Object[]> results = getHibernateTemplate().execute(hcb);
+        cq.select(cb.array(message.get("createdBy"), message.get("approved"), cb.count(message)))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              message.get("createdBy").in(userIds)
+          )
+          .groupBy(message.get("createdBy"), message.get("approved"));
+
+        List<Object[]> results = session.createQuery(cq).getResultList();
 
         Map<String, Integer> userViewableMap = new HashMap<>();
         int totalApproved = 0;
@@ -896,14 +1439,27 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         log.debug("findReadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
         				" and userId: " + userId);
 
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID);
-            q.setParameter("topicId", topicId);
-            q.setParameter("userId", userId);
-            return (Number) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+        cq.select(cb.count(message))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.equal(us.get("userId"), userId),
+              cb.equal(message.get("id"), us.get("messageId")),
+              cb.isTrue(us.get("read")),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.or(
+                  cb.isTrue(message.get("approved")),
+                  cb.equal(message.get("createdBy"), userId)
+              )
+          );
+
+        return session.createQuery(cq).uniqueResult().intValue();
     }
     
     /**
@@ -932,13 +1488,15 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findMessagesByTopicId executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-        return getHibernateTemplate().execute(hcb);
+        cq.select(message)
+          .where(cb.equal(message.get("topic").get("id"), topicId));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public List findUndeletedMessagesByTopicId(final Long topicId) {
@@ -949,13 +1507,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findUndeletedMessagesByTopicId executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_UNDELETED_MSG_BY_TOPIC_ID);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-        return getHibernateTemplate().execute(hcb);
+        cq.select(message)
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        return session.createQuery(cq).getResultList();
     }
     
     public int findMessageCountByTopicId(final Long topicId) {
@@ -966,13 +1529,19 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findMessageCountByTopicId executing with topicId: " + topicId);
 
-        HibernateCallback<Number> hcb = session -> {
-            Query q = session.getNamedQuery("findMessageCountByTopicId");
-            q.setParameter("topicId", topicId);
-            return (Number) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-        return getHibernateTemplate().execute(hcb).intValue();
+        cq.select(cb.count(message))
+          .where(
+              cb.equal(message.get("topic").get("id"), topicId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        return session.createQuery(cq).uniqueResult().intValue();
     }
     
     public List<Object[]> findMessageCountByForumId(final Long forumId) {
@@ -983,13 +1552,22 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findMessageCountByForumId executing with forumId: " + forumId);
 
-        HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findMessageCountByForumId");
-            q.setParameter("forumId", forumId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
 
-        return getHibernateTemplate().execute(hcb);
+        cq.select(cb.array(topic.get("id"), cb.count(message)))
+          .where(
+              cb.equal(forum.get("id"), forumId),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          )
+          .groupBy(topic.get("id"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     /*
@@ -999,35 +1577,42 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds) {
     	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
 
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            // would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
-            Iterator<Long> itTopicIds = topicIds.iterator();
-            int numTopics = topicIds.size();
+    	Session session = sessionFactory.getCurrentSession();
 
-            List<Object[]> retrievedCounts = new ArrayList<>(numTopics);
+    	Iterator<Long> itTopicIds = topicIds.iterator();
+    	int numTopics = topicIds.size();
+    	List<Object[]> retrievedCounts = new ArrayList<>(numTopics);
 
-            List<Long> queryTopics = new ArrayList<>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
-            int querySize = 0;
-            while (itTopicIds.hasNext())
-            {
-                while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
-                {
-                    queryTopics.add(itTopicIds.next());
-                    querySize++;
-                }
+    	List<Long> queryTopics = new ArrayList<>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    	int querySize = 0;
 
-                Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-                q.setParameterList("topicIds", queryTopics);
-                retrievedCounts.addAll(q.list());
+    	while (itTopicIds.hasNext()) {
+    		while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE) {
+    			queryTopics.add(itTopicIds.next());
+    			querySize++;
+    		}
 
-                queryTopics.clear();
-                querySize = 0;
-            }
+    		CriteriaBuilder cb = session.getCriteriaBuilder();
+    		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-            return retrievedCounts;
-        };
+    		Root<TopicImpl> topic = cq.from(TopicImpl.class);
+    		Join<TopicImpl, MessageImpl> msg = topic.join("messagesSet", JoinType.LEFT);
+    		msg.on(cb.and(
+    			cb.isFalse(msg.get("draft")),
+    			cb.isFalse(msg.get("deleted"))
+    		));
 
-    	return getHibernateTemplate().execute(hcb);
+    		cq.select(cb.array(topic.get("id"), cb.count(msg)))
+    			.where(topic.get("id").in(queryTopics))
+    			.groupBy(topic.get("id"));
+
+    		retrievedCounts.addAll(session.createQuery(cq).getResultList());
+
+    		queryTopics.clear();
+    		querySize = 0;
+    	}
+
+    	return retrievedCounts;
     }
 
     /*
@@ -1037,37 +1622,50 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds) {
     	if (topicIds.isEmpty()) return new ArrayList<>();
 
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            // would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
-            Iterator<Long> itTopicIds = topicIds.iterator();
-            int numTopics = topicIds.size();
-            String userId = getCurrentUser();
+    	Session session = sessionFactory.getCurrentSession();
+    	String userId = getCurrentUser();
 
-            List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+    	Iterator<Long> itTopicIds = topicIds.iterator();
+    	int numTopics = topicIds.size();
+    	List<Object[]> retrievedCounts = new ArrayList<>(numTopics);
 
-            List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
-            int querySize = 0;
-            while (itTopicIds.hasNext())
-            {
-                while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
-                {
-                    queryTopics.add(itTopicIds.next());
-                    querySize++;
-                }
+    	List<Long> queryTopics = new ArrayList<>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    	int querySize = 0;
 
-                Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-                q.setParameterList("topicIds", queryTopics);
-                q.setParameter("userId", userId);
-                retrievedCounts.addAll(q.list());
+    	while (itTopicIds.hasNext()) {
+    		while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE) {
+    			queryTopics.add(itTopicIds.next());
+    			querySize++;
+    		}
 
-                queryTopics.clear();
-                querySize = 0;
-            }
+    		CriteriaBuilder cb = session.getCriteriaBuilder();
+    		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-            return retrievedCounts;
-        };
+    		Root<TopicImpl> topic = cq.from(TopicImpl.class);
+    		Join<TopicImpl, MessageImpl> msg = topic.join("messagesSet", JoinType.LEFT);
+    		msg.on(cb.and(
+    			cb.isFalse(msg.get("draft")),
+    			cb.isFalse(msg.get("deleted"))
+    		));
 
-    	return getHibernateTemplate().execute(hcb);
+    		Root<UnreadStatusImpl> readMsg = cq.from(UnreadStatusImpl.class);
+
+    		cq.select(cb.array(topic.get("id"), cb.count(readMsg)))
+    		.where(
+    			topic.get("id").in(queryTopics),
+    				cb.equal(msg.get("id"), readMsg.get("messageId")),
+    				cb.equal(readMsg.get("userId"), userId),
+    				cb.isTrue(readMsg.get("read"))
+    			)
+    		.groupBy(topic.get("id"));
+
+    		retrievedCounts.addAll(session.createQuery(cq).getResultList());
+
+    		queryTopics.clear();
+    		querySize = 0;
+    	}
+
+    	return retrievedCounts;
     }
 
 
@@ -1076,13 +1674,23 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * @return
      */
     public List<Object[]> findMessageCountTotal() {
-    	HibernateCallback<List<Object[]>> hcb = session -> {
-            Query q = session.getNamedQuery("findMessageCountTotal");
-            q.setParameter("contextId", getContextId());
-            return q.list();
-        };
-    	
-    	return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(topic.get("id"), cb.count(message)))
+          .where(
+              cb.equal(area.get("contextId"), getContextId()),
+              cb.isFalse(message.get("draft")),
+              cb.isFalse(message.get("deleted"))
+          )
+          .groupBy(topic.get("id"));
+
+        return session.createQuery(cq).getResultList();
     }
     
     public UnreadStatus findUnreadStatusByUserId(final Long topicId, final Long messageId, final String userId){
@@ -1094,15 +1702,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("findUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
 
-        HibernateCallback<UnreadStatus> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
-            q.setParameter("topicId", topicId);
-            q.setParameter("messageId", messageId);
-            q.setParameter("userId", userId);
-            return (UnreadStatus) q.uniqueResult();
-        };
+        Session session = getSessionFactory().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UnreadStatusImpl> cq = cb.createQuery(UnreadStatusImpl.class);
+        Root<UnreadStatusImpl> root = cq.from(UnreadStatusImpl.class);
 
-        return getHibernateTemplate().execute(hcb);
+        cq.select(root).where(
+            cb.equal(root.get("messageId"), messageId),
+            cb.equal(root.get("topicId"), topicId),
+            cb.equal(root.get("userId"), userId)
+        );
+
+        return session.createQuery(cq).uniqueResult();
     }
     
     public UnreadStatus findUnreadStatus(final Long topicId, final Long messageId) {
@@ -1122,11 +1733,13 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
+        Session session = getSessionFactory().getCurrentSession();
+
         log.debug("deleteUnreadStatus executing with topicId: " + topicId + ", messageId: " + messageId);
 
         UnreadStatus status = findUnreadStatus(topicId, messageId);
         if (status != null) {
-            getHibernateTemplate().delete(status);
+            session.remove(status);
         }
     }
 
@@ -1165,6 +1778,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
         log.debug("markMessageNotReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        Session session = getSessionFactory().getCurrentSession();
 
         UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
         if (status == null) {
@@ -1215,7 +1830,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
         }
 
-        getHibernateTemplate().saveOrUpdate(status);
+        session.merge(status);
        
         
         	
@@ -1570,10 +2185,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         long id = message.getId().longValue();
         message.setInReplyTo(null);
         
-        getHibernateTemplate().saveOrUpdate(message);
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(message);
         
         try {
-        	getSessionFactory().getCurrentSession().flush();
+            session.flush();
         } 
         catch (Exception e) {
         	log.error(e.getMessage(), e);
@@ -1592,7 +2208,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         
         Topic topic = message.getTopic();        
         topic.removeMessage(message);
-        getHibernateTemplate().saveOrUpdate(topic);
+        session.merge(topic);
 		//getHibernateTemplate().delete(message);
 
         try {
@@ -1610,7 +2226,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("getMessageById executing with messageId: " + messageId);
         
-        return (Message) getHibernateTemplate().get(MessageImpl.class, messageId);
+        Session session = sessionFactory.getCurrentSession();
+        return session.get(MessageImpl.class, messageId);
     }   
     
     /**
@@ -1624,14 +2241,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
        log.debug("getMessageByIdWithAttachments executing with messageId: " + messageId);
 
-        Message message = getHibernateTemplate().execute(session -> {
-            Query q = session.getNamedQuery(QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS);
-            q.setParameter("id", messageId);
-            Message msg = (Message) q.uniqueResult();
-            if (msg != null) msg.setTopic((Topic) Hibernate.unproxy(msg.getTopic()));
-            return msg;
-        });
-        return message;
+       Session session = sessionFactory.getCurrentSession();
+       CriteriaBuilder cb = session.getCriteriaBuilder();
+       CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+       Root<MessageImpl> message = cq.from(MessageImpl.class);
+       message.fetch("attachmentsSet", JoinType.LEFT);
+
+       cq.select(message)
+         .where(cb.equal(message.get("id"), messageId));
+
+       Message msg = session.createQuery(cq).uniqueResult();
+       if (msg != null) msg.setTopic((Topic) Hibernate.unproxy(msg.getTopic()));
+       return msg;
     }
     
     public Attachment getAttachmentById(final Long attachmentId) {        
@@ -1641,23 +2262,24 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         
         log.debug("getAttachmentById executing with attachmentId: " + attachmentId);
         
-        return (Attachment) getHibernateTemplate().get(AttachmentImpl.class, attachmentId);
+        Session session = sessionFactory.getCurrentSession();
+        return session.get(AttachmentImpl.class, attachmentId);
     }
     
     public void getChildMsgs(final Long messageId, List returnList)
     {
     	List tempList;
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
-            Query qOrdered = session.createQuery(q.getQueryString());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-            qOrdered.setParameter("messageId", messageId);
+        cq.select(message)
+          .where(cb.equal(message.get("inReplyTo").get("id"), messageId));
 
-            return qOrdered.list();
-        };
-      
-      tempList = getHibernateTemplate().execute(hcb);
+        tempList = (List<Message>) (List<?>) session.createQuery(cq).getResultList();
+
       if(tempList != null)
       {
       	for(int i=0; i<tempList.size(); i++)
@@ -1679,11 +2301,13 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
         log.debug("markMessageApproval executing with messageId: " + messageId);
+
+        Session session = sessionFactory.getCurrentSession();
         
         Message message = (Message) getMessageById(messageId);
         message.setApproved(Boolean.valueOf(approved));
         
-        getHibernateTemplate().saveOrUpdate(message);
+        session.merge(message);
     }
 
 
@@ -1704,16 +2328,15 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public List getFirstLevelChildMsgs(final Long messageId)
     {
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_CHILD_MESSAGES);
-            Query qOrdered = session.createQuery(q.getQueryString());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
 
-            qOrdered.setParameter("messageId", messageId);
+        cq.select(message)
+          .where(cb.equal(message.get("inReplyTo").get("id"), messageId));
 
-            return qOrdered.list();
-        };
-      
-      return getHibernateTemplate().execute(hcb);
+        return (List<Message>) (List<?>) session.createQuery(cq).getResultList();
     }
 
     public List sortMessageBySubject(Topic topic, boolean asc) {
@@ -1773,13 +2396,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         final Date now = new Date();
 
-        HibernateCallback<Boolean> hcb = session -> {
-            OpenForumImpl forum = session.get(OpenForumImpl.class, forumId);
-            OpenTopicImpl topic = session.get(OpenTopicImpl.class, topicId);
-            return isLocked(forum, now) || isLocked(topic, now);
-        };
+        Session session = sessionFactory.getCurrentSession();
+        OpenForumImpl forum = session.get(OpenForumImpl.class, forumId);
+        OpenTopicImpl topic = session.get(OpenTopicImpl.class, topicId);
 
-        return getHibernateTemplate().execute(hcb);
+        return isLocked(forum, now) || isLocked(topic, now);
     }
 
     private boolean isLocked(OpenForum forum, Date now) {
@@ -1863,24 +2484,50 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
       log.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
 
-      HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery("findPvtMsgsBySearchText");
-          q.setParameter("searchText", "%" + searchText + "%");
-          q.setParameter("searchByText", convertBooleanToInteger(searchByText));
-          q.setParameter("searchByAuthor", convertBooleanToInteger(searchByAuthor));
-          q.setParameter("searchByBody", convertBooleanToInteger(searchByBody));
-          q.setParameter("searchByLabel", convertBooleanToInteger(searchByLabel));
-          q.setParameter("searchByDate", convertBooleanToInteger(searchByDate));
-          q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
-          q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
-          q.setParameter("searchBySelectedLabel", selectedLabel);
-          q.setParameter("userId", getCurrentUser());
-          q.setParameter("contextId", toolManager.getCurrentPlacement().getContext());
-          q.setParameter("typeUuid", typeUuid);
-          return q.list();
-      };
+      final String likeText = "%" + searchText + "%";
+      final Date fromDate = (searchFromDate == null) ? new Date(0) : searchFromDate;
+      final Date toDate = (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate;
+      final String userId = getCurrentUser();
+      final String contextId = toolManager.getCurrentPlacement().getContext();
 
-      return getHibernateTemplate().execute(hcb);
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+      Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
+      message.fetch("recipients", JoinType.LEFT);
+      Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
+              (Join<PrivateMessageImpl, PrivateMessageRecipientImpl>) message.getFetches().iterator().next();
+
+      Predicate searchPredicate;
+      if (searchByAuthor) {
+          searchPredicate = cb.like(message.get("author"), likeText);
+      } else if (searchByText) {
+          searchPredicate = cb.like(message.get("title"), likeText);
+      } else if (searchByBody) {
+          searchPredicate = cb.like(message.get("body"), likeText);
+      } else {
+          searchPredicate = cb.conjunction();
+      }
+
+      Predicate datePredicate = searchByDate
+              ? cb.between(message.get("created"), fromDate, toDate)
+              : cb.conjunction();
+
+      Predicate labelPredicate = searchByLabel
+              ? cb.equal(message.get("label"), selectedLabel)
+              : cb.conjunction();
+
+      cq.select(message)
+        .where(
+            searchPredicate,
+            datePredicate,
+            labelPredicate,
+            cb.equal(recipient.get("typeUuid"), typeUuid),
+            cb.equal(recipient.get("userId"), userId),
+            cb.equal(recipient.get("contextId"), contextId)
+        );
+
+      return (List<PrivateMessage>) (List<?>) session.createQuery(cq).getResultList();
   }
     
     private Integer convertBooleanToInteger(boolean value) {
@@ -1981,16 +2628,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		Map<Long, Boolean> statusMap = new HashMap<>();
 		if( msgIds != null && msgIds.size() > 0)
 		{
-			HibernateCallback<List> hcb = session -> {
-                Query q = session.getNamedQuery(QUERY_READ_STATUS_WITH_MSGS_USER);
-                q.setParameter("userId", userId);
-                q.setParameterList("msgIds", msgIds);
-                return q.list();
-            };
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<UnreadStatusImpl> cq = cb.createQuery(UnreadStatusImpl.class);
+			Root<UnreadStatusImpl> us = cq.from(UnreadStatusImpl.class);
 
-            msgIds.forEach(i -> statusMap.put(i, Boolean.FALSE));
+			cq.select(us)
+				.where(
+					cb.equal(us.get("userId"), userId),
+					us.get("messageId").in(msgIds)
+				);
 
-			List statusList = getHibernateTemplate().execute(hcb);
+			List statusList = session.createQuery(cq).getResultList();
+
+			msgIds.forEach(i -> statusMap.put(i, Boolean.FALSE));
+
 			if(statusList != null)
 			{
 				for(int i=0; i<statusList.size(); i++)
@@ -2013,18 +2665,32 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             return Collections.emptyList();
         }
 
+        Set<Message> resultSet = new HashSet<>();
+
         // First, check by permissionLevel (custom permissions)
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
-            q.setParameterList("membershipList", membershipList);
-            q.setParameterList("topicList", moderatedTopics);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq1 = cb.createQuery(Object[].class);
+        Root<MessageImpl> message1 = cq1.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic1 = message1.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum1 = topic1.join("openForum");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem1 = topic1.join("membershipItemSet");
+        Join<DBMembershipItemImpl, PermissionLevelImpl> permissionLevel1 = membershipItem1.join("permissionLevel");
+
+        cq1.select(cb.array(message1, topic1, forum1))
+           .where(
+               topic1.in(moderatedTopics),
+               membershipItem1.get("name").in(membershipList),
+               cb.isFalse(message1.get("deleted")),
+               cb.isNull(message1.get("approved")),
+               cb.isTrue(permissionLevel1.get("moderatePostings"))
+           );
+
+        List<Object[]> temp1 = session.createQuery(cq1).getResultList();
 
         Message tempMsg = null;
-        Set<Message> resultSet = new HashSet<>();
-        List temp = getHibernateTemplate().execute(hcb);
-        for (Iterator i = temp.iterator(); i.hasNext();)
+        Set<Message> resultSet2 = new HashSet<>();
+        for (Iterator i = temp1.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
@@ -2033,20 +2699,29 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
               tempMsg = (Message)results[0];
               tempMsg.setTopic((Topic)results[1]);
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-              resultSet.add(tempMsg);
+              resultSet2.add(tempMsg);
           }
         }
-        
-        // Second, check by PermissionLevelName (non-custom permissions)
-        HibernateCallback<List> hcb2 = session -> {
-            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME);
-            q.setParameterList("membershipList", membershipList);
-            q.setParameterList("topicList", moderatedTopics);
-            return q.list();
-        };
 
-        temp = getHibernateTemplate().execute(hcb2);
-        for (Iterator i = temp.iterator(); i.hasNext();)
+        // Second, check by PermissionLevelName (non-custom permissions)
+        CriteriaQuery<Object[]> cq2 = cb.createQuery(Object[].class);
+        Root<MessageImpl> message2 = cq2.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic2 = message2.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum2 = topic2.join("openForum");
+        Join<TopicImpl, DBMembershipItemImpl> membershipItem2 = topic2.join("membershipItemSet");
+
+        cq2.select(cb.array(message2, topic2, forum2, membershipItem2.get("permissionLevelName")))
+           .where(
+               topic2.in(moderatedTopics),
+               membershipItem2.get("name").in(membershipList),
+               cb.isNull(membershipItem2.get("permissionLevel")),
+               cb.isFalse(message2.get("deleted")),
+               cb.isNull(message2.get("approved"))
+           );
+        
+        List<Object[]> temp2 = session.createQuery(cq2).getResultList();
+
+        for (Iterator i = temp2.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
@@ -2076,15 +2751,26 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("getPendingMsgsInTopic executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_TOPICID);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+        cq.select(cb.array(message, topic, forum))
+          .where(
+              cb.equal(topic.get("id"), topicId),
+              cb.isFalse(topic.get("draft")),
+              cb.isFalse(forum.get("draft")),
+              cb.isFalse(message.get("deleted")),
+              cb.isNull(message.get("approved"))
+          );
+
+        List temp =  session.createQuery(cq).getResultList();
 
         Message tempMsg = null;
         Set resultSet = new HashSet();      
-        List temp = getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
@@ -2104,15 +2790,24 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	public List<Message> getAllMessagesInSite(final String siteId) {
         log.debug("getAllMessagesInSite executing with siteId: " + siteId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findDiscussionForumMessagesInSite");
-            q.setParameter("contextId", siteId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+        Join<MessageImpl, TopicImpl> topic = message.join("topic");
+        Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+        Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+        cq.select(cb.array(message, topic, forum))
+          .where(
+              cb.equal(area.get("contextId"), siteId),
+              cb.isFalse(message.get("deleted"))
+          );
+
+        List temp = session.createQuery(cq).getResultList();
 
         Message tempMsg = null;
         Set resultSet = new HashSet();      
-        List temp = getHibernateTemplate().execute(hcb);
         log.debug("got an initial list of " + temp.size());
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
@@ -2144,6 +2839,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 		List moved_history = null;
 
+		Session session = sessionFactory.getCurrentSession();
+
 		moved_history = this.findMovedHistoryByMessageId(messageId);
 
 		// if moving back to the original topic,  set reminder to false, otherwise the original topic will show a Move reminder.
@@ -2155,7 +2852,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 					hist.setReminder(false);
 					hist.setModified(new Date());
 					hist.setModifiedBy(getCurrentUser());
- 					getHibernateTemplate().update(hist);
+ 					session.merge(hist);
 				}
 			}
 
@@ -2171,7 +2868,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		mhist.setModified(new Date());
 		mhist.setModifiedBy(getCurrentUser());
 
-		getHibernateTemplate().saveOrUpdate(mhist);
+		session.merge(mhist);
 
 
 	}
@@ -2184,13 +2881,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 		if (log.isDebugEnabled()) log.debug("findMovedMessagesByTopicId executing with topicId: " + topicId);
 
-		HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_MOVED_MESSAGES_BY_TOPICID);
-            q.setParameter("topicId", topicId);
-            return q.list();
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<MessageImpl> cq = cb.createQuery(MessageImpl.class);
+		Root<MessageImpl> message = cq.from(MessageImpl.class);
+		Root<MessageMoveHistoryImpl> mhist = cq.from(MessageMoveHistoryImpl.class);
 
-		return getHibernateTemplate().execute(hcb);
+		cq.select(message)
+			.where(
+				cb.equal(mhist.get("fromTopicId"), topicId),
+				cb.equal(message.get("id"), mhist.get("messageId")),
+				cb.isTrue(mhist.get("reminder"))
+			);
+
+		return (List<Message>) (List<?>) session.createQuery(cq).getResultList();
 	}
 
 	public List getRecentDiscussionForumThreadsByTopicIds(final List<Long> topicIds, final int numberOfMessages) {
@@ -2202,16 +2906,29 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		{
 			log.debug("getRecentDiscussionForumThreadsByTopicIds executing for list of size: " + topicIds.size());
 		}
-		HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findRecentDiscussionForumThreadsByTopicIds");
-            q.setParameterList("topicIds", topicIds);
-            q.setMaxResults(numberOfMessages);
-            return q.list();
-        };
+		
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+		Root<MessageImpl> message = cq.from(MessageImpl.class);
+		Join<MessageImpl, TopicImpl> topic = message.join("topic");
+		Join<TopicImpl, OpenForumImpl> forum = topic.join("openForum");
+
+		cq.select(cb.array(message, topic, forum))
+			.where(
+				topic.get("id").in(topicIds),
+				cb.isNull(message.get("inReplyTo")),
+				cb.isFalse(message.get("draft")),
+				cb.isFalse(message.get("deleted"))
+			)
+			.orderBy(cb.desc(message.get("modified")));
+
+		List temp = session.createQuery(cq)
+				.setMaxResults(numberOfMessages)
+				.getResultList();
 
 		Message tempMsg = null;
 		Set resultSet = new HashSet();
-		List temp = getHibernateTemplate().execute(hcb);
 		log.debug("got an initial list of " + temp.size());
 		for (Iterator i = temp.iterator(); i.hasNext();)
 		{
@@ -2222,7 +2939,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 					tempMsg = (Message)results[0];
 					tempMsg.setTopic((Topic)results[1]);
 					tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-					getHibernateTemplate().initialize(tempMsg.getAttachments());
+					Hibernate.initialize(tempMsg.getAttachments());
 				}
 				resultSet.add(tempMsg);
 			}
@@ -2240,33 +2957,43 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 		if (log.isDebugEnabled()) log.debug("findMovedHistoryByMessageId executing with messageid: " + messageid);
 
-		HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_MOVED_HISTORY_BY_MESSAGEID);
-            q.setParameter("messageId", messageid);
-            return q.list();
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<MessageMoveHistoryImpl> cq = cb.createQuery(MessageMoveHistoryImpl.class);
+		Root<MessageMoveHistoryImpl> root = cq.from(MessageMoveHistoryImpl.class);
 
-		return getHibernateTemplate().execute(hcb);
+		cq.select(root)
+			.where(cb.equal(root.get("messageId"), messageid));
+
+		return (List<MessageMoveHistory>) (List<?>) session.createQuery(cq).getResultList();
 
 	}
 
 	@Override
 	public void saveDraftRecipients(long msgId, List<DraftRecipient> recipients) {
+		Session session = sessionFactory.getCurrentSession();
 		for (DraftRecipient dr : recipients) {
-			getHibernateTemplate().persist(dr);
+			session.merge(dr);
 		}
 	}
 
 	@Override
 	public List<DraftRecipient> findDraftRecipientsByMessageId(long msgId) {
-		return getHibernateTemplate().execute(session -> session.getNamedQuery("findDraftRecipientsByMessageId"))
-				.setParameter("id", msgId).list();
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<DraftRecipient> cq = cb.createQuery(DraftRecipient.class);
+        Root<DraftRecipient> root = cq.from(DraftRecipient.class);
+
+        cq.select(root).where(cb.equal(root.get("draftId"), msgId));
+
+        return session.createQuery(cq).getResultList();
 	}
 
 	@Override
 	public void deleteDraftRecipientsByMessageId(long msgId) {
+		Session session = sessionFactory.getCurrentSession();
 		for (DraftRecipient dr : findDraftRecipientsByMessageId(msgId)) {
-			getHibernateTemplate().delete(dr);
+			session.remove(dr);
 		}
 	}
 }
