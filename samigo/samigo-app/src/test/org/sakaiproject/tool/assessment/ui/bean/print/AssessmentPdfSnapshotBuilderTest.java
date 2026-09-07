@@ -26,10 +26,12 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfQuestionModel;
+import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfMatchingRowModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfSelectionAnswerModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -301,6 +303,35 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals(1, question.getImageMapRows().size());
         assertEquals("1. Heart", question.getImageMapRows().get(0).getText());
         assertEquals(Boolean.TRUE, question.getImageMapRows().get(0).getCorrect());
+    }
+
+    @Test
+    public void buildStudentReportModelSnapshotsImageMapClickSequenceFromItemText() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
+        imageMapBean.setText("1. Heart");
+        imageMapBean.setIsCorrect(Boolean.TRUE);
+
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
+        item.setImageSrc("/group/site/hotspot.png");
+        ItemTextIfc itemText = (ItemTextIfc) item.getItemData().getItemTextArraySorted().get(0);
+        when(itemText.getId()).thenReturn(9001L);
+        when(itemText.getSequence()).thenReturn(1L);
+
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"x\":10,\"y\":20}");
+        grading.setPublishedItemTextId(9001L);
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+        AssessmentPdfItemGradingModel click = model.getParts().get(0).getQuestions().get(0).getItemGradingData().get(0);
+
+        assertEquals("{\"x\":10,\"y\":20}", click.getAnswerText());
+        assertEquals(Long.valueOf(9001L), click.getPublishedItemTextId());
+        assertEquals(Integer.valueOf(1), click.getSequence());
     }
 
     private static AssessmentPdfSnapshotBuilder snapshotBuilder() {

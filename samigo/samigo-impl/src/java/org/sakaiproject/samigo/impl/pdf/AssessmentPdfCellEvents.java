@@ -137,6 +137,14 @@ public final class AssessmentPdfCellEvents {
             this.drawnHeight = drawnHeight;
         }
 
+        public List<Rectangle> getAnswerRectangles() {
+            return answerRectangles;
+        }
+
+        public List<ImageMapCircle> getAnswerCircles() {
+            return answerCircles;
+        }
+
         @Override
         public void cellLayout(PdfPCell cell, Rectangle position, PdfContentByte[] canvases) {
             if (originalWidth <= 0f || originalHeight <= 0f) {
@@ -168,22 +176,20 @@ public final class AssessmentPdfCellEvents {
             canvas.fill();
 
             float radius = 3f;
-            int smallestValue = answerCircles.size() > 0 ? answerCircles.get(0).getPublishedItemId() + 1 : 0;
             for (ImageMapCircle answerCircle : answerCircles) {
                 PdfGState transparentState = new PdfGState();
                 transparentState.setFillOpacity(0.3f);
                 transparentState.setStrokeOpacity(0.8f);
-                float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
+                float imageX = studentMarkerHotspotX(answerCircle.getX());
+                float imageY = studentMarkerHotspotY(answerCircle.getY());
+                float transformedX = x + imageX * scaleX;
+                float transformedY = y + drawnHeight - imageY * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     canvas.circle(transformedX, transformedY, radius);
                     canvas.setGState(transparentState);
                     canvas.circle(transformedX, transformedY, 0.3f);
                     canvas.setColorFill(Color.YELLOW);
                     canvas.setColorStroke(Color.YELLOW);
-                }
-                if (answerCircle.getPublishedItemId() < smallestValue) {
-                    smallestValue = answerCircle.getPublishedItemId();
                 }
             }
             canvas.fillStroke();
@@ -210,17 +216,17 @@ public final class AssessmentPdfCellEvents {
                 }
             }
 
-            int toReduce = smallestValue;
             for (ImageMapCircle answerCircle : answerCircles) {
-                float transformedX = x + answerCircle.getX() * scaleX;
-                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
+                float imageX = studentMarkerHotspotX(answerCircle.getX());
+                float imageY = studentMarkerHotspotY(answerCircle.getY());
+                float transformedX = x + imageX * scaleX;
+                float transformedY = y + drawnHeight - imageY * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     try {
-                        int answerIndex = answerCircles.size() - (answerCircle.getPublishedItemId() - toReduce);
                         canvas.beginText();
                         canvas.setColorFill(Color.YELLOW);
                         canvas.setFontAndSize(BaseFont.createFont(), 9);
-                        canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(answerIndex), transformedX + 4, transformedY - 3, 0);
+                        canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(answerCircle.getSequence()), transformedX + 4, transformedY - 3, 0);
                         canvas.endText();
                         canvas.fill();
                     } catch (Exception ex) {
@@ -289,12 +295,36 @@ public final class AssessmentPdfCellEvents {
     public static class ImageMapCircle {
         private float x;
         private float y;
-        private int publishedItemId;
+        private int sequence;
 
-        public ImageMapCircle(float x, float y, int publishedItemId) {
+        public ImageMapCircle(float x, float y, int sequence) {
             this.x = x;
             this.y = y;
-            this.publishedItemId = publishedItemId;
+            this.sequence = sequence;
         }
+    }
+
+    /**
+     * Compensates for delivery storing the marker top-left, not the click
+     * ({@code selection.student.js} uses {@code click - (width/2, height/2)}).
+     * These deltas match the current 18×16 crosshair box in imageQuestion.student.css;
+     * they are not a live CSS contract.
+     *
+     * TODO: Stored image-map JSON is the .pointerClass top-left, so this PDF (and grading)
+     * must guess the click. Changing height/padding-left in imageQuestion.student.css
+     * desyncs the yellow dots (small regions look missed even when the on-screen marker
+     * sits on the target). 9 and 8 are half of that 18×16 box, an approximation of the
+     * crosshair center, not the live div (width includes the item number). Drop this
+     * offset once item grading stores the image click; then draw and score {x,y} as-is.
+     */
+    static final float STUDENT_MARKER_OFFSET_X = 9f;
+    static final float STUDENT_MARKER_OFFSET_Y = 8f;
+
+    static float studentMarkerHotspotX(float storedX) {
+        return storedX + STUDENT_MARKER_OFFSET_X;
+    }
+
+    static float studentMarkerHotspotY(float storedY) {
+        return storedY + STUDENT_MARKER_OFFSET_Y;
     }
 }

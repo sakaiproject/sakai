@@ -36,7 +36,6 @@ import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.CheckboxCellEven
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.CircleCellEvent;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapQuestionCellEvent;
-import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
 import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.BACKGROUND_GRAY;
@@ -54,9 +53,6 @@ import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_COLOR;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.fontWithColor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -66,7 +62,6 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
-import org.apache.commons.lang3.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -106,11 +101,11 @@ public class AssessmentPdfQuestionRenderer {
             TypeIfc.IMAGEMAP_QUESTION);
 
     private final AssessmentPdfContentHelper contentHelper;
-    private final ObjectMapper jsonMapper;
+    private final AssessmentPdfImageMapCoords imageMapCoords;
 
     public AssessmentPdfQuestionRenderer(AssessmentPdfContentHelper contentHelper) {
         this.contentHelper = contentHelper;
-        this.jsonMapper = MapperFactory.createDefaultJsonMapper();
+        this.imageMapCoords = new AssessmentPdfImageMapCoords(MapperFactory.createDefaultJsonMapper());
     }
 
     public void render(Document document, QuestionRenderContext context) throws Exception {
@@ -410,7 +405,7 @@ public class AssessmentPdfQuestionRenderer {
             keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
             document.add(keyLabel);
         }
-        List<Rectangle> answerRectangles = showKeys ? parseImageMapRectangles(imageMapRegionJsons(question)) : List.of();
+        List<Rectangle> answerRectangles = showKeys ? imageMapCoords.parseRectangles(imageMapRegionJsons(question)) : List.of();
         renderImageMapImage(document, imageMapSource(question), answerRectangles, List.of(), "the printable assessment");
     }
 
@@ -661,8 +656,8 @@ public class AssessmentPdfQuestionRenderer {
                 fontWithColor(AssessmentPdfStyle.SMALL_BOLD_FONT, SECONDARY_COLOR));
         keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
         document.add(keyLabel);
-        renderImageMapImage(document, imageMapSource(question), parseImageMapRectangles(imageMapRegionJsons(question)),
-                parseImageMapCircles(question.getItemGradingData()), "the student report");
+        renderImageMapImage(document, imageMapSource(question), imageMapCoords.parseRectangles(imageMapRegionJsons(question)),
+                imageMapCoords.parseCircles(question.getItemGradingData()), "the student report");
     }
 
     private void renderImageMapImage(Document document, String imageSrc, List<Rectangle> answerRectangles,
@@ -714,68 +709,6 @@ public class AssessmentPdfQuestionRenderer {
             }
         }
         return fromSelectionAnswers;
-    }
-
-    private List<Rectangle> parseImageMapRectangles(List<String> regionJsons) {
-        List<Rectangle> answerRectangles = new ArrayList<>();
-        if (regionJsons == null) {
-            return answerRectangles;
-        }
-        for (String regionJson : regionJsons) {
-            String json = extractJsonObject(regionJson);
-            if (json == null) {
-                continue;
-            }
-            try {
-                JsonNode jsonNode = jsonMapper.readTree(json);
-                if (!jsonNode.has("x1") || !jsonNode.has("y1") || !jsonNode.has("x2") || !jsonNode.has("y2")) {
-                    continue;
-                }
-                answerRectangles.add(new Rectangle((float) jsonNode.path("x1").asDouble(), (float) jsonNode.path("y1").asDouble(),
-                        (float) jsonNode.path("x2").asDouble(), (float) jsonNode.path("y2").asDouble()));
-            } catch (JsonProcessingException e) {
-                log.warn("Skipping unparseable image map answer rectangle [{}], {}", regionJson, e.toString());
-            }
-        }
-        return answerRectangles;
-    }
-
-    private List<ImageMapCircle> parseImageMapCircles(List<AssessmentPdfItemGradingModel> itemsGrading) {
-        List<ImageMapCircle> answerCircles = new ArrayList<>();
-        if (itemsGrading == null) {
-            return answerCircles;
-        }
-        for (AssessmentPdfItemGradingModel itemGrading : itemsGrading) {
-            Long publishedItemTextId = itemGrading.getPublishedItemTextId();
-            String json = extractJsonObject(itemGrading.getAnswerText());
-            if (publishedItemTextId == null || json == null) {
-                continue;
-            }
-            try {
-                JsonNode jsonNode = jsonMapper.readTree(json);
-                if (!jsonNode.has("x") || !jsonNode.has("y")) {
-                    continue;
-                }
-                answerCircles.add(new ImageMapCircle((float) jsonNode.path("x").asDouble(),
-                        (float) jsonNode.path("y").asDouble(), publishedItemTextId.intValue()));
-            } catch (JsonProcessingException e) {
-                log.warn("Skipping unparseable image map response for published item text {} [{}], {}", publishedItemTextId,
-                        itemGrading.getAnswerText(), e.toString());
-            }
-        }
-        return answerCircles;
-    }
-
-    static String extractJsonObject(String raw) {
-        if (StringUtils.isBlank(raw) || Strings.CI.equals(raw, "undefined")) {
-            return null;
-        }
-        int start = raw.indexOf('{');
-        int end = raw.lastIndexOf('}');
-        if (start < 0 || end <= start) {
-            return null;
-        }
-        return raw.substring(start, end + 1);
     }
 
     private void renderReportChoiceAnswers(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType) throws Exception {

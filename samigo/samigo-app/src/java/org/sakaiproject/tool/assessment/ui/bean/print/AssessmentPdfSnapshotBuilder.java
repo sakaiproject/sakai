@@ -17,8 +17,10 @@ package org.sakaiproject.tool.assessment.ui.bean.print;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
@@ -262,7 +264,7 @@ public final class AssessmentPdfSnapshotBuilder {
                 .matrixAddComment(item.getAddComment())
                 .matrixCommentField(item.getCommentField())
                 .mediaItems(toMediaItems(item.getMediaArray()))
-                .itemGradingData(toItemGradingData(item.getItemGradingDataArray()))
+                .itemGradingData(toItemGradingData(item))
                 .matchingResponses(matchingResponses);
         applyItemDataSnapshot(builder, item.getItemData());
         return builder.build();
@@ -563,19 +565,40 @@ public final class AssessmentPdfSnapshotBuilder {
         return items;
     }
 
-    private List<AssessmentPdfItemGradingModel> toItemGradingData(List itemGradingDataArray) {
-        if (itemGradingDataArray == null) {
+    private List<AssessmentPdfItemGradingModel> toItemGradingData(ItemContentsBean item) {
+        if (item == null || item.getItemGradingDataArray() == null) {
             return Collections.emptyList();
         }
+        Map<Long, Integer> sequenceByItemTextId = itemTextSequenceById(item.getItemData());
         List<AssessmentPdfItemGradingModel> items = new ArrayList<>();
-        for (Object gradingObject : itemGradingDataArray) {
+        for (Object gradingObject : item.getItemGradingDataArray()) {
             if (!(gradingObject instanceof ItemGradingData)) {
                 continue;
             }
             ItemGradingData itemGradingData = (ItemGradingData) gradingObject;
-            items.add(new AssessmentPdfItemGradingModel(itemGradingData.getAnswerText(), itemGradingData.getPublishedItemTextId()));
+            Long publishedItemTextId = itemGradingData.getPublishedItemTextId();
+            Integer sequence = publishedItemTextId == null ? null : sequenceByItemTextId.get(publishedItemTextId);
+            items.add(new AssessmentPdfItemGradingModel(itemGradingData.getAnswerText(), publishedItemTextId, sequence));
         }
         return items;
+    }
+
+    private Map<Long, Integer> itemTextSequenceById(ItemDataIfc itemData) {
+        Map<Long, Integer> sequences = new HashMap<>();
+        if (itemData == null || itemData.getItemTextArraySorted() == null) {
+            return sequences;
+        }
+        for (Object itemTextObject : itemData.getItemTextArraySorted()) {
+            if (!(itemTextObject instanceof ItemTextIfc)) {
+                continue;
+            }
+            ItemTextIfc itemText = (ItemTextIfc) itemTextObject;
+            if (itemText.getId() == null || itemText.getSequence() == null) {
+                continue;
+            }
+            sequences.put(itemText.getId(), itemText.getSequence().intValue());
+        }
+        return sequences;
     }
 
     private AssessmentPdfPrintSettingsModel toPrintSettings(PrintSettingsBean printSettings) {
