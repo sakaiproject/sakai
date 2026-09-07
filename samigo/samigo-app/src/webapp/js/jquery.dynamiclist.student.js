@@ -54,8 +54,9 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 			if(this_.selectionList['sel_'+id] != undefined)
 			{
 				var coords = this_.selectionList['sel_'+id].getCoords();	
-				coords_str += '{"x":'+coords.x;
-				coords_str += ',"y":'+coords.y+'}';
+				if (coords != null && coords.x != null && coords.y != null) {
+					coords_str = JSON.stringify({click: true, x: coords.x, y: coords.y});
+				}
 			}
 			value += $(this).find('input[name=id_]').val()+"#:#"+coords_str;
 		});

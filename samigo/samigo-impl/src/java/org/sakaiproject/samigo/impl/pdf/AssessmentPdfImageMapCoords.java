@@ -17,12 +17,14 @@ package org.sakaiproject.samigo.impl.pdf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -62,8 +64,7 @@ final class AssessmentPdfImageMapCoords {
                 if (x1.isEmpty() || y1.isEmpty() || x2.isEmpty() || y2.isEmpty()) {
                     continue;
                 }
-                answerRectangles.add(new Rectangle((float) x1.getAsDouble(), (float) y1.getAsDouble(),
-                        (float) x2.getAsDouble(), (float) y2.getAsDouble()));
+                answerRectangles.add(new Rectangle((float) x1.getAsDouble(), (float) y1.getAsDouble(), (float) x2.getAsDouble(), (float) y2.getAsDouble()));
             } catch (JsonProcessingException e) {
                 log.warn("Skipping unparseable image map answer rectangle [{}], {}", regionJson, e.toString());
             }
@@ -79,25 +80,17 @@ final class AssessmentPdfImageMapCoords {
         int fallbackSequence = 1;
         for (AssessmentPdfItemGradingModel itemGrading : itemsGrading) {
             Long publishedItemTextId = itemGrading.getPublishedItemTextId();
-            String json = extractJsonObject(itemGrading.getAnswerText());
-            if (publishedItemTextId == null || json == null) {
+            if (publishedItemTextId == null) {
                 continue;
             }
-            try {
-                JsonNode jsonNode = jsonMapper.readTree(json);
-                OptionalDouble x = finiteNumber(jsonNode, "x");
-                OptionalDouble y = finiteNumber(jsonNode, "y");
-                if (x.isEmpty() || y.isEmpty()) {
-                    continue;
-                }
-                Integer sequence = itemGrading.getSequence();
-                int markerSequence = sequence != null ? sequence.intValue() : fallbackSequence;
-                answerCircles.add(new ImageMapCircle((float) x.getAsDouble(), (float) y.getAsDouble(), markerSequence));
-                fallbackSequence++;
-            } catch (JsonProcessingException e) {
-                log.warn("Skipping unparseable image map response for published item text {} [{}], {}", publishedItemTextId,
-                        itemGrading.getAnswerText(), e.toString());
+            Optional<ImageMapCoordinates.Point> point = ImageMapCoordinates.parseStudentPoint(itemGrading.getAnswerText());
+            if (point.isEmpty()) {
+                continue;
             }
+            Integer sequence = itemGrading.getSequence();
+            int markerSequence = sequence != null ? sequence.intValue() : fallbackSequence;
+            answerCircles.add(new ImageMapCircle((float) point.get().getClickX(), (float) point.get().getClickY(), markerSequence));
+            fallbackSequence++;
         }
         return answerCircles;
     }
