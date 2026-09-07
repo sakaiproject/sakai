@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ImageMapQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -244,8 +245,94 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertTrue(selection.isSelected());
     }
 
+    @Test
+    public void buildPrintModelCapturesImageMapRegionsAndOmitsTextKey() {
+        String regionJson = "{\"x1\":10,\"y1\":20,\"x2\":40,\"y2\":50}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+
+        SectionContentsBean section = mock(SectionContentsBean.class);
+        when(section.getItemContents()).thenReturn(List.of(item));
+        when(section.getAttachmentList()).thenReturn(Collections.emptyList());
+        when(section.getTitle()).thenReturn("Part 1");
+        when(section.getDescription()).thenReturn("");
+
+        DeliveryBean deliveryBean = mock(DeliveryBean.class);
+        when(deliveryBean.getAssessmentTitle()).thenReturn("Sample Quiz");
+        when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.FALSE);
+
+        PrintSettingsBean printSettings = new PrintSettingsBean();
+        printSettings.setShowKeys(Boolean.TRUE);
+
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(printSettings)
+                .buildPrintModel();
+
+        AssessmentPdfQuestionModel question = model.getParts().get(0).getQuestions().get(0);
+        assertNull(question.getItemAnswerKey());
+        assertTrue(question.getPrintChoices().isEmpty());
+        assertEquals("/group/site/hotspot.png", question.getImageMapSrc());
+        assertEquals(List.of("Heart"), question.getImageMapItemTexts());
+        assertEquals(List.of(regionJson), question.getImageMapRegionJsons());
+    }
+
+    @Test
+    public void buildStudentReportModelMapsImageMapRowsAfterRegionSnapshot() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
+        imageMapBean.setText("1. Heart");
+        imageMapBean.setIsCorrect(Boolean.TRUE);
+
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
+        item.setImageSrc("/group/site/hotspot.png");
+
+        DeliveryBean deliveryBean = studentReportDeliveryBean(item);
+        StudentScoresBean studentScoresBean = studentReportScoresBean(null);
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .studentScores(studentScoresBean)
+                .buildStudentReportModel();
+        AssessmentPdfQuestionModel question = model.getParts().get(0).getQuestions().get(0);
+
+        assertEquals("/group/site/hotspot.png", question.getImageSrc());
+        assertEquals(List.of(regionJson), question.getImageMapRegionJsons());
+        assertEquals(1, question.getImageMapRows().size());
+        assertEquals("1. Heart", question.getImageMapRows().get(0).getText());
+        assertEquals(Boolean.TRUE, question.getImageMapRows().get(0).getCorrect());
+    }
+
     private static AssessmentPdfSnapshotBuilder snapshotBuilder() {
         return new AssessmentPdfSnapshotBuilder(mock(FormattedText.class), mock(ResourceLoader.class));
+    }
+
+    private static ItemContentsBean imageMapQuestionItem(String imageMapSrc, String itemText, String regionJson,
+            ImageMapQuestionBean imageMapRow) {
+        AnswerIfc answer = mock(AnswerIfc.class);
+        when(answer.getText()).thenReturn(regionJson);
+        when(answer.getLabel()).thenReturn("A");
+        when(answer.getIsCorrect()).thenReturn(Boolean.TRUE);
+
+        ItemTextIfc itemTextIfc = mock(ItemTextIfc.class);
+        when(itemTextIfc.getText()).thenReturn(itemText);
+        when(itemTextIfc.getAnswerArraySorted()).thenReturn(List.of(answer));
+
+        ItemDataIfc itemData = mock(ItemDataIfc.class);
+        when(itemData.getTypeId()).thenReturn(TypeIfc.IMAGEMAP_QUESTION);
+        when(itemData.getItemId()).thenReturn(1L);
+        when(itemData.getImageMapSrc()).thenReturn(imageMapSrc);
+        when(itemData.getAnswerKey()).thenReturn("A");
+        when(itemData.getItemTextArraySorted()).thenReturn(List.of(itemTextIfc));
+
+        ItemContentsBean item = new ItemContentsBean();
+        item.setItemData(itemData);
+        item.setSequence("1");
+        item.setItemGradingDataArray(new java.util.ArrayList<>());
+        if (imageMapRow != null) {
+            item.setMatchingArray(new java.util.ArrayList<>(List.of(imageMapRow)));
+        }
+        return item;
     }
 
     private static ItemContentsBean matchingQuestionItem() {

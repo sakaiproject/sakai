@@ -277,7 +277,6 @@ public final class AssessmentPdfSnapshotBuilder {
                 .duration(itemData.getDuration())
                 .triesAllowed(itemData.getTriesAllowed())
                 .itemScore(itemData.getScore())
-                .itemAnswerKey(itemData.getAnswerKey())
                 .generalItemFeedback(itemData.getGeneralItemFeedback())
                 .correctItemFeedback(itemData.getCorrectItemFeedback())
                 .incorrectItemFeedback(itemData.getInCorrectItemFeedback())
@@ -288,9 +287,15 @@ public final class AssessmentPdfSnapshotBuilder {
                 .emiAnswerOptionsRichText(itemData.getEmiAnswerOptionsRichText())
                 .emiAnswerOptions(toEmiAnswerOptions(itemData))
                 .emiPrompts(toEmiPrompts(itemData))
-                .imageMapSrc(itemData.getItemMetaDataByLabel("IMAGE_MAP_SRC"))
-                .imageMapItemTexts(toImageMapItemTexts(itemData))
-                .printChoices(toPrintChoices(itemData));
+                .imageMapSrc(itemData.getImageMapSrc())
+                .imageMapItemTexts(toImageMapItemTexts(itemData));
+        if (TypeIfc.IMAGEMAP_QUESTION.equals(itemData.getTypeId())) {
+            builder.itemAnswerKey(null)
+                    .imageMapRegionJsons(toImageMapRegionJsons(itemData));
+        } else {
+            builder.itemAnswerKey(itemData.getAnswerKey())
+                    .printChoices(toPrintChoices(itemData));
+        }
     }
 
     private List<AssessmentPdfPrintChoiceModel> toPrintChoices(ItemDataIfc itemData) {
@@ -363,6 +368,33 @@ public final class AssessmentPdfSnapshotBuilder {
             }
         }
         return texts;
+    }
+
+    private List<String> toImageMapRegionJsons(ItemDataIfc itemData) {
+        List<String> regions = new ArrayList<>();
+        List itemTexts = itemData.getItemTextArraySorted();
+        if (itemTexts == null) {
+            return regions;
+        }
+        for (Object itemTextObject : itemTexts) {
+            if (!(itemTextObject instanceof ItemTextIfc)) {
+                continue;
+            }
+            List answers = ((ItemTextIfc) itemTextObject).getAnswerArraySorted();
+            if (answers == null) {
+                continue;
+            }
+            for (Object answerObject : answers) {
+                if (!(answerObject instanceof AnswerIfc)) {
+                    continue;
+                }
+                String regionJson = ((AnswerIfc) answerObject).getText();
+                if (StringUtils.isNotBlank(regionJson)) {
+                    regions.add(regionJson);
+                }
+            }
+        }
+        return regions;
     }
 
     private String calculatedQuestionText(ItemContentsBean item) {
