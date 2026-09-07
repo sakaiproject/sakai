@@ -123,7 +123,7 @@ final class AssessmentPdfImageMapCoords {
             return OptionalDouble.empty();
         }
         double value = node.asDouble();
-        if (!Double.isFinite(value)) {
+        if (!Double.isFinite(value) || value > Float.MAX_VALUE || value < -Float.MAX_VALUE) {
             return OptionalDouble.empty();
         }
         return OptionalDouble.of(value);
