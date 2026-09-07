@@ -112,6 +112,88 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(10)
+    void submissionsWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator submissionsTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/submissions/tabs/byuser']");
+        assertThat(submissionsTab).hasCount(1);
+        submissionsTab.locator("summary").click();
+
+        Locator reportPanel = submissionsTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator submissionsWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(submissionsTab));
+        Locator toolFilter = submissionsWidget.locator("sakai-sitestats-tool-filter");
+        assertThat(toolFilter).isVisible();
+        assertThat(toolFilter).containsText("Assignments");
+        assertThat(toolFilter).containsText("Tests");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades']")).hasAttribute("aria-pressed", "true");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades'] .si-sakai-assignment-grades")).hasCount(1);
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo']")).hasAttribute("aria-pressed", "true");
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo'] .si-sakai-samigo")).hasCount(1);
+        toolFilter.locator("[data-tool-id='sakai.samigo']").click();
+        assertThat(toolFilter.locator("[data-tool-id='sakai.samigo']")).hasAttribute("aria-pressed", "false");
+        toolFilter.locator("[data-tool-id='sakai.assignment.grades']").click();
+        assertThat(toolFilter.locator("[data-tool-id='sakai.assignment.grades']")).hasAttribute("aria-pressed", "true");
+        String metricsEndpoint = (String) submissionsWidget.locator("sakai-sitestats-widget-metrics")
+            .evaluate("el => el.endpoint");
+        assertTrue(metricsEndpoint.contains("itemType=sakai.assignment.grades"));
+        String tabEndpoint = submissionsTab.getAttribute("endpoint");
+        assertTrue(tabEndpoint.contains("itemType=sakai.assignment.grades"));
+        assertThat(submissionsTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(submissionsTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(submissionsTab.locator("[data-report-filter='item']")).isVisible();
+        assertThat(submissionsWidget.locator(".sitestats-widget-title")).containsText("Submissions");
+        assertThat(submissionsWidget.locator("dt")).containsText("On-time submissions");
+        assertThat(submissionsWidget.locator("dt")).containsText("Late submissions");
+        assertThat(submissionsWidget.locator("dt")).containsText("Missed submissions");
+        assertThat(submissionsWidget.locator("dt")).containsText("Submissions to grade");
+        assertThat(submissionsWidget.locator("dt")).containsText("Students at risk");
+        assertThat(submissionsWidget.locator("dt")).containsText("Median late delay");
+        assertTrue(submissionsWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(11)
+    void gradesWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator gradesTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/grades/tabs/byuser']");
+        assertThat(gradesTab).hasCount(1);
+        gradesTab.locator("summary").click();
+
+        Locator reportPanel = gradesTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator gradesWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(gradesTab));
+        Locator toolChips = gradesWidget.locator("sakai-sitestats-tool-filter [data-tool-id]");
+        int chipCount = toolChips.count();
+        for (int i = 0; i < chipCount; i++) {
+            String toolId = toolChips.nth(i).getAttribute("data-tool-id");
+            assertTrue(toolId != null && !toolId.isBlank());
+        }
+        assertThat(gradesTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(gradesTab.locator("[data-report-filter='threshold']")).hasCount(0);
+        assertThat(gradesTab.locator("[data-report-filter='item']")).isVisible();
+        assertThat(gradesTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(gradesWidget.locator(".sitestats-widget-title")).containsText("Grades");
+        assertThat(gradesWidget.locator("dt")).containsText("Items graded");
+        assertThat(gradesWidget.locator("dt")).containsText("Students fully graded");
+        assertThat(gradesWidget.locator("dt")).containsText("Class average");
+        assertThat(gradesWidget.locator("dt")).containsText("Students below threshold");
+        assertTrue(gradesWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
     @Order(3)
     void reportValidationDisplaysOneErrorBanner() {
         openReportsAsInstructor();
@@ -279,6 +361,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         allTools.check();
         assertThat(activityEventOptions).isHidden();
         page.getByLabel("Show their own statistics to students").check();
+        assertThat(page.getByLabel("Grade completion threshold (%)")).isVisible();
+        assertThat(page.getByText("If empty, the site default of 50% is used.")).isVisible();
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.getByText("Preferences updated successfully.")).isVisible();
@@ -310,6 +394,14 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/']"))
             .hasCount(0);
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-submissions/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/submissions/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-grades/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/grades/tabs/']"))
             .hasCount(0);
     }
 

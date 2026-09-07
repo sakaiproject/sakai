@@ -56,14 +56,16 @@ public class SiteStatsApiUrlsTest {
 		request.setDate(ReportManager.WHEN_CUSTOM);
 		request.setWhenFrom("2026-06-01");
 		request.setWhenTo("2026-06-30");
-		request.setItemType("assignment");
+		request.setItemType("sakai.assignment.grades");
+		request.setGroup("group-1");
+		request.setItem("sakai.assignment.grades:asn-homework-1");
 		request.setThreshold(Double.valueOf(70));
 
 		String url = SiteStatsApiUrls.widgetReport("site1", "grades", "bystudent", request);
 
 		assertEquals("/api/sites/site1/sitestats/widgets/grades/tabs/bystudent?include=table,chart&page=1&pageSize=50"
 				+ "&date=when-custom&whenFrom=2026-06-01&whenTo=2026-06-30&role=who-all&tool=all"
-				+ "&itemType=assignment&threshold=70.0", url);
+				+ "&itemType=sakai.assignment.grades&group=group-1&item=sakai.assignment.grades%3Aasn-homework-1&threshold=70.0", url);
 	}
 
 	@Test
@@ -82,6 +84,23 @@ public class SiteStatsApiUrlsTest {
 		String url = SiteStatsApiUrls.widgetMetrics("site/1", "student-visits");
 
 		assertEquals("/api/sites/site%2F1/sitestats/widgets/student-visits/metrics", url);
+	}
+
+	@Test
+	public void widgetMetricsBuildsStableApiUrlWithItemType() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setItemType("sakai.assignment.grades,sakai.samigo");
+
+		String url = SiteStatsApiUrls.widgetMetrics("site1", "submissions", request);
+
+		assertEquals("/api/sites/site1/sitestats/widgets/submissions/metrics?itemType=sakai.assignment.grades%2Csakai.samigo", url);
+	}
+
+	@Test
+	public void widgetHighlightsBuildsStableApiUrl() {
+		String url = SiteStatsApiUrls.widgetHighlights("site1", "submissions");
+
+		assertEquals("/api/sites/site1/sitestats/widgets/submissions/highlights", url);
 	}
 
 	@Test
