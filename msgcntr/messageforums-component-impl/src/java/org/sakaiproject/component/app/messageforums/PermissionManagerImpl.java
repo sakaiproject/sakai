@@ -20,11 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -50,9 +47,16 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Transactional
-public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
+public class PermissionManagerImpl implements PermissionManager {
 
     private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";
     private static final String QUERY_CP_BY_FORUM = "findForumControlPermissionByRole";
@@ -74,6 +78,10 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private DefaultPermissionsManager defaultPermissionsManager;
     
     private ToolManager toolManager;
+    
+    @Getter
+    @Setter
+    private SessionFactory sessionFactory;
     
     public void init() {
        log.info("init()");
@@ -211,6 +219,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -222,7 +231,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
         
 // Commented out when splitting events between Messages tool and Forums tool 
 //       if (isNew) {
@@ -238,6 +247,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
 
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -249,7 +259,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());        
-        getHibernateTemplate().saveOrUpdate(permissions);
+        session.merge(permissions);
 
         // Commented out when splitting events between Messages tool and Forums tool
 //        if (isNew) {
@@ -314,6 +324,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
 
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -325,7 +336,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);        
+        session.merge(permissions);
         
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -342,6 +353,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
 
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -353,7 +365,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setNewTopic(permission.getNewTopic());
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);        
+        session.merge(permissions);
 
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -416,6 +428,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
 
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -427,7 +440,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);
+        session.merge(permissions);
 
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -444,6 +457,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new ControlPermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
 
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -455,7 +469,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setResponseToResponse(permission.getResponseToResponse());
         permissions.setPostToGradebook(permission.getPostToGradebook());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);
+        session.merge(permissions);
 
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -472,40 +486,69 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         if (area == null) {
             return null;
         }
-        HibernateCallback<ControlPermissions> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
-            q.setParameter("roleId", roleId);
-            q.setParameter("areaId", area.getId().toString());
-            q.setParameter("defaultValue", defaultValue);
-            return (ControlPermissions) q.uniqueResult();
-        };
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ControlPermissions> cq = cb.createQuery(ControlPermissions.class);
+        Root<ControlPermissions> root = cq.from(ControlPermissions.class);
+
+        cq.select(root).where(
+            cb.equal(root.get("role"), roleId),
+            cb.equal(root.get("areaId"), area.getId().toString()),
+            cb.equal(root.get("defaultValue"), defaultValue)
+        );
+
+        return session.createQuery(cq).uniqueResult();
     }
 
     private ControlPermissions getControlPermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
         log.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
-        HibernateCallback<ControlPermissions> hcb = session -> {
-            String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;
-            Query q = session.getNamedQuery(queryString);
-            q.setParameter("roleId", roleId);
-            q.setParameter(key, value);
-            q.setParameter("defaultValue", defaultValue);
-            return (ControlPermissions) q.uniqueResult();
-        };
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ControlPermissions> cq = cb.createQuery(ControlPermissions.class);
+        Root<ControlPermissions> root = cq.from(ControlPermissions.class);
+
+        if ("forumId".equals(key)) {
+            cq.select(root).where(
+                cb.equal(root.get("role"), roleId),
+                cb.equal(root.get("forum").get("id"), Long.valueOf(value)),
+                cb.equal(root.get("defaultValue"), defaultValue)
+            );
+        } else {
+            cq.select(root).where(
+                cb.equal(root.get("role"), roleId),
+                cb.equal(root.get("topic").get("id"), Long.valueOf(value)),
+                cb.equal(root.get("defaultValue"), defaultValue)
+            );
+        }
+
+        return session.createQuery(cq).uniqueResult();
     }
     
     private MessagePermissions getMessagePermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
         log.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
-        HibernateCallback<MessagePermissions> hcb = session -> {
-            String queryString = "forumId".equals(key) ? QUERY_MP_BY_FORUM : QUERY_MP_BY_TOPIC;
-            Query q = session.getNamedQuery(queryString);
-            q.setParameter("roleId", roleId);
-            q.setParameter(key, value);
-            q.setParameter("defaultValue", defaultValue);
-            return (MessagePermissions) q.uniqueResult();
-        };
-        return getHibernateTemplate().execute(hcb);
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<MessagePermissionsImpl> cq = cb.createQuery(MessagePermissionsImpl.class);
+        Root<MessagePermissionsImpl> root = cq.from(MessagePermissionsImpl.class);
+
+        if ("forumId".equals(key)) {
+            cq.select(root).where(
+                cb.equal(root.get("role"), roleId),
+                cb.equal(root.get("forum").get("id"), Long.valueOf(value)),
+                cb.equal(root.get("defaultValue"), defaultValue)
+            );
+        } else {
+            cq.select(root).where(
+                cb.equal(root.get("role"), roleId),
+                cb.equal(root.get("topic").get("id"), Long.valueOf(value)),
+                cb.equal(root.get("defaultValue"), defaultValue)
+            );
+        }
+
+        return session.createQuery(cq).uniqueResult();
     }
        
     
@@ -607,6 +650,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -618,7 +662,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setRole(permission.getRole());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
         
 // Commented out when splitting events between Messages tool and Forums tool
 //        if (isNew) {
@@ -638,6 +682,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setArea(area);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -649,7 +694,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
  
 // Commented out when splitting events between Messages tool and Forums tool
 //        if (isNew) {
@@ -738,6 +783,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -749,7 +795,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
         
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -770,6 +816,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setForum(forum);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -781,7 +828,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
 
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -871,6 +918,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.FALSE);
@@ -882,7 +930,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);
+        session.merge(permissions);
         
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -903,6 +951,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
             permissions = new MessagePermissionsImpl();
         }
         boolean isNew = permissions.getId() == null;
+        Session session = sessionFactory.getCurrentSession();
         
         permissions.setTopic(topic);
         permissions.setDefaultValue(Boolean.TRUE);
@@ -914,7 +963,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsNotRead(permission.getMarkAsNotRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        session.merge(permissions);
         
         if (eventTrackingService == null) // SAK-12988
 			throw new RuntimeException("eventTrackingService is null!");
@@ -931,14 +980,18 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         if (area == null) {
             return null;
         }
-        HibernateCallback<MessagePermissions> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_MP_BY_ROLE);
-            q.setParameter("roleId", roleId);
-            q.setParameter("areaId", area.getId().toString());
-            q.setParameter("defaultValue", Boolean.valueOf(defaultValue));
-            return (MessagePermissions) q.uniqueResult();
-        };
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ControlPermissionsImpl> cq = cb.createQuery(ControlPermissionsImpl.class);
+        Root<ControlPermissionsImpl> root = cq.from(ControlPermissionsImpl.class);
+
+        cq.select(root).where(
+            cb.equal(root.get("role"), roleId),
+            cb.equal(root.get("area").get("id"), area.getId()),
+            cb.equal(root.get("defaultValue"), defaultValue)
+        );
+
+        return (MessagePermissions) session.createQuery(cq).uniqueResult();
     }
     
     
