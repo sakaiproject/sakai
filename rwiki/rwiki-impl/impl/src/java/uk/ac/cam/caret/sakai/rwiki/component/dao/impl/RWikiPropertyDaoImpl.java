@@ -22,11 +22,10 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPropertyDao {
+public class RWikiPropertyDaoImpl implements RWikiPropertyDao {
+	@Setter private SessionFactory sessionFactory;
+
 	private String schemaVersion;
 
 	public RWikiProperty getProperty(final String name)
@@ -49,17 +50,14 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPr
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<List<RWikiProperty>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiProperty> cq = cb.createQuery(RWikiProperty.class);
-				Root<RWikiProperty> root = cq.from(RWikiProperty.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiPropertyImpl> cq = cb.createQuery(RWikiPropertyImpl.class);
+			Root<RWikiPropertyImpl> root = cq.from(RWikiPropertyImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("name"), name));
+			cq.select(root).where(cb.equal(root.get("name"), name));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = (List) getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -92,7 +90,7 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPr
 	@Transactional
 	public void update(RWikiProperty property)
 	{
-		getHibernateTemplate().saveOrUpdate(property);
+		sessionFactory.getCurrentSession().saveOrUpdate(property);
 	}
 
 	/**
