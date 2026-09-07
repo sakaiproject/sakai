@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -45,7 +46,9 @@ import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.tool;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -115,10 +118,28 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 	@Autowired private SiteService siteService;
 	@Autowired private StatsManager statsManager;
 
+	private final Map<String, Set<AssignmentSubmission>> submissionsByAssignmentId = new HashMap<String, Set<AssignmentSubmission>>();
+
 	@Before
 	public void setUp() throws Exception {
 		db.deleteAll();
 		reset(securityService, siteService, sessionManager, userDirectoryService, assignmentService, samigoLookup);
+		submissionsByAssignmentId.clear();
+		when(assignmentService.getSubmissions(anyCollection())).thenAnswer(invocation -> {
+			Collection<String> ids = invocation.getArgument(0);
+			Map<String, Set<AssignmentSubmission>> result = new HashMap<String, Set<AssignmentSubmission>>();
+			if (ids == null) {
+				return result;
+			}
+			for (String id : ids) {
+				if (id == null || id.isEmpty()) {
+					continue;
+				}
+				Set<AssignmentSubmission> submissions = submissionsByAssignmentId.get(id);
+				result.put(id, submissions == null ? Collections.emptySet() : submissions);
+			}
+			return result;
+		});
 
 		Session session = mock(Session.class);
 		when(session.getUserId()).thenReturn(USER_A_ID);
@@ -300,7 +321,7 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		submitter.setSubmitter(USER_A_ID);
 		submitter.setSubmission(submission);
 		submission.getSubmitters().add(submitter);
-		when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.singleton(submission));
+		stubSubmissions(assignment, Collections.singleton(submission));
 
 		assertEquals("1", snapshot(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_ON_TIME).getPrimary());
 		assertEquals("0", snapshot(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_MISSED).getPrimary());
@@ -503,7 +524,7 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		Map<Assignment, List<String>> assignments = new LinkedHashMap<Assignment, List<String>>();
 		assignments.put(assignment, Arrays.asList(USER_A_ID, USER_B_ID, instructorId));
 		when(assignmentService.getSubmittableAssignmentsForContext(SITE_ID)).thenReturn(assignments);
-		when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.emptySet());
+		stubSubmissions(assignment, Collections.emptySet());
 
 		when(samigoLookup.publishedQuizzes(SITE_ID)).thenReturn(Collections.singletonList(
 				new SiteStatsSamigoQuiz("quiz-midterm", "Midterm", Instant.parse("2026-06-20T23:59:59Z"))));
@@ -672,8 +693,8 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		assignments.put(homework, Arrays.asList(USER_A_ID, USER_B_ID));
 		assignments.put(essay, Arrays.asList(USER_A_ID, USER_B_ID));
 		when(assignmentService.getSubmittableAssignmentsForContext(SITE_ID)).thenReturn(assignments);
-		when(assignmentService.getSubmissions(homework)).thenReturn(Collections.emptySet());
-		when(assignmentService.getSubmissions(essay)).thenReturn(Collections.emptySet());
+		stubSubmissions(homework, Collections.emptySet());
+		stubSubmissions(essay, Collections.emptySet());
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_ALL);
@@ -699,8 +720,8 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		Set<AssignmentSubmission> homeworkSubs = new HashSet<AssignmentSubmission>();
 		homeworkSubs.add(lateSubmission("sub-hw-a", USER_A_ID, "2026-06-15T14:00:00Z"));
 		homeworkSubs.add(lateSubmission("sub-hw-b", USER_B_ID, "2026-06-15T15:00:00Z"));
-		when(assignmentService.getSubmissions(homework)).thenReturn(homeworkSubs);
-		when(assignmentService.getSubmissions(essay)).thenReturn(Collections.singleton(
+		stubSubmissions(homework, homeworkSubs);
+		stubSubmissions(essay, Collections.singleton(
 				lateSubmission("sub-essay-a", USER_A_ID, "2026-05-12T00:00:00Z")));
 
 		assertEquals("3 hours_abbr", snapshot(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_AVG_DELAY).getPrimary());
@@ -712,7 +733,7 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		Map<Assignment, List<String>> assignments = new LinkedHashMap<Assignment, List<String>>();
 		assignments.put(essay, Arrays.asList(USER_A_ID, USER_B_ID));
 		when(assignmentService.getSubmittableAssignmentsForContext(SITE_ID)).thenReturn(assignments);
-		when(assignmentService.getSubmissions(essay)).thenReturn(Collections.singleton(
+		stubSubmissions(essay, Collections.singleton(
 				lateSubmission("sub-essay-a", USER_A_ID, "2026-05-12T23:08:00Z")));
 
 		assertEquals("131 days_abbr 23 hours_abbr", snapshot(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_AVG_DELAY).getPrimary());
@@ -736,7 +757,11 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		submitter.setSubmission(submission);
 		submission.getSubmitters().add(submitter);
 
-		when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.singleton(submission));
+		stubSubmissions(assignment, Collections.singleton(submission));
+	}
+
+	private void stubSubmissions(Assignment assignment, Set<AssignmentSubmission> submissions) {
+		submissionsByAssignmentId.put(assignment.getId(), submissions);
 	}
 
 	private AssignmentSubmission lateSubmission(String id, String userId, String submittedDate) {

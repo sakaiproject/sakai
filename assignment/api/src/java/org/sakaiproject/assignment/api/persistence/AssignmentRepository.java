@@ -69,6 +69,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds);
 
+    /**
+     * Load submissions for several assignments in one query.
+     * Blank ids are ignored. Missing assignment ids produce no rows.
+     */
+    List<AssignmentSubmission> findSubmissions(Collection<String> assignmentIds);
+
     AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId);
 
     long countAssignmentsBySite(String siteId);

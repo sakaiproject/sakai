@@ -516,6 +516,15 @@ public interface AssignmentService extends EntityProducer {
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
 
     /**
+     * Get the submissions for several assignments in one query.
+     * Missing assignment ids are present in the result with an empty set.
+     *
+     * @param assignmentIds assignment ids to load; blank ids are ignored
+     * @return submissions grouped by assignment id, never null
+     */
+    public Map<String, Set<AssignmentSubmission>> getSubmissions(Collection<String> assignmentIds);
+
+    /**
      * @param assignmentId
      * @return
      */
