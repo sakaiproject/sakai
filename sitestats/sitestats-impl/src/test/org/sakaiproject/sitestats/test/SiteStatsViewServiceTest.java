@@ -43,7 +43,11 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_ACTI
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_LESSONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_PRESENCE_ACCESS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_PRESENCE_ACCESS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_GRADES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_GRADES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.eventStat;
 import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.presenceStat;
@@ -183,8 +187,12 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertNull(metric(overview, WIDGET_VISITS, METRIC_VISITS_TOTAL).getSnapshot());
 		assertEquals("3", snapshot(WIDGET_VISITS, METRIC_VISITS_TOTAL).getPrimary());
 		assertTrue(hasWidget(overview, WIDGET_PRESENCE_ACCESS));
+		assertTrue(hasWidget(overview, WIDGET_SUBMISSIONS));
+		assertTrue(hasWidget(overview, WIDGET_GRADES));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_VISITS));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_PRESENCE_ACCESS));
+		assertFalse(hasWidget(overview, WIDGET_STUDENT_SUBMISSIONS));
+		assertFalse(hasWidget(overview, WIDGET_STUDENT_GRADES));
 	}
 
 	@Test
@@ -195,6 +203,10 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 
 		assertFalse(hasWidget(overview, WIDGET_VISITS));
 		assertFalse(hasWidget(overview, WIDGET_PRESENCE_ACCESS));
+		assertFalse(hasWidget(overview, WIDGET_SUBMISSIONS));
+		assertFalse(hasWidget(overview, WIDGET_GRADES));
+		assertTrue(hasWidget(overview, WIDGET_STUDENT_SUBMISSIONS));
+		assertTrue(hasWidget(overview, WIDGET_STUDENT_GRADES));
 		assertNotNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL));
 		assertNull(metric(overview, WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL).getSnapshot());
 		assertNotNull(snapshot(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL));
@@ -564,7 +576,8 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertNotNull(threshold);
 		assertNotNull(date);
 		assertEquals(SiteStatsFilter.TYPE_SELECT, itemType.getType());
-		assertEquals("assignment", itemType.getOptions().get(1).getValue());
+		assertEquals(1, itemType.getOptions().size());
+		assertEquals("all", itemType.getOptions().get(0).getValue());
 		assertEquals(SiteStatsFilter.TYPE_NUMBER, threshold.getType());
 		assertEquals(ReportManager.WHEN_CUSTOM, date.getOptions().get(date.getOptions().size() - 1).getValue());
 

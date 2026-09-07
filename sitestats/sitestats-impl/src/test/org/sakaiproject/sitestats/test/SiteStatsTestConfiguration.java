@@ -85,6 +85,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -111,6 +112,9 @@ public class SiteStatsTestConfiguration {
     static {
         System.setProperty("sakai.tests.enabled", "true");
     }
+
+    private final org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookupMock =
+            mock(org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup.class);
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
@@ -149,6 +153,21 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.alias.api.AliasService")
     public AliasService aliasService() {
         return mock(AliasService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentService")
+    public org.sakaiproject.assignment.api.AssignmentService assignmentService() {
+        return mock(org.sakaiproject.assignment.api.AssignmentService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public org.sakaiproject.grading.api.GradingService gradingService() {
+        return mock(org.sakaiproject.grading.api.GradingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup")
+    public org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookup() {
+        return samigoLookupMock;
     }
 
     @Bean(name = "org.sakaiproject.announcement.api.AnnouncementService")
@@ -262,7 +281,15 @@ public class SiteStatsTestConfiguration {
 
     @Bean
     public BeanPostProcessor siteStatsResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
-        return new BeanPostProcessor() {
+        return new InstantiationAwareBeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+                if (org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookupImpl.class.equals(beanClass)) {
+                    return samigoLookupMock;
+                }
+                return null;
+            }
+
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
                 if (bean instanceof ReportManagerImpl) {
@@ -282,6 +309,9 @@ public class SiteStatsTestConfiguration {
                     List<SiteStatsWidgetDefinition> definitions = new ArrayList<>(factory.getWidgetDefinitions());
                     definitions.add(new ViewFactoryFixtureWidgetDefinition());
                     factory.setWidgetDefinitions(definitions);
+                } else if (bean instanceof org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) {
+                    ((org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) bean)
+                            .setSamigoLookup(samigoLookupMock);
                 }
                 return bean;
             }
