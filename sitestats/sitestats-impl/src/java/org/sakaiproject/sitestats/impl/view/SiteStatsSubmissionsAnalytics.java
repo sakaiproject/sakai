@@ -25,6 +25,7 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.ITEM_ALL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -243,9 +244,13 @@ public class SiteStatsSubmissionsAnalytics {
 		if (assignments == null || assignments.isEmpty()) {
 			return;
 		}
+		List<Assignment> included = new ArrayList<Assignment>();
+		List<String> assignmentIds = new ArrayList<String>();
+		Map<String, List<String>> submittersByAssignment = new HashMap<String, List<String>>();
 		for (Map.Entry<Assignment, List<String>> entry : assignments.entrySet()) {
 			Assignment assignment = entry.getKey();
-			if (assignment == null || Boolean.TRUE.equals(assignment.getDraft()) || Boolean.TRUE.equals(assignment.getDeleted())) {
+			if (assignment == null || Boolean.TRUE.equals(assignment.getDraft()) || Boolean.TRUE.equals(assignment.getDeleted())
+					|| StringUtils.isBlank(assignment.getId())) {
 				continue;
 			}
 			if (!includeItem(request, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, assignment.getId())) {
@@ -260,8 +265,16 @@ public class SiteStatsSubmissionsAnalytics {
 			if (expectedUsers.isEmpty()) {
 				continue;
 			}
-			Map<String, AssignmentSubmission> byUser = submissionsByUser(assignment);
-			for (String expectedUser : expectedUsers) {
+			included.add(assignment);
+			assignmentIds.add(assignment.getId());
+			submittersByAssignment.put(assignment.getId(), new ArrayList<String>(expectedUsers));
+		}
+		Map<String, Set<AssignmentSubmission>> submissionsByAssignment = submissionsByAssignment(assignmentIds);
+		for (Assignment assignment : included) {
+			Instant due = assignment.getDueDate();
+			Instant close = assignment.getCloseDate();
+			Map<String, AssignmentSubmission> byUser = submissionsByUser(submissionsByAssignment.get(assignment.getId()));
+			for (String expectedUser : submittersByAssignment.get(assignment.getId())) {
 				AssignmentSubmission submission = byUser.get(expectedUser);
 				Instant submittedDate = submission == null ? null : submission.getDateSubmitted();
 				boolean submitted = isSubmitted(submission);
@@ -306,14 +319,20 @@ public class SiteStatsSubmissionsAnalytics {
 		}
 	}
 
-	private Map<String, AssignmentSubmission> submissionsByUser(Assignment assignment) {
-		Set<AssignmentSubmission> submissions;
-		try {
-			submissions = assignmentService.getSubmissions(assignment);
-		} catch (RuntimeException e) {
-			log.warn("Unable to load submissions for assignment {}", assignment.getId(), e);
+	private Map<String, Set<AssignmentSubmission>> submissionsByAssignment(Collection<String> assignmentIds) {
+		if (assignmentIds == null || assignmentIds.isEmpty()) {
 			return Collections.emptyMap();
 		}
+		try {
+			Map<String, Set<AssignmentSubmission>> submissions = assignmentService.getSubmissions(assignmentIds);
+			return submissions == null ? Collections.emptyMap() : submissions;
+		} catch (RuntimeException e) {
+			log.warn("Unable to load submissions for {} assignments", Integer.valueOf(assignmentIds.size()), e);
+			return Collections.emptyMap();
+		}
+	}
+
+	private Map<String, AssignmentSubmission> submissionsByUser(Set<AssignmentSubmission> submissions) {
 		if (submissions == null || submissions.isEmpty()) {
 			return Collections.emptyMap();
 		}

@@ -17,7 +17,9 @@ package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +34,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -251,6 +254,29 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
                 .list();
         return submissions;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<AssignmentSubmission> findSubmissions(Collection<String> assignmentIds) {
+        if (assignmentIds == null || assignmentIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Set<String> ids = new HashSet<String>();
+        for (String assignmentId : assignmentIds) {
+            if (StringUtils.isNotBlank(assignmentId)) {
+                ids.add(assignmentId);
+            }
+        }
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return geCurrentSession().createCriteria(AssignmentSubmission.class)
+                .createAlias("assignment", "a")
+                .setFetchMode("assignment", FetchMode.JOIN)
+                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("a.id", ids))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                .list();
     }
 
     @Override
