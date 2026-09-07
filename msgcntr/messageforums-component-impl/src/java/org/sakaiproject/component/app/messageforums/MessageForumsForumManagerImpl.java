@@ -36,19 +36,45 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.query.Query;
-import org.sakaiproject.api.app.messageforums.*;
+import org.sakaiproject.api.app.messageforums.ActorPermissions;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsUser;
+import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.OpenTopic;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
+import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc;
@@ -66,12 +92,16 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
-import org.springframework.cglib.core.Local;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +112,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional
-public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
+public class MessageForumsForumManagerImpl implements MessageForumsForumManager {
 
     @Getter @Setter
     private ServerConfigurationService serverConfigurationService;
@@ -100,6 +130,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private MessageForumsTypeManager typeManager;
     @Setter
     private ContentHostingService contentHostingService;
+    @Getter
+    @Setter
+    private SessionFactory sessionFactory;
 
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
 
@@ -168,24 +201,35 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     public void initializeTopicsForForum(BaseForum forum){      
-      getHibernateTemplate().initialize(forum);
-      getHibernateTemplate().initialize(forum.getTopicsSet());
+      Hibernate.initialize(forum);
+      Hibernate.initialize(forum.getTopicsSet());
     }
     
     public List getTopicsByIdWithMessages(final Long forumId){
       if (forumId == null) {
         throw new IllegalArgumentException("Null Argument");
       }   
-      
-      HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM);
-          q.setParameter("id", forumId);
-          return q.list();
-      };
+
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+      Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+      Join<TopicImpl, OpenForum> forum =
+        topic.join("openForum", JoinType.INNER);
+
+      topic.fetch("messagesSet", JoinType.LEFT);
+
+      cq.select(cb.array(topic, forum))
+        .where(cb.equal(forum.get("id"), forumId));
+
+      List<Object[]> temp = session.createQuery(cq).getResultList();
 
     Topic tempTopic = null;
     Set resultSet = new HashSet();      
-    List temp = getHibernateTemplate().execute(hcb);
+
     for (Iterator i = temp.iterator(); i.hasNext();)
     {
       Object[] results = (Object[]) i.next();        
@@ -208,16 +252,27 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       if (forumId == null) {
         throw new IllegalArgumentException("Null Argument");
       }   
-      
-      HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM);
-          q.setParameter("id", forumId);
-          return q.list();
-      };
+
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+      Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+      Join<TopicImpl, OpenForum> forum =
+        topic.join("openForum", JoinType.INNER);
+
+      topic.fetch("messagesSet", JoinType.LEFT);
+
+      cq.select(cb.array(topic, forum))
+        .where(cb.equal(forum.get("id"), forumId));
+
+      List<Object[]> temp = session.createQuery(cq).getResultList();
 
     Topic tempTopic = null;
     Set resultSet = new HashSet();      
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+
     for (Iterator i = temp.iterator(); i.hasNext();)
     {
       Object[] results = (Object[]) i.next();        
@@ -240,16 +295,32 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       if (forumId == null) {
         throw new IllegalArgumentException("Null Argument");
       }   
-      
-      HibernateCallback<List> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM);
-          q.setParameter("id", forumId);
-          return q.list();
-      };
+
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+      Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+      Join<TopicImpl, OpenForum> forum =
+              topic.join("openForum", JoinType.INNER);
+
+      Fetch<TopicImpl, ?> message =
+              topic.fetch("messagesSet", JoinType.LEFT);
+
+      message.fetch("attachmentsSet", JoinType.LEFT);
+
+      topic.fetch("membershipItemSet", JoinType.LEFT);
+
+      cq.select(cb.array(topic, forum))
+        .where(cb.equal(forum.get("id"), forumId));
+
+      List<Object[]> temp = session.createQuery(cq).getResultList();
 
     Topic tempTopic = null;
     SortedSet resultSet = new TreeSet(new TopicBySortIndexAscAndCreatedDateDesc());
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+
     for (Iterator i = temp.iterator(); i.hasNext();)
     {
       Object[] results = (Object[]) i.next();        
@@ -278,15 +349,32 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
   public List<DiscussionForum> getForumsForSite(String siteId) {
 
-    HibernateCallback<List> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
-      q.setParameter("typeUuid", typeManager.getDiscussionForumType());
-      q.setParameter("contextId", siteId);
-      return q.list();
-    };
-    List returnList = new ArrayList();
-    returnList.addAll(new HashSet(getHibernateTemplate().execute(hcb)));
-    return returnList;
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+      Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+
+      Fetch<OpenForumImpl, ?> topic = forum.fetch("topicsSet", JoinType.LEFT);
+      topic.fetch("attachmentsSet", JoinType.LEFT);
+      forum.fetch("attachmentsSet", JoinType.LEFT);
+
+      Join<OpenForumImpl, ?> area = forum.join("area", JoinType.INNER);
+
+      cq.select(forum)
+        .distinct(true)
+        .where(
+            cb.equal(forum.get("typeUuid"), typeManager.getDiscussionForumType()),
+            cb.equal(area.get("contextId"), siteId)
+        );
+
+      List<OpenForumImpl> temp = session.createQuery(cq).getResultList();
+
+      List<DiscussionForum> returnList = temp.stream()
+        .distinct()
+        .map(f -> (DiscussionForum) f)
+        .toList();
+      return returnList;
   }
 
       
@@ -295,15 +383,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }      
 
-     HibernateCallback<List> hcb = session -> {
-         Query q = session.getNamedQuery(QUERY_RECEIVED_UUID_BY_CONTEXT_ID);
-         q.setParameterList("siteList", siteList);
-         q.setParameter("userId", getCurrentUser());
-         return q.list();
-     };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      return getHibernateTemplate().execute(hcb);
-	  
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+      Root<PrivateTopicImpl> topic = cq.from(PrivateTopicImpl.class);
+
+      Join<PrivateTopicImpl, ?> forum = topic.join("privateForum", JoinType.LEFT);
+      Join<?, ?> area = forum.join("area", JoinType.LEFT);
+
+      cq.select(cb.array(area.get("contextId"), topic.get("uuid")))
+        .where(
+            area.get("contextId").in(siteList),
+            cb.equal(topic.get("title"), "pvt_received"),
+            cb.equal(topic.get("owner"), getCurrentUser())
+        );
+
+      return session.createQuery(cq).getResultList();
   }
 
     public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId) {
@@ -312,13 +408,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }      
 
-     HibernateCallback<Topic> hcb = session -> {
-         Query q = session.getNamedQuery(QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS);
-         q.setParameter("id", topicId);
-         return (Topic) q.uniqueResult();
-     };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      return getHibernateTemplate().execute(hcb);
+      CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+      Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+      Fetch<TopicImpl, ?> message = topic.fetch("messagesSet", JoinType.LEFT);
+      message.fetch("attachmentsSet", JoinType.LEFT);
+
+      cq.select(topic)
+        .where(cb.equal(topic.get("id"), topicId));
+
+      return session.createQuery(cq)
+              .uniqueResultOptional()
+              .orElse(null);
     }
     
     public Topic getTopicByIdWithMessages(final Long topicId) {
@@ -327,13 +431,20 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }      
 
-     HibernateCallback<Topic> hcb = session -> {
-         Query q = session.getNamedQuery(QUERY_TOPIC_WITH_MESSAGES);
-         q.setParameter("id", topicId);
-         return (Topic) q.uniqueResult();
-     };
-      
-      return getHibernateTemplate().execute(hcb);
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+      Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+      topic.fetch("messagesSet", JoinType.LEFT);
+
+      cq.select(topic)
+        .where(cb.equal(topic.get("id"), topicId));
+
+      return session.createQuery(cq)
+              .uniqueResultOptional()
+              .orElse(null);
     }
     
     public Topic getTopicWithAttachmentsById(final Long topicId) {
@@ -342,13 +453,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }      
 
-       HibernateCallback<Topic> hcb = session -> {
-           Query q = session.getNamedQuery(QUERY_TOPIC_WITH_ATTACHMENTS);
-           q.setParameter("id", topicId);
-           return (Topic) q.uniqueResult();
-       };
-        
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+        topic.fetch("messagesSet", JoinType.LEFT);
+        topic.fetch("attachmentsSet", JoinType.LEFT);
+
+        cq.select(topic)
+          .where(cb.equal(topic.get("id"), topicId));
+
+        return session.createQuery(cq)
+                .uniqueResultOptional()
+                .orElse(null);
       }
 
     
@@ -356,13 +475,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	if (topicId == null) {
     		throw new IllegalArgumentException("Null Argument topicId");
     	}
-    	HibernateCallback<List<Attachment>> hcb = session -> {
-            Query q = session.getNamedQuery("findTopicAttachments");
-            q.setCacheable(true);
-            q.setParameter("topic", topicId);
-            return q.list();
-        };
-    	return getHibernateTemplate().execute(hcb);
+    	Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<AttachmentImpl> cq = cb.createQuery(AttachmentImpl.class);
+        Root<AttachmentImpl> attachment = cq.from(AttachmentImpl.class);
+
+        cq.select(attachment)
+          .where(cb.equal(attachment.get("topic").get("id"), topicId));
+
+        return (List<Attachment>) (List<?>) session.createQuery(cq)
+                      .setCacheable(true)
+                      .getResultList();
     } 
 
     
@@ -372,16 +496,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }      
 
-     HibernateCallback<BaseForum> hcb = session -> {
-         Query q = session.getNamedQuery(QUERY_BY_FORUM_ID_AND_TOPICS);
-         q.setParameter("id", forumId);
-         return (BaseForum) q.uniqueResult();
-     };
-      
-      BaseForum bForum = getHibernateTemplate().execute(hcb);
-      
-      if (bForum != null){
-        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+      Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+
+      forum.fetch("topicsSet", JoinType.LEFT);
+
+      cq.select(forum)
+        .where(cb.equal(forum.get("id"), forumId));
+
+      List<OpenForumImpl> results = session.createQuery(cq).getResultList();
+
+      BaseForum bForum = results.isEmpty() ? null : results.get(0);
+
+      if (bForum != null) {
+          Hibernate.initialize(bForum.getAttachmentsSet());
       }
       
       return bForum;      
@@ -393,16 +524,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }      
 
-     HibernateCallback<List> hcb = session -> {
-         Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT);
-         q.setParameter("typeUuid", typeUuid);
-         q.setParameter("contextId", getContextId());
-         return q.list();
-     };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+      Root<BaseForumImpl> forum = cq.from(BaseForumImpl.class);
+      Join<BaseForumImpl, AreaImpl> area = forum.join("area");
+
+      forum.fetch("topicsSet", JoinType.LEFT);
+
+      cq.select(cb.array(forum, area))
+        .where(cb.equal(forum.get("typeUuid"), typeUuid),
+               cb.equal(area.get("contextId"), getContextId()));
+
+      List<Object[]> temp = session.createQuery(cq).getResultList();
 
       BaseForum tempForum = null;
       Set resultSet = new HashSet();
-      List temp = getHibernateTemplate().execute(hcb);
             
       for (Iterator i = temp.iterator(); i.hasNext();)
       {
@@ -440,16 +578,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }      
 
-       HibernateCallback<List> hcb = session -> {
-           Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT);
-           q.setParameter("typeUuid", typeUuid);
-           q.setParameter("contextId", contextId);
-           return q.list();
-       };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<BaseForumImpl> forum = cq.from(BaseForumImpl.class);
+        Join<BaseForumImpl, AreaImpl> area = forum.join("area");
+
+        forum.fetch("topicsSet", JoinType.LEFT);
+
+        cq.select(cb.array(forum, area))
+          .where(cb.equal(forum.get("typeUuid"), typeUuid),
+                 cb.equal(area.get("contextId"), contextId));
+
+        List<Object[]> temp = session.createQuery(cq).getResultList();
 
         BaseForum tempForum = null;
         Set resultSet = new HashSet();
-        List temp = getHibernateTemplate().execute(hcb);
               
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
@@ -489,14 +634,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getTopicByIdWithMessagesAndAttachments executing with topicId: " + topicId);
 
-        HibernateCallback<Topic> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS);
-            q.setParameter("id", topicId);
-            return (Topic) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+        topic.fetch("attachmentsSet", JoinType.LEFT);
+
+        cq.select(topic)
+          .where(cb.equal(topic.get("id"), topicId));
+
+        Topic result = session.createQuery(cq).uniqueResult();
 
         // unproxy to avoid ClassCastException in certain scenarios
-        return (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
+        return (Topic) Hibernate.unproxy(result);
 
     }
 
@@ -508,13 +660,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getForumByOwner executing with owner: " + owner);
 
-        HibernateCallback<PrivateForum> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER);
-            q.setParameter("owner", owner);
-            return (PrivateForum) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<PrivateForumImpl> cq = cb.createQuery(PrivateForumImpl.class);
+        Root<PrivateForumImpl> pf = cq.from(PrivateForumImpl.class);
+
+        cq.select(pf)
+          .where(cb.equal(pf.get("owner"), owner));
+
+        return session.createQuery(cq).uniqueResult();
     }
 
     
@@ -526,14 +681,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
       log.debug("getForumByOwnerArea executing with owner: " + owner + " and area:" + area);
 
-      HibernateCallback<PrivateForum> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA);
-          q.setParameter("owner", owner);
-          q.setParameter("area", area);
-          return (PrivateForum) q.uniqueResult();
-      };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      return getHibernateTemplate().execute(hcb);
+      CriteriaQuery<PrivateForumImpl> cq = cb.createQuery(PrivateForumImpl.class);
+      Root<PrivateForumImpl> pf = cq.from(PrivateForumImpl.class);
+
+      cq.select(pf)
+        .where(cb.equal(pf.get("owner"), owner),
+               cb.equal(pf.get("area"), area));
+
+      return session.createQuery(cq).uniqueResult();
     }
 
     public PrivateForum getPrivateForumByOwnerAreaNull(final String owner) {
@@ -544,13 +702,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
       log.debug("getForumByOwnerAreaNull executing with owner: " + owner);
 
-      HibernateCallback<PrivateForum> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL);
-          q.setParameter("owner", owner);
-          return (PrivateForum) q.uniqueResult();
-      };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      return getHibernateTemplate().execute(hcb);
+      CriteriaQuery<PrivateForumImpl> cq = cb.createQuery(PrivateForumImpl.class);
+      Root<PrivateForumImpl> pf = cq.from(PrivateForumImpl.class);
+
+      cq.select(pf)
+        .where(cb.equal(pf.get("owner"), owner),
+               cb.isNull(pf.get("area")));
+
+      return session.createQuery(cq).uniqueResult();
     }
     
     public BaseForum getForumByIdWithAttachments(final Long forumId) {
@@ -561,14 +723,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
       log.debug("getForumByIdWithAttachments executing with forumId: " + forumId);
                   
-      HibernateCallback<BaseForum> hcb = session -> {
-          Query q = session.getNamedQuery(QUERY_BY_FORUM_ID_WITH_ATTACHMENTS);
-          q.setParameter("id", forumId);
-          return (BaseForum) q.uniqueResult();
-      };
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+
+      CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+      Root<OpenForumImpl> f = cq.from(OpenForumImpl.class);
+
+      f.fetch("attachmentsSet", JoinType.LEFT);
+
+      cq.select(f)
+        .where(cb.equal(f.get("id"), forumId));
+
+      OpenForumImpl result = session.createQuery(cq).uniqueResult();
 
       // unproxy the result to avoid ClassCastException in certain scenarios
-      return (BaseForum) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
+      return (BaseForum) Hibernate.unproxy(result);
 
     }
 
@@ -584,7 +753,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             // open works for both open and discussion forums
             return getForumByIdWithAttachments(forumId);
         } else {
-            return (BaseForum) getHibernateTemplate().get(PrivateForumImpl.class, forumId);
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+
+            CriteriaQuery<PrivateForumImpl> cq = cb.createQuery(PrivateForumImpl.class);
+            Root<PrivateForumImpl> forum = cq.from(PrivateForumImpl.class);
+
+            cq.select(forum)
+              .where(cb.equal(forum.get("id"), forumId));
+
+            return session.createQuery(cq).uniqueResultOptional().orElse(null);
         }
     }
 
@@ -595,13 +773,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getForumByUuid executing with forumId: " + forumId);
 
-        HibernateCallback<BaseForum> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_FORUM_UUID);
-            q.setParameter("uuid", forumId);
-            return (BaseForum) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<BaseForumImpl> cq = cb.createQuery(BaseForumImpl.class);
+        Root<BaseForumImpl> forum = cq.from(BaseForumImpl.class);
+
+        cq.select(forum).where(cb.equal(forum.get("uuid"), forumId));
+
+        return session.createQuery(cq).uniqueResult();
     }
 
     public Topic getTopicById(final boolean open, final Long topicId) {
@@ -611,14 +791,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getTopicById executing with topicId: " + topicId);
 
-        HibernateCallback<Topic> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
-            q.setParameter("id", topicId);
-            // Use uniqueResult() so missing topics return null instead of throwing NoResultException.
-            return (Topic) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        Topic topic = (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
+        CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+        Root<TopicImpl> topicRoot = cq.from(TopicImpl.class);
+
+        cq.select(topicRoot).where(cb.equal(topicRoot.get("id"), topicId));
+
+        // Use uniqueResult() so missing topics return null instead of throwing NoResultException.
+        Topic topic = (Topic) Hibernate.unproxy(session.createQuery(cq).uniqueResultOptional().orElse(null));
 
         if (topic != null) {
             BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(topic.getOpenForum()) : (BaseForum) Hibernate.unproxy(topic.getPrivateForum());
@@ -634,13 +816,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
 
         log.debug("getTopicByUuid executing with topicId: " + uuid);
-        HibernateCallback<Topic> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_TOPIC_UUID);
-            q.setParameter("uuid", uuid);
-            return (Topic) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+
+        cq.select(topic).where(cb.equal(topic.get("uuid"), uuid));
+
+        return session.createQuery(cq).uniqueResult();
     }
     
     public List<Topic> getModeratedTopicsInSite(final String contextId) {
@@ -651,15 +835,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getModeratedTopicsInSite executing with contextId: " + contextId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_GET_ALL_MOD_TOPICS_IN_SITE);
-            q.setParameter("contextId", contextId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+        Join<TopicImpl, ?> forum = topic.join("openForum", JoinType.INNER);
+        Join<?, ?> area = forum.join("area", JoinType.INNER);
+
+        cq.select(cb.array(topic, forum))
+          .where(
+              cb.equal(area.get("contextId"), contextId),
+              cb.isTrue(topic.get("moderated"))
+          );
+
+        List<Object[]> temp = session.createQuery(cq).getResultList();
         
         Topic tempTopic = null;
         Set<Topic> resultSet = new HashSet<>();
-        List temp = getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
@@ -699,15 +892,28 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     public DiscussionForum getFaqForumForArea(Area area) {
-        HibernateCallback<DiscussionForum> hibernateCallback = (session) -> {
-            Query<DiscussionForum> query = session.getNamedQuery(QUERY_FAQ_FORUMS);
-            query.setParameter("typeUuid", area.getTypeUuid());
-            query.setParameter("contextId", area.getContextId());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+        Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
 
-            return query.list().stream().findAny().orElse(null);
-        };
+        forum.fetch("topicsSet", JoinType.LEFT).fetch("attachmentsSet", JoinType.LEFT);
+        forum.fetch("attachmentsSet", JoinType.LEFT);
 
-        DiscussionForum existingFaqForum = getHibernateTemplate().execute(hibernateCallback);
+        cq.select(forum)
+          .distinct(true)
+          .where(
+              cb.equal(forum.get("typeUuid"), area.getTypeUuid()),
+              cb.equal(forum.get("area").get("contextId"), area.getContextId()),
+              cb.isTrue(forum.get("faqForum"))
+         );
+
+        DiscussionForum existingFaqForum = session.createQuery(cq)
+                .getResultList()
+                .stream()
+                .findAny()
+                .map(f -> (DiscussionForum) f)
+                .orElse(null);
         return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
     }
 
@@ -853,7 +1059,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModifiedBy(userId);
         }
         forum.setOwner(userId);
-        PrivateForum mergedForum = getHibernateTemplate().merge(forum);
+        Session session = sessionFactory.getCurrentSession();
+        PrivateForum mergedForum = session.merge(forum);
 
         log.debug("savePrivateForum executed with forumId: " + mergedForum.getId());
 
@@ -926,7 +1133,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         //make sure availability flag is set properly
         forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed()));
 
-        DiscussionForum mergedForum = getHibernateTemplate().merge(forum);
+        Session session = sessionFactory.getCurrentSession();
+        DiscussionForum mergedForum = session.merge(forum);
 
         //make sure that any open and close dates are scheduled:
         ForumScheduleNotificationCover.scheduleAvailability(mergedForum);
@@ -1117,7 +1325,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	if(userId != null){
     		topic.setModifiedBy(userId);
     	}
-    	PrivateTopic mergedTopic = getHibernateTemplate().merge(topic);
+    	Session session = sessionFactory.getCurrentSession();
+    	PrivateTopic mergedTopic = session.merge(topic);
 
     	if (isNew) {
     		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(mergedTopic, siteId), false));
@@ -1140,7 +1349,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if(getCurrentUser()!=null){
         topic.setModifiedBy(getCurrentUser());
         }
-        getHibernateTemplate().saveOrUpdate(topic);
+        Session session = sessionFactory.getCurrentSession();
+        topic = session.merge(topic);
 
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
@@ -1160,13 +1370,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE,
                 getEventMessage(forum, getForumContext(forum)), false));
 
+        Session session = sessionFactory.getCurrentSession();
+
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
             List<Message> messages = topic.getMessages();
             for(Message message:messages){
                 List<MessageMoveHistory> moveHistory = getMoveHistoryForMessageId(message.getId());
                 for (MessageMoveHistory messageHistory: moveHistory){
-                    getHibernateTemplate().delete(messageHistory);
+                    session.remove(messageHistory);
                 }
                 List attachmentsMessage =  (List<Attachment>) message.getAttachments();
                 if (!attachmentsMessage.isEmpty()) {
@@ -1180,11 +1392,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
             //unread status
             List<UnreadStatus> statuses = getUnreadStatusesForTopic(topic.getId());
-            getHibernateTemplate().deleteAll(statuses);
+            statuses.forEach(session::remove);
 
             forum.removeTopic(topic);
-            Topic topicTmp = (Topic) getSessionFactory().getCurrentSession().merge(topic);
-            getSessionFactory().getCurrentSession().delete(topicTmp);
+            Topic topicTmp = session.merge(topic);
+            session.remove(topicTmp);
         }
 
         List attachmentsForum =  forum.getAttachments();
@@ -1194,9 +1406,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
-        DiscussionForum forumTmp = getHibernateTemplate().merge(forum);
-        getHibernateTemplate().merge(area);
-        getHibernateTemplate().delete(forumTmp);
+        DiscussionForum forumTmp = session.merge(forum);
+        session.merge(area);
+        session.remove(forumTmp);
 
         log.debug("deleteDiscussionForum executed with forumId: " + id);
     }
@@ -1212,36 +1424,47 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     private List<MessageMoveHistory> getMoveHistoryForMessageId(Long messageId) {
-        HibernateCallback<List<MessageMoveHistory>> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_GET_UNREAD_STATUSES_FOR_TOPIC);
-            q.setParameter("messageId", messageId);
-            return (List) q.list();
-        };
+         Session session = sessionFactory.getCurrentSession();
+         CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+         CriteriaQuery<MessageMoveHistory> cq = cb.createQuery(MessageMoveHistory.class);
+         Root<MessageMoveHistory> history = cq.from(MessageMoveHistory.class);
+
+         cq.select(history)
+           .where(cb.equal(history.get("messageId"), messageId));
+
+         return session.createQuery(cq).getResultList();
     }
 
     private List<UnreadStatus> getUnreadStatusesForTopic(Long topicId) {
-        HibernateCallback<List<UnreadStatus>> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_UNREAD_STATUSES_FOR_TOPIC);
-            q.setParameter("topicId", topicId);
-            return (List) q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<UnreadStatus> cq = cb.createQuery(UnreadStatus.class);
+        Root<UnreadStatus> status = cq.from(UnreadStatus.class);
+
+        cq.select(status)
+          .where(cb.equal(status.get("topicId"), topicId));
+
+        return session.createQuery(cq).getResultList();
     }
 
     
     public Area getAreaByContextIdAndTypeId(final String typeId) {
         log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-        HibernateCallback<Area> hcb = session -> {
-            Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-            q.setParameter("contextId", getContextId());
-            q.setParameter("typeId", typeId);
-            return (Area) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<Area> cq = cb.createQuery(Area.class);
+        Root<Area> area = cq.from(Area.class);
+        area.fetch("membershipItemSet", JoinType.LEFT);
+        area.fetch("hiddenGroups", JoinType.LEFT);
+
+        cq.select(area)
+          .where(cb.equal(area.get("contextId"), getContextId()),
+                 cb.equal(area.get("typeUuid"), typeId));
+
+        return session.createQuery(cq).uniqueResult();
     }
     
     /**
@@ -1250,8 +1473,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void deleteDiscussionForumTopic(DiscussionTopic topic) {
         long id = topic.getId().longValue();
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REMOVE, getEventMessage(topic), false));
+        Session session = sessionFactory.getCurrentSession();
         try {
-            getSessionFactory().getCurrentSession().evict(topic);
+            session.evict(topic);
         } catch (Exception e) {
             log.error("could not evict topic: " + topic.getId(), e);
         }
@@ -1260,7 +1484,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         for(Message message:messages){
             List<MessageMoveHistory> moveHistory = getMoveHistoryForMessageId(message.getId());
             for (MessageMoveHistory messageHistory: moveHistory){
-                getHibernateTemplate().delete(messageHistory);
+                session.remove(messageHistory);
             }
             List attachmentsMessage =  (List<Attachment>) message.getAttachments();
             if (!attachmentsMessage.isEmpty()) {
@@ -1275,14 +1499,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         //unread status
         List<UnreadStatus> statuses = getUnreadStatusesForTopic(topic.getId());
-        getHibernateTemplate().deleteAll(statuses);
+        statuses.forEach(session::remove);
         
         Topic finder = getTopicById(true, topic.getId());
         BaseForum forum = finder.getBaseForum();
         forum.removeTopic(topic);
-        getHibernateTemplate().saveOrUpdate(forum);
+        session.merge(forum);
         
-        getHibernateTemplate().delete(getHibernateTemplate().merge(topic));
+        Topic topicTmp = session.merge(topic);
+        session.remove(topicTmp);
         log.debug("deleteDiscussionForumTopic executed with topicId: " + id);
     }
 
@@ -1291,7 +1516,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteOpenForumTopic(OpenTopic topic) {
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(topic), false));
-        getHibernateTemplate().delete(topic);
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(topic);
         
         log.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
@@ -1301,7 +1527,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deletePrivateForumTopic(PrivateTopic topic) {
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REMOVE, getEventMessage(topic), false));
-        getHibernateTemplate().delete(topic);
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(topic);
         
         log.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
     }
@@ -1355,13 +1582,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("isForumLocked executing with id: " + id);
 
-        HibernateCallback<Boolean> hcb = session -> {
-            Query q = session.getNamedQuery("findForumLockedAttribute");
-            q.setParameter("id", id);
-            return (Boolean) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<Boolean> cq = cb.createQuery(Boolean.class);
+        Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+
+        cq.select(forum.get("locked"))
+          .where(cb.equal(forum.get("id"), id));
+
+        Boolean result = session.createQuery(cq).uniqueResult();
+        return result != null && result.booleanValue();
     }
     
     
@@ -1372,14 +1603,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("searchTopicMessages executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery("findMessagesBySearchText");
-            q.setParameter("id", topicId);
-            q.setParameter("searchByText", "%" + searchText + "%");
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+        Root<MessageImpl> message = cq.from(MessageImpl.class);
+
+        String pattern = "%" + searchText + "%";
+
+        cq.select(message)
+          .where(cb.and(
+                  cb.equal(message.get("topic").get("id"), topicId),
+                  cb.equal(message.get("draft"), false),
+                  cb.or(
+                          cb.like(message.get("author"), pattern),
+                          cb.like(message.get("title"), pattern),
+                          cb.like(message.get("body"), pattern)
+                  )
+          ));
+
+        return session.createQuery(cq).getResultList();
     }
 
     
@@ -1476,16 +1719,32 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 						typeUuid + " contextId:" + contextId);
 			}      
 
-			HibernateCallback<List> hcb = session -> {
-                Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO);
-                q.setParameter("typeUuid", typeUuid);
-                q.setParameter("contextId", contextId);
-                return q.list();
-            };
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+			Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+
+			Join<Object, Object> area = forum.join("area");
+			forum.fetch("attachmentsSet", JoinType.LEFT);
+			Fetch<Object, Object> topicFetch = forum.fetch("topicsSet", JoinType.LEFT);
+			topicFetch.fetch("messagesSet", JoinType.LEFT);
+			topicFetch.fetch("attachmentsSet", JoinType.LEFT);
+
+			cq.select(forum).distinct(true);
+			cq.where(
+				cb.equal(forum.get("typeUuid"), cb.parameter(String.class, "typeUuid")),
+				cb.equal(area.get("contextId"), cb.parameter(String.class, "contextId"))
+					);
+
+			session.createQuery(cq)
+				.setParameter("typeUuid", typeUuid)
+				.setParameter("contextId", contextId)
+				.list();
+			
+			List temp = session.createQuery(cq).getResultList();
 
 			BaseForum tempForum = null;
 			Set resultSet = new HashSet();
-			List temp = getHibernateTemplate().execute(hcb);
 
 			for (Iterator i = temp.iterator(); i.hasNext();)
 			{
@@ -1511,14 +1770,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		if (typeUuid == null || contextId == null) {
 			throw new IllegalArgumentException("Null Argument");
 		}
-		final HibernateCallback<List<BaseForum>> hcb = session -> {
-			Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP);
-			q.setParameter("typeUuid", typeUuid);
-			q.setParameter("contextId", contextId);
-			return q.list();
-		};
+		
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
 
-		final List<BaseForum> resultList = getHibernateTemplate().execute(hcb);
+		Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+		Join<OpenForumImpl, AreaImpl> area = forum.join("area");
+
+		cq.select(forum)
+			.where(cb.and(
+				cb.equal(forum.get("typeUuid"), typeUuid),
+				cb.equal(area.get("contextId"), contextId)
+			));
+
+		final List<BaseForum> resultList = new ArrayList<>(session.createQuery(cq).getResultList());
 
 		Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
 
@@ -1541,14 +1807,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        // hibernate will not like an empty list so return 0
 	        if (membershipList.isEmpty()) return 0;
 
-	        HibernateCallback<Number> hcb = session -> {
-                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
-                q.setParameterList("membershipList", membershipList);
-                q.setParameterList("topicList", moderatedTopics);
-                return (Number) q.uniqueResult();
-            };
+	        Session session = sessionFactory.getCurrentSession();
+	        CriteriaBuilder cb = session.getCriteriaBuilder();
+	        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-	        return getHibernateTemplate().execute(hcb).intValue();
+	        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+	        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+	        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+
+	        Predicate topicInList = topic.in(moderatedTopics);
+	        Predicate membershipInList = membershipItem.get("name").in(membershipList);
+	        Predicate moderatePostings = cb.isTrue(pl.get("moderatePostings"));
+	        Predicate permissionLevelMatches = cb.equal(membershipItem.get("permissionLevel").get("id"), pl.get("id"));
+
+	        cq.select(cb.count(topic))
+	          .where(cb.and(topicInList, membershipInList, moderatePostings, permissionLevelMatches));
+
+	        Long result = session.createQuery(cq).uniqueResult();
+
+	        return result != null ? result.intValue() : 0;
 		}
 		
 		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List<String> membershipList, final List<Topic> moderatedTopics)
@@ -1563,15 +1841,29 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        // hibernate will not like an empty list so return 0
 	        if (membershipList.isEmpty()) return 0;
 
-	        HibernateCallback<Number> hcb = session -> {
-                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
-                q.setParameterList("membershipList", membershipList);
-                q.setParameterList("topicList", moderatedTopics);
-                q.setParameter("customTypeUuid", typeManager.getCustomLevelType());
-                return (Number) q.uniqueResult();
-            };
+	        Session session = sessionFactory.getCurrentSession();
+	        CriteriaBuilder cb = session.getCriteriaBuilder();
+	        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-	        return getHibernateTemplate().execute(hcb).intValue();
+	        Root<TopicImpl> topic = cq.from(TopicImpl.class);
+	        Root<PermissionLevelImpl> pl = cq.from(PermissionLevelImpl.class);
+
+	        Join<TopicImpl, DBMembershipItemImpl> membershipItem = topic.join("membershipItemSet");
+
+	        Predicate topicInList = topic.in(moderatedTopics);
+	        Predicate membershipInList = membershipItem.get("name").in(membershipList);
+	        Predicate moderatePostings = cb.isTrue(pl.get("moderatePostings"));
+	        Predicate notCustomType = cb.notEqual(pl.get("typeUuid"), cb.parameter(String.class, "customTypeUuid"));
+	        Predicate nameMatches = cb.equal(pl.get("name"), membershipItem.get("permissionLevelName"));
+
+	        cq.select(cb.count(topic))
+	          .where(cb.and(topicInList, membershipInList, moderatePostings, notCustomType, nameMatches));
+
+	        Long result =  session.createQuery(cq)
+	                .setParameter("customTypeUuid", typeManager.getCustomLevelType())
+	                .uniqueResult();
+
+	        return result != null ? result.intValue() : 0;
 		}
 		
 		public BaseForum getForumByIdWithTopicsAttachmentsAndMessages(final Long forumId)
@@ -1580,16 +1872,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}      
 
-			HibernateCallback<BaseForum> hcb = session -> {
-                Query q = session.getNamedQuery(QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS);
-                q.setParameter("id", forumId);
-                return (BaseForum) q.uniqueResult();
-              };
-		      
-		      BaseForum bForum = getHibernateTemplate().execute(hcb);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+			Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
+
+			Fetch<OpenForumImpl, Object> topic = forum.fetch("topicsSet", JoinType.LEFT);
+			topic.fetch("messagesSet", JoinType.LEFT);
+			topic.fetch("attachmentsSet", JoinType.LEFT);
+
+			cq.select(forum)
+				.where(cb.equal(forum.get("id"), cb.parameter(Long.class, "id")));
+
+			BaseForum bForum = session.createQuery(cq)
+					.setParameter("id", forumId)
+					.uniqueResult();
+
 		      
 		      if (bForum != null){
-		        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
+		        Hibernate.initialize(bForum.getAttachmentsSet());
 		      }
 		      
 		      return bForum;      
@@ -1601,13 +1902,21 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}
 
-			HibernateCallback<Topic> hcb = session -> {
-                Query q = session.getNamedQuery("findTopicByIdWithMemberships");
-                q.setParameter("id", topicId);
-                return (Topic) q.uniqueResult();
-            };
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+			Root<TopicImpl> topic = cq.from(TopicImpl.class);
 
-			return getHibernateTemplate().execute(hcb);
+			Fetch<TopicImpl, Object> forum = topic.fetch("openForum", JoinType.LEFT);
+			forum.fetch("area", JoinType.LEFT);
+			topic.fetch("membershipItemSet", JoinType.LEFT);
+
+			cq.select(topic)
+				.where(cb.equal(topic.get("id"), cb.parameter(Long.class, "id")));
+
+			return session.createQuery(cq)
+				.setParameter("id", topicId)
+				.uniqueResult();
 		}
 
 		public BaseForum getForumByIdWithMemberships(final Long forumId) {
@@ -1616,13 +1925,20 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}
 
-			HibernateCallback<BaseForum> hcb = session -> {
-                Query q = session.getNamedQuery("findForumByIdWithMemberships");
-                q.setParameter("id", forumId);
-                return (BaseForum) q.uniqueResult();
-            };
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
+			Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
 
-			return getHibernateTemplate().execute(hcb);
+			forum.fetch("area", JoinType.LEFT);
+			forum.fetch("membershipItemSet", JoinType.LEFT);
+
+			cq.select(forum)
+				.where(cb.equal(forum.get("id"), cb.parameter(Long.class, "id")));
+
+			return session.createQuery(cq)
+				.setParameter("id", forumId)
+				.uniqueResult();
 		}
 
 		public List<Topic> getTopicsInSite(final String contextId)
@@ -1637,16 +1953,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}
 
-			final String query = anonymousOnly ? "findAnonymousTopicsInSite" : "findTopicsInSite";
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<TopicImpl> cq = cb.createQuery(TopicImpl.class);
+			Root<TopicImpl> topic = cq.from(TopicImpl.class);
+			Join<Object, Object> forum = topic.join("openForum");
+			Join<Object, Object> area = forum.join("area");
 
-			HibernateCallback<List<Topic>> hcb = session -> {
-                Query q = session.getNamedQuery(query);
-                q.setParameter("contextId", contextId);
-                return q.list();
-            };
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(area.get("contextId"), cb.parameter(String.class, "contextId")));
+			if (anonymousOnly) {
+				predicates.add(cb.isTrue(topic.get("postAnonymous")));
+			}
+
+			cq.select(topic).where(predicates.toArray(new Predicate[0]));
+
+			List resultSet = session.createQuery(cq)
+				.setParameter("contextId", contextId)
+				.list();
 
 			List<Topic> topicList = new ArrayList<>();
-			List resultSet = (List) getHibernateTemplate().execute(hcb);
 			for (Object objResultArray : resultSet)
 			{
 				Object[] resultArray = (Object[]) objResultArray;
@@ -1678,41 +2004,72 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}      
 
-			HibernateCallback<Number> hcb = session -> (Number) session
-				.getNamedQuery("findNumRoleWithPermissionInTopic")
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<DBMembershipItemImpl> membership = cq.from(DBMembershipItemImpl.class);
+
+			cq.select(cb.count(membership));
+				cq.where(
+					cb.equal(membership.get("topic").get("id"), cb.parameter(Long.class, "id")),
+					cb.equal(membership.get("name"), cb.parameter(String.class, "roleName")),
+					cb.equal(membership.get("permissionLevelName"), cb.parameter(String.class, "permissionLevelName"))
+				);
+
+			Long count = session.createQuery(cq)
 				.setParameter("id", topicId)
 				.setParameter("roleName", roleName)
 				.setParameter("permissionLevelName", permissionName)
 				.uniqueResult();
 
-			Number countRows = getHibernateTemplate().execute(hcb);
-			return countRows.intValue() > 0;
+			return count != null && count > 0;
 		}
 		
 		public List<String> getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
 			if (topicId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<List<String>> hcb = session -> (List<String>) session
-				.getNamedQuery("findAllowedGroupInTopic")
-				.setParameter("id", topicId)
-				.setParameter("permissionLevelName", permissionName)
-                .setCacheable(true)
-				.list();
-			return getHibernateTemplate().execute(hcb);
+
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<String> cq = cb.createQuery(String.class);
+			Root<DBMembershipItemImpl> membership = cq.from(DBMembershipItemImpl.class);
+
+			cq.select(membership.get("name"));
+			cq.where(
+				cb.equal(membership.get("topic").get("id"), cb.parameter(Long.class, "id")),
+				cb.equal(membership.get("type"), 3),
+				cb.equal(membership.get("permissionLevelName"), cb.parameter(String.class, "permissionLevelName"))
+			);
+
+			return session.createQuery(cq)
+					.setParameter("id", topicId)
+					.setParameter("permissionLevelName", permissionName)
+					.setCacheable(true)
+					.list();
 		}
 
 		public List<String> getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
 			if (forumId == null) {
 				throw new IllegalArgumentException("Null Argument");
 			}
-			HibernateCallback<List<String>> hcb = session -> (List<String>) session
-				.getNamedQuery("findAllowedGroupInForum")
+
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<String> cq = cb.createQuery(String.class);
+			Root<DBMembershipItemImpl> membership = cq.from(DBMembershipItemImpl.class);
+
+			cq.select(membership.get("name"));
+			cq.where(
+				cb.equal(membership.get("forum").get("id"), cb.parameter(Long.class, "id")),
+				cb.equal(membership.get("type"), 3),
+				cb.equal(membership.get("permissionLevelName"), cb.parameter(String.class, "permissionLevelName"))
+			);
+
+			return session.createQuery(cq)
 				.setParameter("id", forumId)
 				.setParameter("permissionLevelName", permissionName)
-                .setCacheable(true)
+				.setCacheable(true)
 				.list();
-
-			return getHibernateTemplate().execute(hcb);
 		}
 }

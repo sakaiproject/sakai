@@ -89,7 +89,7 @@
 
   <query name="findPrivateTopicsByForumId">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl
-             where pf_surrogateKey = :id
+             where privateForum.id = :id
     ]]>
   </query>
 

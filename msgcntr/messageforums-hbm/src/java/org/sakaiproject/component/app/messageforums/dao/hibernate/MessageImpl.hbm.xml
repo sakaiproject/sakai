@@ -618,7 +618,7 @@
                messages.draft = false and
                messages.deleted = false and
               membershipItem.name in ( :roleList ) and
-               membershipItem.permissionLevel = pl.id  and
+               membershipItem.permissionLevel.id = pl.id  and
               (pl.read = true and 
               (pl.moderatePostings = true or 
                messages.approved = true or
@@ -676,7 +676,7 @@
                f.draft = false and
                topic.draft = false and
              ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-               membershipItem.permissionLevel = pl.id)  and
+               membershipItem.permissionLevel.id = pl.id)  and
               (pl.read = true and 
               (pl.moderatePostings = true or 
                messages.approved = true or
@@ -703,7 +703,7 @@
                f.draft = false and
                topic.draft = false and
              ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-               membershipItem.permissionLevel = pl.id)  and
+               membershipItem.permissionLevel.id = pl.id)  and
               (pl.read = true and
               (pl.moderatePostings = true or 
                messages.approved = true or
@@ -733,7 +733,7 @@
                f.draft = false and
                topic.draft = false and
              ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-               membershipItem.permissionLevel = pl.id)  and
+               membershipItem.permissionLevel.id = pl.id)  and
               (pl.read = true and
               (pl.moderatePostings = true or 
                messages.approved = true or
@@ -834,7 +834,7 @@
              membershipItem.name in ( :membershipList ) and
              message.deleted = false and
              message.approved is null and
-             membershipItem.permissionLevel = pl.id and
+             membershipItem.permissionLevel.id = pl.id and
              pl.moderatePostings = true
     ]]>    
   </query>
@@ -892,7 +892,7 @@
     				 org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as mhist      
              where mhist.fromTopicId = :topicId and
              message.id = mhist.messageId and
-             mhist.reminder = 1
+             mhist.reminder = true
     ]]>    
   </query>  
   
