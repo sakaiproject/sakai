@@ -6,6 +6,7 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -76,7 +77,46 @@ public class WidgetMetricSupport {
 		return total == 0 ? 0 : Util.round(100 * partial / (double) total, 0);
 	}
 
+	String formatNumber(double value) {
+		NumberFormat numberFormat = NumberFormat.getNumberInstance(currentLocale());
+		if (value == Math.rint(value)) {
+			numberFormat.setMaximumFractionDigits(0);
+		} else {
+			numberFormat.setMaximumFractionDigits(1);
+			numberFormat.setMinimumFractionDigits(1);
+		}
+		return numberFormat.format(value);
+	}
+
+	String formatPercent(double value) {
+		return formatNumber(value) + "%";
+	}
+
+	Double parseNumber(String value) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
+		String trimmed = value.trim();
+		try {
+			return Double.valueOf(NumberFormat.getNumberInstance(currentLocale()).parse(trimmed).doubleValue());
+		} catch (ParseException e) {
+			try {
+				return Double.valueOf(trimmed.replace(',', '.'));
+			} catch (NumberFormatException nfe) {
+				return null;
+			}
+		}
+	}
+
 	String msToString(long ms) {
+		return formatDuration(ms, false);
+	}
+
+	String msToDelayString(long ms) {
+		return formatDuration(ms, true);
+	}
+
+	private String formatDuration(long ms, boolean compactWhenDays) {
 		long safeMs = Math.max(0L, ms);
 		long totalSecs = safeMs / 1000;
 		long hours = totalSecs / 3600;
@@ -86,10 +126,17 @@ public class WidgetMetricSupport {
 		String hoursAbbr = context.message("hours_abbr");
 		String minsAbbr = context.message("minutes_abbr");
 		String secsAbbr = context.message("seconds_abbr");
-		List<String> parts = new ArrayList<>();
-		if (hours >= 48) {
+		List<String> parts = new ArrayList<String>();
+		long dayThresholdHours = compactWhenDays ? 24L : 48L;
+		if (hours >= dayThresholdHours) {
 			parts.add((hours / 24) + " " + daysAbbr);
 			hours = hours % 24;
+			if (compactWhenDays) {
+				if (hours > 0) {
+					parts.add(hours + " " + hoursAbbr);
+				}
+				return String.join(" ", parts);
+			}
 		}
 		if (hours > 0) {
 			parts.add(hours + " " + hoursAbbr);

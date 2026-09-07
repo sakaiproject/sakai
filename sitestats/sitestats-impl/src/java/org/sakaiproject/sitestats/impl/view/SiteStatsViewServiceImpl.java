@@ -20,6 +20,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
@@ -58,9 +59,21 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 	@Override
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId) {
+		return getWidgetMetrics(siteId, widgetId, null);
+	}
+
+	@Override
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId, SiteStatsReportRequest request) {
 		siteStatsReportAccess.assertCanViewWidget(siteId, widgetId);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
-		return siteStatsWidgetCatalog.getWidgetMetrics(siteId, widgetId, userId);
+		return siteStatsWidgetCatalog.getWidgetMetrics(siteId, widgetId, userId, request);
+	}
+
+	@Override
+	public List<SiteStatsChart> getWidgetHighlights(String siteId, String widgetId, SiteStatsReportRequest request) {
+		siteStatsReportAccess.assertCanViewWidget(siteId, widgetId);
+		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
+		return siteStatsWidgetCatalog.getWidgetHighlights(siteId, widgetId, userId, request);
 	}
 
 	@Override

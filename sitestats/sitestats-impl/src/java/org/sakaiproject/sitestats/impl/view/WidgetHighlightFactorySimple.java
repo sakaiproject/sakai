@@ -17,10 +17,9 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import org.sakaiproject.sitestats.api.view.SiteStatsChart;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
 @FunctionalInterface
-interface WidgetHighlightFactory {
+interface WidgetHighlightFactorySimple {
 
-	SiteStatsChart build(String siteId, String userId, SiteStatsReportRequest request);
+	SiteStatsChart build(String siteId, String userId);
 }

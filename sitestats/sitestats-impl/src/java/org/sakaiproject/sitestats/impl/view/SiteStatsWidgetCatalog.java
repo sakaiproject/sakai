@@ -60,11 +60,25 @@ public class SiteStatsWidgetCatalog {
 	}
 
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId, String userId) {
+		return getWidgetMetrics(siteId, widgetId, userId, null);
+	}
+
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId, String userId,
+			SiteStatsReportRequest request) {
 		WidgetSpec spec = widgetSpecs.get(widgetId);
 		if (spec == null || !spec.isAvailable()) {
 			throw new IllegalArgumentException("Unknown SiteStats widget: " + widgetId);
 		}
-		return toMetrics(siteId, spec, userId, true);
+		return toMetrics(siteId, spec, userId, true, request);
+	}
+
+	public List<SiteStatsChart> getWidgetHighlights(String siteId, String widgetId, String userId,
+			SiteStatsReportRequest request) {
+		WidgetSpec spec = widgetSpecs.get(widgetId);
+		if (spec == null || !spec.isAvailable()) {
+			throw new IllegalArgumentException("Unknown SiteStats widget: " + widgetId);
+		}
+		return toHighlights(siteId, spec, userId, request);
 	}
 
 	public SiteStatsWidgetMetric getWidgetMetric(String siteId, String widgetId, String metricId, String userId) {
@@ -181,8 +195,10 @@ public class SiteStatsWidgetCatalog {
 			tabs.add(toTab(siteId, tab));
 		}
 		widget.setTabs(tabs);
-		widget.setMetrics(toMetrics(siteId, spec, userId, false));
-		widget.setHighlights(toHighlights(siteId, spec, userId));
+		widget.setMetrics(toMetrics(siteId, spec, userId, false, null));
+		widget.setHighlights(toHighlights(siteId, spec, userId, null));
+		widget.setToolFilters(support.getFilterCatalog().toolFilters(siteId, spec.getId(), spec.getToolFilterIds()));
+		widget.setHighlightsConfigured(spec.getHighlights() != null && !spec.getHighlights().isEmpty());
 		return widget;
 	}
 
@@ -194,21 +210,22 @@ public class SiteStatsWidgetCatalog {
 		if (widget != null) {
 			tab.setWidgetTitle(support.message(widget.getTitleKey()));
 		}
-		tab.setFilters(support.getFilterCatalog().filters(siteId, spec.getFilterIds()));
+		tab.setFilters(support.getFilterCatalog().filters(siteId, spec.getWidgetId(), spec.getFilterIds()));
 		return tab;
 	}
 
-	private List<SiteStatsWidgetMetric> toMetrics(String siteId, WidgetSpec spec, String userId, boolean includeValues) {
+	private List<SiteStatsWidgetMetric> toMetrics(String siteId, WidgetSpec spec, String userId, boolean includeValues,
+			SiteStatsReportRequest request) {
 		List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
 		for (WidgetMetricSpec metric : spec.getMetrics()) {
 			if (metric.isAvailable()) {
-				metrics.add(toMetric(siteId, spec, metric, userId, includeValues));
+				metrics.add(toMetric(siteId, spec, metric, userId, includeValues, request));
 			}
 		}
 		return metrics;
 	}
 
-	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId) {
+	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId, SiteStatsReportRequest request) {
 		List<SiteStatsChart> charts = new ArrayList<SiteStatsChart>();
 		if (spec.getHighlights() == null) {
 			return charts;
@@ -217,7 +234,7 @@ public class SiteStatsWidgetCatalog {
 			if (!highlight.isAvailable() || highlight.getFactory() == null) {
 				continue;
 			}
-			SiteStatsChart chart = highlight.getFactory().build(siteId, userId);
+			SiteStatsChart chart = highlight.getFactory().build(siteId, userId, SiteStatsReportRequest.normalized(request));
 			if (chart != null) {
 				charts.add(chart);
 			}
@@ -225,12 +242,19 @@ public class SiteStatsWidgetCatalog {
 		return charts;
 	}
 
-	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId, boolean includeValues) {
+	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId,
+			boolean includeValues) {
+		return toMetric(siteId, spec, metric, userId, includeValues, null);
+	}
+
+	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId,
+			boolean includeValues, SiteStatsReportRequest request) {
 		SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.getId(), support.message(metric.getLabelKey()),
 				metric.getAudience(), metric.isReportable());
 		viewMetric.setWidgetTitle(support.message(spec.getTitleKey()));
 		if (includeValues && metric.getValueFactory() != null) {
-			WidgetMetricValue value = metric.getValueFactory().getValue(siteId, userId);
+			WidgetMetricValue value = metric.getValueFactory().getValue(siteId, userId,
+					SiteStatsReportRequest.normalized(request));
 			SiteStatsWidgetMetricSnapshot snapshot = new SiteStatsWidgetMetricSnapshot();
 			snapshot.setPrimary(value.getPrimary());
 			snapshot.setPercentage(value.getPercentage());

@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
@@ -102,6 +103,8 @@ public class SiteStatsController extends AbstractSakaiApiController {
 			@RequestParam(required = false) String resourceAction,
 			@RequestParam(required = false) String lessonAction,
 			@RequestParam(required = false) String itemType,
+			@RequestParam(required = false) String group,
+			@RequestParam(required = false) String item,
 			@RequestParam(required = false) Double threshold) {
 		checkSakaiSession();
 		checkSite(siteId);
@@ -114,6 +117,8 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		request.setResourceAction(resourceAction);
 		request.setLessonAction(lessonAction);
 		request.setItemType(itemType);
+		request.setGroup(group);
+		request.setItem(item);
 		request.setThreshold(threshold);
 		try {
 			return siteStatsViewService.getWidgetReport(siteId, widgetId, tabId, request);
@@ -125,11 +130,30 @@ public class SiteStatsController extends AbstractSakaiApiController {
 	}
 
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable String siteId, @PathVariable String widgetId) {
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable String siteId, @PathVariable String widgetId,
+			@RequestParam(required = false) String itemType) {
 		checkSakaiSession();
 		checkSite(siteId);
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setItemType(itemType);
 		try {
-			return siteStatsViewService.getWidgetMetrics(siteId, widgetId);
+			return siteStatsViewService.getWidgetMetrics(siteId, widgetId, request);
+		} catch (SecurityException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+		}
+	}
+
+	@GetMapping(value = SiteStatsApiUrls.WIDGET_HIGHLIGHTS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<SiteStatsChart> getWidgetHighlights(@PathVariable String siteId, @PathVariable String widgetId,
+			@RequestParam(required = false) String itemType) {
+		checkSakaiSession();
+		checkSite(siteId);
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setItemType(itemType);
+		try {
+			return siteStatsViewService.getWidgetHighlights(siteId, widgetId, request);
 		} catch (SecurityException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 		} catch (IllegalArgumentException e) {

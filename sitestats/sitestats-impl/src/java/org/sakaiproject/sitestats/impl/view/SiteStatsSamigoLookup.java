@@ -16,11 +16,11 @@
 
 package org.sakaiproject.sitestats.impl.view;
 
-import org.sakaiproject.sitestats.api.view.SiteStatsChart;
-import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import java.util.List;
 
-@FunctionalInterface
-interface WidgetHighlightFactory {
+public interface SiteStatsSamigoLookup {
 
-	SiteStatsChart build(String siteId, String userId, SiteStatsReportRequest request);
+	List<SiteStatsSamigoQuiz> publishedQuizzes(String siteId);
+
+	List<SiteStatsSamigoAttempt> submittedAttempts(String publishedAssessmentId);
 }
