@@ -100,7 +100,7 @@ class ForumsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
                 .setName("Start a New Conversation").setExact(true)).click();
         page.locator("input[id$=df_compose_title]").fill(PENDING_TITLE);
-        sakai.typeCkEditor("dfCompose:df_compose_body", "<p>Please review this pending message.</p>");
+        sakai.typeCkEditor("dfCompose:df_compose_body_inputRichText", "<p>Please review this pending message.</p>");
         page.locator("input[id$=post]").click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(PENDING_TITLE).setExact(true)).first().click();
         assertThat(page.locator(".messagePending").first()).isVisible();
